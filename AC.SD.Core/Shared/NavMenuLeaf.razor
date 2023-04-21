@@ -1,0 +1,42 @@
+﻿@using AC.SD.Core.Configuration
+@inject DemoConfiguration Configuration
+
+@if(Page.Pages.Length > 0) {
+    <DxTreeViewNode Text="@Page.Title" CssClass="@GetItemCssClass(Page)" NavigateUrl="@Page.Url" BadgeText="@GetItemBadgeText(Page)">
+        <Nodes>
+            @foreach(var childPage in Page.Pages) {
+                <NavMenuLeaf Page="@childPage"></NavMenuLeaf>
+            }
+        </Nodes>
+    </DxTreeViewNode>
+} else {
+    <DxTreeViewNode Text="@Page.Title" CssClass="@GetItemCssClass(Page)" NavigateUrl="@Page.Url" BadgeText="@GetItemBadgeText(Page)">
+    </DxTreeViewNode>
+}
+
+@code {
+    [Parameter]
+    public DemoPageBase Page { get; set; }
+
+    protected string GetItemBadgeText(DemoItem page) {
+        var status = page.GetStatus();
+        if(status == DemoItemStatus.Preview)
+            return "CTP";
+        if(status == DemoItemStatus.MaintenanceMode)
+            return "Maintenance";
+        if(status == DemoItemStatus.New)
+            return "New";
+        if(status == DemoItemStatus.Updated)
+            return "Upd";
+        return string.Empty;
+    }
+
+    protected string GetItemCssClass(DemoPageBase page) {
+        var status = page.GetStatus();
+        if(status == DemoItemStatus.Preview)
+            return "item-ctp";
+        if(status == DemoItemStatus.MaintenanceMode)
+            return "item-maintenance";
+        return "";
+    }
+}

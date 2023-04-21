@@ -1,0 +1,310 @@
+﻿
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject DemoConfiguration Configuration
+@inject DemoThemeService Themes
+
+<DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
+ 
+<div class="@GetDemoHeaderContainerCss()">
+    <nav class="demo-header p-0 navbar navbar-dark">
+        <DemoLayoutToggleButton @bind-Toggled="@LayoutToggled" />
+        <div class="logo-image">
+            <a href="https://www.crt-insights.com/" target="_blank" title="CRT Insights">
+                <span class="logo-img"></span>
+            </a>
+            @*<div class="logo-sep"></div>*@
+            @*<a href="" target="_blank" title="Shipping Document" >
+                <span class="logo-sec-img"></span>
+            </a>*@
+        </div>
+        <div class="demo-btn-container d-flex">
+           @* <DxButton NavigateUrl="https://go.devexpress.com/DevexpressDownload_UniversalTrial.aspx"
+                CssClass="download-btn"
+                IconCssClass="demo-download-icon"
+                Text="Free Trial"></DxButton>*@
+                
+            @*<DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()"
+                RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="demo-theme-icon"></DxButton>*@
+
+          @*  <div class="profile" id="profile">
+                <div class="profile-circle">VK</div>               
+            </div>*@
+
+            <div class="card w-100">
+    <div class="card-body p-0">
+        <DxMenu Orientation="Orientation.Horizontal"
+                DropDownActionMode="MenuDropDownActionMode.Click"
+                DisplayMode="MenuDisplayMode.Auto"        
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
+         
+            <Items>
+                <DxMenuItem CssClass="notoggle" Position="ItemPosition.End">
+                    <TextTemplate>
+                        <div class="menu-icon-user-profile menu-icon" />
+                    </TextTemplate>
+                    <SubMenuTemplate>
+                        <div class="w-100 user-profile">
+                            <div class="flex-column align-items-center justify-content-center">
+                                <div class="logo-container d-flex align-items-center justify-content-center">
+                                    <div class="menu-icon-user-profile menu-icon menu-icon-large" />
+                                </div>
+                                <div class="user-name-container bm-3 mb-2">
+                                    <div class="tm-8 text-center">User Name</div>
+                                    <div class="text-center">John Heart</div>
+                                </div>
+                                <div class="d-flex justify-content-center log-off-btn">
+                                    <DxButton Text="Log Off" RenderStyle="@ButtonRenderStyle.Secondary"></DxButton>
+                                </div>
+                            </div>
+                        </div>
+                    </SubMenuTemplate>
+                </DxMenuItem>
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+
+
+        </div>
+        <ThemeSwitcher @bind-Shown="@ThemeSwitcherShown" @bind-ThemeName="@ThemeName" />
+    </nav>
+</div>
+<div class="@GetDemoBreadcrumbsContainerCss()">
+    <div class="breadcrumb">
+        <div class="@GetDemoBreadcrumbsCss()">
+            <DemoBreadcrumbs></DemoBreadcrumbs>
+        </div>
+    </div>
+</div>
+<div class="@GetDemoContentContainerCss()" @ref="@contentContainerRef">
+    <div class="demo-content @LayoutStateCssClass">
+        <div class="sidebar">
+            <DemoSearchEditor @bind-SearchString="@SearchString" />
+            <DxScrollView ScriptLoaded="@ScrollViewScriptLoaded">
+                <DemoSearchResultList SearchString="@SearchString" SearchResults="@SearchResults" />
+                <NavMenuFactoryComponent />
+            </DxScrollView>
+            <div class="info-wrapper">
+                @*<div class="version">Version: @DemoVersion.Version</div>*@
+                <div class="copyright">
+                    <span>Copyright &copy; 2022-</span><span>@DateTimeNowYear</span>
+                    CRT Insights Inc
+                </div>
+            </div>
+        </div>
+        <div class="main">
+            <div class="content" @key="ShouldUseThemeNameKey() ? ThemeName : null">
+                <CascadingValue Value="@ScrollToTargetLocked" Name="ScrollToTargetLocked">
+                    <CascadingValue Value="@ThemeName" Name="ThemeName">
+                        @Body
+                    </CascadingValue>
+                </CascadingValue>
+            </div>
+            <div class="content-footer"></div>
+        </div>
+        @if(!_isDesktop) {
+            <DemoModalBackdrop Shown="@ModalBackgroundShown" ShownChanged="@ModalBackdropShownChanged" />
+        }
+    </div>
+</div>
+
+@code {
+    static readonly int DateTimeNowYear = DateTime.Now.Year;
+
+    string _themeName;
+    bool _layoutToggled;
+    bool _themeSwitcherShown;
+    bool _isDesktop = true;
+    string _searchString = "";
+    ElementReference contentContainerRef;
+
+    DemoScriptLoader pageHelper;
+
+    [Inject]
+    IDemoVersion DemoVersion { get; set; }
+    [Inject]
+    NavigationManager NavigationManager { get; set; }
+    [Inject]
+    IJSRuntime JsRuntime { get; set; }
+
+
+    protected string ThemeName {
+        get { return _themeName; }
+        set {
+            if(_themeName != value) {
+                _themeName = value;
+                Themes.SetActiveThemeByName(value);
+            }
+        }
+    }
+
+    protected override void OnInitialized() {
+        ThemeName = Themes.ActiveTheme.Name;
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    void TryRedirect(string url) {
+        if(url?.Length > NavigationManager.BaseUri?.Length && Configuration.Redirects.TryGetValue(url.Substring(NavigationManager.BaseUri.Length).ToLower(), out var uri)) {
+            NavigationManager.NavigateTo(uri, true);
+        };
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        TryRedirect(NavigationManager.Uri);
+        if(firstRender) {
+            await ScrollToMainTopIfNeeded(NavigationManager.Uri);
+
+            await pageHelper.InvokeVoidAsync("DemoPageHelper.demoMatchesQuery", "(min-width: 1200px)", DotNetObjectReference.Create(this));
+            await pageHelper.InvokeVoidAsync("DemoPageHelper.patchAppElement");
+        }
+        else {
+            await pageHelper.InvokeVoidAsync("DemoPageHelper.themes.setThemeName", DemoThemeService.ThemeCookieKey, ThemeName);
+
+            if(_isDesktop && SavedLayoutToggled != LayoutToggled)
+                await pageHelper.InvokeVoidAsync("DemoPageHelper.raiseWindowOnResize");
+        }
+        if(!ScrollToTargetLocked)
+            await ScrollToTargetIfNeeded(NavigationManager.Uri);
+        SavedLayoutToggled = LayoutToggled;
+        IsFirstTimeRendered = true;
+    }
+    async void OnLocationChanged(object sender, LocationChangedEventArgs args) {
+        TryRedirect(args.Location);
+        ThemeSwitcherShown = false;
+        if(!_isDesktop) {
+            LayoutToggled = false;
+        }
+        await ScrollToMainTopIfNeeded(args.Location);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public async Task OnQueryChanged(bool isDesktop) {
+        if(_isDesktop != isDesktop) {
+            _isDesktop = isDesktop;
+            LayoutToggled = false;
+            ThemeSwitcherShown = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    bool LayoutToggled {
+        get { return _layoutToggled; }
+        set {
+            if(_layoutToggled != value) {
+                _layoutToggled = value;
+                if(!_isDesktop && _layoutToggled)
+                    ThemeSwitcherShown = false;
+            }
+        }
+    }
+    string LayoutStateCssClass { get { return IsFirstTimeRendered ? ((_isDesktop && LayoutToggled || !_isDesktop && !LayoutToggled) ? "sidebar-hidden" : "sidebar-shown") : ""; } }
+    bool SavedLayoutToggled { get; set; }
+    bool ModalBackgroundShown { get { return !_isDesktop && (ThemeSwitcherShown || LayoutToggled); } }
+    bool IsFirstTimeRendered { get; set; }
+
+    bool ThemeSwitcherShown {
+        get { return _themeSwitcherShown; }
+        set {
+            if(_themeSwitcherShown != value) {
+                _themeSwitcherShown = value;
+                if(!_isDesktop && _themeSwitcherShown)
+                    LayoutToggled = false;
+            }
+        }
+    }
+
+    void ToggleThemeSwitcherPanel() {
+        ThemeSwitcherShown = !ThemeSwitcherShown;
+    }
+
+    bool ShouldUseThemeNameKey() {
+        var page = Configuration.GetDemoPageByUrl(NavigationManager, NavigationManager.Uri);
+        while(page != null) {
+            if(page.ReCreateOnThemeChange.HasValue)
+                return page.ReCreateOnThemeChange.Value;
+            page = page.ParentPage;
+        }
+        return true;
+    }
+
+    void ModalBackdropShownChanged(bool shown) {
+        if(!shown) {
+            ThemeSwitcherShown = false;
+            LayoutToggled = false;
+        }
+    }
+
+
+    public string SearchString {
+        get { return _searchString; }
+        set {
+            if(_searchString != value) {
+                _searchString = value;
+                InvokeAsync(UpdateSearchResults);
+            }
+        }
+    }
+    public List<DemoSearchResult> SearchResults { get; set; }
+    async Task UpdateSearchResults() {
+        var searchResults = (SearchString != null && SearchString.Length > 2) ? Configuration.DoSearch(SearchString) : null;
+        if(SearchResults != searchResults) {
+            SearchResults = searchResults;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    bool HasAnchorInUrl(string uri) {
+        return !string.IsNullOrEmpty(NavigationManager.ToAbsoluteUri(uri).Fragment.Replace("#", ""));
+    }
+    async Task ScrollToMainTopIfNeeded(string uri) {
+        if(!HasAnchorInUrl(uri))
+            await pageHelper.InvokeVoidAsync("DemoPageHelper.scroll.toElementTop", contentContainerRef);
+    }
+
+    bool ScrollToTargetLocked { get; set; } = true;
+    async Task ScrollViewScriptLoaded() {
+        ScrollToTargetLocked = false;
+        await ScrollToTargetIfNeeded(NavigationManager.Uri);
+    }
+    async Task ScrollToTargetIfNeeded(string uri) {
+        if(HasAnchorInUrl(uri))
+            await pageHelper.InvokeVoidAsync("DemoPageHelper.scroll.ensureNavigationTargetIsVisible");
+    }
+    string GetDemoContentContainerCss() {
+        List<string> cssClasses = new List<string>();
+        cssClasses.Add("demo-content-container");
+#if !VISUALTESTS
+        if(IsFirstTimeRendered)
+            cssClasses.Add("animated");
+#endif
+        cssClasses.Add("theme-" + ThemeName.Replace(" ", "-"));
+        return string.Join(" ", cssClasses);
+    }
+    string GetDemoBreadcrumbsContainerCss() {
+        List<string> cssClasses = new List<string>();
+        cssClasses.Add("demo-breadcrumbs-container");
+        cssClasses.Add("theme-" + ThemeName.Replace(" ", "-"));
+        return string.Join(" ", cssClasses);
+    }
+    string GetDemoBreadcrumbsCss() {
+        List<string> cssClasses = new List<string>();
+        cssClasses.Add("demo-breadcrumbs");
+        cssClasses.Add(LayoutStateCssClass);
+        return string.Join(" ", cssClasses);
+    }
+    string GetDemoHeaderContainerCss() {
+        List<string> cssClasses = new List<string>();
+        cssClasses.Add("demo-header-container");
+        cssClasses.Add("theme-" + ThemeName.Replace(" ", "-"));
+        return string.Join(" ", cssClasses);
+    }
+    string GetThemeSwitcherCssClass() {
+        return "theme-settings " + ThemeSwitcherShown;
+    }
+    public void Dispose() {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

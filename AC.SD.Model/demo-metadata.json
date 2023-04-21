@@ -1,0 +1,227 @@
+{
+  "TitleFormat": "APPCENTRIC: {0} | Unisteel",
+  "AssemblyName": "AC.SD.Core",
+  "Products": [
+    {
+      "Title": "Settings",
+      "PageUri": "Settings",
+      "IconName": "grid",
+      "Description": "Application Settings."
+    },
+    {
+      "Title": "Masters",
+      "PageUri": "Master",
+      "IconName": "charts",
+      "Description": "Application masters to manage inventory, customers,vendors,invoices,etc.."
+    },
+    {
+      "Title": "Sales",
+      "PageUri": "Sales",
+      "IconName": "scheduler",
+      "Description": "Document module to create invoice,picklist,delivery orders,etc.."
+    },
+    {
+      "Title": "Reports",
+      "PageUri": "Reports",
+      "IconName": "editors",
+      "Description": "Print sales,Delivery,Picklist reports."
+    },
+    {
+      "Title": "Generic Inquiry",
+      "PageUri": "Inquiry",
+      "IconName": "navigation",
+      "Description": "Print sales,Delivery,Picklist reports.."
+    } 
+  ],
+  "RootPages": [
+    {
+      "Url": "/",
+      "Title": "Dashboard",
+
+      "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7",
+      "Keywords": "Blazor, components, overview, getting started, devexpress, demo",
+      "Description": "DevExpress UI for Blazor ships with native user interface components (including a Data Grid, Pivot Grid, Charts and Scheduler) so you can design rich user experiences with both Blazor."
+
+
+    },
+    {
+      "Id": "Settings",
+      "Title": "Settings",
+      "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7",
+      "Pages": [
+        {
+          "Id": "Setting",
+          "Url": "Settings",
+          "Title": "Setting",
+          "Keywords": "Blazor, components, data grid, datagrid, grid, data, devexpress, demo, sample, example",
+          "Description": "A fast and responsive grid component with unmatched data shaping capabilities.",
+          "DocUrl": "DevExpress.Blazor.DxGrid"
+
+        }
+
+
+      ]
+    },
+    {
+      "Id": "Users",
+      "Title": "Users",
+      "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7:a66317f9-3abf-4178-abfc-336c43eb98af",
+      "Pages": [
+        {
+          "Id": "User",
+          "Url": "Users",
+          "Title": "Users",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, sorting, grouping, sub-totals, grand-totals, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid summarizes data from the underlying data source and presents the results in cross-tabulated format. ",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1"
+
+        },
+        {
+          "Id": "Roles",
+          "Url": "Roles",
+          "Title": "Roles",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, customization, cell templates, formatting, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid allows you to use native Razor markup to define custom templates for grid fields.",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#templates"
+
+        },
+        {
+          "Id": "Role Permission",
+          "Url": "Permission",
+          "Title": "Role Permission",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
+
+        }
+
+      ]
+    },
+
+    {
+      "Id": "Masters",
+      "Title": "Masters",
+      "IsMaintenanceMode": false,
+      "MaintenanceModeMessage": "The Data Grid was moved to maintenance support mode. No new features/capabilities will be added to this component. We recommend that you [migrate](https://docs.devexpress.com/Blazor/403162/grid/migrate-from-data-grid-to-grid) to the [Grid](Grid) component.",
+      "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7:5a1ee13f-3d06-4eb2-8d64-b24f28bae08d",
+      "Pages": [
+        {
+          "Id": "Inventory",
+          "Url": "StockItems",
+          "Title": "Inventory",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, sorting, grouping, sub-totals, grand-totals, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid summarizes data from the underlying data source and presents the results in cross-tabulated format. ",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1"
+
+        },
+        {
+          "Id": "Vendor",
+          "Url": "Vendors",
+          "Title": "Vendor",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, customization, cell templates, formatting, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid allows you to use native Razor markup to define custom templates for grid fields.",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#templates"
+
+        },
+        {
+          "Id": "Customer",
+          "Url": "Customers",
+          "Title": "Customer",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
+
+        }
+
+      ]
+    },
+
+    {
+      "Id": "Document",
+      "Title": "Sales",
+      "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7:a66317f9-3abf-4178-abfc-336c43eb98af",
+      "Pages": [
+        {
+          "Id": "SalesInvoice",
+          "Url": "Sales",
+          "Title": "Sales Invoice",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, sorting, grouping, sub-totals, grand-totals, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid summarizes data from the underlying data source and presents the results in cross-tabulated format. ",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1"
+
+        },
+        {
+          "Id": "Delivery",
+          "Url": "Delivery",
+          "Title": "Delivery Order",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, customization, cell templates, formatting, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid allows you to use native Razor markup to define custom templates for grid fields.",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#templates"
+
+        },
+        {
+          "Id": "Packing",
+          "Url": "Packing",
+          "Title": "Packing List",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
+
+        }
+
+      ]
+    },
+    {
+      "Id": "Reports",
+      "Title": "Reports",
+      "IsMaintenanceMode": false,
+      "MaintenanceModeMessage": "The Data Grid was moved to maintenance support mode. No new features/capabilities will be added to this component. We recommend that you [migrate](https://docs.devexpress.com/Blazor/403162/grid/migrate-from-data-grid-to-grid) to the [Grid](Grid) component.",
+      "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7:5a1ee13f-3d06-4eb2-8d64-b24f28bae08d",
+      "Pages": [
+
+        {
+          "Id": "Sales Invoice",
+          "Url": "SalesInvoice",
+          "Title": "Sales Invoice",
+          "Keywords": "blazor, components, data grid, datagrid, grid, conditional formating, conditional data highlighting, alternative row, row style, row color, column style, cell style, custom style, html decoration, html row decoration, html cell decoration, html attributes, devexpress, demo, sample, example",
+          "Description": "HTML decoration in DevExpress Data Grid for Blazor allows you to color data grid cells, rows and columns according to their values.",
+          "DocUrl": "DevExpress.Blazor.DxDataGrid-1.HtmlRowDecoration"
+
+        },
+        {
+          "Id": "DeliveryReport",
+          "Url": "DeliveryReport",
+          "Title": "Delivery Report",
+          "Keywords": "blazor, components, data grid, datagrid, grid, conditional formating, conditional data highlighting, alternative row, row style, row color, column style, cell style, custom style, html decoration, html row decoration, html cell decoration, html attributes, devexpress, demo, sample, example",
+          "Description": "HTML decoration in DevExpress Data Grid for Blazor allows you to color data grid cells, rows and columns according to their values.",
+          "DocUrl": "DevExpress.Blazor.DxDataGrid-1.HtmlRowDecoration"
+
+        },
+        {
+          "Id": "PackingReport",
+          "Url": "PackingReport",
+          "Title": "Packing Report",
+          "Keywords": "blazor, components, data grid, datagrid, grid, conditional formating, conditional data highlighting, alternative row, row style, row color, column style, cell style, custom style, html decoration, html row decoration, html cell decoration, html attributes, devexpress, demo, sample, example",
+          "Description": "HTML decoration in DevExpress Data Grid for Blazor allows you to color data grid cells, rows and columns according to their values.",
+          "DocUrl": "DevExpress.Blazor.DxDataGrid-1.HtmlRowDecoration"
+
+        }
+      ]
+    }
+
+  ],
+  "Search": {
+    "Synonyms": {
+      "Groups": [
+        "datasource, databinding, binding, database, databind",
+        "grid, gridview, gridviewcontrol, aspxgridview",
+        "eXpress, Persistent, xpo"
+      ]
+    },
+    "Exclusions": {
+      "Words": "devexpress, dx, asp, devex, asp.net, demo, demos, web",
+      "Prefixes": "aspx, asp, xtra, client, dx, web",
+      "Postfixes": "s, ing, control, e, ies"
+    }
+  }
+}

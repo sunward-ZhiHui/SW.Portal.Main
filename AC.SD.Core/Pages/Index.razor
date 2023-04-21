@@ -1,0 +1,22 @@
+﻿@page "/"
+@layout MainLayout
+
+@using AC.SD.Core.Configuration
+@inject DemoConfiguration Configuration
+@inject DemoThemeService Themes
+@inject NavigationManager NavigationManager
+
+ 
+
+<div class="demo-products demo-products-description theme-@Themes.ActiveTheme.Name.Replace(" ", "-")">
+    <h1 class="mb-4">Dashboard</h1>
+    <p class="mb-5">The <a href="https://www.devexpress.com/blazor/" target="_blank">Dashboard</a>  </p>
+
+    
+</div>
+
+ 
+
+@code {
+     
+}

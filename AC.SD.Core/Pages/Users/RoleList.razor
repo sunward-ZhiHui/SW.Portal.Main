@@ -1,0 +1,63 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+
+@page "/Roles"
+
+<DxGrid Data="@_roles" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"        
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360">
+    <Columns>
+        <DxGridDataColumn FieldName="RoleID" DisplayFormat="D" MinWidth="50" />
+        <DxGridDataColumn FieldName="RoleName" Width="30%" />
+        <DxGridDataColumn FieldName="RoleDescription" Width="50%" />
+
+    </Columns>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="RoleName" />
+    </TotalSummary>
+</DxGrid>
+
+@code {
+    private List<ApplicationRole> _roles;
+    IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var model = await Mediator.Send(new GetAllRoleQuery());
+        _roles = model;
+    }
+
+    async Task ExportXlsx_Click()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    async Task ExportXls_Click()
+    {
+        await Grid.ExportToXlsAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+}

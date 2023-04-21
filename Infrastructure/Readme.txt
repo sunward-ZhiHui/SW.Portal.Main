@@ -1,0 +1,1 @@
+﻿Scaffold-DbContext "Server=MYJB140;Database=ACTInventoryDB;Encrypt=False;Trusted_Connection=True;TrustServerCertificate=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Persistence -force

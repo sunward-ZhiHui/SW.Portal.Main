@@ -1,0 +1,72 @@
+#themesMenu a.blazing-berry:before {
+    background: #5c2d91;
+}
+
+#themesMenu a.blazing-dark:before {
+    background: #46444a;
+}
+
+#themesMenu a.office-white:before {
+    background: #fe7109;
+}
+
+#themesMenu a.purple:before {
+    background: #7989ff;
+}
+
+
+#themesMenu a.default:before {
+    background: #007bff;
+}
+
+#themesMenu a.cerulean:before {
+    background: #2fa4e7;
+}
+
+#themesMenu a.cyborg:before {
+    background: #060606;
+}
+
+#themesMenu a.flatly:before {
+    background: #dce4ec;
+}
+
+#themesMenu a.journal:before {
+    background: #eb6864;
+}
+
+#themesMenu a.litera:before {
+    background: #4582ec;
+}
+
+#themesMenu a.lumen:before {
+    background: #158cba;
+}
+
+#themesMenu a.lux:before {
+    background: #1a1a1a;
+}
+
+#themesMenu a.pulse:before {
+    background: #593196;
+}
+
+#themesMenu a.simplex:before {
+    background: #d9230f;
+}
+
+#themesMenu a.solar:before {
+    background: #b58900;
+}
+
+#themesMenu a.superhero:before {
+    background: #df691a;
+}
+
+#themesMenu a.united:before {
+    background: #e95420;
+}
+
+#themesMenu a.yeti:before {
+    background: #008cba;
+}

@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <OutputType>Library</OutputType>
+    <AssemblyName>AC.SD.Core</AssemblyName>
+    <RootNamespace>AC.SD.Core</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="DataProviders\**" />
+    <Compile Remove="wwwroot1\**" />
+    <Content Remove="DataProviders\**" />
+    <Content Remove="wwwroot1\**" />
+    <EmbeddedResource Remove="DataProviders\**" />
+    <EmbeddedResource Remove="wwwroot1\**" />
+    <None Remove="DataProviders\**" />
+    <None Remove="wwwroot1\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="DocumentMetadata\DocumentMetadata.Wasm.cs" />
+    <Compile Remove="Services\ContosoRetailDataService.cs" />
+    <Compile Remove="Services\ContosoRetailDataService.Sales.cs" />
+    <Compile Remove="Services\IssuesDataService.cs" />
+    <Compile Remove="Services\IssuesDataService.Issues.cs" />
+    <Compile Remove="Services\IssuesDataService.Projects.cs" />
+    <Compile Remove="Services\IssuesDataService.Users.cs" />
+    <Compile Remove="Services\IStockQuoteService.cs" />
+    <Compile Remove="Services\NwindDataService.Categories.cs" />
+    <Compile Remove="Services\NwindDataService.cs" />
+    <Compile Remove="Services\NwindDataService.Customers.cs" />
+    <Compile Remove="Services\NwindDataService.Employees.cs" />
+    <Compile Remove="Services\NwindDataService.Employees.Editable.cs" />
+    <Compile Remove="Services\NwindDataService.Invoices.cs" />
+    <Compile Remove="Services\NwindDataService.OrderDetails.cs" />
+    <Compile Remove="Services\NwindDataService.Orders.cs" />
+    <Compile Remove="Services\NwindDataService.Products.cs" />
+    <Compile Remove="Services\NwindDataService.Shippers.cs" />
+    <Compile Remove="Services\NwindDataService.Suppliers.cs" />
+    <Compile Remove="Services\NwindDataService.Suppliers.Editable.cs" />
+    <Compile Remove="Services\RentInfoDataService.AreaRentInfo.cs" />
+    <Compile Remove="Services\RentInfoDataService.cs" />
+    <Compile Remove="Services\ReportFactory.cs" />
+    <Compile Remove="Services\ReportingCustomConfigurationProvider.cs" />
+    <Compile Remove="Services\StockQuoteService.cs" />
+    <Compile Remove="Services\WeatherForecastService.cs" />
+    <Compile Remove="Services\WeatherForecastService.Editable.cs" />
+    <Compile Remove="Services\WorldcitiesDataService.Cities.cs" />
+    <Compile Remove="Services\WorldcitiesDataService.Countries.cs" />
+    <Compile Remove="Services\WorldcitiesDataService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DataProviders\IDataProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DevExpress.Blazor" Version="22.2.4" />
+    <PackageReference Include="DevExpress.Blazor.Server.WebAssembly" Version="22.2.4" />
+    <PackageReference Include="DevExpress.Blazor.RichEdit" Version="22.2.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.14" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AC.SD.Model\AC.SD.Model.csproj" />
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

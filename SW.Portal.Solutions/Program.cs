@@ -36,7 +36,8 @@ public class Program
         {
             services.AddOptions();
             services.AddHttpContextAccessor();
-         
+            services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
+
             services.AddSingleton<DemoConfiguration>();
             services.AddScoped<DemoThemeService>();
             services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();

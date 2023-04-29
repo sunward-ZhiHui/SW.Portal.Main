@@ -1,0 +1,155 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@page "/Division"
+
+<DxGrid @ref="Grid"
+        Data="_divisions"
+        KeyFieldName="DivisionID"
+        EditModelSaving="Grid_EditModelSaving"
+        DataItemDeleting="Grid_DataItemDeleting"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360">
+    <Columns>
+        
+        <DxGridDataColumn FieldName="PlantDescription" Caption="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="Name" MinWidth="80" />
+        <DxGridDataColumn FieldName="Code" MinWidth="80" />
+        <DxGridDataColumn FieldName="Description" MinWidth="80" />
+        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+        <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
+        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
+        <DxGridCommandColumn Width="160px" />
+        @*<DxGridDataColumn FieldName="PlantID" AllowSort="false" Width="90px" MinWidth="100" TextAlignment="GridTextAlignment.Center">
+        <CellDisplayTemplate><button class="btn btn-link grid-btn-link" @onclick="() => ShowDetails((int)context.Value)">Edit</button></CellDisplayTemplate>
+        </DxGridDataColumn>*@
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var plant = (ViewDivision)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Description"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@plant.CompanyId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Name" ColSpanMd="6">
+                <DxTextBox @bind-Text="@plant.Name" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Code" ColSpanMd="6">
+                <DxTextBox @bind-Text="@plant.Code" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                <DxMemo @bind-Text="@plant.Description" Rows="5" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                <DxComboBox Data="@_stausItems"
+                            NullText="Select Status..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="CodeValue"
+                            ValueFieldName="CodeId"
+                            @bind-Value="@plant.StatusCodeID"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+    </TotalSummary>
+</DxGrid>
+
+@code {
+    private List<ViewDivision> _divisions;
+    private List<CodeMaster> _stausItems;
+    private List<ViewPlants> _plantItems;
+    IGrid Grid { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var model = await Mediator.Send(new GetAllDivisionQuery());
+        var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        var plants = await Mediator.Send(new GetAllPlantQuery());
+        _stausItems = models;
+        _divisions = model;
+        _plantItems = plants;
+    }
+    async Task UpdateDataAsync()
+    {
+        var model = await Mediator.Send(new GetAllDivisionQuery());
+        _divisions = model;
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            var newData = (ViewDivision)e.EditModel;
+            newData.PlantCode = "";
+            newData.Description = "";
+            newData.StatusCodeID = null;
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editableData = (ViewDivision)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateDivisionCommand
+                {
+                    Name = editableData.Name,
+                    Description = editableData.Description,
+                    StatusCodeId = editableData.StatusCodeID,
+                    Code = editableData.Code,
+                    CompanyId = editableData.CompanyId,
+                };
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            await UpdatePlantAsync(editableData);
+        }
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editableData = (ViewDivision)e.DataItem;
+        var request = new DeleteDivisionCommand(editableData.DivisionID);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    async Task UpdatePlantAsync(ViewDivision editableData)
+    {
+        var request = new EditDivisionCommand
+            {
+                DivisionId = editableData.DivisionID,
+                Name = editableData.Name,
+                Description = editableData.Description,
+                StatusCodeId = editableData.StatusCodeID,
+                AddedByUserId = editableData.AddedByUserID,
+                AddedDate = editableData.AddedDate,
+                Code = editableData.Code,
+                CompanyId = editableData.CompanyId,
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+}

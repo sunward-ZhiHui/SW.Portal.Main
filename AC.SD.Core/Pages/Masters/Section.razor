@@ -1,0 +1,178 @@
+﻿@using Application.Command.Sections;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@page "/section"
+
+<DxGrid @ref="Grid"
+        Data="_sectionItems"
+        KeyFieldName="SectionId"
+        EditModelSaving="Grid_EditModelSaving"
+        DataItemDeleting="Grid_DataItemDeleting"
+        CustomizeEditModel="Grid_CustomizeEditModel"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360">
+    <Columns>
+
+        <DxGridDataColumn FieldName="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="Division" MinWidth="80" />
+        <DxGridDataColumn FieldName="SectionName" Caption="Name" MinWidth="80" />
+        <DxGridDataColumn FieldName="SectionCode" Caption="Code" MinWidth="80" />
+        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+        <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
+        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
+        <DxGridCommandColumn Width="160px" />
+
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var sections = (ViewSection)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                <DxComboBox Data="@_departmentItems"
+                            NullText="Select Department..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="DepartmentName"
+                            ValueFieldName="DepartmentId"
+                            SelectedItemChanged="@((ViewDepartment depSelect) => SelectedItemChanged(depSelect))"
+                            @bind-Value="@sections.DepartmentId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxTextBox @bind-Text="@companyName" ReadOnly="true" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                <DxTextBox @bind-Text="@divisionName" ReadOnly="true" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Section Name" ColSpanMd="6">
+                <DxTextBox @bind-Text="@sections.SectionName" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Section Code" ColSpanMd="6">
+                <DxTextBox @bind-Text="@sections.SectionCode" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                <DxMemo @bind-Text="@sections.Description" Rows="5" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="ProfileCode" ColSpanMd="6">
+                <DxTextBox @bind-Text="@sections.ProfileCode" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                <DxComboBox Data="@_stausItems"
+                            NullText="Select Status..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="CodeValue"
+                            ValueFieldName="CodeId"
+                            @bind-Value="@sections.StatusCodeId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SectionName" />
+    </TotalSummary>
+</DxGrid>
+
+@code {
+    private List<ViewSection> _sectionItems;
+    private List<CodeMaster> _stausItems;
+    private List<ViewDepartment> _departmentItems;
+    string companyName = "";
+    string divisionName = "";
+    IGrid Grid { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        _sectionItems = await Mediator.Send(new GetAllSectionQuery());
+        _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            companyName ="";
+            divisionName ="";
+        }
+        else
+        {
+            var dep = (ViewSection)e.DataItem;
+            companyName = dep.Company;
+            divisionName = dep.Division;
+        }
+    }
+    void SelectedItemChanged(ViewDepartment dep)
+    {
+        if (dep.DepartmentId > 0)
+        {
+            companyName = dep.Company;
+            divisionName = dep.Division;
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        var model = await Mediator.Send(new GetAllSectionQuery());
+        _sectionItems = model;
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editableData = (ViewSection)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateSectionCommand
+                {
+                    DepartmentId = editableData.DepartmentId,
+                    Name = editableData.SectionName,
+                    Code = editableData.SectionCode,
+                    Description = editableData.Description,
+                    StatusCodeId = editableData.StatusCodeId,
+                    ProfileCode=editableData.ProfileCode,
+                };
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            await UpdatePlantAsync(editableData);
+        }
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editableData = (ViewSection)e.DataItem;
+        var request = new DeleteSectionCommand(editableData.SectionId);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    async Task UpdatePlantAsync(ViewSection editableData)
+    {
+        var request = new EditSectionCommand
+            {
+                DepartmentId = editableData.DepartmentId,
+                SectionId = editableData.SectionId,
+                Name = editableData.SectionName,
+                Code = editableData.SectionCode,
+                Description = editableData.Description,
+                StatusCodeId = editableData.StatusCodeId,
+                AddedByUserId = editableData.AddedByUserId,
+                AddedDate = editableData.AddedDate,
+                ProfileCode=editableData.ProfileCode,
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+}

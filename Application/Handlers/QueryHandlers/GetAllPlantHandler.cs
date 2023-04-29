@@ -1,0 +1,26 @@
+﻿using Application.Queries;
+using Application.Response;
+using Core.Entities;
+using Core.Entities.Views;
+using Core.EntityModel;
+using Core.Repositories.Query;
+using Core.Repositories.Query.Base;
+using MediatR;
+using System;
+using System.Linq;
+
+namespace CMS.Application.Handlers.QueryHandlers
+{
+    public class GetAllPlantHandler : IRequestHandler<GetAllPlantQuery, List<ViewPlants>>
+    {
+        private readonly IPlantQueryRepository _plantQueryRepository;
+        public GetAllPlantHandler(IPlantQueryRepository plantQueryRepository)
+        {
+            _plantQueryRepository = plantQueryRepository;
+        }
+        public async Task<List<ViewPlants>> Handle(GetAllPlantQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewPlants>)await _plantQueryRepository.GetAllAsync();
+        }
+    }
+}

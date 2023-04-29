@@ -1,0 +1,187 @@
+﻿@using Application.Command.SubSections;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@page "/subsection"
+
+<DxGrid @ref="Grid"
+        Data="_subsectionItems"
+        KeyFieldName="SubSectionId"
+        EditModelSaving="Grid_EditModelSaving"
+        DataItemDeleting="Grid_DataItemDeleting"
+        CustomizeEditModel="Grid_CustomizeEditModel"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360">
+    <Columns>
+
+        <DxGridDataColumn FieldName="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="Division" MinWidth="80" />
+        <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="80" />
+        <DxGridDataColumn FieldName="SectionName" Caption="Section" MinWidth="80" />
+        <DxGridDataColumn FieldName="SubSectionName" Caption="Name" MinWidth="80" />
+        <DxGridDataColumn FieldName="SubSectionCode" Caption="Code" MinWidth="80" />
+        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+        <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
+        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
+        <DxGridCommandColumn Width="160px" />
+
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var sections = (ViewSubSection)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                <DxComboBox Data="@_sectionItems"
+                            NullText="Select Section..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="SectionName"
+                            ValueFieldName="SectionId"
+                            SelectedItemChanged="@((ViewSection depSelect) => SelectedItemChanged(depSelect))"
+                            @bind-Value="@sections.SectionId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxTextBox @bind-Text="@companyName" ReadOnly="true" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                <DxTextBox @bind-Text="@divisionName" ReadOnly="true" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                <DxTextBox @bind-Text="@sectionName" ReadOnly="true" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="SubSection Name" ColSpanMd="6">
+                <DxTextBox @bind-Text="@sections.SubSectionName" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Section Code" ColSpanMd="6">
+                <DxTextBox @bind-Text="@sections.SubSectionCode" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                <DxMemo @bind-Text="@sections.Description" Rows="5" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="ProfileCode" ColSpanMd="6">
+                <DxTextBox @bind-Text="@sections.ProfileCode" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                <DxComboBox Data="@_stausItems"
+                            NullText="Select Status..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="CodeValue"
+                            ValueFieldName="CodeId"
+                            @bind-Value="@sections.StatusCodeId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SectionName" />
+    </TotalSummary>
+</DxGrid>
+
+@code {
+    private List<ViewSubSection> _subsectionItems;
+    private List<ViewSection> _sectionItems;
+    private List<CodeMaster> _stausItems;
+    string companyName = "";
+    string divisionName = "";
+    string sectionName = "";
+    IGrid Grid { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        _subsectionItems = await Mediator.Send(new GetAllSubSectionQuery());
+        _sectionItems = await Mediator.Send(new GetAllSectionQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            companyName ="";
+            divisionName ="";
+            sectionName = "";
+        }
+        else
+        {
+            var dep = (ViewSubSection)e.DataItem;
+            companyName = dep.Company;
+            divisionName = dep.Division;
+            sectionName = dep.SectionName;
+        }
+    }
+    void SelectedItemChanged(ViewSection dep)
+    {
+        if (dep.SectionId > 0)
+        {
+            companyName = dep.Company;
+            divisionName = dep.Division;
+            sectionName = dep.SectionName;
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        var model = await Mediator.Send(new GetAllSubSectionQuery());
+        _subsectionItems = model;
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editableData = (ViewSubSection)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateSubSectionCommand
+                {
+                    SectionId=editableData.SectionId,
+                    Name = editableData.SubSectionName,
+                    Code = editableData.SubSectionCode,
+                    Description = editableData.Description,
+                    StatusCodeId = editableData.StatusCodeId,
+                    ProfileCode=editableData.ProfileCode,
+                };
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            await UpdatePlantAsync(editableData);
+        }
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editableData = (ViewSubSection)e.DataItem;
+        var request = new DeleteSubSectionCommand(editableData.SubSectionId);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    async Task UpdatePlantAsync(ViewSubSection editableData)
+    {
+        var request = new EditSubSectionCommand
+            {
+                SubSectionId = editableData.SubSectionId,
+                SectionId = editableData.SectionId,
+                Name = editableData.SectionName,
+                Code = editableData.SectionCode,
+                Description = editableData.Description,
+                StatusCodeId = editableData.StatusCodeId,
+                AddedByUserId = editableData.AddedByUserId,
+                AddedDate = editableData.AddedDate,
+                ProfileCode=editableData.ProfileCode,
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+}

@@ -32,12 +32,20 @@ namespace Infrastructure
 
             services.AddScoped(typeof(ICommandRepository<ForumTypeResponse>), typeof(CommandRepository<ForumTypeResponse>));
 
-            services.AddScoped(typeof(IRequestHandler<>), typeof(CreateHandler<>));         
+            services.AddScoped(typeof(IRequestHandler<>), typeof(CreateHandler<>));
+            services.AddTransient<IPlantQueryRepository, PlantQueryRepository>();
+            services.AddTransient<IDivisionQueryRepository, DivisionQueryRepository>();
+            services.AddTransient<ICodeMasterQueryRepository, CodeMasterQueryRepository>();
+            services.AddTransient<IDepartmentQueryRepository, DepartmentQueryRepository>();
+            services.AddTransient<ISectionQueryRepository, SectionQueryRepository>();
+            services.AddTransient<ISubSectionQueryRepository, SubSectionQueryRepository>();
 
-          
             services.AddTransient<IForumTypeQueryRepository, ForumTypeQueryRepository>();
-            services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();          
-
+            services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();
+            services.AddTransient<IPlantCommandRepository, PlantCommandRepository>();
+            services.AddTransient<IDivisionCommandRepository, DivisionCommandRepository>();
+            services.AddTransient<IDepartmentCommandRepository, DepartmentCommandRepository>();
+            services.AddTransient<ISubSectionCommandRepository, SubSectionCommandRepository>();
 
 
             return services;

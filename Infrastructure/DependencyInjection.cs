@@ -1,4 +1,8 @@
-﻿using Core.Repositories.Command;
+﻿using Application.Commands;
+using Application.Handlers.CommandHandler;
+using Application.Response;
+using Core.Entities;
+using Core.Repositories.Command;
 using Core.Repositories.Command.Base;
 using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
@@ -6,6 +10,7 @@ using Infrastructure.Repository.Command;
 using Infrastructure.Repository.Command.Base;
 using Infrastructure.Repository.Query;
 using Infrastructure.Repository.Query.Base;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -24,6 +29,16 @@ namespace Infrastructure
             services.AddTransient<IRoleQueryRepository, RoleQueryRepository>();
             services.AddScoped(typeof(ICommandRepository<>), typeof(CommandRepository<>));
             services.AddTransient<IRoleCommandRepository, RoleCommandRepository>();
+
+            services.AddScoped(typeof(ICommandRepository<ForumTypeResponse>), typeof(CommandRepository<ForumTypeResponse>));
+
+            services.AddScoped(typeof(IRequestHandler<>), typeof(CreateHandler<>));         
+
+          
+            services.AddTransient<IForumTypeQueryRepository, ForumTypeQueryRepository>();
+            services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();          
+
+
 
             return services;
         }

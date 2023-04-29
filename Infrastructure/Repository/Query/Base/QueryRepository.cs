@@ -38,6 +38,18 @@ namespace Infrastructure.Repository.Query.Base
             using var connection = CreateConnection();
             return await connection.GetListPagedAsync<T>(pageNo, pageSize, condition, orderby);
         }
+        public void Add(T entity)
+        {
+            using var connection = CreateConnection();
+            //string sql = "INSERT INTO " + typeof(T).Name + "s VALUES (@Property1, @Property2, ...)";
+            //connection.Execute(sql, entity);
+
+            string tableName = typeof(T).Name + "s";
+            string columns = string.Join(", ", typeof(T).GetProperties().Select(p => p.Name));
+            string values = string.Join(", ", typeof(T).GetProperties().Select(p => "@" + p.Name));
+            string sql = $"INSERT INTO {tableName} ({columns}) VALUES ({values})";
+            connection.Execute(sql, entity);
+        }
 
     }
 }

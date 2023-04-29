@@ -1,20 +1,17 @@
-﻿using Core.Repositories.Command.Base;
+﻿using Core.Entities;
+using Core.Repositories.Command;
 using Infrastructure.Data;
+using Infrastructure.Repository.Command.Base;
 using Dapper;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Core.Entities.Base;
+using Core.Repositories.Command.Base;
 
-namespace Infrastructure.Repository.Command.Base
+namespace Infrastructure.Repository.Command
 {
-    public class CommandRepository<T> : DbConnector, ICommandRepository<T> where T : class
+    public class GenericRepository<T> : DbConnector, IGenericRepository<T> where T : class
     {
-        public CommandRepository(IConfiguration configuration)
-           : base(configuration)
+        public GenericRepository(IConfiguration configuration)
+            : base(configuration)
         {
 
         }

@@ -7,6 +7,7 @@ using CMS.Application.Handlers.QueryHandlers;
 using Application.Command.Departments;
 using Application.Command.Sections;
 using Application.Command.SubSections;
+using Application.Command.Designation;
 
 namespace Application.Common.Mapper
 {
@@ -41,6 +42,10 @@ namespace Application.Common.Mapper
             CreateMap<SubSection, CreateSubSectionCommand>().ReverseMap();
             CreateMap<SubSection, EditSubSectionCommand>().ReverseMap();
             CreateMap<SubSection, DeleteSubSectionCommand>().ReverseMap();
+
+            CreateMap<Designation, CreateDesignationCommand>().ReverseMap();
+            CreateMap<Designation, EditDesignationCommand>().ReverseMap();
+            CreateMap<Designation, DeleteDesignationCommand>().ReverseMap();
 
             CreateMap<ForumCategorys, ForumCategoryResponse>().ReverseMap();
         }

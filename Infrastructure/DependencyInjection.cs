@@ -39,6 +39,7 @@ namespace Infrastructure
             services.AddTransient<IDepartmentQueryRepository, DepartmentQueryRepository>();
             services.AddTransient<ISectionQueryRepository, SectionQueryRepository>();
             services.AddTransient<ISubSectionQueryRepository, SubSectionQueryRepository>();
+            services.AddTransient<IDesignationQueryRepository, DesignationQueryRepository>();
 
             services.AddTransient<IForumTypeQueryRepository, ForumTypeQueryRepository>();
             services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();
@@ -46,6 +47,8 @@ namespace Infrastructure
             services.AddTransient<IDivisionCommandRepository, DivisionCommandRepository>();
             services.AddTransient<IDepartmentCommandRepository, DepartmentCommandRepository>();
             services.AddTransient<ISubSectionCommandRepository, SubSectionCommandRepository>();
+            services.AddTransient<IDesignationCommandRepository, DesignationCommandRepository>();
+
 
 
             return services;

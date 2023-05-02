@@ -1,0 +1,33 @@
+﻿using Core.Entities.Base;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Core.Entities
+{
+    public class ForumTopics : BaseEntity
+    {
+        [Key]
+        public long ID { get; set; }        
+        public string? TicketNo { get; set; }
+        [Required]
+        public string? TopicName { get; set; }
+        public long TypeId { get; set; }
+        public long CategoryId { get; set; }
+        public DateTime StartDate { get; set; } = DateTime.Now;
+        public DateTime? EndDate { get; set; }
+        public DateTime? DueDate { get; set; } 
+        public long TopicFrom { get; set; }
+
+        public string? Status { get; set; }
+        public string? Remarks { get; set; }
+        public string? Description { get; set; }
+        public string? Type { get; set; }
+        public int SeqNo { get; set; }
+        public string? SubjectName { get; set; }
+
+    }
+}

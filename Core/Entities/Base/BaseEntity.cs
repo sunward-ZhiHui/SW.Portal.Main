@@ -13,9 +13,6 @@ namespace Core.Entities.Base
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionId { get; set; }
         public long? AddedByUserID { get; set; }
-        public int? StatusCodeID { get; set; }
-        public string? StatusCode { get; set; }
-        public string? ModifiedBy { get; set; }
-        public string? AddedBy { get; set; }
+        public int? StatusCodeID { get; set; }       
     }
 }

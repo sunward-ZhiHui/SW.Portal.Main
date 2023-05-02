@@ -17,6 +17,19 @@ body,
 .demo-content > div:not(.modal-backdrop) {
     background-color: var(--bs-body-bg);
 }
+.btn-success, .btn-excel {
+    background-color: var(--bs-background-bg);
+    border-color: var(--bs-background-bg) !important;
+}
+.btn-submit {
+    background-color: var(--bs-success);
+    color: white;
+}
+.btn-add {
+    background-color: var(--bs-background-bg);
+    border-color: var(--bs-background-bg) !important;
+}
+
 #app.root {
     min-width: 375px;
 }
@@ -45,7 +58,6 @@ body,
     z-index: 1030;
     pointer-events: none;
 }
-
 .demo-header.navbar {
     margin: 0 auto;
     max-width: 100%;
@@ -57,7 +69,7 @@ body,
     background-color: inherit;
     border-radius: 0;
     box-shadow: none;
-    background: #158cba;
+   /* background: #158cba;*/
 }
 
 .demo-header.navbar .navbar-toggler {
@@ -1630,4 +1642,82 @@ body,
 
 .demo-bg-transparent {
     background-color: transparent !important;
+}
+
+
+
+
+.g-title {
+    background-color: #f7f8f8;
+    text-align: center;
+    padding: 3px;
+    border-style: solid;
+    border-color: #d4dddd;
+    border-width: 1px;
+    display: inline-block;
+    width: 100%;
+    /* min-height: 33px; */
+    /* border-radius: 5px; */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    /* color: black; */
+    font-weight: 600;
+    border-bottom: 1px;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+.g-left {
+    float: left;
+}
+
+.b-icon {
+    background-color: #1cc09f;
+}
+
+.i-button {
+    border: 0;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    line-height: 26px;
+    display: inline-block;
+}
+
+.gt-icon {
+    font-size: 22px;
+}
+
+.gt-icon, .g-text {
+    color: #2F3840;
+}
+
+.g-text {
+    font-size: 18px;
+    margin-left: 5px;
+}
+
+.g-right {
+    float: right;
+}
+
+.btn {
+    color: white;
+    display: inline-block;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
 }

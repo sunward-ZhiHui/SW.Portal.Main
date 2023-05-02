@@ -7,7 +7,7 @@
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
  
 <div class="@GetDemoHeaderContainerCss()">
-    <nav class="demo-header p-0 navbar navbar-dark">
+    <nav class="demo-header p-0 navbar navbar-dark @GetDemoHeadernavContainerCss()">
         <DemoLayoutToggleButton @bind-Toggled="@LayoutToggled" />
         <div class="logo-image">
             <a href="https://www.crt-insights.com/" target="_blank" title="CRT Insights">
@@ -297,6 +297,13 @@
     string GetDemoHeaderContainerCss() {
         List<string> cssClasses = new List<string>();
         cssClasses.Add("demo-header-container");
+        cssClasses.Add("theme-" + ThemeName.Replace(" ", "-"));
+        return string.Join(" ", cssClasses);
+    }
+    string GetDemoHeadernavContainerCss()
+    {
+        List<string> cssClasses = new List<string>();
+        //cssClasses.Add("demo-header-container");
         cssClasses.Add("theme-" + ThemeName.Replace(" ", "-"));
         return string.Join(" ", cssClasses);
     }

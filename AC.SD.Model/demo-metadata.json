@@ -278,8 +278,17 @@
         },
         {
           "Id": "Topic",
-          "Url": "Topics",
+          "Url": "ForumTopics",
           "Title": "Topics",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
+
+        },
+        {
+          "Id": "Conversation",
+          "Url": "ForumConversations",
+          "Title": "Conversations",
           "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
           "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
           "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"

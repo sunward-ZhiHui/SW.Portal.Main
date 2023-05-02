@@ -45,6 +45,7 @@ namespace Application.Common.Mapper
             CreateMap<SubSection, DeleteSubSectionCommand>().ReverseMap();
 
             CreateMap<ForumCategorys, ForumCategoryResponse>().ReverseMap();
+            CreateMap<ForumTopics, ForumTopicsResponse>().ReverseMap();
 
             CreateMap<LevelMaster, CreateLevelMasterCommand>().ReverseMap();
             CreateMap<LevelMaster, EditLevelMasterCommand>().ReverseMap();

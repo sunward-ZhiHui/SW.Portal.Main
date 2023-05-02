@@ -42,10 +42,16 @@ namespace Infrastructure
 
             services.AddTransient<IForumTypeQueryRepository, ForumTypeQueryRepository>();
             services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();
+            services.AddTransient<IForumTopicsQueryRepository, ForumTopicsQueryRepository>();
+
+
+
             services.AddTransient<IPlantCommandRepository, PlantCommandRepository>();
             services.AddTransient<IDivisionCommandRepository, DivisionCommandRepository>();
             services.AddTransient<IDepartmentCommandRepository, DepartmentCommandRepository>();
             services.AddTransient<ISubSectionCommandRepository, SubSectionCommandRepository>();
+
+
 
 
             return services;

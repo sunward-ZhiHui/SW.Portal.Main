@@ -43,6 +43,7 @@ namespace Application.Common.Mapper
             CreateMap<SubSection, DeleteSubSectionCommand>().ReverseMap();
 
             CreateMap<ForumCategorys, ForumCategoryResponse>().ReverseMap();
+            CreateMap<ForumTopics, ForumTopicsResponse>().ReverseMap();
         }
     }
 }

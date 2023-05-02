@@ -100,7 +100,7 @@ namespace AC.SD.Core.Services {
         private static List<DemoThemeSet> CreateSets(DemoThemeService config) {
             return new List<DemoThemeSet>() {
                 new DemoThemeSet("CRT Themes", "blazing-berry", "blazing-dark", "purple", "office-white"),
-                new DemoThemeSet("Bootstrap Themes", "default", "cerulean", "cyborg", "flatly", "journal", "litera", "lumen", "lux", "pulse", "simplex", "solar", "superhero", "united", "yeti")
+                new DemoThemeSet("Bootstrap Themes", "default", "cerulean", "cyborg", "flatly", "journal", "litera", "lumen", "lux", "pulse", "simplex", "united", "yeti")
             };
         }
     }

@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Application.Response;
+using MediatR;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities.Base
+namespace Application.Command.designations
 {
-    public class Designation
+    public class CreateDesignationCommand : IRequest<DesignationResponse>
     {
         public long DesignationId { get; set; }
         public long? LevelId { get; set; }
@@ -21,5 +23,12 @@ namespace Core.Entities.Base
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public CreateDesignationCommand()
+        {
+            this.AddedDate = DateTime.Now;
+            this.ModifiedDate = DateTime.Now;
+            this.AddedByUserId = 1;
+            this.ModifiedByUserId = 1;
+        }
     }
 }

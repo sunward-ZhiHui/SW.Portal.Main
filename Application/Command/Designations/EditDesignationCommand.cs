@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Application.Response;
+using MediatR;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Application.Command.designations
 {
-    public class Designation
+    public class EditDesignationCommand : IRequest<DesignationResponse>
     {
-        [Key]
         public long DesignationId { get; set; }
         public long? LevelId { get; set; }
         public string Name { get; set; }
@@ -23,5 +23,10 @@ namespace Core.Entities
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public EditDesignationCommand()
+        {
+            this.ModifiedDate = DateTime.Now;
+            this.ModifiedByUserId = 1;
+        }
     }
 }

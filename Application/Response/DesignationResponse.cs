@@ -14,7 +14,7 @@ namespace Application.Response
         public long? LevelID { get; set; }
         public string? Code { get; set; }
         public string? Description { get; set; }
-
+        public string? Name { get; set; }
         public string? CompanyName { get; set; }
         public int? CodeId { get; set; }
         public DateTime AddedDate { get; set; }

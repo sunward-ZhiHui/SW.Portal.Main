@@ -95,6 +95,16 @@
                         @bind-Value="@employee.LevelID" />
 
         </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Designation" ColSpanMd="6">
+            <DxComboBox Data="@_designationItems"
+                        NullText="Select Designation..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Name"
+                        ValueFieldName="DesignationID"
+                        SelectedItemChanged="@((ViewDesignation desSelect) => SelectedItemChanged(desSelect))"
+                        @bind-Value="@employee.DesignationID" />
+
+        </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Employment Type" ColSpanMd="6">
             <DxComboBox Data="@_employmentTypeItems"
                         NullText="Select Employment Type..."
@@ -102,6 +112,19 @@
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterDetailId"
                         @bind-Value="@employee.TypeOfEmployeement" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Designation Head Count" ColSpanMd="6">
+            <DxComboBox Data="@_designationCountItems"
+                        NullText="Select Designation Count..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        @bind-Value="@employee.HeadCount" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Start Employment Date" ColSpanMd="6">
+
+            <DxDateEdit NullText="Select a date..." @bind-Date="@employee.ExpectedJoiningDate" CssClass="cw-320" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="SageID" ColSpanMd="6">
+            <DxTextBox @bind-Text="@employee.SageID" />
         </DxFormLayoutItem>
     </DxFormLayoutGroup>
     <DxFormLayoutGroup Caption="Communication Infromation" ColSpanMd="12">
@@ -137,6 +160,7 @@
     private List<ViewLevel> _leveMasterItems;
     EmployeeResponse employee = new EmployeeResponse();
     List<string> GenderList = new List<string>() { "Male", "Female" };
+    List<int> _designationCountItems = new List<int>();
     protected override async Task OnInitializedAsync()
     {
         _roles = await Mediator.Send(new GetAllRoleQuery());
@@ -154,5 +178,17 @@
         employee.LastName = "A";
         employee.NickName = "Ga";
         employee.Gender = "Male";
+        employee.LanguageID = 3;
+    }
+    void SelectedItemChanged(ViewDesignation viewDesignation)
+    {
+        _designationCountItems = new List<int>();
+        if (viewDesignation.HeadCount > 0)
+        {
+            for (int i = 1; i < viewDesignation.HeadCount; i++)
+            {
+                _designationCountItems.Add(i);
+            }
+        }
     }
 }

@@ -28,5 +28,7 @@ namespace Core.Entities.Views
         public string? ModifiedBy { get; set; }
         public string? AddedBy { get; set; }
         public string? LevelName { get; set; }
+        public long? SubSectionID { get; set; }
+        public string? SubSectionName { get; set; }
     }
 }

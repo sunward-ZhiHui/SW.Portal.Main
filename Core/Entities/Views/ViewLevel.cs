@@ -11,13 +11,16 @@ namespace Core.Entities.Views
     {
         [Key]
         public long LevelID { get; set; }
+        [Required(ErrorMessage = "Name is Required")]
         public string? Name { get; set; }
-        public long CompanyID { get; set; }
+        [Required(ErrorMessage = "Company is Required")]
+        public long? CompanyID { get; set; }
         public int? CodeId { get; set; }
         public DateTime AddedDate { get; set; }
         public long? ModifiedByUserID { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public long? AddedByUserID { get; set; }
+        [Required(ErrorMessage = "Status Code is Required")]
         public int? StatusCodeID { get; set; }
         public string? StatusCode { get; set; }
         public string? ModifiedBy { get; set; }

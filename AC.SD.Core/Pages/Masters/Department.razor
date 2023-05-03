@@ -24,6 +24,7 @@
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         AutoExpandAllGroupRows="true"
+        ValidationEnabled="true"
         CssClass="ch-360">
     <Columns>
 
@@ -45,12 +46,12 @@
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                 <DxComboBox Data="@_plantItems"
                             SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect.PlantID))"
-                    NullText="Select Company..."
-                    FilteringMode="DataGridFilteringMode.Contains" 
-                    TextFieldName="Description" 
-                    ValueFieldName="PlantID"
-                    @bind-Value="@department.CompanyId" />
-
+                            NullText="Select Company..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Description"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@department.CompanyId" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => department.CompanyId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Division" ColSpanMd="6">
                 @{
@@ -64,18 +65,22 @@
                             @bind-Value="@department.DivisionId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => department.DivisionId)" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="DepartmentName" ColSpanMd="6">
-                <DxTextBox @bind-Text="@department.DepartmentName" />
+            <DxFormLayoutItem Caption="Department Name" ColSpanMd="6">
+                <DxTextBox @bind-Text="@department.DepartmentName" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => department.DepartmentName)" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="DepartmentCode" ColSpanMd="6">
-                <DxTextBox @bind-Text="@department.DepartmentCode" />
+            <DxFormLayoutItem Caption="Department Code" ColSpanMd="6">
+                <DxTextBox @bind-Text="@department.DepartmentCode" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => department.DepartmentCode)" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="ProfileCode" ColSpanMd="6">
+            <DxFormLayoutItem Caption="Profile Code" ColSpanMd="6">
                 <DxTextBox @bind-Text="@department.ProfileCode" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                <DxMemo @bind-Text="@department.Description" Rows="5" />
+                <DxMemo @bind-Text="@department.Description" Rows="5" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => department.Description)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                 <DxComboBox Data="@_stausItems"
@@ -86,6 +91,7 @@
                             @bind-Value="@department.StatusCodeId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => department.StatusCodeId)" />
             </DxFormLayoutItem>
         </DxFormLayout>
     </EditFormTemplate>
@@ -120,7 +126,7 @@
         var model = await Mediator.Send(new GetAllDepartmentQuery());
         _departmentItems = model;
     }
-    void SelectedItemChanged(long plantID)
+    void SelectedItemChanged(long? plantID)
     {
         if (plantID > 0)
         {
@@ -140,7 +146,7 @@
                     Code = editableDepartment.DepartmentCode,
                     Description = editableDepartment.Description,
                     StatusCodeId = editableDepartment.StatusCodeId,
-                    ProfileCode=editableDepartment.ProfileCode,
+                    ProfileCode = editableDepartment.ProfileCode,
                 };
             await Mediator.Send(request);
             await UpdateDataAsync();
@@ -171,7 +177,7 @@
                 StatusCodeId = editableDepartment.StatusCodeId,
                 AddedByUserId = editableDepartment.AddedByUserId,
                 AddedDate = editableDepartment.AddedDate,
-                ProfileCode=editableDepartment.ProfileCode,
+                ProfileCode = editableDepartment.ProfileCode,
             };
         await Mediator.Send(request);
         await UpdateDataAsync();

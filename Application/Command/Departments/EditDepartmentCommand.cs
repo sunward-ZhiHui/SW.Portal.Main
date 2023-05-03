@@ -18,7 +18,7 @@ namespace Application.Command.Departments
         public string? Description { get; set; }
         public int? HeadCount { get; set; }
         public long? DivisionId { get; set; }
-        public int StatusCodeId { get; set; }
+        public int? StatusCodeId { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public string? ProfileCode { get; set; }

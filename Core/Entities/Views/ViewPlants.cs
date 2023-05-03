@@ -12,9 +12,9 @@ namespace Core.Entities.Views
         [Key]
         public long PlantID { get; set; }
         public long CompanyID { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Plant Code is Required")]
         public string? PlantCode { get; set; }
-
+        [Required(ErrorMessage = "Description is Required")]
         public string? Description { get; set; }
         public long? RegisteredCountryID { get; set; }
         public string? RegistrationNo { get; set; }
@@ -35,6 +35,7 @@ namespace Core.Entities.Views
         public long? ModifiedByUserID { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public long? AddedByUserID { get; set; }
+        [Required(ErrorMessage = "Status Code is Required")]
         public int? StatusCodeID { get; set; }
         public string? StatusCode { get; set; }
         public string? ModifiedBy { get; set; }

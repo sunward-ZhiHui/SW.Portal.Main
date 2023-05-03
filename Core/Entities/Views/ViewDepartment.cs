@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,14 +10,20 @@ namespace Core.Entities.Views
     public class ViewDepartment
     {
         public long DepartmentId { get; set; }
-        public long CompanyId { get; set; }
+        [Required(ErrorMessage = "Company is Required")]
+        public long? CompanyId { get; set; }
         public long? Hodid { get; set; }
+        [Required(ErrorMessage = "Department Name is Required")]
         public string? DepartmentName { get; set; }
+        [Required(ErrorMessage = "Department Code is Required")]
         public string? DepartmentCode { get; set; }
+        [Required(ErrorMessage = "Description is Required")]
         public string? Description { get; set; }
         public int? HeadCount { get; set; }
+        [Required(ErrorMessage = "Division is Required")]
         public long? DivisionId { get; set; }
-        public int StatusCodeId { get; set; }
+        [Required(ErrorMessage = "Status Code is Required")]
+        public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }

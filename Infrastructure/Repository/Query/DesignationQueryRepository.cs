@@ -1,6 +1,8 @@
-﻿using Core.Repositories.Query;
+﻿using Core.Entities.Views;
+using Core.Repositories.Query;
 using Infrastructure.Repository.Query.Base;
 using Dapper;
+using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -40,7 +42,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM view_Designation WHERE DesignationId = @Id";
+                var query = "SELECT * FROM view_Designation WHERE designationId = @Id";
                 var parameters = new DynamicParameters();
                 parameters.Add("Id", id, DbType.Int64);
 
@@ -57,3 +59,7 @@ namespace Infrastructure.Repository.Query
 
     }
 }
+
+
+
+

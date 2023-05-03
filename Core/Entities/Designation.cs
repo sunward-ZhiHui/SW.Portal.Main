@@ -18,9 +18,7 @@ namespace Core.Entities
         public int? HeadCount { get; set; }
         public long? CompanyId { get; set; }
         public long? SubSectionTid { get; set; }
-        public long? SectionID { get; set; }
-        public long? SubSectionID { get; set; }
-        public int StatusCodeId { get; set; }
+        public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }

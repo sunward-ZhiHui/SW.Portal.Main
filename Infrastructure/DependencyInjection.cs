@@ -39,11 +39,12 @@ namespace Infrastructure
             services.AddTransient<IDepartmentQueryRepository, DepartmentQueryRepository>();
             services.AddTransient<ISectionQueryRepository, SectionQueryRepository>();
             services.AddTransient<ISubSectionQueryRepository, SubSectionQueryRepository>();
-            services.AddTransient<ILevelMasterQueryRepository, LevelMasterQueryRepository>();
             services.AddTransient<IDesignationQueryRepository, DesignationQueryRepository>();
+            services.AddTransient<IFourmCategoryQueryRepository, FourmCategoryQueryRepository>();
 
             services.AddTransient<IForumTypeQueryRepository, ForumTypeQueryRepository>();
             services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();
+            services.AddTransient<IFourmCategoryCommandRepository, FourmCategoryCommandRepository>();
             services.AddTransient<IForumTopicsQueryRepository, ForumTopicsQueryRepository>();
 
 
@@ -52,8 +53,12 @@ namespace Infrastructure
             services.AddTransient<IDivisionCommandRepository, DivisionCommandRepository>();
             services.AddTransient<IDepartmentCommandRepository, DepartmentCommandRepository>();
             services.AddTransient<ISubSectionCommandRepository, SubSectionCommandRepository>();
-            services.AddTransient<ILevelMasterCommandRepository, LevelMasterCommandRepository>();
             services.AddTransient<IDesignationCommandRepository, DesignationCommandRepository>();
+
+
+
+
+
             return services;
         }
     }

@@ -8,8 +8,7 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Command
 {
-    public  interface IDesignationCommandRepository : ICommandRepository<Designation>
+    public interface IFourmCategoryCommandRepository : ICommandRepository<ForumCategorys>
     {
-
     }
 }

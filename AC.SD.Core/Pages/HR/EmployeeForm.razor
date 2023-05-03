@@ -41,33 +41,6 @@
         </DxFormLayoutItem>
     </DxFormLayoutGroup>
     <DxFormLayoutGroup Caption="Main Employment Information" ColSpanMd="12">
-        <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-            <DxComboBox Data="@_plantItems"
-                        NullText="Select Company..."
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Description"
-                        ValueFieldName="PlantID"
-                        @bind-Value="@employee.PlantID" />
-
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-            <DxComboBox Data="@_sectionItems"
-                        NullText="Select Section..."
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="SectionName"
-                        ValueFieldName="SectionID"
-                        @bind-Value="@employee.SectionID" />
-
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-            <DxComboBox Data="@_divisionsItems"
-                        NullText="Select Division..."
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Name"
-                        ValueFieldName="DivisionID"
-                        @bind-Value="@employee.DivisionID" />
-
-        </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
             <DxComboBox Data="@_subSectionItems"
                         NullText="Select Division..."
@@ -77,15 +50,44 @@
                         @bind-Value="@employee.SubSectionID" />
 
         </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+            <DxComboBox Data="@_plantItems"
+                        NullText="Select Company..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Description"
+                        ValueFieldName="PlantID"
+                        @bind-Value="@employee.PlantID" ReadOnly="true" />
+
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+            <DxComboBox Data="@_sectionItems"
+                        NullText="Select Section..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="SectionName"
+                        ValueFieldName="SectionID"
+                        @bind-Value="@employee.SectionID" ReadOnly="true" />
+
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+            <DxComboBox Data="@_divisionsItems"
+                        NullText="Select Division..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Name"
+                        ValueFieldName="DivisionID"
+                        @bind-Value="@employee.DivisionID" ReadOnly="true" />
+
+        </DxFormLayoutItem>
+       
         <DxFormLayoutItem Caption="Department" ColSpanMd="6">
             <DxComboBox Data="@_departmentItems"
                         NullText="Select Department..."
                         FilteringMode="DataGridFilteringMode.Contains"
                         TextFieldName="DepartmentName"
                         ValueFieldName="DepartmentID"
-                        @bind-Value="@employee.DepartmentID" />
+                        @bind-Value="@employee.DepartmentID" ReadOnly="true" />
 
         </DxFormLayoutItem>
+
         <DxFormLayoutItem Caption="Level" ColSpanMd="6">
             <DxComboBox Data="@_leveMasterItems"
                         NullText="Select Level..."
@@ -95,16 +97,7 @@
                         @bind-Value="@employee.LevelID" />
 
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Designation" ColSpanMd="6">
-            <DxComboBox Data="@_designationItems"
-                        NullText="Select Designation..."
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Name"
-                        ValueFieldName="DesignationID"
-                        SelectedItemChanged="@((ViewDesignation desSelect) => SelectedItemChanged(desSelect))"
-                        @bind-Value="@employee.DesignationID" />
-
-        </DxFormLayoutItem>
+        
         <DxFormLayoutItem Caption="Employment Type" ColSpanMd="6">
             <DxComboBox Data="@_employmentTypeItems"
                         NullText="Select Employment Type..."

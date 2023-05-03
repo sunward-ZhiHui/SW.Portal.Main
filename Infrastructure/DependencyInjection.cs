@@ -40,9 +40,11 @@ namespace Infrastructure
             services.AddTransient<ISectionQueryRepository, SectionQueryRepository>();
             services.AddTransient<ISubSectionQueryRepository, SubSectionQueryRepository>();
             services.AddTransient<IDesignationQueryRepository, DesignationQueryRepository>();
+            services.AddTransient<IFourmCategoryQueryRepository, FourmCategoryQueryRepository>();
 
             services.AddTransient<IForumTypeQueryRepository, ForumTypeQueryRepository>();
             services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();
+            services.AddTransient<IFourmCategoryCommandRepository, FourmCategoryCommandRepository>();
             services.AddTransient<IForumTopicsQueryRepository, ForumTopicsQueryRepository>();
 
 

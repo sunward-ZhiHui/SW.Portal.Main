@@ -8,6 +8,7 @@ using Application.Command.Departments;
 using Application.Command.Sections;
 using Application.Command.SubSections;
 using Application.Command.Designation;
+using Application.Command.ForumCategory;
 
 namespace Application.Common.Mapper
 {
@@ -46,6 +47,10 @@ namespace Application.Common.Mapper
             CreateMap<Designation, CreateDesignationCommand>().ReverseMap();
             CreateMap<Designation, EditDesignationCommand>().ReverseMap();
             CreateMap<Designation, DeleteDesignationCommand>().ReverseMap();
+
+            CreateMap<ForumCategorys, CreateForumCategoryCommand>().ReverseMap();
+            CreateMap<ForumCategorys, EditFourmCategoryCommand>().ReverseMap();
+            CreateMap<ForumCategorys, DeleteFourmCategoryCommand>().ReverseMap();
 
             CreateMap<ForumCategorys, ForumCategoryResponse>().ReverseMap();
             CreateMap<ForumTopics, ForumTopicsResponse>().ReverseMap();

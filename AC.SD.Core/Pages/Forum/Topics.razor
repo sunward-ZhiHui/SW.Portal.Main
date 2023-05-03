@@ -1,9 +1,11 @@
 ﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
+@using DevExpress.Blazor.ComboBox;
 @using MediatR
 @using global::Core.Entities;
 @inject IMediator Mediator
+
 
 @page "/ForumTopics"
 
@@ -90,14 +92,37 @@
                                         CssClass="cw-480" />
                         </DxFormLayoutItem>
 
-                        <DxFormLayoutItem ColSpanMd="6">
+                        <DxFormLayoutItem ColSpanMd="6" >
                             <label for="ForumTo">To </label>
-                            <DxComboBox Data="@_category"
-                                        ListRenderMode="ListRenderMode.Virtual"
+                           
+                              @* <DxListBox Data="@_types"
+                                           TextFieldName="@nameof(ForumTypes.Name)"
+                                           SelectionMode="ListBoxSelectionMode.Multiple"
+                                           ShowCheckboxes="@ShowCheckboxes"
+                                           CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
+                                           style="flex-basis: 240px"
+                                           @bind-Values="Values" />*@
+                         
+
+                            <DxComboBox Data="@_types"
+                              
+                                        ListRenderMode="ListRenderMode.Entire"
                                         FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="@nameof(_category)"
-                                        @bind-Value="@_category"
-                                        CssClass="cw-480" />
+                                        TextFieldName="@nameof(ForumTypes.Name)"
+                                        @bind-Value="@Data.TypeId"
+                                        CssClass="cw-480" >
+                                   
+                                        <Columns>
+        <DxListEditorColumn FieldName="@nameof(ForumTypes.ID)"
+                            Caption="Id"
+                            Width="50px"  />
+        <DxListEditorColumn FieldName="@nameof(ForumTypes.Name)"
+                            Caption="Name" />
+        <DxListEditorColumn FieldName="@nameof(ForumTypes.Description)"
+                            Caption="Surname" />
+                                   </Columns>
+                            </DxComboBox>
+                        
                         </DxFormLayoutItem>
 
                         <DxFormLayoutItem ColSpanMd="6">
@@ -121,7 +146,7 @@
                 </div>
                 <div class="card col-md-4" style="padding-left: 0px;    padding-right: 0px;">
 
-                    @*<div class="g-title">
+                  @*  <div class="g-title">
                         <div class="g-left"></div>
 
                         <span class=""></span><span class="g-text">Type</span>
@@ -173,14 +198,17 @@
 
 
 @code {
+    bool IsOpen { get; set; } = false;
+  
     bool ShowCheckboxes { get; set; } = true;
     string FormSubmitResult = "";
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     ForumTopics? Data { get; set; } = new ForumTopics();
     IEnumerable<ForumTypes>? _types;
+    IEnumerable<ForumTypes>? Values;
     IEnumerable<ForumCategorys>? _category;
-
+    
 
     IReadOnlyList<object>? SelectedDataItems { get; set; }
     //private List<ForumTypes>? SelectedDataItems;

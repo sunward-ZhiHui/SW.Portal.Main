@@ -70,3 +70,79 @@
 #themesMenu a.yeti:before {
     background: #008cba;
 }
+
+/*Themes header Background color*/
+.demo-header.navbar.theme-blazing-berry {
+    background: #5c2d91;
+}
+
+.demo-header.navbar.theme-blazing-dark {
+    background: #46444a;
+}
+
+.demo-header.navbar.theme-office-white {
+    background: #fe7109;
+}
+
+.demo-header.navbar.theme-purple {
+    background: #7989ff;
+}
+
+
+.demo-header.navbar.theme-default {
+    background: #007bff;
+}
+
+.demo-header.navbar.theme-cerulean {
+    background: #2fa4e7;
+}
+
+.demo-header.navbar.theme-cyborg {
+    background: #060606;
+}
+
+.demo-header.navbar.theme-flatly {
+    background: #dce4ec;
+}
+
+.demo-header.navbar.theme-journal {
+    background: #eb6864;
+}
+
+.demo-header.navbar.theme-litera {
+    background: #4582ec;
+}
+
+.demo-header.navbar.theme-lumen {
+    background: #158cba;
+}
+
+.demo-header.navbar.theme-lux {
+    background: #1a1a1a;
+}
+
+.demo-header.navbar.theme-pulse {
+    background: #593196;
+}
+
+.demo-header.navbar.theme-simplex {
+    background: #d9230f;
+}
+
+.demo-header.navbar.theme-solar {
+    background: #b58900;
+}
+
+.demo-header.navbar.theme-superhero {
+    background: #df691a;
+}
+
+.demo-header.navbar.theme-united {
+    background: #e95420;
+}
+
+.demo-header.navbar.theme-yeti {
+    background: #008cba;
+}
+
+/*End*/

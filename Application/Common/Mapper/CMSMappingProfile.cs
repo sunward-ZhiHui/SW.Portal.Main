@@ -48,6 +48,7 @@ namespace Application.Common.Mapper
             CreateMap<Designation, DeleteDesignationCommand>().ReverseMap();
 
             CreateMap<ForumCategorys, ForumCategoryResponse>().ReverseMap();
+            CreateMap<ForumTopics, ForumTopicsResponse>().ReverseMap();
         }
     }
 }

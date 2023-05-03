@@ -1,0 +1,116 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+
+@page "/ForumConversations"
+
+<style>
+    .itemclass span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
+
+<div class="">
+    <div class="row">
+        <div class="card col-md-3" style="padding-left: 0px; padding-right: 0px;">
+            <div class="card-header text-center">
+                <span> General Information</span>
+            </div>
+            <div class="card-body">  
+                <DxTreeView Data="@TreeData" AllowSelectNodes=false ShowCheckBoxes="@false"  SelectedItem="@SelectedNode" SelectedNodeChanged="@OnSelectedNodeChanged">
+                    <DataMappings>
+                        <DxTreeViewDataMapping Key="ID" ParentKey="ParentID" Text="Name" NavigateUrl="NavigateUrl" />
+                    </DataMappings>
+                </DxTreeView>
+
+
+
+
+                <DxTreeView Data="@_types"
+                            @bind-FilterString="FilterString"
+                            FilterMinLength="2"
+                            ShowFilterPanel="true"
+                            Target="_blank"
+                            FilterMode="FilterMode"
+                            AllowSelectNodes=true
+                            SelectedItem="@SelectedNodes"
+                            SelectedNodeChanged="@OnSelectedNodeChangeds"
+                            AnimationType="LayoutAnimationType.Slide">
+                    <DataMappings>
+                        <DxTreeViewDataMapping Key="ID" ParentKey="ParentId"
+                                               CssClass="CssClass"
+                                               Text="Name"                                               
+                                               NavigateUrl="NavigateUrl" />
+                    </DataMappings>
+                </DxTreeView>
+            </div>
+        </div>
+        <div class="card col-md-9" style="padding-left: 0px; padding-right: 0px;">
+            <div class="card-header text-center">
+                <span> Forum Discussion List</span>
+            </div>
+            <div class="card-body">
+                @if (SelectedNode != null)
+                {
+            <h3>@SelectedNode.Name</h3>
+            <p>@SelectedNode.ID</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    DxTreeView treeView;
+    private List<ForumTypes>? _types;
+    string FilterString { get; set; }
+    NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;
+    public ForumTypes SelectedNodes { get; set; }
+  
+
+    protected override async Task OnInitializedAsync()
+    {
+        var model = await Mediator.Send(new GetAllForumTypes());
+        _types = model;
+    }
+
+    private void OnSelectedNodeChangeds(ForumTypes item)
+    {
+        SelectedNodes = item;
+    }
+    void OnItemClick()
+    {
+        //
+    }
+
+
+
+    private List<TreeViewItem> TreeData = new List<TreeViewItem>
+    {
+        new TreeViewItem { ID = 1, ParentID = null, Name = "Item 1" },
+        new TreeViewItem { ID = 2, ParentID = 1, Name = "Item 1.1" },
+        new TreeViewItem { ID = 3, ParentID = 1, Name = "Item 1.2" },
+        new TreeViewItem { ID = 4, ParentID = 2, Name = "Item 1.1.1" },
+        new TreeViewItem { ID = 5, ParentID = 2, Name = "Item 1.1.2" },
+        new TreeViewItem { ID = 6, ParentID = 3, Name = "Item 1.2.1" }
+    };
+    private TreeViewItem SelectedNode { get; set; }
+
+    private void OnSelectedNodeChanged(TreeViewItem node)
+    {
+        SelectedNode = node;
+        // Do something with the selected node
+    }
+
+    private class TreeViewItem
+    {
+        public int ID { get; set; }
+        public int? ParentID { get; set; }
+        public string Name { get; set; }
+    }
+}

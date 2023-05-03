@@ -1,0 +1,137 @@
+﻿@using Application.Command.LeveMasters;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@page "/LevelMaster"
+
+<DxGrid @ref="Grid"
+        Data="_levelItems"
+        KeyFieldName="LevelID"
+        EditModelSaving="Grid_EditModelSaving"
+        DataItemDeleting="Grid_DataItemDeleting"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360">
+    <Columns>
+        
+        <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="Name" MinWidth="80" />
+        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+        <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
+        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
+        <DxGridCommandColumn Width="160px" />
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var plant = (ViewLevel)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Description"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@plant.CompanyID"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Name" ColSpanMd="6">
+                <DxTextBox @bind-Text="@plant.Name" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                <DxComboBox Data="@_stausItems"
+                            NullText="Select Status..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="CodeValue"
+                            ValueFieldName="CodeId"
+                            @bind-Value="@plant.StatusCodeID"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+    </TotalSummary>
+</DxGrid>
+
+@code {
+    private List<ViewLevel> _levelItems;
+    private List<CodeMaster> _stausItems;
+    private List<ViewPlants> _plantItems;
+    IGrid Grid { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        _levelItems = await Mediator.Send(new GetAllLevelMasterQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+    }
+    async Task UpdateDataAsync()
+    {
+        var model = await Mediator.Send(new GetAllLevelMasterQuery());
+        _levelItems = model;
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            var newData = (ViewLevel)e.EditModel;
+            newData.Name = "";
+            newData.StatusCodeID = null;
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editableData = (ViewLevel)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateLevelMasterCommand
+                {
+                    Name = editableData.Name,
+                    StatusCodeId = editableData.StatusCodeID.Value,
+                    CompanyId = editableData.CompanyID,
+                };
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            await UpdatePlantAsync(editableData);
+        }
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editableData = (ViewLevel)e.DataItem;
+        var request = new DeleteLevelMasterCommand(editableData.LevelID);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    async Task UpdatePlantAsync(ViewLevel editableData)
+    {
+        var request = new EditLevelMasterCommand
+            {
+                LevelId = editableData.LevelID,
+                Name = editableData.Name,
+                StatusCodeId = editableData.StatusCodeID.Value,
+                AddedByUserId = editableData.AddedByUserID,
+                AddedDate = editableData.AddedDate,
+                CompanyId = editableData.CompanyID,
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+}

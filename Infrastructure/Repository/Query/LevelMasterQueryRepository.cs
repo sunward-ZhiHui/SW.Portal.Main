@@ -1,8 +1,6 @@
-﻿using Core.Entities.Views;
-using Core.Repositories.Query;
+﻿using Core.Repositories.Query;
 using Infrastructure.Repository.Query.Base;
 using Dapper;
-using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -15,22 +13,22 @@ using Core.Entities.Views;
 
 namespace Infrastructure.Repository.Query
 {
-    public class DesignationQueryRepository : QueryRepository<ViewDesignation>, IDesignationQueryRepository
+    public class LevelMasterQueryRepository : QueryRepository<ViewLevel>, ILevelMasterQueryRepository
     {
-        public DesignationQueryRepository(IConfiguration configuration)
+        public LevelMasterQueryRepository(IConfiguration configuration)
             : base(configuration)
         {
 
         }
-        public async Task<IReadOnlyList<ViewDesignation>> GetAllAsync()
+        public async Task<IReadOnlyList<ViewLevel>> GetAllAsync()
         {
             try
             {
-                var query = "select  * from view_Designation";
+                var query = "select  * from view_Level";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ViewDesignation>(query)).ToList();
+                    return (await connection.QueryAsync<ViewLevel>(query)).ToList();
                 }
             }
             catch (Exception exp)
@@ -38,17 +36,17 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<ViewDesignation> GetByIdAsync(long id)
+        public async Task<ViewLevel> GetByIdAsync(long id)
         {
             try
             {
-                var query = "SELECT * FROM view_Designation WHERE designationId = @Id";
+                var query = "SELECT * FROM view_Level WHERE LevelId = @Id";
                 var parameters = new DynamicParameters();
                 parameters.Add("Id", id, DbType.Int64);
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryFirstOrDefaultAsync<ViewDesignation>(query, parameters));
+                    return (await connection.QueryFirstOrDefaultAsync<ViewLevel>(query, parameters));
                 }
             }
             catch (Exception exp)
@@ -59,7 +57,3 @@ namespace Infrastructure.Repository.Query
 
     }
 }
-
-
-
-

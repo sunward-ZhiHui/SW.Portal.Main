@@ -1,13 +1,15 @@
-﻿using System;
+﻿using Application.Response;
+using MediatR;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Application.Command.LeveMasters
 {
-    public class LevelMaster
+    public class CreateLevelMasterCommand : IRequest<LevelMasterResponse>
     {
         [Key]
         public long LevelId { get; set; }
@@ -19,5 +21,13 @@ namespace Core.Entities
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public CreateLevelMasterCommand()
+        {
+            this.AddedDate = DateTime.Now;
+            this.ModifiedDate = DateTime.Now;
+            this.AddedByUserId = 1;
+            this.ModifiedByUserId = 1;
+            this.Priority = 1;
+        }
     }
 }

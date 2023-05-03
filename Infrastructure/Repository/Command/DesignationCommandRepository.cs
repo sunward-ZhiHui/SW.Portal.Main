@@ -1,5 +1,7 @@
 ﻿using Core.Entities;
 using Core.Repositories.Command;
+using Infrastructure.Data;
+using Infrastructure.Repository.Command.Base;
 using Dapper;
 using Infrastructure.Repository.Command.Base;
 using Microsoft.Extensions.Configuration;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application.Response
 {
-    public class LevelResponse
+    public class LevelMasterResponse
     {
         public long LevelID { get; set; }
         public string? Name { get; set; }

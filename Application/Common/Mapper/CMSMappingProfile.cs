@@ -54,6 +54,14 @@ namespace Application.Common.Mapper
 
             CreateMap<ForumCategorys, ForumCategoryResponse>().ReverseMap();
             CreateMap<ForumTopics, ForumTopicsResponse>().ReverseMap();
+
+            CreateMap<LevelMaster, CreateLevelMasterCommand>().ReverseMap();
+            CreateMap<LevelMaster, EditLevelMasterCommand>().ReverseMap();
+            CreateMap<LevelMaster, DeleteLevelMasterCommand>().ReverseMap();
+
+            CreateMap<Designation, CreateDesignationCommand>().ReverseMap();
+            CreateMap<Designation, EditDesignationCommand>().ReverseMap();
+            CreateMap<Designation, DeleteDesignationCommand>().ReverseMap();
         }
     }
 }

@@ -38,5 +38,16 @@ namespace Core.Entities.Views
         [Required(ErrorMessage = "SubSection is Required")]
         public long? SubSectionID { get; set; }
         public string? SubSectionName { get; set; }
+        public string? SubSectionDescription { get; set; }
+        public long? SectionID { get; set; }
+        public string? SectionName { get; set; }
+        public string? SectionDescription { get; set; }
+        public long? DepartmentID { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? DepartmentDescription { get; set; }
+        public long? DivisionID { get; set; }
+        public string? DivisionName { get; set; }
+        public string? DivisionDescription { get; set; }
+        public string? PlantCode { get; set; }
     }
 }

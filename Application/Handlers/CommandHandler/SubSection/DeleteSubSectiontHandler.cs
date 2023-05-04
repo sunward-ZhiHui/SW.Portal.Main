@@ -29,7 +29,7 @@ namespace Application.Handlers.CommandHandler
                     SubSectionId= request.Id,
                     Name=queryEntity.SubSectionName,
                     AddedByUserId= queryEntity.AddedByUserId,
-                    StatusCodeId= queryEntity.StatusCodeId,
+                    StatusCodeId= queryEntity.StatusCodeId.Value,
                 };
 
                 await _commandRepository.DeleteAsync(data);

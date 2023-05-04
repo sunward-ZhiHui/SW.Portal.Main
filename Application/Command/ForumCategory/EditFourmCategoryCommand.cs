@@ -1,0 +1,32 @@
+﻿using Application.Response;
+using Core.Entities;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Application.Command.ForumCategory
+{
+    public class EditFourmCategoryCommand : IRequest<ForumCategoryResponse>
+    {
+        public long ID { get; set; }
+        public long TypeId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public DateTime AddedDate { get; set; }
+        public long? ModifiedByUserID { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public Guid? SessionId { get; set; }
+        public long? AddedByUserID { get; set; }
+        public int? StatusCodeID { get; set; }
+        public EditFourmCategoryCommand()
+        {
+            this.ModifiedDate = DateTime.Now;
+            this.ModifiedByUserID = 1;
+        }
+    }
+}
+
+   

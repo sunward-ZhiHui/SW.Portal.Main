@@ -22,6 +22,7 @@
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         AutoExpandAllGroupRows="true"
+        ValidationEnabled="true"
         CssClass="ch-360">
     <Columns>
         
@@ -51,15 +52,19 @@
                             @bind-Value="@plant.CompanyId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => plant.CompanyId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
-                <DxTextBox @bind-Text="@plant.Name" />
+                <DxTextBox @bind-Text="@plant.Name" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Name)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Code" ColSpanMd="6">
-                <DxTextBox @bind-Text="@plant.Code" />
+                <DxTextBox @bind-Text="@plant.Code" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Code)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                <DxMemo @bind-Text="@plant.Description" Rows="5" />
+                <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Description)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                 <DxComboBox Data="@_stausItems"
@@ -70,6 +75,7 @@
                             @bind-Value="@plant.StatusCodeID"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => plant.StatusCodeID)" />
             </DxFormLayoutItem>
         </DxFormLayout>
     </EditFormTemplate>

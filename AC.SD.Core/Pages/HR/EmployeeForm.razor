@@ -1,0 +1,403 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@page "/EmployeeForm"
+
+<DxFormLayout CssClass="w-100">
+    <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+        <DxFormLayoutTabPage Caption="Personal Information">
+            <DxFormLayoutGroup Caption="Personal Information" ColSpanMd="6">
+                <DxFormLayoutItem Caption="First Name" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@employee.FirstName" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Last Name" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@employee.LastName" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Nick Name:" ColSpanMd="12">
+                    <DxTextBox @bind-Date="@employee.NickName" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Gender" ColSpanMd="12">
+                    <DxComboBox Data="@GenderList" @bind-Value="@employee.Gender"></DxComboBox>
+                </DxFormLayoutItem>
+            </DxFormLayoutGroup>
+            <DxFormLayoutGroup Caption="Login Credentials" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Login ID" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@employee.LoginID" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Password" ColSpanMd="12">
+                    <DxTextBox Password="true" @bind-Text="@employee.LoginPassword" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="User Role" ColSpanMd="12">
+                    <DxComboBox Data="@_roles"
+                                NullText="Select Role..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="RoleName"
+                                ValueFieldName="RoleID"
+                                @bind-Value="@employee.RoleID" />
+                </DxFormLayoutItem>
+            </DxFormLayoutGroup>
+            <DxFormLayoutGroup Caption="Main Employment Information" ColSpanMd="12">
+                <DxFormLayoutItem Caption="Designation" ColSpanMd="6">
+                    <DxComboBox Data="@_designationItems"
+                                NullText="Select Designation..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="DesignationID"
+                                @bind-Value="@employee.DesignationID"
+                                SelectedItemChanged="@((ViewDesignation depSelect) => SelectedItemChanged(depSelect))" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                    <DxComboBox Data="@_departmentItems"
+                                NullText="Select Department..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="DepartmentName"
+                                ValueFieldName="DepartmentId"
+                                @bind-Value="@employee.DepartmentID" ReadOnly="true" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
+                    <DxComboBox Data="@_subSectionItems"
+                                NullText="Select SubSection..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="SubSectionName"
+                                ValueFieldName="SubSectionId"
+                                @bind-Value="@employee.SubSectionID" ReadOnly="true" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Description"
+                                ValueFieldName="PlantID"
+                                @bind-Value="@employee.PlantID" ReadOnly="true" />
+
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                    <DxComboBox Data="@_sectionItems"
+                                NullText="Select Section..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="SectionName"
+                                ValueFieldName="SectionId"
+                                @bind-Value="@employee.SectionID" ReadOnly="true" />
+
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                    <DxComboBox Data="@_divisionsItems"
+                                NullText="Select Division..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="DivisionID"
+                                @bind-Value="@employee.DivisionID" ReadOnly="true" />
+
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Level" ColSpanMd="6">
+                    <DxComboBox Data="@_leveMasterItems"
+                                NullText="Select Level..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="LevelID"
+                                @bind-Value="@employee.LevelID" ReadOnly="true" />
+
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Employment Type" ColSpanMd="6">
+                    <DxComboBox Data="@_employmentTypeItems"
+                                NullText="Select Employment Type..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailId"
+                                @bind-Value="@employee.TypeOfEmployeement" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Designation Head Count" ColSpanMd="6">
+                    <DxComboBox Data="@_designationCountItems"
+                                NullText="Select Designation Count..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                @bind-Value="@employee.HeadCount" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Start Employment Date" ColSpanMd="6">
+
+                    <DxDateEdit NullText="Select a date..." @bind-Date="@employee.ExpectedJoiningDate" CssClass="cw-320" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="SageID" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@employee.SageID" />
+                </DxFormLayoutItem>
+            </DxFormLayoutGroup>
+            <DxFormLayoutGroup Caption="Communication Infromation" ColSpanMd="12">
+                <DxFormLayoutItem Caption="User Role" ColSpanMd="4">
+                    <DxComboBox Data="@_languageMasterItems"
+                                NullText="Select Language..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="LanguageId"
+                                @bind-Value="@employee.LanguageID" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Extension" ColSpanMd="4">
+                    <DxTextBox @bind-Text="@employee.Extension" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Speed Dial" ColSpanMd="4">
+                    <DxTextBox @bind-Text="@employee.SpeedDial" />
+                </DxFormLayoutItem>
+            </DxFormLayoutGroup>
+            <DxFormLayoutItem ColSpanMd="12">
+                <DxButton SubmitFormOnClick="true"
+                          Text="Submit"
+                          RenderStyle="ButtonRenderStyle.Primary" />
+            </DxFormLayoutItem>
+        </DxFormLayoutTabPage>
+        <DxFormLayoutTabPage Caption="Other Duty Information">
+            <DxGrid @ref="_otherInfoGrid"
+                    Data="_employeeOtherDutyInfoItems"
+                    KeyFieldName="PlantID"
+                    EditModelSaving="Grid_EditModelSaving"
+                    DataItemDeleting="Grid_DataItemDeleting"
+                    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                    PageSizeSelectorVisible="true"
+                    PageSizeSelectorAllRowsItemVisible="true"
+                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                    PageSize="20"
+                    SelectionMode="GridSelectionMode.Multiple"
+                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                    ValidationEnabled="true"
+                    AutoExpandAllGroupRows="true"
+                    CssClass="ch-360">
+                <Columns>
+
+                    <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
+                    <DxGridDataColumn FieldName="DivisionName" Caption="Division" MinWidth="80" />
+                    <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="80" />
+                    <DxGridDataColumn FieldName="SectionName" Caption="Section" Width="10%" />
+                    <DxGridDataColumn FieldName="SubSectionName" Caption="SubSection" Width="10%" />
+                    <DxGridDataColumn FieldName="SubSectionName" Caption="SubSection" Width="10%" />
+                    <DxGridDataColumn FieldName="LevelName" Caption="Level" Width="10%" />
+                    <DxGridDataColumn FieldName="DutyType" Width="10%" />
+                    <DxGridDataColumn FieldName="StartDate" MinWidth="80" />
+                    <DxGridDataColumn FieldName="EndDate" MinWidth="80" />
+                    <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+                    <DxGridCommandColumn Width="160px" />
+                </Columns>
+                <EditFormTemplate Context="EditFormContext">
+                    @{
+                        var responseOtherData = (EmployeeOtherDutyInformationResponse)EditFormContext.EditModel;
+                    }
+                    <DxFormLayoutItem Caption="Designation" ColSpanMd="6">
+                        <DxComboBox Data="@_designationItems"
+                                    NullText="Select Designation..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="DesignationID"
+                                    @bind-Value="@responseOtherData.DesignationId"
+                                    SelectedItemChanged="@((ViewDesignation depSelect) => SelectedItemOtherChanged(depSelect))" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                        <DxComboBox Data="@_departmentItems"
+                                    NullText="Select Department..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="DepartmentName"
+                                    ValueFieldName="DepartmentId"
+                                    @bind-Value="@responseOtherData.DepartmentId" ReadOnly="true" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
+                        <DxComboBox Data="@_subSectionItems"
+                                    NullText="Select SubSection..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SubSectionName"
+                                    ValueFieldName="SubSectionId"
+                                    @bind-Value="@responseOtherData.SubSectionId" ReadOnly="true" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Description"
+                                    ValueFieldName="PlantID"
+                                    @bind-Value="@responseOtherData.CompanyId" ReadOnly="true" />
+
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                        <DxComboBox Data="@_sectionItems"
+                                    NullText="Select Section..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SectionName"
+                                    ValueFieldName="SectionId"
+                                    @bind-Value="@responseOtherData.SectionId" ReadOnly="true" />
+
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                        <DxComboBox Data="@_divisionsItems"
+                                    NullText="Select Division..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="DivisionID"
+                                    @bind-Value="@responseOtherData.DivisionId" ReadOnly="true" />
+
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Level" ColSpanMd="6">
+                        <DxComboBox Data="@_leveMasterItems"
+                                    NullText="Select Level..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="LevelID"
+                                    @bind-Value="@employee.LevelID" ReadOnly="true" />
+
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Employment Type" ColSpanMd="6">
+                        <DxComboBox Data="@_employmentTypeItems"
+                                    NullText="Select Employment Type..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Value"
+                                    ValueFieldName="ApplicationMasterDetailId"
+                                    @bind-Value="@employee.TypeOfEmployeement" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Designation Head Count" ColSpanMd="6">
+                        <DxComboBox Data="@_designationCountItems"
+                                    NullText="Select Designation Count..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    @bind-Value="@employee.HeadCount" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Start Employment Date" ColSpanMd="6">
+
+                        <DxDateEdit NullText="Select a date..." @bind-Date="@employee.ExpectedJoiningDate" CssClass="cw-320" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="SageID" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@employee.SageID" />
+                    </DxFormLayoutItem>
+                </EditFormTemplate>
+            </DxGrid>
+
+        </DxFormLayoutTabPage>
+    </DxFormLayoutTabPages>
+</DxFormLayout>
+
+
+
+@code {
+    int ActiveTabIndex { get; set; } = 0;
+    private List<LanguageMaster> _languageMasterItems;
+    private List<ApplicationMasterDetail> _employmentTypeItems;
+    private List<ApplicationRole> _roles;
+    private List<ViewPlants> _plantItems;
+    private List<CodeMaster> _stausItems;
+    private List<ViewDepartment> _departmentItems;
+    private List<ViewDivision> _divisionsItems;
+    private List<ViewDesignation> _designationItems;
+    private List<ViewSection> _sectionItems;
+    private List<ViewSubSection> _subSectionItems;
+    private List<ViewLevel> _leveMasterItems;
+    EmployeeResponse employee = new EmployeeResponse();
+    private List<EmployeeOtherDutyInformationResponse> _employeeOtherDutyInfoItems;
+    EmployeeOtherDutyInformationResponse employeeOtherDutyInformationResponse = new EmployeeOtherDutyInformationResponse();
+    IGrid _otherInfoGrid { get; set; }
+    List<string> GenderList = new List<string>() { "Male", "Female" };
+    List<int> _designationCountItems = new List<int>();
+    protected override async Task OnInitializedAsync()
+    {
+        _roles = await Mediator.Send(new GetAllRoleQuery());
+        _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        _divisionsItems = await Mediator.Send(new GetAllDivisionQuery());
+        _sectionItems = await Mediator.Send(new GetAllSectionQuery());
+        _subSectionItems = await Mediator.Send(new GetAllSubSectionQuery());
+        _designationItems = await Mediator.Send(new GetAllDesignationQuery());
+        _leveMasterItems = await Mediator.Send(new GetAllLevelMasterQuery());
+        _languageMasterItems = await Mediator.Send(new GetAllLanguageQuery());
+        employee.EmployeeID = 1;
+        employee.FirstName = "Karuppusamy";
+        employee.LastName = "A";
+        employee.NickName = "Ga";
+        employee.Gender = "Male";
+        employee.LanguageID = 3;
+    }
+    void SelectedItemChanged(ViewDesignation viewDesignation)
+    {
+        employee.DepartmentID = viewDesignation.DepartmentID;
+        employee.PlantID = viewDesignation.CompanyID;
+        employee.DivisionID = viewDesignation.DivisionID;
+        employee.LevelID = viewDesignation.LevelID;
+
+        employee.SectionID = viewDesignation.SectionID;
+        employee.SubSectionID = viewDesignation.SubSectionID;
+        employee.DesignationID = viewDesignation.DesignationID;
+        _designationCountItems = new List<int>();
+        if (viewDesignation.HeadCount > 0)
+        {
+            for (int i = 1; i <= viewDesignation.HeadCount; i++)
+            {
+                _designationCountItems.Add(i);
+            }
+        }
+    }
+    void SelectedItemOtherChanged(ViewDesignation viewDesignation)
+    {
+        employeeOtherDutyInformationResponse.DepartmentId = viewDesignation.DepartmentID;
+        employeeOtherDutyInformationResponse.CompanyId = viewDesignation.CompanyID;
+        employeeOtherDutyInformationResponse.DivisionId = viewDesignation.DivisionID;
+        employeeOtherDutyInformationResponse.LevelId = viewDesignation.LevelID;
+        employeeOtherDutyInformationResponse.SectionId = viewDesignation.SectionID;
+        employeeOtherDutyInformationResponse.SubSectionId = viewDesignation.SubSectionID;
+        employeeOtherDutyInformationResponse.DesignationId = viewDesignation.DesignationID;
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editableData = (EmployeeOtherDutyInformationResponse)e.EditModel;
+        if (e.IsNew)
+        {
+            //var request = new CreatePlantCommand
+            //    {
+            //        PlantCode = editablePlant.PlantCode,
+            //        Description = editablePlant.Description,
+            //        StatusCodeID = editablePlant.StatusCodeID,
+            //    };
+            //await Mediator.Send(request);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            await UpdateOtherInfoAsync(editableData);
+        }
+
+    }
+    async Task UpdateDataAsync()
+    {
+        //var request = new EditPlantCommand
+        //    {
+        //        PlantID = editablePlant.PlantID,
+        //        PlantCode = editablePlant.PlantCode,
+        //        Description = editablePlant.Description,
+        //        StatusCodeID = editablePlant.StatusCodeID,
+        //        AddedByUserID = editablePlant.AddedByUserID,
+        //        AddedDate = editablePlant.AddedDate,
+        //    };
+        //await Mediator.Send(request);
+        //await UpdateDataAsync();
+    }
+    async Task UpdateOtherInfoAsync(EmployeeOtherDutyInformationResponse editableData)
+    {
+
+        //var request = new CreatePlantCommand
+        //    {
+        //        PlantCode = editablePlant.PlantCode,
+        //        Description = editablePlant.Description,
+        //        StatusCodeID = editablePlant.StatusCodeID,
+        //    };
+        //await Mediator.Send(request);
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editableData = (EmployeeOtherDutyInformationResponse)e.DataItem;
+        // var request = new DeletePlantCommand(editablePlant.PlantID);
+        //await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    void HandleValidSubmit()
+    {
+        Console.WriteLine("Test");
+    }
+    void HandleInvalidSubmit()
+    {
+    }
+}

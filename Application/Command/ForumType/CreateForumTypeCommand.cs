@@ -11,7 +11,8 @@ namespace Application.Commands
 {
     public class CreateForumTypeCommand : IRequest<ForumTypeResponse>
     {
-        public long ID { get; set; }         
+        public long ID { get; set; }
+       
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime AddedDate { get; set; }

@@ -95,7 +95,12 @@
 
 
         //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
-    }   
+    } 
+    async Task UpdateDataAsync()
+    {
+        var model = await Mediator.Send(new GetAllForumTypes());
+        _types = model;
+    }
     async Task ExportToExcel()
     {
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
@@ -147,14 +152,15 @@
             try
             {
                 var result = await Mediator.Send(createReq);
+                PopupVisible = true;
             }
             catch (Exception ex)
             {
                 errorMessage = ex.Message;
                 PopupVisible = true;
-               
+
             }
-       
+
 
             //var request = new CreateCommand<ForumTypeResponse>
             //    {
@@ -189,9 +195,10 @@
         }     
 
     }
-    void ClosePopup()
+    async void ClosePopup()
     {
         PopupVisible = false;
+        await UpdateDataAsync();
     }
     async Task OnDeleeDataItem(GridDataItemDeletingEventArgs e)
     {

@@ -1,0 +1,205 @@
+﻿@using Application.Command.designations;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@page "/designation"
+
+<DxGrid @ref="Grid"
+        Data="_designationItems"
+        KeyFieldName="DesignationID"
+        EditModelSaving="Grid_EditModelSaving"
+        DataItemDeleting="Grid_DataItemDeleting"
+        CustomizeEditModel="Grid_CustomizeEditModel"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true"
+        ValidationEnabled="true"
+        CssClass="ch-360">
+    <Columns>
+
+        <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="SubSectionName" MinWidth="80" />
+        <DxGridDataColumn FieldName="LevelName" MinWidth="80" />
+        <DxGridDataColumn FieldName="Name" MinWidth="80" />
+        <DxGridDataColumn FieldName="Code" MinWidth="80" />
+        <DxGridDataColumn FieldName="Description" MinWidth="80" />
+        <DxGridDataColumn FieldName="HeadCount" MinWidth="80" />
+        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+        <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
+        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
+        <DxGridCommandColumn Width="160px" />
+
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var plant = (ViewDesignation)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxComboBox Data="@_plantItems"
+                            SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect.PlantID))"
+                            NullText="Select Company..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Description"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@plant.CompanyID" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.CompanyID)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
+                <DxComboBox Data="@_subsectionItems"
+                            NullText="Select SubSection..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="SubSectionName"
+                            ValueFieldName="SubSectionId"
+                            @bind-Value="@plant.SubSectionID"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => plant.SubSectionID)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Level Master" ColSpanMd="6">
+                <DxComboBox Data="@_levelListItems"
+                            NullText="Select Level Master..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="LevelID"
+                            @bind-Value="@plant.LevelID"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => plant.LevelID)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Name" ColSpanMd="6">
+                <DxTextBox @bind-Text="@plant.Name" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Name)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Code" ColSpanMd="6">
+                <DxTextBox @bind-Text="@plant.Code" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Code)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Description)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="HeadCount" ColSpanMd="6">
+                <DxSpinEdit @bind-Value="@plant.HeadCount" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.HeadCount)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                <DxComboBox Data="@_stausItems"
+                            NullText="Select Status..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="CodeValue"
+                            ValueFieldName="CodeId"
+                            @bind-Value="@plant.StatusCodeID"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => plant.StatusCodeID)" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+    </TotalSummary>
+</DxGrid>
+
+@code {
+    private List<ViewPlants> _plantItems;
+    private List<ViewDesignation> _designationItems;
+    private List<CodeMaster> _stausItems;
+    private List<ViewLevel> levelItems;
+    private List<ViewLevel> _levelListItems;
+    private List<ViewSubSection> _subsectionListItems;
+    private List<ViewSubSection> _subsectionItems;
+    IGrid Grid { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        _designationItems = await Mediator.Send(new GetAllDesignationQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        _subsectionListItems = await Mediator.Send(new GetAllSubSectionQuery());
+        levelItems = await Mediator.Send(new GetAllLevelMasterQuery());
+    }
+    async Task UpdateDataAsync()
+    {
+        _designationItems = await Mediator.Send(new GetAllDesignationQuery());
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var dep = (ViewDesignation)e.DataItem;
+        if (e.IsNew)
+        {
+            _levelListItems = new List<ViewLevel>();
+            _subsectionItems = new List<ViewSubSection>();
+        }
+        else
+        {
+            SelectedItemChanged(dep.CompanyID);
+        }
+    }
+    void SelectedItemChanged(long? plantID)
+    {
+        _levelListItems = levelItems.Where(c => c.CompanyID == plantID).ToList();
+        _subsectionItems = _subsectionListItems.Where(c => c.CompanyId == plantID).ToList();
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editableData = (ViewDesignation)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateDesignationCommand
+                {
+                    Name = editableData.Name,
+                    Description = editableData.Description,
+                    StatusCodeId = editableData.StatusCodeID.Value,
+                    Code = editableData.Code,
+                    CompanyId=editableData.CompanyID,
+                    LevelId = editableData.LevelID,
+                    HeadCount=editableData.HeadCount,
+                    SubSectionID=editableData.SubSectionID,
+                };
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            await UpdatePlantAsync(editableData);
+        }
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editableData = (ViewDesignation)e.DataItem;
+        var request = new DeleteDesignationCommand(editableData.DesignationID);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    async Task UpdatePlantAsync(ViewDesignation editableData)
+    {
+        var request = new EditDesignationCommand
+            {
+                DesignationId = editableData.DesignationID,
+                Name = editableData.Name,
+                Description = editableData.Description,
+                StatusCodeId = editableData.StatusCodeID.Value,
+                AddedByUserId = editableData.AddedByUserID,
+                CompanyId=editableData.CompanyID,
+                AddedDate = editableData.AddedDate,
+                Code = editableData.Code,
+                HeadCount=editableData.HeadCount,
+                LevelId = editableData.LevelID,
+                SubSectionID=editableData.SubSectionID,
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    }

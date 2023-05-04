@@ -20,6 +20,22 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<CodeMaster>> Handle(GetAllCodeMasterQuery request, CancellationToken cancellationToken)
         {
             return (List<CodeMaster>)await _roleQueryRepository.GetCodeMasterByStatus(request.Name);
+
+        }
+    }
+    public class GetAllCodeHandler : IRequestHandler<GetAllCodQuery, List<CodeMaster>>
+    {
+       
+        private readonly IQueryRepository<CodeMaster> _queryRepository;
+        public GetAllCodeHandler( IQueryRepository<CodeMaster> queryRepository)
+        {
+           
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<CodeMaster>> Handle(GetAllCodQuery request, CancellationToken cancellationToken)
+        {
+            return (List<CodeMaster>)await _queryRepository.GetListAsync();
+
         }
     }
 }

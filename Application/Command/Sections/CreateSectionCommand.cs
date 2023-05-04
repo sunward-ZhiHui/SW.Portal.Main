@@ -18,7 +18,7 @@ namespace Application.Command.Sections
         public bool? IsWiki { get; set; }
         public bool? IsTestPaper { get; set; }
         public int? HeadCount { get; set; }
-        public int StatusCodeId { get; set; }
+        public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }

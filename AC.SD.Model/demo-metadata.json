@@ -99,8 +99,8 @@
     },
 
     {
-      "Id": "Masters",
-      "Title": "Masters",
+      "Id": "HR Masters",
+      "Title": "HR Masters",
       "IsMaintenanceMode": false,
       "MaintenanceModeMessage": "The Data Grid was moved to maintenance support mode. No new features/capabilities will be added to this component. We recommend that you [migrate](https://docs.devexpress.com/Blazor/403162/grid/migrate-from-data-grid-to-grid) to the [Grid](Grid) component.",
       "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7:5a1ee13f-3d06-4eb2-8d64-b24f28bae08d",
@@ -151,18 +151,18 @@
 
         },
         {
-          "Id": "Inventory",
-          "Url": "StockItems",
-          "Title": "Inventory",
+          "Id": "Designation",
+          "Url": "designation",
+          "Title": "Designation",
           "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, sorting, grouping, sub-totals, grand-totals, devexpress, demo, sample, example",
           "Description": "DevExpress Blazor Pivot Grid summarizes data from the underlying data source and presents the results in cross-tabulated format. ",
           "DocUrl": "DevExpress.Blazor.DxPivotGrid-1"
 
         },
         {
-          "Id": "Vendor",
-          "Url": "Vendors",
-          "Title": "Vendor",
+          "Id": "LevelMaster",
+          "Url": "LevelMaster",
+          "Title": "Level Master",
           "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, customization, cell templates, formatting, devexpress, demo, sample, example",
           "Description": "DevExpress Blazor Pivot Grid allows you to use native Razor markup to define custom templates for grid fields.",
           "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#templates"
@@ -213,56 +213,11 @@
           "Description": "DevExpress Blazor Pivot Grid allows you to use native Razor markup to define custom templates for grid fields.",
           "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#templates"
 
-        },
-        {
-          "Id": "Packing",
-          "Url": "Packing",
-          "Title": "Packing List",
-          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
-          "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
-          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
-
-        }
-
-      ]
-    },
-    {
-      "Id": "Reports",
-      "Title": "Reports",
-      "IsMaintenanceMode": false,
-      "MaintenanceModeMessage": "The Data Grid was moved to maintenance support mode. No new features/capabilities will be added to this component. We recommend that you [migrate](https://docs.devexpress.com/Blazor/403162/grid/migrate-from-data-grid-to-grid) to the [Grid](Grid) component.",
-      "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7:5a1ee13f-3d06-4eb2-8d64-b24f28bae08d",
-      "Pages": [
-
-        {
-          "Id": "Sales Invoice",
-          "Url": "SalesInvoice",
-          "Title": "Sales Invoice",
-          "Keywords": "blazor, components, data grid, datagrid, grid, conditional formating, conditional data highlighting, alternative row, row style, row color, column style, cell style, custom style, html decoration, html row decoration, html cell decoration, html attributes, devexpress, demo, sample, example",
-          "Description": "HTML decoration in DevExpress Data Grid for Blazor allows you to color data grid cells, rows and columns according to their values.",
-          "DocUrl": "DevExpress.Blazor.DxDataGrid-1.HtmlRowDecoration"
-
-        },
-        {
-          "Id": "DeliveryReport",
-          "Url": "DeliveryReport",
-          "Title": "Delivery Report",
-          "Keywords": "blazor, components, data grid, datagrid, grid, conditional formating, conditional data highlighting, alternative row, row style, row color, column style, cell style, custom style, html decoration, html row decoration, html cell decoration, html attributes, devexpress, demo, sample, example",
-          "Description": "HTML decoration in DevExpress Data Grid for Blazor allows you to color data grid cells, rows and columns according to their values.",
-          "DocUrl": "DevExpress.Blazor.DxDataGrid-1.HtmlRowDecoration"
-
-        },
-        {
-          "Id": "PackingReport",
-          "Url": "PackingReport",
-          "Title": "Packing Report",
-          "Keywords": "blazor, components, data grid, datagrid, grid, conditional formating, conditional data highlighting, alternative row, row style, row color, column style, cell style, custom style, html decoration, html row decoration, html cell decoration, html attributes, devexpress, demo, sample, example",
-          "Description": "HTML decoration in DevExpress Data Grid for Blazor allows you to color data grid cells, rows and columns according to their values.",
-          "DocUrl": "DevExpress.Blazor.DxDataGrid-1.HtmlRowDecoration"
-
         }
       ]
     },
+
+   
     {
       "Id": "Fourm",
       "Title": "Fourm",
@@ -278,7 +233,7 @@
 
         },
         {
-          "Id": "Categorys",
+          "Id": "Export",
           "Url": "FourmCategorys",
           "Title": "Category",
           "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, customization, cell templates, formatting, devexpress, demo, sample, example",

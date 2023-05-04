@@ -23,6 +23,8 @@ namespace Application.Command.designations
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public long? SectionID { get; set; }
+        public long? SubSectionID { get; set; }
         public EditDesignationCommand()
         {
             this.ModifiedDate = DateTime.Now;

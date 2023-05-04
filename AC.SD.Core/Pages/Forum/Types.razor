@@ -22,7 +22,7 @@
 <div class="g-title">
     <div class="g-left"></div>
    
-    <span class=""></span><span class="g-text">Type</span>
+    <span class=""></span><span class="g-text"></span>
     <div class="g-right">
         <button type="button" CssClass="download-btn"
                 IconCssClass="demo-download-icon"
@@ -41,13 +41,13 @@
 </DxPopup>
 
 
-<DxGrid @ref="Grid" Data="@_types" Height="@gridHeight" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleeDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+<DxGrid @ref="Grid" Data="@_types" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleeDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"             
-        CssClass="ch-360"
+        CssClass="grid-auto-height ch-360"
         CustomizeElement="Grid_CustomizeElement"
         AutoExpandAllGroupRows="true"
         SelectionMode="GridSelectionMode.Multiple"
@@ -80,7 +80,7 @@
 
 @code {
 
-    private string gridHeight = "900px";
+    private string gridHeight = "calc(100vh - 230px - 143px)";
     private List<ForumTypes>? _types;
     IGrid? Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
@@ -95,7 +95,12 @@
 
 
         //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
-    }   
+    } 
+    async Task UpdateDataAsync()
+    {
+        var model = await Mediator.Send(new GetAllForumTypes());
+        _types = model;
+    }
     async Task ExportToExcel()
     {
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
@@ -147,14 +152,15 @@
             try
             {
                 var result = await Mediator.Send(createReq);
+                PopupVisible = true;
             }
             catch (Exception ex)
             {
                 errorMessage = ex.Message;
                 PopupVisible = true;
-               
+
             }
-       
+
 
             //var request = new CreateCommand<ForumTypeResponse>
             //    {
@@ -189,9 +195,10 @@
         }     
 
     }
-    void ClosePopup()
+    async void ClosePopup()
     {
         PopupVisible = false;
+        await UpdateDataAsync();
     }
     async Task OnDeleeDataItem(GridDataItemDeletingEventArgs e)
     {

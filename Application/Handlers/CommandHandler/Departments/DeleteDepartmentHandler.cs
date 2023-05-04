@@ -30,7 +30,7 @@ namespace Application.Handlers.CommandHandler
                     CompanyId = queryEntity.CompanyId,
                     Name=queryEntity.DepartmentName,
                     AddedByUserId= queryEntity.AddedByUserId,
-                    StatusCodeId= queryEntity.StatusCodeId,
+                    StatusCodeId= queryEntity.StatusCodeId.Value,
                 };
 
                 await _commandRepository.DeleteAsync(data);

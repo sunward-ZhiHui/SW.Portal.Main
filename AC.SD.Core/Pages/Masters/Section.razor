@@ -52,6 +52,7 @@
                             @bind-Value="@sections.DepartmentId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => sections.DepartmentId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                 <DxTextBox @bind-Text="@companyName" ReadOnly="true" />
@@ -60,15 +61,18 @@
                 <DxTextBox @bind-Text="@divisionName" ReadOnly="true" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Section Name" ColSpanMd="6">
-                <DxTextBox @bind-Text="@sections.SectionName" />
+                <DxTextBox @bind-Text="@sections.SectionName" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => sections.SectionName)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Section Code" ColSpanMd="6">
-                <DxTextBox @bind-Text="@sections.SectionCode" />
+                <DxTextBox @bind-Text="@sections.SectionCode" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => sections.SectionCode)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                <DxMemo @bind-Text="@sections.Description" Rows="5" />
+                <DxMemo @bind-Text="@sections.Description" Rows="5" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => sections.Description)" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="ProfileCode" ColSpanMd="6">
+            <DxFormLayoutItem Caption="Profile Code" ColSpanMd="6">
                 <DxTextBox @bind-Text="@sections.ProfileCode" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Status" ColSpanMd="6">
@@ -80,6 +84,7 @@
                             @bind-Value="@sections.StatusCodeId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => sections.StatusCodeId)" />
             </DxFormLayoutItem>
         </DxFormLayout>
     </EditFormTemplate>

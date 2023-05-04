@@ -1,9 +1,11 @@
 ﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
+@using DevExpress.Blazor.ComboBox;
 @using MediatR
 @using global::Core.Entities;
 @inject IMediator Mediator
+
 
 @page "/ForumTopics"
 
@@ -123,7 +125,7 @@
                 </div>
                 <div class="card col-md-4" style="padding-left: 0px;    padding-right: 0px;">
 
-                    @*<div class="g-title">
+                  @*  <div class="g-title">
                         <div class="g-left"></div>
 
                         <span class=""></span><span class="g-text">Type</span>
@@ -175,12 +177,15 @@
 
 
 @code {
+    bool IsOpen { get; set; } = false;
+  
     bool ShowCheckboxes { get; set; } = true;
     string FormSubmitResult = "";
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     ForumTopics? Data { get; set; } = new ForumTopics();
     IEnumerable<ForumTypes>? _types;
+    IEnumerable<ForumTypes>? Values;
     IEnumerable<ForumCategorys>? _category;
     IEnumerable<ForumTypes>? Values;
    

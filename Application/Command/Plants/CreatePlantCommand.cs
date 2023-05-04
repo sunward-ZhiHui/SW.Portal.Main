@@ -14,9 +14,7 @@ namespace Application.Commands
     {
         public long PlantID { get; set; }
         public long CompanyID { get; set; }
-        [Required]
         public string? PlantCode { get; set; }
-        [Required]
         public string? Description { get; set; }
         public long? RegisteredCountryID { get; set; }
         public string? RegistrationNo { get; set; }

@@ -9,7 +9,7 @@ namespace Application.Response
     public class DesignationResponse
     {
         public long DesignationID { get; set; }
-        public long CompanyID { get; set; }
+        public long? CompanyID { get; set; }
 
         public long? LevelID { get; set; }
         public string? Code { get; set; }

@@ -13,4 +13,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ViewDesignation>> GetAllAsync();
         Task<ViewDesignation> GetByIdAsync(Int64 id);
     }
+    
+    
 }

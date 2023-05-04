@@ -10,19 +10,23 @@ namespace Core.Entities.Views
     public class ViewSubSection
     {
         public long SubSectionId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "SubSection Name is Required")]
         public string SubSectionName { get; set; }
+        [Required(ErrorMessage = "SubSection Code is Required")]
         public string? SubSectionCode { get; set; }
+        [Required(ErrorMessage = "Section is Required")]
         public long? SectionId { get; set; }
         public long? DepartmentId { get; set; }
         public string? SectionName { get; set; }
         public string? SectionCode { get; set; }
+        [Required(ErrorMessage = "Description is Required")]
         public string? Description { get; set; }
         public string? DepartmentName { get; set; }
         public string? DepartmentCode { get; set; }
         public int? HeadCount { get; set; }
         public long? DivisionId { get; set; }
-        public int StatusCodeId { get; set; }
+        [Required(ErrorMessage = "Status Code is Required")]
+        public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }

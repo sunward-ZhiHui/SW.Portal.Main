@@ -15,6 +15,7 @@ using AC.SD.Model.DemoData;
 using AC.SD.Core.Services;
 using Infrastructure;
 using Application;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace SW.Portal.Solutions.ServerSide {
 
@@ -28,6 +29,8 @@ namespace SW.Portal.Solutions.ServerSide {
             bool detailedErrors = Configuration.GetValue("detailedErrors", false);
 #endif
             services.AddServerSideBlazor().AddCircuitOptions(x => x.DetailedErrors = detailedErrors);
+
+            
 
             var optionsBuilder = services.AddOptions();
             optionsBuilder.AddOptions<DemoModel>("AC.SD.Core");
@@ -92,9 +95,9 @@ namespace SW.Portal.Solutions.ServerSide {
             }
 
             app.UseStaticFiles();
-            app.UseStaticFiles(new StaticFileOptions {
-                ServeUnknownFileTypes = true
-            });
+            //app.UseStaticFiles(new StaticFileOptions {
+            //    ServeUnknownFileTypes = true
+            //});
             app.UseEndpoints(endpoints => endpoints.MapBlazorHub());
         }
         public override void Configure(IWebHostBuilder builder) {

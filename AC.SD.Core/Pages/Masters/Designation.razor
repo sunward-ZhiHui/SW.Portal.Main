@@ -28,10 +28,12 @@
     <Columns>
 
         <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="SubSectionName" MinWidth="80" />
         <DxGridDataColumn FieldName="LevelName" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="Code" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" MinWidth="80" />
+        <DxGridDataColumn FieldName="HeadCount" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
         <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
@@ -50,8 +52,19 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
-                            @bind-Value="@plant.CompanyID" />
-
+                            @bind-Value="@plant.CompanyID" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.CompanyID)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
+                <DxComboBox Data="@_subsectionItems"
+                            NullText="Select SubSection..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="SubSectionName"
+                            ValueFieldName="SubSectionId"
+                            @bind-Value="@plant.SubSectionID"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => plant.SubSectionID)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Level Master" ColSpanMd="6">
                 <DxComboBox Data="@_levelListItems"
@@ -62,15 +75,23 @@
                             @bind-Value="@plant.LevelID"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => plant.LevelID)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
-                <DxTextBox @bind-Text="@plant.Name" />
+                <DxTextBox @bind-Text="@plant.Name" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Name)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Code" ColSpanMd="6">
-                <DxTextBox @bind-Text="@plant.Code" />
+                <DxTextBox @bind-Text="@plant.Code" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Code)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                <DxMemo @bind-Text="@plant.Description" Rows="5" />
+                <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Description)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="HeadCount" ColSpanMd="6">
+                <DxSpinEdit @bind-Value="@plant.HeadCount" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.HeadCount)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                 <DxComboBox Data="@_stausItems"
@@ -81,6 +102,7 @@
                             @bind-Value="@plant.StatusCodeID"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => plant.StatusCodeID)" />
             </DxFormLayoutItem>
         </DxFormLayout>
     </EditFormTemplate>
@@ -95,12 +117,15 @@
     private List<CodeMaster> _stausItems;
     private List<ViewLevel> levelItems;
     private List<ViewLevel> _levelListItems;
+    private List<ViewSubSection> _subsectionListItems;
+    private List<ViewSubSection> _subsectionItems;
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         _designationItems = await Mediator.Send(new GetAllDesignationQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        _subsectionListItems = await Mediator.Send(new GetAllSubSectionQuery());
         levelItems = await Mediator.Send(new GetAllLevelMasterQuery());
     }
     async Task UpdateDataAsync()
@@ -113,6 +138,7 @@
         if (e.IsNew)
         {
             _levelListItems = new List<ViewLevel>();
+            _subsectionItems = new List<ViewSubSection>();
         }
         else
         {
@@ -121,7 +147,8 @@
     }
     void SelectedItemChanged(long? plantID)
     {
-       _levelListItems = levelItems.Where(c => c.CompanyID == plantID).ToList();
+        _levelListItems = levelItems.Where(c => c.CompanyID == plantID).ToList();
+        _subsectionItems = _subsectionListItems.Where(c => c.CompanyId == plantID).ToList();
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
@@ -136,6 +163,8 @@
                     Code = editableData.Code,
                     CompanyId=editableData.CompanyID,
                     LevelId = editableData.LevelID,
+                    HeadCount=editableData.HeadCount,
+                    SubSectionID=editableData.SubSectionID,
                 };
             await Mediator.Send(request);
             await UpdateDataAsync();
@@ -165,7 +194,9 @@
                 CompanyId=editableData.CompanyID,
                 AddedDate = editableData.AddedDate,
                 Code = editableData.Code,
+                HeadCount=editableData.HeadCount,
                 LevelId = editableData.LevelID,
+                SubSectionID=editableData.SubSectionID,
             };
         await Mediator.Send(request);
         await UpdateDataAsync();

@@ -4,6 +4,7 @@ using System.Net.Http;
 using AC.SD.Core;
 using AC.SD.Core.Configuration;
 using AC.SD.Core.DataProviders;
+using Microsoft.AspNetCore.Authentication.Cookies;
 //using AC.ShippingDocument.DataProviders.Implementation;
 //using AC.ShippingDocument.Wasm.Server.DataProviders;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
 
@@ -32,6 +34,7 @@ namespace SW.Portal.Solutions.ServerSide {
 
             builder.ConfigureServices(ConfigureServices);
             builder.Configure(ConfigureApp);
+            
 
             void ConfigureApp(WebHostBuilderContext context, IApplicationBuilder app) {
                 string pathBase = Configuration.GetValue<string>("pathbase");
@@ -41,6 +44,8 @@ namespace SW.Portal.Solutions.ServerSide {
                 }
 
                 app.UseRequestLocalization(new RequestLocalizationOptions().SetDefaultCulture("en-US"));
+               
+                app.UseAuthentication();                
 
                 app.UseResponseCompression();
                 app.UseRouting();
@@ -83,7 +88,7 @@ namespace SW.Portal.Solutions.ServerSide {
                         };
                 });
                 services.AddControllers().AddJsonOptions(ConfigureJsonOptions);
-                services.AddDemoServices();
+                services.AddDemoServices();                
 
                 //services.AddSingleton<ISalesInfoDataProvider, SalesInfoDataProvider>();
                 //services.AddSingleton<IExperimentResultDataProvider, ExperimentResultDataProvider>();

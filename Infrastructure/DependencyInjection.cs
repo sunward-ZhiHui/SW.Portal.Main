@@ -39,12 +39,15 @@ namespace Infrastructure
             services.AddTransient<IDepartmentQueryRepository, DepartmentQueryRepository>();
             services.AddTransient<ISectionQueryRepository, SectionQueryRepository>();
             services.AddTransient<ISubSectionQueryRepository, SubSectionQueryRepository>();
-            services.AddTransient<ILevelMasterQueryRepository, LevelMasterQueryRepository>();
             services.AddTransient<IDesignationQueryRepository, DesignationQueryRepository>();
             services.AddTransient<ILayOutPlanTypeQueryRepository,LayOutPlanTypeQueryRepository>();
 
+
+            services.AddTransient<IFourmCategoryQueryRepository, FourmCategoryQueryRepository>();
+            services.AddTransient<ILevelMasterQueryRepository, LevelMasterQueryRepository>();
             services.AddTransient<IForumTypeQueryRepository, ForumTypeQueryRepository>();
             services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();
+            services.AddTransient<IFourmCategoryCommandRepository, FourmCategoryCommandRepository>();
             services.AddTransient<IForumTopicsQueryRepository, ForumTopicsQueryRepository>();
 
 
@@ -53,12 +56,7 @@ namespace Infrastructure
             services.AddTransient<IDivisionCommandRepository, DivisionCommandRepository>();
             services.AddTransient<IDepartmentCommandRepository, DepartmentCommandRepository>();
             services.AddTransient<ISubSectionCommandRepository, SubSectionCommandRepository>();
-            services.AddTransient<ILevelMasterCommandRepository, LevelMasterCommandRepository>();
             services.AddTransient<IDesignationCommandRepository, DesignationCommandRepository>();
-
-            services.AddTransient<ILayOutPlanCommandRepository,LayOutPlanTypeCommandRepository>();
-
-
             return services;
         }
     }

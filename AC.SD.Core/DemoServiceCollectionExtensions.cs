@@ -2,9 +2,10 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using AC.SD.Core.Configuration;
- 
+using AC.SD.Core.Services;
 using DevExpress.Blazor.DocumentMetadata;
 using DevExpress.Blazor.RichEdit.SpellCheck;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
@@ -48,6 +49,17 @@ namespace AC.SD.Core
 
             services.AddDocumentMetadata(ConfigureMetadata);
             services.AddSingleton<DemoConfiguration>();
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                    .AddCookie(options =>
+                    {
+                        options.LoginPath = "/login";
+                    });
+
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IAlertService, AlertService>();
+            services.AddScoped<IHttpService, HttpService>();
+            services.AddScoped<ILocalStorageService, LocalStorageService>();
+
 
             static void ConfigureMetadata(IServiceProvider sp, IDocumentMetadataCollection metadataCollection) {
                 sp.GetService<DemoConfiguration>().ConfigureMetadata(metadataCollection);

@@ -47,9 +47,11 @@
                             @bind-Value="@plant.CompanyID"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => plant.CompanyID)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
-                <DxTextBox @bind-Text="@plant.Name" />
+                <DxTextBox @bind-Text="@plant.Name" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Name)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                 <DxComboBox Data="@_stausItems"
@@ -60,6 +62,7 @@
                             @bind-Value="@plant.StatusCodeID"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => plant.StatusCodeID)" />
             </DxFormLayoutItem>
         </DxFormLayout>
     </EditFormTemplate>

@@ -24,6 +24,7 @@
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         AutoExpandAllGroupRows="true"
+        ValidationEnabled="true"
         CssClass="ch-360">
     <Columns>
 
@@ -54,6 +55,7 @@
                             @bind-Value="@sections.SectionId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => sections.SectionId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                 <DxTextBox @bind-Text="@companyName" ReadOnly="true" />
@@ -65,15 +67,18 @@
                 <DxTextBox @bind-Text="@sectionName" ReadOnly="true" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="SubSection Name" ColSpanMd="6">
-                <DxTextBox @bind-Text="@sections.SubSectionName" />
+                <DxTextBox @bind-Text="@sections.SubSectionName" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => sections.SubSectionName)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Section Code" ColSpanMd="6">
-                <DxTextBox @bind-Text="@sections.SubSectionCode" />
+                <DxTextBox @bind-Text="@sections.SubSectionCode" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => sections.SubSectionCode)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                <DxMemo @bind-Text="@sections.Description" Rows="5" />
+                <DxMemo @bind-Text="@sections.Description" Rows="5" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => sections.Description)" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="ProfileCode" ColSpanMd="6">
+            <DxFormLayoutItem Caption="Profile Code" ColSpanMd="6">
                 <DxTextBox @bind-Text="@sections.ProfileCode" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Status" ColSpanMd="6">
@@ -85,6 +90,7 @@
                             @bind-Value="@sections.StatusCodeId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => sections.StatusCodeId)" />
             </DxFormLayoutItem>
         </DxFormLayout>
     </EditFormTemplate>

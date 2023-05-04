@@ -24,6 +24,7 @@
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         AutoExpandAllGroupRows="true"
+        ValidationEnabled="true"
         CssClass="ch-360">
     <Columns>
 
@@ -52,8 +53,8 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
-                            @bind-Value="@plant.CompanyID" />
-
+                            @bind-Value="@plant.CompanyID" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.CompanyID)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
                 <DxComboBox Data="@_subsectionItems"
@@ -64,6 +65,7 @@
                             @bind-Value="@plant.SubSectionID"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => plant.SubSectionID)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Level Master" ColSpanMd="6">
                 <DxComboBox Data="@_levelListItems"
@@ -74,18 +76,23 @@
                             @bind-Value="@plant.LevelID"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => plant.LevelID)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
-                <DxTextBox @bind-Text="@plant.Name" />
+                <DxTextBox @bind-Text="@plant.Name" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Name)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Code" ColSpanMd="6">
-                <DxTextBox @bind-Text="@plant.Code" />
+                <DxTextBox @bind-Text="@plant.Code" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Code)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                <DxMemo @bind-Text="@plant.Description" Rows="5" />
+                <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.Description)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="HeadCount" ColSpanMd="6">
-                <DxSpinEdit @bind-Value="@plant.HeadCount" />
+                <DxSpinEdit @bind-Value="@plant.HeadCount" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => plant.HeadCount)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                 <DxComboBox Data="@_stausItems"
@@ -96,6 +103,7 @@
                             @bind-Value="@plant.StatusCodeID"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => plant.StatusCodeID)" />
             </DxFormLayoutItem>
         </DxFormLayout>
     </EditFormTemplate>

@@ -90,14 +90,16 @@
                                         CssClass="cw-480" />
                         </DxFormLayoutItem>
 
-                        <DxFormLayoutItem ColSpanMd="6">
+                        <DxFormLayoutItem ColSpanMd="6" >
                             <label for="ForumTo">To </label>
+
                             <DxComboBox Data="@_category"
                                         ListRenderMode="ListRenderMode.Virtual"
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         TextFieldName="@nameof(_category)"
                                         @bind-Value="@_category"
                                         CssClass="cw-480" />
+
                         </DxFormLayoutItem>
 
                         <DxFormLayoutItem ColSpanMd="6">
@@ -180,7 +182,8 @@
     ForumTopics? Data { get; set; } = new ForumTopics();
     IEnumerable<ForumTypes>? _types;
     IEnumerable<ForumCategorys>? _category;
-
+    IEnumerable<ForumTypes>? Values;
+   
 
     IReadOnlyList<object>? SelectedDataItems { get; set; }
     //private List<ForumTypes>? SelectedDataItems;

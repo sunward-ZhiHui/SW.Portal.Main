@@ -1,0 +1,149 @@
+﻿@page "/account/login"
+@using AC.SD.Core.Helpers;
+@inject IAccountService AccountService
+@inject IAlertService AlertService
+@inject NavigationManager NavigationManager
+@layout LoginLayout
+
+
+<div class="limiter">
+    <div class="container-login display-center">
+        <div class="wrap-login">
+            <div class="top-login">
+                <div class="top-left-login display-center">
+                    <div class="login-pic">
+                        <img src="../assets/images/SW-Left.png" alt="Chat App" />
+                    </div>
+                </div>
+
+                <div class="top-right-login">
+                    <q-form @submit.prevent="submitForm"
+                            class="q-pa-none width-form-login">
+                        <div style="text-align: center; margin-bottom: 35px">
+                            <img src="../assets/images/SW-Logo.png"
+                                 width="120"
+                                 alt="Chat App" />
+                        </div>
+
+                        <div class="title-login">
+                            <!--<div class="login-pic lt-md q-pr-sm">
+                              <img
+                                src="../assets/images/SW-Logo.png"
+                                alt="Chat App"
+                              />
+                            </div>-->
+
+                            <div style="
+                    color: #075e54 !important;
+                    caret-color: #075e54 !important;
+                    font-size: 35px;
+                    margin-bottom: 35px;
+                    text-align: center;
+                  ">
+                                Welcome !
+                            </div>
+                        </div>
+                        <q-input class="q-pb-sm"
+                                 tabindex="1"
+                                 hide-bottom-space
+                                 outlined
+                                 v-model="account.loginId"
+                                 placeholder="UserName"
+                                 lazy-rules="ondemand"
+                                 :rules="[
+                                 (val)=>
+                            (val && val.length > 0) || 'User name can not be empty!',
+                            ]"
+                            >
+                            <template v-slot:prepend>
+                                <q-icon size="20px">
+                                    <img src="../assets/images/iconuser.png" />
+                                </q-icon>
+                            </template>
+                        </q-input>
+
+                        <q-input class="q-pb-lg"
+                                 hide-bottom-space
+                                 tabindex="2"
+                                 outlined
+                                 type="password"
+                                 v-model="account.loginPassword"
+                                 placeholder="Password"
+                                 lazy-rules="ondemand"
+                                 :rules="[
+                                 (val)=>
+                            (val && val.length > 0) || 'Password can not be empty!',
+                            (val) =>
+                            (val && val.length > 2) ||
+                            'Password must be more than 2 characters',
+                            ]"
+                            >
+                            <template v-slot:prepend>
+                                <q-icon size="20px" color="black" name="lock" />
+                            </template>
+                        </q-input>
+
+                        <q-btn unelevated
+                               class="btn-login"
+                               tabindex="3"
+                               label="Login"
+                               type="submit"
+                               color="primary" />
+                    </q-form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h4 class="card-header">Login</h4>
+    <div class="card-body">
+        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label>Username</label>
+                <InputText @bind-Value="model.LoginID" class="form-control" />
+                <ValidationMessage For="@(() => model.LoginID)" />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <InputText @bind-Value="model.Password" type="password" class="form-control" />
+                <ValidationMessage For="@(() => model.Password)" />
+            </div>
+            <button disabled="@loading" class="btn btn-primary">
+                @if (loading)
+                {
+                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                }
+                Login
+            </button>
+            <NavLink href="account/register" class="btn btn-link">Register</NavLink>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private AC.SD.Core.Data.Account.Logins model = new AC.SD.Core.Data.Account.Logins();
+    private bool loading;
+
+    private async void OnValidSubmit()
+    {
+        // reset alerts on submit
+        AlertService.Clear();
+
+        loading = true;
+        //try
+        //{
+        //    await AccountService.Login(model);
+        //    var returnUrl = NavigationManager.QueryString("returnUrl") ?? "";
+        //    NavigationManager.NavigateTo(returnUrl);
+        //}
+        //catch (Exception ex)
+        //{
+        //    AlertService.Error(ex.Message);
+        //    loading = false;
+        //    StateHasChanged();
+        //}
+    }
+}

@@ -44,6 +44,8 @@ namespace Application.Common.Mapper
 
             CreateMap<ForumCategorys, ForumCategoryResponse>().ReverseMap();
             CreateMap<ForumTopics, ForumTopicsResponse>().ReverseMap();
+            CreateMap<ApplicationUser, ApplicationUserResponse>().ReverseMap();
+
         }
     }
 }

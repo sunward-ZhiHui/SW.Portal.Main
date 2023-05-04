@@ -1,5 +1,6 @@
 ﻿using Application.Commands;
 using Application.Common.Behaviours;
+using CMS.Application.Handlers.QueryHandlers;
 using Core.Entities;
 using Core.Repositories.Command.Base;
 using Core.Repositories.Query;
@@ -24,8 +25,9 @@ namespace Application
             //services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
-            //services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));            
-
+            //services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
+            //
+            services.AddTransient<LoginHandler>();
             return services;
         }
     }

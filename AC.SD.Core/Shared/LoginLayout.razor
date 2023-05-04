@@ -1,0 +1,15 @@
+﻿@inherits LayoutComponentBase
+@inject IAccountService AccountService
+@inject NavigationManager NavigationManager
+
+<div>
+    <Alert />
+    @Body
+</div>
+
+@code {
+    public bool LoggedIn 
+    {
+        get { return AccountService.User != null; }
+    }
+}

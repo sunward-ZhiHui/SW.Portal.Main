@@ -1,6 +1,14 @@
 ﻿@using AC.SD.Core.Configuration
 @inject DemoConfiguration DemoConfiguration
-<Router AppAssembly="@typeof(App).Assembly">
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims;
+@using AC.SD.Core.Pages
+@using AC.SD.Core.Helpers
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
+@*<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
     </Found>
@@ -9,4 +17,86 @@
             <p>Sorry, there's nothing at this address.</p>
         </LayoutView>
     </NotFound>
+</Router>*@
+@*
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    @if (context.User.Identity.IsAuthenticated)
+                    {
+                        <p>You are not authorized to access this resource.</p>
+                    }
+                    else
+                    {
+                        <Login />
+                    }
+                </NotAuthorized>
+            </AuthorizeRouteView>
+        </Found>
+        <NotFound>
+            <p>Sorry, there's nothing at this address.</p>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+*@
+
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <AppRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+    </Found>
+    <NotFound>
+        @{ 
+            // redirect to home page if not found
+            NavigationManager.NavigateTo(""); 
+        }
+    </NotFound>
 </Router>
+
+
+
+@*
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView Resource="@routeData" RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <NotAuthorized>
+                @if (context.User.Identity.IsAuthenticated)
+                {
+                    <p>You are not authorized to access this resource.</p>
+                }
+                else
+                {
+                    <Login />
+                }
+            </NotAuthorized>
+        </AuthorizeRouteView>
+    </Found>
+    <NotFound>
+        <CascadingAuthenticationState>
+            <h1>Sorry, there's nothing at this address.</h1>
+            <p>You may have mistyped the URL or the page has been removed.</p>
+        </CascadingAuthenticationState>
+    </NotFound>
+</Router>*@
+
+
+
+@code {
+    //private Task<AuthenticationState> authenticationStateTask;
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    authenticationStateTask = AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+    //    var authState = await authenticationStateTask;
+    //    if (authState != null && !authState.User.Identity.IsAuthenticated)
+    //    {
+    //       //NavigationManager.NavigateTo("/Login",true);
+    //    }
+    //}    
+
+    //private AuthenticationState context => authenticationStateTask?.Result ?? new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+   
+}

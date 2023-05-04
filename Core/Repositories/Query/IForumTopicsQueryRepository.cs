@@ -15,5 +15,6 @@ namespace Core.Repositories.Query
         Task<ForumTopics> GetByIdAsync(Int64 id);
         Task<ForumTopics> GetCustomerByEmail(string email);
         long Insert(ForumTopics forumTopics);
+        Task<ForumTopics> GetTopicListAsync();
     }
 }

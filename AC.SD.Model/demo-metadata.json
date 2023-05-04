@@ -268,7 +268,7 @@
 
         },
         {
-          "Id": "Categorys",
+          "Id": "Export",
           "Url": "FourmCategorys",
           "Title": "Category",
           "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, customization, cell templates, formatting, devexpress, demo, sample, example",

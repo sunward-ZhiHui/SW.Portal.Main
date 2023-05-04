@@ -51,6 +51,8 @@ namespace Infrastructure
             services.AddTransient<IDepartmentCommandRepository, DepartmentCommandRepository>();
             services.AddTransient<ISubSectionCommandRepository, SubSectionCommandRepository>();
 
+            services.AddTransient<IApplicationUserQueryRepository, ApplicationUserQueryRepository>();
+
 
 
 

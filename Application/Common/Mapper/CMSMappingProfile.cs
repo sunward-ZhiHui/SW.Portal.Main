@@ -11,6 +11,8 @@ using Application.Command.ForumCategory;
 using Application.Command.LeveMasters;
 using Application.Command.designations;
 using Application.Command.Ictmaster;
+using Application.Command.designations;
+using Application.Command.LeveMasters;
 
 namespace Application.Common.Mapper
 {
@@ -62,10 +64,6 @@ namespace Application.Common.Mapper
             CreateMap<Designation, CreateDesignationCommand>().ReverseMap();
             CreateMap<Designation, EditDesignationCommand>().ReverseMap();
             CreateMap<Designation, DeleteDesignationCommand>().ReverseMap();
-
-            CreateMap<Ictmaster, CreateIctmasterCommand>().ReverseMap();
-            CreateMap<Ictmaster, DeleteIctmasterCommand>().ReverseMap();
-            CreateMap<Ictmaster, EditIctmasterCommand>().ReverseMap();
         }
     }
 }

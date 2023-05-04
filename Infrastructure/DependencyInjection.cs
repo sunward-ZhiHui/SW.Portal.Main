@@ -44,6 +44,7 @@ namespace Infrastructure
 
 
             services.AddTransient<IFourmCategoryQueryRepository, FourmCategoryQueryRepository>();
+            services.AddTransient<ILevelMasterQueryRepository, LevelMasterQueryRepository>();
             services.AddTransient<IForumTypeQueryRepository, ForumTypeQueryRepository>();
             services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();
             services.AddTransient<IFourmCategoryCommandRepository, FourmCategoryCommandRepository>();
@@ -56,7 +57,6 @@ namespace Infrastructure
             services.AddTransient<IDepartmentCommandRepository, DepartmentCommandRepository>();
             services.AddTransient<ISubSectionCommandRepository, SubSectionCommandRepository>();
             services.AddTransient<IDesignationCommandRepository, DesignationCommandRepository>();
-            services.AddTransient<IIctmasterCommandRepository, IctmasterCommandRepository>();
 
 
 

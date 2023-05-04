@@ -5,16 +5,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Command.Designation
+namespace Application.Command.Ictmaster
 {
-    public class DeleteDesignationCommand : IRequest<String>
+    public  class DeleteIctmasterCommand : IRequest<String>
     {
+    
+
         public Int64 Id { get; private set; }
 
-        public DeleteDesignationCommand(Int64 Id)
+        public DeleteIctmasterCommand(Int64 Id)
         {
             this.Id = Id;
         }
     }
-}
 
+}

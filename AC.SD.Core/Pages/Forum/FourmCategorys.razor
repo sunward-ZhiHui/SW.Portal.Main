@@ -21,7 +21,7 @@
     }
 </style>
 
-<DxGrid id="myGrid" style="height: 700px;" Data="@_categorys" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleeDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+<DxGrid id="myGrid" style="height: 700px;" Data="@_categorys" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -66,12 +66,9 @@
     Dictionary<long, string> CategoryNamesIndex { get; set; }
     private string gridHeight = "900px";
     private List<ForumCategorys> _categorys;
-    // IEnumerable<ForumTypes> Types { get; set; }  
+ 
     List<ForumTypes> Types {get; set;}
-    //async void ApplyCourse(GridUnboundColumnDataEventArgs e)
-    //{
-    //    e.Value = Types?.Find(n => n.ID == ((ForumCategorys)e.DataItem).TypeId).Name;
-    //}
+    
     
 
     protected override async Task OnInitializedAsync()
@@ -121,7 +118,7 @@
         }     
 
     }
-    async Task OnDeleeDataItem(GridDataItemDeletingEventArgs e)
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
         var editModel = (ForumCategorys)e.DataItem;
 

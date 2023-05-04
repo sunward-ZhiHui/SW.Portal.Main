@@ -168,7 +168,15 @@
           "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#templates"
 
         },
+        {
+          "Id": "Ictmaster",
+          "Url": "ictMaster",
+          "Title": "Ict Master",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, customization, cell templates, formatting, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid allows you to use native Razor markup to define custom templates for grid fields.",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#templates"
 
+        }
       ]
     },
 

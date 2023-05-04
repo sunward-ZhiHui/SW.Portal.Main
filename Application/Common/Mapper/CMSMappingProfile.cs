@@ -7,8 +7,10 @@ using CMS.Application.Handlers.QueryHandlers;
 using Application.Command.Departments;
 using Application.Command.Sections;
 using Application.Command.SubSections;
-using Application.Command.Designation;
 using Application.Command.ForumCategory;
+using Application.Command.LeveMasters;
+using Application.Command.designations;
+using Application.Command.Ictmaster;
 
 namespace Application.Common.Mapper
 {
@@ -44,9 +46,7 @@ namespace Application.Common.Mapper
             CreateMap<SubSection, EditSubSectionCommand>().ReverseMap();
             CreateMap<SubSection, DeleteSubSectionCommand>().ReverseMap();
 
-            CreateMap<Designation, CreateDesignationCommand>().ReverseMap();
-            CreateMap<Designation, EditDesignationCommand>().ReverseMap();
-            CreateMap<Designation, DeleteDesignationCommand>().ReverseMap();
+          
 
             CreateMap<ForumCategorys, CreateForumCategoryCommand>().ReverseMap();
             CreateMap<ForumCategorys, EditFourmCategoryCommand>().ReverseMap();
@@ -62,6 +62,10 @@ namespace Application.Common.Mapper
             CreateMap<Designation, CreateDesignationCommand>().ReverseMap();
             CreateMap<Designation, EditDesignationCommand>().ReverseMap();
             CreateMap<Designation, DeleteDesignationCommand>().ReverseMap();
+
+            CreateMap<Ictmaster, CreateIctmasterCommand>().ReverseMap();
+            CreateMap<Ictmaster, DeleteIctmasterCommand>().ReverseMap();
+            CreateMap<Ictmaster, EditIctmasterCommand>().ReverseMap();
         }
     }
 }

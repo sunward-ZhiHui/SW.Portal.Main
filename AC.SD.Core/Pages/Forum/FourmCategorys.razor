@@ -51,13 +51,16 @@
                             ValueFieldName="ID"
             @bind-Value="@categorys.TypeId">
                 </DxComboBox>
+                <ValidationMessage For="@(() => categorys.TypeId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
                 <DxTextBox @bind-Text="@categorys.Name" />
+                <ValidationMessage For="@(() => categorys.Name)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
                 <DxTextBox @bind-Text="@categorys.Description" />
-            </DxFormLayoutItem>            
+            </DxFormLayoutItem>
+            <ValidationSummary />
         </DxFormLayout>
     </EditFormTemplate>    
 </DxGrid>

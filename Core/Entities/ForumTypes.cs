@@ -12,8 +12,7 @@ namespace Core.Entities
     {
         [Key]
         public long ID { get; set; }
-
-        [Required]
+        [Required(ErrorMessage = "Please Enter Name.")]
         public string? Name { get; set; }
         public string? Description { get; set; }
     }

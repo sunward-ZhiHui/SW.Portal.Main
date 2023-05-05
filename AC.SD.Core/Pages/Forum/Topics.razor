@@ -20,10 +20,7 @@
               OnValidSubmit="@HandleValidSubmit"
               OnInvalidSubmit="@HandleInvalidSubmit"
               Context="EditFormContext">
-        <DataAnnotationsValidator />
-        <div class="card-header text-center">
-            <span>Topic</span>           
-        </div>
+        <DataAnnotationsValidator />       
         <div class="card-body">
             <div class="row">
                 <div class="col-md-8">
@@ -51,12 +48,12 @@
                         </DxFormLayoutItem>
                          <DxFormLayoutItem ColSpanMd="6">
                             <label for="TypeId">Type </label>
-                            <DxComboBox Data="@_types"
+                            <DxComboBox Data="@_types"                                       
                                         SelectedItemChanged="@((ForumTypes enrollment) => SelectedItemChanged(enrollment))"
                                         ListRenderMode="ListRenderMode.Virtual"
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         TextFieldName="@nameof(ForumTypes.Name)"
-                                        @bind-Value="@Data.TypeId"
+                                        @bind-Value="@Data.TypeId"                                       
                                         CssClass="cw-480" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem ColSpanMd="3">
@@ -155,8 +152,7 @@
                         <DxButton style="float:right;" RenderStyle="ButtonRenderStyle.Info" class="btn btn-add" Click="@onClickParticipant">Add</DxButton>
                     </div>
                     <div class="card-body">
-                        <DxGrid Data="_types"
-                                style="height:650px"
+                        <DxGrid Data="_types"                               
                                 KeyFieldName="ID"                                                            
                                 ShowSearchBox="true"
                                 PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -164,6 +160,7 @@
                                 PageSizeSelectorAllRowsItemVisible="true"
                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
                                 PageSize="20"
+                                style="height:calc(100vh - 285px)"
                                 CssClass="ch-360"
                                 SelectionMode="GridSelectionMode.Multiple"
                                 AllowSelectRowByClick="true"
@@ -265,6 +262,13 @@
         //  }
 
       } 
+    private void OnChangedType(object value)
+    {
+        var parent = (ForumTypes)value;
+        // Do something with the newly selected item
+        //Console.WriteLine($"Selected item: {newValue.Name}");
+    }
+    
       
 }
 

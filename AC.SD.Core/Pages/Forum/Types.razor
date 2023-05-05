@@ -92,8 +92,7 @@
     {
         var model = await Mediator.Send(new GetAllForumTypes());
         _types = model;
-
-
+       
         //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
     } 
     async Task UpdateDataAsync()

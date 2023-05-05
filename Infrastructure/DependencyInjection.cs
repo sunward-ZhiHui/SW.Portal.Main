@@ -43,12 +43,13 @@ namespace Infrastructure
             services.AddTransient<IIctmasterQueryRepository, IctmasterQueryRepository>();
 
 
-            services.AddTransient<IFourmCategoryQueryRepository, FourmCategoryQueryRepository>();
+            services.AddTransient<IForumCategoryQueryRepository, ForumCategoryQueryRepository>();
             services.AddTransient<ILevelMasterQueryRepository, LevelMasterQueryRepository>();
             services.AddTransient<IForumTypeQueryRepository, ForumTypeQueryRepository>();
             services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();
             services.AddTransient<IFourmCategoryCommandRepository, FourmCategoryCommandRepository>();
             services.AddTransient<IForumTopicsQueryRepository, ForumTopicsQueryRepository>();
+            services.AddTransient<IForumConversationsQueryRepository, ForumConversationsQueryRepository>();
 
 
 

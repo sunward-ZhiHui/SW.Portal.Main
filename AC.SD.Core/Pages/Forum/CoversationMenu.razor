@@ -1,0 +1,120 @@
+﻿@using Application.Command.ForumCategory;
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@page "/conversationmenu"
+
+
+
+<DxGrid id="myGrid" style="height: 700px;" Data="@_forumConversations" EditModelSaving="OnEditModelSaving" DataItemDeleting="OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"             
+        CssClass="ch-360" >
+
+    <Columns>
+        <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px"/>
+        <DxGridDataColumn FieldName="Name" MinWidth="200"/>
+        <DxGridDataColumn FieldName="TopicID" MinWidth="200"/>
+        <DxGridDataColumn FieldName="Message" />
+        <DxGridDataColumn FieldName="ParticipantId"/>
+        <DxGridDataColumn FieldName="ReplyId" />
+        <DxGridCommandColumn Width="160px" />
+    </Columns>
+
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var conversation = (ForumConversations)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
+                <DxTextBox @bind-Text="@conversation.Name" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="TopicID:" ColSpanMd="6">
+                <DxSpinEdit @bind-Value="@conversation.TopicID" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Message:" ColSpanMd="6">
+                <DxTextBox @bind-Text="@conversation.Message" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="ParticipantId:" ColSpanMd="6">
+                <DxSpinEdit @bind-Value="@conversation.ParticipantId" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="ReplyId:" ColSpanMd="6">
+                <DxSpinEdit @bind-Value="@conversation.ReplyId" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>    
+</DxGrid>
+@code {
+    private List<ForumConversations> _forumConversations;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var Conversation = await Mediator.Send(new GetAllForumConversation());
+        _forumConversations = Conversation;
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (ForumConversations)e.EditModel;
+
+        if (e.IsNew)
+        {
+
+            var createReq = new CreateForumCoversation
+                {
+                    Name = editModel.Name,
+                    TopicID = editModel.TopicID,
+                    Message = editModel.Message,
+                    ParticipantId = editModel.ParticipantId,
+                    ReplyId = editModel.ReplyId
+                };
+            var result = await Mediator.Send(createReq);
+
+
+        }
+        else
+        {
+            var UpdateReq = new EditForumConversation
+                {
+                    ID = editModel.ID,
+                    Name = editModel.Name,
+
+                    TopicID = editModel.TopicID,
+                    Message = editModel.Message,
+                    ParticipantId = editModel.ParticipantId,
+                    ReplyId = editModel.ReplyId,
+                    StatusCodeID = editModel.StatusCodeID,
+                    AddedByUserID = editModel.AddedByUserID,
+                    AddedDate = editModel.AddedDate,
+                    SessionId = editModel.SessionId,
+
+                };
+
+            var ans = await Mediator.Send(UpdateReq);
+        }
+
+    }
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+        var editModel = (ForumConversations)e.DataItem;
+
+        var request = new DeleteForumConversation
+            {
+                ID = editModel.ID,
+                Name = editModel.Name,
+
+                TopicID = editModel.TopicID,
+                Message = editModel.Message,
+                ParticipantId = editModel.ParticipantId,
+                ReplyId = editModel.ReplyId
+            };
+        var result = Mediator.Send(request);
+    }
+}

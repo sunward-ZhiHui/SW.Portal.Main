@@ -75,6 +75,7 @@
                         <DxFormLayoutItem ColSpanMd="6">
                             <label for="CategoryId">Category </label>
                             <DxComboBox Data="@_category"
+                                        SelectedItemChanged="@((ForumCategorys enrollment) => SelectedItemChanged(enrollment))"
                                         ListRenderMode="ListRenderMode.Virtual"
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         TextFieldName="@nameof(ForumCategorys.Name)"
@@ -84,12 +85,13 @@
 
                         <DxFormLayoutItem ColSpanMd="6">
                             <label for="ForumFrom">From </label>
-                            <DxComboBox Data="@_category"
+                           @* <DxComboBox Data="@_category"
+                                       
                                         ListRenderMode="ListRenderMode.Virtual"
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         TextFieldName="@nameof(ForumCategorys.Name)"
                                         @bind-Value="@Data.CategoryId"
-                                        CssClass="cw-480" />
+                                        CssClass="cw-480" />*@
                         </DxFormLayoutItem>
 
                         <DxFormLayoutItem ColSpanMd="6" >
@@ -104,7 +106,7 @@
                                            @bind-Values="Values" />*@
                          
 
-                            <DxComboBox Data="@_types"
+                          @*  <DxComboBox Data="@_types"
                               
                                         ListRenderMode="ListRenderMode.Entire"
                                         FilteringMode="DataGridFilteringMode.Contains"
@@ -122,17 +124,17 @@
                             Caption="Surname" />
                                    </Columns>
                             </DxComboBox>
-                        
+                        *@
                         </DxFormLayoutItem>
 
                         <DxFormLayoutItem ColSpanMd="6">
                             <label for="ForumCC">CC </label>
-                            <DxComboBox Data="@_category"
+                           @* <DxComboBox Data="@_category"
                                         ListRenderMode="ListRenderMode.Virtual"
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         TextFieldName="@nameof(_category)"
                                         @bind-Value="@_category"
-                                        CssClass="cw-480" />
+                                        CssClass="cw-480" />*@
                         </DxFormLayoutItem>
 
                         <DxFormLayoutItem ColSpanMd="12">
@@ -199,7 +201,7 @@
 
 @code {
     bool IsOpen { get; set; } = false;
-  
+
     bool ShowCheckboxes { get; set; } = true;
     string FormSubmitResult = "";
     DxPopup? popup;
@@ -208,7 +210,7 @@
     IEnumerable<ForumTypes>? _types;
     IEnumerable<ForumTypes>? Values;
     IEnumerable<ForumCategorys>? _category;
-    
+
 
     IReadOnlyList<object>? SelectedDataItems { get; set; }
     //private List<ForumTypes>? SelectedDataItems;
@@ -221,14 +223,17 @@
         var ids = args;
         var ls = SelectedDataItems;
     }
-   
+
     protected override async Task OnInitializedAsync() {
         var typemodel = await Mediator.Send(new GetAllForumTypes());
         _types = typemodel;
         //SelectedDataItems = typemodel;
 
-        var categorymodel = await Mediator.Send(new GetAllForumCategorys());
-        _category = categorymodel;
+        //var categorymodel = await Mediator.Send(new GetAllForumCategorys());
+        //_category = categorymodel;
+
+        //var topicmodel = await Mediator.Send(new GetListCategory(1));
+        //_category = topicmodel;
     }
 
     async void HandleValidSubmit()
@@ -258,6 +263,18 @@
     {
         FormSubmitResult = "";
     }
+    async void SelectedItemChanged(ForumCategorys enrollment)
+    {
+
+        var CourseID = enrollment.TypeId;
+        if(CourseID != 0)
+        {
+            var topicmodel = await Mediator.Send(new GetListCategory(enrollment.TypeId));
+            _category = topicmodel;
+        }
+
+      } 
+      
 }
 
 

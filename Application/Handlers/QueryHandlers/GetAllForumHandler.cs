@@ -88,5 +88,19 @@ namespace CMS.Application.Handlers.QueryHandlers
     //        //return customerTopicResponse;
     //    }
     //}
-
+    public class GetAllForumListHandler : IRequestHandler<GetListCategory, List<ForumCategorys>>
+    {
+        private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;
+        private readonly IQueryRepository<ForumCategorys> _queryRepository;
+        public GetAllForumListHandler(IForumTopicsQueryRepository _forumTopicsQueryRepository ,IQueryRepository<ForumCategorys> queryRepository)
+        {
+            _queryRepository = queryRepository;
+            _forumTopicsQueryRepository = _forumTopicsQueryRepository;
+        }
+        public async Task<List<ForumCategorys>> Handle(GetListCategory request, CancellationToken cancellationToken)
+        {
+           // return (List<ForumCategorys>)await _queryRepository.GetListAsync();
+            return (List<ForumCategorys>)await _forumTopicsQueryRepository.GetCategoryByTypeId(request.TypeId);
+        }
+    }
 }

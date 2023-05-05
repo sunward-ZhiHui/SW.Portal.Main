@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Query
 {
-    public class FourmCategoryQueryRepository : QueryRepository<ForumCategorys>, IFourmCategoryQueryRepository
+    public class ForumCategoryQueryRepository : QueryRepository<ForumCategorys>, IForumCategoryQueryRepository
     {
-        public FourmCategoryQueryRepository(IConfiguration configuration)
+        public ForumCategoryQueryRepository(IConfiguration configuration)
             : base(configuration)
         {
 

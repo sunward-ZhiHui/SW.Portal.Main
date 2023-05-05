@@ -53,5 +53,25 @@ namespace CMS.Application.Handlers.QueryHandlers
 
 
     }
+    public class UpdateUserHandler : IRequestHandler<UpdateUserPasswordRequest, ApplicationUser>
+    {
+        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
+        private ILocalStorageService<ApplicationUser> _localStorageService;
+        private string _userKey = "user";
+
+        public UpdateUserHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService)
+        {
+            _applicationUserQueryRepository = applicationUserQueryRepository;
+            _localStorageService = localStorageService;
+        }
+
+        public async Task<ApplicationUser> Handle(UpdateUserPasswordRequest request, CancellationToken cancellationToken)
+        {
+            var newEntity = await _applicationUserQueryRepository.UpdatePasswordUser(request.UserID, request.NewPassword);
+            return newEntity;
+        }
+
+
+    }
 
 }

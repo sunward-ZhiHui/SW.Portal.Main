@@ -123,21 +123,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<ApplicationUser> UpdatePasswordUser(string LoginID, string Password)
+        public async Task<ApplicationUser> UpdatePasswordUser(long UserID, string NewPassword)
         {
 
             try
             {
-                var query = "update ApplicationUser set LoginPassword=@LoginPassword where UserID=@LoginID";
+                var query = "update ApplicationUser set LoginPassword=@NewPassword where UserID=@UserID";
                 var parameters = new DynamicParameters();
-                parameters.Add("LoginID", LoginID);
-                var password = EncryptDecryptPassword.Encrypt(Password);
-                parameters.Add("LoginPassword", password);
+                parameters.Add("UserID", UserID);
+                var password = EncryptDecryptPassword.Encrypt(NewPassword);
+                parameters.Add("NewPassword", password);
 
                 using (var connection = CreateConnection())
                 {
                     var user = await connection.ExecuteAsync(query, parameters);
-                    return await GetByUserID(LoginID);
+                    return await GetByUserID(UserID.ToString());
                 }
             }
             catch (Exception exp)

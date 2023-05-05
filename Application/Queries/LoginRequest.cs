@@ -13,8 +13,9 @@ namespace Application.Queries
     }
     public class UpdateUserPasswordRequest : IRequest<ApplicationUser>
     {
+        public long UserID { get; set; }
         public string LoginID { get; set; }
-        public string Password { get; set; }
+        public string NewPassword { get; set; }
     }
 
 }

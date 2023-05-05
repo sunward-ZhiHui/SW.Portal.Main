@@ -1,6 +1,7 @@
 ﻿@using AC.SD.Core.Data.Account;
 @using Application.Queries;
-
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject DemoConfiguration Configuration
@@ -10,7 +11,7 @@
 @using MediatR
 @inject IMediator Mediator
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
- 
+
 <div class="@GetDemoHeaderContainerCss()">
     <nav class="demo-header p-0 navbar navbar-dark @GetDemoHeadernavContainerCss()">
         <DemoLayoutToggleButton @bind-Toggled="@LayoutToggled" />
@@ -20,66 +21,62 @@
             </a>
             @*<div class="logo-sep"></div>*@
             @*<a href="" target="_blank" title="Shipping Document" >
-                <span class="logo-sec-img"></span>
+            <span class="logo-sec-img"></span>
             </a>*@
         </div>
         <div class="demo-btn-container d-flex">
-           @* <DxButton NavigateUrl="https://go.devexpress.com/DevexpressDownload_UniversalTrial.aspx"
-                CssClass="download-btn"
-                IconCssClass="demo-download-icon"
-                Text="Free Trial"></DxButton>*@
-                
-            <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()"
-                RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="demo-theme-icon"></DxButton>
+            @* <DxButton NavigateUrl="https://go.devexpress.com/DevexpressDownload_UniversalTrial.aspx"
+            CssClass="download-btn"
+            IconCssClass="demo-download-icon"
+            Text="Free Trial"></DxButton>*@
 
-          @*  <div class="profile" id="profile">
-                <div class="profile-circle">VK</div>               
+            <DxButton Click="@ToggleThemeSwitcherPanel" CssClass="@GetThemeSwitcherCssClass()"
+                      RenderStyle="ButtonRenderStyle.Secondary" RenderStyleMode="ButtonRenderStyleMode.Outline" IconCssClass="demo-theme-icon"></DxButton>
+
+            @*  <div class="profile" id="profile">
+            <div class="profile-circle">VK</div>
             </div>*@
 
             <div class="card w-100">
-    <div class="card-body p-0">
-        <DxMenu Orientation="Orientation.Horizontal"
-                DropDownActionMode="MenuDropDownActionMode.Click"
-                DisplayMode="MenuDisplayMode.Auto"        
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
-         
-            <Items>
-                <DxMenuItem CssClass="notoggle" Position="ItemPosition.End">
-                    <TextTemplate>
-                        <div class="menu-icon-user-profile menu-icon" />
-                    </TextTemplate>
-                    <SubMenuTemplate>
-                        <div class="w-100 user-profile">
-                            <div class="flex-column align-items-center justify-content-center">
-                                <div class="logo-container d-flex align-items-center justify-content-center">
-                                    <div class="menu-icon-user-profile menu-icon menu-icon-large" />
-                                </div>
-                                <div class="user-name-container bm-3 mb-2">
+                <div class="card-body p-0">
+                    <DxMenu Orientation="Orientation.Horizontal"
+                            DropDownActionMode="MenuDropDownActionMode.Click"
+                            DisplayMode="MenuDisplayMode.Auto"
+                            CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
+
+                        <Items>
+                            <DxMenuItem CssClass="notoggle" Position="ItemPosition.End">
+                                <TextTemplate>
+                                    <div class="menu-icon-user-profile menu-icon" />
+                                </TextTemplate>
+                                <SubMenuTemplate>
+                                    <div class="w-100 user-profile">
+                                        <div class="flex-column align-items-center justify-content-center">
+                                            <div class="logo-container d-flex align-items-center justify-content-center">
+                                                <div class="menu-icon-user-profile menu-icon menu-icon-large" />
+                                            </div>
+                                            <div class="user-name-container bm-3 mb-2">
                                                 <div class="tm-8 text-center">@applicationUser.UserName</div>
-                                    <div class="text-center">@applicationUser.UserCode</div>
-                                </div>
-                                <div class="d-flex justify-content-center log-off-btn">
-                                   @* <NavLink href="/login" RenderStyle="@ButtonRenderStyle.Secondary">Log Off</NavLink>*@
-                                                <DxButton Click="logout" Text="Log Off" RenderStyle="@ButtonRenderStyle.Secondary"></DxButton>
-                                            <div class="d-flex justify-content-center log-off-btn">
-                                                <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Change Password</NavLink>
-                                                @*  <DxButton Text="Log Off" RenderStyle="@ButtonRenderStyle.Secondary"></DxButton>*@
+                                                <div class="text-center">@applicationUser.UserCode</div>
                                             </div>
                                             <div class="d-flex justify-content-center log-off-btn">
-                                                <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@ResetPassword">Reset Password</NavLink>
+                                                    <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Change Password</NavLink>
+                                                </div>
+                                            <div class="d-flex justify-content-center log-off-btn">
+                                                    <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@ResetPassword">Reset Password</NavLink>
+                                                </div>
+                                                <div class="d-flex justify-content-center log-off-btn">
+                                                    <NavLink href="/login" RenderStyle="@ButtonRenderStyle.Secondary">Log Off</NavLink>
+                                                </div>
+
                                             </div>
-                                <div class="d-flex justify-content-center log-off-btn">
-                                    <NavLink href="/login" RenderStyle="@ButtonRenderStyle.Secondary">Log Off</NavLink>
-                                  @*  <DxButton Text="Log Off" RenderStyle="@ButtonRenderStyle.Secondary"></DxButton>*@
-                                </div>
-                            </div>
-                        </div>
-                    </SubMenuTemplate>
-                </DxMenuItem>
-            </Items>
-        </DxMenu>
-    </div>
-</div>
+                                    </div>
+                                </SubMenuTemplate>
+                            </DxMenuItem>
+                        </Items>
+                    </DxMenu>
+                </div>
+            </div>
 
 
 
@@ -120,7 +117,8 @@
             </div>
             <div class="content-footer"></div>
         </div>
-        @if(!_isDesktop) {
+        @if (!_isDesktop)
+        {
             <DemoModalBackdrop Shown="@ModalBackgroundShown" ShownChanged="@ModalBackdropShownChanged" />
         }
     </div>
@@ -129,8 +127,8 @@
              HeaderText="Change Password"
              ShowFooter="false">
         <BodyTemplate Context="PopupContext">
-            <EditForm  Model="@updatePassword" OnValidSubmit="OnValidSubmit" style="padding:10px;">
-                <DataAnnotationsValidator/>
+            <EditForm Model="@updatePassword" OnValidSubmit="OnValidSubmit" style="padding:10px;">
+                <DataAnnotationsValidator />
                 <div class="form-group">
                     <label>Password</label>
                     <InputText @bind-Value="updatePassword.Password" type="password" class="form-control" />
@@ -141,22 +139,29 @@
                     <InputText @bind-Value="updatePassword.ConfirmPassword" type="password" class="form-control" />
                     <ValidationMessage For="@(() => updatePassword.ConfirmPassword)" />
                 </div>
-                <button class="btn btn-primary" style="float:right; margin-top:10px;">
-                   Update Password
+                <button disabled="@loading" class="btn btn-primary" style="float:right; margin-top:10px;">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    Update Password
                 </button>
             </EditForm>
         </BodyTemplate>
         <FooterContentTemplate>
-            
+
             <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel"
                       Click="@context.CloseCallback" />
         </FooterContentTemplate>
     </DxPopup>
+    <DxPopup @bind-Visible="@MessageVisible"
+             HeaderText="@MessageHeader"
+             BodyText="@MessageBody" />
 </div>
 
 @code {
     static readonly int DateTimeNowYear = DateTime.Now.Year;
-    UpdatePassword updatePassword=new UpdatePassword();
+    UpdatePassword updatePassword = new UpdatePassword();
     string _themeName;
     bool _layoutToggled;
     bool _themeSwitcherShown;
@@ -165,94 +170,122 @@
     ElementReference contentContainerRef;
     bool PopupUpdatePasseordVisible { get; set; }
     DemoScriptLoader pageHelper;
-
+    bool MessageVisible { get; set; }
+    string MessageHeader = "";
+    string MessageBody = "";
     [Inject]
     IDemoVersion DemoVersion { get; set; }
     [Inject]
     NavigationManager NavigationManager { get; set; }
     [Inject]
     IJSRuntime JsRuntime { get; set; }
-
+    private bool loading;
     public ApplicationUser applicationUser { get; private set; }
 
 
-    protected string ThemeName {
+    protected string ThemeName
+    {
         get { return _themeName; }
-        set {
-            if(_themeName != value) {
+        set
+        {
+            if (_themeName != value)
+            {
                 _themeName = value;
                 Themes.SetActiveThemeByName(value);
             }
         }
     }
 
-    protected override async void OnInitialized() {
+    protected override async void OnInitialized()
+    {
         ThemeName = Themes.ActiveTheme.Name;
         NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
     private async void ResetPassword()
     {
+        loading = true;
         var request = new UpdateUserPasswordRequest
             {
-                LoginID = "1",
-                Password = updatePassword.Password
+                UserID = applicationUser.UserID,
+                LoginID = applicationUser.LoginID,
+                NewPassword = "1234",
             };
         var response = await Mediator.Send(request);
         if (response != null)
         {
+            loading = false;
             PopupUpdatePasseordVisible = false;
             StateHasChanged();
             updatePassword.Password = "";
             updatePassword.ConfirmPassword = "";
+            onShowPopupMessage("Message", "Password Reset Successfully");
         }
     }
     private async void OnValidSubmit()
     {
+        loading = true;
         var request = new UpdateUserPasswordRequest
             {
-                LoginID = "1",
-               Password = updatePassword.Password
-           };
+                UserID = applicationUser.UserID,
+                LoginID = applicationUser.LoginID,
+                NewPassword = updatePassword.Password
+            };
         var response = await Mediator.Send(request);
         if (response != null)
         {
-           PopupUpdatePasseordVisible = false;
+            loading = false;
+            PopupUpdatePasseordVisible = false;
             StateHasChanged();
             updatePassword.Password = "";
             updatePassword.ConfirmPassword = "";
+            onShowPopupMessage("Message","Password Update Successfully");
         }
 
     }
+    private async void onShowPopupMessage(string headerText,string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        StateHasChanged();
+    }
 
-    void TryRedirect(string url) {
-        if(url?.Length > NavigationManager.BaseUri?.Length && Configuration.Redirects.TryGetValue(url.Substring(NavigationManager.BaseUri.Length).ToLower(), out var uri)) {
+    void TryRedirect(string url)
+    {
+        if (url?.Length > NavigationManager.BaseUri?.Length && Configuration.Redirects.TryGetValue(url.Substring(NavigationManager.BaseUri.Length).ToLower(), out var uri))
+        {
             NavigationManager.NavigateTo(uri, true);
         };
     }
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
         TryRedirect(NavigationManager.Uri);
-        if(firstRender) {
+        if (firstRender)
+        {
             await ScrollToMainTopIfNeeded(NavigationManager.Uri);
 
             await pageHelper.InvokeVoidAsync("DemoPageHelper.demoMatchesQuery", "(min-width: 1200px)", DotNetObjectReference.Create(this));
             await pageHelper.InvokeVoidAsync("DemoPageHelper.patchAppElement");
         }
-        else {
+        else
+        {
             await pageHelper.InvokeVoidAsync("DemoPageHelper.themes.setThemeName", DemoThemeService.ThemeCookieKey, ThemeName);
 
-            if(_isDesktop && SavedLayoutToggled != LayoutToggled)
+            if (_isDesktop && SavedLayoutToggled != LayoutToggled)
                 await pageHelper.InvokeVoidAsync("DemoPageHelper.raiseWindowOnResize");
         }
-        if(!ScrollToTargetLocked)
+        if (!ScrollToTargetLocked)
             await ScrollToTargetIfNeeded(NavigationManager.Uri);
         SavedLayoutToggled = LayoutToggled;
         IsFirstTimeRendered = true;
     }
-    async void OnLocationChanged(object sender, LocationChangedEventArgs args) {
+    async void OnLocationChanged(object sender, LocationChangedEventArgs args)
+    {
         TryRedirect(args.Location);
         ThemeSwitcherShown = false;
-        if(!_isDesktop) {
+        if (!_isDesktop)
+        {
             LayoutToggled = false;
         }
         await ScrollToMainTopIfNeeded(args.Location);
@@ -260,8 +293,10 @@
     }
 
     [JSInvokable]
-    public async Task OnQueryChanged(bool isDesktop) {
-        if(_isDesktop != isDesktop) {
+    public async Task OnQueryChanged(bool isDesktop)
+    {
+        if (_isDesktop != isDesktop)
+        {
             _isDesktop = isDesktop;
             LayoutToggled = false;
             ThemeSwitcherShown = false;
@@ -269,12 +304,15 @@
         }
     }
 
-    bool LayoutToggled {
+    bool LayoutToggled
+    {
         get { return _layoutToggled; }
-        set {
-            if(_layoutToggled != value) {
+        set
+        {
+            if (_layoutToggled != value)
+            {
                 _layoutToggled = value;
-                if(!_isDesktop && _layoutToggled)
+                if (!_isDesktop && _layoutToggled)
                     ThemeSwitcherShown = false;
             }
         }
@@ -284,97 +322,118 @@
     bool ModalBackgroundShown { get { return !_isDesktop && (ThemeSwitcherShown || LayoutToggled); } }
     bool IsFirstTimeRendered { get; set; }
 
-    bool ThemeSwitcherShown {
+    bool ThemeSwitcherShown
+    {
         get { return _themeSwitcherShown; }
-        set {
-            if(_themeSwitcherShown != value) {
+        set
+        {
+            if (_themeSwitcherShown != value)
+            {
                 _themeSwitcherShown = value;
-                if(!_isDesktop && _themeSwitcherShown)
+                if (!_isDesktop && _themeSwitcherShown)
                     LayoutToggled = false;
             }
         }
     }
 
-    void ToggleThemeSwitcherPanel() {
+    void ToggleThemeSwitcherPanel()
+    {
         ThemeSwitcherShown = !ThemeSwitcherShown;
     }
 
-    bool ShouldUseThemeNameKey() {
+    bool ShouldUseThemeNameKey()
+    {
         var page = Configuration.GetDemoPageByUrl(NavigationManager, NavigationManager.Uri);
-        while(page != null) {
-            if(page.ReCreateOnThemeChange.HasValue)
+        while (page != null)
+        {
+            if (page.ReCreateOnThemeChange.HasValue)
                 return page.ReCreateOnThemeChange.Value;
             page = page.ParentPage;
         }
         return true;
     }
 
-    void ModalBackdropShownChanged(bool shown) {
-        if(!shown) {
+    void ModalBackdropShownChanged(bool shown)
+    {
+        if (!shown)
+        {
             ThemeSwitcherShown = false;
             LayoutToggled = false;
         }
     }
 
 
-    public string SearchString {
+    public string SearchString
+    {
         get { return _searchString; }
-        set {
-            if(_searchString != value) {
+        set
+        {
+            if (_searchString != value)
+            {
                 _searchString = value;
                 InvokeAsync(UpdateSearchResults);
             }
         }
     }
     public List<DemoSearchResult> SearchResults { get; set; }
-    async Task UpdateSearchResults() {
+    async Task UpdateSearchResults()
+    {
         var searchResults = (SearchString != null && SearchString.Length > 2) ? Configuration.DoSearch(SearchString) : null;
-        if(SearchResults != searchResults) {
+        if (SearchResults != searchResults)
+        {
             SearchResults = searchResults;
             await InvokeAsync(StateHasChanged);
         }
     }
 
-    bool HasAnchorInUrl(string uri) {
+    bool HasAnchorInUrl(string uri)
+    {
         return !string.IsNullOrEmpty(NavigationManager.ToAbsoluteUri(uri).Fragment.Replace("#", ""));
     }
-    async Task ScrollToMainTopIfNeeded(string uri) {
-        if(!HasAnchorInUrl(uri))
+    async Task ScrollToMainTopIfNeeded(string uri)
+    {
+        if (!HasAnchorInUrl(uri))
             await pageHelper.InvokeVoidAsync("DemoPageHelper.scroll.toElementTop", contentContainerRef);
     }
 
     bool ScrollToTargetLocked { get; set; } = true;
-    async Task ScrollViewScriptLoaded() {
+    async Task ScrollViewScriptLoaded()
+    {
         ScrollToTargetLocked = false;
         await ScrollToTargetIfNeeded(NavigationManager.Uri);
     }
-    async Task ScrollToTargetIfNeeded(string uri) {
-        if(HasAnchorInUrl(uri))
+    async Task ScrollToTargetIfNeeded(string uri)
+    {
+        if (HasAnchorInUrl(uri))
             await pageHelper.InvokeVoidAsync("DemoPageHelper.scroll.ensureNavigationTargetIsVisible");
     }
-    string GetDemoContentContainerCss() {
+    string GetDemoContentContainerCss()
+    {
         List<string> cssClasses = new List<string>();
         cssClasses.Add("demo-content-container");
 #if !VISUALTESTS
-        if(IsFirstTimeRendered)
+        if (IsFirstTimeRendered)
             cssClasses.Add("animated");
 #endif
         cssClasses.Add("theme-" + ThemeName.Replace(" ", "-"));
         return string.Join(" ", cssClasses);
     }
-    string GetDemoBreadcrumbsContainerCss() {
+    string GetDemoBreadcrumbsContainerCss()
+    {
         List<string> cssClasses = new List<string>();
         cssClasses.Add("demo-breadcrumbs-container");
         cssClasses.Add("theme-" + ThemeName.Replace(" ", "-"));
         return string.Join(" ", cssClasses);
     }
-    string GetDemoBreadcrumbsCss() {
+    string GetDemoBreadcrumbsCss()
+    {
         List<string> cssClasses = new List<string>();
         cssClasses.Add("demo-breadcrumbs");
         cssClasses.Add(LayoutStateCssClass);
         return string.Join(" ", cssClasses);
     }
-    string GetDemoHeaderContainerCss() {
+    string GetDemoHeaderContainerCss()
+    {
         List<string> cssClasses = new List<string>();
         cssClasses.Add("demo-header-container");
         cssClasses.Add("theme-" + ThemeName.Replace(" ", "-"));
@@ -387,15 +446,17 @@
         cssClasses.Add("theme-" + ThemeName.Replace(" ", "-"));
         return string.Join(" ", cssClasses);
     }
-    string GetThemeSwitcherCssClass() {
+    string GetThemeSwitcherCssClass()
+    {
         return "theme-settings " + ThemeSwitcherShown;
     }
-    public void Dispose() {
+    public void Dispose()
+    {
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
     public async void logout()
-    {      
-        await _localStorageService.RemoveItem("user");
+    {
+        //await _localStorageService.RemoveItem("user");
         NavigationManager.NavigateTo("/login");
     }
 }

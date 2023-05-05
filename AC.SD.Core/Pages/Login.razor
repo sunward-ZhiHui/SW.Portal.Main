@@ -3,7 +3,7 @@
 @inject NavigationManager NavigationManager
 @layout LoginLayout
 @inherits LayoutComponentBase
-
+@using AC.SD.Core.Data.Account;
 
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Authorization
@@ -69,6 +69,8 @@
                                 <InputText @bind-Value="model.Password" type="password" class="form-control" />
                                 <ValidationMessage For="@(() => model.Password)" />
                             </div>
+                            <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Forgot Password</NavLink>
+
                             <button disabled="@loading" class="btn btn-primary" style="float:right; margin-top:10px;">
                                 @if (loading)
                                 {
@@ -82,6 +84,37 @@
             </div>
         </div>
     </div>
+
+<DxPopup @bind-Visible="@PopupUpdatePasseordVisible"
+         CloseOnOutsideClick="false"
+         HeaderText="Forgot Password"
+         ShowFooter="false">
+    <BodyTemplate Context="PopupContext">
+            <EditForm Model="@updatePassword" OnValidSubmit="OnResetPassword" style="padding:10px;">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label>User ID</label>
+                    <InputText @bind-Value="updatePassword.UserID" class="form-control" />
+                    <ValidationMessage For="@(() => updatePassword.UserID)" />
+            </div>
+            <button disabled="@loading" class="btn btn-primary" style="float:right; margin-top:10px;">
+                @if (loading)
+                {
+                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                }
+                Reset Password
+            </button>
+        </EditForm>
+    </BodyTemplate>
+    <FooterContentTemplate>
+
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel"
+                  Click="@context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
+    <DxPopup @bind-Visible="@MessageVisible"
+             HeaderText="@MessageHeader"
+             BodyText="@MessageBody" />
 </div>
 @*
 <div class="row" style="background: #eeeeee; padding: 10px;height:100vh;">
@@ -123,13 +156,48 @@
 
 
 @code {
+    ResetPassword updatePassword = new ResetPassword();
+
     private Data.Account.Logins model = new Data.Account.Logins();
     private bool loading;
     bool LoggedIn { get; set; }
-
+    bool PopupUpdatePasseordVisible { get; set; }
+    bool MessageVisible { get; set; }
+    string MessageHeader = "";
+    string MessageBody = "";
     [Inject]
     public Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProviders { get; set; }
-    
+    private async void OnResetPassword()
+    {
+        loading = true;
+        var request = new ResetUserPasswordRequest
+            {
+                LoginID = updatePassword.UserID,
+                NewPassword = "1234",
+            };
+        var response = await Mediator.Send(request);
+        if (response != null && response.UserID>0)
+        {
+            loading = false;
+            PopupUpdatePasseordVisible = false;
+            StateHasChanged();
+            onShowPopupMessage("Message", "Password Reset Successfully");
+        }
+        else
+        {
+            loading = false;
+            PopupUpdatePasseordVisible = false;
+            StateHasChanged();
+            onShowPopupMessage("Message", "Invalid User");
+        }
+    }
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        StateHasChanged();
+    }
     private async void OnValidSubmit()
     {
         // reset alerts on submit

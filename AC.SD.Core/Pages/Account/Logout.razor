@@ -1,9 +1,10 @@
 ﻿@page "/account/logout"
-@layout MainLayout
-
+@layout LoginLayout 
 @code {
+    [Inject]
+    NavigationManager NavigationManager { get; set; }
     protected override async void OnInitialized()
     {
-        //await AccountService.Logout();
+        NavigationManager.NavigateTo("/login");
     }
 }

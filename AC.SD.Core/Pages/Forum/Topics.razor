@@ -41,7 +41,7 @@
                         </DxFormLayoutItem>
                         <DxFormLayoutItem ColSpanMd="3">
                             <label for="DueDate">DueDate </label>
-                            <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="yyyy/MMMM/dd" />
+                            <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
                             <div class="text-danger">
                                 <ValidationMessage For="@(() => Data.DueDate)" />
                             </div>
@@ -58,14 +58,14 @@
                         </DxFormLayoutItem>
                         <DxFormLayoutItem ColSpanMd="3">
                             <label for="StartDate">Start Date </label>
-                            <DxDateEdit @bind-Date="@Data.StartDate" CssClass="cw-320" Mask="yyyy/MMMM/dd"/>
+                            <DxDateEdit @bind-Date="@Data.StartDate" CssClass="cw-320" Mask="dd/MMMM/yyyy"/>
                             <div class="text-danger">
                                 <ValidationMessage For="@(() => Data.StartDate)" />
                             </div>
                         </DxFormLayoutItem>
                         <DxFormLayoutItem ColSpanMd="3">
                             <label for="EndDate">End Date </label>
-                            <DxDateEdit @bind-Date="@Data.EndDate" CssClass="cw-320" Mask="yyyy/MMMM/dd" />
+                            <DxDateEdit @bind-Date="@Data.EndDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
                             <div class="text-danger">
                                 <ValidationMessage For="@(() => Data.EndDate)" />
                             </div>

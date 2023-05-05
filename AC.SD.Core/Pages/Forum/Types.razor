@@ -68,10 +68,12 @@
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
                 <DxTextBox @bind-Text="@types.Name" />
+                <ValidationMessage For="@(() => types.Name)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
                 <DxTextBox @bind-Text="@types.Description" />
-            </DxFormLayoutItem>            
+            </DxFormLayoutItem>
+            <ValidationSummary />
         </DxFormLayout>
     </EditFormTemplate>
     

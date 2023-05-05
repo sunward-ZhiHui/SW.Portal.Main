@@ -129,18 +129,7 @@
 
     [Inject]
     public Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProviders { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var model = await Mediator.Send(new GetAllForumTypes());
-        // _types = model;
-        if(model.Count > 0)
-        {
-            
-        }       
-      
-    } 
-
+    
     private async void OnValidSubmit()
     {
         // reset alerts on submit

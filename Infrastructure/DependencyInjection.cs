@@ -41,7 +41,7 @@ namespace Infrastructure
             services.AddTransient<ISubSectionQueryRepository, SubSectionQueryRepository>();
             services.AddTransient<IDesignationQueryRepository, DesignationQueryRepository>();
             services.AddTransient<ILayOutPlanTypeQueryRepository,LayOutPlanTypeQueryRepository>();
-
+            services.AddTransient<IEmployeeQueryRepository, EmployeeQueryRepository>();
 
             services.AddTransient<IFourmCategoryQueryRepository, FourmCategoryQueryRepository>();
             services.AddTransient<ILevelMasterQueryRepository, LevelMasterQueryRepository>();

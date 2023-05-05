@@ -1,0 +1,77 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@page "/Employees"
+
+<DxGrid @ref="Grid"
+        Data="_employeeItems"
+        KeyFieldName="PlantID"
+        EditModelSaving="Grid_EditModelSaving"
+        DataItemDeleting="Grid_DataItemDeleting"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360 grid-auto-height">
+    <Columns>
+
+        <DxGridDataColumn FieldName="SageID" MinWidth="80" />
+        <DxGridDataColumn FieldName="FirstName" MinWidth="80" />
+        <DxGridDataColumn FieldName="LastName" MinWidth="80" />
+        <DxGridDataColumn FieldName="NickName" MinWidth="80" />
+        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+        <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
+        <DxGridDataColumn FieldName="ModifiedByUser" Width="10%" />
+        <DxGridCommandColumn Width="160px" />
+
+    </Columns>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SageID" />
+    </TotalSummary>
+</DxGrid>
+
+@code {
+    private List<ViewEmployee> _employeeItems;
+    IGrid Grid { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+
+
+    }
+    async Task UpdateDataAsync()
+    {
+        _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+
+    }
+    async Task UpdatePlantAsync(ViewPlants editablePlant)
+    {
+
+    }
+    public void ShowDetails(int plantId)
+    {
+
+    }
+}

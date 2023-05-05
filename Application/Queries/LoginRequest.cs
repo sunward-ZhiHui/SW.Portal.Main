@@ -17,5 +17,10 @@ namespace Application.Queries
         public string LoginID { get; set; }
         public string NewPassword { get; set; }
     }
+    public class ResetUserPasswordRequest : IRequest<ApplicationUser>
+    {
+        public string LoginID { get; set; }
+        public string NewPassword { get; set; }
+    }
 
 }

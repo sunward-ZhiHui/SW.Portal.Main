@@ -1,5 +1,5 @@
 {
-  "TitleFormat": "APPCENTRIC: {0} | Unisteel",
+  "TitleFormat": "Sunward: {0} | Portal",
   "AssemblyName": "AC.SD.Core",
   "Products": [
     {
@@ -62,41 +62,41 @@
 
       ]
     },
-    {
-      "Id": "Users",
-      "Title": "Users",
-      "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7:a66317f9-3abf-4178-abfc-336c43eb98af",
-      "Pages": [
-        {
-          "Id": "User",
-          "Url": "Users",
-          "Title": "Users",
-          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, sorting, grouping, sub-totals, grand-totals, devexpress, demo, sample, example",
-          "Description": "DevExpress Blazor Pivot Grid summarizes data from the underlying data source and presents the results in cross-tabulated format. ",
-          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1"
+    //{
+    //  "Id": "Users",
+    //  "Title": "Users",
+    //  "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7:a66317f9-3abf-4178-abfc-336c43eb98af",
+    //  "Pages": [
+    //    {
+    //      "Id": "User",
+    //      "Url": "Users",
+    //      "Title": "Users",
+    //      "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, sorting, grouping, sub-totals, grand-totals, devexpress, demo, sample, example",
+    //      "Description": "DevExpress Blazor Pivot Grid summarizes data from the underlying data source and presents the results in cross-tabulated format. ",
+    //      "DocUrl": "DevExpress.Blazor.DxPivotGrid-1"
 
-        },
-        {
-          "Id": "Roles",
-          "Url": "Roles",
-          "Title": "Roles",
-          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, customization, cell templates, formatting, devexpress, demo, sample, example",
-          "Description": "DevExpress Blazor Pivot Grid allows you to use native Razor markup to define custom templates for grid fields.",
-          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#templates"
+    //    },
+    //    {
+    //      "Id": "Roles",
+    //      "Url": "Roles",
+    //      "Title": "Roles",
+    //      "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, customization, cell templates, formatting, devexpress, demo, sample, example",
+    //      "Description": "DevExpress Blazor Pivot Grid allows you to use native Razor markup to define custom templates for grid fields.",
+    //      "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#templates"
 
-        },
-        {
-          "Id": "Role Permission",
-          "Url": "Permission",
-          "Title": "Role Permission",
-          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
-          "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
-          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
+    //    },
+    //    {
+    //      "Id": "Role Permission",
+    //      "Url": "Permission",
+    //      "Title": "Role Permission",
+    //      "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
+    //      "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
+    //      "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
 
-        }
+    //    }
 
-      ]
-    },
+    //  ]
+    //},
 
     {
       "Id": "HR Masters",
@@ -169,15 +169,6 @@
 
         },
         {
-          "Id": "Customer",
-          "Url": "Customers",
-          "Title": "Customer",
-          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
-          "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
-          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
-
-        },
-        {
 
           "Id": "LayOutPlantType",
           "Url": "LayOutPlanType",
@@ -190,34 +181,6 @@
 
       ]
     },
-
-    {
-      "Id": "Document",
-      "Title": "Sales",
-      "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7:a66317f9-3abf-4178-abfc-336c43eb98af",
-      "Pages": [
-        {
-          "Id": "SalesInvoice",
-          "Url": "Sales",
-          "Title": "Sales Invoice",
-          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, sorting, grouping, sub-totals, grand-totals, devexpress, demo, sample, example",
-          "Description": "DevExpress Blazor Pivot Grid summarizes data from the underlying data source and presents the results in cross-tabulated format. ",
-          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1"
-
-        },
-        {
-          "Id": "Delivery",
-          "Url": "Delivery",
-          "Title": "Delivery Order",
-          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, customization, cell templates, formatting, devexpress, demo, sample, example",
-          "Description": "DevExpress Blazor Pivot Grid allows you to use native Razor markup to define custom templates for grid fields.",
-          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#templates"
-
-        }
-      ]
-    },
-
-   
     {
       "Id": "Fourm",
       "Title": "Fourm",

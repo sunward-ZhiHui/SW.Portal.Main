@@ -50,6 +50,9 @@
     <Compile Remove="Services\WorldcitiesDataService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="Pages\HR\Employee.razor" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="DataProviders\IDataProvider.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -62,5 +65,14 @@
   <ItemGroup>
     <ProjectReference Include="..\AC.SD.Model\AC.SD.Model.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\HR\Employee.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\HR\Employee.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Pages\HR\Employee.razor" />
   </ItemGroup>
 </Project>

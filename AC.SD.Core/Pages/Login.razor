@@ -1,5 +1,4 @@
 ﻿@page "/login"
-@inject IAccountService AccountService
 @inject IAlertService AlertService
 @inject NavigationManager NavigationManager
 @layout LoginLayout
@@ -11,8 +10,6 @@
 @using Microsoft.AspNetCore.Identity
 @using System.Security.Claims
 @inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
-
-
 
 @using AC.SD.Core.Data;
 @using AC.SD.Core.Helpers;
@@ -133,6 +130,16 @@
     [Inject]
     public Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProviders { get; set; }
 
+    protected override async Task OnInitializedAsync()
+    {
+        var model = await Mediator.Send(new GetAllForumTypes());
+        // _types = model;
+        if(model.Count > 0)
+        {
+            
+        }       
+      
+    } 
 
     private async void OnValidSubmit()
     {

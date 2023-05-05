@@ -44,8 +44,8 @@ namespace CMS.Application.Handlers.QueryHandlers
 
            // User = await _localStorageService.GetItem<ApplicationUser>(_userKey);
 
-            var newEntity = await _applicationUserQueryRepository.Auth(request.LoginID,request.Password);
-                            await _localStorageService.SetItem(_userKey, newEntity);
+            var newEntity = await _applicationUserQueryRepository.Auth(request.LoginID,request.Password);          
+            await _localStorageService.SetItem(_userKey, newEntity);
             return newEntity;
                             
             

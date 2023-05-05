@@ -1,9 +1,12 @@
-﻿
+﻿@using AC.SD.Core.Data.Account;
+@using Application.Queries;
+
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject DemoConfiguration Configuration
 @inject DemoThemeService Themes
-
+@using MediatR
+@inject IMediator Mediator
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
  
 <div class="@GetDemoHeaderContainerCss()">
@@ -53,6 +56,13 @@
                                     <div class="tm-8 text-center">User Name</div>
                                     <div class="text-center">John Heart</div>
                                 </div>
+                                            <div class="d-flex justify-content-center log-off-btn">
+                                                <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Change Password</NavLink>
+                                                @*  <DxButton Text="Log Off" RenderStyle="@ButtonRenderStyle.Secondary"></DxButton>*@
+                                            </div>
+                                            <div class="d-flex justify-content-center log-off-btn">
+                                                <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@ResetPassword">Reset Password</NavLink>
+                                            </div>
                                 <div class="d-flex justify-content-center log-off-btn">
                                     <NavLink href="/login" RenderStyle="@ButtonRenderStyle.Secondary">Log Off</NavLink>
                                   @*  <DxButton Text="Log Off" RenderStyle="@ButtonRenderStyle.Secondary"></DxButton>*@
@@ -109,18 +119,46 @@
             <DemoModalBackdrop Shown="@ModalBackgroundShown" ShownChanged="@ModalBackdropShownChanged" />
         }
     </div>
+    <DxPopup @bind-Visible="@PopupUpdatePasseordVisible"
+             CloseOnOutsideClick="false"
+             HeaderText="Change Password"
+             ShowFooter="false">
+        <BodyTemplate Context="PopupContext">
+            <EditForm  Model="@updatePassword" OnValidSubmit="OnValidSubmit" style="padding:10px;">
+                <DataAnnotationsValidator/>
+                <div class="form-group">
+                    <label>Password</label>
+                    <InputText @bind-Value="updatePassword.Password" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => updatePassword.Password)" />
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <InputText @bind-Value="updatePassword.ConfirmPassword" type="password" class="form-control" />
+                    <ValidationMessage For="@(() => updatePassword.ConfirmPassword)" />
+                </div>
+                <button class="btn btn-primary" style="float:right; margin-top:10px;">
+                   Update Password
+                </button>
+            </EditForm>
+        </BodyTemplate>
+        <FooterContentTemplate>
+            
+            <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel"
+                      Click="@context.CloseCallback" />
+        </FooterContentTemplate>
+    </DxPopup>
 </div>
 
 @code {
     static readonly int DateTimeNowYear = DateTime.Now.Year;
-
+    UpdatePassword updatePassword=new UpdatePassword();
     string _themeName;
     bool _layoutToggled;
     bool _themeSwitcherShown;
     bool _isDesktop = true;
     string _searchString = "";
     ElementReference contentContainerRef;
-
+    bool PopupUpdatePasseordVisible { get; set; }
     DemoScriptLoader pageHelper;
 
     [Inject]
@@ -144,6 +182,39 @@
     protected override void OnInitialized() {
         ThemeName = Themes.ActiveTheme.Name;
         NavigationManager.LocationChanged += OnLocationChanged;
+    }
+    private async void ResetPassword()
+    {
+        var request = new UpdateUserPasswordRequest
+            {
+                LoginID = "1",
+                Password = updatePassword.Password
+            };
+        var response = await Mediator.Send(request);
+        if (response != null)
+        {
+            PopupUpdatePasseordVisible = false;
+            StateHasChanged();
+            updatePassword.Password = "";
+            updatePassword.ConfirmPassword = "";
+        }
+    }
+    private async void OnValidSubmit()
+    {
+        var request = new UpdateUserPasswordRequest
+            {
+                LoginID = "1",
+               Password = updatePassword.Password
+           };
+        var response = await Mediator.Send(request);
+        if (response != null)
+        {
+           PopupUpdatePasseordVisible = false;
+            StateHasChanged();
+            updatePassword.Password = "";
+            updatePassword.ConfirmPassword = "";
+        }
+
     }
 
     void TryRedirect(string url) {

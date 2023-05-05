@@ -68,10 +68,12 @@
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
                 <DxTextBox @bind-Text="@types.Name" />
+                <ValidationMessage For="@(() => types.Name)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
                 <DxTextBox @bind-Text="@types.Description" />
-            </DxFormLayoutItem>            
+            </DxFormLayoutItem>
+            <ValidationSummary />
         </DxFormLayout>
     </EditFormTemplate>
     
@@ -92,14 +94,13 @@
     {
         var model = await Mediator.Send(new GetAllForumTypes());
         _types = model;
-
-
+       
         //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
     } 
     async Task UpdateDataAsync()
     {
-        var model = await Mediator.Send(new GetAllForumTypes());
-        _types = model;
+        _types = await Mediator.Send(new GetAllForumTypes());
+       // _types = model;
     }
     async Task ExportToExcel()
     {
@@ -135,7 +136,7 @@
     //    Resize();
     //    return base.ShouldRender();
     //}
-
+   
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editModel = (ForumTypes)e.EditModel;        
@@ -148,7 +149,7 @@
                 Name = editModel.Name,
                 Description = editModel.Description
             };
-
+          
             try
             {
                 var result = await Mediator.Send(createReq);
@@ -161,7 +162,7 @@
 
             }
 
-
+            await UpdateDataAsync();
             //var request = new CreateCommand<ForumTypeResponse>
             //    {
             //        Entity = new ForumTypeResponse
@@ -192,6 +193,7 @@
             };
 
             var ans = await Mediator.Send(UpdateReq);
+            await UpdateDataAsync();
         }     
 
     }
@@ -207,6 +209,7 @@
         string result = string.Empty;
         result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
         Console.WriteLine(result);
+        await UpdateDataAsync();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

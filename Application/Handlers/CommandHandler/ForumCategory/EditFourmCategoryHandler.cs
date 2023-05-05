@@ -17,9 +17,9 @@ namespace Application.Handlers.CommandHandler.ForumCategory
     public class EditFourmCategoryHandler : IRequestHandler<EditFourmCategoryCommand, ForumCategoryResponse>
     {
         private readonly IFourmCategoryCommandRepository _categoryCommandRepository;
-        private readonly IFourmCategoryQueryRepository _forumCategoryQueryRepository;
+        private readonly IForumCategoryQueryRepository _forumCategoryQueryRepository;
 
-        public EditFourmCategoryHandler(IFourmCategoryCommandRepository categoryCommandRepository, IFourmCategoryQueryRepository forumCategoryQueryRepository)
+        public EditFourmCategoryHandler(IFourmCategoryCommandRepository categoryCommandRepository, IForumCategoryQueryRepository forumCategoryQueryRepository)
         {
             _categoryCommandRepository = categoryCommandRepository;
             _forumCategoryQueryRepository = forumCategoryQueryRepository;

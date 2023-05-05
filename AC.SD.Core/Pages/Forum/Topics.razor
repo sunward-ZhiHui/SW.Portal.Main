@@ -94,35 +94,14 @@
 
                         <DxFormLayoutItem ColSpanMd="6" >
                             <label for="ForumTo">To </label>
-                           
-                              @* <DxListBox Data="@_types"
-                                           TextFieldName="@nameof(ForumTypes.Name)"
-                                           SelectionMode="ListBoxSelectionMode.Multiple"
-                                           ShowCheckboxes="@ShowCheckboxes"
-                                           CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
-                                           style="flex-basis: 240px"
-                                           @bind-Values="Values" />*@
-                         
 
-                            <DxComboBox Data="@_types"
-                              
-                                        ListRenderMode="ListRenderMode.Entire"
+                            <DxComboBox Data="@_category"
+                                        ListRenderMode="ListRenderMode.Virtual"
                                         FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="@nameof(ForumTypes.Name)"
-                                        @bind-Value="@Data.TypeId"
-                                        CssClass="cw-480" >
-                                   
-                                        <Columns>
-        <DxListEditorColumn FieldName="@nameof(ForumTypes.ID)"
-                            Caption="Id"
-                            Width="50px"  />
-        <DxListEditorColumn FieldName="@nameof(ForumTypes.Name)"
-                            Caption="Name" />
-        <DxListEditorColumn FieldName="@nameof(ForumTypes.Description)"
-                            Caption="Surname" />
-                                   </Columns>
-                            </DxComboBox>
-                        
+                                        TextFieldName="@nameof(_category)"
+                                        @bind-Value="@_category"
+                                        CssClass="cw-480" />
+
                         </DxFormLayoutItem>
 
                         <DxFormLayoutItem ColSpanMd="6">
@@ -208,7 +187,8 @@
     IEnumerable<ForumTypes>? _types;
     IEnumerable<ForumTypes>? Values;
     IEnumerable<ForumCategorys>? _category;
-    
+    IEnumerable<ForumTypes>? Values;
+   
 
     IReadOnlyList<object>? SelectedDataItems { get; set; }
     //private List<ForumTypes>? SelectedDataItems;

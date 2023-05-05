@@ -40,7 +40,7 @@ namespace Infrastructure
             services.AddTransient<ISectionQueryRepository, SectionQueryRepository>();
             services.AddTransient<ISubSectionQueryRepository, SubSectionQueryRepository>();
             services.AddTransient<IDesignationQueryRepository, DesignationQueryRepository>();
-            services.AddTransient<IIctmasterQueryRepository, IctmasterQueryRepository>();
+            services.AddTransient<ILayOutPlanTypeQueryRepository,LayOutPlanTypeQueryRepository>();
 
 
             services.AddTransient<IFourmCategoryQueryRepository, FourmCategoryQueryRepository>();

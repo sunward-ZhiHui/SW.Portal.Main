@@ -1,0 +1,23 @@
+﻿@inherits LayoutComponentBase
+@inject IAccountService AccountService
+@inject NavigationManager NavigationManager
+
+<div>
+    <Alert />
+    @Body
+</div>
+
+@code {
+    //public bool LoggedIn 
+    //{
+    //    get { return AccountService.User != null; }
+    //}
+    protected override void OnInitialized()
+    {
+        // redirect to home if already logged in
+        if (AccountService.User != null)
+        {
+            NavigationManager.NavigateTo("");
+        }
+    }
+}

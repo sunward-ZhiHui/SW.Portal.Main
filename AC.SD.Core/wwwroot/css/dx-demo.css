@@ -18,8 +18,8 @@ body,
     background-color: var(--bs-body-bg);
 }
 .btn-success, .btn-excel {
-    background-color: var(--bs-background-bg);
-    border-color: var(--bs-background-bg) !important;
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary) !important;
 }
 .btn-submit {
     background-color: var(--bs-success);
@@ -29,7 +29,9 @@ body,
     background-color: var(--bs-background-bg);
     border-color: var(--bs-background-bg) !important;
 }
-
+.grid-auto-height {
+    height: calc(100vh - 190px);
+}
 #app.root {
     min-width: 375px;
 }

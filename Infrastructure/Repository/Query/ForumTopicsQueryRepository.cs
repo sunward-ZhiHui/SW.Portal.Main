@@ -60,10 +60,30 @@ namespace Infrastructure.Repository.Query
         public async Task<ForumTopics> GetCustomerByEmail(string name)
         {
             try
-            {
+            {              
                 var query = "SELECT * FROM ForumTypes WHERE Name = @Name";
                 var parameters = new DynamicParameters();
                 parameters.Add("Name", name, DbType.String);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<ForumTopics>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<ForumTopics> GetTopicListAsync()
+        {
+            try
+            {
+                long id = 1;
+                var query = "SELECT * FROM ForumTypes WHERE ID = @Id";
+                var parameters = new DynamicParameters();
+                parameters.Add("ID", id, DbType.Int64);
 
                 using (var connection = CreateConnection())
                 {

@@ -3,6 +3,7 @@ using SW.Portal.Solutions.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using AC.SD.Core.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 public class Program
 {
@@ -40,7 +41,7 @@ public class Program
 
             services.AddSingleton<DemoConfiguration>();
             services.AddScoped<DemoThemeService>();
-            services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();
+            services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();           
         }
     }
 }

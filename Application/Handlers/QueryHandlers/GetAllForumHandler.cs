@@ -63,26 +63,29 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
     }
 
-    //public class CreateForumTopicsHandler : IRequestHandler<CreateForumTopics, ForumTopicsResponse>
+    //public class GetForumTopicListHandler : IRequestHandler<GetForumTopicList, string type>
     //{
     //    private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;
-       
-    //    public CreateForumTopicsHandler(IForumTopicsQueryRepository forumTopicsQueryRepository)
-    //    {           
+
+    //    public GetForumTopicListHandler(IForumTopicsQueryRepository forumTopicsQueryRepository)
+    //    {
     //        _forumTopicsQueryRepository = forumTopicsQueryRepository;
     //    }
-    //    public async Task<ForumTopicsResponse> Handle(CreateForumTopics request, CancellationToken cancellationToken)
+    //    public async Task<ForumTopicsResponse> Handle(GetForumTopicList request, CancellationToken cancellationToken)
     //    {
-    //        var customerEntity = RoleMapper.Mapper.Map<ForumTopics>(request);
+    //        //var topicList = RoleMapper.Mapper.Map<ForumTopics>(request);
 
-    //        if (customerEntity is null)
-    //        {
-    //            throw new ApplicationException("There is a problem in mapper");
-    //        }
+    //        //if (topicList is null)
+    //        //{
+    //        //    throw new ApplicationException("There is a problem in mapper");
+    //        //}
 
-    //        var newTopics = await _forumTopicsQueryRepository.Insert(customerEntity);
-    //        var customerResponse = RoleMapper.Mapper.Map<ForumTopicsResponse>(newTopics);
-    //        return customerResponse;
+
+    //        var newTopics = await _forumTopicsQueryRepository.GetTopicListAsync(request.type);
+    //        return newTopics;
+    //        //var newTopics = await _forumTopicsQueryRepository.Insert(topicList);
+    //        //var customerTopicResponse = RoleMapper.Mapper.Map<ForumTopicsResponse>(newTopics);
+    //        //return customerTopicResponse;
     //    }
     //}
 

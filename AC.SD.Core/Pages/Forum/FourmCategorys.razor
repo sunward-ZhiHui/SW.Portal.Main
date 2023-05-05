@@ -21,13 +21,13 @@
     }
 </style>
 
-<DxGrid id="myGrid" style="height: 700px;" Data="@_categorys" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleeDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+<DxGrid id="myGrid" Data="@_categorys" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"             
-        CssClass="ch-360" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
+        CssClass="grid-auto-height ch-360" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
 
     <Columns>
         <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px">            
@@ -63,27 +63,28 @@
 </DxGrid>
 
 @code {
-    Dictionary<long, string> CategoryNamesIndex { get; set; }
-    private string gridHeight = "900px";
-    private List<ForumCategorys> _categorys;
-    // IEnumerable<ForumTypes> Types { get; set; }  
-    List<ForumTypes> Types {get; set;}
-    //async void ApplyCourse(GridUnboundColumnDataEventArgs e)
-    //{
-    //    e.Value = Types?.Find(n => n.ID == ((ForumCategorys)e.DataItem).TypeId).Name;
-    //}
-    
+    Dictionary<long, string>? CategoryNamesIndex { get; set; }    
+    private List<ForumCategorys>? _categorys; 
+    List<ForumTypes>? Types {get; set;}
+
+
 
     protected override async Task OnInitializedAsync()
     {
         var types = await Mediator.Send(new GetAllForumTypes());
         Types = types;
+
         var model = await Mediator.Send(new GetAllForumCategorys());
         _categorys = model;     
+
         CategoryNamesIndex = Types.ToDictionary(i => i.ID, i => i.Name);
     }   
 
-   
+    async Task UpdateDataAsync()
+    {
+        _categorys = await Mediator.Send(new GetAllForumCategorys());
+    }
+
 
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
@@ -99,8 +100,8 @@
                     TypeId = editModel.TypeId
             };
             var result = await Mediator.Send(createReq);
+            await UpdateDataAsync();
 
-            
         }
         else
         {            
@@ -118,16 +119,18 @@
             };
 
             var ans = await Mediator.Send(UpdateReq);
+            await UpdateDataAsync();
         }     
 
     }
-    async Task OnDeleeDataItem(GridDataItemDeletingEventArgs e)
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
         var editModel = (ForumCategorys)e.DataItem;
 
         string result = string.Empty;
         result = await Mediator.Send(new DeleteFourmCategoryCommand(editModel.ID));
         Console.WriteLine(result);
+        await UpdateDataAsync();
     }
     void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
     {

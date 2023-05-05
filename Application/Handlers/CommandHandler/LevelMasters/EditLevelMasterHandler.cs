@@ -1,4 +1,5 @@
-﻿using Application.Command.LeveMasters;
+﻿using Application.Command.LayoutPlanType;
+using Application.Command.LeveMasters;
 using Application.Commands;
 using Application.Common.Mapper;
 using Application.Response;
@@ -14,18 +15,18 @@ using System.Threading.Tasks;
 
 namespace Application.Handlers.CommandHandler
 {
-    public class EditLevelMasterHandler : IRequestHandler<EditLevelMasterCommand, LevelMasterResponse>
+    public class EditLevelMasterHandler : IRequestHandler<EditLayOutPlanTypeMasterCommand,LayOutPlanTypeResponse>
     {
-        private readonly ILevelMasterCommandRepository _commandRepository;
-        private readonly ILevelMasterQueryRepository _queryRepository;
-        public EditLevelMasterHandler(ILevelMasterCommandRepository customerRepository, ILevelMasterQueryRepository customerQueryRepository)
+        private readonly ILayOutPlanCommandRepository _commandRepository;
+        private readonly ILayOutPlanTypeQueryRepository _queryRepository;
+        public EditLevelMasterHandler(ILayOutPlanCommandRepository customerRepository, ILayOutPlanTypeQueryRepository customerQueryRepository)
         {
             _commandRepository = customerRepository;
             _queryRepository = customerQueryRepository;
         }
-        public async Task<LevelMasterResponse> Handle(EditLevelMasterCommand request, CancellationToken cancellationToken)
+        public async Task<LayOutPlanTypeResponse> Handle(EditLayOutPlanTypeMasterCommand request, CancellationToken cancellationToken)
         {
-            var queryrEntity = RoleMapper.Mapper.Map<LevelMaster>(request);
+            var queryrEntity = RoleMapper.Mapper.Map<LayoutPlanType>(request);
 
             if (queryrEntity is null)
             {
@@ -40,12 +41,12 @@ namespace Application.Handlers.CommandHandler
             {
                 throw new ApplicationException(exp.Message);
             }
-            var response = new LevelMasterResponse
+            var response = new LayOutPlanTypeResponse
             {
-                LevelID = queryrEntity.LevelId,
-                AddedByUserID = queryrEntity.AddedByUserId,
-                StatusCodeID = queryrEntity.StatusCodeId,
-                Name =queryrEntity.Name,
+                LayoutPlanTypeId= queryrEntity.LayoutPlanTypeId,
+                AddedByUserId= queryrEntity.AddedByUserId,
+                StatusCodeId = queryrEntity.StatusCodeId,
+                Name = queryrEntity.Name,
             };
 
             return response;

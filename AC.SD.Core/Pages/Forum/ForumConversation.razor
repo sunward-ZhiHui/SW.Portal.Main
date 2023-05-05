@@ -21,17 +21,23 @@
             <div class="card-header text-center">
                 <span> General Information</span>
             </div>
-            <div class="card-body">  
-                <DxTreeView Data="@TreeData" AllowSelectNodes=false ShowCheckBoxes="@false"  SelectedItem="@SelectedNode" SelectedNodeChanged="@OnSelectedNodeChanged">
+            <div class="card-body">
+
+                <DxTreeView Data="@TreeData"  
+                            @bind-FilterString="FilterString"
+                            FilterMinLength="2"
+                            ShowFilterPanel="true"
+                            Target="_blank"
+                            FilterMode="FilterMode" 
+                            AllowSelectNodes=true
+                            LoadChildNodesOnDemand="true"
+                            SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
                     <DataMappings>
-                        <DxTreeViewDataMapping Key="ID" ParentKey="ParentID" Text="Name" NavigateUrl="NavigateUrl" />
+                        <DxTreeViewDataMapping Key="ID" ParentKey="ParentID" Text="Name" Name="ID" NavigateUrl="NavigateUrl" />
                     </DataMappings>
                 </DxTreeView>
 
-
-
-
-                <DxTreeView Data="@_types"
+               @* <DxTreeView Data="@_types"
                             @bind-FilterString="FilterString"
                             FilterMinLength="2"
                             ShowFilterPanel="true"
@@ -47,7 +53,7 @@
                                                Text="Name"                                               
                                                NavigateUrl="NavigateUrl" />
                     </DataMappings>
-                </DxTreeView>
+                </DxTreeView>*@
             </div>
         </div>
         <div class="card col-md-9" style="padding-left: 0px; padding-right: 0px;">
@@ -55,10 +61,12 @@
                 <span> Forum Discussion List</span>
             </div>
             <div class="card-body">
+                <p class="demo-text cw-480 mt-2">Selected group: <b>@SelectedGroup</b></p>
+
                 @if (SelectedNode != null)
                 {
-            <h3>@SelectedNode.Name</h3>
-            <p>@SelectedNode.ID</p>
+                    <h3>@SelectedNode.Name</h3>
+                    <p>@SelectedNode.ID</p>
                 }
             </div>
         </div>
@@ -71,6 +79,14 @@
     string FilterString { get; set; }
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;
     public ForumTypes SelectedNodes { get; set; }
+
+    string SelectedGroup = "none";
+    void SelectionChanged(TreeViewNodeEventArgs e)
+    {
+        SelectedGroup = e.NodeInfo?.Name;
+    }
+
+   
   
 
     protected override async Task OnInitializedAsync()
@@ -83,12 +99,6 @@
     {
         SelectedNodes = item;
     }
-    void OnItemClick()
-    {
-        //
-    }
-
-
 
     private List<TreeViewItem> TreeData = new List<TreeViewItem>
     {

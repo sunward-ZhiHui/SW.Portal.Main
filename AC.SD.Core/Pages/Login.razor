@@ -1,0 +1,200 @@
+﻿@page "/login"
+@inject IAccountService AccountService
+@inject IAlertService AlertService
+@inject NavigationManager NavigationManager
+@layout LoginLayout
+@inherits LayoutComponentBase
+
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
+@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+
+
+
+@using AC.SD.Core.Data;
+@using AC.SD.Core.Helpers;
+
+@using MediatR
+@inject IMediator Mediator
+
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+<link href="_content/AC.SD.Core/css/login.css" rel="stylesheet" />
+
+<div class="limiter">
+    <div class="container-login display-center">
+        <div class="wrap-login">
+            <div class="top-login">
+                <div class="top-left-login display-center">
+                    <div class="login-pic">
+                        <img src="_content/AC.SD.Core/images/login/SW-Left.png" alt="Chat App" />
+                    </div>
+                </div>
+
+                <div class="top-right-login">
+                    <div class="q-pa-none width-form-login">
+                        <div style="text-align: center; margin-bottom: 35px">
+                            <img src="_content/AC.SD.Core/images/login/SW-Logo.png"
+                                 width="120"
+                                 alt="Chat App" />
+                        </div>
+
+                        <div class="title-login">
+                            <!--<div class="login-pic lt-md q-pr-sm">
+                              <img
+                                src="../assets/images/SW-Logo.png"
+                                alt="Chat App"
+                              />
+                            </div>-->
+
+                            <div style=" color: #075e54 !important;
+                    caret-color: #075e54 !important;
+                    font-size: 35px;
+                    margin-bottom: 35px;
+                    text-align: center;
+                  ">
+                                Welcome !
+                            </div>
+                        </div>
+                        <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+                            <DataAnnotationsValidator />
+                            <div class="form-group">
+                                <label>Username</label>
+                                <InputText @bind-Value="model.LoginID" class="form-control" />
+                                <ValidationMessage For="@(() => model.LoginID)" />
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <InputText @bind-Value="model.Password" type="password" class="form-control" />
+                                <ValidationMessage For="@(() => model.Password)" />
+                            </div>
+                            <button disabled="@loading" class="btn btn-primary" style="float:right; margin-top:10px;">
+                                @if (loading)
+                                {
+                                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                                }
+                                Login
+                            </button>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*
+<div class="row" style="background: #eeeeee; padding: 10px;height:100vh;">
+    <div class="col-md-8 card">
+        <img src="_content/AC.SD.Core/images/login/SW-Left.png"/>
+    </div>
+    <div class="col-md-4" style="margin-top:15%;">
+
+        <div class="card">          
+            <div class="card-body">
+                <img src="/images/login/SW-Logo.png" asp-append-version="true" />
+                <img src="_content/AC.SD.Core/images/login/SW-Logo.png" alt="logo" />               
+                
+                <EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+                    <DataAnnotationsValidator />
+                    <div class="form-group">
+                        <label>Username</label>
+                        <InputText @bind-Value="model.LoginID" class="form-control" />
+                        <ValidationMessage For="@(() => model.LoginID)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <InputText @bind-Value="model.Password" type="password" class="form-control" />
+                        <ValidationMessage For="@(() => model.Password)" />
+                    </div>
+                    <button disabled="@loading" class="btn btn-primary" style="float:right; margin-top:10px;">
+                        @if (loading)
+                        {
+                            <span class="spinner-border spinner-border-sm mr-1"></span>
+                        }
+                        Login
+                    </button>                    
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+
+
+@code {
+    private Data.Account.Logins model = new Data.Account.Logins();
+    private bool loading;
+    bool LoggedIn { get; set; }
+
+    [Inject]
+    public Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProviders { get; set; }
+
+
+    private async void OnValidSubmit()
+    {
+        // reset alerts on submit
+        AlertService.Clear();
+
+        loading = true;
+
+        var request = new LoginRequest
+            {
+                LoginID = model.LoginID,
+                Password = model.Password
+            };
+
+        try
+        {
+            var response = await Mediator.Send(request);
+            if(response !=null)
+            {
+                 LoggedIn = true;
+                // Set the authentication state
+                var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, model.LoginID) }, "apiauth_type");
+                var user = new ClaimsPrincipal(identity);
+                //await AuthenticationStateProviders.SetAuthenticationStateAsync(new AuthenticationState(user));
+
+
+                NavigationManager.NavigateTo("/Dashboard");                
+            }
+            else
+            {
+                AlertService.Error("Username or password is incorrect");
+                loading = false;
+                StateHasChanged();
+            }
+
+        }
+        catch(Exception ex)
+        {
+            AlertService.Error(ex.Message);
+            loading = false;
+            StateHasChanged();
+            
+        }
+
+
+       
+      
+
+        
+
+
+        //try
+        //{
+        //    await AccountService.Login(model);
+        //    var returnUrl = NavigationManager.QueryString("returnUrl") ?? "";
+        //    NavigationManager.NavigateTo(returnUrl);
+        //}
+        //catch (Exception ex)
+        //{
+        //    AlertService.Error(ex.Message);
+        //    loading = false;
+        //    StateHasChanged();
+        //}
+    }
+}

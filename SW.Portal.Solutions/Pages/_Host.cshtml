@@ -55,7 +55,7 @@
     }
 
     <environment include="ServerSide">
-        <component type="typeof(DemoStylesheetContainer)" render-mode="ServerPrerendered" param-InitialThemeName="@InitialThemeName" />
+        <component type="typeof(DemoStylesheetContainer)" render-mode="Server" param-InitialThemeName="@InitialThemeName" />
         <script src="_framework/blazor.server.js" defer></script>
     </environment>
     <environment include="Wasm.AspNetCoreHosted">

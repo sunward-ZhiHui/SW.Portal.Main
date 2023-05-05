@@ -8,8 +8,16 @@
 </div>
 
 @code {
-    public bool LoggedIn 
+    //public bool LoggedIn 
+    //{
+    //    get { return AccountService.User != null; }
+    //}
+    protected override void OnInitialized()
     {
-        get { return AccountService.User != null; }
+        // redirect to home if already logged in
+        if (AccountService.User != null)
+        {
+            NavigationManager.NavigateTo("");
+        }
     }
 }

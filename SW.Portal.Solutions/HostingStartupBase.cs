@@ -15,6 +15,12 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
 
@@ -45,7 +51,12 @@ namespace SW.Portal.Solutions.ServerSide {
 
                 app.UseRequestLocalization(new RequestLocalizationOptions().SetDefaultCulture("en-US"));
                
-                app.UseAuthentication();                
+                app.UseAuthentication();
+                app.UseHttpsRedirection();
+                app.UseStaticFiles();
+
+               
+
 
                 app.UseResponseCompression();
                 app.UseRouting();
@@ -60,7 +71,7 @@ namespace SW.Portal.Solutions.ServerSide {
 
                 app.UseEndpoints(endpoints => {
                     endpoints.MapControllers();
-
+                    
                     endpoints.MapFallbackToPage("/_Host");
                 });
                 Configure(app, context.HostingEnvironment);
@@ -72,6 +83,24 @@ namespace SW.Portal.Solutions.ServerSide {
                 services.AddHttpClient<HttpClient>(ConfigureHttpClient);
 
                 this.ConfigureServices(context, services);
+
+                services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+               .AddCookie(options =>
+               {
+                   options.Cookie.Name = "YourAppName.AuthCookie";
+                   options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+                   options.LoginPath = new PathString("/login");
+                   options.LogoutPath = new PathString("/logout");
+               });
+
+                services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("RequireLoggedIn", policy =>
+                        policy.RequireAuthenticatedUser());
+                });
+
+                
+                services.AddServerSideBlazor();
 
                 services.AddRazorPages();
                 services.AddResponseCompression(options => {

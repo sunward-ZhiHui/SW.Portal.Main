@@ -2,9 +2,8 @@
 .limiter {
     width: 100%;
     height: 100vh;
-    .container-login
-
-{
+}
+.container-login {
     width: 100%;
     height: 100%;
     //background: #9053c7;
@@ -13,17 +12,16 @@
     background: -o-linear-gradient(-135deg, #c850c0, #4158d0);
     background: -moz-linear-gradient(-135deg, #c850c0, #4158d0);
     background: linear-gradient(-135deg, #c850c0, #4158d0);*/
-    .wrap-login
-
-{
+}
+.wrap-login {
     background: #fff;
     border-radius: 10px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
-    .top-login
-
+}
+.top-login
 {
     display: flex;
     flex-direction: row;
@@ -36,13 +34,9 @@
     width: 100%;
 }
 
-}
-}
-}
 
-.bottom-login {
-    a
 
+.bottom-login a
 {
     font-size: 14px;
     line-height: 1.7;
@@ -63,7 +57,7 @@ a:hover {
     color: $accent;
 }
 
-}
+
 
 .title-login {
     // font-family: Montserrat-Bold;
@@ -81,13 +75,13 @@ a:hover {
     line-height: 1.5;
     background: #075e54 !important;
     float: right;
-    .q-btn:hover
-
+}
+.q-btn:hover
 {
     background-color: $accent;
 }
 
-}
+
 
 .display-center {
     display: flex;
@@ -97,48 +91,34 @@ a:hover {
   align-items: center;*/
 }
 
-.login-pic {
-    img
-
+.login-pic img
 {
     max-width: 100%;
     height: 100%;
 }
 
-}
-
-// start - responsive
-@media (min-width: 1024px) {
-    /* .wrap-login {
-    /*width: calc(100% - 38%);
-    height: calc(100% - 15%);
-    width: 100%;
-    height: 100%;
-
-  }*/
-
-    .login-pic
-
+@media(min-width:1024px)
 {
-    width: 100%;
-    height: 100%;
-}
 
-.top-left-login,
-.top-right-login {
-    //width: calc(100% - 10%);
-    width: 80%;
-}
+    .login-pic {
+        width: 100%;
+        height: 100%;
+    }
 
-.top-right-login {
-    width: 35%;
-}
+    .top-left-login,
+    .top-right-login {
+        //width: calc(100% - 10%);
+        width: 80%;
+    }
 
-.width-form-login {
-    width: 100%;
-    padding: 20px;
-}
+    .top-right-login {
+        width: 35%;
+    }
 
+    .width-form-login {
+        width: 100%;
+        padding: 20px;
+    }
 }
 
 @media (max-width: 1023px) {
@@ -188,5 +168,3 @@ a:hover {
         padding: 20px;
     }
 }
-
-// end - responsive

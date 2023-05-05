@@ -30,7 +30,7 @@ namespace Infrastructure
             services.AddScoped(typeof(ICommandRepository<>), typeof(CommandRepository<>));
             services.AddTransient<IRoleCommandRepository, RoleCommandRepository>();
 
-            services.AddScoped(typeof(ICommandRepository<ForumTypeResponse>), typeof(CommandRepository<ForumTypeResponse>));
+            //services.AddScoped(typeof(ICommandRepository<ForumTypeResponse>), typeof(CommandRepository<ForumTypeResponse>));
 
             services.AddScoped(typeof(IRequestHandler<>), typeof(CreateHandler<>));
             services.AddTransient<IPlantQueryRepository, PlantQueryRepository>();
@@ -40,7 +40,7 @@ namespace Infrastructure
             services.AddTransient<ISectionQueryRepository, SectionQueryRepository>();
             services.AddTransient<ISubSectionQueryRepository, SubSectionQueryRepository>();
             services.AddTransient<IDesignationQueryRepository, DesignationQueryRepository>();
-            services.AddTransient<IIctmasterQueryRepository, IctmasterQueryRepository>();
+            services.AddTransient<ILayOutPlanTypeQueryRepository,LayOutPlanTypeQueryRepository>();
 
 
             services.AddTransient<IForumCategoryQueryRepository, ForumCategoryQueryRepository>();
@@ -61,6 +61,7 @@ namespace Infrastructure
 
 
             services.AddTransient<IApplicationUserQueryRepository, ApplicationUserQueryRepository>();
+            services.AddScoped(typeof(ILocalStorageService<>), typeof(LocalStorageService<>));
 
 
 

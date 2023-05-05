@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazored.SessionStorage" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DevExpress.Blazor.ProjectTemplates" Version="22.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\AC.SD.Core\AC.SD.Core.csproj" />
   </ItemGroup>
 

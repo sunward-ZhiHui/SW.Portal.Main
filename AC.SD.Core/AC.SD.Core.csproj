@@ -50,17 +50,36 @@
     <Compile Remove="Services\WorldcitiesDataService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="Pages\HR\Employee.razor" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="DataProviders\IDataProvider.cs" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="BlazorStateManager" Version="1.0.7" />
     <PackageReference Include="DevExpress.Blazor" Version="22.2.4" />
+    <PackageReference Include="DevExpress.Blazor.ProjectTemplates" Version="22.2.3" />
     <PackageReference Include="DevExpress.Blazor.Server.WebAssembly" Version="22.2.4" />
     <PackageReference Include="DevExpress.Blazor.RichEdit" Version="22.2.4" />
     <PackageReference Include="DevExpress.Data" Version="22.2.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
+    <PackageReference Include="Solutaris.InfoWARE.ProtectedBrowserStorage" Version="1.0.0" />
+    <PackageReference Include="DevExpress.Data" Version="22.2.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.5" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AC.SD.Model\AC.SD.Model.csproj" />
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\HR\Employee.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\HR\Employee.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Pages\HR\Employee.razor" />
   </ItemGroup>
 </Project>

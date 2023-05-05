@@ -18,10 +18,13 @@ namespace CMS.Application.Handlers.QueryHandlers
     public class LoginHandler: IRequestHandler<LoginRequest, ApplicationUser>
     {
         private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
+        private ILocalStorageService<ApplicationUser> _localStorageService;
+        private string _userKey = "user";
 
-        public LoginHandler(IApplicationUserQueryRepository applicationUserQueryRepository)
+        public LoginHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService)
         {
             _applicationUserQueryRepository = applicationUserQueryRepository;
+            _localStorageService = localStorageService;
         }
 
         public async Task<ApplicationUser> Handle(LoginRequest request, CancellationToken cancellationToken)
@@ -38,7 +41,10 @@ namespace CMS.Application.Handlers.QueryHandlers
             //return loginResponse;
 
             var newEntity = await _applicationUserQueryRepository.Auth(request.LoginID,request.Password);
+                            await _localStorageService.SetItem(_userKey, newEntity);
             return newEntity;
+                            
+            
         }
 
 

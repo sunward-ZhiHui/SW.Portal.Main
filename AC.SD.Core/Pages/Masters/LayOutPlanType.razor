@@ -1,0 +1,161 @@
+﻿@page "/LayOutPlanType"
+@using Application.Command.LayoutPlanType;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+
+
+<h3>LayOutPlanType</h3>
+
+ <DxGrid
+    @ref="Grid"
+    Data="_layout"
+        EditModelSaving="Grid_EditModelSaving"
+        DataItemDeleting="Grid_DataItemDeleting"
+    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    PagerNavigationMode="PagerNavigationMode.InputBox"
+    PageSizeSelectorVisible="true"
+    PageSizeSelectorAllRowsItemVisible="true"
+    PageSizeSelectorItems="@(new int[] { 5, 10, 20 })"
+    PageSize="20"
+    SelectionMode="GridSelectionMode.Multiple"
+    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+    AutoExpandAllGroupRows="true"
+        KeyFieldName="LayoutPlanTypeId"
+        CssClass="ch-360 grid-auto-height">
+
+    <Columns>
+        <DxGridDataColumn FieldName="LayoutPlanTypeId" Caption="LayoutPlanTypeId" MinWidth="80" />
+        <DxGridDataColumn FieldName="VersionNo" Caption="VersionNo" MinWidth="80" />
+        <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="80" />
+        <DxGridDataColumn FieldName="StatusCodeId" Caption="StatusCodeId" MinWidth="80" />
+        <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
+        <DxGridCommandColumn Width="160px" />
+    </Columns>
+
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var plant = (ViewLayOutPlanType)EditFormContext.EditModel;
+        }
+       <DxFormLayout CssClass="w-100">
+           <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                         <DxComboBox Data="@_codes"
+                            NullText="Select Company..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                              TextFieldName="CodeValue"
+                            ValueFieldName="CodeId"
+                             @bind-Value="@plant.StatusCodeId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Name" ColSpanMd="6">
+                <DxTextBox @bind-Text="@plant.Name" />
+            </DxFormLayoutItem>
+            
+            <DxFormLayoutItem Caption="VersionNo" ColSpanMd="6">
+                <DxTextBox @bind-Text="@plant.VersionNo" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="StatusCodeId" ColSpanMd="6">
+                <DxComboBox Data="@_stausItems"
+                            NullText="Select Status..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="CodeValue"
+                            ValueFieldName="CodeId"
+                            @bind-Value="@plant.StatusCodeId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+    </TotalSummary>
+
+
+ </DxGrid>
+
+
+
+@code {
+
+    private List<ViewLayOutPlanType> _layout;
+    private List<LayoutPlanType> _stausItems;
+    private List<CodeMaster> _codes;
+    IGrid Grid { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var model = await Mediator.Send(new  GetAllLayOutPlanTypeQuery());
+        // var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        // _stausItems = models;
+        _layout = model;
+    }
+    async Task UpdateDataAsync()
+    {
+        var model = await Mediator.Send(new GetAllLayOutPlanTypeQuery());
+        _layout = model;
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            var newplant = (ViewLayOutPlanType)e.EditModel;
+            newplant.LayoutPlanTypeId =0;
+            newplant.Description = "";
+            newplant.StatusCodeId = null;
+            newplant.Name = "";
+            newplant.VersionNo = "";
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editablePlant = (ViewLayOutPlanType)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateLayOutPlanTypeMasterCommand
+                {
+                    Name=editablePlant.Name,
+                    LayoutPlanTypeId = editablePlant.LayoutPlanTypeId,
+                    Description = editablePlant.Description,
+                    StatusCodeId = editablePlant.StatusCodeId,
+                    VersionNo=editablePlant.VersionNo,
+                };
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            await UpdateLayoutAsync(editablePlant);
+        }
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editablePlant = (ViewLayOutPlanType)e.DataItem;
+        var request = new DeleteLayOutPlanTypeMasterCommand(editablePlant.LayoutPlanTypeId);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    async Task UpdateLayoutAsync(ViewLayOutPlanType editablePlant)
+    {
+        var request = new EditLayOutPlanTypeMasterCommand
+            {
+                Name=editablePlant.Name,
+                LayoutPlanTypeId = editablePlant.LayoutPlanTypeId,
+                VersionNo = editablePlant.VersionNo,
+                Description = editablePlant.Description,
+                StatusCodeId = editablePlant.StatusCodeId,
+                AddedByUserId = editablePlant.AddedByUserId,
+                AddedDate = editablePlant.AddedDate,
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+  
+}
+
+

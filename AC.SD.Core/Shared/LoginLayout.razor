@@ -1,6 +1,8 @@
-﻿@inherits LayoutComponentBase
-@inject IAccountService AccountService
+﻿@using global::Core.Entities;
+@using global::Core.Repositories.Query;
+@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 
 <div>
     <Alert />
@@ -12,12 +14,13 @@
     //{
     //    get { return AccountService.User != null; }
     //}
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
+        //var checkauthorize = await _localStorageService.GetItem<ApplicationUser>("user");
         // redirect to home if already logged in
-        if (AccountService.User != null)
-        {
-            NavigationManager.NavigateTo("");
-        }
+        //if (checkauthorize != null)
+        //{
+        //    NavigationManager.NavigateTo("");
+        //}
     }
 }

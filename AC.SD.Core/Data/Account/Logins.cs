@@ -11,3 +11,4 @@ namespace AC.SD.Core.Data.Account
         public string Password { get; set; }
     }
 }
+    

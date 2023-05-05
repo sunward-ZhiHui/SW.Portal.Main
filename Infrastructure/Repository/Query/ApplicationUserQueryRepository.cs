@@ -105,5 +105,46 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<ApplicationUser> GetByUserID(string name)
+        {
+            try
+            {
+                var query = "SELECT * FROM ApplicationUser WHERE UserID = @LoginID";
+                var parameters = new DynamicParameters();
+                parameters.Add("LoginID", name, DbType.String);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<ApplicationUser>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ApplicationUser> UpdatePasswordUser(long UserID, string NewPassword)
+        {
+
+            try
+            {
+                var query = "update ApplicationUser set LoginPassword=@NewPassword where UserID=@UserID";
+                var parameters = new DynamicParameters();
+                parameters.Add("UserID", UserID);
+                var password = EncryptDecryptPassword.Encrypt(NewPassword);
+                parameters.Add("NewPassword", password);
+
+                using (var connection = CreateConnection())
+                {
+                    var user = await connection.ExecuteAsync(query, parameters);
+                    return await GetByUserID(UserID.ToString());
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
     }
 }

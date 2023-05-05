@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using AC.SD.Core.Configuration;
 using AC.SD.Core.Services;
+using Core.Repositories.Query;
 using DevExpress.Blazor.DocumentMetadata;
 using DevExpress.Blazor.RichEdit.SpellCheck;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -56,10 +57,9 @@ namespace AC.SD.Core
             //            options.LoginPath = "/login";
             //        });
 
-            services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<IAlertService, AlertService>();
-            services.AddScoped<IHttpService, HttpService>();
-            services.AddScoped<ILocalStorageService, LocalStorageService>();
+            //services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IAlertService, AlertService>();          
+            //services.AddScoped<ILocalStorageService, LocalStorageService>();
             services.AddIdentity<IdentityUser, IdentityRole>(
                 Options => { 
                     Options.Password.RequireDigit = false;

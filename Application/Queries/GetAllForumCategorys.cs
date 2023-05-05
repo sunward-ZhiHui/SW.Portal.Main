@@ -12,11 +12,11 @@ namespace Application.Queries
     }
     public class GetListCategory : IRequest<List<ForumCategorys>>
     {
-        public long TypeId { get; private set; }
+        public long ID { get; private set; }
 
-        public GetListCategory(long typeId)
+        public GetListCategory(long id)
         {
-            this.TypeId = typeId;
+            this.ID = id;
         }
     }
 }

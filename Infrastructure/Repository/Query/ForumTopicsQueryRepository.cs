@@ -57,17 +57,18 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<IReadOnlyList<ForumCategorys>> GetCategoryByTypeId(long typeId)
+        public async Task<IReadOnlyList<ForumCategorys>> GetCategoryByTypeId(long id)
         {
             try
             {
-                var query = "SELECT * FROM ForumCategorys WHERE TypeID = @TypeId";
+                var query = "SELECT * FROM ForumCategorys WHERE TypeID = 4";
                 var parameters = new DynamicParameters();
-                parameters.Add("TypeID", typeId, DbType.Int64);
+                parameters.Add("TypeID", id, DbType.Int64);
                 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ForumCategorys>(query)).ToList();
+                    var result = (await connection.QueryAsync<ForumCategorys>(query)).ToList();
+                    return result;
                 }
             }
             catch (Exception exp)

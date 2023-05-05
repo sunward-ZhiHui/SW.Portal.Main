@@ -60,6 +60,10 @@
         var Conversation = await Mediator.Send(new GetAllForumConversation());
         _forumConversations = Conversation;
     }
+    async Task UpdateDataAsync()
+    {
+        _forumConversations = await Mediator.Send(new GetAllForumConversation());
+    }
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editModel = (ForumConversations)e.EditModel;
@@ -76,6 +80,7 @@
                     ReplyId = editModel.ReplyId
                 };
             var result = await Mediator.Send(createReq);
+            await UpdateDataAsync();
 
 
         }
@@ -98,6 +103,8 @@
                 };
 
             var ans = await Mediator.Send(UpdateReq);
+            await UpdateDataAsync();
+
         }
 
     }
@@ -115,6 +122,13 @@
                 ParticipantId = editModel.ParticipantId,
                 ReplyId = editModel.ReplyId
             };
+        
         var result = Mediator.Send(request);
+        Console.WriteLine(result);
+        await UpdateDataAsync();
+
     }
+    
+
 }
+   

@@ -21,6 +21,8 @@ namespace CMS.Application.Handlers.QueryHandlers
         private ILocalStorageService<ApplicationUser> _localStorageService;
         private string _userKey = "user";
 
+       // public ApplicationUser User { get; private set; }
+
         public LoginHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService)
         {
             _applicationUserQueryRepository = applicationUserQueryRepository;
@@ -40,8 +42,10 @@ namespace CMS.Application.Handlers.QueryHandlers
             //var loginResponse = RoleMapper.Mapper.Map<ApplicationUser>(newEntity);
             //return loginResponse;
 
-            var newEntity = await _applicationUserQueryRepository.Auth(request.LoginID,request.Password);
-                            await _localStorageService.SetItem(_userKey, newEntity);
+           // User = await _localStorageService.GetItem<ApplicationUser>(_userKey);
+
+            var newEntity = await _applicationUserQueryRepository.Auth(request.LoginID,request.Password);          
+            await _localStorageService.SetItem(_userKey, newEntity);
             return newEntity;
                             
             

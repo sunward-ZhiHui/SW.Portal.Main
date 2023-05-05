@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Components;
 using System.Net;
 using System;
 using System.Linq.Expressions;
-
-
+using Core.Entities;
+using Core.Repositories.Query;
 
 namespace AC.SD.Core.Helpers
 {
@@ -16,12 +16,14 @@ namespace AC.SD.Core.Helpers
         public NavigationManager NavigationManager { get; set; }
 
         [Inject]
-        public IAccountService AccountService { get; set; }
+        public ILocalStorageService<ApplicationUser> _localStorageService { get; set; }
 
-        protected override void Render(RenderTreeBuilder builder)
+        protected override async void Render(RenderTreeBuilder builder)
         {
             var authorize = Attribute.GetCustomAttribute(RouteData.PageType, typeof(AuthorizeAttribute)) != null;
-            if (authorize && AccountService.User == null)
+            //var checkauthorize = await _localStorageService.GetItem<ApplicationUser>("user");
+            
+            if (authorize)
             {
                 //var returnUrl = WebUtility.UrlEncode(new Uri(NavigationManager.Uri).PathAndQuery);               
                 NavigationManager.NavigateTo($"/Login");

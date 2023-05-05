@@ -5,6 +5,8 @@
 @implements IDisposable
 @inject DemoConfiguration Configuration
 @inject DemoThemeService Themes
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
 @using MediatR
 @inject IMediator Mediator
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
@@ -53,9 +55,12 @@
                                     <div class="menu-icon-user-profile menu-icon menu-icon-large" />
                                 </div>
                                 <div class="user-name-container bm-3 mb-2">
-                                    <div class="tm-8 text-center">User Name</div>
-                                    <div class="text-center">John Heart</div>
+                                                <div class="tm-8 text-center">@applicationUser.UserName</div>
+                                    <div class="text-center">@applicationUser.UserCode</div>
                                 </div>
+                                <div class="d-flex justify-content-center log-off-btn">
+                                   @* <NavLink href="/login" RenderStyle="@ButtonRenderStyle.Secondary">Log Off</NavLink>*@
+                                                <DxButton Click="logout" Text="Log Off" RenderStyle="@ButtonRenderStyle.Secondary"></DxButton>
                                             <div class="d-flex justify-content-center log-off-btn">
                                                 <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Change Password</NavLink>
                                                 @*  <DxButton Text="Log Off" RenderStyle="@ButtonRenderStyle.Secondary"></DxButton>*@
@@ -168,6 +173,8 @@
     [Inject]
     IJSRuntime JsRuntime { get; set; }
 
+    public ApplicationUser applicationUser { get; private set; }
+
 
     protected string ThemeName {
         get { return _themeName; }
@@ -179,9 +186,10 @@
         }
     }
 
-    protected override void OnInitialized() {
+    protected override async void OnInitialized() {
         ThemeName = Themes.ActiveTheme.Name;
         NavigationManager.LocationChanged += OnLocationChanged;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
     private async void ResetPassword()
     {
@@ -384,5 +392,10 @@
     }
     public void Dispose() {
         NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+    public async void logout()
+    {      
+        await _localStorageService.RemoveItem("user");
+        NavigationManager.NavigateTo("/login");
     }
 }

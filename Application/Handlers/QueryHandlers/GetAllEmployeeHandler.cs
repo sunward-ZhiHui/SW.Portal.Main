@@ -23,4 +23,28 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<ViewEmployee>)await _queryRepository.GetAllAsync();
         }
     }
+    public class GetAllEmployeeListHandler : IRequestHandler<GetAllEmployeeListQuery, List<ViewEmployee>>
+    {
+        private readonly IEmployeeQueryRepository _queryRepository;
+        public GetAllEmployeeListHandler(IEmployeeQueryRepository plantQueryRepository)
+        {
+            _queryRepository = plantQueryRepository;
+        }
+        public async Task<List<ViewEmployee>> Handle(GetAllEmployeeListQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewEmployee>)await _queryRepository.GetAllUserAsync();
+        }
+    }
+    public class ResetPasswordEmployeeHandler : IRequestHandler<GetEmployeeResetPasswordQuery, ViewEmployee>
+    {
+        private readonly IEmployeeQueryRepository _queryRepository;
+        public ResetPasswordEmployeeHandler(IEmployeeQueryRepository plantQueryRepository)
+        {
+            _queryRepository = plantQueryRepository;
+        }
+        public async Task<ViewEmployee> Handle(GetEmployeeResetPasswordQuery request, CancellationToken cancellationToken)
+        {
+            return  await _queryRepository.ResetEmployeePasswordAsync(request);
+        }
+    }
 }

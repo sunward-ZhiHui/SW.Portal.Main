@@ -4,6 +4,9 @@ namespace AC.SD.Core.Data.Account
 {
     public class UpdatePassword
     {
+        [Required(ErrorMessage = "Old Password is required")]
+        [DataType(DataType.Password)]
+        public string OldPassword { get; set; }
         [Required(ErrorMessage = "Password is required")]
         [StringLength(255, ErrorMessage = "Must be between 4 and 255 characters", MinimumLength = 4)]
         [DataType(DataType.Password)]

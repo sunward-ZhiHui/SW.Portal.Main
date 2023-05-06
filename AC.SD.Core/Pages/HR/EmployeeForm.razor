@@ -11,6 +11,7 @@
 <DxFormLayout CssClass="w-100">
     <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
         <DxFormLayoutTabPage Caption="Personal Information">
+             <EditForm Model="@employee" Context="EditFormContext">
             <DxFormLayoutGroup Caption="Personal Information" ColSpanMd="6">
                 <DxFormLayoutItem Caption="First Name" ColSpanMd="12">
                     <DxTextBox @bind-Text="@employee.FirstName" />
@@ -146,6 +147,7 @@
                           Text="Submit"
                           RenderStyle="ButtonRenderStyle.Primary" />
             </DxFormLayoutItem>
+            </EditForm>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Other Duty Information">
             <DxGrid @ref="_otherInfoGrid"

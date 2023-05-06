@@ -30,7 +30,7 @@ body,
     border-color: var(--bs-background-bg) !important;
 }
 .grid-auto-height {
-    height: calc(100vh - 190px);
+    height: calc(100vh - 150px);
 }
 #app.root {
     min-width: 375px;

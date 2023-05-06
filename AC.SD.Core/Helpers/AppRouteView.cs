@@ -13,16 +13,12 @@ namespace AC.SD.Core.Helpers
     public class AppRouteView : RouteView
     {
         [Inject]
-        public NavigationManager NavigationManager { get; set; }
+        public NavigationManager NavigationManager { get; set; }      
 
-        [Inject]
-        public ILocalStorageService<ApplicationUser> _localStorageService { get; set; }
-
-        protected override async void Render(RenderTreeBuilder builder)
+        protected override void Render(RenderTreeBuilder builder)
         {
             var authorize = Attribute.GetCustomAttribute(RouteData.PageType, typeof(AuthorizeAttribute)) != null;
-            //var checkauthorize = await _localStorageService.GetItem<ApplicationUser>("user");
-            
+                       
             if (authorize)
             {
                 //var returnUrl = WebUtility.UrlEncode(new Uri(NavigationManager.Uri).PathAndQuery);               

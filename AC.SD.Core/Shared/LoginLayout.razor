@@ -9,18 +9,18 @@
     @Body
 </div>
 
-@code {
-    //public bool LoggedIn 
-    //{
-    //    get { return AccountService.User != null; }
-    //}
+@code {   
     protected override async void OnInitialized()
     {
-        //var checkauthorize = await _localStorageService.GetItem<ApplicationUser>("user");
-        // redirect to home if already logged in
-        //if (checkauthorize != null)
-        //{
-        //    NavigationManager.NavigateTo("");
-        //}
+        var checkauthorize = await _localStorageService.GetItem<ApplicationUser>("user");
+       
+        if (checkauthorize == null)
+        {
+            NavigationManager.NavigateTo($"/Login");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/Dashboard");
+        }
     }
 }

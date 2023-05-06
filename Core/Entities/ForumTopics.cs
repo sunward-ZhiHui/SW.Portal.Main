@@ -13,8 +13,9 @@ namespace Core.Entities
         [Key]
         public long ID { get; set; }        
         public string? TicketNo { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Please Enter Topic Name.")]
         public string? TopicName { get; set; }
+        [Required(ErrorMessage = "Please Select Type Name.")]
         public long TypeId { get; set; }
         public long CategoryId { get; set; }
         public DateTime StartDate { get; set; } = DateTime.Now;

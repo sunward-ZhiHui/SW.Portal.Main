@@ -55,7 +55,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM ApplicationRole";
+                var query = "SELECT * FROM ApplicationUser";
 
                 using (var connection = CreateConnection())
                 {

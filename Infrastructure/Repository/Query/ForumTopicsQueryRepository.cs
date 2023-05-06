@@ -61,13 +61,13 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM ForumCategorys WHERE TypeID = 4";
+                var query = "SELECT * FROM ForumCategorys WHERE TypeID = @TypeID";
                 var parameters = new DynamicParameters();
-                parameters.Add("TypeID", id, DbType.Int64);
+                parameters.Add("TypeID", id);
                 
                 using (var connection = CreateConnection())
                 {
-                    var result = (await connection.QueryAsync<ForumCategorys>(query)).ToList();
+                    var result = (await connection.QueryAsync<ForumCategorys>(query,parameters)).ToList();
                     return result;
                 }
             }

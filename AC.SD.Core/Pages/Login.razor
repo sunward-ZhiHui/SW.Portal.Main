@@ -6,10 +6,10 @@
 @using AC.SD.Core.Data.Account;
 
 @using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.Components.Authorization
+@*@using Microsoft.AspNetCore.Components.Authorization*@
 @using Microsoft.AspNetCore.Identity
 @using System.Security.Claims
-@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider
+@*@inject Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProvider*@
 
 @using AC.SD.Core.Data;
 @using AC.SD.Core.Helpers;
@@ -69,8 +69,8 @@
                                 <InputText @bind-Value="model.Password" type="password" class="form-control" />
                                 <ValidationMessage For="@(() => model.Password)" />
                             </div>
-                            <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Forgot Password</NavLink>
-
+@*                            <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Forgot Password</NavLink>
+*@
                             <button disabled="@loading" class="btn btn-primary" style="float:right; margin-top:10px;">
                                 @if (loading)
                                 {
@@ -165,8 +165,8 @@
     bool MessageVisible { get; set; }
     string MessageHeader = "";
     string MessageBody = "";
-    [Inject]
-    public Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProviders { get; set; }
+    //[Inject]
+   // public Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProviders { get; set; }
     private async void OnResetPassword()
     {
         loading = true;

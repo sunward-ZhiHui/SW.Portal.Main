@@ -12,5 +12,7 @@ namespace Core.Repositories.Query
     public interface IEmployeeQueryRepository : IQueryRepository<ViewEmployee>
     {
         Task<IReadOnlyList<ViewEmployee>> GetAllAsync();
+        Task<IReadOnlyList<ViewEmployee>> GetAllUserAsync();
+        Task<ViewEmployee> ResetEmployeePasswordAsync(ViewEmployee viewEmployee);
     }
 }

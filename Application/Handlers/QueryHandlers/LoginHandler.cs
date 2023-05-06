@@ -67,7 +67,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<ApplicationUser> Handle(UpdateUserPasswordRequest request, CancellationToken cancellationToken)
         {
-            var newEntity = await _applicationUserQueryRepository.UpdatePasswordUser(request.UserID, request.NewPassword);
+            var newEntity = await _applicationUserQueryRepository.UpdatePasswordUser(request.UserID, request.NewPassword,request.OldPassword,request.LoginID);
             return newEntity;
         }
 

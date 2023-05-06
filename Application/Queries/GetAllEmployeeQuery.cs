@@ -14,5 +14,15 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetAllEmployeeListQuery : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+        public string SearchString { get; set; }
+    }
+
+    public class GetEmployeeResetPasswordQuery : ViewEmployee,IRequest<ViewEmployee>
+    {
+        public long LoginID { get; set; }
+    }
+
 
 }

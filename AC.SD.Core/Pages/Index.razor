@@ -2,7 +2,7 @@
 @page "/"
 
 @layout MainLayout
-
+@attribute [Authorize]
 @using AC.SD.Core.Configuration
 @inject DemoConfiguration Configuration
 @inject DemoThemeService Themes

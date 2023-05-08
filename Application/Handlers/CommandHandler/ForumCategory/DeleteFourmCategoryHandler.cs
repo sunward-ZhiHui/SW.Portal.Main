@@ -14,8 +14,8 @@ namespace Application.Handlers.CommandHandler.ForumCategory
     public class DeleteFourmCategoryHandler : IRequestHandler<DeleteFourmCategoryCommand, String>
     {
         private readonly IFourmCategoryCommandRepository _categoryCommandRepository;
-        private readonly IFourmCategoryQueryRepository _categoryQueryRepository;
-        public DeleteFourmCategoryHandler(IFourmCategoryCommandRepository categoryRepository, IFourmCategoryQueryRepository categoryQueryRepository)
+        private readonly IForumCategoryQueryRepository _categoryQueryRepository;
+        public DeleteFourmCategoryHandler(IFourmCategoryCommandRepository categoryRepository, IForumCategoryQueryRepository categoryQueryRepository)
         {
             _categoryCommandRepository = categoryRepository;
             _categoryQueryRepository = categoryQueryRepository;

@@ -30,7 +30,7 @@ body,
     border-color: var(--bs-background-bg) !important;
 }
 .grid-auto-height {
-    height: calc(100vh - 190px);
+    height: calc(100vh - 150px);
 }
 #app.root {
     min-width: 375px;
@@ -659,7 +659,7 @@ body,
 /* Content */
 .demo-content-container {
     height: calc(100% - 7rem);
-    overflow-y: scroll;
+    overflow-y: auto;
     overscroll-behavior: none;
     position: relative;
 }
@@ -813,14 +813,14 @@ body,
 .demo-page {
     display: flex;
     flex-flow: row nowrap;
-    margin-left: -2rem;
-    margin-right: -2rem;
+    margin-left: -20px;
+    margin-right: -20px;
 }
 .demo-page .demo-page-content {
     flex: 1 1 auto;
     overflow: hidden;
-    padding-right: 2rem;
-    padding-left: 2rem;
+    padding-right: 15px;
+    padding-left: 15px;
   /*  margin-right: 240px;*/
 }
 .sidebar-shown .demo-page .demo-page-content,

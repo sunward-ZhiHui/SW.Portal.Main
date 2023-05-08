@@ -67,7 +67,27 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<ApplicationUser> Handle(UpdateUserPasswordRequest request, CancellationToken cancellationToken)
         {
-            var newEntity = await _applicationUserQueryRepository.UpdatePasswordUser(request.UserID, request.NewPassword);
+            var newEntity = await _applicationUserQueryRepository.UpdatePasswordUser(request.UserID, request.NewPassword,request.OldPassword,request.LoginID);
+            return newEntity;
+        }
+
+
+    }
+    public class ForgotPasswordUserHandler : IRequestHandler<ResetUserPasswordRequest, ApplicationUser>
+    {
+        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
+        private ILocalStorageService<ApplicationUser> _localStorageService;
+        private string _userKey = "user";
+
+        public ForgotPasswordUserHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService)
+        {
+            _applicationUserQueryRepository = applicationUserQueryRepository;
+            _localStorageService = localStorageService;
+        }
+
+        public async Task<ApplicationUser> Handle(ResetUserPasswordRequest request, CancellationToken cancellationToken)
+        {
+            var newEntity = await _applicationUserQueryRepository.ForGotPasswordUser(request.LoginID, request.NewPassword);
             return newEntity;
         }
 

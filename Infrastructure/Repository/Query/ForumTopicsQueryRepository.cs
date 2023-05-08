@@ -57,6 +57,26 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<IReadOnlyList<ForumCategorys>> GetCategoryByTypeId(long id)
+        {
+            try
+            {
+                var query = "SELECT * FROM ForumCategorys WHERE TypeID = @TypeID";
+                var parameters = new DynamicParameters();
+                parameters.Add("TypeID", id);
+                
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<ForumCategorys>(query,parameters)).ToList();
+                    return result;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<ForumTopics> GetCustomerByEmail(string name)
         {
             try

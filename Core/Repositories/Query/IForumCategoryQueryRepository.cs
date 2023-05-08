@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public  interface IFourmCategoryQueryRepository : IQueryRepository<ForumCategorys>
+    public  interface IForumCategoryQueryRepository : IQueryRepository<ForumCategorys>
     {
         //Custom operation which is not generic
        // Task<IReadOnlyList<ForumCategorys>> GetAllAsync();

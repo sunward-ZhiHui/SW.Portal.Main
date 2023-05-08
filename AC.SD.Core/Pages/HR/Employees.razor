@@ -5,11 +5,11 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
-@page "/Users"
+@page "/Employees"
 
 <DxGrid @ref="Grid"
         Data="_employeeItems"
-        KeyFieldName="UserID"
+        KeyFieldName="PlantID"
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
         ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
@@ -26,32 +26,27 @@
     <Columns>
 
         <DxGridDataColumn FieldName="SageID" MinWidth="80" />
-        <DxGridDataColumn FieldName="FirstName"  />
-        <DxGridDataColumn FieldName="LastName" />
+        <DxGridDataColumn FieldName="FirstName" MinWidth="80" />
+        <DxGridDataColumn FieldName="LastName" MinWidth="80" />
         <DxGridDataColumn FieldName="NickName" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
-        <DxGridDataColumn FieldName="ModifiedDate"  />
-        <DxGridDataColumn FieldName="ModifiedByUser"  />
-        <DxGridDataColumn FieldName="UserID" AllowSort="false"  MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
-            <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ResetPasswords((long)context.Value)">Reset Password</button></CellDisplayTemplate>
-        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
+        <DxGridDataColumn FieldName="ModifiedByUser" Width="10%" />
+        <DxGridCommandColumn Width="160px" />
+
     </Columns>
     <TotalSummary>
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SageID" />
     </TotalSummary>
 </DxGrid>
-<DxPopup @bind-Visible="@MessageVisible"
-         HeaderText="@MessageHeader"
-         BodyText="@MessageBody" />
+
 @code {
-    bool MessageVisible { get; set; }
-    string MessageHeader = "";
-    string MessageBody = "";
     private List<ViewEmployee> _employeeItems;
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        _employeeItems = await Mediator.Send(new GetAllEmployeeListQuery());
+        _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+
 
     }
     async Task UpdateDataAsync()
@@ -75,25 +70,8 @@
     {
 
     }
-    private async void ResetPasswords(long UserID)
+    public void ShowDetails(int plantId)
     {
-        var users = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
-        if(users!=null)
-        {
-            var request = new ResetUserPasswordRequest
-                {
-                    LoginID = users.LoginID,
-                    NewPassword = "1234",
-                };
-            var response = await Mediator.Send(request);
-            onShowPopupMessage("Message", "Password Reset Successfully");
-        }
-    }
-    private async void onShowPopupMessage(string headerText, string bodyText)
-    {
-        MessageVisible = true;
-        MessageBody = bodyText;
-        MessageHeader = headerText;
-        StateHasChanged();
+
     }
 }

@@ -42,20 +42,20 @@ namespace Infrastructure.Repository.Query
                 {
                     var user = await connection.QueryFirstOrDefaultAsync<ApplicationUser>(query, parameters);
 
-                    return user;                   
+                    return user;
                 }
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
-        }      
+        }
 
         public async Task<IReadOnlyList<ApplicationUser>> GetAllAsync()
         {
             try
             {
-                var query = "SELECT * FROM ApplicationRole";
+                var query = "SELECT * FROM ApplicationUser";
 
                 using (var connection = CreateConnection())
                 {
@@ -123,21 +123,39 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<ApplicationUser> UpdatePasswordUser(long UserID, string NewPassword)
+        public async Task<ApplicationUser> UpdatePasswordUser(long UserID, string NewPassword, string OldPassword, string LoginID)
         {
 
             try
             {
-                var query = "update ApplicationUser set LoginPassword=@NewPassword where UserID=@UserID";
-                var parameters = new DynamicParameters();
-                parameters.Add("UserID", UserID);
-                var password = EncryptDecryptPassword.Encrypt(NewPassword);
-                parameters.Add("NewPassword", password);
-
-                using (var connection = CreateConnection())
+                var usersList = await Auth(LoginID, OldPassword);
+                if (usersList != null)
                 {
-                    var user = await connection.ExecuteAsync(query, parameters);
-                    return await GetByUserID(UserID.ToString());
+                    var password = EncryptDecryptPassword.Encrypt(NewPassword);
+                    if (usersList.LoginPassword == password)
+                    {
+                        ApplicationUser ApplicationUser = new ApplicationUser();
+                        ApplicationUser.StatusCodeID = -1;
+                        return ApplicationUser;
+                    }
+                    else
+                    {
+                        var query = "update ApplicationUser set LoginPassword=@NewPassword where UserID=@UserID";
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserID", UserID);
+                        parameters.Add("NewPassword", password);
+
+                        using (var connection = CreateConnection())
+                        {
+                            var user = await connection.ExecuteAsync(query, parameters);
+                            return await GetByUserID(UserID.ToString());
+                        }
+                    }
+                }
+                else
+                {
+                    ApplicationUser ApplicationUser = new ApplicationUser();
+                    return ApplicationUser;
                 }
             }
             catch (Exception exp)
@@ -145,6 +163,37 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<ApplicationUser> ForGotPasswordUser(string LoginID, string NewPassword)
+        {
 
+            try
+            {
+                var User = await GetByUsers(LoginID);
+                if (User != null)
+                {
+                    var userId = User.UserID;
+                    var query = "update ApplicationUser set LoginPassword=@NewPassword where UserID=@userId";
+                    var parameters = new DynamicParameters();
+                    parameters.Add("UserID", userId);
+                    var password = EncryptDecryptPassword.Encrypt(NewPassword);
+                    parameters.Add("NewPassword", password);
+
+                    using (var connection = CreateConnection())
+                    {
+                        var user = await connection.ExecuteAsync(query, parameters);
+                        return User;
+                    }
+                }
+                else
+                {
+                    ApplicationUser ApplicationUser = new ApplicationUser();
+                    return ApplicationUser;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

@@ -33,7 +33,7 @@ namespace Application.Handlers.CommandHandler.Sections
             var data = await _commandRepository.AddAsync(queryEntity);
             var response = new SectionResponse
             {
-                SectionId = data.SectionId,
+                SectionId = (long)data,
                 StatusCodeId = queryEntity.StatusCodeId,
                 SectionName = queryEntity.Name,
                 Description = queryEntity.Description,

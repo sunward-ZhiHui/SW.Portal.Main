@@ -58,9 +58,11 @@ namespace Infrastructure
             services.AddTransient<IDepartmentCommandRepository, DepartmentCommandRepository>();
             services.AddTransient<ISubSectionCommandRepository, SubSectionCommandRepository>();
             services.AddTransient<IDesignationCommandRepository, DesignationCommandRepository>();
-
-
+            services.AddTransient<IEmployeeCommandRepository, EmployeeCommandRepository>();
+            services.AddTransient<IApplicationUserCommandRepository, ApplicationUserCommandRepository>();
             services.AddTransient<IApplicationUserQueryRepository, ApplicationUserQueryRepository>();
+            services.AddTransient<IApplicationUserRoleCommandRepository, ApplicationUserRoleCommandRepository>();
+            services.AddTransient<IEmployeeReportToCommandRepository, EmployeeReportToCommandRepository>();
             services.AddScoped(typeof(ILocalStorageService<>), typeof(LocalStorageService<>));
 
 

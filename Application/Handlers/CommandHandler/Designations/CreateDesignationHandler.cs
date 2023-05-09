@@ -32,7 +32,7 @@ namespace Application.Handlers.CommandHandler.Designations
             var data = await _commandRepository.AddAsync(queryEntity);
             var response = new DesignationResponse
             {
-                DesignationID = data.DesignationId,
+                DesignationID = (long)data,
                 StatusCodeID = queryEntity.StatusCodeId,
                 Name = queryEntity.Name,
                 Description = queryEntity.Description,

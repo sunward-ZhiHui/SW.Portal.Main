@@ -34,16 +34,16 @@
     } 
   ],
   "RootPages": [
-    //{
-    //  "Url": "/",
-    //  "Title": "Dashboard",
+    {
+      "Url": "/Dashboard",
+      "Title": "Dashboard",
 
-    //  "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7",
-    //  "Keywords": "Blazor, components, overview, getting started, devexpress, demo",
-    //  "Description": "DevExpress UI for Blazor ships with native user interface components (including a Data Grid, Pivot Grid, Charts and Scheduler) so you can design rich user experiences with both Blazor."
+      "AnalyticsId": "3c616c71-03dc-46b9-a54f-1334a22dffe7",
+      "Keywords": "Blazor, components, overview, getting started, devexpress, demo",
+      "Description": "DevExpress UI for Blazor ships with native user interface components (including a Data Grid, Pivot Grid, Charts and Scheduler) so you can design rich user experiences with both Blazor."
 
 
-    //},
+    },
     {
       "Id": "Settings",
       "Title": "Settings",
@@ -214,15 +214,15 @@
           "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#templates"
 
         },
-        //{
-        //  "Id": "Topic",
-        //  "Url": "ForumTopics",
-        //  "Title": "Topics",
-        //  "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
-        //  "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
-        //  "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
+        {
+          "Id": "Topic",
+          "Url": "ForumTopics",
+          "Title": "Topics",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
 
-        //},
+        }
         //{
         //  "Id": "Conversation",
         //  "Url": "ForumConversations",

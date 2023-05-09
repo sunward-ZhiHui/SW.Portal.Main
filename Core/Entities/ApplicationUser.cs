@@ -19,5 +19,8 @@ namespace Core.Entities
         public string? LoginPassword { get; set; }
         public string UserName { get; set; }    
         public string UserCode { get; set; }
+        public int InvalidAttempts { get; set; }
+        public bool Locked { get; set; }
+        public DateTime LastPasswordChanged { get; set; }
     }
 }

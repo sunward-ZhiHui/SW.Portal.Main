@@ -63,5 +63,6 @@ namespace Core.Entities.Views
         public DateTime? ModifiedDate { get; set; }
         public string CompanyName { get; set; }
         public int? HeadCount { get; set; }
+        public Guid? SessionId { get; set; }
     }
 }

@@ -121,18 +121,23 @@ namespace Infrastructure.Repository.Query
             try
             {
                 using (var connection = CreateConnection())
-                {
-                    
+                {                   
 
                     try
                     {
                         var parameterss = new DynamicParameters();
                         parameterss.Add("TicketNo", forumTopics.TicketNo);
                         parameterss.Add("TopicName", forumTopics.TopicName);
+                        //parameterss.Add("TypeId", forumTopics.TypeId);
+                        //parameterss.Add("CategoryId", forumTopics.CategoryId);
                         parameterss.Add("AddedByUserID", forumTopics.AddedByUserID);
                         parameterss.Add("AddedDate", forumTopics.AddedDate);
                         parameterss.Add("StatusCodeID", forumTopics.StatusCodeID);
                         parameterss.Add("SessionId", forumTopics.SessionId);
+
+                        parameterss.Add("To", forumTopics.To);
+                        //parameterss.Add("CC", forumTopics.CC);
+                        //parameterss.Add("Participants", forumTopics.Participants);
 
                         connection.Open();
 

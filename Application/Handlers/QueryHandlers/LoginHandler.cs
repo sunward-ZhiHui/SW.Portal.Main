@@ -44,8 +44,16 @@ namespace CMS.Application.Handlers.QueryHandlers
 
            // User = await _localStorageService.GetItem<ApplicationUser>(_userKey);
 
-            var newEntity = await _applicationUserQueryRepository.Auth(request.LoginID,request.Password);          
-            await _localStorageService.SetItem(_userKey, newEntity);
+            var newEntity = await _applicationUserQueryRepository.LoginAuth(request.LoginID,request.Password);  
+            if (newEntity != null)
+            {
+                if (newEntity.Locked == false && newEntity.InvalidAttempts == 0)
+                {
+                    await _localStorageService.SetItem(_userKey, newEntity);
+                }
+            }
+           
+                
             return newEntity;
                             
             
@@ -55,14 +63,11 @@ namespace CMS.Application.Handlers.QueryHandlers
     }
     public class UpdateUserHandler : IRequestHandler<UpdateUserPasswordRequest, ApplicationUser>
     {
-        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
-        private ILocalStorageService<ApplicationUser> _localStorageService;
-        private string _userKey = "user";
+        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;       
 
         public UpdateUserHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService)
         {
-            _applicationUserQueryRepository = applicationUserQueryRepository;
-            _localStorageService = localStorageService;
+            _applicationUserQueryRepository = applicationUserQueryRepository;            
         }
 
         public async Task<ApplicationUser> Handle(UpdateUserPasswordRequest request, CancellationToken cancellationToken)
@@ -75,19 +80,32 @@ namespace CMS.Application.Handlers.QueryHandlers
     }
     public class ForgotPasswordUserHandler : IRequestHandler<ResetUserPasswordRequest, ApplicationUser>
     {
-        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
-        private ILocalStorageService<ApplicationUser> _localStorageService;
-        private string _userKey = "user";
-
+        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;       
         public ForgotPasswordUserHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService)
         {
-            _applicationUserQueryRepository = applicationUserQueryRepository;
-            _localStorageService = localStorageService;
+            _applicationUserQueryRepository = applicationUserQueryRepository;            
         }
 
         public async Task<ApplicationUser> Handle(ResetUserPasswordRequest request, CancellationToken cancellationToken)
         {
             var newEntity = await _applicationUserQueryRepository.ForGotPasswordUser(request.LoginID, request.NewPassword);
+            return newEntity;
+        }
+
+
+    }
+    public class UnSetLockedUserHandler : IRequestHandler<UnsetLockedRequest, ApplicationUser>
+    {
+        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;        
+
+        public UnSetLockedUserHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService)
+        {
+            _applicationUserQueryRepository = applicationUserQueryRepository;
+        }
+
+        public async Task<ApplicationUser> Handle(UnsetLockedRequest request, CancellationToken cancellationToken)
+        {
+            var newEntity = await _applicationUserQueryRepository.UnLockedPassword(request.LoginID, request.NewPassword);
             return newEntity;
         }
 

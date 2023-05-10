@@ -32,6 +32,9 @@ body,
 .grid-auto-height {
     height: calc(100vh - 150px);
 }
+.grid-auto-heightCC {
+    height: calc(100vh - 500px);
+}
 #app.root {
     min-width: 375px;
 }

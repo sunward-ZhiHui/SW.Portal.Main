@@ -12,11 +12,14 @@ namespace Core.Repositories.Query
     {
         //Custom operation which is not generic
         Task<IReadOnlyList<ApplicationUser>> GetAllAsync();
+        Task<ApplicationUser> LoginAuth(string LoginID, string Password);
         Task<ApplicationUser> Auth(string LoginID, string Password);
         Task<ApplicationUser> GetByIdAsync(Int64 id);
         Task<ApplicationUser> GetByUsers(string LoginID);
         Task<ApplicationUser> UpdatePasswordUser(long UserID, string NewPassword, string OldPassword, string LoginID);
         Task<ApplicationUser> ForGotPasswordUser(string LoginID, string NewPassword);
+        Task<ApplicationUser> UnLockedPassword(string LoginID, string NewPassword);
+        
 
     }
 }

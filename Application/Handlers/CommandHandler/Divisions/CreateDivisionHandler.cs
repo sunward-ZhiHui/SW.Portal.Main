@@ -32,7 +32,7 @@ namespace Application.Handlers.CommandHandler.Plants
             var data = await _commandRepository.AddAsync(queryEntity);
             var response = new DivisionResponse
             {
-                DivisionID = data.DivisionId,
+                DivisionID = (long)data,
                 StatusCodeID = queryEntity.StatusCodeId,
                 AddedByUserID = queryEntity.AddedByUserId,
                 Description = queryEntity.Description,

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,19 +10,27 @@ namespace Application.Response
     public class EmployeeResponse
     {
         public long EmployeeID { get; set; }
+        
         public long? UserID { get; set; }
         public string SageID { get; set; }
         public long? PlantID { get; set; }
         public long? LevelID { get; set; }
+        
         public string FirstName { get; set; }
+        
         public string LastName { get; set; }
         public string NickName { get; set; }
         public string UserCode { get; set; }
+        
         public string Gender { get; set; }
         public string JobTitle { get; set; }
+        
         public string Email { get; set; }
+        
         public int? TypeOfEmployeement { get; set; }
+        
         public long? LanguageID { get; set; }
+        
         public long? RoleID { get; set; }
         public long? CityID { get; set; }
         public long? RegionID { get; set; }
@@ -37,10 +46,12 @@ namespace Application.Response
         public bool? IsActive { get; set; }
         public long? DivisionID { get; set; }
         public string LoginID { get; set; }
+        
         public string LoginPassword { get; set; }
         public long? SectionID { get; set; }
         public long? SubSectionID { get; set; }
         public long? SubSectionTID { get; set; }
+        
         public long? DesignationID { get; set; }
         public long? DepartmentID { get; set; }
         public long? AcceptanceStatus { get; set; }
@@ -63,5 +74,6 @@ namespace Application.Response
         public DateTime? ModifiedDate { get; set; }
         public string CompanyName { get; set; }
         public int? HeadCount { get; set; }
+        public IEnumerable<long?> ReportToIds { get; set; }
     }
 }

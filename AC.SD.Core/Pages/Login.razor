@@ -112,9 +112,14 @@
                   Click="@context.CloseCallback" />
     </FooterContentTemplate>
 </DxPopup>
-    <DxPopup @bind-Visible="@MessageVisible"
-             HeaderText="@MessageHeader"
-             BodyText="@MessageBody" />
+    <DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+        <BodyTemplate Context="PopupContext">
+            <div style="text-align:center; color:red;background-color: rgba(255, 56, 56, 0.05); padding: 10px; font-size: 15px;">
+                <span> @MessageBody</span>
+            </div>
+           
+        </BodyTemplate>
+    </DxPopup>
 </div>
 @*
 <div class="row" style="background: #eeeeee; padding: 10px;height:100vh;">
@@ -166,7 +171,7 @@
     string MessageHeader = "";
     string MessageBody = "";
     //[Inject]
-   // public Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProviders { get; set; }
+    // public Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProviders { get; set; }
     private async void OnResetPassword()
     {
         loading = true;
@@ -196,6 +201,7 @@
         MessageVisible = true;
         MessageBody = bodyText;
         MessageHeader = headerText;
+        loading = false;
         StateHasChanged();
     }
     private async void OnValidSubmit()
@@ -216,20 +222,38 @@
             var response = await Mediator.Send(request);
             if(response !=null)
             {
-                 LoggedIn = true;
+                LoggedIn = true;
                 // Set the authentication state
                 //var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, model.LoginID) }, "apiauth_type");
                 //var user = new ClaimsPrincipal(identity);
                 //await AuthenticationStateProviders.SetAuthenticationStateAsync(new AuthenticationState(user));
 
 
-                NavigationManager.NavigateTo("/Dashboard");                
+                if (response.Locked)
+                {
+                    onShowPopupMessage("invalid credentials", "Account locked");                    
+                }
+                else
+                {
+                    if (response.InvalidAttempts != 0)
+                    {
+                        onShowPopupMessage("Invalid Password", "Invalid Password, " + (3 - response.InvalidAttempts) + " attempt(s) left.");
+                    }
+                    else
+                    {
+                         NavigationManager.NavigateTo("Dashboard");
+                    }
+                    
+                }                           
+                              
             }
             else
             {
-                AlertService.Error("Username or password is incorrect");
-                loading = false;
-                StateHasChanged();
+                onShowPopupMessage("invalid credentials", "Username or password is incorrect");
+                //AlertService.Error("Username or password is incorrect");
+                //loading = false;
+                //StateHasChanged();               
+
             }
 
         }

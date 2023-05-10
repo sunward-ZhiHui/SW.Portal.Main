@@ -22,7 +22,7 @@ namespace AC.SD.Core.Helpers
             if (authorize)
             {
                 //var returnUrl = WebUtility.UrlEncode(new Uri(NavigationManager.Uri).PathAndQuery);               
-                NavigationManager.NavigateTo($"/Login");
+                NavigationManager.NavigateTo($"Login");
             }
             else
             {

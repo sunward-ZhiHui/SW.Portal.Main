@@ -32,7 +32,7 @@ namespace Application.Handlers.CommandHandler.Plants
             var plantData = await _commandRepository.AddAsync(customerEntity);
             var response = new PlantResponse
             {
-                PlantID = plantData.PlantID,
+                PlantID = (long)plantData,
                 CompanyID = customerEntity.CompanyID,
                 PlantCode = customerEntity.PlantCode,
                 Description = customerEntity.Description,

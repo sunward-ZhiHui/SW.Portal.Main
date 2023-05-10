@@ -261,8 +261,8 @@
         _forumCategorys = await Mediator.Send(new GetAllForumCategorys());
 
 
-        //var topicmodel = await Mediator.Send(new GetListCategory(1));
-        //_category = topicmodel;
+      // var topicmodel = await Mediator.Send(new GetListCategory(1));
+       // _category = topicmodel;
     }
 
     async void HandleValidSubmit()
@@ -292,7 +292,7 @@
     {
         FormSubmitResult = "";
     }
-    void SelectedItemChanged(long typeId)
+   async void SelectedItemChanged(long typeId)
     {   
         //if(typeId > 0)
         //{

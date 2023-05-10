@@ -1,0 +1,158 @@
+﻿@page "/site"
+@using Application.Command.Ictmaster;
+@using Application.Command.LeveMasters;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+
+
+<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving"     ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360">
+    <Columns>
+
+        <DxGridDataColumn FieldName="CompanyId"  Caption="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="MasterType" Caption="MasterType" MinWidth="80" />
+        <DxGridDataColumn FieldName="Name" MinWidth="80" />
+        <DxGridDataColumn FieldName="Description" MinWidth="80" />
+        <DxGridCommandColumn Width="160px" />
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var ict = (ViewIctmaster)EditFormContext.EditModel;
+        }
+
+
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Description"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@ict.CompanyId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+           
+            <DxFormLayoutItem Caption="Name" ColSpanMd="6">
+                <DxTextBox @bind-Text="@ict.Name" Rows="5" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                <DxMemo @bind-Text="@ict.Description" Rows="5" />
+            </DxFormLayoutItem>
+           
+           
+           
+            <DxFormLayoutItem ColSpanMd="12">
+                <ValidationSummary />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="MasterType" />
+    </TotalSummary>
+</DxGrid>
+
+
+
+@code {
+    private List<ViewPlants> _plantItems;
+    private List<ViewIctmaster> _ictmaster;
+    private List<CodeMaster> _codemaster;
+    int mastertype = 570;
+    IGrid Grid { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+       // var models = await Mediator.Send(new GetAllMasterTypeQuery("MasterType"));
+          // _codemaster = models;
+        var model = await Mediator.Send(new GetAllIctMasterQuery());
+                _ictmaster = model;
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+       // _ictmaster = await Mediator.Send(new GetAllIctMasterQuery());
+    }
+    async Task UpdateDataAsync()
+    {
+        var model = await Mediator.Send(new GetAllIctMasterQuery());
+         _ictmaster = model;
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            var newmaster = (ViewIctmaster)e.EditModel;
+            newmaster.MasterType = mastertype;
+            newmaster.Name = "";
+            newmaster.Description = "";
+            newmaster.StatusCodeId = null;
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editableictmaster = (ViewIctmaster)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateIctmasterCommand
+                {
+                    MasterType = mastertype,
+                    Description = editableictmaster.Description,
+                    StatusCodeId = editableictmaster.StatusCodeId,
+                    Name = editableictmaster.Name,
+                    CompanyId = editableictmaster.CompanyId,
+                    SiteId = editableictmaster.SiteId,
+                    ZoneId=editableictmaster.ZoneId,
+                    LocationId = editableictmaster.LocationId,
+                    AreaId = editableictmaster.AreaId
+
+                };
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            await UpdateMasterAsync(editableictmaster);
+        }
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editablePlant = (ViewIctmaster)e.DataItem;
+        var request = new DeleteIctmasterCommand(editablePlant.IctmasterId);
+        await Mediator.Send(request);
+       // await UpdateDataAsync();
+    }
+    async Task UpdateMasterAsync(ViewIctmaster editableictmaster)
+    {
+        var request = new EditIctmasterCommand
+            {
+                IctmasterId = editableictmaster.IctmasterId,
+                MasterType = editableictmaster.MasterType,
+                Name = editableictmaster.Name,
+                Description = editableictmaster.Description,
+                StatusCodeId = editableictmaster.StatusCodeId,
+                AddedByUserId = editableictmaster.AddedByUserId,
+                AddedDate = editableictmaster.AddedDate,
+                CompanyId = editableictmaster.CompanyId,
+                SiteId = editableictmaster.SiteId,
+                ZoneId = editableictmaster.ZoneId,
+                LocationId = editableictmaster.LocationId,
+                AreaId = editableictmaster.AreaId
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    
+}

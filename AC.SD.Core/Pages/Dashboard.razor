@@ -1,20 +1,35 @@
 ﻿@page "/Dashboard"
 @layout MainLayout
+@using global::Core.Entities;
+@using global::Core.Repositories.Query;
 
 @using AC.SD.Core.Configuration
 @inject DemoConfiguration Configuration
 @inject DemoThemeService Themes
 @inject NavigationManager NavigationManager
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 
 
 
-<div class="demo-products demo-products-description theme-@Themes.ActiveTheme.Name.Replace(" ", "-")">
+@*<div class="demo-products demo-products-description theme-@Themes.ActiveTheme.Name.Replace(" ", "-")">
     <h1 class="mb-4">Dashboard</h1>
     <p class="mb-5">The <a href="https://www.devexpress.com/blazor/" target="_blank">Dashboard</a>  </p>
-</div>
+</div>*@
 
 
 
 @code {
+    protected override async void OnInitialized()
+    {
+        var checkauthorize = await _localStorageService.GetItem<ApplicationUser>("user");
 
+        if (checkauthorize == null)
+        {
+            NavigationManager.NavigateTo($"Login");
+        }
+        else
+        {
+           // NavigationManager.NavigateTo("/hrms/Dashboard");
+        }
+    }
 }

@@ -32,7 +32,7 @@ namespace Application.Handlers.CommandHandler.Departments
             var data = await _commandRepository.AddAsync(queryEntity);
             var response = new DepartmentResponse
             {
-                DepartmentId = data.DepartmentId,
+                DepartmentId = (long)data,
                 StatusCodeId = queryEntity.StatusCodeId,
                 DepartmentName = queryEntity.Name,
                 Description = queryEntity.Description,

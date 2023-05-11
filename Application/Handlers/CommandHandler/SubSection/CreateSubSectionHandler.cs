@@ -33,7 +33,7 @@ namespace Application.Handlers.CommandHandler.SubSections
             var data = await _commandRepository.AddAsync(queryEntity);
             var response = new SubSectionResponse
             {
-                SubSectionId = data.SubSectionId,
+                SubSectionId = (long)data,
                 StatusCodeId = queryEntity.StatusCodeId,
                 SubSectionName = queryEntity.Name,
                 Description = queryEntity.Description,

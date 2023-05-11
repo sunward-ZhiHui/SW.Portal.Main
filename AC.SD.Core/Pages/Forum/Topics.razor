@@ -4,6 +4,7 @@
 @using DevExpress.Blazor.ComboBox;
 @using MediatR
 @using global::Core.Entities;
+@using global::Core.Entities.Views;
 @inject IMediator Mediator
 @using System.ComponentModel.DataAnnotations
 @using DevExpress.Blazor.Internal
@@ -28,7 +29,7 @@
             <div class="row">
                 <div class="col-md-8">
                     <DxFormLayout>
-                        <DxFormLayoutItem ColSpanMd="3">
+                        <DxFormLayoutItem ColSpanMd="6">
                             <label for="TicketNo">TicketNo </label>
                             <DxTextBox @bind-Text="@Data.TicketNo" ShowValidationIcon="true" NullText="Ticket No" />
                            
@@ -38,11 +39,27 @@
                             <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Topic Name" />                           
                                 <ValidationMessage For="@(() => Data.TopicName)" />                           
                         </DxFormLayoutItem>
-                        <DxFormLayoutItem ColSpanMd="3">
+                        
+                         
+                        <DxFormLayoutItem ColSpanMd="4">
+                            <label for="StartDate">Start Date </label>
+                            <DxDateEdit @bind-Date="@Data.StartDate" CssClass="cw-320" Mask="dd/MMMM/yyyy"/>
+                            <div class="">
+                                <ValidationMessage For="@(() => Data.StartDate)" />
+                            </div>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem ColSpanMd="4">
+                            <label for="EndDate">End Date </label>
+                            <DxDateEdit @bind-Date="@Data.EndDate" CssClass="cw-320" Mask="DD-MMMM-yyyy" />
+                            <div class="">
+                                <ValidationMessage For="@(() => Data.EndDate)" />
+                            </div>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem ColSpanMd="4">
                             <label for="DueDate">DueDate </label>
                             <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
                         </DxFormLayoutItem>
-                         <DxFormLayoutItem ColSpanMd="6">
+                        <DxFormLayoutItem ColSpanMd="6">
                             <label for="TypeId">Type </label>
                             <DxComboBox Data="@_types"
                                         SelectedItemChanged="@((ForumTypes type) => SelectedItemChanged(type.ID))"
@@ -53,27 +70,13 @@
                                         @bind-Value="@Data.TypeId" ShowValidationIcon="true" />
                             <ValidationMessage For="@(() => Data.TypeId)" />
 
-                            @*  <DxComboBox Data="@_types"                                       
-                                        SelectedItemChanged="@((ForumTypes type) => SelectedItemChanged(type.ID))"
-                                        ListRenderMode="ListRenderMode.Virtual"
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="@nameof(ForumTypes.Name)"
-                                        @bind-Value="Data.TypeId"                                       
-                                        CssClass="cw-480" />*@
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem ColSpanMd="3">
-                            <label for="StartDate">Start Date </label>
-                            <DxDateEdit @bind-Date="@Data.StartDate" CssClass="cw-320" Mask="dd/MMMM/yyyy"/>
-                            <div class="">
-                                <ValidationMessage For="@(() => Data.StartDate)" />
-                            </div>
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem ColSpanMd="3">
-                            <label for="EndDate">End Date </label>
-                            <DxDateEdit @bind-Date="@Data.EndDate" CssClass="cw-320" Mask="DD-MMMM-yyyy" />
-                            <div class="">
-                                <ValidationMessage For="@(() => Data.EndDate)" />
-                            </div>
+                            @*  <DxComboBox Data="@_types"
+                            SelectedItemChanged="@((ForumTypes type) => SelectedItemChanged(type.ID))"
+                            ListRenderMode="ListRenderMode.Virtual"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="@nameof(ForumTypes.Name)"
+                            @bind-Value="Data.TypeId"
+                            CssClass="cw-480" />*@
                         </DxFormLayoutItem>
                         @{
                             SelectedItemChanged(@Data.CategoryId);
@@ -84,21 +87,14 @@
                                         NullText="Select Type..."
                                         ListRenderMode="ListRenderMode.Virtual"
                                         FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="@nameof(ForumCategorys.Name)"
+                                        TextFieldName="@nameof(ForumCategorys.Name)"                                     
                                         @bind-Value="@Data.CategoryId"
                                         SelectionMode="SelectionMode.Multiple"
                                         CssClass="cw-480" />
                         </DxFormLayoutItem>
 
-                        <DxFormLayoutItem ColSpanMd="6">
-                            <label for="ForumFrom">From </label>
-                           @* <DxComboBox Data="@_category"
-                                       
-                                        ListRenderMode="ListRenderMode.Virtual"
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="@nameof(ForumCategorys.Name)"
-                                        @bind-Value="@Data.CategoryId"
-                                        CssClass="cw-480" />*@
+                      @*  <DxFormLayoutItem ColSpanMd="6">
+                            <label for="ForumFrom">From </label>                          
 
                             <DxComboBox Data="@SelectedDataItems"
                                         Multiple="true"
@@ -110,7 +106,7 @@
 
 
                             <DxListBox Data="@SelectedDataItems"
-                                       TextFieldName="@nameof(ForumTypes.Name)"
+                                       TextFieldName="@nameof(ViewEmployee.FirstName)"
                                        SelectionMode="ListBoxSelectionMode.Multiple"
                                        ShowCheckboxes="@ShowCheckboxes"
                                        CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
@@ -120,40 +116,86 @@
                             </DxListBox>  
 
 
-                        </DxFormLayoutItem>
+                        </DxFormLayoutItem>*@
 
                         <DxFormLayoutItem ColSpanMd="6" >
-                            <label for="ForumTo">To </label>
-
-                           @* <DxComboBox Data="@_category"
-                                        ListRenderMode="ListRenderMode.Virtual"
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="@nameof(ForumTypes.Name)"
-                                        @bind-Value="@Data.TypeId"
-                                        CssClass="cw-480" >
-                                   
-                                        <Columns>
-        <DxListEditorColumn FieldName="@nameof(ForumTypes.ID)"
-                            Caption="Id"
-                            Width="50px"  />
-        <DxListEditorColumn FieldName="@nameof(ForumTypes.Name)"
-                            Caption="Name" />
-        <DxListEditorColumn FieldName="@nameof(ForumTypes.Description)"
-                            Caption="Surname" />
-                                   </Columns>
-                            </DxComboBox>*@                         
-
-                        
+                            <div class="card-header text-center" style="border-top: 1px solid #d9d7d7;    border-left: 1px solid #d9d7d7;    border-right: 1px solid #d9d7d7;">
+                                <span> To </span>
+                            </div>
+                            <div class="">
+                                <DxGrid @ref="Grid" Data="@SelectedDataItems"
+                                        KeyFieldName="UserID"
+                                        ShowSearchBox="true"
+                                        PagerNavigationMode="PagerNavigationMode.InputBox"
+                                        PageSizeSelectorVisible="true"
+                                        PageSizeSelectorAllRowsItemVisible="true"
+                                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                        PageSize="20"
+                                        style="height:calc(100vh - 500px)"
+                                        CssClass="ch-360"
+                                        SelectionMode="GridSelectionMode.Multiple"
+                                        AllowSelectRowByClick="true"
+                                        @bind-SelectedDataItems="@SelectedToItems">
+                                    <Columns>
+                                        <DxDataGridColumn>
+                                            <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+                                        </DxDataGridColumn>
+                                        <DxGridSelectionColumn Width="104px" />
+                                        <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
+                                        <DxGridDataColumn FieldName="LastName" />
+                                    </Columns>
+                                </DxGrid>
+                            </div>
+                           @* <label for="ForumTo">To </label>
+                            <DxListBox Data="@SelectedDataItems"
+                                       TextFieldName="@nameof(ViewEmployee.FirstName)"
+                                       SelectionMode="ListBoxSelectionMode.Multiple"
+                                       ShowCheckboxes="@ShowCheckboxes"
+                                       CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
+                                       SearchEnabled="true" SearchMode="ListBoxSearchMode.Contains"
+                                       style="flex-basis: 240px"
+                                       @bind-Values="@Values">
+                            </DxListBox>*@
                         </DxFormLayoutItem>
-
                         <DxFormLayoutItem ColSpanMd="6">
-                            <label for="ForumCC">CC </label>
-                           @* <DxComboBox Data="@_category"
-                                        ListRenderMode="ListRenderMode.Virtual"
-                                        FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="@nameof(_category)"
-                                        @bind-Value="@_category"
-                                        CssClass="cw-480" />*@
+                            <div class="card-header text-center" style="border-top: 1px solid #d9d7d7;    border-left: 1px solid #d9d7d7;    border-right: 1px solid #d9d7d7;">
+                                <span> CC </span>                                
+                            </div>
+                            <div class="">
+                                <DxGrid @ref="Grid" Data="@SelectedDataItems"
+                                        KeyFieldName="UserID"
+                                        ShowSearchBox="true"
+                                        PagerNavigationMode="PagerNavigationMode.InputBox"
+                                        PageSizeSelectorVisible="true"
+                                        PageSizeSelectorAllRowsItemVisible="true"
+                                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                        PageSize="20"
+                                        style="height:calc(100vh - 500px)"
+                                        CssClass="ch-360"
+                                        SelectionMode="GridSelectionMode.Multiple"
+                                        AllowSelectRowByClick="true"
+                                        @bind-SelectedDataItems="@SelectedCCItems">
+                                    <Columns>
+                                        <DxDataGridColumn>
+                                            <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+                                        </DxDataGridColumn>
+                                        <DxGridSelectionColumn Width="104px" />
+                                        <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
+                                        <DxGridDataColumn FieldName="LastName" />
+                                    </Columns>
+                                </DxGrid>
+                            </div>
+
+                           @* <label for="ForumCC">CC </label>
+                            <DxListBox Data="@SelectedDataItems"
+                                       TextFieldName="@nameof(ViewEmployee.FirstName)"
+                                       SelectionMode="ListBoxSelectionMode.Multiple"
+                                       ShowCheckboxes="@ShowCheckboxes"
+                                       CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
+                                       SearchEnabled="true" SearchMode="ListBoxSearchMode.Contains"
+                                       style="flex-basis: 240px"
+                                       @bind-Values="@Values">
+                            </DxListBox>*@
                         </DxFormLayoutItem>
 
                         <DxFormLayoutItem ColSpanMd="12">
@@ -163,29 +205,17 @@
                                       style="float:right"
                                       RenderStyle="ButtonRenderStyle.Secondary" />
                         </DxFormLayoutItem>
-                    </DxFormLayout>
+                    </DxFormLayout>                    
                 </div>
-                <div class="card col-md-4" style="padding-left: 0px;    padding-right: 0px;">
-
-                  @*  <div class="g-title">
-                        <div class="g-left"></div>
-
-                        <span class=""></span><span class="g-text">Type</span>
-                        <div class="g-right">
-                            <button type="button" CssClass="download-btn">
-                               Add
-                            </button>
-                        </div>
-                    </div>*@
-
+                <div class="card col-md-4" style="padding-left: 0px;padding-right: 0px;">
                     <div class="card-header text-center">
                         <span> Participant List</span>
-                        <DxButton style="float:right;" RenderStyle="ButtonRenderStyle.Info" class="btn btn-add" Click="@onClickParticipant">Add</DxButton>
+                        @*<DxButton style="float:right;" RenderStyle="ButtonRenderStyle.Info" class="btn btn-add" Click="@onClickParticipant">Add</DxButton>*@
                     </div>
                     <div class="card-body">
-                        <DxGrid Data="_types"
-                                KeyFieldName="ID"                                                            
-                                ShowSearchBox="true"
+                        <DxGrid @ref="Grid" Data="_participant"
+                                KeyFieldName="UserID"
+                                ShowSearchBox="true"                                 
                                 PagerNavigationMode="PagerNavigationMode.InputBox"
                                 PageSizeSelectorVisible="true"
                                 PageSizeSelectorAllRowsItemVisible="true"
@@ -197,34 +227,33 @@
                                 CustomizeElement="Grid_CustomizeElement"
                                 AllowSelectRowByClick="true"
                                 @bind-SelectedDataItems="@SelectedDataItems"
-                                SelectedDataItemChanged="@OnSelectionChanged">
+                                SelectedDataItemChanged="@OnSelectionChanged"                                                       
+                                >
                             <Columns>
+                                <DxDataGridColumn>
+                                    <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+                                </DxDataGridColumn>
                                 <DxGridSelectionColumn Width="104px" />
-                                <DxGridDataColumn FieldName="Name" MinWidth="100" />
-                                <DxGridDataColumn FieldName="ID"/>                              
+                                <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
+                                <DxGridDataColumn FieldName="LastName" />
                             </Columns>
                         </DxGrid>                       
                     </div>
                 </div>
             </div>
 
-
+            
 
            
         </div>
     </EditForm>
 </div>
-<p class="tm-8 cw-480 mt-2">
-    @FormSubmitResult
-</p>
-
 
 @code {
 
     private List<ForumTypes> selectedItems = new List<ForumTypes>();
     List<int> selectedValues = new List<int>();
-
-   
+    IGrid? Grid { get; set; }
 
 
     bool IsOpen { get; set; } = false;
@@ -235,33 +264,55 @@
     bool PopupVisible { get; set; } = false;
     ForumTopics? Data { get; set; } = new ForumTopics();
     IEnumerable<ForumTypes>? _types;
-    private List<ApplicationUser>? _participant;
+    private List<ViewEmployee>? _participant;
     IEnumerable<ForumTypes>? Values;
     IEnumerable<ForumCategorys>? _category;
     private List<ForumCategorys>? _forumCategorys;
 
+    List<long> participantIds = new List<long>();
+    List<long> selectedToIds = new List<long>();
+    List<long> SelectedCCIds = new List<long>();
+
+    //List<ViewEmployee> ids = new List<ViewEmployee>(); 
+
+   
 
     IReadOnlyList<object>? SelectedDataItems { get; set; }
-    //private List<ForumTypes>? SelectedDataItems;
+    IReadOnlyList<object>? SelectedCCItems { get; set; }
+    IReadOnlyList<object>? SelectedToItems { get; set; }
+   
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     //GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }   
 
     void OnSelectionChanged(object args)
     {
-        var ids = args;
-        var ls = SelectedDataItems;
+        var res = args;
+        var lst = @SelectedDataItems;
+
+        //if(args != null)
+        //{
+        //    ViewEmployee selectedEmployee = args as ViewEmployee;
+        //    if (selectedEmployee != null)
+        //    {
+        //        ids.Add(selectedEmployee);
+        //        selectedToIds.Add((long)selectedEmployee.UserID);
+
+        //    }
+        //}      
     }
+
 
     protected override async Task OnInitializedAsync() {
         var typemodel = await Mediator.Send(new GetAllForumTypes());
         _types = typemodel;
-        
+
         //var appusers = await Mediator.Send(new GetAllApplicationUserQuery());
         //_participant = appusers;
 
         _forumCategorys = await Mediator.Send(new GetAllForumCategorys());
 
+        _participant = await Mediator.Send(new GetAllEmployeeListQuery());
 
         //var topicmodel = await Mediator.Send(new GetListCategory(1));
         //_category = topicmodel;
@@ -270,17 +321,55 @@
     async void HandleValidSubmit()
     {
         FormSubmitResult = "You have been registred successully.";
+        var sldEmployee = @SelectedDataItems.Count;
+
+
+        foreach (object item in SelectedDataItems)
+        {
+            if (item is ViewEmployee employee)
+            {
+                //ids.Add(employee);
+                participantIds.Add((long)employee.UserID);
+            }
+        }
+
+        foreach (object item in SelectedToItems)
+        {
+            if (item is ViewEmployee employee)
+            {               
+                selectedToIds.Add((long)employee.UserID);
+            }
+        }
+
+        foreach (object item in SelectedCCItems)
+        {
+            if (item is ViewEmployee employee)
+            {                
+                SelectedCCIds.Add((long)employee.UserID);
+            }
+        }
+        
+        //var slsls = participantIds.Distinct().ToList();
+        string participantidsString = string.Join(",", participantIds); // convert the array to a comma-separated string
+        string toidsString = string.Join(",", selectedToIds); // convert the array to a comma-separated string
+        string ccidsString = string.Join(",", SelectedCCIds); // convert the array to a comma-separated string
 
 
         var createReq = new CreateForumTopics
             {
                 TicketNo = Data.TicketNo,
                 TopicName = Data.TopicName,
+                //TypeId  = Data.TypeId,
+                //CategoryId  = Data.CategoryId,
                 StatusCodeID = 1,
                 AddedByUserID = 1,
                 AddedDate = DateTime.Now,
-                SessionId = Guid.NewGuid()
+                SessionId = Guid.NewGuid(),
+                To = participantidsString,
+                
             };
+
+
         var result = await Mediator.Send(createReq);
 
 
@@ -294,7 +383,7 @@
     {
         FormSubmitResult = "";
     }
-    void SelectedItemChanged(long typeId)
+   async void SelectedItemChanged(long typeId)
     {   
         //if(typeId > 0)
         //{

@@ -40,7 +40,12 @@
         <DxGridDataColumn FieldName="ModifiedDate"  />
        
         <DxGridDataColumn FieldName="ModifiedByUser"  />
+        <DxGridDataColumn FieldName="UserID" AllowSort="false" MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
+            <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button></CellDisplayTemplate>
+           
+        </DxGridDataColumn>
         <DxGridDataColumn FieldName="UserID" AllowSort="false"  MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
+            
             <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ResetPasswords((long)context.Value)">Reset Password</button></CellDisplayTemplate>
       
         </DxGridDataColumn>
@@ -106,6 +111,20 @@
     {
 
     }
+    private async void UnSetLock(long UserID)
+    {
+        var users = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
+        if(users!=null)
+        {
+            var request = new UnsetLockedRequest
+                {
+                    LoginID = users.LoginID,
+                    NewPassword = "1234",
+                };
+            var response = await Mediator.Send(request);
+            onShowPopupMessage("Message", "Account Un-Locked Successfully");
+        }        
+    }    
     private async void ResetPasswords(long UserID)
     {
         var users = _employeeItems.FirstOrDefault(a => a.UserID == UserID);

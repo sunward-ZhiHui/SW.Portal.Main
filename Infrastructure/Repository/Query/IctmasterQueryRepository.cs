@@ -42,23 +42,39 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-
-
-        public async Task<IReadOnlyList<Ictmaster>> GetIctmasterByMasterType(int mastertype)
+        public async Task<IReadOnlyList<CodeMaster>> GetCodeMasterByStatus(string name)
         {
-            try
-            {
-                var query = "SELECT * FROM Ictmaster WHERE MasterType =" + "'" + mastertype + "'";
-                using (var connection = CreateConnection())
+           
+                try
                 {
-                    return (await connection.QueryAsync<Ictmaster>(query)).ToList();
+                    var query = "SELECT * FROM Codemaster WHERE CodeType =" + "'" + name + "'";
+                    using (var connection = CreateConnection())
+                    {
+                        return (await connection.QueryAsync<CodeMaster>(query)).ToList();
+                    }
                 }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
+                catch (Exception exp)
+                {
+                    throw new Exception(exp.Message, exp);
+                }
+            
         }
+
+        //public async Task<IReadOnlyList<Ictmaster>> GetIctmasterByMasterType(int mastertype)
+        //{
+        //    try
+        //    {
+        //        var query = "SELECT * FROM Ictmaster WHERE MasterType =" + "'" + mastertype + "'";
+        //        using (var connection = CreateConnection())
+        //        {
+        //            return (await connection.QueryAsync<Ictmaster>(query)).ToList();
+        //        }
+        //    }
+        //    catch (Exception exp)
+        //    {
+        //        throw new Exception(exp.Message, exp);
+        //    }
+        //}
 
         async  Task <IReadOnlyList<ViewIctmaster>> IIctmasterQueryRepository.GetAllAsync()
         {

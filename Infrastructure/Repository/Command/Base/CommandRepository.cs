@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Core.Entities.Base;
+using System.Reflection;
+using System.Data.Entity.Core.Objects.DataClasses;
 
 namespace Infrastructure.Repository.Command.Base
 {
@@ -19,15 +21,17 @@ namespace Infrastructure.Repository.Command.Base
 
         }
 
-        public async Task<T> AddAsync(T entity)
+        public async Task<int?> AddAsync(T entity)
         {
+            int Id = 0;
             //try
             //{
             using (var connection = CreateConnection())
             {
-                await connection.InsertAsync(entity);
+                var id=await connection.InsertAsync(entity);
+                Id = id.Value;
             }
-            return entity;
+            return Id;
             //}
             //catch (Exception ex)
             //{

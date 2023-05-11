@@ -27,6 +27,21 @@ namespace Application.Handlers.QueryHandlers
         }
     }
 
+    public class GetDiscussionListHandler : IRequestHandler<GetDiscussionList, List<ForumConversations>>
+    {
+        private readonly IForumConversationsQueryRepository _conversationQueryRepository;
+        
+        public GetDiscussionListHandler(IForumConversationsQueryRepository conversationQueryRepository)
+        {
+            
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<ForumConversations>> Handle(GetDiscussionList request, CancellationToken cancellationToken)
+        {
+            return (List<ForumConversations>)await _conversationQueryRepository.GetDiscussionListAsync(request.TopicId);           
+        }
+    }
+
 
     public class CreateForumConversationHandler : IRequestHandler<CreateForumCoversation, long>
     {

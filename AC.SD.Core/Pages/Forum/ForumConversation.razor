@@ -4,100 +4,253 @@
 @using MediatR
 @using global::Core.Entities;
 @inject IMediator Mediator
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor.Internal
+@using System.Collections.Generic
 
 @page "/ForumConversations"
 
 <style>
-    .itemclass span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+   
 </style>
-
+<link href="_content/AC.SD.Core/css/forum-discussion.css" rel="stylesheet" />
 <div class="">
-    <div class="row">
-        <div class="card col-md-3" style="padding-left: 0px; padding-right: 0px;">
-            <div class="card-header text-center">
-                <span> General Information</span>
-            </div>
-            <div class="card-body">
 
-                <DxTreeView Data="@TreeData"  
-                            @bind-FilterString="FilterString"
-                            FilterMinLength="2"
-                            ShowFilterPanel="true"
-                            Target="_blank"
-                            FilterMode="FilterMode" 
-                            AllowSelectNodes=true
-                            LoadChildNodesOnDemand="true"
-                            SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
-                    <DataMappings>
-                        <DxTreeViewDataMapping Key="ID" ParentKey="ParentID" Text="Name" Name="ID" NavigateUrl="NavigateUrl" />
-                    </DataMappings>
-                </DxTreeView>
+   @* <DxFormLayout CssClass="w-100">
+        <DxFormLayoutGroup Caption="General Information" ColSpanMd="3">
+            asdfasdf
+        </DxFormLayoutGroup>
+        <DxFormLayoutGroup Caption="Forum Discussion List" ColSpanMd="9">
+            asdfasdf
+        </DxFormLayoutGroup>
+    </DxFormLayout>*@
 
-               @* <DxTreeView Data="@_types"
-                            @bind-FilterString="FilterString"
-                            FilterMinLength="2"
-                            ShowFilterPanel="true"
-                            Target="_blank"
-                            FilterMode="FilterMode"
-                            AllowSelectNodes=true
-                            SelectedItem="@SelectedNodes"
-                            SelectedNodeChanged="@OnSelectedNodeChangeds"
-                            AnimationType="LayoutAnimationType.Slide">
-                    <DataMappings>
-                        <DxTreeViewDataMapping Key="ID" ParentKey="ParentId"
-                                               CssClass="CssClass"
-                                               Text="Name"                                               
-                                               NavigateUrl="NavigateUrl" />
-                    </DataMappings>
-                </DxTreeView>*@
+    <div class="main-container">
+        <!--  -->
+        <!-- Main Content -->
+        <!--  -->
+        <div class="content-container">
+            <!-- Side Bar -->
+           @* <div class="side-menu-bar">
+               
+                <div class="side-menu-bar-top">
+                    <div class="side-menu-bar-text circle">RN</div>
+                    <div class="side-menu-bar-text circle">IPIR</div>
+                    <div class="side-menu-bar-text circle">PA</div>
+                    <div class="side-menu-bar-text circle">CS</div>
+                    <div class="side-menu-bar-text circle">GL</div>
+                </div>
+               
+            </div>*@
+            <!-- Mini Menu Bar -->
+            <div class="mini-menu-bar">
+                <div class="mini-menu-bar-top">
+                    <div class="mini-menu-bar-heading">
+                        <div class="files-title">General Information</div>
+                    </div>
+                    <!-- Views Accordion -->
+                    <div class="views-accordion">                       
+                        <DxTreeView Data="@_topics"
+                                    @bind-FilterString="FilterString"
+                                    FilterMinLength="2"
+                                    ShowFilterPanel="true"                                
+                                    FilterMode="FilterMode"
+                                    AllowSelectNodes=true
+                                    LoadChildNodesOnDemand="true"                                   
+                                    SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
+                            <DataMappings>
+                                <DxTreeViewDataMapping Key="ID" CssClass="CssClass" ParentKey="TypeId" Text="TopicName" Name="ID"/>
+                            </DataMappings>
+                        </DxTreeView>
+                    </div>                                        
+                </div>
+                @*<div class="mini-menu-bar-down">
+                    <div class="add-cloud-storage-btn">
+                        <div class="cloud-storage-btn">                           
+                            <div class="add-btn-text">Add cloud storage</div>
+                        </div>
+                    </div>
+                </div>*@
             </div>
-        </div>
-        <div class="card col-md-9" style="padding-left: 0px; padding-right: 0px;">
-            <div class="card-header text-center">
-                <span> Forum Discussion List</span>
-            </div>
-            <div class="card-body">
-                <p class="demo-text cw-480 mt-2">Selected group: <b>@SelectedGroup</b></p>
+            <!-- Menu Bar Content -->
+            <div class="menu-bar-content-container">
+                <div class="content-padding-20">
+                    <div class="menu-bar-content-container-heading">
+                        <div class="heading-icon-text">
+                            <div class="mb-cc-icon">
+                                <svg viewBox="-6 -6 32 32" role="presentation" class="app-svg icons-recents">
+                                    <g class="icons-default-fill">
+                                        <path d="M10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2ZM10 3C6.13401 3 3 6.13401 3 10C3 13.866 6.13401 17 10 17C13.866 17 17 13.866 17 10C17 6.13401 13.866 3 10 3ZM9.5 5C9.74546 5 9.94961 5.17688 9.99194 5.41012L10 5.5V10H12.5C12.7761 10 13 10.2239 13 10.5C13 10.7455 12.8231 10.9496 12.5899 10.9919L12.5 11H9.5C9.25454 11 9.05039 10.8231 9.00806 10.5899L9 10.5V5.5C9 5.22386 9.22386 5 9.5 5Z">
+                                        </path>
+                                    </g>
+                                </svg>
+                            </div>
+                            <div class="mb-cc-text">
 
-                @if (SelectedNode != null)
-                {
-                    <h3>@SelectedNode.Name</h3>
-                    <p>@SelectedNode.ID</p>
-                }
+                                <div class="card w-100">
+                                    <div class="card-body p-0">
+                                        <DxMenu Orientation="Orientation.Horizontal"
+                                                DropDownActionMode="MenuDropDownActionMode.Click"
+                                                DisplayMode="MenuDisplayMode.Desktop"
+                                                Title=""
+                                                CollapseItemsToHamburgerMenu="true"
+                                                CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
+                                            <Items>
+                                                <DxMenuItem Text="Posts" IconCssClass="menu-icon-products menu-icon" />
+                                                <DxMenuItem Text="Files" IconCssClass="menu-icon-support menu-icon" />
+                                                <DxMenuItem Text="Wiki" IconCssClass="menu-icon-about menu-icon" />
+                                            </Items>
+                                        </DxMenu>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-bar-content-container-content">
+                        <div class="spacing-box"></div>                       
+                        <DxButton RenderStyle="ButtonRenderStyle.Secondary"
+                                  Text="Load Data"
+                                  Click="LoadData"  
+                                  style="color:white"
+                                  CssClass="me-1 btn-success" />
+                        <div id="tableData">
+                            <p class="demo-text cw-480 mt-2">Selected group: <b>@SelectedGroup</b></p>
+
+                            <div>
+                                @if (_discussionList != null && _discussionList.Any())
+                                {
+                                    @foreach (var item in _discussionList)
+                                    {
+                                       
+                                        <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
+                                            <div class="uk-card-header">
+                                                <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
+                                                    <h3 class="uk-card-title uk-first-column"><time datetime="2020-07-08">@item.AddedByUserID</time></h3>
+                                                    <span class="uk-label uk-label-success uk-margin-auto-left">@item.AddedDate</span>
+                                                </div>
+                                            </div>
+                                            <div class="uk-card-body">
+                                                <p class="uk-text-success">
+                                                    @item.Message
+                                                </p>
+                                            </div>
+                                        </div>
+
+
+
+                                    }
+                                }
+                            </div>
+
+
+
+                            @if (isComponentVisible)
+                            {
+                                <div class="open-button ">
+                                    <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
+                                        <DataAnnotationsValidator />
+                                        <DxFormLayout>
+                                            <DxFormLayoutItem ColSpanMd="12">
+                                                <DxMemo @bind-Text="@Data.Message" ShowValidationIcon="true" NullText="Message" />
+                                            </DxFormLayoutItem>
+                                            <DxFormLayoutItem ColSpanMd="12">
+                                                <DxButton SubmitFormOnClick="true"
+                                                      Text="Submit"
+                                                      CssClass="btn-submit"
+                                                          style="float:right"
+                                                      RenderStyle="ButtonRenderStyle.Secondary" />
+                                                <DxButton RenderStyle="ButtonRenderStyle.Secondary"
+                                                      Text="Close"
+                                                      Click="@(() => isComponentVisible = false)"
+                                                      IconCssClass="btn-icon-undo"
+                                                      CssClass="me-1 btn-success" />
+                                            </DxFormLayoutItem>
+                                        </DxFormLayout>
+                                    </EditForm>
+
+                                   
+                                </div>
+                            }
+                            else
+                            {
+
+                                <DxButton RenderStyle="ButtonRenderStyle.Secondary"
+                                      Text="New Conversation"
+                                      Click="@(() => isComponentVisible = true)"
+                                      IconCssClass="btn-icon-undo"
+                                          style="color:white; width:200px;"
+                                      CssClass="me-1 btn-success open-button" />
+                            }
+                        </div>
+                        
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 @code {
-    DxTreeView treeView;
+    DxTreeView treeView; 
+    bool isComponentVisible = false;
     private List<ForumTypes>? _types;
+    private List<ForumTopics>? _topics; 
+    public List<ForumConversations> _discussionList { get; set; } = new List<ForumConversations>();
     string FilterString { get; set; }
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;
     public ForumTypes SelectedNodes { get; set; }
-
+    ForumConversations? Data { get; set; } = new ForumConversations();
     string SelectedGroup = "none";
-    void SelectionChanged(TreeViewNodeEventArgs e)
+    async void SelectionChanged(TreeViewNodeEventArgs e)
     {
         SelectedGroup = e.NodeInfo?.Name;
+        // _discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
+    }
+    private List<string> data;
+    private async void LoadData()
+    {  
+        _discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
     }
 
-   
-  
 
     protected override async Task OnInitializedAsync()
     {
         var model = await Mediator.Send(new GetAllForumTypes());
         _types = model;
+
+        _topics = await Mediator.Send(new GetUserForumTopics(1));
+
+        //_discussionList = await Mediator.Send(new GetDiscussionList(38));
+    }
+    void getConversation()
+    {
+        
     }
 
     private void OnSelectedNodeChangeds(ForumTypes item)
     {
         SelectedNodes = item;
+    }
+    async void HandleValidSubmit()
+    {
+        var createReq = new CreateForumCoversation
+            {
+                
+                TopicID = 48,
+                Message = Data.Message,
+                ParticipantId = 1,
+                ReplyId = 0,
+                StatusCodeID = 1,
+                AddedByUserID = 1,
+                AddedDate = DateTime.Now,
+                SessionId = Guid.NewGuid()
+            };
+        var result = await Mediator.Send(createReq);
+    }
+
+    void HandleInvalidSubmit()
+    {
+       
     }
 
     private List<TreeViewItem> TreeData = new List<TreeViewItem>

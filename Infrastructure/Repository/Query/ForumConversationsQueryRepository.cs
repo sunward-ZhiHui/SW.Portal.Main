@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Transactions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Repository.Query
 {
@@ -36,8 +37,7 @@ namespace Infrastructure.Repository.Query
 
                         try
                         {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Name", forumConversations.Name, DbType.String);
+                            var parameters = new DynamicParameters();                            
                             parameters.Add("TopicID", forumConversations.TopicID, DbType.Int64);
                             parameters.Add("Message", forumConversations.Message, DbType.String);
                             parameters.Add("ID", forumConversations.ID, DbType.Int64);
@@ -85,6 +85,25 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<List<ForumConversations>> GetDiscussionListAsync(long TopicId)
+        {
+            try
+            {
+                var query = "SELECT * FROM ForumConversations WHERE TopicId = @TopicId";
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ForumConversations>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<ForumConversations> GetByIdAsync(long id)
         {
             try
@@ -117,15 +136,18 @@ namespace Infrastructure.Repository.Query
 
                         try
                         {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Name", forumConversations.Name, DbType.String);
+                            var parameters = new DynamicParameters();                           
                             parameters.Add("TopicID", forumConversations.TopicID, DbType.Int64);
                             parameters.Add("Message", forumConversations.Message, DbType.String);
                           //  parameters.Add("ID", forumConversations.ID, DbType.Int64);
                             parameters.Add("ParticipantId", forumConversations.ParticipantId, DbType.Int64);
                             parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
+                            parameters.Add("StatusCodeID", forumConversations.StatusCodeID);
+                            parameters.Add("AddedByUserID", forumConversations.AddedByUserID);
+                            parameters.Add("SessionId", forumConversations.SessionId);
+                            parameters.Add("AddedDate", forumConversations.AddedDate);
 
-                            var query = "INSERT INTO ForumConversations(Name,TopicID,Message,ParticipantId,ReplyId) VALUES (@Name,@TopicID,@Message,@ParticipantId,@ReplyId)";
+                            var query = "INSERT INTO ForumConversations(TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
@@ -166,7 +188,6 @@ namespace Infrastructure.Repository.Query
                         try
                         {
                             var parameters = new DynamicParameters();
-                            parameters.Add("Name", forumConversations.Name, DbType.String);
                             parameters.Add("TopicID", forumConversations.TopicID, DbType.Int64);
                             parameters.Add("Message", forumConversations.Message, DbType.String);
                             parameters.Add("ID", forumConversations.ID, DbType.Int64);

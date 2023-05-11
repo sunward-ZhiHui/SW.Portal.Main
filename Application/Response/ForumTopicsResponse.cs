@@ -20,8 +20,8 @@ namespace Application.Response
         public DateTime DueDate { get; set; }
         public long TopicFrom { get; set; }
         public string To { get; set; }
-        public List<long>? CC { get; set; }
-        public List<long>? Participants { get; set; }
+        public string CC { get; set; }
+        public string Participants { get; set; }
         public string? Status { get; set; }
         public string? Remarks { get; set; }
         public string? Description { get; set; }

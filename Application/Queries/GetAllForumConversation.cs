@@ -25,4 +25,13 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetDiscussionList : PagedRequest, IRequest<List<ForumConversations>>
+    {
+        public long TopicId { get; private set; }
+        public GetDiscussionList(long TopicId)
+        {
+            this.TopicId = TopicId;
+        }
+    }
+    
 }

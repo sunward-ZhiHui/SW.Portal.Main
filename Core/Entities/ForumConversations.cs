@@ -11,8 +11,7 @@ namespace Core.Entities
     public class ForumConversations:BaseEntity
     {
         [Key]
-        public int ID { get; set; }
-        public string Name { get; set; }
+        public int ID { get; set; }      
         public long TopicID { get; set; }
         public string Message { get; set; }
         public  long ParticipantId  { get; set; }

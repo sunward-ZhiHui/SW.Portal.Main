@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.Entities.Base;
 using System.Reflection;
-using System.Data.Entity.Core.Objects.DataClasses;
 
 namespace Infrastructure.Repository.Command.Base
 {

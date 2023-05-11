@@ -7,6 +7,7 @@
 @inject IMediator Mediator
 @using System.ComponentModel.DataAnnotations
 @using DevExpress.Blazor.Internal
+@inject IJSRuntime jsRuntime
 
 
 @page "/ForumTopics"
@@ -193,6 +194,7 @@
                                 style="height:calc(100vh - 285px)"
                                 CssClass="ch-360"
                                 SelectionMode="GridSelectionMode.Multiple"
+                                CustomizeElement="Grid_CustomizeElement"
                                 AllowSelectRowByClick="true"
                                 @bind-SelectedDataItems="@SelectedDataItems"
                                 SelectedDataItemChanged="@OnSelectionChanged">
@@ -306,6 +308,18 @@
         }
 
     } 
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
 }
 
 

@@ -7,9 +7,13 @@
 @inject IMediator Mediator;
 @using DevExpress.Export
 @using Application.Response;
+@inject IJSRuntime jsRuntime
+
 @page "/ictMaster"
 
-<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" EditModelSaving="Grid_EditModelSaving" DataItemDeleting="Grid_DataItemDeleting" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+
+
+<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" EditModelSaving="Grid_EditModelSaving" DataItemDeleting="Grid_DataItemDeleting" CustomizeElement="Grid_CustomizeElement" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -155,5 +159,18 @@
                 e.DisplayText = MasterTypeIndex[codeID];
         }
     }
-    
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
+
 }

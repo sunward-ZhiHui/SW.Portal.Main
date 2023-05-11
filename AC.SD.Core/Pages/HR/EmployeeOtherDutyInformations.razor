@@ -1,0 +1,293 @@
+﻿@using Application.Command.EmployeeOtherDutyInformations;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+<DxGrid @ref="Grid"
+        Data="_employeeOtherDutyInfoItems"
+        KeyFieldName="EmployeeOtherDutyInformationId"
+        EditModelSaving="Grid_EditModelSaving"
+        DataItemDeleting="Grid_DataItemDeleting"
+        CustomizeEditModel="Grid_CustomizeEditModel"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360">
+    <Columns>
+
+        <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="DivisionName" Caption="Division" MinWidth="80" />
+        <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="80" />
+        <DxGridDataColumn FieldName="SectionName" Caption="Section" Width="10%" />
+        <DxGridDataColumn FieldName="SubSectionName" Caption="SubSection" Width="10%" />
+        <DxGridDataColumn FieldName="SubSectionName" Caption="SubSection" Width="10%" />
+        <DxGridDataColumn FieldName="LevelName" Caption="Level" Width="10%" />
+        <DxGridDataColumn FieldName="DutyType" Width="10%" />
+        <DxGridDataColumn FieldName="StartDate" MinWidth="80" />
+        <DxGridDataColumn FieldName="EndDate" MinWidth="80" />
+        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+        <DxGridCommandColumn Width="160px" />
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var responseOtherData = (View_EmployeeOtherDutyInformation)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Designation" ColSpanMd="6">
+                <DxComboBox Data="@_designationItems"
+                            NullText="Select Designation..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="DesignationID"
+                            SelectedItemChanged="@((ViewDesignation depSelect) => SelectedItemOtherChanged(depSelect))"
+                            @bind-Value="@responseOtherData.DesignationId"></DxComboBox>
+                <ValidationMessage For="@(() => responseOtherData.DesignationId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                <DxComboBox Data="@_departmentItems"
+                            NullText="Select Department..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="DepartmentName"
+                            ValueFieldName="DepartmentId"
+                            @bind-Value="@employeeOtherDutyInformationResponse.DepartmentId" ReadOnly="true" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
+                <DxComboBox Data="@_subSectionItems"
+                            NullText="Select SubSection..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="SubSectionName"
+                            ValueFieldName="SubSectionId"
+                            @bind-Value="@employeeOtherDutyInformationResponse.SubSectionId" ReadOnly="true" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Description"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@employeeOtherDutyInformationResponse.CompanyId" ReadOnly="true" />
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                <DxComboBox Data="@_sectionItems"
+                            NullText="Select Section..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="SectionName"
+                            ValueFieldName="SectionId"
+                            @bind-Value="@employeeOtherDutyInformationResponse.SectionId" ReadOnly="true" />
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                <DxComboBox Data="@_divisionsItems"
+                            NullText="Select Division..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="DivisionID"
+                            @bind-Value="@employeeOtherDutyInformationResponse.DivisionId" ReadOnly="true" />
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Level" ColSpanMd="6">
+                <DxComboBox Data="@_leveMasterItems"
+                            NullText="Select Level..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="LevelID"
+                            @bind-Value="@employeeOtherDutyInformationResponse.LevelId" ReadOnly="true" />
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Start Date" ColSpanMd="6">
+
+                <DxDateEdit NullText="Select a date..." @bind-Date="@responseOtherData.StartDate" CssClass="cw-320" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="End Date" ColSpanMd="6">
+
+                <DxDateEdit NullText="Select a date..." @bind-Date="@responseOtherData.EndDate" CssClass="cw-320" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Duty Type" ColSpanMd="6">
+                <DxComboBox Data="@_view_ApplicationMasterDetails"
+                            NullText="Select Duty TYpe..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterDetailID"
+                            @bind-Value="@responseOtherData.DutyTypeId" />
+                <ValidationMessage For="@(() => responseOtherData.DutyTypeId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                <DxComboBox Data="@_stausItems"
+                            NullText="Select Status..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="CodeValue"
+                            ValueFieldName="CodeId"
+                            @bind-Value="@responseOtherData.StatusCodeId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => responseOtherData.StatusCodeId)" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>
+</DxGrid>
+
+@code {
+    [Parameter]
+    public long? EmployeeIds { get; set; }
+    private List<View_EmployeeOtherDutyInformation> _employeeOtherDutyInfoItems;
+    View_EmployeeOtherDutyInformation employeeOtherDutyInformationResponse = new View_EmployeeOtherDutyInformation();
+    private List<LanguageMaster> _languageMasterItems;
+    private List<CodeMaster> _employmentTypeItems;
+    private List<ApplicationRole> _roles;
+    private List<ViewPlants> _plantItems;
+    private List<CodeMaster> _stausItems;
+    private List<ViewDepartment> _departmentItems;
+    private List<ViewDivision> _divisionsItems;
+    private List<ViewDesignation> _designationItems;
+    private List<ViewSection> _sectionItems;
+    private List<ViewSubSection> _subSectionItems;
+    private List<ViewLevel> _leveMasterItems;
+    private List<ViewEmployee> _employeeItems;
+    private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetails;
+    public ApplicationUser applicationUser { get; private set; }
+    IGrid Grid { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        if (EmployeeIds > 0)
+        {
+            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+            var model = await Mediator.Send(new GetAllPlantQuery());
+            var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+            _stausItems = models;
+            _employeeOtherDutyInfoItems = await Mediator.Send(new GetEmployeeOtherDutyInformationQuery(EmployeeIds));
+            _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
+            _plantItems = await Mediator.Send(new GetAllPlantQuery());
+            _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+            _employmentTypeItems = await Mediator.Send(new GetAllCodeMasterQuery("EmployeementType"));
+            _divisionsItems = await Mediator.Send(new GetAllDivisionQuery());
+            _sectionItems = await Mediator.Send(new GetAllSectionQuery());
+            _subSectionItems = await Mediator.Send(new GetAllSubSectionQuery());
+            _designationItems = await Mediator.Send(new GetAllDesignationQuery());
+            _leveMasterItems = await Mediator.Send(new GetAllLevelMasterQuery());
+            _languageMasterItems = await Mediator.Send(new GetAllLanguageQuery());
+            _view_ApplicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterDetailQuery(326));
+        }
+    }
+    void SelectedItemOtherChanged(ViewDesignation viewDesignation)
+    {
+        employeeOtherDutyInformationResponse.DepartmentId = viewDesignation.DepartmentID;
+        employeeOtherDutyInformationResponse.CompanyId = viewDesignation.CompanyID;
+        employeeOtherDutyInformationResponse.DivisionId = viewDesignation.DivisionID;
+        employeeOtherDutyInformationResponse.LevelId = viewDesignation.LevelID;
+        employeeOtherDutyInformationResponse.SectionId = viewDesignation.SectionID;
+        employeeOtherDutyInformationResponse.SubSectionId = viewDesignation.SubSectionID;
+        employeeOtherDutyInformationResponse.DesignationId = viewDesignation.DesignationID;
+    }
+    async Task UpdateDataAsync()
+    {
+        _employeeOtherDutyInfoItems = await Mediator.Send(new GetEmployeeOtherDutyInformationQuery(EmployeeIds));
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (EmployeeIds > 0)
+        {
+            var newplant = (View_EmployeeOtherDutyInformation)e.EditModel;
+            if (e.IsNew)
+            {
+                newplant.EmployeeId = EmployeeIds;
+                newplant.DepartmentId = null;
+                newplant.StatusCodeId = null;
+                employeeOtherDutyInformationResponse.DepartmentId = null;
+                employeeOtherDutyInformationResponse.CompanyId = null;
+                employeeOtherDutyInformationResponse.DivisionId = null;
+                employeeOtherDutyInformationResponse.LevelId = null;
+                employeeOtherDutyInformationResponse.SectionId = null;
+                employeeOtherDutyInformationResponse.SubSectionId = null;
+                employeeOtherDutyInformationResponse.DesignationId = null;
+            }
+            else
+            {
+                var des = _designationItems.FirstOrDefault(f => f.DesignationID == newplant.DesignationId);
+                if (des != null)
+                {
+                    SelectedItemOtherChanged(des);
+                }
+                else
+                {
+                    employeeOtherDutyInformationResponse.DepartmentId = null;
+                    employeeOtherDutyInformationResponse.CompanyId = null;
+                    employeeOtherDutyInformationResponse.DivisionId = null;
+                    employeeOtherDutyInformationResponse.LevelId = null;
+                    employeeOtherDutyInformationResponse.SectionId = null;
+                    employeeOtherDutyInformationResponse.SubSectionId = null;
+                    employeeOtherDutyInformationResponse.DesignationId = null;
+                }
+            }
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editablePlant = (View_EmployeeOtherDutyInformation)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateEmployeeOtherDutyInformationCommand
+                {
+                    EmployeeId = EmployeeIds,
+                    DesignationId = editablePlant.DesignationId,
+                    DutyTypeId = editablePlant.DutyTypeId,
+                    HeadCount = editablePlant.HeadCount,
+                    StartDate = editablePlant.StartDate,
+                    EndDate = editablePlant.EndDate,
+                    StatusCodeId = editablePlant.StatusCodeId,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                };
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            await UpdatePlantAsync(editablePlant);
+        }
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editablePlant = (View_EmployeeOtherDutyInformation)e.DataItem;
+        var request = new DeleteEmployeeOtherDutyInformationCommand(editablePlant.EmployeeOtherDutyInformationId);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    async Task UpdatePlantAsync(View_EmployeeOtherDutyInformation editablePlant)
+    {
+        var request = new EditEmployeeOtherDutyInformationCommand
+            {
+                EmployeeOtherDutyInformationId = editablePlant.EmployeeOtherDutyInformationId,
+                EmployeeId = EmployeeIds,
+                DesignationId = editablePlant.DesignationId,
+                DutyTypeId = editablePlant.DutyTypeId,
+                HeadCount = editablePlant.HeadCount,
+                StartDate = editablePlant.StartDate,
+                EndDate = editablePlant.EndDate,
+                StatusCodeId = editablePlant.StatusCodeId,
+                AddedByUserId = applicationUser.UserID,
+                ModifiedByUserId = editablePlant.ModifiedByUserId,
+                AddedDate = DateTime.Now,
+                ModifiedDate = editablePlant.ModifiedDate,
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+}

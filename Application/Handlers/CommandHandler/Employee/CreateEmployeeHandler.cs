@@ -46,6 +46,9 @@ namespace Application.Handlers.CommandHandler.Employee
             applicationUser.StatusCodeID = request.StatusCodeID;
             applicationUser.IsPasswordChanged = false;
             applicationUser.AuthenticationType = 1;
+            applicationUser.InvalidAttempts = 0;
+            applicationUser.LastPasswordChanged = DateTime.Now;
+            applicationUser.Locked = false;
             var applicationData = await _commandApplicationRepository.AddAsync(applicationUser);
             request.UserID = applicationData;
 
@@ -61,6 +64,7 @@ namespace Application.Handlers.CommandHandler.Employee
             employee.LastName = request.LastName;
             employee.NickName = request.NickName;
             employee.SageId = request.SageID;
+            employee.Gender = request.Gender;
             employee.Email = request.Email;
             employee.PlantId = request.PlantID;
             employee.LevelId = request.LevelID;
@@ -110,6 +114,8 @@ namespace Application.Handlers.CommandHandler.Employee
             {
                 EmployeeID = (long)data,
                 FirstName = request.FirstName,
+                SessionId= applicationUser.SessionId,
+                UserID= applicationUser.UserID,
             };
             return response;
         }

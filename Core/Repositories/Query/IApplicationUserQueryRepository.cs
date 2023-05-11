@@ -22,4 +22,10 @@ namespace Core.Repositories.Query
         
 
     }
+    public interface IApplicationUserRoleQueryRepository : IQueryRepository<ApplicationUserRole>
+    {
+
+        Task<ApplicationUserRole> GetByIdAsync(Int64 id);
+
+    }
 }

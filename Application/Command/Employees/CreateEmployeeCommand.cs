@@ -73,12 +73,11 @@ namespace Application.Command.Employees
         public long? ModifiedByUserID { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public string CompanyName { get; set; }
+        public Guid? SessionId { get; set; }
         public int? HeadCount { get; set; }
         public IEnumerable<long?> ReportToIds { get; set; }
         public CreateEmployeeCommand()
         {
-            this.AddedDate = DateTime.Now;
-            this.ModifiedDate = DateTime.Now;
         }
     }
 }

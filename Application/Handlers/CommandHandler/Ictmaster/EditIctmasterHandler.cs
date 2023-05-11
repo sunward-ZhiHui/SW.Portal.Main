@@ -43,16 +43,16 @@ namespace Application.Handlers.CommandHandler
             var response = new IctmasterResponse
             {
                 IctmasterId = queryEntity.IctmasterId,
-               // CompanyId = queryEntity.CompanyId,
+                CompanyId = queryEntity.CompanyId,
                 Name = queryEntity.Name,
                 ParentIctid = queryEntity.ParentIctid,
                 MasterType = queryEntity.MasterType,
                 Description = queryEntity.Description,
-               // LayoutPlanId = queryEntity.LayoutPlanId,
-               // LocationId = queryEntity.LocationId,
-               // ZoneId = queryEntity.ZoneId,
-               // AreaId = queryEntity.AreaId,
-                //SpecificAreaId = queryEntity.SpecificAreaId
+                LayoutPlanId = queryEntity.LayoutPlanId,
+                LocationId = queryEntity.LocationId,
+                ZoneId = queryEntity.ZoneId,
+                AreaId = queryEntity.AreaId,
+                SpecificAreaId = queryEntity.SpecificAreaId
             };
 
             return response;

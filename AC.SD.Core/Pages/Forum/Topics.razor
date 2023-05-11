@@ -8,6 +8,7 @@
 @inject IMediator Mediator
 @using System.ComponentModel.DataAnnotations
 @using DevExpress.Blazor.Internal
+@inject IJSRuntime jsRuntime
 
 
 @page "/ForumTopics"
@@ -533,7 +534,7 @@
     {
         FormSubmitResult = "";
     }
-    void SelectedItemChanged(long typeId)
+   async void SelectedItemChanged(long typeId)
     {   
         //if(typeId > 0)
         //{
@@ -547,6 +548,18 @@
         }
 
     } 
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
 }
 
 

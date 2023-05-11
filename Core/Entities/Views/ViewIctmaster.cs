@@ -11,9 +11,9 @@ namespace Core.Entities.Views
     {
         [Key]
         public long IctmasterId { get; set; }
-        public long? CompanyId { get; set; }
+        public long CompanyId { get; set; }
         public long? ParentIctid { get; set; }
-        public int? MasterType { get; set; }
+        public int MasterType { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public long? LayoutPlanId { get; set; }
@@ -21,8 +21,8 @@ namespace Core.Entities.Views
         public DateTime? EffectiveDate { get; set; }
         public Guid? SessionId { get; set; }
         public long? SiteId { get; set; }
-        public long? LocationId { get; set; }
-        public long? ZoneId { get; set; }
+        public long LocationId { get; set; }
+        public long ZoneId { get; set; }
         public long? AreaId { get; set; }
         public long? SpecificAreaId { get; set; }
         public int? StatusCodeId { get; set; }

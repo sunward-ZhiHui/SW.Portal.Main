@@ -11,16 +11,6 @@
 
 @page "/FourmCategorys"
 
-<style>
-    .alt-item > td {
-        background-color: rgba(0, 0, 0, 0.05);
-    }
-
-    .header-bold span {
-        font-weight: 700;
-    }
-</style>
-
 <DxGrid id="myGrid" Data="@_categorys" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
@@ -66,7 +56,7 @@
 </DxGrid>
 
 @code {
-    Dictionary<long, string>? CategoryNamesIndex { get; set; }    
+   Dictionary<long, string>? CategoryNamesIndex { get; set; }    
     private List<ForumCategorys>? _categorys; 
     List<ForumTypes>? Types {get; set;}
 

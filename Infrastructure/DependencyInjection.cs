@@ -42,6 +42,8 @@ namespace Infrastructure
             services.AddTransient<IDesignationQueryRepository, DesignationQueryRepository>();
             services.AddTransient<ILayOutPlanTypeQueryRepository,LayOutPlanTypeQueryRepository>();
             services.AddTransient<IEmployeeQueryRepository, EmployeeQueryRepository>();
+            services.AddTransient<IIctmasterQueryRepository, IctmasterQueryRepository>();
+            services.AddTransient<IIctmasterCommandRepository, IctmasterCommandRepository>();
 
             services.AddTransient<IForumCategoryQueryRepository, ForumCategoryQueryRepository>();
             services.AddTransient<ILevelMasterQueryRepository, LevelMasterQueryRepository>();
@@ -58,9 +60,11 @@ namespace Infrastructure
             services.AddTransient<IDepartmentCommandRepository, DepartmentCommandRepository>();
             services.AddTransient<ISubSectionCommandRepository, SubSectionCommandRepository>();
             services.AddTransient<IDesignationCommandRepository, DesignationCommandRepository>();
-
-
+            services.AddTransient<IEmployeeCommandRepository, EmployeeCommandRepository>();
+            services.AddTransient<IApplicationUserCommandRepository, ApplicationUserCommandRepository>();
             services.AddTransient<IApplicationUserQueryRepository, ApplicationUserQueryRepository>();
+            services.AddTransient<IApplicationUserRoleCommandRepository, ApplicationUserRoleCommandRepository>();
+            services.AddTransient<IEmployeeReportToCommandRepository, EmployeeReportToCommandRepository>();
             services.AddScoped(typeof(ILocalStorageService<>), typeof(LocalStorageService<>));
 
 

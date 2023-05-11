@@ -7,9 +7,13 @@
 @inject IMediator Mediator;
 @using DevExpress.Export
 @using Application.Response;
+@inject IJSRuntime jsRuntime
+
 @page "/ictMaster"
 
-<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" EditModelSaving="Grid_EditModelSaving" DataItemDeleting="Grid_DataItemDeleting" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+
+
+<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" EditModelSaving="Grid_EditModelSaving" DataItemDeleting="Grid_DataItemDeleting" CustomizeElement="Grid_CustomizeElement" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -155,5 +159,33 @@
                 e.DisplayText = MasterTypeIndex[codeID];
         }
     }
-    
+
+<div class="cw-480 ch-220">
+    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+        <DxTab Text="Site" ></DxTab>
+        <DxTab Text="Zone"></DxTab>
+        <DxTab Text="Location"></DxTab>
+        <DxTab Text="Area"></DxTab>
+    </DxTabs>
+    <div class="card tabs-border-top-0 tabs-border-radius-top-0" style="min-height: 190px">
+        <div class="card-body">
+            @switch (ActiveTabIndex)
+            {
+                case 0:
+                    <Site />
+                    break;
+                case 1:
+                    <Zone />
+                    break;
+                case 2:
+                    <Location />
+                    break;
+                case 3:
+                    <Area />
+                    break;
+            }
+        </div>
+    </div>
+</div>
+
 }

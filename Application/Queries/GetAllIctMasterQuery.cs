@@ -1,4 +1,5 @@
 ﻿using Application.Queries.Base;
+using Core.Entities;
 using Core.Entities.Views;
 using MediatR;
 using System;
@@ -13,5 +14,17 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
-    
+    public class GetAllMasterTypeQuery : IRequest<List<CodeMaster>>
+    {
+        public string MasterType { get; private set; }
+
+        public GetAllMasterTypeQuery(string name)
+        {
+            this.MasterType = name;
+        }
+    }
+    public class GetAllCodQuery : IRequest<List<CodeMaster>>
+    {
+
+    }
 }

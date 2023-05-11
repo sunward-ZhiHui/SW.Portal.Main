@@ -19,8 +19,5 @@ namespace Application.Queries
             this.Name = name;
         }
     }
-    public class GetAllCodQuery : IRequest<List<CodeMaster>>
-    {
-        
-    }
+    
 }

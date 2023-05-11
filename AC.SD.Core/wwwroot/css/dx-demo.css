@@ -1726,3 +1726,10 @@ body,
     background-image: none;
     border: 1px solid transparent;
 }
+.alt-item > td {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.header-bold span {
+    font-weight: 700;
+}

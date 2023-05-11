@@ -13,6 +13,8 @@
 @using System.Reflection;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/EmployeeForm"
+@inject IJSRuntime jsRuntime
+
 
 <DxFormLayout CssClass="w-100">
     <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
@@ -178,25 +180,25 @@
                 </EditForm>
             </div>
         </DxFormLayoutTabPage>
-
-        @*  <DxFormLayoutTabPage Caption="Other Duty Information">
-        <DxGrid @ref="_otherInfoGrid"
-        Data="_employeeOtherDutyInfoItems"
-        KeyFieldName="PlantID"
-        EditModelSaving="Grid_EditModelSaving"
-        DataItemDeleting="Grid_DataItemDeleting"
-        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        ValidationEnabled="true"
-        AutoExpandAllGroupRows="true"
-        CssClass="ch-360">
-        <Columns>
+        <DxFormLayoutTabPage Caption="Other Duty Information">
+            <DxGrid @ref="_otherInfoGrid"
+                    Data="_employeeOtherDutyInfoItems"
+                    KeyFieldName="PlantID"
+                    EditModelSaving="Grid_EditModelSaving"
+                    DataItemDeleting="Grid_DataItemDeleting"
+                    CustomizeElement="Grid_CustomizeElement"
+                    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                    PageSizeSelectorVisible="true"
+                    PageSizeSelectorAllRowsItemVisible="true"
+                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                    PageSize="20"
+                    SelectionMode="GridSelectionMode.Multiple"
+                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                    ValidationEnabled="true"
+                    AutoExpandAllGroupRows="true"
+                    CssClass="ch-360">
+                <Columns>
 
         <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="DivisionName" Caption="Division" MinWidth="80" />
@@ -471,5 +473,17 @@
     }
     void HandleInvalidSubmit()
     {
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }

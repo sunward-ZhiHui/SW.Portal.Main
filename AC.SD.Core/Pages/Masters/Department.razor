@@ -7,6 +7,9 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
+@inject IJSRuntime jsRuntime
+
+
 @page "/Department"
 
 <DxGrid @ref="Grid"
@@ -15,6 +18,7 @@
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
         CustomizeEditModel="Grid_CustomizeEditModel"
+        CustomizeElement="Grid_CustomizeElement"
         ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
@@ -180,5 +184,17 @@
             };
         await Mediator.Send(request);
         await UpdateDataAsync();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }

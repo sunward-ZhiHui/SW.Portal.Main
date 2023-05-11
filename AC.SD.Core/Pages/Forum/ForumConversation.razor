@@ -5,15 +5,9 @@
 @using global::Core.Entities;
 @inject IMediator Mediator
 
+
 @page "/ForumConversations"
 
-<style>
-    .itemclass span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-</style>
 
 <div class="">
     <div class="row">
@@ -23,7 +17,7 @@
             </div>
             <div class="card-body">
 
-                <DxTreeView Data="@TreeData"  
+                <DxTreeView Data="@TreeData" 
                             @bind-FilterString="FilterString"
                             FilterMinLength="2"
                             ShowFilterPanel="true"

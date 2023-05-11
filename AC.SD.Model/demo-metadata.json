@@ -178,6 +178,8 @@
         //  "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
 
         //},
+
+
         {
 
           "Id": "Employees",
@@ -187,8 +189,19 @@
           "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
           "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
 
-        }
+        },
 
+        {
+
+          "Id": "Ictmaster",
+          "Url": "ictmaster",
+          "Title": "IctMaster",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
+
+        }
+       
       ]
     },
     {
@@ -222,16 +235,16 @@
           "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
           "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
 
-        }
-        //{
-        //  "Id": "Conversation",
-        //  "Url": "ForumConversations",
-        //  "Title": "Conversations",
-        //  "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
-        //  "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
-        //  "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
+        },
+        {
+          "Id": "Conversation",
+          "Url": "ForumConversations",
+          "Title": "Conversations",
+          "Keywords": "Blazor, components, DxPivotGrid, pivot grid, pivot table, data binding, entity framework bind, paging, devexpress, demo, sample, example",
+          "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
+          "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
 
-        //},
+        }
         //{
         //  "Id": "ConversationMenu",
         //  "Url": "conversationmenu",

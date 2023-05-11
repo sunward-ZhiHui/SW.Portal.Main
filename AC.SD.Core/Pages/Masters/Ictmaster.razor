@@ -7,153 +7,38 @@
 @inject IMediator Mediator;
 @using DevExpress.Export
 @using Application.Response;
+@inject IJSRuntime jsRuntime
+
 @page "/ictMaster"
 
-<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" EditModelSaving="Grid_EditModelSaving" DataItemDeleting="Grid_DataItemDeleting" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        ValidationEnabled="true"
-        AutoExpandAllGroupRows="true"
-        CssClass="ch-360" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
-<Columns>
-
-        <DxGridDataColumn FieldName="MasterType" MinWidth="80" />
-        <DxGridDataColumn FieldName="Name" MinWidth="80" />
-        <DxGridDataColumn FieldName="Description" MinWidth="80" />
-        <DxGridDataColumn FieldName="StatusCodeId" MinWidth="80" />
-        <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
-        <DxGridDataColumn FieldName="ModifiedByUserId" Width="10%" />
-        <DxGridCommandColumn Width="160px" />
-        </Columns>
-    <EditFormTemplate Context="EditFormContext">
-        @{
-            var ict = (ViewIctmaster)EditFormContext.EditModel;
-        }
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="MasterType" ColSpanMd="6">
-               @* <DxSpinEdit @bind-Value="@ict.MasterType" />*@
-                <DxComboBox Data="@_codemaster"
-                            NullText="Select MasterType..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="CodeType"
-                            ValueFieldName="CodeId"
-                            @bind-Value="@ict.MasterType"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                <DxMemo @bind-Text="@ict.Description" Rows="5" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Name" ColSpanMd="6">
-                <DxTextBox @bind-Text="@ict.Name" Rows="5" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
-                <DxComboBox Data="@_codemaster"
-                            NullText="Select Status..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="CodeValue"
-                            ValueFieldName="CodeId"
-                            @bind-Value="@ict.StatusCodeId"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem ColSpanMd="12">
-                <ValidationSummary />
-            </DxFormLayoutItem>
-        </DxFormLayout>
-    </EditFormTemplate>
-    <TotalSummary>
-        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="MasterType" />
-    </TotalSummary>
-</DxGrid>
-
+<div class="cw-480 ch-220">
+    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+        <DxTab Text="Site"></DxTab>
+        <DxTab Text="Zone"></DxTab>
+        <DxTab Text="Location"></DxTab>
+        <DxTab Text="Area"></DxTab>
+    </DxTabs>
+    <div class="card tabs-border-top-0 tabs-border-radius-top-0" style="min-height: 190px">
+        <div class="card-body">
+            @switch (ActiveTabIndex)
+            {
+                case 0:
+                    <Site />
+                    break;
+                case 1:
+                    <Zone />
+                    break;
+                case 2:
+                    <Location />
+                    break;
+                case 3:
+                    <Area />
+                    break;
+            }
+        </div>
+    </div>
+</div>
 
 @code{
-    private List<ViewIctmaster> _ictmaster;
-    Dictionary<int, string> MasterTypeIndex { get; set; }
-    private List<CodeMaster> _codemaster;
-    IGrid Grid { get; set; }
-    protected override async Task OnInitializedAsync()
-    {
-        var model = await Mediator.Send(new GetAllIctMasterQuery());
-        var models = await Mediator.Send(new GetAllCodQuery());
-        
-        _codemaster = models;
-        _ictmaster = model;
-        MasterTypeIndex = _codemaster.ToDictionary(i => i.CodeId, i => i.CodeType);
-    }
-
-    async Task UpdateDataAsync()
-    {
-        var model = await Mediator.Send(new GetAllIctMasterQuery());
-        _ictmaster = model;
-    }
-    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
-    {
-        if (e.IsNew)
-        {
-            var newmaster = (ViewIctmaster)e.EditModel;
-            newmaster.MasterType = 0;
-            newmaster.Name = "";
-            newmaster.Description = "";
-            newmaster.StatusCodeId = null;
-        }
-    }
-    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
-    {
-        var editableictmaster = (ViewIctmaster)e.EditModel;
-        if (e.IsNew)
-        {
-            var request = new CreateIctmasterCommand
-                {
-                    MasterType = editableictmaster.MasterType,
-                    Description = editableictmaster.Description,
-                    StatusCodeId = editableictmaster.StatusCodeId,
-                    Name = editableictmaster.Name
-                };
-            await Mediator.Send(request);
-            await UpdateDataAsync();
-        }
-        else
-        {
-            await UpdateMasterAsync(editableictmaster);
-        }
-    }
-    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
-    {
-        var editablePlant = (ViewIctmaster)e.DataItem;
-        var request = new DeleteIctmasterCommand(editablePlant.IctmasterId);
-        await Mediator.Send(request);
-        await UpdateDataAsync();
-    }
-    async Task UpdateMasterAsync(ViewIctmaster editableictmaster)
-    {
-        var request = new EditIctmasterCommand
-            {
-                IctmasterId = editableictmaster.IctmasterId,
-                MasterType = editableictmaster.MasterType,
-                Name = editableictmaster.Name,
-                Description = editableictmaster.Description,
-                StatusCodeId = editableictmaster.StatusCodeId,
-                AddedByUserId = editableictmaster.AddedByUserId,
-                AddedDate = editableictmaster.AddedDate,
-            };
-        await Mediator.Send(request);
-        await UpdateDataAsync();
-    }
-    void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
-    {
-        if (e.FieldName == "MasterType")
-        {
-            var codeID = Convert.ToInt32(e.Value);
-            if (MasterTypeIndex.ContainsKey(codeID))
-                e.DisplayText = MasterTypeIndex[codeID];
-        }
-    }
-    
+    int ActiveTabIndex = 0;
 }

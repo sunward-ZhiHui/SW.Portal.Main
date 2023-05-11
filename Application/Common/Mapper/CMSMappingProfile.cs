@@ -11,6 +11,7 @@ using Application.Command.ForumCategory;
 using Application.Command.LeveMasters;
 using Application.Command.designations;
 using Application.Command.LayoutPlanType;
+using Application.Command.Ictmaster;
 using Application.Command.EmployeeOtherDutyInformations;
 using Application.Command.EmployeeEmailInfos;
 using Core.Repositories.Command;
@@ -69,7 +70,9 @@ namespace Application.Common.Mapper
             CreateMap<Designation, EditDesignationCommand>().ReverseMap();
             CreateMap<Designation, DeleteDesignationCommand>().ReverseMap();
 
-
+            CreateMap<Ictmaster, CreateIctmasterCommand>().ReverseMap();
+            CreateMap<Ictmaster, EditIctmasterCommand>().ReverseMap();
+            CreateMap<Ictmaster, DeleteIctmasterCommand>().ReverseMap();
 
 
             CreateMap<LayoutPlanType, CreateLayOutPlanTypeMasterCommand>().ReverseMap();

@@ -7,10 +7,9 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @page "/conversationmenu"
+@inject IJSRuntime jsRuntime
 
-
-
-<DxGrid id="myGrid" style="height: 700px;" Data="@_forumConversations" EditModelSaving="OnEditModelSaving" DataItemDeleting="OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+<DxGrid id="myGrid" style="height: 700px;" Data="@_forumConversations" EditModelSaving="OnEditModelSaving" DataItemDeleting="OnDeleteDataItem" EditMode="GridEditMode.EditForm" CustomizeElement="Grid_CustomizeElement" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -19,8 +18,7 @@
         CssClass="ch-360" >
 
     <Columns>
-        <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px"/>
-        <DxGridDataColumn FieldName="Name" MinWidth="200"/>
+        <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px"/>        
         <DxGridDataColumn FieldName="TopicID" MinWidth="200"/>
         <DxGridDataColumn FieldName="Message" />
         <DxGridDataColumn FieldName="ParticipantId"/>
@@ -32,10 +30,7 @@
         @{
             var conversation = (ForumConversations)EditFormContext.EditModel;
         }
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
-                <DxTextBox @bind-Text="@conversation.Name" />
-            </DxFormLayoutItem>
+        <DxFormLayout CssClass="w-100">           
             <DxFormLayoutItem Caption="TopicID:" ColSpanMd="6">
                 <DxSpinEdit @bind-Value="@conversation.TopicID" />
             </DxFormLayoutItem>
@@ -72,8 +67,7 @@
         {
 
             var createReq = new CreateForumCoversation
-                {
-                    Name = editModel.Name,
+                {                    
                     TopicID = editModel.TopicID,
                     Message = editModel.Message,
                     ParticipantId = editModel.ParticipantId,
@@ -89,8 +83,6 @@
             var UpdateReq = new EditForumConversation
                 {
                     ID = editModel.ID,
-                    Name = editModel.Name,
-
                     TopicID = editModel.TopicID,
                     Message = editModel.Message,
                     ParticipantId = editModel.ParticipantId,
@@ -115,8 +107,6 @@
         var request = new DeleteForumConversation
             {
                 ID = editModel.ID,
-                Name = editModel.Name,
-
                 TopicID = editModel.TopicID,
                 Message = editModel.Message,
                 ParticipantId = editModel.ParticipantId,
@@ -128,7 +118,18 @@
         await UpdateDataAsync();
 
     }
-    
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
 
 }
    

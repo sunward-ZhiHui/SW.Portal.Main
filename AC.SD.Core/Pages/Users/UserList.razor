@@ -6,12 +6,16 @@
 @using DevExpress.Export
 @using Application.Response;
 @page "/Users"
+@inject IJSRuntime jsRuntime
 
-<DxGrid @ref="Grid"
+
+<DxGrid @ref="Grid"   
         Data="_employeeItems"
         KeyFieldName="UserID"
+       
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
+        CustomizeElement="Grid_CustomizeElement"
         ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
@@ -19,18 +23,22 @@
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"
         SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+
+        SelectAllCheckboxMode="CurrentSelectAllCheckboxMode"
+        @bind-SelectedDataItems="SelectedDataItems"
+
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="ch-360 grid-auto-height">
     <Columns>
-
+        
         <DxGridDataColumn FieldName="SageID" MinWidth="80" />
         <DxGridDataColumn FieldName="FirstName"  />
         <DxGridDataColumn FieldName="LastName" />
         <DxGridDataColumn FieldName="NickName" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate"  />
+       
         <DxGridDataColumn FieldName="ModifiedByUser"  />
         <DxGridDataColumn FieldName="UserID" AllowSort="false" MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
             <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button></CellDisplayTemplate>
@@ -39,24 +47,47 @@
         <DxGridDataColumn FieldName="UserID" AllowSort="false"  MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
             
             <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ResetPasswords((long)context.Value)">Reset Password</button></CellDisplayTemplate>
+      
         </DxGridDataColumn>
+
+        <DxGridDataColumn FieldName="Locked" Width="10%" MinWidth="90">
+            <CellDisplayTemplate>
+                @if ((bool)context.Value)
+                {
+                    <span class="grid-icon grid-icon-check"></span>
+                }
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+
+
     </Columns>
     <TotalSummary>
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SageID" />
     </TotalSummary>
 </DxGrid>
+
+
+
 <DxPopup @bind-Visible="@MessageVisible"
          HeaderText="@MessageHeader"
          BodyText="@MessageBody" />
 @code {
+
+
+    GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
+
     bool MessageVisible { get; set; }
     string MessageHeader = "";
     string MessageBody = "";
     private List<ViewEmployee> _employeeItems;
+    IEnumerable<ViewEmployee> _lock;
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _employeeItems = await Mediator.Send(new GetAllEmployeeListQuery());
+
 
     }
     async Task UpdateDataAsync()
@@ -97,7 +128,7 @@
     private async void ResetPasswords(long UserID)
     {
         var users = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
-        if(users!=null)
+        if (users != null)
         {
             var request = new ResetUserPasswordRequest
                 {
@@ -115,4 +146,25 @@
         MessageHeader = headerText;
         StateHasChanged();
     }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
+    //void selectedItems(ViewEmployee employee)
+    //{
+    //    _lock = _employeeItems.Where(c => c.SageID == "1233333");
+    //    _lock = _employeeItems.Where(c => c.SageID == "E231");
+    //    bool SageID = true;
+    //}
+
+   
+   
 }

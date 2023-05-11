@@ -8,9 +8,21 @@
 @inject IMediator Mediator
 @using System.ComponentModel.DataAnnotations
 @using DevExpress.Blazor.Internal
+@inject IJSRuntime jsRuntime
 
 
 @page "/ForumTopics"
+
+<style>
+.TxtRed
+{
+    color: red;
+}
+.TxtGreen
+{
+    color: green;
+}
+</style>
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
     <div class="text-center">
@@ -77,18 +89,17 @@
                             @bind-Value="Data.TypeId"
                             CssClass="cw-480" />*@
                         </DxFormLayoutItem>
-                        @{
+                       @* @{
                             SelectedItemChanged(@Data.CategoryId);
-                        }
+                        }*@
                         <DxFormLayoutItem ColSpanMd="6">
                             <label for="CategoryId">Category </label>
                             <DxComboBox Data="@_category"
-                                        NullText="Select Type..."
-                                        ListRenderMode="ListRenderMode.Virtual"
+                                        NullText="Select Category..."                                        
                                         FilteringMode="DataGridFilteringMode.Contains"
-                                        TextFieldName="@nameof(ForumCategorys.Name)"                                     
-                                        @bind-Value="@Data.CategoryId"
-                                        SelectionMode="SelectionMode.Multiple"
+                                        TextFieldName="Name"
+                                        ValueFieldName="ID"
+                                        @bind-Value="@Data.CategoryId"                                       
                                         CssClass="cw-480" />
                         </DxFormLayoutItem>
 
@@ -122,7 +133,7 @@
                                 <span> To </span>
                             </div>
                             <div class="">
-                                <DxGrid @ref="Grid" Data="@SelectedDataItems"
+                                <DxGrid @ref="Grid" Data="@SelectedToItems"
                                         KeyFieldName="UserID"
                                         ShowSearchBox="true"
                                         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -130,11 +141,11 @@
                                         PageSizeSelectorAllRowsItemVisible="true"
                                         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
                                         PageSize="20"
-                                        style="height:calc(100vh - 500px)"
+                                        style="height:calc(100vh - 500px); min-height:200px !important"
                                         CssClass="ch-360"
                                         SelectionMode="GridSelectionMode.Multiple"
                                         AllowSelectRowByClick="true"
-                                        @bind-SelectedDataItems="@SelectedToItems">
+                                        SelectedDataItemsChanged="@OnSelectedToDataItemsChanged">
                                     <Columns>
                                         <DxDataGridColumn>
                                             <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
@@ -161,7 +172,7 @@
                                 <span> CC </span>                                
                             </div>
                             <div class="">
-                                <DxGrid @ref="Grid" Data="@SelectedDataItems"
+                                <DxGrid @ref="Grid" Data="@SelectedCCItems"
                                         KeyFieldName="UserID"
                                         ShowSearchBox="true"
                                         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -169,11 +180,11 @@
                                         PageSizeSelectorAllRowsItemVisible="true"
                                         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
                                         PageSize="20"
-                                        style="height:calc(100vh - 500px)"
+                                        style="height:calc(100vh - 500px);min-height:200px !important"
                                         CssClass="ch-360"
                                         SelectionMode="GridSelectionMode.Multiple"
                                         AllowSelectRowByClick="true"
-                                        @bind-SelectedDataItems="@SelectedCCItems">
+                                        SelectedDataItemsChanged="@OnSelectedCCDataItemsChanged">
                                     <Columns>
                                         <DxDataGridColumn>
                                             <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
@@ -196,14 +207,28 @@
                                        @bind-Values="@Values">
                             </DxListBox>*@
                         </DxFormLayoutItem>
+                        <DxFormLayoutItem ColSpanMd="12">  
+                            <DxMemo @bind-Text="@Data.Description" NullText="Description" ShowValidationIcon="true" Rows="4" />
+                            <ValidationMessage For="@(() => Data.Description)" />
+                        </DxFormLayoutItem>
 
-                        <DxFormLayoutItem ColSpanMd="12">
+                        <DxFormLayoutItem ColSpanMd="12">                          
+
+                            <DxButton RenderStyle="ButtonRenderStyle.Secondary"
+                                      Text="Reset"
+                                      Click="onRestText"
+                                      IconCssClass="btn-icon-undo"
+                                      CssClass="me-1" />
+
+
+
                             <DxButton SubmitFormOnClick="true"
                                       Text="Submit"
                                       CssClass="btn-submit"
                                       style="float:right"
                                       RenderStyle="ButtonRenderStyle.Secondary" />
                         </DxFormLayoutItem>
+
                     </DxFormLayout>                    
                 </div>
                 <div class="card col-md-4" style="padding-left: 0px;padding-right: 0px;">
@@ -220,17 +245,16 @@
                                 PageSizeSelectorAllRowsItemVisible="true"
                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
                                 PageSize="20"
-                                style="height:calc(100vh - 285px)"
+                                style="height:calc(100vh - 285px);min-height:400px !important"
                                 CssClass="ch-360"
                                 SelectionMode="GridSelectionMode.Multiple"
-                                AllowSelectRowByClick="true"
-                                @bind-SelectedDataItems="@SelectedDataItems"
-                                SelectedDataItemChanged="@OnSelectionChanged"                                                       
-                                >
+                                AllowSelectRowByClick="true"                                                       
+                                SelectedDataItemsChanged="@OnSelectedDataItemsChanged"
+                                SelectedRowsChanged="HandleSelectedRowsChanged">
                             <Columns>
-                                <DxDataGridColumn>
+                                @*<DxDataGridColumn>
                                     <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
-                                </DxDataGridColumn>
+                                </DxDataGridColumn>*@
                                 <DxGridSelectionColumn Width="104px" />
                                 <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
                                 <DxGridDataColumn FieldName="LastName" />
@@ -246,14 +270,27 @@
         </div>
     </EditForm>
 </div>
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
+
+    </BodyTemplate>
+</DxPopup>
 
 @code {
 
     private List<ForumTypes> selectedItems = new List<ForumTypes>();
     List<int> selectedValues = new List<int>();
     IGrid? Grid { get; set; }
+    private bool loading;
+    bool MessageVisible { get; set; }
+    string styleClass = "";
+    string MessageHeader = "Error";
+    string MessageBody = "";
 
-
+    IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     bool IsOpen { get; set; } = false;
 
     bool ShowCheckboxes { get; set; } = true;
@@ -273,31 +310,87 @@
 
     //List<ViewEmployee> ids = new List<ViewEmployee>(); 
 
-   
+
 
     IReadOnlyList<object>? SelectedDataItems { get; set; }
     IReadOnlyList<object>? SelectedCCItems { get; set; }
     IReadOnlyList<object>? SelectedToItems { get; set; }
-   
+
+    IReadOnlyList<object>? SelectedToDataItems { get; set; }
+    IReadOnlyList<object>? SelectedCCDataItems { get; set; }
+
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     //GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }   
 
-    void OnSelectionChanged(object args)
+    void OnSelectedDataItemsChanged(IReadOnlyList<object> selectedDataItems)
+    {
+        SelectedDataItems = selectedDataItems;
+        SelectedCCItems = selectedDataItems;
+        SelectedToItems = selectedDataItems;
+        //onTicketSelectionChanged.InvokeAsync(selectedDataItems);
+        // OnSelectedToDataItemsChanged(null);
+        //OnSelectedCCDataItemsChanged(null);
+    }
+
+    void OnSelectedToDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedToDataItems = SelectedToItems;
+        if(SelectedToItems !=null)
+        {
+            List<object> newList = new List<object>(SelectedDataItems);
+            // Remove the selected items from the new list
+            newList.RemoveAll(item => SelectedToItems.Contains(item));
+            SelectedCCItems = newList;
+        }
+
+    }
+
+    void OnSelectedCCDataItemsChanged(IReadOnlyList<object> SelectedCCItems)
+    {
+        SelectedCCDataItems = SelectedCCItems;
+        if(SelectedCCItems != null)
+        {
+            List<object> newList = new List<object>(SelectedDataItems);
+            // Remove the selected items from the new list
+            newList.RemoveAll(item => SelectedCCItems.Contains(item));
+            SelectedToItems = newList;
+        }
+
+    }
+
+    private void OnSelectionChanged(object args)
     {
         var res = args;
         var lst = @SelectedDataItems;
 
-        //if(args != null)
-        //{
-        //    ViewEmployee selectedEmployee = args as ViewEmployee;
-        //    if (selectedEmployee != null)
-        //    {
-        //        ids.Add(selectedEmployee);
-        //        selectedToIds.Add((long)selectedEmployee.UserID);
+        if(args != null)
+        {
+            ViewEmployee selectedEmployee = @SelectedDataItems as ViewEmployee;
+            if (selectedEmployee != null)
+            {
+                var lsts = selectedEmployee;
+                //ids.Add(selectedEmployee);
+                //selectedToIds.Add((long)selectedEmployee.UserID);
 
-        //    }
-        //}      
+            }
+        }      
+    }
+    private void onRestText()
+    {
+        Data = new ForumTopics();
+        SelectedDataItems = null;
+        SelectedCCItems = null;
+        SelectedToItems = null;
+    }
+
+    private void HandleSelectedRowsChanged(IEnumerable<ViewEmployee> selectedRows)
+    {
+        // Update the selected data items list
+        SelectedDataItems = selectedRows.ToList();
+
+        // Perform any necessary logic when the selection changes
+        Console.WriteLine($"Selected items count: {SelectedDataItems.Count}");
     }
 
 
@@ -313,64 +406,124 @@
         _participant = await Mediator.Send(new GetAllEmployeeListQuery());
 
         //var topicmodel = await Mediator.Send(new GetListCategory(1));
-        //_category = topicmodel;        
-    }
+        //_category = topicmodel;           
+
+    }   
 
     async void HandleValidSubmit()
     {
-        FormSubmitResult = "You have been registred successully.";
-        var sldEmployee = @SelectedDataItems.Count;
-
-
-        foreach (object item in SelectedDataItems)
+        if (@SelectedDataItems == null)
         {
-            if (item is ViewEmployee employee)
-            {
-                //ids.Add(employee);
-                participantIds.Add((long)employee.UserID);
-            }
+            onShowPopupMessage("Error", "Please Select Participant");
+            return;
         }
 
-        foreach (object item in SelectedToItems)
+        if (SelectedToDataItems == null)
+        {
+            onShowPopupMessage("Error", "Please Select To");
+            return;
+        }
+
+        //if (SelectedCCDataItems == null)
+        //{
+        //    onShowPopupMessage("Error", "Please Select CC ");
+        //    return;
+        //}
+
+
+
+        if (@SelectedDataItems.Count > 0)
+        {
+            foreach (object item in SelectedDataItems)
+            {
+                if (item is ViewEmployee employee)
+                {
+                    //ids.Add(employee);
+                    participantIds.Add((long)employee.UserID);
+                }
+            }            
+        }    
+
+
+
+
+        foreach (object item in SelectedToDataItems)
         {
             if (item is ViewEmployee employee)
             {               
                 selectedToIds.Add((long)employee.UserID);
             }
         }
-
-        foreach (object item in SelectedCCItems)
+        if(SelectedCCDataItems !=null)
         {
-            if (item is ViewEmployee employee)
-            {                
-                SelectedCCIds.Add((long)employee.UserID);
+            foreach (object item in SelectedCCDataItems)
+            {
+                if (item is ViewEmployee employee)
+                {
+                    SelectedCCIds.Add((long)employee.UserID);
+                }
             }
         }
-        
+      
+
         //var slsls = participantIds.Distinct().ToList();
         string participantidsString = string.Join(",", participantIds); // convert the array to a comma-separated string
         string toidsString = string.Join(",", selectedToIds); // convert the array to a comma-separated string
         string ccidsString = string.Join(",", SelectedCCIds); // convert the array to a comma-separated string
 
+        DateTime? nullableDateTime = DateTime.Now;
+
+
+       
 
         var createReq = new CreateForumTopics
             {
                 TicketNo = Data.TicketNo,
                 TopicName = Data.TopicName,
-                //TypeId  = Data.TypeId,
-                //CategoryId  = Data.CategoryId,
+                TypeId  = (long)Data.TypeId,
+                CategoryId  = Data.CategoryId,
+                StartDate = Data.StartDate, 
+                Description = Data.Description,
                 StatusCodeID = 1,
                 AddedByUserID = 1,
                 AddedDate = DateTime.Now,
                 SessionId = Guid.NewGuid(),
-                To = participantidsString,
-                
+                Participants = participantidsString,
+                To = toidsString,
+                CC = ccidsString
+
             };
 
 
-        var result = await Mediator.Send(createReq);
 
 
+        try
+        {
+            var result = await Mediator.Send(createReq);
+            if(result !=null)
+            {
+                onShowPopupMessage("success", "Topic have been saved successully");
+                onRestText();
+            }
+            else
+            {
+                onShowPopupMessage("Error", result.ToString());
+            }
+        }
+        catch(Exception ex)
+        {
+            onShowPopupMessage("Error", ex.Message);
+        }
+
+
+    }
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
     }
     void onClickParticipant()
     {
@@ -381,7 +534,7 @@
     {
         FormSubmitResult = "";
     }
-    void SelectedItemChanged(long typeId)
+   async void SelectedItemChanged(long typeId)
     {   
         //if(typeId > 0)
         //{
@@ -395,6 +548,18 @@
         }
 
     } 
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
 }
 
 

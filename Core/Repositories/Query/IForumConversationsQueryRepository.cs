@@ -17,6 +17,8 @@ namespace Core.Repositories.Query
         Task<long> Delete(ForumConversations company);
 
         Task<ForumConversations> GetByIdAsync(Int64 id);
+        Task<List<ForumConversations>> GetDiscussionListAsync(Int64 TopicId);
+        
     }
 }
 

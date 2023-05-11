@@ -12,7 +12,7 @@ namespace Core.Repositories.Query
    public interface IIctmasterQueryRepository : IQueryRepository<ViewIctmaster>
     {
         //Custom operation which is not generic
-        Task<IReadOnlyList<Ictmaster>> GetIctmasterByMasterType(int mastertype);
+        Task<IReadOnlyList<CodeMaster>> GetCodeMasterByStatus(string name);
         Task<IReadOnlyList<ViewIctmaster>> GetAllAsync();
         Task<ViewIctmaster> GetByIdAsync(Int64 id);
     }

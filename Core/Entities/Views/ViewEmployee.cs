@@ -23,6 +23,7 @@ namespace Core.Entities.Views
         public int? TypeOfEmployeement { get; set; }
         public long? LanguageID { get; set; }
 
+        public bool? Locked { get; set; }
         public long? CityID { get; set; }
         public long? RegionID { get; set; }
         public string Signature { get; set; }

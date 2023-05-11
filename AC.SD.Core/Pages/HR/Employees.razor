@@ -43,8 +43,8 @@
             <CellDisplayTemplate>
                 @{
                     
-                    <DxButton Click="() => Grid.ShowDataItemDeleteConfirmation(context.DataItem)"
-                          Text="Delete" RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained" />
+                    //<DxButton Click="() => Grid.ShowDataItemDeleteConfirmation(context.DataItem)"
+                    //      Text="Delete" RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained" />
                     <NavLink href="javascrtpit:void(0);" @onclick="@(() => EditEmployeeOnPage((ViewEmployee)context.DataItem))" RenderStyle="@ButtonRenderStyle.Secondary">Edit</NavLink>
                 }
             </CellDisplayTemplate>

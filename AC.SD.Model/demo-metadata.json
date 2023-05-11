@@ -235,7 +235,7 @@
           "Description": "DevExpress Blazor Pivot Grid delivers high performance when the component is bound to a large data source.",
           "DocUrl": "DevExpress.Blazor.DxPivotGrid-1#bind-to-data"
 
-        //},
+        }
         //{
         //  "Id": "Conversation",
         //  "Url": "ForumConversations",

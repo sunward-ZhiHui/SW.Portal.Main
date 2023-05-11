@@ -11,7 +11,7 @@
 
 <div class="cw-480 ch-220">
     <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
-        <DxTab Text="Site"></DxTab>
+        <DxTab Text="Site" ></DxTab>
         <DxTab Text="Zone"></DxTab>
         <DxTab Text="Location"></DxTab>
         <DxTab Text="Area"></DxTab>
@@ -21,19 +21,15 @@
             @switch (ActiveTabIndex)
             {
                 case 0:
-                    <h2>Add Site</h2>
                     <Site />
                     break;
                 case 1:
-                    <h2>Zone</h2>
                     <Zone />
                     break;
                 case 2:
-                    <h2>Add Location</h2>
                     <Location />
                     break;
                 case 3:
-                    <h2>Add Area</h2>
                     <Area />
                     break;
             }

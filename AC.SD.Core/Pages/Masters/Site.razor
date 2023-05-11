@@ -9,9 +9,11 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
+@inject IJSRuntime jsRuntime
 
 
-<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving"     ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+
+<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -21,11 +23,10 @@
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360">
+        CssClass="grid-auto-height ch-360" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
     <Columns>
 
         <DxGridDataColumn FieldName="CompanyId"  Caption="Company" MinWidth="80" />
-        <DxGridDataColumn FieldName="MasterType" Caption="MasterType" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" MinWidth="80" />
         <DxGridCommandColumn Width="160px" />
@@ -70,6 +71,7 @@
 
 
 @code {
+    Dictionary<long, string>? CompanyNamesIndex { get; set; }
     private List<ViewPlants> _plantItems;
     private List<ViewIctmaster> _ictmaster;
     private List<CodeMaster> _codemaster;
@@ -84,6 +86,7 @@
                 _ictmaster = model;
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
        // _ictmaster = await Mediator.Send(new GetAllIctMasterQuery());
+        CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
     }
     async Task UpdateDataAsync()
     {
@@ -154,5 +157,14 @@
         await Mediator.Send(request);
         await UpdateDataAsync();
     }
-    
+    void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
+    {
+        if (e.FieldName == "CompanyId")
+        {
+            var ID = Convert.ToInt32(e.Value);
+            if (CompanyNamesIndex.ContainsKey(ID))
+                e.DisplayText = CompanyNamesIndex[ID];
+        }
+    }
+  
 }

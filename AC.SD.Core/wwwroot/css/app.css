@@ -76,3 +76,12 @@ textarea.form-control.invalid {
 .form-check-input.invalid ~ .validation-message {
     display: block;
 }
+
+.alt-item > td {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.header-bold span {
+    font-weight: 700;
+}
+

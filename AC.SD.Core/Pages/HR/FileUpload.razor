@@ -1,0 +1,23 @@
+﻿<h3>FileUpload</h3>
+@using Application.Command.FileUploads;
+@using MediatR
+@inject IMediator Mediator
+@page "/fileupload"
+
+<DxUpload Name="myFile" SelectedFilesChanged="@SelectedFilesChanged">
+</DxUpload>
+@code {
+    protected async Task SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        var request = new FileUploadCommand
+            {
+                FileName="Test",
+                Files = files
+            };
+        var response = await Mediator.Send(request);
+        if (response == "Ok")
+        {
+            InvokeAsync(StateHasChanged);
+        }
+    }
+}

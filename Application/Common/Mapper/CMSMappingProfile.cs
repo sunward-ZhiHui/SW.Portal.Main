@@ -12,6 +12,10 @@ using Application.Command.LeveMasters;
 using Application.Command.designations;
 using Application.Command.LayoutPlanType;
 using Application.Command.Ictmaster;
+using Application.Command.EmployeeOtherDutyInformations;
+using Application.Command.EmployeeEmailInfos;
+using Core.Repositories.Command;
+using Application.Command.EmployeeICTInformations;
 
 namespace Application.Common.Mapper
 {
@@ -47,7 +51,7 @@ namespace Application.Common.Mapper
             CreateMap<SubSection, EditSubSectionCommand>().ReverseMap();
             CreateMap<SubSection, DeleteSubSectionCommand>().ReverseMap();
 
-          
+
 
             CreateMap<ForumCategorys, CreateForumCategoryCommand>().ReverseMap();
             CreateMap<ForumCategorys, EditFourmCategoryCommand>().ReverseMap();
@@ -71,9 +75,33 @@ namespace Application.Common.Mapper
             CreateMap<Ictmaster, DeleteIctmasterCommand>().ReverseMap();
 
 
-            CreateMap<LayoutPlanType,CreateLayOutPlanTypeMasterCommand>().ReverseMap();
-            CreateMap<LayoutPlanType,EditLayOutPlanTypeMasterCommand>().ReverseMap();
+            CreateMap<LayoutPlanType, CreateLayOutPlanTypeMasterCommand>().ReverseMap();
+            CreateMap<LayoutPlanType, EditLayOutPlanTypeMasterCommand>().ReverseMap();
             CreateMap<LayoutPlanType, DeleteLayOutPlanTypeMasterCommand>().ReverseMap();
+
+            CreateMap<EmployeeOtherDutyInformation, CreateEmployeeOtherDutyInformationCommand>().ReverseMap();
+            CreateMap<EmployeeOtherDutyInformation, EditEmployeeOtherDutyInformationCommand>().ReverseMap();
+            CreateMap<EmployeeOtherDutyInformation, DeleteEmployeeOtherDutyInformationCommand>().ReverseMap();
+
+            CreateMap<EmployeeEmailInfo, CreateEmployeeEmailInfoCommand>().ReverseMap();
+            CreateMap<EmployeeEmailInfo, EditEmployeeEmailInfoCommand>().ReverseMap();
+            CreateMap<EmployeeEmailInfo, DeleteEmployeeEmailInfoCommand>().ReverseMap();
+
+            CreateMap<EmployeeEmailInfoForward, CreateEmployeeEmailInfoForwardCommand>().ReverseMap();
+            CreateMap<EmployeeEmailInfoForward, EditEmployeeEmailInfoForwardCommand>().ReverseMap();
+            CreateMap<EmployeeEmailInfoForward, DeleteEmployeeEmailInfoForwardCommand>().ReverseMap();
+
+            CreateMap<EmployeeEmailInfoAuthority, CreateEmployeeEmailInfoAuthorityCommand>().ReverseMap();
+            CreateMap<EmployeeEmailInfoAuthority, EditEmployeeEmailInfoAuthorityCommand>().ReverseMap();
+            CreateMap<EmployeeEmailInfoAuthority, DeleteEmployeeEmailInfoAuthorityCommand>().ReverseMap();
+
+            CreateMap<EmployeeICTInformation, CreateEmployeeICTInformationCommand>().ReverseMap();
+            CreateMap<EmployeeICTInformation, EditEmployeeICTInformationCommand>().ReverseMap();
+            CreateMap<EmployeeICTInformation, DeleteEmployeeICTInformationCommand>().ReverseMap();
+
+            CreateMap<EmployeeICTHardInformation, CreateEmployeeICTHardInformationCommand>().ReverseMap();
+            CreateMap<EmployeeICTHardInformation, EditEmployeeICTHardInformationCommand>().ReverseMap();
+            CreateMap<EmployeeICTHardInformation, DeleteEmployeeICTHardInformationCommand>().ReverseMap();
         }
     }
 }

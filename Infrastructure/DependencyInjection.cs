@@ -29,13 +29,14 @@ namespace Infrastructure
             services.AddTransient<IRoleQueryRepository, RoleQueryRepository>();
             services.AddScoped(typeof(ICommandRepository<>), typeof(CommandRepository<>));
             services.AddTransient<IRoleCommandRepository, RoleCommandRepository>();
-
+            services.AddTransient<IEmployeeOtherDutyInformationCommandRepository, EmployeeOtherDutyInformationCommandRepository>();
             //services.AddScoped(typeof(ICommandRepository<ForumTypeResponse>), typeof(CommandRepository<ForumTypeResponse>));
 
             services.AddScoped(typeof(IRequestHandler<>), typeof(CreateHandler<>));
             services.AddTransient<IPlantQueryRepository, PlantQueryRepository>();
             services.AddTransient<IDivisionQueryRepository, DivisionQueryRepository>();
             services.AddTransient<ICodeMasterQueryRepository, CodeMasterQueryRepository>();
+            services.AddTransient<IApplicationMasterDetailQueryRepository, ApplicationMasterDetailQueryRepository>();
             services.AddTransient<IDepartmentQueryRepository, DepartmentQueryRepository>();
             services.AddTransient<ISectionQueryRepository, SectionQueryRepository>();
             services.AddTransient<ISubSectionQueryRepository, SubSectionQueryRepository>();
@@ -45,6 +46,7 @@ namespace Infrastructure
             services.AddTransient<IIctmasterQueryRepository, IctmasterQueryRepository>();
             services.AddTransient<IIctmasterCommandRepository, IctmasterCommandRepository>();
 
+            services.AddTransient<IEmployeeOtherDutyInformationQueryRepository, EmployeeOtherDutyInformationQueryRepository>();
             services.AddTransient<IForumCategoryQueryRepository, ForumCategoryQueryRepository>();
             services.AddTransient<ILevelMasterQueryRepository, LevelMasterQueryRepository>();
             services.AddTransient<IForumTypeQueryRepository, ForumTypeQueryRepository>();
@@ -52,9 +54,13 @@ namespace Infrastructure
             services.AddTransient<IFourmCategoryCommandRepository, FourmCategoryCommandRepository>();
             services.AddTransient<IForumTopicsQueryRepository, ForumTopicsQueryRepository>();
             services.AddTransient<IForumConversationsQueryRepository, ForumConversationsQueryRepository>();
-
-
-
+            services.AddTransient<IEmployeeEmailInfoQueryRepository, EmployeeEmailInfoQueryRepository>();
+            services.AddTransient<IEmployeeReportTQueryoRepository, EmployeeReportTQueryoRepository>();
+            services.AddTransient<IEmployeeEmailInfoForwardQueryRepository, EmployeeEmailInfoForwardQueryRepository>();
+            services.AddTransient<IApplicationUserRoleQueryRepository, ApplicationUserRoleQueryRepository>();
+            services.AddTransient<IEmployeeEmailInfoAuthorityQueryRepository, EmployeeEmailInfoAuthorityQueryRepository>();
+            services.AddTransient<IEmployeeICTInformationQueryRepository, EmployeeICTInformationQueryRepository>();
+            services.AddTransient<IEmployeeICTHardInformationQueryRepository, EmployeeICTHardInformationQueryRepository>();
             services.AddTransient<IPlantCommandRepository, PlantCommandRepository>();
             services.AddTransient<IDivisionCommandRepository, DivisionCommandRepository>();
             services.AddTransient<IDepartmentCommandRepository, DepartmentCommandRepository>();
@@ -65,6 +71,12 @@ namespace Infrastructure
             services.AddTransient<IApplicationUserQueryRepository, ApplicationUserQueryRepository>();
             services.AddTransient<IApplicationUserRoleCommandRepository, ApplicationUserRoleCommandRepository>();
             services.AddTransient<IEmployeeReportToCommandRepository, EmployeeReportToCommandRepository>();
+            services.AddTransient<IEmployeeEmailInfoCommandRepository, EmployeeEmailInfoCommandRepository>();
+            services.AddTransient<IEmployeeEmailInfoForwardCommandRepository, EmployeeEmailInfoForwardCommandRepository>();
+            services.AddTransient<IEmployeeEmailInfoAuthorityCommandRepository, EmployeeEmailInfoAuthorityCommandRepository>();
+            services.AddTransient<IEmployeeICTInformationCommandRepository, EmployeeICTInformationCommandRepository>();
+            services.AddTransient<IEmployeeICTHardInformationCommandRepository, EmployeeICTHardInformationCommandRepository>();
+            services.AddTransient<IFileUploadCommandRepository, FileUploadCommandRepository>();
             services.AddScoped(typeof(ILocalStorageService<>), typeof(LocalStorageService<>));
 
 

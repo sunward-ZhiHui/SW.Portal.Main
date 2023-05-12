@@ -32,6 +32,8 @@ namespace Core.Entities
         public string? Type { get; set; }
         public int SeqNo { get; set; }
         public string? SubjectName { get; set; }
+        public string? Label { get; set; }
+        public List<ForumTopics>? TopicList { get; set; }
 
     }
 }

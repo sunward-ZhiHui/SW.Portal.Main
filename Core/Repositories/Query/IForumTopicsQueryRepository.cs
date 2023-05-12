@@ -12,8 +12,9 @@ namespace Core.Repositories.Query
     {
         //Custom operation which is not generic
         Task<IReadOnlyList<ForumTopics>> GetAllAsync();
-        Task<ForumTopics> GetByIdAsync(Int64 id);
-        Task<List<ForumTopics>> GetUserTopicList(Int64 UserId);        
+        Task<List<ForumTopics>> GetByIdAsync(Int64 id);
+        Task<List<ForumTopics>> GetUserTopicList(Int64 UserId);
+        Task<List<ForumTopics>> GetTreeTopicList(Int64 UserId);
         Task<ForumTopics> GetCustomerByEmail(string email);
         long Insert(ForumTopics forumTopics);
         Task<ForumTopics> GetTopicListAsync();

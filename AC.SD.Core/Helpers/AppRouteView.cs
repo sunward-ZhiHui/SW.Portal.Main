@@ -7,21 +7,40 @@ using System;
 using System.Linq.Expressions;
 using Core.Entities;
 using Core.Repositories.Query;
+using Infrastructure.Repository.Query;
+using Microsoft.AspNetCore.Components.Authorization;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 
 namespace AC.SD.Core.Helpers
 {
     public class AppRouteView : RouteView
     {
         [Inject]
-        public NavigationManager NavigationManager { get; set; }      
+        public NavigationManager NavigationManager { get; set; }
+        //[Inject]
+        //protected Task<AuthenticationState> AuthStat { get; set; }
+        [Inject]
+        public IApplicationUserQueryRepository ApplicationUserQueryRepository { get; set; }
 
         protected override void Render(RenderTreeBuilder builder)
         {
             var authorize = Attribute.GetCustomAttribute(RouteData.PageType, typeof(AuthorizeAttribute)) != null;
-                       
-            if (authorize)
+          
+            //&& !AuthStat.Result.User.Identity.IsAuthenticated
+            //if (authorize)
+            //{
+            //    //var returnUrl = WebUtility.UrlEncode(new Uri(NavigationManager.Uri).PathAndQuery);               
+            //    NavigationManager.NavigateTo($"Login");
+            //}
+            //else
+            //{
+            //    base.Render(builder);
+            //}
+
+            if (authorize && ApplicationUserQueryRepository.User == null)
             {
-                //var returnUrl = WebUtility.UrlEncode(new Uri(NavigationManager.Uri).PathAndQuery);               
+                //var returnUrl = WebUtility.UrlEncode(new Uri(NavigationManager.Uri).PathAndQuery);
                 NavigationManager.NavigateTo($"Login");
             }
             else

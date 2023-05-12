@@ -124,16 +124,17 @@ main {
     }
 
 .open-button {
-   /* background-color: #555;*/
+    /* background-color: #555;*/
     color: white;
     padding: 7px 0px;
     border: none;
     cursor: pointer;
-   /* opacity: 0.8;*/
+    /* opacity: 0.8;*/
     position: fixed;
     bottom: 23px;
-   /* right: 28px;*/
-   /* width: 200px;*/
+    /* right: 28px;*/
+    /* width: 200px;*/
+    width: calc(100vw - 614px);
 }
 
 /* The popup chat - hidden by default */
@@ -201,7 +202,7 @@ main {
 .uk-card-default {
     background: #fff;
     color: #666;
-    box-shadow: 0 5px 15px rgba(0,0,0,.08);
+   /* box-shadow: 0 5px 15px rgba(0,0,0,.08);*/
 }
 
 .uk-grid {
@@ -223,6 +224,11 @@ main {
 .uk-card-header {
     padding: 6px 30px;
 }
+.uk-card-footer {
+    padding: 6px 10px;
+    background: #e8e7e7b0;
+    border-top: 1px solid #d4d4d4;
+}
 
 .uk-grid-column-small, .uk-grid-small {
     margin-left: -15px;
@@ -237,8 +243,9 @@ main {
 }
 
 .uk-card-title {
-    font-size: 1.5rem;
+    font-size: 13px;
     line-height: 1.4;
+    font-weight: bold;
 }
 
 .uk-label-success {
@@ -248,11 +255,9 @@ main {
 
 .uk-label {
     display: inline-block;
-    padding: 0 10px;
-    background: #1e87f0;
+    padding: 0 10px;   
     line-height: 1.5;
-    font-size: .875rem;
-    color: #fff;
+    font-size: .875rem;   
     vertical-align: middle;
     white-space: nowrap;
     border-radius: 2px;
@@ -673,7 +678,7 @@ main {
         background-color: #f0f0f0;
         position: relative;
         /* box-shadow: -5px -1px 13px -11px #78787b; */
-        box-shadow: -15px 0 10px -20px #78787b;
+        /*box-shadow: -15px 0 10px -20px #78787b;*/
     }
 
         .content-container .mini-menu-bar .mini-menu-bar-top {
@@ -848,7 +853,7 @@ main {
         }
 
             .content-container .menu-bar-content-container .content-padding-20 .menu-bar-content-container-heading {
-                height: 63px;
+                /*height: 63px;*/
                 width: 100%;
                 background-color: #f5f5f5;
             }
@@ -858,6 +863,8 @@ main {
                     width: 100%;
                     display: flex;
                     align-items: center;
+                    margin-top: 10px;
+                    margin-bottom: 10px;
                 }
 
                     .content-container .menu-bar-content-container .content-padding-20 .menu-bar-content-container-heading .heading-icon-text .mb-cc-icon {
@@ -884,11 +891,18 @@ main {
                         /* padding-bottom: 5px;*/
                         width: 100%;
                     }
+                    .msgOpen {
+                        height: calc(100% - 235px);
+                    }
+
+                    .msgClose {
+                        height: calc(100% - 157px);
+                    }
 
             .content-container .menu-bar-content-container .content-padding-20 .menu-bar-content-container-content {
-                height: calc(100% - 115px);
+               /* height: calc(100% - 115px);*/
                 width: 100%;
-                background-color: white;
+                /*background-color: white;*/
                 overflow-y: auto;
             }
 

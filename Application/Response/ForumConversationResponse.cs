@@ -1,28 +1,24 @@
 ﻿using Core.Entities.Base;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Application.Response
 {
-    public class ForumConversations:BaseEntity
+    public class ForumConversationResponse : BaseEntity
     {
-        [Key]
-        public int ID { get; set; }      
+        public long ID { get; set; }
         public long TopicID { get; set; }
-        [Required(ErrorMessage = "Please Enter Message.")]
         public string Message { get; set; }
-        public  long ParticipantId  { get; set; }
+        public long ParticipantId { get; set; }
         public long ReplyId { get; set; }
-
-
         public string UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string UserCode { get; set; }
         public string UserEmail { get; set; }
+
     }
 }

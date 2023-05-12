@@ -1,4 +1,6 @@
-﻿using Core.Entities.Base;
+﻿using Core.Entities;
+using Core.Entities.Base;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -28,6 +30,8 @@ namespace Application.Response
         public string? Type { get; set; }
         public int SeqNo { get; set; }
         public string? SubjectName { get; set; }
+        public string? label { get; set; }
+        public List<ForumTopicsResponse>? TopicList { get; set; }
 
         public ForumTopicsResponse()
         {

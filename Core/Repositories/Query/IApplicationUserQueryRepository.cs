@@ -12,6 +12,8 @@ namespace Core.Repositories.Query
     {
         //Custom operation which is not generic
         Task<IReadOnlyList<ApplicationUser>> GetAllAsync();
+        Task Initialize();
+        ApplicationUser User { get; }
         Task<ApplicationUser> LoginAuth(string LoginID, string Password);
         Task<ApplicationUser> Auth(string LoginID, string Password);
         Task<ApplicationUser> GetByIdAsync(Int64 id);

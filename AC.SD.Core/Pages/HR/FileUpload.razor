@@ -9,15 +9,15 @@
 @code {
     protected async Task SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
-        var request = new FileUploadCommand
-            {
-                FileName="Test",
-                Files = files
-            };
-        var response = await Mediator.Send(request);
-        if (response == "Ok")
-        {
-            InvokeAsync(StateHasChanged);
-        }
+        //var request = new FileUploadCommand
+        //    {
+        //        FileName="Test",
+        //        Files = files
+        //    };
+        //var response = await Mediator.Send(request);
+        //if (response == "Ok")
+        //{
+        //    InvokeAsync(StateHasChanged);
+        //}
     }
 }

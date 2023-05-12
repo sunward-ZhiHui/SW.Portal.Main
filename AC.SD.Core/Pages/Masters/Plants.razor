@@ -10,12 +10,32 @@
 
 @page "/Plants"
 
-
-<DxGrid @ref="Grid"
+<div class="card w-100">
+    <div class="card-header p-0 fw-normal">
+        
+        <DxMenu Orientation="Orientation.Horizontal" 
+          meta name="viewport" content="width=device-width, initial-scale=1.0" 
+    
+                DropDownActionMode="MenuDropDownActionMode.Click"
+                DisplayMode="MenuDisplayMode.Desktop"
+                CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
+            @*<TitleTemplate>
+            
+            </TitleTemplate>*@
+            <Items>
+                <DxMenuItem Text="New" IconCssClass="menu-icon-home menu-icon"/> 
+                <DxMenuItem Text="Edit" IconCssClass="menu-icon-products menu-icon"/>
+                <DxMenuItem Text="Delete" IconCssClass="menu-icon-support menu-icon"/>
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<br/>
+<DxGrid @ref="Grid"  
         Data="_plants"
         KeyFieldName="PlantID"
-        EditModelSaving="Grid_EditModelSaving"
-        DataItemDeleting="Grid_DataItemDeleting"
+        style="height:calc(100vh - 250px);"
         CustomizeElement="Grid_CustomizeElement"
         ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -27,20 +47,20 @@
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360 grid-auto-height">
+        CssClass="ch-360 ">
     <Columns>
-       
+      
         <DxGridDataColumn FieldName="PlantCode" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
         <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
-         <DxGridCommandColumn Width="160px" />
+         <DxGridCommandColumn Width="160px"/>
         @*<DxGridDataColumn FieldName="PlantID" AllowSort="false" Width="90px" MinWidth="100" TextAlignment="GridTextAlignment.Center">
             <CellDisplayTemplate><button class="btn btn-link grid-btn-link" @onclick="() => ShowDetails((int)context.Value)">Edit</button></CellDisplayTemplate>
         </DxGridDataColumn>*@
     </Columns>
-    <EditFormTemplate Context="EditFormContext">
+    <EditFormTemplate  Context="EditFormContext">
         @{
             var plant = (ViewPlants)EditFormContext.EditModel;
         }
@@ -75,6 +95,7 @@
 </DxGrid>
 
 @code {
+   
     private List<ViewPlants> _plants;
     private List<CodeMaster> _stausItems;
     IGrid Grid { get; set; }
@@ -156,5 +177,9 @@
             e.Style = "background-color: rgba(0, 0, 0, 0.08)";
             e.CssClass = "header-bold";
         }
+    }
+    void OnItemClick(ToolbarItemClickEventArgs e)
+    {
+        
     }
 }

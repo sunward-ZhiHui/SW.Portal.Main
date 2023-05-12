@@ -12,7 +12,7 @@
         var request = new FileUploadCommand
             {
                 FileName="Test",
-                Files = files
+               // Files = files
             };
         var response = await Mediator.Send(request);
         if (response == "Ok")

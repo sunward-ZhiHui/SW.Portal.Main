@@ -1,4 +1,4 @@
-﻿using DevExpress.Blazor;
+﻿
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -11,7 +11,7 @@ namespace Application.Command.FileUploads
 {
     public class FileUploadCommand : IRequest<string>
     {
-        public IEnumerable<UploadFileInfo> Files { get; set; }
+      //  public IEnumerable<UploadFileInfo> Files { get; set; }
         public string FileName { get; set; }
     }
 }

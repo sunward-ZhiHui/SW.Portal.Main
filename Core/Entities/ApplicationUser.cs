@@ -20,7 +20,7 @@ namespace Core.Entities
         public string UserCode { get; set; }
         public int InvalidAttempts { get; set; }
         public bool Locked { get; set; }
-        public DateTime LastPasswordChanged { get; set; }
+        public DateTime? LastPasswordChanged { get; set; }
         public string EmployeeNo { get; set; }
         public string UserEmail { get; set; }
         public byte AuthenticationType { get; set; }

@@ -5,6 +5,7 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
+@inject NavigationManager NavigationManager
 @page "/Employees"
 @inject IJSRuntime jsRuntime
 
@@ -35,7 +36,19 @@
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />  
         <DxGridDataColumn FieldName="ModifiedByUser" Width="10%" />
-        <DxGridCommandColumn Width="160px" />
+        <DxGridCommandColumn Width="150px" NewButtonVisible="true" EditButtonVisible="false" DeleteButtonVisible="false">
+            <HeaderTemplate>
+                <DxButton Click="@NewEmployeeForm" RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained"  Text="Add" />
+            </HeaderTemplate>
+            <CellDisplayTemplate>
+                @{
+                    
+                    //<DxButton Click="() => Grid.ShowDataItemDeleteConfirmation(context.DataItem)"
+                    //      Text="Delete" RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained" />
+                    <NavLink href="javascrtpit:void(0);" @onclick="@(() => EditEmployeeOnPage((ViewEmployee)context.DataItem))" RenderStyle="@ButtonRenderStyle.Secondary">Edit</NavLink>
+                }
+            </CellDisplayTemplate>
+        </DxGridCommandColumn>
 
     </Columns>
     <TotalSummary>
@@ -55,6 +68,15 @@
     async Task UpdateDataAsync()
     {
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+    }
+    void NewEmployeeForm(MouseEventArgs args)
+    {
+        NavigationManager.NavigateTo("EmployeeForm");
+    }
+
+    void EditEmployeeOnPage(ViewEmployee viewEmployee)
+    {
+        NavigationManager.NavigateTo("EmployeeForm/" + viewEmployee.SessionId + "");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

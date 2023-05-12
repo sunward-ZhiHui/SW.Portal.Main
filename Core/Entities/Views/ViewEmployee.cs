@@ -65,5 +65,6 @@ namespace Core.Entities.Views
         public string CompanyName { get; set; }
         public int? HeadCount { get; set; }
         public Guid? SessionId { get; set; }
+        public long? RoleID { get; set; }
     }
 }

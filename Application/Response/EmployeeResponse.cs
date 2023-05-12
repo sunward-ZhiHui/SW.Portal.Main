@@ -12,25 +12,27 @@ namespace Application.Response
         public long EmployeeID { get; set; }
         
         public long? UserID { get; set; }
+        [Required(ErrorMessage = "Sage ID is Required")]
         public string SageID { get; set; }
         public long? PlantID { get; set; }
         public long? LevelID { get; set; }
-        
+        [Required(ErrorMessage = "First Name is Required")]
         public string FirstName { get; set; }
-        
+        [Required(ErrorMessage = "Last Name is Required")]
         public string LastName { get; set; }
         public string NickName { get; set; }
         public string UserCode { get; set; }
-        
+        [Required(ErrorMessage = "Gender is Required")]
         public string Gender { get; set; }
         public string JobTitle { get; set; }
         
         public string Email { get; set; }
+        [Required(ErrorMessage = "Employeement Type is Required")]
         
         public int? TypeOfEmployeement { get; set; }
-        
+        [Required(ErrorMessage = "Language is Required")]
         public long? LanguageID { get; set; }
-        
+        [Required(ErrorMessage = "User Role is Required")]
         public long? RoleID { get; set; }
         public long? CityID { get; set; }
         public long? RegionID { get; set; }
@@ -45,15 +47,17 @@ namespace Application.Response
         public long? ReportID { get; set; }
         public bool? IsActive { get; set; }
         public long? DivisionID { get; set; }
+        [Required(ErrorMessage = "LoginID is Required")]
         public string LoginID { get; set; }
-        
+        [Required(ErrorMessage = "Password is Required")]
         public string LoginPassword { get; set; }
         public long? SectionID { get; set; }
         public long? SubSectionID { get; set; }
         public long? SubSectionTID { get; set; }
-        
+        [Required(ErrorMessage = "Designation is Required")]
         public long? DesignationID { get; set; }
         public long? DepartmentID { get; set; }
+        [Required(ErrorMessage = "Employement Status is Required")]
         public long? AcceptanceStatus { get; set; }
         public string Status { get; set; }
         public DateTime? AcceptanceStatusDate { get; set; }
@@ -75,5 +79,6 @@ namespace Application.Response
         public string CompanyName { get; set; }
         public int? HeadCount { get; set; }
         public IEnumerable<long?> ReportToIds { get; set; }
+        public Guid? SessionId { get; set; }
     }
 }

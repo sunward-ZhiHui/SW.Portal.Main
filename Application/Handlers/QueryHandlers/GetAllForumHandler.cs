@@ -53,6 +53,35 @@ namespace CMS.Application.Handlers.QueryHandlers
            
         }
     }
+    public class GetTreeListHandler : IRequestHandler<GetTreeList, List<ForumTopics>>
+    {
+
+        private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;
+        public GetTreeListHandler(IForumTopicsQueryRepository forumTopicsQueryRepository)
+        {
+            _forumTopicsQueryRepository = forumTopicsQueryRepository;
+        }
+        public async Task<List<ForumTopics>> Handle(GetTreeList request, CancellationToken cancellationToken)
+        {
+            return await _forumTopicsQueryRepository.GetTreeTopicList(request.UserId);
+
+        }
+    }
+
+    public class GetByIdTopicListHandler : IRequestHandler<GetByIdTopics, List<ForumTopics>>
+    {
+
+        private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;
+        public GetByIdTopicListHandler(IForumTopicsQueryRepository forumTopicsQueryRepository)
+        {
+            _forumTopicsQueryRepository = forumTopicsQueryRepository;
+        }
+        public async Task<List<ForumTopics>> Handle(GetByIdTopics request, CancellationToken cancellationToken)
+        {
+            return await _forumTopicsQueryRepository.GetByIdAsync(request.ID);
+
+        }
+    }
 
     public class CreateForumTopicsHandler : IRequestHandler<CreateForumTopics, long>
     {

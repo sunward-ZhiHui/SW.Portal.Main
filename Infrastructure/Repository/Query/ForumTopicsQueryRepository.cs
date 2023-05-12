@@ -39,17 +39,23 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<ForumTopics> GetByIdAsync(long id)
+        public async Task<List<ForumTopics>> GetByIdAsync(long id)
         {
             try
             {
-                var query = "SELECT * FROM ForumTypes WHERE ID = @Id";
+                //var query = "SELECT * FROM ForumTopics WHERE ID = @Id";
+                var query = @"SELECT * FROM ForumTopics TS 
+                                INNER JOIN ForumTypes TP ON TS.TypeId = TP.ID                                
+                                WHERE TS.ID = @Id";
                 var parameters = new DynamicParameters();
                 parameters.Add("ID", id, DbType.Int64);
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryFirstOrDefaultAsync<ForumTopics>(query, parameters));
+                    connection.Open();
+                    var res = connection.Query<ForumTopics>(query, parameters).ToList();
+                    return res;
+
                 }
             }
             catch (Exception exp)
@@ -62,7 +68,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 //var query = "SELECT * FROM ForumTypes WHERE ID = @UserId";
-                var query = @"SELECT * FROM ForumTopics TS 
+                var query = @"SELECT TS.ID,TS.TicketNo,TS.TopicName,TS.TypeId,TS.CategoryId,TS.Remarks,TS.SeqNo FROM ForumTopics TS 
                                 INNER JOIN ForumTopicParticipant TP ON TS.ID = TP.TopicId                                
                                 WHERE TP.UserId = @UserId";
                                 
@@ -88,6 +94,46 @@ namespace Infrastructure.Repository.Query
 
 
                     return res;
+
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<ForumTopics>> GetTreeTopicList(long UserId)
+        {
+            try
+            {
+                //var query = "SELECT * FROM ForumTypes WHERE ID = @UserId";
+                var query = @"SELECT TS.ID,TS.TicketNo,TS.TopicName,TS.TypeId,TS.CategoryId,TS.Remarks,TS.SeqNo FROM ForumTopics TS 
+                                INNER JOIN ForumTopicParticipant TP ON TS.ID = TP.TopicId                                
+                                WHERE TP.UserId = @UserId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+
+                    var res = connection.Query<ForumTopics>(query, parameters).ToList();
+
+                    var result = res
+                        .GroupBy(ps => ps.TicketNo)
+                        .Select(g => new ForumTopics
+                        {
+                            Label = g.Key,
+                            TopicList = g.ToList()
+                        })
+                        .ToList();
+
+                    return result;
+
+
+                    //return res;
 
                 }
             }

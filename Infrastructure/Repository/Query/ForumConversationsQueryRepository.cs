@@ -15,6 +15,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Transactions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using Microsoft.AspNetCore.Http;
+using Application.Response;
 
 namespace Infrastructure.Repository.Query
 {
@@ -89,7 +90,13 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM ForumConversations WHERE TopicId = @TopicId";
+
+                var query = @"SELECT FC.AddedDate,FC.Message,AU.UserName,AU.UserID FROM ForumConversations FC 
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
+                                WHERE FC.TopicId = @TopicId ORDER BY FC.AddedDate ASC;";
+
+
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId, DbType.Int64);
 

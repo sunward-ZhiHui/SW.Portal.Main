@@ -7,10 +7,11 @@
 @inject DemoConfiguration Configuration
 @inject DemoThemeService Themes
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-
 @using MediatR
 @inject IMediator Mediator
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
+<link href="_content/AC.SD.Core/lib/font-awesome/css/all.css" rel="stylesheet" />
+
 
 <div class="@GetDemoHeaderContainerCss()">
     <nav class="demo-header p-0 navbar navbar-dark @GetDemoHeadernavContainerCss()">

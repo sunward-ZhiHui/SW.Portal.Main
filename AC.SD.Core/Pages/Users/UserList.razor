@@ -46,17 +46,18 @@
         </DxGridDataColumn>
         <DxGridDataColumn FieldName="UserID" AllowSort="false"  MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
             
-            <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ResetPasswords((long)context.Value)">Reset Password</button></CellDisplayTemplate>
-      
-        </DxGridDataColumn>
+          @*  <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ResetPasswords((long)context.Value)">Reset Password</button></CellDisplayTemplate>*@
+            <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ShowPopup((long)context.Value)">Reset Password</button></CellDisplayTemplate>
+       </DxGridDataColumn>
 
         <DxGridDataColumn FieldName="Locked" Width="10%" MinWidth="90">
-            <CellDisplayTemplate>
+           @* <CellDisplayTemplate>
                 @if ((bool)context.Value)
                 {
-                    <span class="grid-icon grid-icon-check"></span>
+                    @*<span class="grid-icon grid-icon-check"></span>*@
+            @* <button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button>
                 }
-            </CellDisplayTemplate>
+            </CellDisplayTemplate>*@
         </DxGridDataColumn>
 
 
@@ -66,7 +67,19 @@
     </TotalSummary>
 </DxGrid>
 
-
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="300px" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <Content>
+        <p>
+                <div  Position="Left" id="@("label"+UserLst.UserID)" class="display-field"> Do You Want To  Reset the  @UserLst.NickName  Password</div>
+           
+        </p>
+    </Content> 
+       
+        <DxButton Text="Yes" Click="@((e) => ResetPasswords(UserLst.UserID))" />
+        <DxButton Text="No" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
 
 <DxPopup @bind-Visible="@MessageVisible"
          HeaderText="@MessageHeader"
@@ -77,8 +90,10 @@
     GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
-
-    bool MessageVisible { get; set; }
+    bool PopupVisible { get; set; } = false;
+    ViewEmployee UserLst { get; set; }
+    DxPopup? popup;
+    bool MessageVisible { get; set; } 
     string MessageHeader = "";
     string MessageBody = "";
     private List<ViewEmployee> _employeeItems;
@@ -88,7 +103,7 @@
     {
         _employeeItems = await Mediator.Send(new GetAllEmployeeListQuery());
 
-
+       
     }
     async Task UpdateDataAsync()
     {
@@ -125,8 +140,9 @@
             onShowPopupMessage("Message", "Account Un-Locked Successfully");
         }        
     }    
-    private async void ResetPasswords(long UserID)
+    private async void ResetPasswords(long? UserID)
     {
+
         var users = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
         if (users != null)
         {
@@ -136,6 +152,7 @@
                     NewPassword = "1234",
                 };
             var response = await Mediator.Send(request);
+            PopupVisible = false;
             onShowPopupMessage("Message", "Password Reset Successfully");
         }
     }
@@ -164,7 +181,16 @@
     //    _lock = _employeeItems.Where(c => c.SageID == "E231");
     //    bool SageID = true;
     //}
-
-   
+    void ShowPopup(long? UserID)
+    {
+        UserLst = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
+       // lId = UserID;
+        PopupVisible = true;
+        InvokeAsync(StateHasChanged);
+    }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+    }
    
 }

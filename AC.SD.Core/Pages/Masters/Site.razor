@@ -13,7 +13,7 @@
 
 
 
-<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+<DxGrid @ref="Grid" style="height:calc(100vh - 220px);" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -22,13 +22,14 @@
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         ValidationEnabled="true"
+        CustomizeElement="Grid_CustomizeElement"
         AutoExpandAllGroupRows="true"
-        CssClass="grid-auto-height ch-360" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
+        CssClass="ch-360" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
     <Columns>
 
-        <DxGridDataColumn FieldName="CompanyId"  Caption="Company" MinWidth="80" />
-        <DxGridDataColumn FieldName="Name" MinWidth="80" />
-        <DxGridDataColumn FieldName="Description" MinWidth="80" />
+        <DxGridDataColumn FieldName="CompanyId"  Caption="Company" TextAlignment = "GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridCommandColumn Width="160px" />
     </Columns>
     <EditFormTemplate Context="EditFormContext">
@@ -51,6 +52,7 @@
            
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@ict.Name" Rows="5" />
+                 <ValidationMessage For="@(() => ict.Name)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description" ColSpanMd="6">
                 <DxMemo @bind-Text="@ict.Description" Rows="5" />
@@ -166,5 +168,16 @@
                 e.DisplayText = CompanyNamesIndex[ID];
         }
     }
-  
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
 }

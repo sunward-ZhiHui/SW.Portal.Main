@@ -9,8 +9,10 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
+@inject IJSRuntime jsRuntime
 
-<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+
+<DxGrid @ref="Grid" Data="_ictmaster" style="height:calc(100vh - 220px);" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -20,12 +22,13 @@
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
+        CustomizeElement="Grid_CustomizeElement"
         CssClass="grid-auto-height ch-360" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
     <Columns>
 
-        <DxGridDataColumn FieldName="CompanyId" MinWidth="80" />
-        <DxGridDataColumn FieldName="Name" MinWidth="80" />
-        <DxGridDataColumn FieldName="Description" MinWidth="80" />
+        <DxGridDataColumn FieldName="CompanyId" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridCommandColumn Width="160px" />
     </Columns>
     <EditFormTemplate Context="EditFormContext">
@@ -45,6 +48,7 @@
                             @bind-Value="@ict.CompanyId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => ict.CompanyId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Site" ColSpanMd="6">
                 @* <DxSpinEdit @bind-Value="@ict.SiteId" Rows="5" />*@
@@ -57,6 +61,7 @@
                             @bind-Value="@ict.SiteId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => ict.SiteId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Zone" ColSpanMd="6">
                 <DxComboBox Data="@_masterSite"
@@ -67,10 +72,12 @@
                             @bind-Value="@ict.ParentIctid"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => ict.ZoneId)" />
             </DxFormLayoutItem>
            
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@ict.Name" Rows="5" />
+                <ValidationMessage For="@(() => ict.Name)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description" ColSpanMd="6">
                 <DxMemo @bind-Text="@ict.Description" Rows="5" />
@@ -202,6 +209,18 @@
             var ID = Convert.ToInt32(e.Value);
             if (CompanyNamesIndex.ContainsKey(ID))
                 e.DisplayText = CompanyNamesIndex[ID];
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
         }
     }
 }

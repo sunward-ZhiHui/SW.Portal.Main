@@ -1,30 +1,32 @@
 ﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
-@using DevExpress.Export;
-@using MediatR
+@using global::Core.Repositories.Query;
 @using global::Core.Entities;
 @using MediatR
 @inject IMediator Mediator
-@inject IJSRuntime jsRuntime
-
-
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor.Internal
+@using System.Collections.Generic
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/ForumConversations"
 @using DevExpress.Blazor.RichEdit
 @using DevExpress.Blazor.Office
 
-<div class="g-title">
-    <div class="g-left"></div>
 
+<style>
+
+</style>
+<link href="_content/AC.SD.Core/css/forum-discussion.css" rel="stylesheet" />
 <div class="">
 
-   @* <DxFormLayout CssClass="w-100">
-        <DxFormLayoutGroup Caption="General Information" ColSpanMd="3">
-            asdfasdf
-        </DxFormLayoutGroup>
-        <DxFormLayoutGroup Caption="Forum Discussion List" ColSpanMd="9">
-            asdfasdf
-        </DxFormLayoutGroup>
+    @* <DxFormLayout CssClass="w-100">
+    <DxFormLayoutGroup Caption="General Information" ColSpanMd="3">
+    asdfasdf
+    </DxFormLayoutGroup>
+    <DxFormLayoutGroup Caption="Forum Discussion List" ColSpanMd="9">
+    asdfasdf
+    </DxFormLayoutGroup>
     </DxFormLayout>*@
 
     <div class="main-container">
@@ -33,16 +35,16 @@
         <!--  -->
         <div class="content-container">
             <!-- Side Bar -->
-           @* <div class="side-menu-bar">
-               
-                <div class="side-menu-bar-top">
-                    <div class="side-menu-bar-text circle">RN</div>
-                    <div class="side-menu-bar-text circle">IPIR</div>
-                    <div class="side-menu-bar-text circle">PA</div>
-                    <div class="side-menu-bar-text circle">CS</div>
-                    <div class="side-menu-bar-text circle">GL</div>
-                </div>
-               
+            @* <div class="side-menu-bar">
+
+            <div class="side-menu-bar-top">
+            <div class="side-menu-bar-text circle">RN</div>
+            <div class="side-menu-bar-text circle">IPIR</div>
+            <div class="side-menu-bar-text circle">PA</div>
+            <div class="side-menu-bar-text circle">CS</div>
+            <div class="side-menu-bar-text circle">GL</div>
+            </div>
+
             </div>*@
             <!-- Mini Menu Bar -->
             <div class="mini-menu-bar">
@@ -51,27 +53,27 @@
                         <div class="files-title">General Information</div>
                     </div>
                     <!-- Views Accordion -->
-                    <div class="views-accordion">                       
+                    <div class="views-accordion">
                         <DxTreeView Data="@_topics"
                                     @bind-FilterString="FilterString"
                                     FilterMinLength="2"
-                                    ShowFilterPanel="true"                                
+                                    ShowFilterPanel="true"
                                     FilterMode="FilterMode"
                                     AllowSelectNodes=true
-                                    LoadChildNodesOnDemand="true"                                   
+                                    LoadChildNodesOnDemand="true"
                                     SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
                             <DataMappings>
-                                <DxTreeViewDataMapping Key="ID" CssClass="CssClass"  Text="TopicName" Name="ID"/>
+                                <DxTreeViewDataMapping Key="ID" CssClass="CssClass" Text="TopicName" Name="ID" />
                             </DataMappings>
                         </DxTreeView>
-                    </div>                                        
+                    </div>
                 </div>
                 @*<div class="mini-menu-bar-down">
-                    <div class="add-cloud-storage-btn">
-                        <div class="cloud-storage-btn">                           
-                            <div class="add-btn-text">Add cloud storage</div>
-                        </div>
-                    </div>
+                <div class="add-cloud-storage-btn">
+                <div class="cloud-storage-btn">
+                <div class="add-btn-text">Add cloud storage</div>
+                </div>
+                </div>
                 </div>*@
             </div>
             <!-- Menu Bar Content -->
@@ -106,16 +108,16 @@
                                     </div>
                                 </div>
                             </div>
-                           
+
                         </div>
                         <div>
                             @if (_headTopic != null && _headTopic.Any())
-                                {
+                            {
                                 @foreach (var item in _headTopic)
-                                    {
-                                        <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
+                                {
+                                    <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
                                         <div class="uk-card-header" style="height: 50px;">
-                                                <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
+                                            <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
                                                 <div class="uk-card-title uk-first-column" style="font-size: 16px;">
                                                     @item.TicketNo - @item.TopicName
                                                 </div>
@@ -123,16 +125,16 @@
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
                                                         <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
                                                     </svg>
-                                                    </span>
-                                                </div>
+                                                </span>
                                             </div>
                                         </div>
-                                    }
+                                    </div>
+                                }
                             }
                         </div>
                     </div>
                     <div class="@((isComponentVisible ? "menu-bar-content-container-content msgOpen" : "menu-bar-content-container-content msgClose"))">
-                       @* <div class="spacing-box"></div>  *@                     
+                        @* <div class="spacing-box"></div>  *@
                         @if (isMenuvisible == "Posts")
                         {
 
@@ -143,14 +145,14 @@
                                     {
                                         @foreach (var item in _discussionList)
                                         {
-                                            @if(item.ReplyId > 0)
+                                            @if (item.ReplyId > 0)
                                             {
                                                 <div class="lstcoversationrply">
                                                     <i class="fa fa-reply-all" aria-hidden="true"></i>
                                                     <div>@item.ReplyMessage</div>
                                                     <div style="float:right;margin-top: -13px;">@item.ReplyUserName , @item.ReplyDateTime</div>
                                                 </div>
-                                            }                                          
+                                            }
 
                                             <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
                                                 <div class="uk-card-header">
@@ -178,13 +180,13 @@
                                                 </div>
 
                                                 @*<div class="uk-card-footer">
-                                                    <div>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-reply" viewBox="0 0 16 16">
-                                                            <path d="M6.598 5.013a.144.144 0 0 1 .202.134V6.3a.5.5 0 0 0 .5.5c.667 0 2.013.005 3.3.822.984.624 1.99 1.76 2.595 3.876-1.02-.983-2.185-1.516-3.205-1.799a8.74 8.74 0 0 0-1.921-.306 7.404 7.404 0 0 0-.798.008h-.013l-.005.001h-.001L7.3 9.9l-.05-.498a.5.5 0 0 0-.45.498v1.153c0 .108-.11.176-.202.134L2.614 8.254a.503.503 0 0 0-.042-.028.147.147 0 0 1 0-.252.499.499 0 0 0 .042-.028l3.984-2.933zM7.8 10.386c.068 0 .143.003.223.006.434.02 1.034.086 1.7.271 1.326.368 2.896 1.202 3.94 3.08a.5.5 0 0 0 .933-.305c-.464-3.71-1.886-5.662-3.46-6.66-1.245-.79-2.527-.942-3.336-.971v-.66a1.144 1.144 0 0 0-1.767-.96l-3.994 2.94a1.147 1.147 0 0 0 0 1.946l3.994 2.94a1.144 1.144 0 0 0 1.767-.96v-.667z" />
-                                                        </svg>  Reply
-                                                    </div>
+                                    <div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-reply" viewBox="0 0 16 16">
+                                    <path d="M6.598 5.013a.144.144 0 0 1 .202.134V6.3a.5.5 0 0 0 .5.5c.667 0 2.013.005 3.3.822.984.624 1.99 1.76 2.595 3.876-1.02-.983-2.185-1.516-3.205-1.799a8.74 8.74 0 0 0-1.921-.306 7.404 7.404 0 0 0-.798.008h-.013l-.005.001h-.001L7.3 9.9l-.05-.498a.5.5 0 0 0-.45.498v1.153c0 .108-.11.176-.202.134L2.614 8.254a.503.503 0 0 0-.042-.028.147.147 0 0 1 0-.252.499.499 0 0 0 .042-.028l3.984-2.933zM7.8 10.386c.068 0 .143.003.223.006.434.02 1.034.086 1.7.271 1.326.368 2.896 1.202 3.94 3.08a.5.5 0 0 0 .933-.305c-.464-3.71-1.886-5.662-3.46-6.66-1.245-.79-2.527-.942-3.336-.971v-.66a1.144 1.144 0 0 0-1.767-.96l-3.994 2.94a1.147 1.147 0 0 0 0 1.946l3.994 2.94a1.144 1.144 0 0 0 1.767-.96v-.667z" />
+                                    </svg>  Reply
+                                    </div>
 
-                                                </div>*@
+                                    </div>*@
                                             </div>
                                         }
                                     }
@@ -214,31 +216,31 @@
                                                 <DxFormLayoutItem ColSpanMd="12">
                                                     <DxMemo @bind-Text="@Data.Message" NullText="Message" />
                                                     <ValidationMessage For="@(() => Data.Message)" />
-                                                </DxFormLayoutItem>                                           
+                                                </DxFormLayoutItem>
                                                 <DxFormLayoutItem ColSpanMd="12">
                                                     <DxButton SubmitFormOnClick="true"
                                                       Text=""
                                                       CssClass="fa fa-paper-plane sndrot"
-                                                      style="float:right"
+                                                              style="float:right"
                                                       RenderStyle="ButtonRenderStyle.Secondary" />
                                                     <div style="color:black;display:flex;">
                                                         <div class="fa fa-paperclip cdspc" aria-hidden="true"></div>
-                                                        <div class="fa fa-ellipsis-v cdspc" aria-hidden="true"></div>                                                      
+                                                        <div class="fa fa-ellipsis-v cdspc" aria-hidden="true"></div>
                                                     </div>
 
 
                                                     @*   <DxButton RenderStyle="ButtonRenderStyle.Secondary"
-                                                      Text="Close"
-                                                      style="color: white;"
-                                                      Click="@(() => isComponentVisible = false)"
-                                                      IconCssClass="btn-icon-undo"
+                                            Text="Close"
+                                            style="color: white;"
+                                            Click="@(() => isComponentVisible = false)"
+                                            IconCssClass="btn-icon-undo"
                                             CssClass="me-1 btn-success" />*@
 
                                                 </DxFormLayoutItem>
                                             </DxFormLayout>
                                         </EditForm>
-                                        
-                                       @* <DxRichEdit Height="500px" Width="100%"></DxRichEdit>*@
+
+                                        @* <DxRichEdit Height="500px" Width="100%"></DxRichEdit>*@
 
                                     </div>
                                 }
@@ -249,29 +251,29 @@
                                       Text="New Conversation"
                                       Click="@(() => isComponentVisible = true)"
                                       IconCssClass="btn-icon-undo"
-                                      style="color:white; width:200px;"
+                                              style="color:white; width:200px;"
                                       CssClass="me-1 btn-success open-button" />
                                 }
                             </div>
                         }
-                        else if(isMenuvisible == "Files")
+                        else if (isMenuvisible == "Files")
                         {
-                           
-                            <DxGrid @ref="Grid" Data="@_types"  EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-                                    PagerNavigationMode="PagerNavigationMode.InputBox"
-                                    PageSizeSelectorVisible="true"
-                                    PageSizeSelectorAllRowsItemVisible="true"
-                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                    PageSize="20"        
+
+                            <DxGrid @ref="Grid" Data="@_types" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                PagerNavigationMode="PagerNavigationMode.InputBox"
+                                PageSizeSelectorVisible="true"
+                                PageSizeSelectorAllRowsItemVisible="true"
+                                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                PageSize="20"
                                     style="height:calc(100vh - 195px)"
-                                    CssClass="ch-360"                                  
-                                    AutoExpandAllGroupRows="true"
-                                    SelectionMode="GridSelectionMode.Multiple"
-                                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+                                CssClass="ch-360"
+                                AutoExpandAllGroupRows="true"
+                                SelectionMode="GridSelectionMode.Multiple"
+                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
 
                                 <Columns>
                                     <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-                                    <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px"></DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="ID" Caption="#" Width="35px"></DxGridDataColumn>
                                     <DxGridDataColumn FieldName="Name" MinWidth="200" />
                                     <DxGridDataColumn FieldName="Description" />
                                     <DxGridCommandColumn Width="160px" />
@@ -292,12 +294,12 @@
                                         <ValidationSummary />
                                     </DxFormLayout>
                                 </EditFormTemplate>
-    
+
                             </DxGrid>
                         }
                         else
                         {
-                             <div>Todo</div>
+                            <div>Todo</div>
                         }
                     </div>
                 </div>
@@ -309,7 +311,7 @@
 @code {
     DxRichEdit richEdit;
     string isMenuvisible = "Posts";
-    DxTreeView treeView; 
+    DxTreeView treeView;
     IGrid? Grid { get; set; }
     bool isComponentVisible = true;
     private List<ForumTypes>? _types;
@@ -320,9 +322,10 @@
     string FilterString { get; set; }
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;
     public ForumTypes SelectedNodes { get; set; }
-
+    ForumConversations? Data { get; set; } = new ForumConversations();
     string SelectedGroup = "none";
-    void SelectionChanged(TreeViewNodeEventArgs e)
+    public ApplicationUser applicationUser { get; private set; }
+    private async Task SelectionChanged(TreeViewNodeEventArgs e)
     {
         SelectedGroup = e.NodeInfo?.Name;
         //_discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
@@ -330,7 +333,7 @@
     }
     private List<string> data;
     private async Task LoadData()
-    {  
+    {
         _discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
         _headTopic = await Mediator.Send(new GetByIdTopics(long.Parse(@SelectedGroup)));
 
@@ -338,9 +341,9 @@
     protected override async Task OnInitializedAsync()
     {
         var model = await Mediator.Send(new GetAllForumTypes());
-        _types = model;       
+        _types = model;
 
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");     
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
         _topics = await Mediator.Send(new GetUserForumTopics(applicationUser.UserID));
 
@@ -356,12 +359,12 @@
     {
         if (id > 0)
         {
-            _replyComment =  _discussionList.Where(c => c.ID == id).ToList();
+            _replyComment = _discussionList.Where(c => c.ID == id).ToList();
         }
     }
     void closeReply()
     {
-        _replyComment = null; 
+        _replyComment = null;
     }
     void OnMenuItemClick(string text)
     {
@@ -388,7 +391,7 @@
             };
         var result = await Mediator.Send(createReq);
 
-        if(result == 1)
+        if (result == 1)
         {
             await LoadData();
             onRestText();
@@ -406,7 +409,7 @@
 
     void HandleInvalidSubmit()
     {
-       
+
     }
 
     private List<TreeViewItem> TreeData = new List<TreeViewItem>
@@ -431,32 +434,5 @@
         public int ID { get; set; }
         public int? ParentID { get; set; }
         public string Name { get; set; }
-    }
-
-    async Task ExportToExcel()
-    {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
-                CustomizeCell = OnCustomizeCell
-            });
-    }
-    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
-    {
-        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
-            args.Formatting.Font = new XlCellFont() { Italic = true };
-        args.Handled = true;
-    }
-    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
-    {
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
-        {
-            e.CssClass = "alt-item";
-        }
-        if (e.ElementType == GridElementType.HeaderCell)
-        {
-            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
-            e.CssClass = "header-bold";
-        }
     }
 }

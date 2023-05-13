@@ -183,5 +183,24 @@
             e.CssClass = "header-bold";
         }
     }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+
+
+
+    }
+    async Task ExportToExcel()
+
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+
+                CustomizeCell = OnCustomizeCell
+            });
+    }
 
 }

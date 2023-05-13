@@ -176,6 +176,17 @@
             e.CssClass = "header-bold";
         }
     }
+    void ShowPopup(long? UserID)
+    {
+        UserLst = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
+        // lId = UserID;
+        PopupVisible = true;
+        InvokeAsync(StateHasChanged);
+    }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+    }
     //void selectedItems(ViewEmployee employee)
     //{
     //    _lock = _employeeItems.Where(c => c.SageID == "1233333");

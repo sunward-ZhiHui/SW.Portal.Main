@@ -4,7 +4,7 @@
 @inject IMediator Mediator
 @page "/fileupload"
 
-<DxUpload Name="myFile" SelectedFilesChanged="@SelectedFilesChanged">
+<DxUpload Name="myFile" UploadUrl="api/FileUpload/" SelectedFilesChanged="@SelectedFilesChanged">
 </DxUpload>
 @code {
     protected async Task SelectedFilesChanged(IEnumerable<UploadFileInfo> files)

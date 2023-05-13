@@ -9,15 +9,26 @@
 @inject IJSRuntime jsRuntime
 
 @page "/Plants"
-
-
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxGrid @ref="Grid"
         Data="_plants"
         KeyFieldName="PlantID"
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
         CustomizeElement="Grid_CustomizeElement"
-        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+         ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -25,20 +36,21 @@
         PageSize="20"
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360 grid-auto-height">
+        CssClass="ch-360"
+        style="height: calc(100vh - 200px);"
+        FocusedRowEnabled="true"
+        RowClick="OnRowClick"
+        AllowSelectRowByClick="true">
     <Columns>
-       
+
+        <DxGridDataColumn FieldName="PlantID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="PlantCode" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
         <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
-         <DxGridCommandColumn Width="160px" />
-        @*<DxGridDataColumn FieldName="PlantID" AllowSort="false" Width="90px" MinWidth="100" TextAlignment="GridTextAlignment.Center">
-            <CellDisplayTemplate><button class="btn btn-link grid-btn-link" @onclick="() => ShowDetails((int)context.Value)">Edit</button></CellDisplayTemplate>
-        </DxGridDataColumn>*@
+        <DxGridCommandColumn Width="160px" Visible="false" />
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{
@@ -64,8 +76,8 @@
                 </DxComboBox>
                 <ValidationMessage For="@(() => plant.StatusCodeID)" />
             </DxFormLayoutItem>
-           @* <DxFormLayoutItem ColSpanMd="12">
-                <ValidationSummary />
+            @* <DxFormLayoutItem ColSpanMd="12">
+            <ValidationSummary />
             </DxFormLayoutItem>*@
         </DxFormLayout>
     </EditFormTemplate>
@@ -78,6 +90,9 @@
     private List<ViewPlants> _plants;
     private List<CodeMaster> _stausItems;
     IGrid Grid { get; set; }
+    private ViewPlants _selectedItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         var model = await Mediator.Send(new GetAllPlantQuery());
@@ -89,6 +104,33 @@
     {
         var model = await Mediator.Send(new GetAllPlantQuery());
         _plants = model;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "PlantID");
+        _selectedItems = _plants.FirstOrDefault(f => f.PlantID == (long?)UniqueId);
+        EditEnabled = true;
+        DeleteEnabled = true;
+        StateHasChanged();
+
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
+    void addDelete()
+    {
+        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        EditEnabled = false;
+        DeleteEnabled = false;
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

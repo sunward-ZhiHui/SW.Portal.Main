@@ -11,11 +11,19 @@ namespace Core.Entities
     public class ForumConversations:BaseEntity
     {
         [Key]
-        public int ID { get; set; }
-        public string Name { get; set; }
+        public int ID { get; set; }      
         public long TopicID { get; set; }
+        [Required(ErrorMessage = "Please Enter Message.")]
         public string Message { get; set; }
         public  long ParticipantId  { get; set; }
         public long ReplyId { get; set; }
+        public string? ReplyMessage { get; set; }
+        public DateTime? ReplyDateTime { get; set; }
+        public string? ReplyUserName { get; set; }
+        public string UserName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string UserCode { get; set; }
+        public string UserEmail { get; set; }
     }
 }

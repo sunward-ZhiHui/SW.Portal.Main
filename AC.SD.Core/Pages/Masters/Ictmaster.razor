@@ -88,7 +88,6 @@
     </TotalSummary>
 </DxGrid>
 
-
 @code{
     private List<ViewIctmaster> _ictmaster;
     Dictionary<int, string> MasterTypeIndex { get; set; }
@@ -183,20 +182,6 @@
             e.Style = "background-color: rgba(0, 0, 0, 0.08)";
             e.CssClass = "header-bold";
         }
-    }
-    async Task ExportToExcel()
-    {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
-                CustomizeCell = OnCustomizeCell
-            });
-    }
-    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
-    {
-        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
-            args.Formatting.Font = new XlCellFont() { Italic = true };
-        args.Handled = true;
     }
 
 }

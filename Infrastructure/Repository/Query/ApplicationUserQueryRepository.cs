@@ -22,9 +22,12 @@ namespace Infrastructure.Repository.Query
 {
     public class ApplicationUserQueryRepository : QueryRepository<ApplicationUser>, IApplicationUserQueryRepository
     {
-        public ApplicationUserQueryRepository(IConfiguration configuration)
+        private ILocalStorageService<ApplicationUser> _localStorageService;
+        public ApplicationUser User { get; private set; }
+        public ApplicationUserQueryRepository(IConfiguration configuration, Core.Repositories.Query.ILocalStorageService<ApplicationUser> localStorageService)
             : base(configuration)
         {
+            _localStorageService = localStorageService;
         }
 
         public async Task<ApplicationUser> LoginAuth(string LoginID, string Password)
@@ -314,6 +317,11 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }
+
+        public async Task Initialize()
+        {
+            User = await _localStorageService.GetItem<ApplicationUser>("user");
         }
     }
 }

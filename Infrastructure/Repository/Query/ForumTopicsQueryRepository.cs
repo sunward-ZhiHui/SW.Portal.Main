@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Response;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Infrastructure.Repository.Query
 {
@@ -38,17 +39,102 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<ForumTopics> GetByIdAsync(long id)
+        public async Task<List<ForumTopics>> GetByIdAsync(long id)
         {
             try
             {
-                var query = "SELECT * FROM ForumTypes WHERE ID = @Id";
+                //var query = "SELECT * FROM ForumTopics WHERE ID = @Id";
+                var query = @"SELECT * FROM ForumTopics TS 
+                                INNER JOIN ForumTypes TP ON TS.TypeId = TP.ID                                
+                                WHERE TS.ID = @Id";
                 var parameters = new DynamicParameters();
                 parameters.Add("ID", id, DbType.Int64);
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryFirstOrDefaultAsync<ForumTopics>(query, parameters));
+                    connection.Open();
+                    var res = connection.Query<ForumTopics>(query, parameters).ToList();
+                    return res;
+
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<ForumTopics>> GetUserTopicList(long UserId)
+        {
+            try
+            {
+                //var query = "SELECT * FROM ForumTypes WHERE ID = @UserId";
+                var query = @"SELECT TS.ID,TS.TicketNo,TS.TopicName,TS.TypeId,TS.CategoryId,TS.Remarks,TS.SeqNo FROM ForumTopics TS 
+                                INNER JOIN ForumTopicParticipant TP ON TS.ID = TP.TopicId                                
+                                WHERE TP.UserId = @UserId";
+                                
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();                    
+
+                    var res = connection.Query<ForumTopics>(query,parameters).ToList();
+
+                    //var result = res
+                    //    .GroupBy(ps => ps.TicketNo)
+                    //    .Select(g => new ForumTopics
+                    //    {
+                    //        Year = g.Key,
+                    //        SalesByProduct = g.ToList()
+                    //    })
+                    //    .ToList();
+
+                    //return result;
+
+
+                    return res;
+
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<ForumTopics>> GetTreeTopicList(long UserId)
+        {
+            try
+            {
+                //var query = "SELECT * FROM ForumTypes WHERE ID = @UserId";
+                var query = @"SELECT TS.ID,TS.TicketNo,TS.TopicName,TS.TypeId,TS.CategoryId,TS.Remarks,TS.SeqNo FROM ForumTopics TS 
+                                INNER JOIN ForumTopicParticipant TP ON TS.ID = TP.TopicId                                
+                                WHERE TP.UserId = @UserId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+
+                    var res = connection.Query<ForumTopics>(query, parameters).ToList();
+
+                    var result = res
+                        .GroupBy(ps => ps.TicketNo)
+                        .Select(g => new ForumTopics
+                        {
+                            Label = g.Key,
+                            TopicList = g.ToList()
+                        })
+                        .ToList();
+
+                    return result;
+
+
+                    //return res;
+
                 }
             }
             catch (Exception exp)
@@ -128,16 +214,20 @@ namespace Infrastructure.Repository.Query
                         var parameterss = new DynamicParameters();
                         parameterss.Add("TicketNo", forumTopics.TicketNo);
                         parameterss.Add("TopicName", forumTopics.TopicName);
-                        //parameterss.Add("TypeId", forumTopics.TypeId);
-                        //parameterss.Add("CategoryId", forumTopics.CategoryId);
+                        parameterss.Add("TypeId", forumTopics.TypeId);
+                        parameterss.Add("CategoryId", forumTopics.CategoryId);                        
+                        parameterss.Add("StartDate", forumTopics.StartDate);
+                        parameterss.Add("Description", forumTopics.Description);
+                        //parameterss.Add("EndDate", forumTopics.EndDate);
+                        //parameterss.Add("DueDate", forumTopics.DueDate);
                         parameterss.Add("AddedByUserID", forumTopics.AddedByUserID);
                         parameterss.Add("AddedDate", forumTopics.AddedDate);
                         parameterss.Add("StatusCodeID", forumTopics.StatusCodeID);
                         parameterss.Add("SessionId", forumTopics.SessionId);
 
                         parameterss.Add("To", forumTopics.To);
-                        //parameterss.Add("CC", forumTopics.CC);
-                        //parameterss.Add("Participants", forumTopics.Participants);
+                        parameterss.Add("CC", forumTopics.CC);
+                        parameterss.Add("Participants", forumTopics.Participants);
 
                         connection.Open();
 

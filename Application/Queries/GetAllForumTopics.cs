@@ -9,5 +9,30 @@ namespace Application.Queries
     public class GetAllForumTopics : PagedRequest, IRequest<List<ForumTopics>>
     {
         public string SearchString { get; set; }
-    }   
+    }
+    public class GetUserForumTopics : PagedRequest, IRequest<List<ForumTopics>>
+    {
+        public long UserId { get; private set; }
+        public GetUserForumTopics(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
+    public class GetTreeList : PagedRequest, IRequest<List<ForumTopics>>
+    {
+        public long UserId { get; private set; }
+        public GetTreeList(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
+
+    public class GetByIdTopics : PagedRequest, IRequest<List<ForumTopics>>
+    {
+        public long ID { get; private set; }
+        public GetByIdTopics(long ID)
+        {
+            this.ID = ID;
+        }
+    }
 }

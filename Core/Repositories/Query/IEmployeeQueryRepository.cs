@@ -1,4 +1,5 @@
 ﻿
+using Core.Entities;
 using Core.Entities.Views;
 using Core.Repositories.Query.Base;
 using System;
@@ -14,5 +15,15 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ViewEmployee>> GetAllAsync();
         Task<IReadOnlyList<ViewEmployee>> GetAllUserAsync();
         Task<ViewEmployee> ResetEmployeePasswordAsync(ViewEmployee viewEmployee);
+        Task<IReadOnlyList<ViewEmployee>> GetAllByStatusAsync();
+        Task<ViewEmployee> GetAllBySessionAsync(Guid? SessionId);
+        Task<ViewEmployee> GetAllByIdAsync(long? EmployeeId);
+        Task<ViewEmployee> DeleteEmployeeReportAsync(long? EmployeeId);
+
+
+    }
+    public interface IEmployeeReportTQueryoRepository : IQueryRepository<EmployeeReportTo>
+    {
+        Task<IReadOnlyList<EmployeeReportTo>> GetAllByIdAsync(long? EmployeeId);
     }
 }

@@ -22,11 +22,27 @@ namespace Infrastructure.Repository.Query
         {
 
         }
+        public async Task<IReadOnlyList<ViewEmployee>> GetAllByStatusAsync()
+        {
+            try
+            {
+                var query = "select  * from view_GetEmployeeByName where Status!='Resign' or Status is null";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query)).Distinct().ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<ViewEmployee>> GetAllAsync()
         {
             try
             {
-                var query = "select  * from view_GetEmployee";
+                var query = "select  * from view_GetEmployee where Status!='Resign' or Status is null";
 
                 using (var connection = CreateConnection())
                 {
@@ -42,7 +58,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from View_Employee";
+                var query = "select  * from View_Employee where StatusName!='Resign' or StatusName is null";
 
                 using (var connection = CreateConnection())
                 {
@@ -63,7 +79,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("UserID", UserID);
                 using (var connection = CreateConnection())
                 {
-                    return  (await connection.QueryFirstOrDefaultAsync<ViewEmployee>(query, parameters));
+                    return (await connection.QueryFirstOrDefaultAsync<ViewEmployee>(query, parameters));
                 }
             }
             catch (Exception exp)
@@ -92,7 +108,66 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        public async Task<ViewEmployee> GetAllBySessionAsync(Guid? SessionId)
+        {
+            try
+            {
+                var query = "select  * from view_GetEmployee where SessionId=@SessionId";
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId);
+                using (var connection = CreateConnection())
+                {
+                    var employeeList = (await connection.QueryFirstOrDefaultAsync<ViewEmployee>(query, parameters));
+                    if (employeeList != null && employeeList.LoginPassword != null)
+                    {
+                        employeeList.LoginPassword = EncryptDecryptPassword.Decrypt(employeeList.LoginPassword);
+                    }
+                    return employeeList;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
+        public async Task<ViewEmployee> GetAllByIdAsync(long? EmployeeId)
+        {
+            try
+            {
+                var query = "select  * from view_GetEmployee where EmployeeId=@EmployeeId";
+                var parameters = new DynamicParameters();
+                parameters.Add("EmployeeId", EmployeeId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<ViewEmployee>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<ViewEmployee> DeleteEmployeeReportAsync(long? EmployeeId)
+        {
+            ViewEmployee viewEmployee = new ViewEmployee();
+            try
+            {
+                var query = "Delete from EmployeeReportTo where EmployeeId=@EmployeeId";
+                var parameters = new DynamicParameters();
+                parameters.Add("EmployeeId", EmployeeId);
+                using (var connection = CreateConnection())
+                {
+                    await connection.ExecuteAsync(query, parameters);
+                    viewEmployee.EmployeeID = EmployeeId.Value;
+                    return viewEmployee;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

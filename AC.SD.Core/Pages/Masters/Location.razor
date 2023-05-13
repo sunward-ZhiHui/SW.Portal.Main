@@ -9,6 +9,7 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
+@inject IJSRuntime jsRuntime
 
 
 
@@ -36,15 +37,13 @@
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360" >
+        CustomizeElement="Grid_CustomizeElement"
+        CssClass="grid-auto-height ch-360" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
     <Columns>
 
-        <DxGridDataColumn FieldName="CompanyId" MinWidth="80" />
-        <DxGridDataColumn FieldName="Name" MinWidth="80" />
-        <DxGridDataColumn FieldName="Description" MinWidth="80" />
-        <DxGridDataColumn FieldName="SiteId" Caption=" Site" MinWidth="80" />
-        <DxGridDataColumn FieldName="ZoneId" Caption=" Zone" MinWidth="80" />
-        <DxGridDataColumn FieldName="LocationId" Caption=" Location" MinWidth="80" />
+        <DxGridDataColumn FieldName="CompanyId" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridCommandColumn Width="160px" />
     </Columns>
     <EditFormTemplate Context="EditFormContext">
@@ -64,6 +63,7 @@
                             @bind-Value="@ict.CompanyId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => ict.CompanyId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Site" ColSpanMd="6">
                 @* <DxSpinEdit @bind-Value="@ict.SiteId" Rows="5" />*@
@@ -76,6 +76,7 @@
                             @bind-Value="@ict.SiteId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => ict.SiteId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Zone" ColSpanMd="6">
                 <DxComboBox Data="@_masterSite"
@@ -86,10 +87,12 @@
                             @bind-Value="@ict.ParentIctid"
                             ShowValidationIcon="true">
                 </DxComboBox>
+                <ValidationMessage For="@(() => ict.ZoneId)" />
             </DxFormLayoutItem>
            
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@ict.Name" Rows="5" />
+                <ValidationMessage For="@(() => ict.Name)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description" ColSpanMd="6">
                 <DxMemo @bind-Text="@ict.Description" Rows="5" />
@@ -110,7 +113,7 @@
 @* SelectedItemChanged="@((ViewIctmaster plant) => SelecteItemChanged(plant.IctmasterId))",SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"*@
 
 @code {
-  //  Dictionary<long, string>? CompanyNamesIndex { get; set; }
+   Dictionary<long, string>? CompanyNamesIndex { get; set; }
     private List<ViewPlants> _plantItems;
     private List<ViewIctmaster> _ictmaster;
     IGrid Grid { get; set; }
@@ -123,7 +126,7 @@
         var model = await Mediator.Send(new GetAllIctMasterQuery());
         _ictmaster = model;
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
-      //  CompanyNamesIndex = _plantItems.ToDictionary(i => i.CompanyID, i => i.Description);
+      CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
     }
     async Task UpdateDataAsync()
     {
@@ -214,21 +217,6 @@
        }
 
     }
-    async Task ExportToExcel()
-    {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
-                CustomizeCell = OnCustomizeCell
-            });
-    }
-    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
-    {
-        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
-            args.Formatting.Font = new XlCellFont() { Italic = true };
-        args.Handled = true;
-    }
-
 //    void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
 //    {
 //        if (e.FieldName == "CompanyId")

@@ -4,109 +4,409 @@
 @using DevExpress.Export;
 @using MediatR
 @using global::Core.Entities;
+@using MediatR
 @inject IMediator Mediator
 @inject IJSRuntime jsRuntime
 
 
 @page "/ForumConversations"
+@using DevExpress.Blazor.RichEdit
+@using DevExpress.Blazor.Office
 
 <div class="g-title">
     <div class="g-left"></div>
 
-    <span class=""></span><span class="g-text"></span>
-    <div class="g-right">
-        <button type="button" CssClass="download-btn"
-                IconCssClass="demo-download-icon"
-                Text="Free Trial"
-                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
-            <i class="fa fa-file-excel-o"></i>Export
-        </button>
-    </div>
-</div>
-
 <div class="">
-    <div class="row">
-        <div class="card col-md-3" style="padding-left: 0px; padding-right: 0px;">
-            <div class="card-header text-center">
-                <span> General Information</span>
-            </div>
-            <div class="card-body">
 
-                <DxTreeView Data="@TreeData" 
-                            @bind-FilterString="FilterString"
-                            FilterMinLength="2"
-                            ShowFilterPanel="true"
-                            Target="_blank"
-                            FilterMode="FilterMode" 
-                            AllowSelectNodes=true
-                            LoadChildNodesOnDemand="true"
-                            SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
-                    <DataMappings>
-                        <DxTreeViewDataMapping Key="ID" ParentKey="ParentID" Text="Name" Name="ID" NavigateUrl="NavigateUrl" />
-                    </DataMappings>
-                </DxTreeView>
+   @* <DxFormLayout CssClass="w-100">
+        <DxFormLayoutGroup Caption="General Information" ColSpanMd="3">
+            asdfasdf
+        </DxFormLayoutGroup>
+        <DxFormLayoutGroup Caption="Forum Discussion List" ColSpanMd="9">
+            asdfasdf
+        </DxFormLayoutGroup>
+    </DxFormLayout>*@
 
-               @* <DxTreeView Data="@_types"
-                            @bind-FilterString="FilterString"
-                            FilterMinLength="2"
-                            ShowFilterPanel="true"
-                            Target="_blank"
-                            FilterMode="FilterMode"
-                            AllowSelectNodes=true
-                            SelectedItem="@SelectedNodes"
-                            SelectedNodeChanged="@OnSelectedNodeChangeds"
-                            AnimationType="LayoutAnimationType.Slide">
-                    <DataMappings>
-                        <DxTreeViewDataMapping Key="ID" ParentKey="ParentId"
-                                               CssClass="CssClass"
-                                               Text="Name"                                               
-                                               NavigateUrl="NavigateUrl" />
-                    </DataMappings>
-                </DxTreeView>*@
+    <div class="main-container">
+        <!--  -->
+        <!-- Main Content -->
+        <!--  -->
+        <div class="content-container">
+            <!-- Side Bar -->
+           @* <div class="side-menu-bar">
+               
+                <div class="side-menu-bar-top">
+                    <div class="side-menu-bar-text circle">RN</div>
+                    <div class="side-menu-bar-text circle">IPIR</div>
+                    <div class="side-menu-bar-text circle">PA</div>
+                    <div class="side-menu-bar-text circle">CS</div>
+                    <div class="side-menu-bar-text circle">GL</div>
+                </div>
+               
+            </div>*@
+            <!-- Mini Menu Bar -->
+            <div class="mini-menu-bar">
+                <div class="mini-menu-bar-top">
+                    <div class="mini-menu-bar-heading">
+                        <div class="files-title">General Information</div>
+                    </div>
+                    <!-- Views Accordion -->
+                    <div class="views-accordion">                       
+                        <DxTreeView Data="@_topics"
+                                    @bind-FilterString="FilterString"
+                                    FilterMinLength="2"
+                                    ShowFilterPanel="true"                                
+                                    FilterMode="FilterMode"
+                                    AllowSelectNodes=true
+                                    LoadChildNodesOnDemand="true"                                   
+                                    SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
+                            <DataMappings>
+                                <DxTreeViewDataMapping Key="ID" CssClass="CssClass"  Text="TopicName" Name="ID"/>
+                            </DataMappings>
+                        </DxTreeView>
+                    </div>                                        
+                </div>
+                @*<div class="mini-menu-bar-down">
+                    <div class="add-cloud-storage-btn">
+                        <div class="cloud-storage-btn">                           
+                            <div class="add-btn-text">Add cloud storage</div>
+                        </div>
+                    </div>
+                </div>*@
             </div>
-        </div>
-        <div class="card col-md-9" style="padding-left: 0px; padding-right: 0px;">
-            <div class="card-header text-center">
-                <span> Forum Discussion List</span>
-            </div>
-            <div class="card-body">
-                <p class="demo-text cw-480 mt-2">Selected group: <b>@SelectedGroup</b></p>
+            <!-- Menu Bar Content -->
+            <div class="menu-bar-content-container">
+                <div class="content-padding-20">
+                    <div class="menu-bar-content-container-heading">
+                        <div class="heading-icon-text">
+                            <div class="mb-cc-icon">
+                                <svg viewBox="-6 -6 32 32" role="presentation" class="app-svg icons-recents">
+                                    <g class="icons-default-fill">
+                                        <path d="M10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2ZM10 3C6.13401 3 3 6.13401 3 10C3 13.866 6.13401 17 10 17C13.866 17 17 13.866 17 10C17 6.13401 13.866 3 10 3ZM9.5 5C9.74546 5 9.94961 5.17688 9.99194 5.41012L10 5.5V10H12.5C12.7761 10 13 10.2239 13 10.5C13 10.7455 12.8231 10.9496 12.5899 10.9919L12.5 11H9.5C9.25454 11 9.05039 10.8231 9.00806 10.5899L9 10.5V5.5C9 5.22386 9.22386 5 9.5 5Z">
+                                        </path>
+                                    </g>
+                                </svg>
+                            </div>
+                            <div class="mb-cc-text">
 
-                @if (SelectedNode != null)
-                {
-                    <h3>@SelectedNode.Name</h3>
-                    <p>@SelectedNode.ID</p>
-                }
+                                <div class="card w-100">
+                                    <div class="card-body p-0">
+                                        <DxMenu Orientation="Orientation.Horizontal"
+                                                DropDownActionMode="MenuDropDownActionMode.Click"
+                                                DisplayMode="MenuDisplayMode.Desktop"
+                                                Title=""
+                                                CollapseItemsToHamburgerMenu="true"
+                                                CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
+                                            <Items>
+                                                <DxMenuItem Text="Posts" class="@((isMenuvisible == "Posts" ? "tActive": "tfiles"))" IconCssClass="menu-icon-products menu-icon" Click="@(() => OnMenuItemClick("Posts"))" />
+                                                <DxMenuItem Text="Files" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
+                                                <DxMenuItem Text="Todo" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
+                                            </Items>
+                                        </DxMenu>
+                                    </div>
+                                </div>
+                            </div>
+                           
+                        </div>
+                        <div>
+                            @if (_headTopic != null && _headTopic.Any())
+                                {
+                                @foreach (var item in _headTopic)
+                                    {
+                                        <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
+                                        <div class="uk-card-header" style="height: 50px;">
+                                                <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
+                                                <div class="uk-card-title uk-first-column" style="font-size: 16px;">
+                                                    @item.TicketNo - @item.TopicName
+                                                </div>
+                                                <span class="uk-label uk-margin-auto-left" style="float: right; margin-top: 7px; margin-right: -10px;">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+                                                    </svg>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                            }
+                        </div>
+                    </div>
+                    <div class="@((isComponentVisible ? "menu-bar-content-container-content msgOpen" : "menu-bar-content-container-content msgClose"))">
+                       @* <div class="spacing-box"></div>  *@                     
+                        @if (isMenuvisible == "Posts")
+                        {
+
+
+                            <div id="tableData">
+                                <div>
+                                    @if (_discussionList != null && _discussionList.Any())
+                                    {
+                                        @foreach (var item in _discussionList)
+                                        {
+                                            @if(item.ReplyId > 0)
+                                            {
+                                                <div class="lstcoversationrply">
+                                                    <i class="fa fa-reply-all" aria-hidden="true"></i>
+                                                    <div>@item.ReplyMessage</div>
+                                                    <div style="float:right;margin-top: -13px;">@item.ReplyUserName , @item.ReplyDateTime</div>
+                                                </div>
+                                            }                                          
+
+                                            <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
+                                                <div class="uk-card-header">
+                                                    <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
+                                                        <div class="uk-card-title uk-first-column">@item.UserName</div>
+                                                        <span class="uk-label uk-margin-auto-left">@item.AddedDate</span>
+                                                        <span class="uk-label uk-margin-auto-left" style="float: right; margin-right: -25px;">
+                                                            <div class="handline" @onclick="@(() => onreply(item.ID))">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" style="margin-top: -5px;" width="16" height="16" fill="currentColor" class="bi bi-reply" viewBox="0 0 16 16">
+                                                                    <path d="M6.598 5.013a.144.144 0 0 1 .202.134V6.3a.5.5 0 0 0 .5.5c.667 0 2.013.005 3.3.822.984.624 1.99 1.76 2.595 3.876-1.02-.983-2.185-1.516-3.205-1.799a8.74 8.74 0 0 0-1.921-.306 7.404 7.404 0 0 0-.798.008h-.013l-.005.001h-.001L7.3 9.9l-.05-.498a.5.5 0 0 0-.45.498v1.153c0 .108-.11.176-.202.134L2.614 8.254a.503.503 0 0 0-.042-.028.147.147 0 0 1 0-.252.499.499 0 0 0 .042-.028l3.984-2.933zM7.8 10.386c.068 0 .143.003.223.006.434.02 1.034.086 1.7.271 1.326.368 2.896 1.202 3.94 3.08a.5.5 0 0 0 .933-.305c-.464-3.71-1.886-5.662-3.46-6.66-1.245-.79-2.527-.942-3.336-.971v-.66a1.144 1.144 0 0 0-1.767-.96l-3.994 2.94a1.147 1.147 0 0 0 0 1.946l3.994 2.94a1.144 1.144 0 0 0 1.767-.96v-.667z" />
+                                                                </svg>  Reply
+                                                            </div>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="uk-card-body">
+                                                    <p class="uk-text-success">
+                                                        @item.Message
+                                                    </p>
+
+                                                    <a href="#" class="tag"><i class="fas fa-file-image" aria-hidden="true"></i> Exampl.jpg</a>
+                                                    <a href="#" class="tag"><i class="fas fa-file-excel" aria-hidden="true"></i> Exampl.xls</a>
+                                                    <a href="#" class="tag"><i class="fas fa-file-pdf" aria-hidden="true"></i> Exampl.pdf</a>
+                                                    <a href="#" class="tag"><i class="fas fa-file" aria-hidden="true"></i> Exampl.txt</a>
+                                                </div>
+
+                                                @*<div class="uk-card-footer">
+                                                    <div>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-reply" viewBox="0 0 16 16">
+                                                            <path d="M6.598 5.013a.144.144 0 0 1 .202.134V6.3a.5.5 0 0 0 .5.5c.667 0 2.013.005 3.3.822.984.624 1.99 1.76 2.595 3.876-1.02-.983-2.185-1.516-3.205-1.799a8.74 8.74 0 0 0-1.921-.306 7.404 7.404 0 0 0-.798.008h-.013l-.005.001h-.001L7.3 9.9l-.05-.498a.5.5 0 0 0-.45.498v1.153c0 .108-.11.176-.202.134L2.614 8.254a.503.503 0 0 0-.042-.028.147.147 0 0 1 0-.252.499.499 0 0 0 .042-.028l3.984-2.933zM7.8 10.386c.068 0 .143.003.223.006.434.02 1.034.086 1.7.271 1.326.368 2.896 1.202 3.94 3.08a.5.5 0 0 0 .933-.305c-.464-3.71-1.886-5.662-3.46-6.66-1.245-.79-2.527-.942-3.336-.971v-.66a1.144 1.144 0 0 0-1.767-.96l-3.994 2.94a1.147 1.147 0 0 0 0 1.946l3.994 2.94a1.144 1.144 0 0 0 1.767-.96v-.667z" />
+                                                        </svg>  Reply
+                                                    </div>
+
+                                                </div>*@
+                                            </div>
+                                        }
+                                    }
+                                </div>
+
+
+
+                                @if (isComponentVisible)
+                                {
+                                    <div class="open-button">
+                                        @if (_replyComment != null && _replyComment.Any())
+                                        {
+                                            @foreach (var item in _replyComment)
+                                            {
+                                                <div class="replybox">
+                                                    <div> <i class="fa fa-reply" aria-hidden="true"></i> Reply</div>
+                                                    <div class="closebtn" @onclick="closeReply">X</div>
+                                                    <p>@item.Message</p>
+                                                    <div>@item.UserName  , @item.AddedDate</div>
+                                                </div>
+                                            }
+                                        }
+
+                                        <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
+                                            <DataAnnotationsValidator />
+                                            <DxFormLayout>
+                                                <DxFormLayoutItem ColSpanMd="12">
+                                                    <DxMemo @bind-Text="@Data.Message" NullText="Message" />
+                                                    <ValidationMessage For="@(() => Data.Message)" />
+                                                </DxFormLayoutItem>                                           
+                                                <DxFormLayoutItem ColSpanMd="12">
+                                                    <DxButton SubmitFormOnClick="true"
+                                                      Text=""
+                                                      CssClass="fa fa-paper-plane sndrot"
+                                                      style="float:right"
+                                                      RenderStyle="ButtonRenderStyle.Secondary" />
+                                                    <div style="color:black;display:flex;">
+                                                        <div class="fa fa-paperclip cdspc" aria-hidden="true"></div>
+                                                        <div class="fa fa-ellipsis-v cdspc" aria-hidden="true"></div>                                                      
+                                                    </div>
+
+
+                                                    @*   <DxButton RenderStyle="ButtonRenderStyle.Secondary"
+                                                      Text="Close"
+                                                      style="color: white;"
+                                                      Click="@(() => isComponentVisible = false)"
+                                                      IconCssClass="btn-icon-undo"
+                                            CssClass="me-1 btn-success" />*@
+
+                                                </DxFormLayoutItem>
+                                            </DxFormLayout>
+                                        </EditForm>
+                                        
+                                       @* <DxRichEdit Height="500px" Width="100%"></DxRichEdit>*@
+
+                                    </div>
+                                }
+                                else
+                                {
+
+                                    <DxButton RenderStyle="ButtonRenderStyle.Secondary"
+                                      Text="New Conversation"
+                                      Click="@(() => isComponentVisible = true)"
+                                      IconCssClass="btn-icon-undo"
+                                      style="color:white; width:200px;"
+                                      CssClass="me-1 btn-success open-button" />
+                                }
+                            </div>
+                        }
+                        else if(isMenuvisible == "Files")
+                        {
+                           
+                            <DxGrid @ref="Grid" Data="@_types"  EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                                    PageSizeSelectorVisible="true"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                    PageSize="20"        
+                                    style="height:calc(100vh - 195px)"
+                                    CssClass="ch-360"                                  
+                                    AutoExpandAllGroupRows="true"
+                                    SelectionMode="GridSelectionMode.Multiple"
+                                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+
+                                <Columns>
+                                    <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+                                    <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px"></DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="Name" MinWidth="200" />
+                                    <DxGridDataColumn FieldName="Description" />
+                                    <DxGridCommandColumn Width="160px" />
+                                </Columns>
+
+                                <EditFormTemplate Context="EditFormContext">
+                                    @{
+                                        var types = (ForumTypes)EditFormContext.EditModel;
+                                    }
+                                    <DxFormLayout CssClass="w-100">
+                                        <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
+                                            <DxTextBox @bind-Text="@types.Name" />
+                                            <ValidationMessage For="@(() => types.Name)" />
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                                            <DxTextBox @bind-Text="@types.Description" />
+                                        </DxFormLayoutItem>
+                                        <ValidationSummary />
+                                    </DxFormLayout>
+                                </EditFormTemplate>
+    
+                            </DxGrid>
+                        }
+                        else
+                        {
+                             <div>Todo</div>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 @code {
-    DxTreeView treeView;
+    DxRichEdit richEdit;
+    string isMenuvisible = "Posts";
+    DxTreeView treeView; 
+    IGrid? Grid { get; set; }
+    bool isComponentVisible = true;
     private List<ForumTypes>? _types;
+    private List<ForumTopics>? _topics;
+    public List<ForumConversations> _discussionList;
+    public List<ForumConversations> _replyComment;
+    private List<ForumTopics>? _headTopic;
     string FilterString { get; set; }
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;
     public ForumTypes SelectedNodes { get; set; }
-    IGrid? Grid { get; set; }
+
     string SelectedGroup = "none";
     void SelectionChanged(TreeViewNodeEventArgs e)
     {
         SelectedGroup = e.NodeInfo?.Name;
+        //_discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
+        await LoadData();
     }
+    private List<string> data;
+    private async Task LoadData()
+    {  
+        _discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
+        _headTopic = await Mediator.Send(new GetByIdTopics(long.Parse(@SelectedGroup)));
 
-   
-  
-
+    }
     protected override async Task OnInitializedAsync()
     {
         var model = await Mediator.Send(new GetAllForumTypes());
-        _types = model;
+        _types = model;       
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");     
+
+        _topics = await Mediator.Send(new GetUserForumTopics(applicationUser.UserID));
+
+        var lst = await Mediator.Send(new GetTreeList(applicationUser.UserID));
+
+        //_discussionList = await Mediator.Send(new GetDiscussionList(38));
+    }
+    void getConversation()
+    {
+
+    }
+    private async Task onreply(long id)
+    {
+        if (id > 0)
+        {
+            _replyComment =  _discussionList.Where(c => c.ID == id).ToList();
+        }
+    }
+    void closeReply()
+    {
+        _replyComment = null; 
+    }
+    void OnMenuItemClick(string text)
+    {
+        isMenuvisible = text;
     }
 
     private void OnSelectedNodeChangeds(ForumTypes item)
     {
         SelectedNodes = item;
+    }
+    private async Task HandleValidSubmit()
+    {
+        var createReq = new CreateForumCoversation
+            {
+
+                TopicID = (long.Parse(@SelectedGroup)),
+                Message = Data.Message,
+                ParticipantId = applicationUser.UserID,
+                ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                SessionId = Guid.NewGuid()
+            };
+        var result = await Mediator.Send(createReq);
+
+        if(result == 1)
+        {
+            await LoadData();
+            onRestText();
+            closeReply();
+        }
+        else
+        {
+
+        }
+    }
+    private void onRestText()
+    {
+        Data.Message = null;
+    }
+
+    void HandleInvalidSubmit()
+    {
+       
     }
 
     private List<TreeViewItem> TreeData = new List<TreeViewItem>

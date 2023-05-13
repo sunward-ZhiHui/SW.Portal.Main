@@ -1,0 +1,186 @@
+﻿@using Application.Command.EmployeeEmailInfos;
+@using Application.Command.EmployeeICTInformations;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@page "/employeeOther"
+
+
+<DxGrid @ref="IctHardInfoGrid"
+        Data="_employeeICTHardInformationItems"
+        KeyFieldName="EmployeeIctHardinformationId"
+        EditModelSaving="Grid_EditModelSavingIctInfoHard"
+        DataItemDeleting="Grid_DataItemDeletingIctInfoHard"
+        CustomizeEditModel="Grid_CustomizeEditModelIctInfoHard"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360">
+    <Columns>
+        <DxGridDataColumn FieldName="PlantCode" Caption="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="80" />
+        <DxGridDataColumn FieldName="LoginId" Caption="Login ID" MinWidth="80" />
+        <DxGridDataColumn FieldName="Instruction" Caption="Instruction" MinWidth="80" />
+        <DxGridDataColumn FieldName="StatusCode" Caption="Status Code" MinWidth="80" />
+        <DxGridCommandColumn Width="150px">
+        </DxGridCommandColumn>
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var ictInfoData = (View_EmployeeICTHardInformation)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Description"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@ictInfoData.CompanyId" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => ictInfoData.CompanyId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Name" ColSpanMd="6">
+                <DxTextBox @bind-Text="@ictInfoData.Name" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => ictInfoData.Name)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Login ID" ColSpanMd="6">
+                <DxTextBox @bind-Text="@ictInfoData.LoginId" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => ictInfoData.LoginId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Password" ColSpanMd="6">
+                <DxTextBox Password="true" @bind-Text="@ictInfoData.Password" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => ictInfoData.Password)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Instruction" ColSpanMd="6">
+                <DxMemo @bind-Text="@ictInfoData.Instruction" Rows="5" ShowValidationIcon="true" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                <DxComboBox Data="@_stausItems"
+                            NullText="Select Status..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="CodeValue"
+                            ValueFieldName="CodeId"
+                            @bind-Value="@ictInfoData.StatusCodeId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => ictInfoData.StatusCodeId)" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>
+</DxGrid>
+@code {
+    [Parameter]
+     public long? EmployeeIds { get; set; }
+    private List<ViewPlants> _plantItems;
+    private List<View_EmployeeICTHardInformation> _employeeICTHardInformationItems;
+    private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsSoftware;
+    private List<ApplicationRole> _rolesItems;
+    public ApplicationUser applicationUser { get; private set; }
+    IGrid IctHardInfoGrid { get; set; }
+    private List<CodeMaster> _stausItems;
+    protected override async Task OnInitializedAsync()
+    {
+        if (EmployeeIds > 0)
+        {
+            _plantItems = await Mediator.Send(new GetAllPlantQuery());
+            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+            _employeeICTHardInformationItems = await Mediator.Send(new GetEmployeeICTHardInformationQuery(EmployeeIds));
+            _view_ApplicationMasterDetailsSoftware = await Mediator.Send(new GetAllApplicationMasterDetailQuery(221));
+            _rolesItems = await Mediator.Send(new GetAllRoleQuery());
+            _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        }
+    }
+    async Task UpdateDataAsyncIctInfoHard()
+    {
+        _employeeICTHardInformationItems = await Mediator.Send(new GetEmployeeICTHardInformationQuery(EmployeeIds));
+    }
+    void Grid_CustomizeEditModelIctInfoHard(GridCustomizeEditModelEventArgs e)
+    {
+        if (EmployeeIds > 0)
+        {
+            var newplant = (View_EmployeeICTHardInformation)e.EditModel;
+            if (e.IsNew)
+            {
+                newplant.EmployeeId = EmployeeIds;
+                newplant.HardwareId = null;
+                newplant.Name = "";
+                newplant.LoginId = "";
+                newplant.Password = "";
+            }
+            else
+            {
+
+            }
+        }
+    }
+    async Task Grid_EditModelSavingIctInfoHard(GridEditModelSavingEventArgs e)
+    {
+        var editablePlant = (View_EmployeeICTHardInformation)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateEmployeeICTHardInformationCommand
+                {
+                    CompanyId=editablePlant.CompanyId,
+                    EmployeeId = EmployeeIds,
+                    HardwareId = editablePlant.HardwareId,
+                    LoginId = editablePlant.LoginId,
+                    Password = editablePlant.Password,
+                    StatusCodeId = editablePlant.StatusCodeId,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    Name = editablePlant.Name,
+                    Instruction=editablePlant.Instruction,
+                };
+            await Mediator.Send(request);
+            await UpdateDataAsyncIctInfoHard();
+        }
+        else
+        {
+            await UpdatePlantAsyncIctInfoHard(editablePlant);
+        }
+    }
+    async Task Grid_DataItemDeletingIctInfoHard(GridDataItemDeletingEventArgs e)
+    {
+        var editablePlant = (View_EmployeeICTHardInformation)e.DataItem;
+        var request = new DeleteEmployeeICTHardInformationCommand(editablePlant.EmployeeIctHardinformationId);
+        await Mediator.Send(request);
+        await UpdateDataAsyncIctInfoHard();
+    }
+    async Task UpdatePlantAsyncIctInfoHard(View_EmployeeICTHardInformation editablePlant)
+    {
+        var request = new EditEmployeeICTHardInformationCommand
+            {
+                EmployeeIctHardinformationId = editablePlant.EmployeeIctHardinformationId,
+                CompanyId = editablePlant.CompanyId,
+                EmployeeId = EmployeeIds,
+                HardwareId = editablePlant.HardwareId,
+                LoginId = editablePlant.LoginId,
+                Password = editablePlant.Password,
+                StatusCodeId = editablePlant.StatusCodeId,
+                AddedByUserId = editablePlant.AddedByUserId,
+                ModifiedByUserId = applicationUser.UserID,
+                AddedDate = editablePlant.AddedDate,
+                ModifiedDate = DateTime.Now,
+                Name = editablePlant.Name,
+                Instruction=editablePlant.Instruction,
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsyncIctInfoHard();
+    }
+}

@@ -44,35 +44,12 @@
     </div>
 </div>
 
-<div class="g-title">
-    <div class="g-left"></div>
-
-    <span class=""></span><span class="g-text"></span>
-    <div class="g-right">
-        <button type="button" CssClass="download-btn"
-                IconCssClass="demo-download-icon"
-                Text="Free Trial"
-                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
-            <i class="fa fa-file-excel-o"></i>Export
-        </button>
-    </div>
-</div>
 
 <DxFormLayout CssClass="w-100">
     <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
         <DxFormLayoutTabPage Caption="Personal Information">
             <EditForm Model="@employee" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
-                @* <DxFormLayoutItem ColSpanMd="6"></DxFormLayoutItem>
-                <DxFormLayoutItem ColSpanMd="6">
-
-                <DxButton SubmitFormOnClick="true"
-                IconCssClass="fa fa-save"
-                Text="Submit"
-                RenderStyle="ButtonRenderStyle.Primary">
-                </DxButton>
-                </DxFormLayoutItem>*@
-
-
+              
                 <div style="position: fixed;height: calc(80vh - 60px);overflow-y: scroll;">
                     <DataAnnotationsValidator />
                     <DxFormLayoutGroup Caption="Personal Information" ColSpanMd="12">
@@ -301,7 +278,9 @@
     private List<ViewSubSection> _subSectionItems;
     private List<ViewLevel> _leveMasterItems;
     private List<ViewEmployee> _employeeItems;
+    private List<View_ApplicationMasterDetail> _view_mainEmployeeStatusItems;
     EmployeeResponse employee = new EmployeeResponse();
+    ViewEmployee _employeeData = new ViewEmployee();
     IGrid _otherInfoGrid { get; set; }
     List<string> GenderList = new List<string>() { "Male", "Female" };
     List<int> _designationCountItems = new List<int>();

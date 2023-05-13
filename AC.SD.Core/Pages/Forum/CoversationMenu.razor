@@ -9,6 +9,21 @@
 @page "/conversationmenu"
 @inject IJSRuntime jsRuntime
 
+
+<div class="g-title">
+    <div class="g-left"></div>
+
+    <span class=""></span><span class="g-text"></span>
+    <div class="g-right">
+        <button type="button" CssClass="download-btn"
+                IconCssClass="demo-download-icon"
+                Text="Free Trial"
+                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
+            <i class="fa fa-file-excel-o"></i>Export
+        </button>
+    </div>
+</div>
+
 <DxGrid id="myGrid" style="height: 700px;" Data="@_forumConversations" EditModelSaving="OnEditModelSaving" DataItemDeleting="OnDeleteDataItem" EditMode="GridEditMode.EditForm" CustomizeElement="Grid_CustomizeElement" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
@@ -49,7 +64,7 @@
 @code {
     private List<ForumConversations> _forumConversations;
 
-
+    IGrid? Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
         var Conversation = await Mediator.Send(new GetAllForumConversation());
@@ -129,6 +144,20 @@
             e.Style = "background-color: rgba(0, 0, 0, 0.08)";
             e.CssClass = "header-bold";
         }
+    }
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
     }
 
 }

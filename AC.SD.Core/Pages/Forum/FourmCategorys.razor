@@ -11,6 +11,21 @@
 
 @page "/FourmCategorys"
 
+
+<div class="g-title">
+    <div class="g-left"></div>
+
+    <span class=""></span><span class="g-text"></span>
+    <div class="g-right">
+        <button type="button" CssClass="download-btn"
+                IconCssClass="demo-download-icon"
+                Text="Free Trial"
+                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
+            <i class="fa fa-file-excel-o"></i>Export
+        </button>
+    </div>
+</div>
+
 <DxGrid id="myGrid" Data="@_categorys" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
@@ -56,11 +71,11 @@
 </DxGrid>
 
 @code {
-   Dictionary<long, string>? CategoryNamesIndex { get; set; }    
+    Dictionary<long, string>? CategoryNamesIndex { get; set; }    
     private List<ForumCategorys>? _categorys; 
     List<ForumTypes>? Types {get; set;}
 
-
+    IGrid? Grid { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -78,6 +93,20 @@
         _categorys = await Mediator.Send(new GetAllForumCategorys());
     }
 
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
 
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
@@ -125,6 +154,8 @@
         Console.WriteLine(result);
         await UpdateDataAsync();
     }
+
+
     void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
     {
         if (e.FieldName == "TypeId")
@@ -134,4 +165,5 @@
                 e.DisplayText = CategoryNamesIndex[ID];
         }
     }
+
 }

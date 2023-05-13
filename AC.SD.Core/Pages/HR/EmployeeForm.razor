@@ -44,6 +44,20 @@
     </div>
 </div>
 
+<div class="g-title">
+    <div class="g-left"></div>
+
+    <span class=""></span><span class="g-text"></span>
+    <div class="g-right">
+        <button type="button" CssClass="download-btn"
+                IconCssClass="demo-download-icon"
+                Text="Free Trial"
+                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
+            <i class="fa fa-file-excel-o"></i>Export
+        </button>
+    </div>
+</div>
+
 <DxFormLayout CssClass="w-100">
     <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
         <DxFormLayoutTabPage Caption="Personal Information">
@@ -287,8 +301,6 @@
     private List<ViewSubSection> _subSectionItems;
     private List<ViewLevel> _leveMasterItems;
     private List<ViewEmployee> _employeeItems;
-    private ViewEmployee _employeeData;
-    private List<View_ApplicationMasterDetail> _view_mainEmployeeStatusItems;
     EmployeeResponse employee = new EmployeeResponse();
     IGrid _otherInfoGrid { get; set; }
     List<string> GenderList = new List<string>() { "Male", "Female" };
@@ -505,5 +517,17 @@
     }
     void HandleInvalidSubmit()
     {
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }

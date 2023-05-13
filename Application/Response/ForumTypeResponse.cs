@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Response
 {
-    public class ForumTypeResponse : BaseEntity
+    public class ForumTypeResponse
     {
         public long ID { get; set; }
         public string Name { get; set; }

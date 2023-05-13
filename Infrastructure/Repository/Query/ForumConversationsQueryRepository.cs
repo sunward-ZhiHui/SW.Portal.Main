@@ -91,7 +91,9 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FC.AddedDate,FC.Message,AU.UserName,AU.UserID FROM ForumConversations FC 
+                var query = @"SELECT FC.ID,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FCS.Message as ReplyMessage,FCS.AddedDate as ReplyDateTime,RAU.UserName as ReplyUserName FROM ForumConversations FC 
+                                LEFT JOIN ForumConversations FCS ON FCS.ID = FC.ReplyId
+                                LEFT JOIN ApplicationUser RAU ON RAU.UserID = FCS.AddedByUserID
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
                                 WHERE FC.TopicId = @TopicId ORDER BY FC.AddedDate ASC;";

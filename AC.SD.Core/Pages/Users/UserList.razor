@@ -97,7 +97,7 @@
     string MessageHeader = "";
     string MessageBody = "";
     private List<ViewEmployee> _employeeItems;
-    IEnumerable<ViewEmployee> _lock;
+    //IEnumerable<ViewEmployee> _lock;
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
@@ -181,16 +181,7 @@
     //    _lock = _employeeItems.Where(c => c.SageID == "E231");
     //    bool SageID = true;
     //}
-    void ShowPopup(long? UserID)
-    {
-        UserLst = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
-       // lId = UserID;
-        PopupVisible = true;
-        InvokeAsync(StateHasChanged);
-    }
-    async void ClosePopup()
-    {
-        PopupVisible = false;
-    }
+
+   
    
 }

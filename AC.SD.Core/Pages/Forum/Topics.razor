@@ -1,28 +1,35 @@
 ﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
+@using global::Core.Repositories.Query;
 @using DevExpress.Blazor.ComboBox;
+@using DevExpress.Export;
 @using MediatR
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
 @using System.ComponentModel.DataAnnotations
 @using DevExpress.Blazor.Internal
-@inject IJSRuntime jsRuntime
+@inject IJSRuntime jsRuntime;
+@using System.Collections.Generic
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 
 
 @page "/ForumTopics"
 
-<style>
-.TxtRed
-{
-    color: red;
-}
-.TxtGreen
-{
-    color: green;
-}
-</style>
+<div class="g-title">
+    <div class="g-left"></div>
+   
+    <span class=""></span><span class="g-text"></span>
+    <div class="g-right">
+        <button type="button" CssClass="download-btn"
+                IconCssClass="demo-download-icon"
+                Text="Free Trial"
+                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
+            <i class="fa fa-file-excel-o"></i>Export
+        </button>
+    </div>
+</div>
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
     <div class="text-center">
@@ -310,7 +317,7 @@
 
     //List<ViewEmployee> ids = new List<ViewEmployee>(); 
 
-
+    public ApplicationUser? applicationUser { get; private set; }
 
     IReadOnlyList<object>? SelectedDataItems { get; set; }
     IReadOnlyList<object>? SelectedCCItems { get; set; }
@@ -395,6 +402,8 @@
 
 
     protected override async Task OnInitializedAsync() {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");  
+
         var typemodel = await Mediator.Send(new GetAllForumTypes());
         _types = typemodel;
 
@@ -403,7 +412,8 @@
 
         _forumCategorys = await Mediator.Send(new GetAllForumCategorys());
 
-        _participant = await Mediator.Send(new GetAllEmployeeListQuery());
+        var plist = await Mediator.Send(new GetAllEmployeeListQuery());            
+        _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList(); ;
 
         //var topicmodel = await Mediator.Send(new GetListCategory(1));
         //_category = topicmodel;           
@@ -445,7 +455,7 @@
         }    
 
 
-
+        participantIds.Add(applicationUser.UserID);
 
         foreach (object item in SelectedToDataItems)
         {
@@ -485,7 +495,7 @@
                 StartDate = Data.StartDate, 
                 Description = Data.Description,
                 StatusCodeID = 1,
-                AddedByUserID = 1,
+                AddedByUserID = applicationUser.UserID,
                 AddedDate = DateTime.Now,
                 SessionId = Guid.NewGuid(),
                 Participants = participantidsString,
@@ -548,6 +558,25 @@
         }
 
     } 
+
+
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
+
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)

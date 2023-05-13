@@ -12,7 +12,22 @@
 @inject IJSRuntime jsRuntime
 
 
-<DxGrid @ref="Grid" Data="_ictmaster" style="height:calc(100vh - 220px);" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+
+<div class="g-title">
+    <div class="g-left"></div>
+
+    <span class=""></span><span class="g-text"></span>
+    <div class="g-right">
+        <button type="button" CssClass="download-btn"
+                IconCssClass="demo-download-icon"
+                Text="Free Trial"
+                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
+            <i class="fa fa-file-excel-o"></i>Export
+        </button>
+    </div>
+</div>
+
+<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -202,26 +217,14 @@
        }
 
     }
-    void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
-    {
-        if (e.FieldName == "CompanyId")
-        {
-            var ID = Convert.ToInt32(e.Value);
-            if (CompanyNamesIndex.ContainsKey(ID))
-                e.DisplayText = CompanyNamesIndex[ID];
-        }
-    }
-    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
-    {
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
-        {
-            e.CssClass = "alt-item";
-        }
-        if (e.ElementType == GridElementType.HeaderCell)
-        {
-            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
-            e.CssClass = "header-bold";
-        }
-    }
+//    void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
+//    {
+//        if (e.FieldName == "CompanyId")
+//        {
+//            var ID = Convert.ToInt32(e.Value);
+//            if (CompanyNamesIndex.ContainsKey(ID))
+//                e.DisplayText = CompanyNamesIndex[ID];
+//        }
+//    }
 }
 

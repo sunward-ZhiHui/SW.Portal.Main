@@ -1733,3 +1733,12 @@ body,
 .header-bold span {
     font-weight: 700;
 }
+.header-navstyle {
+    margin-bottom: 10px;
+    content-padding: 20;
+    heading-icon-text:none;
+}
+.dx-button.dx-icon {
+    float: right;
+    padding-left: 10px;
+}

@@ -10,7 +10,27 @@
 @inject IJSRuntime jsRuntime
 
 @page "/designation"
+<div class="card w-100">
+    <div class="card-header p-0 fw-normal  header-navstyle">
 
+
+        <DxMenu Orientation="Orientation.Horizontal"
+                meta name="viewport" content="width=device-width, initial-scale=1.0"
+                DropDownActionMode="MenuDropDownActionMode.Click"
+                DisplayMode="MenuDisplayMode.Desktop"
+                CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
+            @*<TitleTemplate>
+
+            </TitleTemplate>*@
+            <Items>
+                <DxMenuItem Text="New" IconCssClass="fa fa-plus-square" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-trash" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxGrid @ref="Grid"
         Data="_designationItems"
         KeyFieldName="DesignationID"
@@ -115,6 +135,7 @@
 </DxGrid>
 
 @code {
+
     private List<ViewPlants> _plantItems;
     private List<ViewDesignation> _designationItems;
     private List<CodeMaster> _stausItems;
@@ -130,6 +151,7 @@
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _subsectionListItems = await Mediator.Send(new GetAllSubSectionQuery());
         levelItems = await Mediator.Send(new GetAllLevelMasterQuery());
+      
     }
     async Task UpdateDataAsync()
     {

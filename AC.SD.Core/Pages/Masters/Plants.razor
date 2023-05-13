@@ -10,29 +10,8 @@
 
 @page "/Plants"
 
-<div class="card w-100">
-    <div class="card-header p-0 fw-normal">
-        
-        <DxMenu Orientation="Orientation.Horizontal" 
-          meta name="viewport" content="width=device-width, initial-scale=1.0" 
-    
-                DropDownActionMode="MenuDropDownActionMode.Click"
-                DisplayMode="MenuDisplayMode.Desktop"
-                CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
-            @*<TitleTemplate>
-            
-            </TitleTemplate>*@
-            <Items>
-                <DxMenuItem Text="New" IconCssClass="menu-icon-home menu-icon"/> 
-                <DxMenuItem Text="Edit" IconCssClass="menu-icon-products menu-icon"/>
-                <DxMenuItem Text="Delete" IconCssClass="menu-icon-support menu-icon"/>
-            </Items>
-        </DxMenu>
-    </div>
-</div>
-<br/>
-<DxGrid @ref="Grid"  
+
+<DxGrid @ref="Grid" 
         Data="_plants"
         KeyFieldName="PlantID"
         style="height:calc(100vh - 250px);"
@@ -95,8 +74,9 @@
 </DxGrid>
 
 @code {
-   
+    
     private List<ViewPlants> _plants;
+    IEnumerable<ViewPlants> _plantItems;
     private List<CodeMaster> _stausItems;
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
@@ -105,6 +85,7 @@
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _stausItems = models;
         _plants = model;
+      
     }
     async Task UpdateDataAsync()
     {
@@ -178,8 +159,5 @@
             e.CssClass = "header-bold";
         }
     }
-    void OnItemClick(ToolbarItemClickEventArgs e)
-    {
-        
-    }
+   
 }

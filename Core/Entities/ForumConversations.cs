@@ -17,8 +17,9 @@ namespace Core.Entities
         public string Message { get; set; }
         public  long ParticipantId  { get; set; }
         public long ReplyId { get; set; }
-
-
+        public string? ReplyMessage { get; set; }
+        public DateTime? ReplyDateTime { get; set; }
+        public string? ReplyUserName { get; set; }
         public string UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

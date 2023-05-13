@@ -206,7 +206,7 @@ main {
 }
 
 .uk-grid {
-    display: flex;
+    /*display: flex;*/
     flex-wrap: wrap;
     margin: 0;
     padding: 0;
@@ -240,6 +240,56 @@ main {
 
 .uk-card-default .uk-card-title {
     color: #333;
+    float: left;
+    margin-top: 5px;
+}
+
+.tag {
+    display: inline-block;
+    background-color: #e7e7e7db;
+    color: #515151;
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 14px;
+    /* font-weight: 600; */
+    transition: background-color 0.3s ease;
+}
+
+    .tag:hover {
+        background-color: #333;
+        color: #f2f2f2;
+    }
+
+.handline {
+    cursor: pointer;
+}
+.lstcoversationrply {
+    padding: 10px;
+    border: 1px;
+    background-color: #e4efea;
+    border-color: #f9e09b;
+    border-width: 8px;
+    border-style: solid;
+    border-color: transparent transparent rgb(0, 163, 92);
+}
+.replybox {
+    color: black;
+    border: 1px solid #dedede;
+    padding: 10px;
+    border-radius: 4px;
+    background: #eef2f0;
+}
+.closebtn {
+    cursor: pointer;
+    position: relative;
+    float: right;
+    /* background: red; */
+    color: red;
+    top: -29px;
+    right: -1px;
+    font-size: 17px;
+    font-weight: bold;
 }
 
 .uk-card-title {
@@ -1100,12 +1150,27 @@ main {
                                 height: 32px;
                                 width: 32px;
                             }
+.sndrot {
+    background: none;
+    border: none;
+    font-size: 20px;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    transform: rotate(45deg);
+    display: inline-block;
+}
+    .sndrot:hover
+    {
+        background:none !important;
+    }
+    .cdspc {
+        font-size: 18px;
+        margin-right: 10px;
+    }
 
-
-
-
-
-
-
-
-
+.tActive {
+    border-bottom: 3px solid var(--bs-primary);
+   /* background: var(--bs-primary);*/   
+}

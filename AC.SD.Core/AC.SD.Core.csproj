@@ -61,7 +61,7 @@
     <PackageReference Include="DevExpress.Blazor.RichEdit" Version="22.2.4" />
     <PackageReference Include="DevExpress.Data" Version="22.2.5" />
     <PackageReference Include="DevExpress.Blazor.Server.WebAssembly" Version="22.2.5" />
-    <PackageReference Include="DevExpress.Blazor.RichEdit" Version="22.2.4" />
+    <PackageReference Include="DevExpress.Blazor.RichEdit" Version="22.2.5" />
     <PackageReference Include="FontAwesome" Version="4.7.0" />    
   
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />

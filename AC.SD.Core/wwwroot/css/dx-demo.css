@@ -1740,5 +1740,5 @@ body,
 }
 .dx-button.dx-icon {
     float: right;
-    padding-left: 10px;
+    align :"right";
 }

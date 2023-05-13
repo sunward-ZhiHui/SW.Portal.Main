@@ -50,14 +50,14 @@
             <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ShowPopup((long)context.Value)">Reset Password</button></CellDisplayTemplate>
        </DxGridDataColumn>
 
-        <DxGridDataColumn FieldName="Locked" Width="10%" MinWidth="90">
-            @*<CellDisplayTemplate>
+        <DxGridDataColumn data="_applicationUsers" FieldName="Locked" Width="10%" MinWidth="90">
+            <CellDisplayTemplate>
                 @if ((bool)context.Value)
                 {
                     @*<span class="grid-icon grid-icon-check"></span>*@
-            @*  <button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button>
+              <button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button>
                 }
-            </CellDisplayTemplate>*@
+            </CellDisplayTemplate>
         </DxGridDataColumn>
 
 
@@ -71,13 +71,13 @@
     <div class="text-center">
         <Content>
         <p>
-                <div Position="Left" id="@("label"+UserLst.UserID)" class="display-field  dx-button.dx-icon"> Do You Want To  Reset the  @UserLst.NickName ,@UserLst.UserID,@UserLst.LastName Password</div>
+                <div Position="Left" id="@("label"+UserLst.UserID)" class="display-field"> Do You Want To  Reset the  @UserLst.NickName ,@UserLst.UserID,@UserLst.LastName Password</div>
            
         </p>
     </Content> 
        
-        <DxButton Text="Yes" Click="@((e) => ResetPasswords(UserLst.UserID))" />
-        <DxButton Text="No" Click="@(() => ClosePopup())" />
+        <DxButton style="align-items" Text="Yes" Click="@((e) => ResetPasswords(UserLst.UserID))" />
+        <DxButton CssClass="dx-button.dx-icon" Text="No" Click="@(() => ClosePopup())" />
     </div>
 </DxPopup>
 
@@ -99,11 +99,12 @@
     private List<ViewEmployee> _employeeItems;
     IEnumerable<ViewEmployee> _lock;
     IGrid Grid { get; set; }
+    private List<ApplicationUser> _applicationUsers;
     protected override async Task OnInitializedAsync()
     {
         _employeeItems = await Mediator.Send(new GetAllEmployeeListQuery());
+        _applicationUsers = await Mediator.Send(new GetAllApplicationUserQuery());
 
-       
     }
     async Task UpdateDataAsync()
     {

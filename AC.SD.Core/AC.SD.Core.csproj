@@ -69,7 +69,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Solutaris.InfoWARE.ProtectedBrowserStorage" Version="1.0.0" />
-    <PackageReference Include="DevExpress.Data" Version="22.2.5" />
+    
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.5" />
   </ItemGroup>
   <ItemGroup>

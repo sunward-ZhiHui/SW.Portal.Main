@@ -10,8 +10,19 @@
 @inject IJSRuntime jsRuntime
 
 @page "/designation"
-<div class="card w-100">
-    <div class="card-header p-0 fw-normal  header-navstyle">
+<div class="g-title">
+    <div class="g-left"></div>
+
+    <span class=""></span><span class="g-text"></span>
+    <div class="g-right">
+        <button type="button" CssClass="download-btn"
+                IconCssClass="demo-download-icon"
+                Text="Free Trial"
+                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
+            <i class="fa fa-file-excel-o"></i>Export
+        </button>
+    </div>
+</div>
 
 
         <DxMenu Orientation="Orientation.Horizontal"
@@ -237,5 +248,19 @@
             e.Style = "background-color: rgba(0, 0, 0, 0.08)";
             e.CssClass = "header-bold";
         }
+    }
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
     }
 }

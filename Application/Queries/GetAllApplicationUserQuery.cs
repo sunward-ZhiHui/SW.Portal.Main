@@ -9,4 +9,12 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetAllApplicationUserByLoginIDQuery : PagedRequest, IRequest<ApplicationUser>
+    {
+        public string Name { get; set; }
+        public GetAllApplicationUserByLoginIDQuery(string Name)
+        {
+            this.Name = Name;
+        }
+    }
 }

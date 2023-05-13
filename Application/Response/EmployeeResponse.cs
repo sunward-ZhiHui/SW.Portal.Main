@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Application.Common;
+using Application.Queries;
+using Core.Repositories.Query;
+using MediatR;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,10 +11,11 @@ using System.Threading.Tasks;
 
 namespace Application.Response
 {
+
     public class EmployeeResponse
     {
         public long EmployeeID { get; set; }
-        
+
         public long? UserID { get; set; }
         [Required(ErrorMessage = "Sage ID is Required")]
         public string SageID { get; set; }
@@ -25,10 +30,10 @@ namespace Application.Response
         [Required(ErrorMessage = "Gender is Required")]
         public string Gender { get; set; }
         public string JobTitle { get; set; }
-        
+        [EmailAddress(ErrorMessage = "Invalid Email Address")]
         public string Email { get; set; }
         [Required(ErrorMessage = "Employeement Type is Required")]
-        
+
         public int? TypeOfEmployeement { get; set; }
         [Required(ErrorMessage = "Language is Required")]
         public long? LanguageID { get; set; }

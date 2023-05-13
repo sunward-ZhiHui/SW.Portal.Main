@@ -86,29 +86,50 @@
     {
         var model = await Mediator.Send(new GetAllForumTypes());
         _types = model;
-       
+
         //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
     } 
     async Task UpdateDataAsync()
     {
         _types = await Mediator.Send(new GetAllForumTypes());
-       // _types = model;
+        // _types = model;
     }
     async Task ExportToExcel()
+
     {
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
-                CustomizeCell = OnCustomizeCell
-            });
-    }   
+        {
+           ExportSelectedRowsOnly = true,
+      
+          CustomizeCell = OnCustomizeCell
+        });
+
+    //    if (ExportSelectedRowsOnly)
+    //    {
+    //        ExportSelectedRowsOnly = true;
+    //        CustomizeCell = OnCustomizeCell
+            
+    //    }
+    //    else
+    //    {
+    //        ExportSelectedRowsOnly = false;
+    //        CustomizeCell = OnCustomizeCell
+            
+     }
+            
+    //});
+
+
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
-    }
 
+
+       
+    }
+    
     //protected override async Task OnAfterRenderAsync(bool firstRender)
     //{
     //    if (firstRender)
@@ -216,4 +237,5 @@
         }
     }
     
+ }
 }

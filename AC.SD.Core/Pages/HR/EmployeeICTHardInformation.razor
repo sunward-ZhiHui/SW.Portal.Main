@@ -12,14 +12,27 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/employeeOther"
 
-
+<div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewIctHard" Enabled="@AddEnabledIctHard" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEditIctHard" Enabled="@EditEnabledIctHard" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDeleteIctHard" Enabled="@DeleteEnabledIctHard" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxGrid @ref="IctHardInfoGrid"
         Data="_employeeICTHardInformationItems"
         KeyFieldName="EmployeeIctHardinformationId"
         EditModelSaving="Grid_EditModelSavingIctInfoHard"
         DataItemDeleting="Grid_DataItemDeletingIctInfoHard"
         CustomizeEditModel="Grid_CustomizeEditModelIctInfoHard"
-        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        CustomizeElement="Grid_CustomizeElement"
+        ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -29,15 +42,19 @@
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360">
+        CssClass="ch-360"
+        style="height: calc(50vh - 50px);" FocusedRowEnabled="true"
+        RowClick="OnRowIctHardClick"
+        AllowSelectRowByClick="true">
     <Columns>
+        <DxGridDataColumn FieldName="EmployeeIctHardinformationId" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="PlantCode" Caption="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="LoginId" Caption="Login ID" MinWidth="80" />
         <DxGridDataColumn FieldName="Instruction" Caption="Instruction" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" Caption="Status Code" MinWidth="80" />
-        <DxGridCommandColumn Width="150px">
-        </DxGridCommandColumn>
+        @*<DxGridCommandColumn Width="150px">
+        </DxGridCommandColumn>*@
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{
@@ -84,7 +101,7 @@
 </DxGrid>
 @code {
     [Parameter]
-     public long? EmployeeIds { get; set; }
+    public long? EmployeeIds { get; set; }
     private List<ViewPlants> _plantItems;
     private List<View_EmployeeICTHardInformation> _employeeICTHardInformationItems;
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsSoftware;
@@ -92,10 +109,15 @@
     public ApplicationUser applicationUser { get; private set; }
     IGrid IctHardInfoGrid { get; set; }
     private List<CodeMaster> _stausItems;
+    private View_EmployeeICTHardInformation _employeeICTHardInfoselectedItems;
+    bool EditEnabledIctHard { get; set; } = false;
+    bool DeleteEnabledIctHard { get; set; } = false;
+    bool AddEnabledIctHard { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         if (EmployeeIds > 0)
         {
+            AddEnabledIctHard = true;
             _plantItems = await Mediator.Send(new GetAllPlantQuery());
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
             _employeeICTHardInformationItems = await Mediator.Send(new GetEmployeeICTHardInformationQuery(EmployeeIds));
@@ -107,6 +129,33 @@
     async Task UpdateDataAsyncIctInfoHard()
     {
         _employeeICTHardInformationItems = await Mediator.Send(new GetEmployeeICTHardInformationQuery(EmployeeIds));
+    }
+    void OnRowIctHardClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeIctHardinformationId");
+        _employeeICTHardInfoselectedItems = _employeeICTHardInformationItems.FirstOrDefault(f => f.EmployeeIctHardinformationId == (long?)UniqueId);
+        EditEnabledIctHard = true;
+        DeleteEnabledIctHard = true;
+        StateHasChanged();
+
+    }
+    void addNewIctHard()
+    {
+        IctHardInfoGrid.StartEditNewRowAsync();
+        EditEnabledIctHard = false;
+        DeleteEnabledIctHard = false;
+    }
+    void addEditIctHard()
+    {
+        IctHardInfoGrid.StartEditDataItemAsync(_employeeICTHardInfoselectedItems);
+        EditEnabledIctHard = false;
+        DeleteEnabledIctHard = false;
+    }
+    void addDeleteIctHard()
+    {
+        IctHardInfoGrid.ShowDataItemDeleteConfirmation(_employeeICTHardInfoselectedItems);
+        EditEnabledIctHard = false;
+        DeleteEnabledIctHard = false;
     }
     void Grid_CustomizeEditModelIctInfoHard(GridCustomizeEditModelEventArgs e)
     {
@@ -134,7 +183,7 @@
         {
             var request = new CreateEmployeeICTHardInformationCommand
                 {
-                    CompanyId=editablePlant.CompanyId,
+                    CompanyId = editablePlant.CompanyId,
                     EmployeeId = EmployeeIds,
                     HardwareId = editablePlant.HardwareId,
                     LoginId = editablePlant.LoginId,
@@ -145,7 +194,7 @@
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
                     Name = editablePlant.Name,
-                    Instruction=editablePlant.Instruction,
+                    Instruction = editablePlant.Instruction,
                 };
             await Mediator.Send(request);
             await UpdateDataAsyncIctInfoHard();
@@ -178,9 +227,21 @@
                 AddedDate = editablePlant.AddedDate,
                 ModifiedDate = DateTime.Now,
                 Name = editablePlant.Name,
-                Instruction=editablePlant.Instruction,
+                Instruction = editablePlant.Instruction,
             };
         await Mediator.Send(request);
         await UpdateDataAsyncIctInfoHard();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }

@@ -1,23 +1,21 @@
 ﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
-@using global::Core.Repositories.Query;
+@using DevExpress.Export;
+@using MediatR
 @using global::Core.Entities;
 @using MediatR
 @inject IMediator Mediator
-@using System.ComponentModel.DataAnnotations
-@using DevExpress.Blazor.Internal
-@using System.Collections.Generic
-@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime jsRuntime
+
+
 @page "/ForumConversations"
 @using DevExpress.Blazor.RichEdit
 @using DevExpress.Blazor.Office
 
+<div class="g-title">
+    <div class="g-left"></div>
 
-<style>
-   
-</style>
-<link href="_content/AC.SD.Core/css/forum-discussion.css" rel="stylesheet" />
 <div class="">
 
    @* <DxFormLayout CssClass="w-100">
@@ -322,10 +320,9 @@
     string FilterString { get; set; }
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;
     public ForumTypes SelectedNodes { get; set; }
-    ForumConversations? Data { get; set; } = new ForumConversations();
-    string SelectedGroup = "none";    
-    public ApplicationUser applicationUser { get; private set; }
-    private async Task SelectionChanged(TreeViewNodeEventArgs e)
+
+    string SelectedGroup = "none";
+    void SelectionChanged(TreeViewNodeEventArgs e)
     {
         SelectedGroup = e.NodeInfo?.Name;
         //_discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
@@ -434,5 +431,32 @@
         public int ID { get; set; }
         public int? ParentID { get; set; }
         public string Name { get; set; }
+    }
+
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }

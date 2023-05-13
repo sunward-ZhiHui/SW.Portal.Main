@@ -9,14 +9,39 @@
 @page "/Employees"
 @inject IJSRuntime jsRuntime
 
+<div class="g-title">
+    <div class="g-left"></div>
 
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+              @*  <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />*@
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+    <span class=""></span><span class="g-text"></span>
+    <div class="g-right">
+        <button type="button" CssClass="download-btn"
+                IconCssClass="demo-download-icon"
+                Text="Free Trial"
+                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
+            <i class="fa fa-file-excel-o"></i>Export
+        </button>
+    </div>
+</div>
 <DxGrid @ref="Grid"
         Data="_employeeItems"
-        KeyFieldName="PlantID"
+        KeyFieldName="EmployeeID"
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
         CustomizeElement="Grid_CustomizeElement"
-        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -24,11 +49,14 @@
         PageSize="20"
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360 grid-auto-height">
+        CssClass="ch-360"
+        style="height: calc(100vh - 200px);"
+        FocusedRowEnabled="true"
+        RowClick="OnRowClick"
+        AllowSelectRowByClick="true">
     <Columns>
-
+        <DxGridDataColumn FieldName="EmployeeID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="SageID" MinWidth="80" />
         <DxGridDataColumn FieldName="FirstName" MinWidth="80" />
         <DxGridDataColumn FieldName="LastName" MinWidth="80" />
@@ -36,7 +64,7 @@
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />  
         <DxGridDataColumn FieldName="ModifiedByUser" Width="10%" />
-        <DxGridCommandColumn Width="150px" NewButtonVisible="true" EditButtonVisible="false" DeleteButtonVisible="false">
+       @* <DxGridCommandColumn Width="150px" NewButtonVisible="true" EditButtonVisible="false" DeleteButtonVisible="false">
             <HeaderTemplate>
                 <DxButton Click="@NewEmployeeForm" RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained"  Text="Add" />
             </HeaderTemplate>
@@ -48,7 +76,7 @@
                     <NavLink href="javascrtpit:void(0);" @onclick="@(() => EditEmployeeOnPage((ViewEmployee)context.DataItem))" RenderStyle="@ButtonRenderStyle.Secondary">Edit</NavLink>
                 }
             </CellDisplayTemplate>
-        </DxGridCommandColumn>
+        </DxGridCommandColumn>*@
 
     </Columns>
     <TotalSummary>
@@ -58,12 +86,43 @@
 
 @code {
     private List<ViewEmployee> _employeeItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    private ViewEmployee _selectedItems;
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
 
 
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "PlantID");
+        _selectedItems = _employeeItems.FirstOrDefault(f => f.PlantID == (long?)UniqueId);
+        EditEnabled = true;
+        DeleteEnabled = true;
+        StateHasChanged();
+
+    }
+    void addNew()
+    {
+        EditEnabled = false;
+        DeleteEnabled = false;
+        NavigationManager.NavigateTo("EmployeeForm");
+    }
+    void addEdit()
+    {
+        //Grid.StartEditDataItemAsync(_selectedItems);
+        NavigationManager.NavigateTo("EmployeeForm/" + _selectedItems.SessionId + "");
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
+    void addDelete()
+    {
+        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        EditEnabled = false;
+        DeleteEnabled = false;
     }
     async Task UpdateDataAsync()
     {
@@ -110,5 +169,19 @@
             e.Style = "background-color: rgba(0, 0, 0, 0.08)";
             e.CssClass = "header-bold";
         }
+    }
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
     }
 }

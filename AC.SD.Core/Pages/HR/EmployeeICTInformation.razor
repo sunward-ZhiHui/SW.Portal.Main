@@ -11,14 +11,27 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 
-
+<div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewIctInfo" Enabled="@AddEnabledIctInfo" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEditIctInfo" Enabled="@EditEnabledIctInfo" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDeleteIctInfo" Enabled="@DeleteEnabledIctInfo" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxGrid @ref="IctInfoGrid"
         Data="_employeeICTInformationItems"
         KeyFieldName="EmployeeIctinformationId"
         EditModelSaving="Grid_EditModelSavingIctInfo"
         DataItemDeleting="Grid_DataItemDeletingIctInfo"
         CustomizeEditModel="Grid_CustomizeEditModelIctInfo"
-        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        CustomizeElement="Grid_CustomizeElement"
+        ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -28,15 +41,19 @@
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360">
+        CssClass="ch-360"
+        style="height: calc(50vh - 50px);"
+        FocusedRowEnabled="true"
+        RowClick="OnRowIctInfoClick"
+        AllowSelectRowByClick="true">
     <Columns>
-
+        <DxGridDataColumn FieldName="EmployeeIctinformationId" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="SoftwareName" Caption="Software Name" MinWidth="80" />
         <DxGridDataColumn FieldName="LoginId" Caption="Login ID" MinWidth="80" />
         <DxGridDataColumn FieldName="RoleName" Caption="Role Name" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" Caption="Status Code" MinWidth="80" />
-        <DxGridCommandColumn Width="150px">
-        </DxGridCommandColumn>
+        @*<DxGridCommandColumn Width="150px">
+        </DxGridCommandColumn>*@
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{
@@ -85,17 +102,23 @@
 </DxGrid>
 @code {
     [Parameter]
-     public long? EmployeeIds { get; set; }
+    public long? EmployeeIds { get; set; }
     private List<View_EmployeeICTInformation> _employeeICTInformationItems;
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsSoftware;
     private List<ApplicationRole> _rolesItems;
     public ApplicationUser applicationUser { get; private set; }
     IGrid IctInfoGrid { get; set; }
     private List<CodeMaster> _stausItems;
+    private View_EmployeeICTInformation _employeeICTInfoselectedItems;
+    bool EditEnabledIctInfo { get; set; } = false;
+    bool DeleteEnabledIctInfo { get; set; } = false; 
+    bool AddEnabledIctInfo { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
+
         if (EmployeeIds > 0)
         {
+            AddEnabledIctInfo = true;
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
             _employeeICTInformationItems = await Mediator.Send(new GetEmployeeICTInformationQuery(EmployeeIds));
             _view_ApplicationMasterDetailsSoftware = await Mediator.Send(new GetAllApplicationMasterDetailQuery(221));
@@ -106,6 +129,33 @@
     async Task UpdateDataAsyncIctInfo()
     {
         _employeeICTInformationItems = await Mediator.Send(new GetEmployeeICTInformationQuery(EmployeeIds));
+    }
+    void OnRowIctInfoClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeIctinformationId");
+        _employeeICTInfoselectedItems = _employeeICTInformationItems.FirstOrDefault(f => f.EmployeeIctinformationId == (long?)UniqueId);
+        EditEnabledIctInfo = true;
+        DeleteEnabledIctInfo = true;
+        StateHasChanged();
+
+    }
+    void addNewIctInfo()
+    {
+        IctInfoGrid.StartEditNewRowAsync();
+        EditEnabledIctInfo = false;
+        DeleteEnabledIctInfo = false;
+    }
+    void addEditIctInfo()
+    {
+        IctInfoGrid.StartEditDataItemAsync(_employeeICTInfoselectedItems);
+        EditEnabledIctInfo = false;
+        DeleteEnabledIctInfo = false;
+    }
+    void addDeleteIctInfo()
+    {
+        IctInfoGrid.ShowDataItemDeleteConfirmation(_employeeICTInfoselectedItems);
+        EditEnabledIctInfo = false;
+        DeleteEnabledIctInfo = false;
     }
     void Grid_CustomizeEditModelIctInfo(GridCustomizeEditModelEventArgs e)
     {
@@ -162,7 +212,7 @@
     {
         var request = new EditEmployeeICTInformationCommand
             {
-                EmployeeIctinformationId=editablePlant.EmployeeIctinformationId,
+                EmployeeIctinformationId = editablePlant.EmployeeIctinformationId,
                 EmployeeId = EmployeeIds,
                 SoftwareId = editablePlant.SoftwareId,
                 LoginId = editablePlant.LoginId,
@@ -176,5 +226,17 @@
             };
         await Mediator.Send(request);
         await UpdateDataAsyncIctInfo();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }

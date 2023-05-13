@@ -9,14 +9,27 @@
 @using Application.Response;
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-
+<div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewOtherDuty" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEditOtherDuty" Enabled="@EditEnabledOtherDuty" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDeleteOtherDuty" Enabled="@DeleteEnabledOtherDuty" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxGrid @ref="Grid"
         Data="_employeeOtherDutyInfoItems"
         KeyFieldName="EmployeeOtherDutyInformationId"
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
         CustomizeEditModel="Grid_CustomizeEditModel"
-        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        CustomizeElement="Grid_CustomizeElement"
+         ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -26,9 +39,13 @@
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360">
+        CssClass="ch-360"
+        style="height: calc(50vh - 50px);"
+        FocusedRowEnabled="true"
+        RowClick="OnRowOtherDutyClick"
+        AllowSelectRowByClick="true">
     <Columns>
-
+        <DxGridDataColumn FieldName="EmployeeOtherDutyInformationId" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="DivisionName" Caption="Division" MinWidth="80" />
         <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="80" />
@@ -40,7 +57,7 @@
         <DxGridDataColumn FieldName="StartDate" MinWidth="80" />
         <DxGridDataColumn FieldName="EndDate" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
-        <DxGridCommandColumn Width="160px" />
+        @*<DxGridCommandColumn Width="160px" />*@
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{
@@ -144,6 +161,9 @@
 @code {
     [Parameter]
     public long? EmployeeIds { get; set; }
+    private View_EmployeeOtherDutyInformation _employeeOtherDutyInfoselectedItems;
+    bool EditEnabledOtherDuty { get; set; } = false;
+    bool DeleteEnabledOtherDuty { get; set; } = false;
     private List<View_EmployeeOtherDutyInformation> _employeeOtherDutyInfoItems;
     View_EmployeeOtherDutyInformation employeeOtherDutyInformationResponse = new View_EmployeeOtherDutyInformation();
     private List<LanguageMaster> _languageMasterItems;
@@ -192,6 +212,33 @@
         employeeOtherDutyInformationResponse.SectionId = viewDesignation.SectionID;
         employeeOtherDutyInformationResponse.SubSectionId = viewDesignation.SubSectionID;
         employeeOtherDutyInformationResponse.DesignationId = viewDesignation.DesignationID;
+    }
+    void OnRowOtherDutyClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeOtherDutyInformationId");
+        _employeeOtherDutyInfoselectedItems = _employeeOtherDutyInfoItems.FirstOrDefault(f => f.EmployeeOtherDutyInformationId == (long?)UniqueId);
+        EditEnabledOtherDuty = true;
+        DeleteEnabledOtherDuty = true;
+        StateHasChanged();
+
+    }
+    void addNewOtherDuty()
+    {
+        Grid.StartEditNewRowAsync();
+        EditEnabledOtherDuty = false;
+        DeleteEnabledOtherDuty = false;
+    }
+    void addEditOtherDuty()
+    {
+        Grid.StartEditDataItemAsync(_employeeOtherDutyInfoselectedItems);
+        EditEnabledOtherDuty = false;
+        DeleteEnabledOtherDuty = false;
+    }
+    void addDeleteOtherDuty()
+    {
+        Grid.ShowDataItemDeleteConfirmation(_employeeOtherDutyInfoselectedItems);
+        EditEnabledOtherDuty = false;
+        DeleteEnabledOtherDuty = false;
     }
     async Task UpdateDataAsync()
     {
@@ -289,5 +336,17 @@
             };
         await Mediator.Send(request);
         await UpdateDataAsync();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }

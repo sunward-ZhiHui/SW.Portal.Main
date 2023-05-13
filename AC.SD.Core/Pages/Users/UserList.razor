@@ -99,11 +99,11 @@
     private List<ViewEmployee> _employeeItems;
     //IEnumerable<ViewEmployee> _lock;
     IGrid Grid { get; set; }
-    private List<ApplicationUser> _applicationUsers;
+   
     protected override async Task OnInitializedAsync()
     {
         _employeeItems = await Mediator.Send(new GetAllEmployeeListQuery());
-        _applicationUsers = await Mediator.Send(new GetAllApplicationUserQuery());
+       
 
     }
     async Task UpdateDataAsync()

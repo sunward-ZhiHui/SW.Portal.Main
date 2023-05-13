@@ -1,13 +1,28 @@
 ﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
+@using DevExpress.Export;
 @using MediatR
 @using global::Core.Entities;
 @inject IMediator Mediator
+@inject IJSRuntime jsRuntime
 
 
 @page "/ForumConversations"
 
+<div class="g-title">
+    <div class="g-left"></div>
+
+    <span class=""></span><span class="g-text"></span>
+    <div class="g-right">
+        <button type="button" CssClass="download-btn"
+                IconCssClass="demo-download-icon"
+                Text="Free Trial"
+                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
+            <i class="fa fa-file-excel-o"></i>Export
+        </button>
+    </div>
+</div>
 
 <div class="">
     <div class="row">
@@ -73,7 +88,7 @@
     string FilterString { get; set; }
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;
     public ForumTypes SelectedNodes { get; set; }
-
+    IGrid? Grid { get; set; }
     string SelectedGroup = "none";
     void SelectionChanged(TreeViewNodeEventArgs e)
     {
@@ -116,5 +131,32 @@
         public int ID { get; set; }
         public int? ParentID { get; set; }
         public string Name { get; set; }
+    }
+
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }

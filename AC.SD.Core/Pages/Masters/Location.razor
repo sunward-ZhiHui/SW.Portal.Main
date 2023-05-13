@@ -10,6 +10,22 @@
 @using DevExpress.Export
 @using Application.Response;
 
+
+
+<div class="g-title">
+    <div class="g-left"></div>
+
+    <span class=""></span><span class="g-text"></span>
+    <div class="g-right">
+        <button type="button" CssClass="download-btn"
+                IconCssClass="demo-download-icon"
+                Text="Free Trial"
+                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
+            <i class="fa fa-file-excel-o"></i>Export
+        </button>
+    </div>
+</div>
+
 <DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
@@ -198,6 +214,21 @@
        }
 
     }
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
 //    void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
 //    {
 //        if (e.FieldName == "CompanyId")

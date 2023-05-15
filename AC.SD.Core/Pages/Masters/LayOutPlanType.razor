@@ -26,6 +26,19 @@
         </button>
     </div>
 </div>
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
  <DxGrid
     @ref="Grid"
     Data="_layout"
@@ -42,7 +55,11 @@
     SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
     AutoExpandAllGroupRows="true"
         KeyFieldName="LayoutPlanTypeId"
-        CssClass="ch-360 grid-auto-height">
+        CssClass="ch-360 style="height: calc(100vh - 200px);"
+        FocusedRowEnabled="true"
+        RowClick="OnRowClick"
+        AllowSelectRowByClick="true"
+        ValidationEnabled="true">
 
     <Columns>
         <DxGridDataColumn FieldName="LayoutPlanTypeId" Caption="LayoutPlanTypeId" MinWidth="80" />
@@ -102,6 +119,9 @@
     private List<LayoutPlanType> _stausItems;
     private List<CodeMaster> _codes;
     IGrid Grid { get; set; }
+    private ViewLayOutPlanType _selectedItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         var model = await Mediator.Send(new  GetAllLayOutPlanTypeQuery());
@@ -196,7 +216,34 @@
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
     }
-  
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "LayoutPlanTypeId");
+        _selectedItems = _layout.FirstOrDefault(f => f.LayoutPlanTypeId == (long?)UniqueId);
+        EditEnabled = true;
+        DeleteEnabled = true;
+        StateHasChanged();
+
+    }
+
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
+    void addDelete()
+    {
+        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
 }
 
 

@@ -23,6 +23,19 @@
         </button>
     </div>
 </div>
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxGrid @ref="Grid"
         Data="_subsectionItems"
         KeyFieldName="SubSectionId"
@@ -39,7 +52,10 @@
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360 grid-auto-height">
+        CssClass="ch-360" style="height: calc(100vh - 200px);"
+        FocusedRowEnabled="true"
+        RowClick="OnRowClick"
+        AllowSelectRowByClick="true">
     <Columns>
 
         <DxGridDataColumn FieldName="Company" MinWidth="80" />
@@ -121,6 +137,9 @@
     string divisionName = "";
     string sectionName = "";
     IGrid Grid { get; set; }
+    private ViewSubSection _selectedItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         _subsectionItems = await Mediator.Send(new GetAllSubSectionQuery());
@@ -229,5 +248,32 @@
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SubSectionId");
+        _selectedItems = _subsectionItems.FirstOrDefault(f => f.SubSectionId == (long?)UniqueId);
+        EditEnabled = true;
+        DeleteEnabled = true;
+        StateHasChanged();
+
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
+    void addDelete()
+    {
+        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        EditEnabled = false;
+        DeleteEnabled = false;
     }
 }

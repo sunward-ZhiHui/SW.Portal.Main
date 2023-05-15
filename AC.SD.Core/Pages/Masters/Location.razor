@@ -47,10 +47,10 @@
         PageSize="20"
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        
+        style="height: calc(100vh - 200px);"
         AutoExpandAllGroupRows="true"
         CustomizeElement="Grid_CustomizeElement"
-        CssClass="ch-360 style="height: calc(100vh - 200px);"
+        CssClass="ch-360"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true"
@@ -61,7 +61,7 @@
         <DxGridDataColumn FieldName="CompanyId" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-        <DxGridCommandColumn Width="160px" />
+        
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{

@@ -20,6 +20,7 @@ namespace Core.Entities
         public string? ReplyMessage { get; set; }
         public DateTime? ReplyDateTime { get; set; }
         public string? ReplyUserName { get; set; }
+        public List<ForumConversations>? ReplyConversation { get; set; }
         public string UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

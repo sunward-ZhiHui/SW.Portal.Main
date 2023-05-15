@@ -96,7 +96,7 @@ namespace Infrastructure.Repository.Query
                                 LEFT JOIN ApplicationUser RAU ON RAU.UserID = FCS.AddedByUserID
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
-                                WHERE FC.TopicId = @TopicId ORDER BY FC.AddedDate ASC;";
+                                WHERE FC.TopicId = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate ASC;";
 
 
                 var parameters = new DynamicParameters();
@@ -104,7 +104,40 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ForumConversations>(query,parameters)).ToList();
+                    connection.Open();
+                    var res = connection.Query<ForumConversations>(query,parameters).ToList();
+
+                    foreach (var topic in res)
+                    {
+                       
+                            var subQuery = @"SELECT
+                                        FC.ID,
+                                        FC.AddedDate,
+                                        FC.Message,
+                                        AU.UserName,
+                                        AU.UserID,
+                                        FC.ReplyId
+                                    FROM
+                                        ForumConversations FC
+                                        INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                    WHERE
+                                        FC.TopicId = @TopicId AND FC.ReplyId = @ReplyId";
+
+                            var parameterss = new DynamicParameters();
+                            parameterss.Add("TopicId", TopicId, DbType.Int64);
+                            parameterss.Add("ReplyId", topic.ID, DbType.Int64);
+
+                            // Execute the subquery using Dapper's Query method and pass in the topic ID as a parameter
+                            var subQueryResults = connection.Query<ForumConversations>(subQuery, parameterss).ToList();
+
+                            // Assign the subquery results to the topic's Conversations property
+                            topic.ReplyConversation = subQueryResults;
+                        
+                       
+
+                    }
+
+                    return res;
                 }
             }
             catch (Exception exp)

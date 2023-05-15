@@ -269,9 +269,10 @@ main {
     border: 1px;
     background-color: #e4efea;
     border-color: #f9e09b;
-    border-width: 8px;
+    border-width: 1px;
     border-style: solid;
     border-color: transparent transparent rgb(0, 163, 92);
+    border-radius: 5px;
 }
 .replybox {
     color: black;
@@ -937,7 +938,7 @@ main {
                         width: calc(100% - 70px);
                         display: flex;
                         align-items: center;*/
-                        margin-left: 12px;
+                      /*  margin-left: 12px;*/
                         /* padding-bottom: 5px;*/
                         width: 100%;
                     }

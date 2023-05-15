@@ -25,7 +25,7 @@
         </DxMenu>
     </div>
 </div>
-<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving"
+<DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving"
         CustomizeEditModel="Grid_CustomizeEditModel" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
@@ -45,6 +45,7 @@
 
         <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="ParentName" Caption="Site" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
     </Columns>
     <EditFormTemplate Context="EditFormContext">
@@ -105,8 +106,8 @@
     Dictionary<long, string>? CompanyNamesIndex { get; set; }
     private List<ViewPlants> _plantItems;
     private List<ViewIctmaster> _ictmaster;
-    IEnumerable <ViewIctmaster>? _master;
-   
+    private List<ViewIctmaster>? _master;
+    private List<ViewIctmaster> _ictmasterList;
     private ViewIctmaster _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
@@ -116,6 +117,7 @@
     {
         var model = await Mediator.Send(new GetAllIctMasterQuery());
         _ictmaster = model;
+        _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
     }
@@ -123,6 +125,7 @@
     {
         var model = await Mediator.Send(new GetAllIctMasterQuery());
         _ictmaster = model;
+        _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -133,10 +136,7 @@
             newmaster.Name = "";
             newmaster.Description = "";
             newmaster.StatusCodeId = null;
-            
-            
-               
-            
+            _master = new List<ViewIctmaster>();
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -256,6 +256,7 @@
         Grid.StartEditNewRowAsync();
         EditEnabled = false;
         DeleteEnabled = false;
+        _master = new List<ViewIctmaster>();
     }
     void addEdit()
     {

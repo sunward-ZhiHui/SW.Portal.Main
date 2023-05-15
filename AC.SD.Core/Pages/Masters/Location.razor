@@ -27,7 +27,7 @@
         </DxMenu>
     </div>
 </div>
-<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving"  ShowSearchBox="true"
+<DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -46,8 +46,10 @@
         CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
     <Columns>
 
-        <DxGridDataColumn FieldName="CompanyId"  Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Site" Caption="Site" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="ParentName" Caption="Zone" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
     </Columns>
     <EditFormTemplate Context="EditFormContext">
@@ -90,7 +92,7 @@
                     SelecteChanged(ict.SiteId);
                 }
                 <DxComboBox Data="@_masterSite"
-                            NullText="Select Site..."
+                            NullText="Select Zone..."
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
@@ -99,7 +101,7 @@
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.ZoneId)" />
             </DxFormLayoutItem>
-           
+
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@ict.Name" Rows="5" />
                 <ValidationMessage For="@(() => ict.Name)" />
@@ -123,12 +125,13 @@
 @* SelectedItemChanged="@((ViewIctmaster plant) => SelecteItemChanged(plant.IctmasterId))",SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"*@
 
 @code {
-   Dictionary<long, string>? CompanyNamesIndex { get; set; }
+    Dictionary<long, string>? CompanyNamesIndex { get; set; }
     private List<ViewPlants> _plantItems;
     private List<ViewIctmaster> _ictmaster;
     IGrid Grid { get; set; }
-    IEnumerable<ViewIctmaster>? _masterCompany;
-    IEnumerable<ViewIctmaster> _masterSite;
+    private List<ViewIctmaster>? _masterCompany;
+    private List<ViewIctmaster> _ictmasterList;
+    private List<ViewIctmaster> _masterSite;
     int masterType = 572;
     private ViewIctmaster _selectedItems;
     bool EditEnabled { get; set; } = false;
@@ -137,13 +140,15 @@
     {
         var model = await Mediator.Send(new GetAllIctMasterQuery());
         _ictmaster = model;
+        _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
-      CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
+        CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
     }
     async Task UpdateDataAsync()
     {
         var model = await Mediator.Send(new GetAllIctMasterQuery());
         _ictmaster = model;
+        _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -154,6 +159,8 @@
             newmaster.Name = "";
             newmaster.Description = "";
             newmaster.StatusCodeId = null;
+            _masterCompany = new List<ViewIctmaster>();
+            _masterSite = new List<ViewIctmaster>();
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -206,7 +213,7 @@
                 ZoneId = editableictmaster.ZoneId,
                 LocationId = editableictmaster.LocationId,
                 AreaId = editableictmaster.AreaId,
-                ParentIctid =editableictmaster.ParentIctid
+                ParentIctid = editableictmaster.ParentIctid
             };
         await Mediator.Send(request);
         await UpdateDataAsync();
@@ -222,11 +229,11 @@
     }
     async void SelecteChanged(long? siteId)
     {
-       // var id = siteId.IctmasterId
+        // var id = siteId.IctmasterId
         if (siteId != null)
-       {
+        {
             _masterSite = _ictmaster.Where(c => c.ParentIctid == siteId && c.MasterType == 571).ToList();
-       }
+        }
 
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
@@ -284,6 +291,8 @@
         Grid.StartEditNewRowAsync();
         EditEnabled = false;
         DeleteEnabled = false;
+        _masterCompany = new List<ViewIctmaster>();
+        _masterSite = new List<ViewIctmaster>();
     }
     void addEdit()
     {

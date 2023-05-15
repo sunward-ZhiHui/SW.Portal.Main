@@ -44,7 +44,8 @@
     </div>
 </div>
 
-
+@*<div class="card">
+    <div class="card-header">*@
 <DxFormLayout CssClass="w-100">
     <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
         <DxFormLayoutTabPage Caption="Personal Information">
@@ -246,12 +247,14 @@
             </DxFormLayout>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Personal Information">
+            <DxUpload Name="myFile" UploadUrl="localhost:44363/api/Upload/UploadDocuments">
+            </DxUpload>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Signature">
         </DxFormLayoutTabPage>
     </DxFormLayoutTabPages>
 </DxFormLayout>
-
+@*</div></div>*@
 <DxPopup @bind-Visible="@MessageVisible"
          HeaderText="@MessageHeader"
          BodyText="@MessageBody" />

@@ -36,13 +36,13 @@
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="ch-360" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText"
-        style="height: calc(100vh - 200px);"
+       
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true">
     <Columns>
 
-        <DxGridDataColumn FieldName="CompanyId" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
        
@@ -67,6 +67,9 @@
                 <ValidationMessage For="@(() => ict.CompanyId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Site" ColSpanMd="6">
+                @{
+                    SelectedItemChanged(ict.CompanyId);
+                }
                 @* <DxSpinEdit @bind-Value="@ict.SiteId" Rows="5" />*@
                 <DxComboBox Data="@_masterCompany"
                             NullText="Select Site..."
@@ -80,6 +83,9 @@
                 <ValidationMessage For="@(() => ict.SiteId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Zone" ColSpanMd="6">
+                @{
+                    SelectedChanged(ict.SiteId);
+                }
                 <DxComboBox Data="@_masterSite"
                             NullText="Select Zone..."
                             FilteringMode="DataGridFilteringMode.Contains"
@@ -93,6 +99,9 @@
                 <ValidationMessage For="@(() => ict.ZoneId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Location" ColSpanMd="6">
+                @{
+                    SelectChanged(ict.ZoneId);
+                }
                 <DxComboBox Data="@_masterZone"
                             NullText="Select Location..."
                             FilteringMode="DataGridFilteringMode.Contains"
@@ -195,7 +204,7 @@
         var editablePlant = (ViewIctmaster)e.DataItem;
         var request = new DeleteIctmasterCommand(editablePlant.IctmasterId);
         await Mediator.Send(request);
-        // await UpdateDataAsync();
+         await UpdateDataAsync();
     }
     async Task UpdateMasterAsync(ViewIctmaster editableictmaster)
     {

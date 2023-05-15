@@ -35,9 +35,10 @@
         PageSize="20"
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        style="height: calc(100vh - 200px);"
         AutoExpandAllGroupRows="true"
         CustomizeElement="Grid_CustomizeElement"
-        CssClass="ch-360" style="height: calc(100vh - 200px);"
+        CssClass="ch-360"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true"
@@ -45,7 +46,7 @@
         CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
     <Columns>
 
-        <DxGridDataColumn FieldName="CompanyId" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="CompanyId"  Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
     </Columns>
@@ -69,6 +70,9 @@
                 <ValidationMessage For="@(() => ict.CompanyId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Site" ColSpanMd="6">
+                @{
+                    SelectedItemChanged(ict.CompanyId);
+                }
                 @* <DxSpinEdit @bind-Value="@ict.SiteId" Rows="5" />*@
                 <DxComboBox Data="@_masterCompany"
                             NullText="Select Site..."
@@ -82,6 +86,9 @@
                 <ValidationMessage For="@(() => ict.SiteId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Zone" ColSpanMd="6">
+                @{
+                    SelecteChanged(ict.SiteId);
+                }
                 <DxComboBox Data="@_masterSite"
                             NullText="Select Site..."
                             FilteringMode="DataGridFilteringMode.Contains"
@@ -181,7 +188,7 @@
         var editablePlant = (ViewIctmaster)e.DataItem;
         var request = new DeleteIctmasterCommand(editablePlant.IctmasterId);
         await Mediator.Send(request);
-        // await UpdateDataAsync();
+        await UpdateDataAsync();
     }
     async Task UpdateMasterAsync(ViewIctmaster editableictmaster)
     {

@@ -20,17 +20,17 @@ namespace Core.Entities.Views
         [Required(ErrorMessage = "Please Enter Name")]
         public string Name { get; set; }
         public string Description { get; set; }
-        public long? LayoutPlanId { get; set; }
+       public long? LayoutPlanId { get; set; }
         public string VersionNo { get; set; }
         public DateTime? EffectiveDate { get; set; }
         public Guid? SessionId { get; set; }
-        [Required(ErrorMessage = "Please Select Site")]
+       // [Required(ErrorMessage = "Please Select Site")]
         public long? SiteId { get; set; }
-        [Required(ErrorMessage = "Please Enter Location")]
+       // [Required(ErrorMessage = "Please Enter Location")]
         public long LocationId { get; set; }
-        [Required(ErrorMessage = "Please Select Zone")]
+       // [Required(ErrorMessage = "Please Select Zone")]
         public long ZoneId { get; set; }
-        [Required(ErrorMessage = "Please Select Area")]
+       // [Required(ErrorMessage = "Please Select Area")]
         public long? AreaId { get; set; }
         public long? SpecificAreaId { get; set; }
         public int? StatusCodeId { get; set; }

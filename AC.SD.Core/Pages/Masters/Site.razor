@@ -37,7 +37,7 @@
         CustomizeElement="Grid_CustomizeElement"
         AutoExpandAllGroupRows="true"
         CssClass="ch-360"
-        style="height: calc(100vh - 250px);"
+       
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
@@ -155,7 +155,7 @@
         var editablePlant = (ViewIctmaster)e.DataItem;
         var request = new DeleteIctmasterCommand(editablePlant.IctmasterId);
         await Mediator.Send(request);
-       // await UpdateDataAsync();
+        await UpdateDataAsync();
     }
     async Task UpdateMasterAsync(ViewIctmaster editableictmaster)
     {

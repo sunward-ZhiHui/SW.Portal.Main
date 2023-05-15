@@ -35,10 +35,11 @@ public class Program
 
         static void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
+
             services.AddOptions();
             services.AddHttpContextAccessor();
             services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
-
+            
             services.AddSingleton<DemoConfiguration>();
             services.AddScoped<DemoThemeService>();
             services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();           

@@ -30,7 +30,7 @@
                 </DxMenu>
             </div>
             <div class="col-md-1" style="padding: 5px;margin-left: 10px;">
-                <button type="submit" form="@MyID" disabled="@loading" class="btn btn-secondary" style="color:black;">
+                <button type="submit" form="@MyID" disabled="@loading" class="btn btn-secondary" style="color:black;" onclick="@onsubmitClick">
                     @if (loading)
                     {
                         <span class="spinner-border spinner-border-sm mr-1"></span>
@@ -50,7 +50,7 @@
     <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
         <DxFormLayoutTabPage Caption="Personal Information">
             <EditForm Model="@employee" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
-              
+
                 <div style="position: fixed;height: calc(80vh - 60px);overflow-y: scroll;">
                     <DataAnnotationsValidator />
                     <DxFormLayoutGroup Caption="Personal Information" ColSpanMd="12">
@@ -217,7 +217,7 @@
                             <DxTextBox @bind-Text="@employee.SpeedDial" />
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="Email" ColSpanMd="4">
-                            <DxTextBox @bind-Text="@employee.Email" />
+                            <DxTextBox @bind-Text="@employee.Email" ShowValidationIcon="true" />
                             <ValidationMessage For="@(() => employee.Email)" />
                         </DxFormLayoutItem>
                     </DxFormLayoutGroup>
@@ -247,8 +247,7 @@
             </DxFormLayout>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Personal Information">
-            <DxUpload Name="myFile" UploadUrl="localhost:44363/api/Upload/UploadDocuments">
-            </DxUpload>
+            <EmployeePhoto _employeeDatas="@_employeeData" _applicationUser="@applicationUser"></EmployeePhoto>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Signature">
         </DxFormLayoutTabPage>
@@ -291,8 +290,10 @@
     bool MessageVisible { get; set; }
     string MessageHeader = "";
     string MessageBody = "";
+
     protected override async Task OnInitializedAsync()
     {
+        _employeeData = new ViewEmployee();
         if (SessionIds != null)
         {
             _employeeData = await Mediator.Send(new GetAllEmployeeBySessionQuery(SessionIds));
@@ -317,22 +318,21 @@
         _employeeItems = await Mediator.Send(new GetAllEmployeeByStatusQuery());
         employee.ExpectedJoiningDate = DateTime.Now;
     }
+
     void backUrl()
     {
         NavigationManager.NavigateTo("Employees");
     }
     void ResetForm()
     {
+        _employeeData = new ViewEmployee();
         employee = new EmployeeResponse();
         EmployeeIds = null;
         ActiveTabIndex = 0;
         ActiveSubTabIndex = 0;
         NavigationManager.NavigateTo("EmployeeForm");
     }
-    void SubmitForm()
-    {
 
-    }
     async Task loadEmployeeData(ViewEmployee _employeeData)
     {
 
@@ -387,12 +387,14 @@
             }
         }
     }
-    async Task AddForm()
+    void onsubmitClick()
     {
-        await HandleValidSubmit();
+        ActiveTabIndex = 0;
+        ActiveSubTabIndex = 0;
     }
     async Task HandleValidSubmit()
     {
+       
         loading = true;
         var editableData = employee;
         if (editableData.EmployeeID > 0)

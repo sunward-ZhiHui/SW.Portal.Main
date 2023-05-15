@@ -45,7 +45,7 @@ namespace Infrastructure
             services.AddTransient<IEmployeeQueryRepository, EmployeeQueryRepository>();
             services.AddTransient<IIctmasterQueryRepository, IctmasterQueryRepository>();
             services.AddTransient<IIctmasterCommandRepository, IctmasterCommandRepository>();
-
+            services.AddTransient<IDocumentsQueryRepository, DocumentsQueryRepository>();
             services.AddTransient<IEmployeeOtherDutyInformationQueryRepository, EmployeeOtherDutyInformationQueryRepository>();
             services.AddTransient<IForumCategoryQueryRepository, ForumCategoryQueryRepository>();
             services.AddTransient<ILevelMasterQueryRepository, LevelMasterQueryRepository>();

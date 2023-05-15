@@ -1,23 +1,35 @@
 ﻿<h3>FileUpload</h3>
+@using AC.SD.Core.Helpers;
 @using Application.Command.FileUploads;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+
 @using MediatR
 @inject IMediator Mediator
 @page "/fileupload"
 
-<DxUpload Name="myFile" UploadUrl="api/FileUpload/" SelectedFilesChanged="@SelectedFilesChanged">
+<DxUpload Name="myFile" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded"  SelectedFilesChanged="@SelectedFilesChanged">
 </DxUpload>
 @code {
+    long? UserId = 1;
+
+    Guid? SessionId = Guid.NewGuid();
+    protected override async Task OnInitializedAsync()
+    {
+    }
     protected async Task SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
-        //var request = new FileUploadCommand
-        //    {
-        //        FileName="Test",
-        //        Files = files
-        //    };
-        //var response = await Mediator.Send(request);
-        //if (response == "Ok")
-        //{
-        //    InvokeAsync(StateHasChanged);
-        //}
+
     }
+    void OnFileUploaded(FileUploadEventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+    public string GetUploadUrl()
+    {
+        string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        string url = BaseUrl + "Upload/UploadDocuments/" + SessionId + "/" + UserId;
+        return url.ToString();
+    }
+
 }

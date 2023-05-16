@@ -1,12 +1,14 @@
 ﻿using DocumentApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace DocumentApi.Controllers
@@ -34,6 +36,7 @@ namespace DocumentApi.Controllers
                 {
                     System.IO.Directory.CreateDirectory(serverPaths);
                 }
+                UpdateIsLatest(SessionId);
                 var ext = "";
                 var newFile = "";
                 ext = files.FileName;
@@ -87,12 +90,10 @@ namespace DocumentApi.Controllers
 
             return fileName;
         }
-        [HttpGet]
-        [Route("Get")]
-        public Documents? Get(long id)
+        private void UpdateIsLatest(Guid? SessionId)
         {
-            var documents = _context.Documents.FirstOrDefault(a => a.DocumentId == id);
-            return documents;
+            var query = string.Format("Update Documents Set IsLatest='{1}' Where SessionId='{0}'", SessionId, 0);
+            _context.Database.ExecuteSqlRaw(query);
         }
     }
 }

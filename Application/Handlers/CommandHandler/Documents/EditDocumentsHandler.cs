@@ -28,8 +28,9 @@ namespace Application.Handlers.CommandHandler
         {
             try
             {
-                var doc = await _queryRepository.GetByIdAsync((int)request.DocumentId);
+                var doc = await _queryRepository.GetBySessionIdAsync(request.SessionId);
                 var documents = new Documents();
+                documents.DocumentId = doc.DocumentId;
                 documents.FileName = doc.FileName;
                 documents.DisplayName = request.DisplayName;
                 documents.Extension = doc.Extension;
@@ -57,7 +58,7 @@ namespace Application.Handlers.CommandHandler
                 documents.TableName = request.TableName;
                 documents.DocumentParentId = request.DocumentParentId;
                 documents.ScreenId = request.ScreenId;
-                documents.IsLatest = request.IsLatest;
+                documents.IsLatest = doc.IsLatest;
                 documents.ExpiryDate = request.ExpiryDate;
                 documents.IsLocked = request.IsLocked;
                 documents.LockedDate = request.LockedDate;
@@ -78,7 +79,7 @@ namespace Application.Handlers.CommandHandler
                 documents.IsPrint = request.IsPrint;
                 documents.IsWiki = request.IsWiki;
                 documents.SubjectName = request.SubjectName;
-                documents.FilePath = request.FilePath;
+                documents.FilePath = doc.FilePath;
                 await _commandRepository.UpdateAsync(documents);
             }
             catch (Exception exp)

@@ -25,7 +25,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM Documents WHERE SessionId = @SessionId";
+                var query = "SELECT * FROM Documents WHERE IsLatest= 1 and  SessionId = @SessionId";
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId);
                 using (var connection = CreateConnection())
@@ -42,7 +42,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM Documents WHERE DocumentId = @DocumentId";
+                var query = "SELECT * FROM Documents WHERE IsLatest= 1 and DocumentId = @DocumentId";
                 var parameters = new DynamicParameters();
                 parameters.Add("DocumentId", DocumentId);
                 using (var connection = CreateConnection())

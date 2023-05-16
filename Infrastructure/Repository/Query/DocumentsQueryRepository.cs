@@ -21,13 +21,30 @@ namespace Infrastructure.Repository.Query
         {
 
         }
-        public async Task<Documents> GetByIdAsync(Guid? SessionId)
+        public async Task<Documents> GetBySessionIdAsync(Guid? SessionId)
         {
             try
             {
                 var query = "SELECT * FROM Documents WHERE SessionId = @SessionId";
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<Documents>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<Documents> GetByIdAsync(long? DocumentId)
+        {
+            try
+            {
+                var query = "SELECT * FROM Documents WHERE DocumentId = @DocumentId";
+                var parameters = new DynamicParameters();
+                parameters.Add("DocumentId", DocumentId);
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryFirstOrDefaultAsync<Documents>(query, parameters));

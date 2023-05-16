@@ -14,7 +14,7 @@
 
             </div>
             <div class="col-md-10">
-                <DxUpload Name="myFile" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded" >
+                <DxUpload Name="files" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded" >
                 </DxUpload>
             </div>
         </div>
@@ -45,7 +45,7 @@
     public string GetUploadUrl()
     {
         string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        string url = BaseUrl + "Upload/UploadDocuments/" + _employeeDatas.SessionId + "/" + _applicationUser.UserID;
+        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + _employeeDatas.SessionId;
         return url.ToString();
     }
     void OnFileUploaded(FileUploadEventArgs e)

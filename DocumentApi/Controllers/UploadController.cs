@@ -24,10 +24,11 @@ namespace DocumentApi.Controllers
         }
         [HttpPost]
         [Route("UploadDocuments")]
-        public ActionResult UploadDocuments(IFormFile files, Guid? SessionId, long? UserId)
+        public ActionResult UploadDocuments(IFormFile files, Guid? SessionId)
         {
-            /*try
-            {*/
+            long documentId = 0;
+            try
+            {
                 var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
                 if (!System.IO.Directory.Exists(serverPaths))
                 {
@@ -54,26 +55,22 @@ namespace DocumentApi.Controllers
                     FileData = null,
                     FileSize = files.Length,
                     UploadDate = DateTime.Now,
-                    AddedByUserId = UserId,
+                    AddedByUserId = null,
                     AddedDate = DateTime.Now,
                     SessionId = SessionId,
-                    IsTemp = true,
-                    IsCompressed = true,
-                    IsVideoFile = true,
                     IsLatest = true,
-                    FilterProfileTypeId = null,
-                    ProfileNo = null,
                     FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", ""),
 
                 };
                 _context.Documents.Add(documents);
                 _context.SaveChanges();
-            /*}
+                documentId = documents.DocumentId;
+            }
             catch
             {
                 return BadRequest();
-            }*/
-            return Ok();
+            }
+            return Ok(documentId.ToString());
         }
         private string getNextFileName(string fileName)
         {

@@ -71,17 +71,17 @@
     </TotalSummary>
 </DxGrid>
 
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="300px" @bind-Visible="@PopupVisible">
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@PopupVisible">
     <div class="text-center">
         <Content>
         <p>
-                <div Position="Left" id="@("label"+UserLst.UserID)" class="display-field"> Do You Want To  Reset the  @UserLst.NickName ,@UserLst.UserID,@UserLst.LastName Password</div>
+                <div id="@("label"+UserLst.UserID)" class="display-field Text"> Do You Want To  Reset the  @UserLst.NickName ,@UserLst.UserID,@UserLst.LastName Password</div>
            
         </p>
     </Content> 
        
-        <DxButton style="align-items" Text="Yes" Click="@((e) => ResetPasswords(UserLst.UserID))" />
-        <DxButton CssClass="dx-button.dx-icon" Text="No" Click="@(() => ClosePopup())" />
+        <DxButton class =align-Button Text="Yes" Click="@((e) => ResetPasswords(UserLst.UserID))" />
+        <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
 </DxPopup>
 

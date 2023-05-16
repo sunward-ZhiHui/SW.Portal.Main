@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{6B28B453-954C-48E8-AA8D-09C4E88D211E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentApi", "DocumentApi\DocumentApi.csproj", "{FB6EDCE3-3DFD-41EB-93B8-8D4A9BC2C679}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentApi", "DocumentApi\DocumentApi.csproj", "{FB6EDCE3-3DFD-41EB-93B8-8D4A9BC2C679}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -6,6 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
+using static System.Net.Mime.MediaTypeNames;
+
 namespace DocumentApi.Controllers
 {
     [Route("api/[controller]")]
@@ -21,28 +24,71 @@ namespace DocumentApi.Controllers
         }
         [HttpPost]
         [Route("UploadDocuments")]
-        public ActionResult UploadDocuments(IFormFile files)
+        public ActionResult UploadDocuments(IFormFile files, Guid? SessionId, long? UserId)
         {
-            try
-            {
-               /* var SessionId = new Guid(files["sessionId"].ToString());
-                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Videos\" + SessionId; 
+            /*try
+            {*/
+                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
                 if (!System.IO.Directory.Exists(serverPaths))
                 {
                     System.IO.Directory.CreateDirectory(serverPaths);
                 }
-
+                var ext = "";
+                var newFile = "";
+                ext = files.FileName;
+                int i = ext.LastIndexOf('.');
+                string lhs = i < 0 ? ext : ext.Substring(0, i), rhs = i < 0 ? "" : ext.Substring(i + 1);
+                var fileName1 = SessionId + "." + rhs;
+                var serverPath = serverPaths + @"\" + fileName1;
+                var filePath = getNextFileName(serverPath);
+                newFile = filePath.Replace(serverPaths + @"\", "");
                 using (var targetStream = System.IO.File.Create(serverPath))
                 {
                     files.CopyTo(targetStream);
                     targetStream.Flush();
-                }*/
-            }
+                }
+                var documents = new Documents
+                {
+                    FileName = files.FileName,
+                    ContentType = files.ContentType,
+                    FileData = null,
+                    FileSize = files.Length,
+                    UploadDate = DateTime.Now,
+                    AddedByUserId = UserId,
+                    AddedDate = DateTime.Now,
+                    SessionId = SessionId,
+                    IsTemp = true,
+                    IsCompressed = true,
+                    IsVideoFile = true,
+                    IsLatest = true,
+                    FilterProfileTypeId = null,
+                    ProfileNo = null,
+                    FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", ""),
+
+                };
+                _context.Documents.Add(documents);
+                _context.SaveChanges();
+            /*}
             catch
             {
                 return BadRequest();
-            }
+            }*/
             return Ok();
+        }
+        private string getNextFileName(string fileName)
+        {
+            string extension = Path.GetExtension(fileName);
+
+            int i = 0;
+            while (System.IO.File.Exists(fileName))
+            {
+                if (i == 0)
+                    fileName = fileName.Replace(extension, "(" + ++i + ")" + extension);
+                else
+                    fileName = fileName.Replace("(" + i + ")" + extension, "(" + ++i + ")" + extension);
+            }
+
+            return fileName;
         }
         [HttpGet]
         [Route("Get")]

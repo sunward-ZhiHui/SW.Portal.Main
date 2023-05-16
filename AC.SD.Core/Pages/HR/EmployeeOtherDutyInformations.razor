@@ -15,7 +15,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewOtherDuty" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewOtherDuty" Enabled="@AddEnabledOtherDuty" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEditOtherDuty" Enabled="@EditEnabledOtherDuty" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDeleteOtherDuty" Enabled="@DeleteEnabledOtherDuty" />
             </Items>
@@ -164,6 +164,7 @@
     private View_EmployeeOtherDutyInformation _employeeOtherDutyInfoselectedItems;
     bool EditEnabledOtherDuty { get; set; } = false;
     bool DeleteEnabledOtherDuty { get; set; } = false;
+    bool AddEnabledOtherDuty { get; set; } = false;
     private List<View_EmployeeOtherDutyInformation> _employeeOtherDutyInfoItems;
     View_EmployeeOtherDutyInformation employeeOtherDutyInformationResponse = new View_EmployeeOtherDutyInformation();
     private List<LanguageMaster> _languageMasterItems;
@@ -180,11 +181,13 @@
     private List<ViewEmployee> _employeeItems;
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetails;
     public ApplicationUser applicationUser { get; private set; }
+
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
         if (EmployeeIds > 0)
         {
+            AddEnabledOtherDuty = true;
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
             var model = await Mediator.Send(new GetAllPlantQuery());
             var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));

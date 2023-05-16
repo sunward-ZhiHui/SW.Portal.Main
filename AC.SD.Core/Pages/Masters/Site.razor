@@ -25,7 +25,7 @@
         </DxMenu>
     </div>
 </div>
-<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
+<DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -93,6 +93,7 @@
     private List<ViewIctmaster> _ictmaster;
     private List<CodeMaster> _codemaster;
     private ViewIctmaster _selectedItems;
+    private List<ViewIctmaster> _ictmasterList;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     int mastertype = 570;
@@ -104,6 +105,7 @@
           // _codemaster = models;
         var model = await Mediator.Send(new GetAllIctMasterQuery());
                 _ictmaster = model;
+        _ictmasterList = model.Where(w => w.MasterType == mastertype).ToList();
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
        // _ictmaster = await Mediator.Send(new GetAllIctMasterQuery());
         CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
@@ -112,6 +114,7 @@
     {
         var model = await Mediator.Send(new GetAllIctMasterQuery());
          _ictmaster = model;
+        _ictmasterList = model.Where(w => w.MasterType == mastertype).ToList();
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

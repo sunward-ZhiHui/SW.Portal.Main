@@ -38,6 +38,10 @@ namespace Core.Entities.Views
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
-        public string LocationDescription { get; set; }
+        public string Area { get; set; }
+        public string Location { get; set; }
+        public string Site { get; set; }
+        public string Zone { get; set; }
+        public string ParentName { get; set; }
     }
 }

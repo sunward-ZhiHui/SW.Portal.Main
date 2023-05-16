@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Response;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Application.Queries;
+using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Repository.Query
 {
@@ -105,11 +107,13 @@ namespace Infrastructure.Repository.Query
 
         public async Task<List<ForumTopics>> GetTreeTopicList(long UserId)
         {
+            List<ForumTopics> tfrom = new List<ForumTopics>();
             try
             {
                 //var query = "SELECT * FROM ForumTypes WHERE ID = @UserId";
-                var query = @"SELECT TS.ID,TS.TicketNo,TS.TopicName,TS.TypeId,TS.CategoryId,TS.Remarks,TS.SeqNo FROM ForumTopics TS 
-                                INNER JOIN ForumTopicParticipant TP ON TS.ID = TP.TopicId                                
+                var query = @"SELECT TS.ID,TS.TicketNo,TS.EndDate,TS.TopicName,TS.TypeId,TS.CategoryId,TS.Remarks,TS.SeqNo,TPS.Name as TypeName FROM ForumTopics TS 
+                                INNER JOIN ForumTopicParticipant TP ON TS.ID = TP.TopicId 
+                                INNER JOIN ForumTypes TPS ON TS.TypeId = TPS.ID 
                                 WHERE TP.UserId = @UserId";
 
                 var parameters = new DynamicParameters();
@@ -121,20 +125,56 @@ namespace Infrastructure.Repository.Query
 
                     var res = connection.Query<ForumTopics>(query, parameters).ToList();
 
-                    var result = res
-                        .GroupBy(ps => ps.TicketNo)
-                        .Select(g => new ForumTopics
+                    var result = res.AsEnumerable().GroupBy(x => new { x.TicketNo }).Select(y => new ForumTopics
                         {
-                            Label = g.Key,
-                            TopicList = g.ToList()
-                        })
-                        .ToList();
+                            Label = y.Key.TicketNo != "" ? y.Key.TicketNo : "N/A",
+                            children = y == null || !y.Any() ? tfrom : y.GroupBy(x => new { x.TypeName}).Select(z => new ForumTopics
+                            {
+                                Label = z.Key.TypeName,
+                                children = z == null || !z.Any() ? tfrom : z.Select(x => new ForumTopics
+                                {
+                                    ID = x.ID,
+                                    SeqNo = x.SeqNo,
+                                    Label = x.TopicName,
+                                    TopicName = x.TopicName,
+                                    Description = x.Description,
+                                    Status = x.Status,
+                                    EndDate = x.EndDate,                                  
+                                    Remarks = x.Remarks,
+
+                                }).OrderBy(z => z.SeqNo).ToList()
+                                }).ToList()
+                            }).ToList();
 
                     return result;
 
 
                     //return res;
 
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<TopicParticipant>> GetParticipantList(long topicId)
+        {
+            try
+            {
+                var query = @"SELECT TP.ID,TP.TopicId,AU.UserCode,AU.UserName,TP.AddedDate,TP.SessionId,AU.UserID FROM ForumTopicParticipant TP 
+                                INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID                                
+                                WHERE TP.TopicId = @TopicId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", topicId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    return (await connection.QueryAsync<TopicParticipant>(query,parameters)).ToList();
+                   // var result = connection.QueryAsync<TopicParticipant>(query, parameters).ToList();
+                    //return result;
                 }
             }
             catch (Exception exp)
@@ -273,6 +313,46 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-        }       
+        }
+        public async Task<long> InsertParticipant(TopicParticipant topicParticipant)
+        {
+            var rowsAffected = 0;
+            var result = 1;
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        string[] values = topicParticipant.PList.Split(',');
+                      
+                        foreach (var item in values)
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("UserId", item, DbType.Int64);
+                            parameters.Add("TopicId", topicParticipant.TopicId);
+                            parameters.Add("SessionId", topicParticipant.SessionId);
+                            parameters.Add("AddedDate", topicParticipant.AddedDate);
+                            parameters.Add("AddedByUserID", topicParticipant.AddedByUserID);
+                            parameters.Add("StatusCodeID", topicParticipant.StatusCodeID);
+                            
+
+                            var query = "INSERT INTO ForumTopicParticipant(TopicID, UserId,StatusCodeID,AddedByUserID,AddedDate,SessionId) VALUES (@TopicID, @UserId,@StatusCodeID,@AddedByUserID,@AddedDate,@SessionId)";
+                            rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                           
+                            //return rowsAffected;
+                        }
+                        transaction.Commit();
+                        return result;
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

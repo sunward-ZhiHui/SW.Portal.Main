@@ -67,6 +67,19 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetParticipantListHandler : IRequestHandler<GetParticipantsList, List<TopicParticipant>>
+    {
+
+        private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;
+        public GetParticipantListHandler(IForumTopicsQueryRepository forumTopicsQueryRepository)
+        {
+            _forumTopicsQueryRepository = forumTopicsQueryRepository;
+        }
+        public async Task<List<TopicParticipant>> Handle(GetParticipantsList request, CancellationToken cancellationToken)
+        {
+            return await _forumTopicsQueryRepository.GetParticipantList(request.TopicId);
+        }
+    }
 
     public class GetByIdTopicListHandler : IRequestHandler<GetByIdTopics, List<ForumTopics>>
     {
@@ -103,6 +116,21 @@ namespace CMS.Application.Handlers.QueryHandlers
             var newTopics = _forumTopicsQueryRepository.Insert(customerEntity);
             var customerResponse = RoleMapper.Mapper.Map<long>(newTopics);
             return customerResponse;
+        }
+    }
+    public class CreateForumParticipantHandler : IRequestHandler<CreateTopicParticipant, long>
+    {
+        private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;
+
+        public CreateForumParticipantHandler(IForumTopicsQueryRepository forumTopicsQueryRepository)
+        {
+            _forumTopicsQueryRepository = forumTopicsQueryRepository;
+        }
+        public async Task<long> Handle(CreateTopicParticipant request, CancellationToken cancellationToken)
+        {
+            var newTopics = await _forumTopicsQueryRepository.InsertParticipant(request);
+            //var customerResponse = RoleMapper.Mapper.Map<long>(newTopics);
+            return newTopics;
         }
     }
     public class ForumCategoryListHandler : IRequestHandler<GetListCategory, List<ForumCategorys>>

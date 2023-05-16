@@ -267,11 +267,11 @@ main {
 .lstcoversationrply {
     padding: 10px;
     border: 1px;
-    background-color: #e4efea;
+    /*background-color: #e4efea;*/
     border-color: #f9e09b;
     border-width: 1px;
     border-style: solid;
-    border-color: transparent transparent rgb(0, 163, 92);
+    border-color: transparent transparent rgb(199 199 199);
     border-radius: 5px;
 }
 .replybox {
@@ -724,7 +724,7 @@ main {
     /* Mini Menu Bar Content Container Design CSS */
 
     .content-container .mini-menu-bar {
-        width: 360px;
+        /*width: 360px;*/
         height: 100%;
         background-color: #f0f0f0;
         position: relative;
@@ -749,11 +749,12 @@ main {
 
                 .content-container .mini-menu-bar .mini-menu-bar-top .mini-menu-bar-heading .files-title {
                     width: 100%;
-                    display: flex;
+                   /* display: flex;*/
                     padding-left: 20px;
                     align-items: center;
                     font-size: 18px;
                     font-weight: bold;
+                    text-align:center;
                 }
 
             .content-container .mini-menu-bar .mini-menu-bar-top .accordion-title {
@@ -947,7 +948,7 @@ main {
                     }
 
                     .msgClose {
-                        height: calc(100% - 157px);
+                        height: calc(100% - 138px);
                     }
 
             .content-container .menu-bar-content-container .content-padding-20 .menu-bar-content-container-content {
@@ -1161,6 +1162,7 @@ main {
     -o-transform: rotate(45deg);
     transform: rotate(45deg);
     display: inline-block;
+    box-shadow: none;
 }
     .sndrot:hover
     {
@@ -1168,10 +1170,16 @@ main {
     }
     .cdspc {
         font-size: 18px;
-        margin-right: 10px;
+       /* margin-right: 10px;*/
     }
 
 .tActive {
     border-bottom: 3px solid var(--bs-primary);
    /* background: var(--bs-primary);*/   
+}
+.btnDelete {
+    color: red;
+    border: none;
+    background: none;
+    font-size:14px;
 }

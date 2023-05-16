@@ -16,6 +16,7 @@ using System.Transactions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using Microsoft.AspNetCore.Http;
 using Application.Response;
+using Core.Entities.Views;
 
 namespace Infrastructure.Repository.Query
 {
@@ -46,6 +47,64 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
 
                             var query = "DELETE  FROM ForumConversations WHERE ID = @ID";
+
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<ViewEmployee>> GetAllParticipantAsync(long topicId)
+        {
+            try
+            {
+                var query = @"select  * from View_Employee where (StatusName!='Resign' or StatusName is null) and UserID NOT IN (SELECT AU.UserID FROM ForumTopicParticipant TP INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID WHERE TP.TopicId = @TopicId)";
+                var parameters = new DynamicParameters();
+                    parameters.Add("TopicID", topicId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).Distinct().ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<long> DeleteParticipant(TopicParticipant topicParticipant)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("ID", topicParticipant.ID, DbType.Int64);                           
+
+                            var query = "DELETE  FROM ForumTopicParticipant WHERE ID = @ID";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
@@ -212,9 +271,6 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
-
-
 
         public async Task<long> Update(ForumConversations forumConversations)
         {

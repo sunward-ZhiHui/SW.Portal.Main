@@ -1,0 +1,359 @@
+﻿@page "/specificArea"
+@using Application.Command.Ictmaster;
+@using Application.Command.LeveMasters;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@inject IJSRuntime jsRuntime
+
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+<DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        CustomizeElement="Grid_CustomizeElement"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText"
+        FocusedRowEnabled="true"
+        RowClick="OnRowClick"
+        AllowSelectRowByClick="true">
+    <Columns>
+
+        <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Site" Caption="Site" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Zone" Caption="Zone" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Location" Caption="Location" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="ParentName" Caption="Area" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var ict = (ViewIctmaster)EditFormContext.EditModel;
+        }
+
+
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"
+                            TextFieldName="Description"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@ict.CompanyId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => ict.CompanyId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Site" ColSpanMd="6">
+                @{
+                    SelectedItemChanged(ict.CompanyId);
+                }
+                @* <DxSpinEdit @bind-Value="@ict.SiteId" Rows="5" />*@
+                <DxComboBox Data="@_masterCompany"
+                            NullText="Select Site..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            SelectedItemChanged="@((ViewIctmaster plant) => SelectedChanged(plant.IctmasterId))"
+                            TextFieldName="Name"
+                            ValueFieldName="IctmasterId"
+                            @bind-Value="@ict.SiteId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => ict.SiteId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Zone" ColSpanMd="6">
+                @{
+                    SelectedChanged(ict.SiteId);
+                }
+                <DxComboBox Data="@_masterSite"
+                            NullText="Select Zone..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            SelectedItemChanged="@((ViewIctmaster plant) => SelectChanged(plant.IctmasterId))"
+                            TextFieldName="Name"
+                            ValueFieldName="IctmasterId"
+                            @bind-Value="@ict.ZoneId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+
+                <ValidationMessage For="@(() => ict.ZoneId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Location" ColSpanMd="6">
+                @{
+                    SelectChanged(ict.ZoneId);
+                }
+                <DxComboBox Data="@_masterZone"
+                            NullText="Select Location..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="IctmasterId"
+                            @bind-Value="@ict.LocationId"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => ict.LocationId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Area" ColSpanMd="6">
+                @{
+                    SelectAreaChanges(ict.LocationId);
+                }
+                <DxComboBox Data="@_masterLocation"
+                            NullText="Select Area..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="IctmasterId"
+                            @bind-Value="@ict.ParentIctid"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => ict.AreaId)" />
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="Name" ColSpanMd="6">
+                <DxTextBox @bind-Text="@ict.Name" Rows="5" />
+                <ValidationMessage For="@(() => ict.Name)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                <DxMemo @bind-Text="@ict.Description" Rows="5" />
+            </DxFormLayoutItem>
+
+
+
+            <DxFormLayoutItem ColSpanMd="12">
+                <ValidationSummary />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditFormTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="MasterType" />
+    </TotalSummary>
+</DxGrid>
+
+
+
+@code {
+    Dictionary<long, string>? CompanyNamesIndex { get; set; }
+    private List<ViewPlants> _plantItems;
+    private List<ViewIctmaster> _ictmaster;
+    private List<ViewIctmaster> _ictmasterList;
+    private List<CodeMaster> _codemaster;
+    private List<ViewIctmaster>? _masterCompany;
+    private List<ViewIctmaster>? _masterSite;
+    private List<ViewIctmaster>? _masterZone;
+    private List<ViewIctmaster>? _masterLocation;
+
+    IGrid Grid { get; set; }
+    private ViewIctmaster _selectedItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    int masterType = 574;
+    protected override async Task OnInitializedAsync()
+    {
+        var model = await Mediator.Send(new GetAllIctMasterQuery());
+        _ictmaster = model;
+        _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
+    }
+    async Task UpdateDataAsync()
+    {
+        var model = await Mediator.Send(new GetAllIctMasterQuery());
+        _ictmaster = model;
+        _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            var newmaster = (ViewIctmaster)e.EditModel;
+            newmaster.MasterType = masterType;
+            newmaster.Name = "";
+            newmaster.Description = "";
+            newmaster.StatusCodeId = null;
+            _masterCompany = new List<ViewIctmaster>();
+            _masterSite = new List<ViewIctmaster>();
+            _masterZone = new List<ViewIctmaster>();
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editableictmaster = (ViewIctmaster)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateIctmasterCommand
+                {
+                    MasterType = masterType,
+                    Description = editableictmaster.Description,
+                    StatusCodeId = editableictmaster.StatusCodeId,
+                    Name = editableictmaster.Name,
+                    CompanyId = editableictmaster.CompanyId,
+                    SiteId = editableictmaster.SiteId,
+                    ZoneId = editableictmaster.ZoneId,
+                    LocationId = editableictmaster.LocationId,
+                    AreaId = editableictmaster.AreaId,
+                    ParentIctid = editableictmaster.ParentIctid
+
+                };
+            await Mediator.Send(request);
+            await UpdateDataAsync();
+        }
+        else
+        {
+            await UpdateMasterAsync(editableictmaster);
+        }
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editablePlant = (ViewIctmaster)e.DataItem;
+        var request = new DeleteIctmasterCommand(editablePlant.IctmasterId);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    async Task UpdateMasterAsync(ViewIctmaster editableictmaster)
+    {
+        var request = new EditIctmasterCommand
+            {
+                IctmasterId = editableictmaster.IctmasterId,
+                MasterType = editableictmaster.MasterType,
+                Name = editableictmaster.Name,
+                Description = editableictmaster.Description,
+                StatusCodeId = editableictmaster.StatusCodeId,
+                AddedByUserId = editableictmaster.AddedByUserId,
+                AddedDate = editableictmaster.AddedDate,
+                CompanyId = editableictmaster.CompanyId,
+                SiteId = editableictmaster.SiteId,
+                ZoneId = editableictmaster.ZoneId,
+                LocationId = editableictmaster.LocationId,
+                AreaId = editableictmaster.AreaId,
+                ParentIctid = editableictmaster.ParentIctid
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    async void SelectedItemChanged(long? companyId)
+    {
+
+        if (companyId > 0)
+        {
+            _masterCompany = _ictmaster.Where(c => c.CompanyId == companyId && c.MasterType == 570).ToList();
+        }
+
+    }
+    async void SelectedChanged(long? siteId)
+    {
+        // var id = siteId.IctmasterId
+        if (siteId != null)
+        {
+            _masterSite = _ictmaster.Where(c => c.ParentIctid == siteId && c.MasterType == 571).ToList();
+        }
+
+    }
+    async void SelectChanged(long? siteId)
+    {
+        
+        if (siteId != null)
+        {
+            _masterZone = _ictmaster.Where(c => c.ParentIctid == siteId && c.MasterType == 572).ToList();
+        }
+
+    }
+    async void SelectAreaChanges(long? siteId)
+    {
+       
+        if (siteId != null)
+        {
+            _masterLocation = _ictmaster.Where(c => c.ParentIctid == siteId && c.MasterType == 573).ToList();
+        }
+
+    }
+    void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
+    {
+        if (e.FieldName == "CompanyId")
+        {
+            var ID = Convert.ToInt32(e.Value);
+            if (CompanyNamesIndex.ContainsKey(ID))
+                e.DisplayText = CompanyNamesIndex[ID];
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "IctmasterId");
+        _selectedItems = _ictmaster.FirstOrDefault(f => f.IctmasterId == (long?)UniqueId);
+        EditEnabled = true;
+        DeleteEnabled = true;
+        StateHasChanged();
+
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+        EditEnabled = false;
+        DeleteEnabled = false;
+        _masterCompany = new List<ViewIctmaster>();
+        _masterSite = new List<ViewIctmaster>();
+        _masterZone = new List<ViewIctmaster>();
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
+    void addDelete()
+    {
+        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
+}

@@ -50,20 +50,20 @@
             <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ShowPopup((long)context.Value)">Reset Password</button></CellDisplayTemplate>
        </DxGridDataColumn>
 
-        <DxGridDataColumn data="_applicationUsers" FieldName="Locked" Width="10%" MinWidth="90">
+       @* <DxGridDataColumn  FieldName="Locked" Width="10%" MinWidth="90">
             <CellDisplayTemplate>
-                @if ((bool)context.Value)
+                @if ((bool)context.Value == true)
                 {
-                    @*<span class="grid-icon grid-icon-check"></span>*@
-                    <button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button>
+                  
+                    <button   class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button>
                 }
-                else
+               else
                 {
-                    <button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Lock</button>
+                    <button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)"> Lock</button>
                 }
             </CellDisplayTemplate>
         </DxGridDataColumn>
-
+*@
 
     </Columns>
     <TotalSummary>
@@ -103,11 +103,11 @@
     private List<ViewEmployee> _employeeItems;
     //IEnumerable<ViewEmployee> _lock;
     IGrid Grid { get; set; }
-   
+
     protected override async Task OnInitializedAsync()
     {
         _employeeItems = await Mediator.Send(new GetAllEmployeeListQuery());
-       
+
 
     }
     async Task UpdateDataAsync()
@@ -191,13 +191,24 @@
     {
         PopupVisible = false;
     }
-    //void selectedItems(ViewEmployee employee)
-    //{
-    //    _lock = _employeeItems.Where(c => c.SageID == "1233333");
-    //    _lock = _employeeItems.Where(c => c.SageID == "E231");
-    //    bool SageID = true;
-    //}
+   
 
-   
-   
+    //private void EditPerson(ViewEmployee context)
+    //{
+    //    var users = _employeeItems.FirstOrDefault(a => a.UserID == context.UserID);
+    //    if (users != null)
+    //    {
+    //        var request = new UnsetLockedRequest
+    //            {
+    //                LoginID = users.LoginID,
+    //                NewPassword = "1234",
+    //            };
+    //        var response =  Mediator.Send(request);
+    //        onShowPopupMessage("Message", "Account Un-Locked Successfully");
+    //    }
+    //}
+    //private void EditPerson(DxGridEditingContext<ViewEmployee> context)
+    //{
+    //     Edit the selected person
+    //}
 }

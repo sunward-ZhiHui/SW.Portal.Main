@@ -29,7 +29,7 @@ namespace Application.Handlers.CommandHandler.ForumCategory
                 throw new ApplicationException("There is a problem in mapper");
             }
 
-            var newCategory = await _categoryCommandRepository.AddAsync(categoryEntity);
+            var newCategory = await _categoryCommandRepository.AddwithValidateAsync(categoryEntity);
             var categoryResponse = RoleMapper.Mapper.Map<ForumCategoryResponse>(newCategory);
             return categoryResponse;
         }

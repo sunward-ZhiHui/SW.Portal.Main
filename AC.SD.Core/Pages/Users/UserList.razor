@@ -38,7 +38,7 @@
         <DxGridDataColumn FieldName="NickName" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate"  />
-       
+        <DxGridDataColumn FieldName="Locked"  />
         <DxGridDataColumn FieldName="ModifiedByUser"  />
         <DxGridDataColumn FieldName="UserID" AllowSort="false" MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
             <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button></CellDisplayTemplate>
@@ -55,7 +55,11 @@
                 @if ((bool)context.Value)
                 {
                     @*<span class="grid-icon grid-icon-check"></span>*@
-              <button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button>
+                    <button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button>
+                }
+                else
+                {
+                    <button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Lock</button>
                 }
             </CellDisplayTemplate>
         </DxGridDataColumn>

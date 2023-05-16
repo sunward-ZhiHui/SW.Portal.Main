@@ -28,6 +28,7 @@ namespace Infrastructure.Repository.Command.Base
             //{
             using (var connection = CreateConnection())
             {
+                
                 var id=await connection.InsertAsync(entity);
                 Id = id.Value;
             }
@@ -38,7 +39,38 @@ namespace Infrastructure.Repository.Command.Base
             //    throw new Exception(ex.Message);
             //}
         }
+        public async Task<T> AddwithValidateAsync(T entity)
+        {
+          //  var existing = await GetByUsers();
+            int Id = 0;
 
+            using (var connection = CreateConnection())
+            {
+
+                var id = await connection.InsertAsync(entity);
+                Id = id.Value;
+            }
+            return entity;
+        }
+
+        public async Task<T> GetByUsers(string name)
+        {
+            try
+            {
+                var query = "SELECT * FROM FourmTypes WHERE Name = @Name";
+                var parameters = new DynamicParameters();
+                parameters.Add("Name", name);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<T>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task UpdateAsync(T entity)
         {
             using (var connection = CreateConnection())

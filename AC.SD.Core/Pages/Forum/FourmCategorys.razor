@@ -69,12 +69,26 @@
         </DxFormLayout>
     </EditFormTemplate>    
 </DxGrid>
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
+
+    </BodyTemplate>
+</DxPopup>
 
 @code {
     Dictionary<long, string>? CategoryNamesIndex { get; set; }    
     private List<ForumCategorys>? _categorys; 
     List<ForumTypes>? Types {get; set;}
-
+    bool MessageVisible { get; set; }
+    string styleClass = "";
+    string MessageHeader = "Error";
+    string MessageBody = "";
+    private bool loading;
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
     IGrid? Grid { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -114,34 +128,45 @@
 
         if (e.IsNew)
         {
+           
+                //var ex = _categorys.Where(x => x.Name == editModel.Name && x.TypeId == editModel.TypeId);
+                //if (ex == null)
+                //{
+                    var createReq = new CreateForumCategoryCommand
 
-            var createReq = new CreateForumCategoryCommand
-            {
-                Name = editModel.Name,
-                Description = editModel.Description,
-                    TypeId = editModel.TypeId
-            };
-            var result = await Mediator.Send(createReq);
-            await UpdateDataAsync();
-
+                        {
+                            Name = editModel.Name,
+                            Description = editModel.Description,
+                            TypeId = editModel.TypeId
+                        };
+                    var result = await Mediator.Send(createReq);
+                    await UpdateDataAsync();
+                //}
+                //else
+                //{
+                //    onShowPopupMessage("Error", "The entered value exists.");
+                //}
+      
         }
         else
-        {            
-            var UpdateReq = new EditFourmCategoryCommand
-            {
-                ID = editModel.ID,
-                Name = editModel.Name,
-                TypeId = editModel.TypeId,
-                Description = editModel.Description,
-                StatusCodeID = editModel.StatusCodeID,
-                AddedByUserID = editModel.AddedByUserID,
-                AddedDate = editModel.AddedDate,
-                SessionId = editModel.SessionId,
+        {    
+           
+                var UpdateReq = new EditFourmCategoryCommand
+                {
+                        ID = editModel.ID,
+                        Name = editModel.Name,
+                        TypeId = editModel.TypeId,
+                        Description = editModel.Description,
+                        StatusCodeID = editModel.StatusCodeID,
+                        AddedByUserID = editModel.AddedByUserID,
+                        AddedDate = editModel.AddedDate,
+                        SessionId = editModel.SessionId,
 
-            };
+                };
 
-            var ans = await Mediator.Send(UpdateReq);
-            await UpdateDataAsync();
+                var ans = await Mediator.Send(UpdateReq);
+                await UpdateDataAsync();
+           
         }     
 
     }
@@ -155,7 +180,14 @@
         await UpdateDataAsync();
     }
 
-
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
+    }
     void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
     {
         if (e.FieldName == "TypeId")

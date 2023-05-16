@@ -1745,4 +1745,16 @@ body,
     content-padding: 20;
     heading-icon-text:none;
 }
+.align-items {
+    float: right;
+    margin-right: 2%;
+    background-color: lightgray;
+}
+.Text{
+    text-align : left;
+}
+.align-Button {
+    float: right;
 
+    background-color:lightgray;
+}

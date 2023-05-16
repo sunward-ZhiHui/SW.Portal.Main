@@ -1,13 +1,17 @@
-﻿@page "/area"
+﻿@page "/specificArea"
 @using Application.Command.Ictmaster;
+@using Application.Command.LeveMasters;
 @using Application.Commands;
 @using Application.Queries;
 @using MediatR
 @using global::Core.Entities.Views;
 @using global::Core.Entities;
-@inject IMediator Mediator;
+@inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
+@inject IJSRuntime jsRuntime
+
+
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -45,7 +49,8 @@
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Site" Caption="Site" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Zone" Caption="Zone" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-        <DxGridDataColumn FieldName="ParentName" Caption="Location" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="Location" Caption="Location" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="ParentName" Caption="Area" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
 
     </Columns>
@@ -109,10 +114,24 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
-                            @bind-Value="@ict.ParentIctid"
+                            @bind-Value="@ict.LocationId"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.LocationId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Area" ColSpanMd="6">
+                @{
+                    SelectAreaChanges(ict.LocationId);
+                }
+                <DxComboBox Data="@_masterLocation"
+                            NullText="Select Area..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="IctmasterId"
+                            @bind-Value="@ict.ParentIctid"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => ict.AreaId)" />
             </DxFormLayoutItem>
 
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
@@ -146,12 +165,13 @@
     private List<ViewIctmaster>? _masterCompany;
     private List<ViewIctmaster>? _masterSite;
     private List<ViewIctmaster>? _masterZone;
+    private List<ViewIctmaster>? _masterLocation;
 
     IGrid Grid { get; set; }
     private ViewIctmaster _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
-    int masterType = 573;
+    int masterType = 574;
     protected override async Task OnInitializedAsync()
     {
         var model = await Mediator.Send(new GetAllIctMasterQuery());
@@ -255,14 +275,22 @@
     }
     async void SelectChanged(long? siteId)
     {
-        // var id = siteId.IctmasterId
+        
         if (siteId != null)
         {
             _masterZone = _ictmaster.Where(c => c.ParentIctid == siteId && c.MasterType == 572).ToList();
         }
 
     }
+    async void SelectAreaChanges(long? siteId)
+    {
+       
+        if (siteId != null)
+        {
+            _masterLocation = _ictmaster.Where(c => c.ParentIctid == siteId && c.MasterType == 573).ToList();
+        }
 
+    }
     void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
     {
         if (e.FieldName == "CompanyId")
@@ -329,4 +357,3 @@
         DeleteEnabled = false;
     }
 }
-

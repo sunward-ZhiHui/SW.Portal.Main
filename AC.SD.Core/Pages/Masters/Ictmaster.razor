@@ -12,14 +12,15 @@
 @page "/ictMaster"
 
 
-<div class="cw-480 ch-220">
-    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
+<div class="cw-480 ch-220" >
+    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" >
         <DxTab Text="Site"></DxTab>
         <DxTab Text="Zone"></DxTab>
         <DxTab Text="Location"></DxTab>
         <DxTab Text="Area"></DxTab>
+        <DxTab Text="SpecificaArea"></DxTab>
     </DxTabs>
-    <div class="card tabs-border-top-0 tabs-border-radius-top-0" style="min-height: 190px">
+    <div class="card tabs-border-top-0 tabs-border-radius-top-0" style="height: calc(100vh - 200px);">
         <div class="card-body">
             @switch (ActiveTabIndex)
             {
@@ -35,12 +36,15 @@
                 case 3:
                     <Area />
                     break;
+                case 4:
+                    <SpecificArea/>
+                    break;
             }
         </div>
     </div>
 </div>
 
 @code {
-    int ActiveTabIndex { get; set; } = 1;
+    int ActiveTabIndex { get; set; } =0;
   
 }

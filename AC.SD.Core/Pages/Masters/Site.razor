@@ -11,19 +11,6 @@
 @using Application.Response;
 @inject IJSRuntime jsRuntime
 
-<div class="g-title">
-    <div class="g-left"></div>
-
-    <span class=""></span><span class="g-text"></span>
-    <div class="g-right">
-        <button type="button" CssClass="download-btn"
-                IconCssClass="demo-download-icon"
-                Text="Free Trial"
-                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
-            <i class="fa fa-file-excel-o"></i>Export
-        </button>
-    </div>
-</div>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -33,11 +20,12 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
             </Items>
         </DxMenu>
     </div>
 </div>
-<DxGrid @ref="Grid" Data="_ictmaster" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving"     ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+<DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -48,7 +36,8 @@
         ValidationEnabled="true"
         CustomizeElement="Grid_CustomizeElement"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360" style="height: calc(100vh - 200px);"
+        CssClass="ch-360"
+       
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
@@ -57,7 +46,6 @@
         <DxGridDataColumn FieldName="CompanyId"  Caption="Company" TextAlignment = "GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
-        <DxGridCommandColumn Width="160px" />
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{
@@ -105,6 +93,7 @@
     private List<ViewIctmaster> _ictmaster;
     private List<CodeMaster> _codemaster;
     private ViewIctmaster _selectedItems;
+    private List<ViewIctmaster> _ictmasterList;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     int mastertype = 570;
@@ -116,6 +105,7 @@
           // _codemaster = models;
         var model = await Mediator.Send(new GetAllIctMasterQuery());
                 _ictmaster = model;
+        _ictmasterList = model.Where(w => w.MasterType == mastertype).ToList();
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
        // _ictmaster = await Mediator.Send(new GetAllIctMasterQuery());
         CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
@@ -124,6 +114,7 @@
     {
         var model = await Mediator.Send(new GetAllIctMasterQuery());
          _ictmaster = model;
+        _ictmasterList = model.Where(w => w.MasterType == mastertype).ToList();
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -167,7 +158,7 @@
         var editablePlant = (ViewIctmaster)e.DataItem;
         var request = new DeleteIctmasterCommand(editablePlant.IctmasterId);
         await Mediator.Send(request);
-       // await UpdateDataAsync();
+        await UpdateDataAsync();
     }
     async Task UpdateMasterAsync(ViewIctmaster editableictmaster)
     {

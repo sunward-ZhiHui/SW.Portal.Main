@@ -32,8 +32,15 @@ namespace Application.Handlers.CommandHandler
                     IctmasterId = queryEntity.IctmasterId,
                     CompanyId = queryEntity.CompanyId,
                     Name = queryEntity.Name,
-                    AddedByUserId = queryEntity.AddedByUserId,
-                    StatusCodeId = queryEntity.StatusCodeId,
+                    ParentIctid = queryEntity.ParentIctid,
+                    MasterType = queryEntity.MasterType,
+                    Description = queryEntity.Description,
+                    LayoutPlanId = queryEntity.LayoutPlanId,
+                    LocationId = queryEntity.LocationId,
+                    SiteId = queryEntity.SiteId,
+                    ZoneId = queryEntity.ZoneId,
+                    AreaId = queryEntity.AreaId,
+                    SpecificAreaId = queryEntity.SpecificAreaId
                 };
 
                 await _commandRepository.DeleteAsync(data);

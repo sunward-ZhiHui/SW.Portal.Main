@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\Application.csproj", "{6B28B453-954C-48E8-AA8D-09C4E88D211E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentApi", "DocumentApi\DocumentApi.csproj", "{FB6EDCE3-3DFD-41EB-93B8-8D4A9BC2C679}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{6B28B453-954C-48E8-AA8D-09C4E88D211E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B28B453-954C-48E8-AA8D-09C4E88D211E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B28B453-954C-48E8-AA8D-09C4E88D211E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB6EDCE3-3DFD-41EB-93B8-8D4A9BC2C679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB6EDCE3-3DFD-41EB-93B8-8D4A9BC2C679}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB6EDCE3-3DFD-41EB-93B8-8D4A9BC2C679}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB6EDCE3-3DFD-41EB-93B8-8D4A9BC2C679}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

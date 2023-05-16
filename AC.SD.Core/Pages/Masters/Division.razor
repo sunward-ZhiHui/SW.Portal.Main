@@ -14,19 +14,6 @@
 
 
 
-<div class="g-title">
-    <div class="g-left"></div>
-
-    <span class=""></span><span class="g-text"></span>
-    <div class="g-right">
-        <button type="button" CssClass="download-btn"
-                IconCssClass="demo-download-icon"
-                Text="Free Trial"
-                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
-            <i class="fa fa-file-excel-o"></i>Export
-        </button>
-    </div>
-</div
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -37,6 +24,7 @@
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
             </Items>
         </DxMenu>
     </div>
@@ -48,7 +36,7 @@
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
         CustomizeElement="Grid_CustomizeElement"
-        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -57,7 +45,7 @@
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360 " style="height: calc(100vh - 200px);"
+        CssClass="ch-360 " style="height: calc(100vh - 220px);"
          FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true">
@@ -70,10 +58,7 @@
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
         <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
-        <DxGridCommandColumn Width="160px" />
-        @*<DxGridDataColumn FieldName="PlantID" AllowSort="false" Width="90px" MinWidth="100" TextAlignment="GridTextAlignment.Center">
-        <CellDisplayTemplate><button class="btn btn-link grid-btn-link" @onclick="() => ShowDetails((int)context.Value)">Edit</button></CellDisplayTemplate>
-        </DxGridDataColumn>*@
+        
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{

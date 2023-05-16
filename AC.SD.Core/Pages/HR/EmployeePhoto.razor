@@ -1,0 +1,56 @@
+﻿@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using global::Core.Repositories.Query;
+@using Application.Queries;
+@using Microsoft.Extensions.Configuration;
+@using MediatR
+@inject IMediator Mediator
+@inject IConfiguration Configuration
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="col-md-2" style="display:@PhotoEnabled">
+                <img / src="@ImageUrl" style="height: 150px;width: 150px">
+
+            </div>
+            <div class="col-md-10">
+                <DxUpload Name="myFile" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded" >
+                </DxUpload>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ViewEmployee _employeeDatas { get; set; }
+    [Parameter]
+    public ApplicationUser _applicationUser { get; set; }
+    private Documents _documentsData;
+    string ImageUrl = "";
+    string PhotoEnabled { get; set; } = "none";
+    protected override async Task OnInitializedAsync()
+    {
+        string BaseUrl = Configuration["DocumentsUrl:FileUrl"];
+        if (_employeeDatas != null && _employeeDatas.UserID > 0)
+        {
+            _documentsData = await Mediator.Send(new GetAllDocumentsQuery(_employeeDatas.SessionId));
+            if (_documentsData != null && _documentsData.FilePath != null)
+            {
+                PhotoEnabled = "";
+                ImageUrl = BaseUrl+_documentsData.FilePath;
+            }
+        }
+    }
+    public string GetUploadUrl()
+    {
+        string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        string url = BaseUrl + "Upload/UploadDocuments/" + _employeeDatas.SessionId + "/" + _applicationUser.UserID;
+        return url.ToString();
+    }
+    void OnFileUploaded(FileUploadEventArgs e)
+    {
+        PhotoEnabled = "";
+        InvokeAsync(StateHasChanged);
+    }
+}

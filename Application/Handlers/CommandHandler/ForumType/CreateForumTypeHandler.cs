@@ -28,7 +28,7 @@ namespace Application.Handlers.CommandHandler
                 throw new ApplicationException("There is a problem in mapper");
             }
 
-            var newCustomer = await _typeCommandRepository.AddAsync(customerEntity);
+            var newCustomer = await _typeCommandRepository.AddwithValidateAsync(customerEntity);
             var customerResponse = RoleMapper.Mapper.Map<ForumTypeResponse>(newCustomer);
             return customerResponse;
         }

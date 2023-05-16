@@ -9,9 +9,6 @@
 @page "/Employees"
 @inject IJSRuntime jsRuntime
 
-<div class="g-title">
-    <div class="g-left"></div>
-
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -20,19 +17,10 @@
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                    <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
               @*  <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />*@
             </Items>
         </DxMenu>
-    </div>
-</div>
-    <span class=""></span><span class="g-text"></span>
-    <div class="g-right">
-        <button type="button" CssClass="download-btn"
-                IconCssClass="demo-download-icon"
-                Text="Free Trial"
-                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
-            <i class="fa fa-file-excel-o"></i>Export
-        </button>
     </div>
 </div>
 <DxGrid @ref="Grid"
@@ -98,8 +86,8 @@
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "PlantID");
-        _selectedItems = _employeeItems.FirstOrDefault(f => f.PlantID == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeID");
+        _selectedItems = _employeeItems.FirstOrDefault(f => f.EmployeeID == (long?)UniqueId);
         EditEnabled = true;
         DeleteEnabled = true;
         StateHasChanged();

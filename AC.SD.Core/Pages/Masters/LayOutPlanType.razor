@@ -55,7 +55,8 @@
     SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
     AutoExpandAllGroupRows="true"
         KeyFieldName="LayoutPlanTypeId"
-        CssClass="ch-360 style="height: calc(100vh - 200px);"
+        CssClass="ch-360"
+        style="height: calc(100vh - 250px);"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true"
@@ -67,8 +68,7 @@
         <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCodeId" Caption="StatusCodeId" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
-        <DxGridCommandColumn Width="160px" />
-    </Columns>
+            </Columns>
 
     <EditFormTemplate Context="EditFormContext">
         @{

@@ -40,6 +40,7 @@ namespace Application.Handlers.CommandHandler
                 Description = queryEntity.Description,
                 LayoutPlanId = queryEntity.LayoutPlanId,
                 LocationId = queryEntity.LocationId,
+                SiteId = queryEntity.SiteId,
                 ZoneId = queryEntity.ZoneId,
                 AreaId = queryEntity.AreaId,
                 SpecificAreaId = queryEntity.SpecificAreaId

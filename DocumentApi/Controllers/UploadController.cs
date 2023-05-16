@@ -1,12 +1,14 @@
 ﻿using DocumentApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace DocumentApi.Controllers
@@ -24,15 +26,17 @@ namespace DocumentApi.Controllers
         }
         [HttpPost]
         [Route("UploadDocuments")]
-        public ActionResult UploadDocuments(IFormFile files, Guid? SessionId, long? UserId)
+        public ActionResult UploadDocuments(IFormFile files, Guid? SessionId)
         {
-            /*try
-            {*/
+            long documentId = 0;
+            try
+            {
                 var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
                 if (!System.IO.Directory.Exists(serverPaths))
                 {
                     System.IO.Directory.CreateDirectory(serverPaths);
                 }
+                UpdateIsLatest(SessionId);
                 var ext = "";
                 var newFile = "";
                 ext = files.FileName;
@@ -54,26 +58,22 @@ namespace DocumentApi.Controllers
                     FileData = null,
                     FileSize = files.Length,
                     UploadDate = DateTime.Now,
-                    AddedByUserId = UserId,
+                    AddedByUserId = null,
                     AddedDate = DateTime.Now,
                     SessionId = SessionId,
-                    IsTemp = true,
-                    IsCompressed = true,
-                    IsVideoFile = true,
                     IsLatest = true,
-                    FilterProfileTypeId = null,
-                    ProfileNo = null,
                     FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", ""),
 
                 };
                 _context.Documents.Add(documents);
                 _context.SaveChanges();
-            /*}
+                documentId = documents.DocumentId;
+            }
             catch
             {
                 return BadRequest();
-            }*/
-            return Ok();
+            }
+            return Ok(documentId.ToString());
         }
         private string getNextFileName(string fileName)
         {
@@ -90,12 +90,10 @@ namespace DocumentApi.Controllers
 
             return fileName;
         }
-        [HttpGet]
-        [Route("Get")]
-        public Documents? Get(long id)
+        private void UpdateIsLatest(Guid? SessionId)
         {
-            var documents = _context.Documents.FirstOrDefault(a => a.DocumentId == id);
-            return documents;
+            var query = string.Format("Update Documents Set IsLatest='{1}' Where SessionId='{0}'", SessionId, 0);
+            _context.Database.ExecuteSqlRaw(query);
         }
     }
 }

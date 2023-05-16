@@ -15,8 +15,10 @@ namespace Core.Repositories.Query
         Task<List<ForumTopics>> GetByIdAsync(Int64 id);
         Task<List<ForumTopics>> GetUserTopicList(Int64 UserId);
         Task<List<ForumTopics>> GetTreeTopicList(Int64 UserId);
+        Task<List<TopicParticipant>> GetParticipantList(Int64 topicId);        
         Task<ForumTopics> GetCustomerByEmail(string email);
         long Insert(ForumTopics forumTopics);
+        Task<long> InsertParticipant(TopicParticipant topicParticipant);
         Task<ForumTopics> GetTopicListAsync();
         Task<IReadOnlyList<ForumCategorys>> GetCategoryByTypeId(Int64 typeId);
     }

@@ -78,7 +78,7 @@ namespace Infrastructure
             services.AddTransient<IEmployeeICTHardInformationCommandRepository, EmployeeICTHardInformationCommandRepository>();
             services.AddTransient<IFileUploadCommandRepository, FileUploadCommandRepository>();
             services.AddScoped(typeof(ILocalStorageService<>), typeof(LocalStorageService<>));
-
+            services.AddTransient<IDocumentsCommandRepository, DocumentsCommandRepository>();
 
 
 

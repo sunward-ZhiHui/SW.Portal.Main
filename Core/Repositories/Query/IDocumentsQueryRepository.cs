@@ -12,6 +12,7 @@ namespace Core.Repositories.Query
 {
     public interface IDocumentsQueryRepository : IQueryRepository<Documents>
     {
-        Task<Documents> GetByIdAsync(Guid? SessionId);
+        Task<Documents> GetBySessionIdAsync(Guid? SessionId);
+        Task<Documents> GetByIdAsync(long? Id);
     }
 }

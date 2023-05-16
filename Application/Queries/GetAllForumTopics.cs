@@ -25,6 +25,18 @@ namespace Application.Queries
         {
             this.UserId = UserId;
         }
+    }    
+    public class GetParticipantsList : PagedRequest, IRequest<List<TopicParticipant>>
+    {
+        public long TopicId { get; private set; }
+        public GetParticipantsList(long topicId)
+        {
+            this.TopicId = topicId;
+        }
+    }    
+    public class CreateTopicParticipant : TopicParticipant, IRequest<long>
+    {
+        
     }
 
     public class GetByIdTopics : PagedRequest, IRequest<List<ForumTopics>>

@@ -8,7 +8,7 @@
 @inject IMediator Mediator
 @page "/fileupload"
 
-<DxUpload Name="myFile" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded"  SelectedFilesChanged="@SelectedFilesChanged">
+<DxUpload Name="files" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded" SelectedFilesChanged="@SelectedFilesChanged">
 </DxUpload>
 @code {
     long? UserId = 1;
@@ -28,7 +28,7 @@
     public string GetUploadUrl()
     {
         string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        string url = BaseUrl + "Upload/UploadDocuments/" + SessionId + "/" + UserId;
+        string url = BaseUrl + "Upload/UploadDocuments/?SessionId=" + SessionId + "&&UserId=" + UserId;
         return url.ToString();
     }
 

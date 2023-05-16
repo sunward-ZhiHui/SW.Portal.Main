@@ -20,7 +20,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<Documents> Handle(GetAllDocumentsQuery request, CancellationToken cancellationToken)
         {
-            return await _queryRepository.GetByIdAsync(request.SessionId.Value);
+            return await _queryRepository.GetBySessionIdAsync(request.SessionId.Value);
         }
     }
 }

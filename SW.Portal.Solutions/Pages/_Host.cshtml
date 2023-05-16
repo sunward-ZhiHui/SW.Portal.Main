@@ -21,7 +21,7 @@
     <link href="_content/AC.SD.Core/css/app.css" rel="stylesheet" />
     <meta property="og:description" content="DevExpress UI for Blazor ships with native user interface components (including a Data Grid, Pivot Grid, Charts and Scheduler) so you can design rich user experiences with both Blazor." />
     <meta property="og:image" content="https://static.devexpress.com/Products/Blazor/blazor-components-grid-pivot-scheduler-charts-editor-devexpress.jpg" />
-    <meta http-equiv="Content-Security-Policy"
+   @* <meta http-equiv="Content-Security-Policy"
           content="base-uri 'self';
                default-src 'self';
                img-src data:
@@ -49,7 +49,8 @@
                connect-src 'self'
                         https://js.devexpress.com/;
                block-all-mixed-content;
-          ">
+          ">*@
+
     @{
         string InitialThemeName = HttpContextAccessor.HttpContext.Request.Cookies[AC.SD.Core.Services.DemoThemeService.ThemeCookieKey];
     }

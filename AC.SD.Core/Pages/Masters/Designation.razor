@@ -8,7 +8,8 @@
 @using DevExpress.Export
 @using Application.Response;
 @inject IJSRuntime jsRuntime
-
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/designation"
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -25,8 +26,8 @@
     </div>
 </div>
 
-      
-    
+
+
 
 <DxGrid @ref="Grid"
         Data="_designationItems"
@@ -50,6 +51,7 @@
         AllowSelectRowByClick="true">
     <Columns>
 
+        <DxGridDataColumn FieldName="DesignationID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="SubSectionName" MinWidth="80" />
         <DxGridDataColumn FieldName="LevelName" MinWidth="80" />
@@ -60,7 +62,7 @@
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
         <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
-        
+
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{
@@ -76,6 +78,42 @@
                             ValueFieldName="PlantID"
                             @bind-Value="@plant.CompanyID" ShowValidationIcon="true" />
                 <ValidationMessage For="@(() => plant.CompanyID)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                <DxComboBox Data="@_divisionsItems"
+                            NullText="Select Division..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="DivisionID"
+                            @bind-Value="@plant.DivisionID"
+                            SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect.DivisionID))"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => plant.DivisionID)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                <DxComboBox Data="@_departmentsItems"
+                            NullText="Select Department..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="DepartmentName"
+                            ValueFieldName="DepartmentId"
+                            @bind-Value="@plant.DepartmentID"
+                            SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepChanged(plantSelect.DepartmentId))"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => plant.DivisionID)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                <DxComboBox Data="@_sectionItems"
+                            NullText="Select Section..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="SectionName"
+                            ValueFieldName="SectionId"
+                            @bind-Value="@plant.SectionID"
+                            SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSecChanged(plantSelect.SectionId))"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => plant.DivisionID)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
                 <DxComboBox Data="@_subsectionItems"
@@ -134,7 +172,11 @@
 </DxGrid>
 
 @code {
-
+    private List<ViewSection> _sectionItems;
+    private List<ViewSection> _sections;
+    private List<ViewDepartment> _departments;
+    private List<ViewDepartment> _departmentsItems;
+    private List<ViewDivision>? _divisions;
     private List<ViewPlants> _plantItems;
     private List<ViewDesignation> _designationItems;
     private List<CodeMaster> _stausItems;
@@ -142,22 +184,35 @@
     private List<ViewLevel> _levelListItems;
     private List<ViewSubSection> _subsectionListItems;
     private List<ViewSubSection> _subsectionItems;
+    private List<ViewDivision>? _divisionsItems;
     IGrid Grid { get; set; }
     private ViewDesignation _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
+    public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
+        _sections = await Mediator.Send(new GetAllSectionQuery());
+        _departments = await Mediator.Send(new GetAllDepartmentQuery());
+        _divisions = await Mediator.Send(new GetAllDivisionQuery());
+        _divisions = await Mediator.Send(new GetAllDivisionQuery());
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
-        _designationItems = await Mediator.Send(new GetAllDesignationQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _subsectionListItems = await Mediator.Send(new GetAllSubSectionQuery());
         levelItems = await Mediator.Send(new GetAllLevelMasterQuery());
-      
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
     {
         _designationItems = await Mediator.Send(new GetAllDesignationQuery());
+        if (_designationItems.Count > 0)
+        {
+            _selectedItems = _designationItems.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -166,16 +221,36 @@
         {
             _levelListItems = new List<ViewLevel>();
             _subsectionItems = new List<ViewSubSection>();
+            _sectionItems = new List<ViewSection>();
+            _departmentsItems = new List<ViewDepartment>();
+            _divisionsItems = new List<ViewDivision>();
         }
         else
         {
             SelectedItemChanged(dep.CompanyID);
+            SelectedItemSecChanged(dep.SectionID);
+            SelectedItemDivisionChanged(dep.DivisionID);
+            SelectedItemDepChanged(dep.DepartmentID);
         }
     }
     void SelectedItemChanged(long? plantID)
     {
         _levelListItems = levelItems.Where(c => c.CompanyID == plantID).ToList();
-        _subsectionItems = _subsectionListItems.Where(c => c.CompanyId == plantID).ToList();
+        _divisionsItems = _divisions.Where(c => c.CompanyId == plantID).ToList();
+
+    }
+    void SelectedItemSecChanged(long? plantID)
+    {
+
+        _subsectionItems = _subsectionListItems.Where(c => c.SectionId == plantID).ToList();
+    }
+    void SelectedItemDivisionChanged(long? plantID)
+    {
+        _departmentsItems = _departments.Where(c => c.DivisionId == plantID).ToList();
+    }
+    void SelectedItemDepChanged(long? plantID)
+    {
+        _sectionItems = _sections.Where(c => c.DepartmentId == plantID).ToList();
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
@@ -188,10 +263,16 @@
                     Description = editableData.Description,
                     StatusCodeId = editableData.StatusCodeID.Value,
                     Code = editableData.Code,
-                    CompanyId=editableData.CompanyID,
+                    CompanyId = editableData.CompanyID,
                     LevelId = editableData.LevelID,
-                    HeadCount=editableData.HeadCount,
-                    SubSectionID=editableData.SubSectionID,
+                    HeadCount = editableData.HeadCount,
+                    SubSectionID = editableData.SubSectionID,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    SectionID = editableData.SectionID,
+
                 };
             await Mediator.Send(request);
             await UpdateDataAsync();
@@ -208,6 +289,7 @@
         var request = new DeleteDesignationCommand(editableData.DesignationID);
         await Mediator.Send(request);
         await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsync(ViewDesignation editableData)
     {
@@ -218,12 +300,16 @@
                 Description = editableData.Description,
                 StatusCodeId = editableData.StatusCodeID.Value,
                 AddedByUserId = editableData.AddedByUserID,
-                CompanyId=editableData.CompanyID,
+                CompanyId = editableData.CompanyID,
+                SectionID = editableData.SectionID,
                 AddedDate = editableData.AddedDate,
                 Code = editableData.Code,
-                HeadCount=editableData.HeadCount,
+                HeadCount = editableData.HeadCount,
                 LevelId = editableData.LevelID,
-                SubSectionID=editableData.SubSectionID,
+                SubSectionID = editableData.SubSectionID,
+                ModifiedDate = DateTime.Now,
+                ModifiedByUserId = applicationUser.UserID,
+
             };
         await Mediator.Send(request);
         await UpdateDataAsync();
@@ -258,27 +344,22 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DesignationID");
         _selectedItems = _designationItems.FirstOrDefault(f => f.DesignationID == (long?)UniqueId);
-        EditEnabled = true;
-        DeleteEnabled = true;
-        StateHasChanged();
+
 
     }
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        EditEnabled = false;
-        DeleteEnabled = false;
+
     }
     void addEdit()
     {
         Grid.StartEditDataItemAsync(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
+
     }
     void addDelete()
     {
         Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
+
     }
 }

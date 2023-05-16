@@ -27,10 +27,6 @@ namespace Application.Command.designations
         public long? SubSectionID { get; set; }
         public CreateDesignationCommand()
         {
-            this.AddedDate = DateTime.Now;
-            this.ModifiedDate = DateTime.Now;
-            this.AddedByUserId = 1;
-            this.ModifiedByUserId = 1;
         }
     }
 }

@@ -138,15 +138,15 @@ body,
 .theme-superhero .demo-header .logo-image .logo-img {
     background-image: none;
     background-color: var(--bs-body-color);
-    -webkit-mask: url(../images/logo.svg) no-repeat center;
+    -webkit-mask: url(../images/sw-logo.png) no-repeat center;
 }
 
 .demo-header .logo-image .logo-sec-img {
     width: 115px;
     height: 34px;
     background-color: var(--bs-body-color);
-    -webkit-mask: url(../images/logo-sec.svg) no-repeat center;
-    mask: url(../images/logo-sec.svg) no-repeat center;
+    -webkit-mask: url(../images/sw-logo.png) no-repeat center;
+    mask: url(../images/sw-logo.png) no-repeat center;
     display: block;
 }
 

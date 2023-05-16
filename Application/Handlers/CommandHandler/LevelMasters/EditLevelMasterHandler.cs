@@ -15,18 +15,18 @@ using System.Threading.Tasks;
 
 namespace Application.Handlers.CommandHandler
 {
-    public class EditLevelMasterHandler : IRequestHandler<EditLayOutPlanTypeMasterCommand,LayOutPlanTypeResponse>
+    public class EditLevelMasterHandler : IRequestHandler<EditLevelMasterCommand, LevelMasterResponse>
     {
-        private readonly ILayOutPlanCommandRepository _commandRepository;
-        private readonly ILayOutPlanTypeQueryRepository _queryRepository;
-        public EditLevelMasterHandler(ILayOutPlanCommandRepository customerRepository, ILayOutPlanTypeQueryRepository customerQueryRepository)
+        private readonly ILevelMasterCommandRepository _commandRepository;
+        private readonly ILevelMasterQueryRepository _queryRepository;
+        public EditLevelMasterHandler(ILevelMasterCommandRepository customerRepository, ILevelMasterQueryRepository customerQueryRepository)
         {
             _commandRepository = customerRepository;
             _queryRepository = customerQueryRepository;
         }
-        public async Task<LayOutPlanTypeResponse> Handle(EditLayOutPlanTypeMasterCommand request, CancellationToken cancellationToken)
+        public async Task<LevelMasterResponse> Handle(EditLevelMasterCommand request, CancellationToken cancellationToken)
         {
-            var queryrEntity = RoleMapper.Mapper.Map<LayoutPlanType>(request);
+            var queryrEntity = RoleMapper.Mapper.Map<LevelMaster>(request);
 
             if (queryrEntity is null)
             {
@@ -41,11 +41,10 @@ namespace Application.Handlers.CommandHandler
             {
                 throw new ApplicationException(exp.Message);
             }
-            var response = new LayOutPlanTypeResponse
+            var response = new LevelMasterResponse
             {
-                LayoutPlanTypeId= queryrEntity.LayoutPlanTypeId,
-                AddedByUserId= queryrEntity.AddedByUserId,
-                StatusCodeId = queryrEntity.StatusCodeId,
+                LevelID = queryrEntity.LevelId,
+                AddedByUserID = queryrEntity.StatusCodeId,
                 Name = queryrEntity.Name,
             };
 

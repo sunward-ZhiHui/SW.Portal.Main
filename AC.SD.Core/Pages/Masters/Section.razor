@@ -8,7 +8,8 @@
 @using DevExpress.Export
 @using Application.Response;
 @inject IJSRuntime jsRuntime
-
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/section"
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -42,11 +43,11 @@
         AutoExpandAllGroupRows="true"
         CssClass="ch-360"
         style="height: calc(100vh - 220px);"
-       FocusedRowEnabled ="true"
+        FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true">
     <Columns>
-
+        <DxGridDataColumn FieldName="SectionId" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="Division" MinWidth="80" />
         <DxGridDataColumn FieldName="SectionName" Caption="Name" MinWidth="80" />
@@ -121,18 +122,21 @@
     private ViewSection _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
+    public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
-        _sectionItems = await Mediator.Send(new GetAllSectionQuery());
+
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         if (e.IsNew)
         {
-            companyName ="";
-            divisionName ="";
+            companyName = "";
+            divisionName = "";
         }
         else
         {
@@ -151,8 +155,14 @@
     }
     async Task UpdateDataAsync()
     {
-        var model = await Mediator.Send(new GetAllSectionQuery());
-        _sectionItems = model;
+        _sectionItems = await Mediator.Send(new GetAllSectionQuery());
+        if (_sectionItems.Count > 0)
+        {
+            _selectedItems = _sectionItems.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
@@ -166,7 +176,11 @@
                     Code = editableData.SectionCode,
                     Description = editableData.Description,
                     StatusCodeId = editableData.StatusCodeId,
-                    ProfileCode=editableData.ProfileCode,
+                    ProfileCode = editableData.ProfileCode,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
                 };
             await Mediator.Send(request);
             await UpdateDataAsync();
@@ -194,9 +208,11 @@
                 Code = editableData.SectionCode,
                 Description = editableData.Description,
                 StatusCodeId = editableData.StatusCodeId,
+                ModifiedDate = DateTime.Now,
                 AddedByUserId = editableData.AddedByUserId,
                 AddedDate = editableData.AddedDate,
-                ProfileCode=editableData.ProfileCode,
+                ModifiedByUserId = applicationUser.UserID,
+                ProfileCode = editableData.ProfileCode,
             };
         await Mediator.Send(request);
         await UpdateDataAsync();
@@ -231,27 +247,18 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SectionId");
         _selectedItems = _sectionItems.FirstOrDefault(f => f.SectionId == (long?)UniqueId);
-        EditEnabled = true;
-        DeleteEnabled = true;
         StateHasChanged();
-
     }
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
     void addEdit()
     {
         Grid.StartEditDataItemAsync(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
     void addDelete()
     {
         Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
 }

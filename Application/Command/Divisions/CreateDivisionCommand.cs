@@ -24,10 +24,6 @@ namespace Application.Commands
         public DateTime? ModifiedDate { get; set; }
         public CreateDivisionCommand()
         {
-            this.AddedDate = DateTime.Now;
-            this.ModifiedDate = DateTime.Now;
-            this.AddedByUserId = 1;
-            this.ModifiedByUserId = 1;
         }
     }
 }

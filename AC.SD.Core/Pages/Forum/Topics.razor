@@ -37,7 +37,7 @@
     </div>
 </DxPopup>
 
-<div class="card cw-480">
+<div class="card cw-480" >
     <EditForm Model="@Data"
               OnValidSubmit="@HandleValidSubmit"
               OnInvalidSubmit="@HandleInvalidSubmit"
@@ -413,7 +413,7 @@
         _forumCategorys = await Mediator.Send(new GetAllForumCategorys());
 
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());            
-        _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList(); ;
+        _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
         //var topicmodel = await Mediator.Send(new GetListCategory(1));
         //_category = topicmodel;           

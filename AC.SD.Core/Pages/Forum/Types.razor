@@ -24,12 +24,18 @@
     </div>
 </div>
 
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
-    <div class="text-center">
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  @bind-Visible="@PopupVisible" BodyText=" Record Saved  Sucessfully" >
+
+    
+       <div class="text-center">
         <p>@errorMessage</p>
-        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+       
+        <DxButton  Text="OK" Click="@(() => ClosePopup())" />
     </div>
+    
+
 </DxPopup>
+
 
 
 <DxGrid @ref="Grid" Data="@_types" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleeDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
@@ -37,8 +43,8 @@
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"        
-        style="height:calc(100vh - 195px); min-height:100px;"
+        PageSize="20"
+        style="height: calc(100vh - 220px);"
         CssClass="ch-360"
         CustomizeElement="Grid_CustomizeElement"
         AutoExpandAllGroupRows="true"
@@ -80,7 +86,9 @@
     bool ExportSelectedRowsOnly { get; set; }
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
-    string? errorMessage;   
+    string? errorMessage;
+
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -100,25 +108,28 @@
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
         {
            ExportSelectedRowsOnly = true,
-      
+
           CustomizeCell = OnCustomizeCell
         });
 
-    //    if (ExportSelectedRowsOnly)
-    //    {
-    //        ExportSelectedRowsOnly = true;
-    //        CustomizeCell = OnCustomizeCell
-            
-    //    }
-    //    else
-    //    {
-    //        ExportSelectedRowsOnly = false;
-    //        CustomizeCell = OnCustomizeCell
-            
-     }
-            
+            //if (ExportSelectedRowsOnly)
+           
+            //{
+            //    ExportSelectedRowsOnly = true;
+            //    CustomizeCell = OnCustomizeCell
+
+            //}
+            //else
+            //{
+            //    ExportSelectedRowsOnly = false;
+            //    CustomizeCell = OnCustomizeCell
+
+    }
+
     //});
 
+
+   
 
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {
@@ -127,9 +138,9 @@
         args.Handled = true;
 
 
-       
+
     }
-    
+
     //protected override async Task OnAfterRenderAsync(bool firstRender)
     //{
     //    if (firstRender)
@@ -149,7 +160,7 @@
     //    Resize();
     //    return base.ShouldRender();
     //}
-   
+
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editModel = (ForumTypes)e.EditModel;        
@@ -162,7 +173,7 @@
                 Name = editModel.Name,
                 Description = editModel.Description
             };
-          
+
             try
             {
                 var result = await Mediator.Send(createReq);
@@ -170,7 +181,8 @@
             }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
+                
+                errorMessage = ex.Message;            
                 PopupVisible = true;
 
             }
@@ -238,4 +250,3 @@
     }
     
  }
-}

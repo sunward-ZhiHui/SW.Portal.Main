@@ -17,6 +17,7 @@ namespace Core.Entities
         public string? TopicName { get; set; }
         [Required(ErrorMessage = "Please Select Type Name.")]
         public long? TypeId { get; set; }
+        public string? TypeName { get; set; }
         public long CategoryId { get; set; }
         public DateTime StartDate { get; set; } = DateTime.Now;
         public DateTime? EndDate { get; set; }
@@ -33,7 +34,7 @@ namespace Core.Entities
         public int SeqNo { get; set; }
         public string? SubjectName { get; set; }
         public string? Label { get; set; }
-        public List<ForumTopics>? TopicList { get; set; }
+        public List<ForumTopics>? children { get; set; }
 
     }
 }

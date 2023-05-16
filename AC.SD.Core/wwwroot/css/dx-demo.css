@@ -21,10 +21,17 @@ body,
     background-color: var(--bs-primary);
     border-color: var(--bs-primary) !important;
 }
-.btn-submit {
-    background-color: var(--bs-success);
+.TxtGreen
+{
+    color:forestgreen;
+}
+.btn-excel:hover {
     color: white;
 }
+    .btn-submit {
+        background-color: var(--bs-success);
+        color: white;
+    }
 .btn-add {
     background-color: var(--bs-background-bg);
     border-color: var(--bs-background-bg) !important;

@@ -28,7 +28,7 @@ namespace Application.Common.Mapper
             CreateMap<ApplicationRole, EditRoleCommand>().ReverseMap();
 
 
-            CreateMap<ForumTypes, ForumTypeResponse>().ReverseMap();
+          
             CreateMap<ForumTypes, CreateForumTypeCommand>().ReverseMap();
             CreateMap<ForumTypes, EditForumTypeCommand>().ReverseMap();
             CreateMap<Plant, CreatePlantCommand>().ReverseMap();
@@ -60,6 +60,7 @@ namespace Application.Common.Mapper
             CreateMap<ForumCategorys, ForumCategoryResponse>().ReverseMap();
             CreateMap<ForumTopics, ForumTopicsResponse>().ReverseMap();
             CreateMap<ApplicationUser, ApplicationUserResponse>().ReverseMap();
+            CreateMap<ForumTypes, ForumTypeResponse>().ReverseMap();
 
 
             CreateMap<LevelMaster, CreateLevelMasterCommand>().ReverseMap();

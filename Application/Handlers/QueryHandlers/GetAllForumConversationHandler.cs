@@ -1,5 +1,6 @@
 ﻿using Application.Queries;
 using Core.Entities;
+using Core.Entities.Views;
 using Core.Repositories.Command.Base;
 using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
@@ -89,6 +90,36 @@ namespace Application.Handlers.QueryHandlers
         {
             var req = await _conversationQueryRepository.Delete(request);
             return req;
+        }
+    }
+
+    public class DeleteParticipantHandler : IRequestHandler<DeleteParticipant, long>
+    {
+        private readonly IForumConversationsQueryRepository _conversationQueryRepository;
+
+        public DeleteParticipantHandler(IForumConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+
+        }
+
+        public async Task<long> Handle(DeleteParticipant request, CancellationToken cancellationToken)
+        {
+            var req = await _conversationQueryRepository.DeleteParticipant(request);
+            return req;
+        }
+    }
+
+    public class GetAllParticipantListHandler : IRequestHandler<GetAllParticipantListQuery, List<ViewEmployee>>
+    {
+        private readonly IForumConversationsQueryRepository _conversationQueryRepository;
+        public GetAllParticipantListHandler(IForumConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<ViewEmployee>> Handle(GetAllParticipantListQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewEmployee>)await _conversationQueryRepository.GetAllParticipantAsync(request.TopicId);
         }
     }
 }

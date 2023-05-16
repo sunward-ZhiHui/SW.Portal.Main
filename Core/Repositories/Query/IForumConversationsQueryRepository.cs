@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.Entities.Views;
 using Core.Repositories.Query.Base;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,8 @@ namespace Core.Repositories.Query
         Task<long> Insert(ForumConversations company);
         Task<long> Update(ForumConversations company);
         Task<long> Delete(ForumConversations company);
-
+        Task<IReadOnlyList<ViewEmployee>> GetAllParticipantAsync(long topicId);
+        Task<long> DeleteParticipant(TopicParticipant topicParticipant);
         Task<ForumConversations> GetByIdAsync(Int64 id);
         Task<List<ForumConversations>> GetDiscussionListAsync(Int64 TopicId);
         

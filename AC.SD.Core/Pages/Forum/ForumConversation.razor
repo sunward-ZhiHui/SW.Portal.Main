@@ -3,6 +3,7 @@
 @using Application.Response;
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
+@using global::Core.Entities.Views;
 @using MediatR
 @inject IMediator Mediator
 @using System.ComponentModel.DataAnnotations
@@ -13,6 +14,7 @@
 @using DevExpress.Blazor.RichEdit
 @using DevExpress.Blazor.Office
 @using System.Globalization
+@using System;
 
 
 <style>
@@ -54,7 +56,7 @@
                         <div class="files-title">General Information</div>
                     </div>
                     <!-- Views Accordion -->
-                    <div class="views-accordion">
+                   @* <div class="views-accordion">
                         <DxTreeView Data="@_topics"
                                     @bind-FilterString="FilterString"
                                     FilterMinLength="2"
@@ -67,7 +69,29 @@
                                 <DxTreeViewDataMapping Key="ID" CssClass="CssClass" Text="TopicName" Name="ID" />
                             </DataMappings>
                         </DxTreeView>
+                    </div>*@
+
+                    <div>
+                        <div class="views-accordion">                         
+                            <DxTreeView Data="@_TreeView"
+                                        @bind-FilterString="FilterString"
+                                        FilterMinLength="2"
+                                        ShowFilterPanel="true"
+                                        FilterMode="FilterMode"
+                                        AllowSelectNodes=true
+                                        LoadChildNodesOnDemand=false
+                                        SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
+                                <DataMappings>
+                                    <DxTreeViewDataMapping Children="children" CssClass="CssClass" Text="Label" Name="ID" />
+                                </DataMappings>
+                            </DxTreeView>
+                        </div>
                     </div>
+
+
+
+
+
                 </div>
                 @*<div class="mini-menu-bar-down">
                 <div class="add-cloud-storage-btn">
@@ -104,6 +128,7 @@
                                                 <DxMenuItem Text="Posts" class="@((isMenuvisible == "Posts" ? "tActive": "tfiles"))" IconCssClass="menu-icon-products menu-icon" Click="@(() => OnMenuItemClick("Posts"))" />
                                                 <DxMenuItem Text="Files" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
                                                 <DxMenuItem Text="Todo" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
+                                                <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />
                                             </Items>
                                         </DxMenu>
                                     </div>
@@ -123,6 +148,32 @@
                                                     @item.TicketNo - @item.TopicName
                                                 </div>
                                                 <span class="uk-label uk-margin-auto-left" style="float: right; margin-top: 7px; margin-right: -10px;">
+
+                                                    @if (isAddParticipant)
+                                                    {
+                                                        <button @onclick="onAddPlist" class="btn btn-excel" style="margin-top: -5px;">Add Participant </button>
+                                                    }
+
+                                                    @*<div class="card">
+                                                        <DxMenu Orientation="Orientation.Horizontal" DisplayMode="MenuDisplayMode.Mobile">
+                                                            <Items>
+                                                                <DxMenuItem Text="Home" IconCssClass="menu-icon-home menu-icon">
+                                                                    <Items>
+                                                                        <DxMenuItem Text="News">
+                                                                            <Items>
+                                                                                <DxMenuItem Text="Explore our newest features" />
+                                                                                <DxMenuItem Text="Website news" />
+                                                                            </Items>
+                                                                        </DxMenuItem>
+                                                                        <DxMenuItem Text="Our Mission" />
+                                                                        <DxMenuItem Text="Our Customers" />
+                                                                    </Items>
+                                                                </DxMenuItem>
+                                                            </Items>
+                                                        </DxMenu>                                                    
+                                                    </div>*@
+
+
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
                                                         <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
                                                     </svg>
@@ -295,12 +346,12 @@
                                 else
                                 {
 
-                                    <DxButton RenderStyle="ButtonRenderStyle.Secondary"
+                                   @* <DxButton RenderStyle="ButtonRenderStyle.Secondary"
                                       Text="New Conversation"
                                       Click="@(() => isComponentVisible = true)"
                                       IconCssClass="btn-icon-undo"
                                               style="color:white; width:200px;"
-                                      CssClass="me-1 btn-success open-button" />
+                                      CssClass="me-1 btn-success open-button" />*@
                                 }
                             </div>
                         }
@@ -313,7 +364,7 @@
                                 PageSizeSelectorAllRowsItemVisible="true"
                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
                                 PageSize="20"
-                                    style="height:calc(100vh - 195px)"
+                                    style="height:calc(100vh - 289px)"
                                 CssClass="ch-360"
                                 AutoExpandAllGroupRows="true"
                                 SelectionMode="GridSelectionMode.Multiple"
@@ -344,9 +395,41 @@
 
                             </DxGrid>
                         }
-                        else
+                        else if (isMenuvisible == "Todo")
                         {
                             <div>Todo</div>
+                          
+                        }
+                        else
+                        {
+                           @* <div class="card-header text-center">
+                                <span> Participant List</span>
+                                @*<DxButton style="float:right;" RenderStyle="ButtonRenderStyle.Info" class="btn btn-add" Click="@onClickParticipant">Add</DxButton>
+                            </div>*@
+                            <div class="">
+                                <DxGrid @ref="Grid" Data="_participant"
+                                    KeyFieldName="ID"
+                                    ShowSearchBox="true"
+                                    PagerNavigationMode="PagerNavigationMode.InputBox"                                   
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                    PageSize="20"
+                                    style="height:calc(100vh - 290px);min-height:400px !important"
+                                    CssClass="ch-360"
+                                    SelectionMode="GridSelectionMode.Multiple"
+                                    AllowSelectRowByClick="true">
+                                    <Columns>
+                                        @*<DxDataGridColumn>
+                                    <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+                                    </DxDataGridColumn>*@                                       
+                                        <DxGridDataColumn FieldName="UserName" MinWidth="100" />
+                                        <DxGridDataColumn FieldName="UserCode" />
+                                        <DxGridDataColumn FieldName="ID" Caption="Action" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
+                                            <CellDisplayTemplate><button class="btnDelete fas fa-trash" @onclick="() => onDeletePlist((long)context.Value)"></button></CellDisplayTemplate>
+                                        </DxGridDataColumn>                                        
+                                    </Columns>
+                                </DxGrid>
+                            </div>
                         }
                     </div>
                 </div>
@@ -355,7 +438,66 @@
     </div>
 </div>
 
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="300px" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <Content>
+        <p>
+                <div Position="Left" id="@("label"+_participantLst.UserName)" class="display-field"> Do you want to  Delete this <span style="color:red">@_participantLst.UserName</span> </div>
+           
+        </p>
+    </Content> 
+       
+        <DxButton style="align-items" Text="Yes" Click="@((e) => SubmitDelete(_participantLst.ID))" />
+        <DxButton CssClass="dx-button.dx-icon" Text="No" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+
+<DxPopup @bind-Visible="@isAllPlistVisible" HeaderText="Add Participants">
+    <BodyTemplate Context="PopupContext">
+        <div>
+            <button class="btn btn-excel" style="float: right; margin-right: 10px; margin-top: 10px; margin-bottom: 10px;" @onclick="onSubmitPList">
+                Add
+            </button>            
+        </div>
+        <DxGrid @ref="Grid" Data="_allparticipant"
+                KeyFieldName="UserID"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                style="height:calc(100vh - 285px);min-height:400px !important"
+                CssClass="ch-360"
+                SelectionMode="GridSelectionMode.Multiple"
+                AllowSelectRowByClick="true"
+                SelectedDataItemsChanged="@OnSelectedDataItemsChanged"
+                SelectedRowsChanged="HandleSelectedRowsChanged">
+            <Columns>
+                @*<DxDataGridColumn>
+                <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+                </DxDataGridColumn>*@
+                <DxGridSelectionColumn Width="104px" />
+                <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
+                <DxGridDataColumn FieldName="LastName" />
+            </Columns>
+        </DxGrid>
+
+    </BodyTemplate>
+</DxPopup>
+
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
+    </BodyTemplate>
+</DxPopup>
+
 @code {
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
     private Dictionary<int, bool> itemVisibility = new Dictionary<int, bool>();
     AccordionExpandMode ExpandMode { get; set; } = AccordionExpandMode.SingleOrNone;
     AccordionExpandCollapseAction ExpandCollapseAction { get; set; } = AccordionExpandCollapseAction.HeaderClick;
@@ -363,25 +505,79 @@
     string isMenuvisible = "Posts";
     DxTreeView treeView;
     IGrid? Grid { get; set; }
+    bool isAllPlistVisible = false;
     bool isComponentVisible = true;
+    bool isEnabled { get; set; } = false;
+    bool isAddParticipant = false;
     private List<ForumTypes>? _types;
     IEnumerable<(ForumTypes, int)> Items;
     private List<ForumTopics>? _topics;
+    private List<ForumTopics>? _TreeView;
     public List<ForumConversations> _discussionList;
     public List<ForumConversations> _replyComment;
     private List<ForumTopics>? _headTopic;
     string FilterString { get; set; }
+    private List<TopicParticipant>? _participant;
+    TopicParticipant _participantLst { get; set; }
+    private List<ViewEmployee>? _allparticipant;
+    private List<ViewEmployee>? _selectedlistpartlist;
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;
     public ForumTypes SelectedNodes { get; set; }
     ForumConversations? Data { get; set; } = new ForumConversations();
     string SelectedGroup = "none";
     public ApplicationUser applicationUser { get; private set; }
+    IReadOnlyList<object>? SelectedDataItems { get; set; }
+    List<long> participantIds = new List<long>();
+    private bool loading;
+    bool MessageVisible { get; set; }
+    string styleClass = "";
+    string MessageHeader = "Error";
+    string MessageBody = "";   
+
     private async Task SelectionChanged(TreeViewNodeEventArgs e)
     {
         SelectedGroup = e.NodeInfo?.Name;
         //_discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
-        await LoadData();
+        if(SelectedGroup != "0")
+        {
+            await LoadData();
+        }
+
     }
+    public async Task onDeletePlist(long Id)
+    {
+        _participantLst =  _participant.FirstOrDefault(a => a.ID == Id);
+        PopupVisible = true;        
+    }
+    private async void SubmitDelete(long Id)
+    {        
+        if (Id > 0)
+        {
+            var request = new DeleteParticipant
+                {
+                    ID = Id,
+
+                };
+            var response = await Mediator.Send(request);
+            PopupVisible = false;
+            isAllPlistVisible = false;
+            await LoadGetPList();
+            onShowPopupMessage("success", "Participant has been deleted successfully");
+        }
+    }
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
+    }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+    }
+
     private void ToggleItemVisibility(int id)
     {
         if (itemVisibility.ContainsKey(id))
@@ -398,7 +594,69 @@
     {
         _discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
         _headTopic = await Mediator.Send(new GetByIdTopics(long.Parse(@SelectedGroup)));
+        isEnabled = true;
 
+        _participant = await Mediator.Send(new GetParticipantsList(long.Parse(@SelectedGroup)));
+
+        _participant[1].IsEnabled = false; // Disable the second row
+
+        //var plist = await Mediator.Send(new GetAllEmployeeListQuery());
+        // _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+    }
+    void OnSelectedDataItemsChanged(IReadOnlyList<object> selectedDataItems)
+    {
+        SelectedDataItems = selectedDataItems;
+    }
+    private async Task onAddPlist()
+    {
+        await LoadAllParticipantList();
+    }
+    private async Task LoadAllParticipantList()
+    {
+        var plist = await Mediator.Send(new GetAllParticipantListQuery(long.Parse(@SelectedGroup)));
+        _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+
+        isAllPlistVisible = true;
+    }
+    private async Task LoadGetPList()
+    {
+        _participant = await Mediator.Send(new GetParticipantsList(long.Parse(@SelectedGroup)));
+        SelectedDataItems = null;
+        participantIds.Clear();
+    }
+    private async Task onSubmitPList()
+    {
+        var lst = SelectedDataItems;
+
+
+        if (SelectedDataItems != null)
+        {
+            foreach (object item in SelectedDataItems)
+            {
+                if (item is ViewEmployee employee)
+                {
+                    participantIds.Add((long)employee.UserID);
+                }
+            }
+        }
+
+        string participantidsString = string.Join(",", participantIds);
+
+
+        var createReq = new CreateTopicParticipant
+            {
+                PList = participantidsString,
+                TopicId = long.Parse(@SelectedGroup),
+                UserId = applicationUser.UserID,
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                SessionId = Guid.NewGuid()  
+            };
+        var result = await Mediator.Send(createReq);
+
+        isAllPlistVisible = false;
+        await LoadGetPList();
     }
     protected override async Task OnInitializedAsync()
     {
@@ -410,7 +668,7 @@
 
         _topics = await Mediator.Send(new GetUserForumTopics(applicationUser.UserID));
 
-        var lst = await Mediator.Send(new GetTreeList(applicationUser.UserID));
+        _TreeView = await Mediator.Send(new GetTreeList(applicationUser.UserID));
 
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
     }
@@ -432,6 +690,21 @@
     void OnMenuItemClick(string text)
     {
         isMenuvisible = text;
+
+        if(text == "Posts")
+        {
+            isComponentVisible = true;
+        }
+        else if (text == "AddParticipants")
+        {
+            isAddParticipant = true;
+            isComponentVisible = false;
+        }
+        else
+        {
+            isAddParticipant = false;
+            isComponentVisible = false;
+        }
     }
 
     private void OnSelectedNodeChangeds(ForumTypes item)
@@ -473,29 +746,5 @@
     void HandleInvalidSubmit()
     {
 
-    }
-
-    private List<TreeViewItem> TreeData = new List<TreeViewItem>
-    {
-        new TreeViewItem { ID = 1, ParentID = null, Name = "Item 1" },
-        new TreeViewItem { ID = 2, ParentID = 1, Name = "Item 1.1" },
-        new TreeViewItem { ID = 3, ParentID = 1, Name = "Item 1.2" },
-        new TreeViewItem { ID = 4, ParentID = 2, Name = "Item 1.1.1" },
-        new TreeViewItem { ID = 5, ParentID = 2, Name = "Item 1.1.2" },
-        new TreeViewItem { ID = 6, ParentID = 3, Name = "Item 1.2.1" }
-    };
-    private TreeViewItem SelectedNode { get; set; }
-
-    private void OnSelectedNodeChanged(TreeViewItem node)
-    {
-        SelectedNode = node;
-        // Do something with the selected node
-    }
-
-    private class TreeViewItem
-    {
-        public int ID { get; set; }
-        public int? ParentID { get; set; }
-        public string Name { get; set; }
-    }
+    }  
 }

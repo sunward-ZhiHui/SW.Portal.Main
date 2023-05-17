@@ -136,9 +136,9 @@ body,
 .theme-cyborg .demo-header .logo-image .logo-img,
 .theme-solar .demo-header .logo-image .logo-img,
 .theme-superhero .demo-header .logo-image .logo-img {
-    background-image: none;
+  /*  background-image: none;
     background-color: var(--bs-body-color);
-    -webkit-mask: url(../images/logo.svg) no-repeat center;
+    -webkit-mask: url(../images/logo.svg) no-repeat center;*/
 }
 
 .demo-header .logo-image .logo-sec-img {
@@ -758,7 +758,7 @@ body,
 }
 .themeswitcher-container-shown {
     height: calc(100vh - 3.5rem);
-    background:white;
+   /* background:white;*/
 }
 
 @media (max-width: 1199.98px) {

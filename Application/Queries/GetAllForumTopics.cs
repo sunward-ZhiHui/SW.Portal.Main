@@ -38,6 +38,12 @@ namespace Application.Queries
     {
         
     }
+    public class UpdateTopicDueDate : ForumTopics, IRequest<long>
+    {       
+    }
+    public class UpdateTopicClosed : ForumTopics, IRequest<long>
+    {       
+    }
 
     public class GetByIdTopics : PagedRequest, IRequest<List<ForumTopics>>
     {

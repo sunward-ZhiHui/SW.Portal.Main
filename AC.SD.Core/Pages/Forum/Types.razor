@@ -36,7 +36,14 @@
 
 </DxPopup>
 
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
 
+    </BodyTemplate>
+</DxPopup>
 
 <DxGrid @ref="Grid" Data="@_types" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleeDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -87,8 +94,13 @@
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     string? errorMessage;
+    bool MessageVisible { get; set; }
+    string styleClass = "";
+    string MessageHeader = "Error";
+    string MessageBody = "";
+    private bool loading;
+  
 
-    
 
     protected override async Task OnInitializedAsync()
     {
@@ -112,24 +124,24 @@
           CustomizeCell = OnCustomizeCell
         });
 
-            //if (ExportSelectedRowsOnly)
-           
-            //{
-            //    ExportSelectedRowsOnly = true;
-            //    CustomizeCell = OnCustomizeCell
+        //if (ExportSelectedRowsOnly)
 
-            //}
-            //else
-            //{
-            //    ExportSelectedRowsOnly = false;
-            //    CustomizeCell = OnCustomizeCell
+        //{
+        //    ExportSelectedRowsOnly = true;
+        //    CustomizeCell = OnCustomizeCell
+
+        //}
+        //else
+        //{
+        //    ExportSelectedRowsOnly = false;
+        //    CustomizeCell = OnCustomizeCell
 
     }
 
     //});
 
 
-   
+
 
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {
@@ -167,27 +179,35 @@
 
         if (e.IsNew)
         {
-
-            var createReq = new CreateForumTypeCommand
+            var ex = _types.Where(x => x.Name == editModel.Name );
+            if (ex.Any())
             {
-                Name = editModel.Name,
-                Description = editModel.Description
-            };
-
-            try
-            {
-                var result = await Mediator.Send(createReq);
-                PopupVisible = true;
+                onShowPopupMessage("Error", "The entered value Already exists.");
             }
-            catch (Exception ex)
+            else
             {
-                
-                errorMessage = ex.Message;            
-                PopupVisible = true;
+                var createReq = new CreateForumTypeCommand
+                    {
+                        Name = editModel.Name,
+                        Description = editModel.Description
+                    };
 
+                try
+                {
+                    var result = await Mediator.Send(createReq);
+                    PopupVisible = true;
+                }
+                catch (Exception eq)
+                {
+
+                    errorMessage = eq.Message;
+                    PopupVisible = true;
+
+                }
+
+                await UpdateDataAsync();
             }
 
-            await UpdateDataAsync();
             //var request = new CreateCommand<ForumTypeResponse>
             //    {
             //        Entity = new ForumTypeResponse
@@ -204,23 +224,41 @@
             //var customer = await Mediator.Send(request);
         }
         else
-        {            
-            var UpdateReq = new EditForumTypeCommand
+        {     
+            var ex = _types.Where(x => x.Name == editModel.Name && x.ID != editModel.ID );
+            if (ex.Any())
             {
-                ID = editModel.ID,
-                Name = editModel.Name,
-                Description = editModel.Description,
-                StatusCodeID = editModel.StatusCodeID,
-                AddedByUserID = editModel.AddedByUserID,
-                AddedDate = editModel.AddedDate,
-                SessionId = editModel.SessionId,
+                onShowPopupMessage("Error", "The entered value Already exists.");
+            }
+            else
+            {
+                var UpdateReq = new EditForumTypeCommand
+                    {
+                        ID = editModel.ID,
+                        Name = editModel.Name,
+                        Description = editModel.Description,
+                        StatusCodeID = editModel.StatusCodeID,
+                        AddedByUserID = editModel.AddedByUserID,
+                        AddedDate = editModel.AddedDate,
+                        SessionId = editModel.SessionId,
 
-            };
+                    };
 
-            var ans = await Mediator.Send(UpdateReq);
-            await UpdateDataAsync();
+                var ans = await Mediator.Send(UpdateReq);
+                await UpdateDataAsync();
+              
+            }
+           
         }     
 
+    }
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
     }
     async void ClosePopup()
     {

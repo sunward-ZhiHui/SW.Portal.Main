@@ -26,11 +26,6 @@ namespace Application.Command.Sections
         public string ProfileCode { get; set; }
         public CreateSectionCommand()
         {
-            this.AddedDate = DateTime.Now;
-            this.ModifiedDate = DateTime.Now;
-            this.AddedByUserId = 1;
-            this.ModifiedByUserId = 1;
-            this.HeadCount = 1;
         }
     }
 }

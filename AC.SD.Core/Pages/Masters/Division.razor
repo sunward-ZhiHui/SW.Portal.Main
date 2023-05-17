@@ -8,7 +8,8 @@
 @using Application.Response;
 @using Microsoft.JSInterop;
 @inject IJSRuntime jsRuntime
-
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/Division"
 
 
@@ -46,11 +47,11 @@
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         AutoExpandAllGroupRows="true"
         CssClass="ch-360 " style="height: calc(100vh - 220px);"
-         FocusedRowEnabled="true"
+        FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true">
     <Columns>
-        
+        <DxGridDataColumn FieldName="DivisionID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="PlantDescription" Caption="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="Code" MinWidth="80" />
@@ -58,7 +59,7 @@
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
         <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
-        
+
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{
@@ -107,26 +108,34 @@
 </DxGrid>
 
 @code {
-    private List<ViewDivision> _divisions;
-    private List<CodeMaster> _stausItems;
-    private List<ViewPlants> _plantItems;
-    private ViewDivision _selectedItems;
+    private List<ViewDivision>? _divisions;
+    private List<CodeMaster>? _stausItems;
+    private List<ViewPlants>? _plantItems;
+    private ViewDivision? _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
-    IGrid Grid { get; set; }
+    IGrid? Grid { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
-        var model = await Mediator.Send(new GetAllDivisionQuery());
+
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         var plants = await Mediator.Send(new GetAllPlantQuery());
         _stausItems = models;
-        _divisions = model;
         _plantItems = plants;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
     {
-        var model = await Mediator.Send(new GetAllDivisionQuery());
-        _divisions = model;
+        _divisions = await Mediator.Send(new GetAllDivisionQuery());
+        if (_divisions.Count > 0)
+        {
+            _selectedItems = _divisions.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -150,6 +159,10 @@
                     StatusCodeId = editableData.StatusCodeID,
                     Code = editableData.Code,
                     CompanyId = editableData.CompanyId,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
                 };
             await Mediator.Send(request);
             await UpdateDataAsync();
@@ -166,6 +179,7 @@
         var request = new DeleteDivisionCommand(editableData.DivisionID);
         await Mediator.Send(request);
         await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsync(ViewDivision editableData)
     {
@@ -179,6 +193,8 @@
                 AddedDate = editableData.AddedDate,
                 Code = editableData.Code,
                 CompanyId = editableData.CompanyId,
+                ModifiedByUserId = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
             };
         await Mediator.Send(request);
         await UpdateDataAsync();
@@ -214,28 +230,18 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DivisionID");
         _selectedItems = _divisions.FirstOrDefault(f => f.DivisionID == (long?)UniqueId);
-        EditEnabled = true;
-        DeleteEnabled = true;
-        StateHasChanged();
-
     }
 
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
     void addEdit()
     {
         Grid.StartEditDataItemAsync(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
     void addDelete()
     {
         Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
 }

@@ -7,7 +7,8 @@
 @using DevExpress.Export
 @using Application.Response;
 @inject IJSRuntime jsRuntime
-
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/Plants"
 
 
@@ -28,8 +29,11 @@
 <DxGrid @ref="Grid"
         Data="_plants"
         KeyFieldName="PlantID"
+        EditModelSaving="Grid_EditModelSaving"
+        DataItemDeleting="Grid_DataItemDeleting"
+        CustomizeEditModel="Grid_CustomizeEditModel"
         CustomizeElement="Grid_CustomizeElement"
-         ShowSearchBox="true"
+        ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -53,7 +57,7 @@
         <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
         <DxGridCommandColumn Width="160px" Visible="false" />
     </Columns>
-    <EditFormTemplate  Context="EditFormContext">
+    <EditFormTemplate Context="EditFormContext">
         @{
             var plant = (ViewPlants)EditFormContext.EditModel;
         }
@@ -88,53 +92,53 @@
 </DxGrid>
 
 @code {
-    
+
     private List<ViewPlants> _plants;
     IEnumerable<ViewPlants> _plantItems;
     private List<CodeMaster> _stausItems;
     IGrid Grid { get; set; }
-    private ViewPlants _selectedItems;
+    private ViewPlants? _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
+    public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
-        var model = await Mediator.Send(new GetAllPlantQuery());
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _stausItems = models;
-        _plants = model;
-      
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
     {
-        var model = await Mediator.Send(new GetAllPlantQuery());
-        _plants = model;
+        _plants = await Mediator.Send(new GetAllPlantQuery());
+        if (_plants.Count > 0)
+        {
+
+            _selectedItems = _plants.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "PlantID");
         _selectedItems = _plants.FirstOrDefault(f => f.PlantID == (long?)UniqueId);
-        EditEnabled = true;
-        DeleteEnabled = true;
         StateHasChanged();
-
     }
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        EditEnabled = false;
-        DeleteEnabled = false;
+
     }
     void addEdit()
     {
         Grid.StartEditDataItemAsync(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
+
     }
     void addDelete()
     {
         Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -156,6 +160,10 @@
                     PlantCode = editablePlant.PlantCode,
                     Description = editablePlant.Description,
                     StatusCodeID = editablePlant.StatusCodeID,
+                    AddedByUserID = applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
                 };
             await Mediator.Send(request);
             await UpdateDataAsync();
@@ -172,6 +180,7 @@
         var request = new DeletePlantCommand(editablePlant.PlantID);
         await Mediator.Send(request);
         await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsync(ViewPlants editablePlant)
     {
@@ -181,8 +190,10 @@
                 PlantCode = editablePlant.PlantCode,
                 Description = editablePlant.Description,
                 StatusCodeID = editablePlant.StatusCodeID,
+                ModifiedDate = DateTime.Now,
                 AddedByUserID = editablePlant.AddedByUserID,
                 AddedDate = editablePlant.AddedDate,
+                ModifiedByUserID = applicationUser.UserID,
             };
         await Mediator.Send(request);
         await UpdateDataAsync();
@@ -217,5 +228,5 @@
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
     }
-   
+
 }

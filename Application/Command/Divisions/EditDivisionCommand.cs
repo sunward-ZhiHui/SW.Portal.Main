@@ -24,8 +24,6 @@ namespace Application.Commands
         public DateTime? ModifiedDate { get; set; }
         public EditDivisionCommand()
         {
-            this.ModifiedDate = DateTime.Now;
-            this.ModifiedByUserId = 1;
         }
     }
 }

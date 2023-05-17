@@ -11,7 +11,7 @@ namespace Application.Command.LeveMasters
 {
     public class EditLevelMasterCommand : IRequest<LevelMasterResponse>
     {
-        [Key]
+  
         public long LevelId { get; set; }
         public long? CompanyId { get; set; }
         public string Name { get; set; }
@@ -23,8 +23,6 @@ namespace Application.Command.LeveMasters
         public DateTime? ModifiedDate { get; set; }
         public EditLevelMasterCommand()
         {
-            this.ModifiedDate = DateTime.Now;
-            this.ModifiedByUserId = 1;
         }
     }
 }

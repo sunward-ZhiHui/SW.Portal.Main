@@ -145,8 +145,8 @@ body,
     width: 115px;
     height: 34px;
     background-color: var(--bs-body-color);
-    -webkit-mask: url(../images/logo-sec.svg) no-repeat center;
-    mask: url(../images/logo-sec.svg) no-repeat center;
+    -webkit-mask: url(../images/sw-logo.png) no-repeat center;
+    mask: url(../images/sw-logo.png) no-repeat center;
     display: block;
 }
 

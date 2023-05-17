@@ -24,11 +24,7 @@ namespace Application.Command.SubSections
         public string ProfileCode { get; set; }
         public CreateSubSectionCommand()
         {
-            this.AddedDate = DateTime.Now;
-            this.ModifiedDate = DateTime.Now;
-            this.AddedByUserId = 1;
-            this.ModifiedByUserId = 1;
-            this.HeadCount = 1;
+
         }
     }
 }

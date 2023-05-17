@@ -37,11 +37,7 @@ namespace Application.Commands
         public long? AddedByUserID { get; set; }
         public CreatePlantCommand()
         {
-            this.AddedDate = DateTime.Now;
-            this.ModifiedDate = DateTime.Now;
             this.CompanyID = 1;
-            this.AddedByUserID = 1;
-            this.ModifiedByUserID = 1;
         }
     }
 }

@@ -24,8 +24,6 @@ namespace Application.Command.SubSections
         public string ProfileCode { get; set; }
         public EditSubSectionCommand()
         {
-            this.ModifiedDate = DateTime.Now;
-            this.ModifiedByUserId = 1;
         }
     }
 }

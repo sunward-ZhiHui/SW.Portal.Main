@@ -21,5 +21,7 @@ namespace Core.Repositories.Query
         Task<long> InsertParticipant(TopicParticipant topicParticipant);
         Task<ForumTopics> GetTopicListAsync();
         Task<IReadOnlyList<ForumCategorys>> GetCategoryByTypeId(Int64 typeId);
+        Task<long> UpdateDueDate(ForumTopics forumTopics);
+        Task<long> UpdateTopicClose(ForumTopics forumTopics);
     }
 }

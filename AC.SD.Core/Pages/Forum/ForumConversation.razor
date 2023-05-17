@@ -147,36 +147,26 @@
                                                 <div class="uk-card-title uk-first-column" style="font-size: 16px;">
                                                     @item.TicketNo - @item.TopicName
                                                 </div>
-                                                <span class="uk-label uk-margin-auto-left" style="float: right; margin-top: 7px; margin-right: -10px;">
+                                                <span class="uk-label uk-margin-auto-left" style="float: right; margin-top: 0px; margin-right: -10px;">
 
                                                     @if (isAddParticipant)
                                                     {
-                                                        <button @onclick="onAddPlist" class="btn btn-excel" style="margin-top: -5px;">Add Participant </button>
+                                                        <button @onclick="onAddPlist" class="btn btn-excel" style="margin-top: 2px;">Add Participant </button>
                                                     }
 
-                                                    @*<div class="card">
+                                                    @if(isEllipsis)
+                                                    {
                                                         <DxMenu Orientation="Orientation.Horizontal" DisplayMode="MenuDisplayMode.Mobile">
                                                             <Items>
-                                                                <DxMenuItem Text="Home" IconCssClass="menu-icon-home menu-icon">
-                                                                    <Items>
-                                                                        <DxMenuItem Text="News">
-                                                                            <Items>
-                                                                                <DxMenuItem Text="Explore our newest features" />
-                                                                                <DxMenuItem Text="Website news" />
-                                                                            </Items>
-                                                                        </DxMenuItem>
-                                                                        <DxMenuItem Text="Our Mission" />
-                                                                        <DxMenuItem Text="Our Customers" />
-                                                                    </Items>
-                                                                </DxMenuItem>
+                                                                <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
+                                                                <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
                                                             </Items>
-                                                        </DxMenu>                                                    
-                                                    </div>*@
+                                                        </DxMenu>
+                                                    }
 
-
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
+                                                    @*<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
                                                         <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-                                                    </svg>
+                                                    </svg>*@
                                                 </span>
                                             </div>
                                         </div>
@@ -322,9 +312,9 @@
                                                       CssClass="fa fa-paper-plane sndrot"
                                                               style="float:right"
                                                       RenderStyle="ButtonRenderStyle.Secondary" />
-                                                    <div style="color:black;display:flex;">
-                                                        <div class="fa fa-paperclip cdspc" aria-hidden="true"></div>
-                                                        <div class="fa fa-ellipsis-v cdspc" aria-hidden="true"></div>
+                                                    <div style="display:flex;" class="attmode">
+                                                        <div class="fa fa-paperclip cdspcc" aria-hidden="true"></div>
+                                                        <div class="fa fa-ellipsis-v cdspcc" aria-hidden="true"></div>
                                                     </div>
 
 
@@ -441,15 +431,72 @@
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="300px" @bind-Visible="@PopupVisible">
     <div class="text-center">
         <Content>
-        <p>
+            <p>
                 <div Position="Left" id="@("label"+_participantLst.UserName)" class="display-field"> Do you want to  Delete this <span style="color:red">@_participantLst.UserName</span> </div>
-           
-        </p>
-    </Content> 
-       
+            </p>
+        </Content>        
         <DxButton style="align-items" Text="Yes" Click="@((e) => SubmitDelete(_participantLst.ID))" />
         <DxButton CssClass="dx-button.dx-icon" Text="No" Click="@(() => ClosePopup())" />
     </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@isDueDate" HeaderText="Add Due Date">
+    <BodyTemplate Context="PopupContext">
+        <div style="padding:10px;">
+
+        <EditForm Model="@_dataDuDate" OnValidSubmit="@SubmitDueDate" class="w-800">
+        <DataAnnotationsValidator />
+        <div class="row">
+            <div class="col-md-12" style="padding-bottom: 12px">
+                <label for="DueDate"> DueDate: </label>
+                <DxDateEdit @bind-Date="@_dataDuDate.DueDate"
+                            NullText="Select a date..."
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            ShowValidationIcon="true"
+                            CssClass="cw-320">
+                </DxDateEdit>
+                <ValidationMessage For="@(() => _dataDuDate.DueDate)" />
+            </div>
+            <div class="col-md-12">
+                        <DxButton SubmitFormOnClick="true" style="float: right;" Text="Submit" RenderStyle="ButtonRenderStyle.Primary" />
+            </div>
+        </div>
+        </EditForm>           
+        </div>
+       
+    </BodyTemplate>
+</DxPopup>
+
+<DxPopup @bind-Visible="@isTopicClosed" HeaderText="Topic Close">
+    <BodyTemplate Context="PopupContext">
+        <div style="padding:10px;">
+
+            <EditForm Model="@_dataTopicClose" OnValidSubmit="@SubmitTopicClose" class="w-800">
+                <DataAnnotationsValidator />
+                <div class="row">
+                    <div class="col-md-12" style="padding-bottom: 12px">
+                        <label for="Remarks"> Remarks: </label>
+                        <DxMemo @bind-Text="@_dataTopicClose.Remarks"
+                                CssClass="cw-480"
+                                Rows="5" />
+                        <ValidationMessage For="@(() => _dataTopicClose.Remarks)" />
+                    </div>
+                    <div class="col-md-12">
+                        <DxButton SubmitFormOnClick="true" style="float: right;" Text="Submit" RenderStyle="ButtonRenderStyle.Primary" />
+                    </div>
+                </div>
+            </EditForm>
+
+           @* <label>Remarks</label>
+            <DxMemo @bind-Text="ClosedMsg"
+                    CssClass="cw-480"
+                    Rows="5"/>
+            <br />
+            <DxButton RenderStyleMode="@ButtonRenderStyleMode.Outline"
+                      Text="Submit" style="width: 100px !important; float: right;"
+                      CssClass="w-100" />*@
+        </div>
+    </BodyTemplate>
 </DxPopup>
 
 
@@ -496,6 +543,21 @@
 </DxPopup>
 
 @code {
+    private class Model
+    {
+        [Required(ErrorMessage = "Due Date is required")]
+        public DateTime? DueDate { get; set; }      
+    }
+    private class ModelClose
+    {
+        [Required(ErrorMessage = "Remarks is required")]
+        public string? Remarks { get; set; }
+    }
+
+    private Model _dataDuDate = new Model();
+    private ModelClose _dataTopicClose = new ModelClose();   
+    string ClosedMsg { get; set; }
+    DateTime? DateTimeValue { get; set; }
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     private Dictionary<int, bool> itemVisibility = new Dictionary<int, bool>();
@@ -505,10 +567,13 @@
     string isMenuvisible = "Posts";
     DxTreeView treeView;
     IGrid? Grid { get; set; }
+    bool isDueDate =false;
+    bool isTopicClosed = false;
     bool isAllPlistVisible = false;
     bool isComponentVisible = true;
     bool isEnabled { get; set; } = false;
     bool isAddParticipant = false;
+    bool isEllipsis = false;
     private List<ForumTypes>? _types;
     IEnumerable<(ForumTypes, int)> Items;
     private List<ForumTopics>? _topics;
@@ -533,6 +598,57 @@
     string styleClass = "";
     string MessageHeader = "Error";
     string MessageBody = "";   
+
+    private void onTopicClosedPop()
+    {
+        isTopicClosed = true;
+    }
+    async void onDueDatePop()
+    {
+        isDueDate = true;       
+    }
+    async void SubmitDueDate()
+    {
+        var UpdateReq = new UpdateTopicDueDate
+            {
+                ID = long.Parse(@SelectedGroup),
+                DueDate = _dataDuDate.DueDate,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now
+            };
+
+        var result = await Mediator.Send(UpdateReq);
+        if (result == 1)
+        {
+            isDueDate = false;
+            onShowPopupMessage("success", "Updated DueDate Successfully");
+        }
+        else
+        {
+
+        }
+
+    }
+    async void SubmitTopicClose()
+    {
+        var UpdateReq = new UpdateTopicClosed
+            {
+                ID = long.Parse(@SelectedGroup),
+                Remarks = _dataTopicClose.Remarks,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now
+            };
+        var result = await Mediator.Send(UpdateReq);   
+        if(result == 1)
+        {
+            isTopicClosed = false;
+            onShowPopupMessage("success", "Topic Closed Successfully");
+        }
+        else
+        {
+
+        }
+    }
 
     private async Task SelectionChanged(TreeViewNodeEventArgs e)
     {
@@ -595,7 +711,7 @@
         _discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
         _headTopic = await Mediator.Send(new GetByIdTopics(long.Parse(@SelectedGroup)));
         isEnabled = true;
-
+        isEllipsis = true;
         _participant = await Mediator.Send(new GetParticipantsList(long.Parse(@SelectedGroup)));
 
         _participant[1].IsEnabled = false; // Disable the second row
@@ -694,16 +810,20 @@
         if(text == "Posts")
         {
             isComponentVisible = true;
+            isAddParticipant = false;
+            isEllipsis = true;
         }
         else if (text == "AddParticipants")
         {
             isAddParticipant = true;
             isComponentVisible = false;
+            isEllipsis = false;
         }
         else
         {
             isAddParticipant = false;
             isComponentVisible = false;
+            isEllipsis = false;
         }
     }
 

@@ -47,6 +47,7 @@
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true"
+        RowDoubleClick="OnRowDoubleClick"
         ValidationEnabled="true">
 
 
@@ -212,7 +213,11 @@
         _selectedItems = _levelItems.FirstOrDefault(f => f.LevelID == (long?)UniqueId);
 
     }
-
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
     void addNew()
     {
         Grid.StartEditNewRowAsync();

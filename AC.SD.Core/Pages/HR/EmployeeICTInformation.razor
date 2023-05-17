@@ -45,6 +45,7 @@
         style="height: calc(50vh - 50px);"
         FocusedRowEnabled="true"
         RowClick="OnRowIctInfoClick"
+        RowDoubleClick="OnRowIctInfoDoubleClick"
         AllowSelectRowByClick="true">
     <Columns>
         <DxGridDataColumn FieldName="EmployeeIctinformationId" MinWidth="80" Visible="false" />
@@ -111,24 +112,30 @@
     private List<CodeMaster> _stausItems;
     private View_EmployeeICTInformation _employeeICTInfoselectedItems;
     bool EditEnabledIctInfo { get; set; } = false;
-    bool DeleteEnabledIctInfo { get; set; } = false; 
+    bool DeleteEnabledIctInfo { get; set; } = false;
     bool AddEnabledIctInfo { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
-
         if (EmployeeIds > 0)
         {
             AddEnabledIctInfo = true;
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-            _employeeICTInformationItems = await Mediator.Send(new GetEmployeeICTInformationQuery(EmployeeIds));
             _view_ApplicationMasterDetailsSoftware = await Mediator.Send(new GetAllApplicationMasterDetailQuery(221));
             _rolesItems = await Mediator.Send(new GetAllRoleQuery());
             _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+            await UpdateDataAsyncIctInfo();
         }
     }
     async Task UpdateDataAsyncIctInfo()
     {
         _employeeICTInformationItems = await Mediator.Send(new GetEmployeeICTInformationQuery(EmployeeIds));
+        if (_employeeICTInformationItems.Count > 0)
+        {
+            _employeeICTInfoselectedItems = _employeeICTInformationItems.FirstOrDefault();
+            EditEnabledIctInfo = true;
+            DeleteEnabledIctInfo = true;
+            StateHasChanged();
+        }
     }
     void OnRowIctInfoClick(GridRowClickEventArgs e)
     {
@@ -139,23 +146,25 @@
         StateHasChanged();
 
     }
+    void OnRowIctInfoDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowIctInfoClick(e);
+        addEditIctInfo();
+    }
     void addNewIctInfo()
     {
         IctInfoGrid.StartEditNewRowAsync();
-        EditEnabledIctInfo = false;
-        DeleteEnabledIctInfo = false;
+
     }
     void addEditIctInfo()
     {
         IctInfoGrid.StartEditDataItemAsync(_employeeICTInfoselectedItems);
-        EditEnabledIctInfo = false;
-        DeleteEnabledIctInfo = false;
+
     }
     void addDeleteIctInfo()
     {
         IctInfoGrid.ShowDataItemDeleteConfirmation(_employeeICTInfoselectedItems);
-        EditEnabledIctInfo = false;
-        DeleteEnabledIctInfo = false;
+
     }
     void Grid_CustomizeEditModelIctInfo(GridCustomizeEditModelEventArgs e)
     {
@@ -207,6 +216,7 @@
         var request = new DeleteEmployeeICTInformationCommand(editablePlant.EmployeeIctinformationId);
         await Mediator.Send(request);
         await UpdateDataAsyncIctInfo();
+        IctInfoGrid.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsyncIctInfo(View_EmployeeICTInformation editablePlant)
     {

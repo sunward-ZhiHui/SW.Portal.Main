@@ -44,6 +44,7 @@
         CssClass="ch-360" style="height: calc(100vh - 220px);"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
+        RowDoubleClick="OnRowDoubleClick"
         AllowSelectRowByClick="true">
     <Columns>
         <DxGridDataColumn FieldName="SubSectionId" MinWidth="80" Visible="false" />
@@ -257,6 +258,11 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SubSectionId");
         _selectedItems = _subsectionItems.FirstOrDefault(f => f.SubSectionId == (long?)UniqueId);
 
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
     }
     void addNew()
     {

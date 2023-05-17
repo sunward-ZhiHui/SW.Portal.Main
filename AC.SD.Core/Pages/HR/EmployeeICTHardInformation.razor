@@ -45,6 +45,7 @@
         CssClass="ch-360"
         style="height: calc(50vh - 50px);" FocusedRowEnabled="true"
         RowClick="OnRowIctHardClick"
+        RowDoubleClick="OnRowIctHardDoubleClick"
         AllowSelectRowByClick="true">
     <Columns>
         <DxGridDataColumn FieldName="EmployeeIctHardinformationId" MinWidth="80" Visible="false" />
@@ -120,42 +121,46 @@
             AddEnabledIctHard = true;
             _plantItems = await Mediator.Send(new GetAllPlantQuery());
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-            _employeeICTHardInformationItems = await Mediator.Send(new GetEmployeeICTHardInformationQuery(EmployeeIds));
             _view_ApplicationMasterDetailsSoftware = await Mediator.Send(new GetAllApplicationMasterDetailQuery(221));
             _rolesItems = await Mediator.Send(new GetAllRoleQuery());
             _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+            await UpdateDataAsyncIctInfoHard();
         }
     }
     async Task UpdateDataAsyncIctInfoHard()
     {
         _employeeICTHardInformationItems = await Mediator.Send(new GetEmployeeICTHardInformationQuery(EmployeeIds));
+        if (_employeeICTHardInformationItems.Count > 0)
+        {
+            _employeeICTHardInfoselectedItems = _employeeICTHardInformationItems.FirstOrDefault();
+            DeleteEnabledIctHard = true;
+            EditEnabledIctHard = true;
+            StateHasChanged();
+        }
     }
     void OnRowIctHardClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeIctHardinformationId");
         _employeeICTHardInfoselectedItems = _employeeICTHardInformationItems.FirstOrDefault(f => f.EmployeeIctHardinformationId == (long?)UniqueId);
-        EditEnabledIctHard = true;
-        DeleteEnabledIctHard = true;
-        StateHasChanged();
 
+    }
+    void OnRowIctHardDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowIctHardClick(e);
+        addEditIctHard();
     }
     void addNewIctHard()
     {
         IctHardInfoGrid.StartEditNewRowAsync();
-        EditEnabledIctHard = false;
-        DeleteEnabledIctHard = false;
+
     }
     void addEditIctHard()
     {
         IctHardInfoGrid.StartEditDataItemAsync(_employeeICTHardInfoselectedItems);
-        EditEnabledIctHard = false;
-        DeleteEnabledIctHard = false;
     }
     void addDeleteIctHard()
     {
         IctHardInfoGrid.ShowDataItemDeleteConfirmation(_employeeICTHardInfoselectedItems);
-        EditEnabledIctHard = false;
-        DeleteEnabledIctHard = false;
     }
     void Grid_CustomizeEditModelIctInfoHard(GridCustomizeEditModelEventArgs e)
     {
@@ -210,6 +215,7 @@
         var request = new DeleteEmployeeICTHardInformationCommand(editablePlant.EmployeeIctHardinformationId);
         await Mediator.Send(request);
         await UpdateDataAsyncIctInfoHard();
+        IctHardInfoGrid.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsyncIctInfoHard(View_EmployeeICTHardInformation editablePlant)
     {

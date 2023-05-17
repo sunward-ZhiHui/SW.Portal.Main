@@ -10,7 +10,8 @@
 @using DevExpress.Export
 @using Application.Response;
 @inject IJSRuntime jsRuntime
-
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -37,13 +38,13 @@
         CustomizeElement="Grid_CustomizeElement"
         AutoExpandAllGroupRows="true"
         CssClass="ch-360"
-       
+        RowDoubleClick="OnRowDoubleClick"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
     <Columns>
-
-        <DxGridDataColumn FieldName="CompanyId"  Caption="Company" TextAlignment = "GridTextAlignment.Left" MinWidth="80" />
+        <DxGridDataColumn FieldName="IctmasterId" MinWidth="80" Visible="false" />
+        <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
     </Columns>
@@ -64,17 +65,17 @@
                             ShowValidationIcon="true">
                 </DxComboBox>
             </DxFormLayoutItem>
-           
+
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@ict.Name" Rows="5" />
-                 <ValidationMessage For="@(() => ict.Name)" />
+                <ValidationMessage For="@(() => ict.Name)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description" ColSpanMd="6">
                 <DxMemo @bind-Text="@ict.Description" Rows="5" />
             </DxFormLayoutItem>
-           
-           
-           
+
+
+
             <DxFormLayoutItem ColSpanMd="12">
                 <ValidationSummary />
             </DxFormLayoutItem>
@@ -98,23 +99,27 @@
     bool DeleteEnabled { get; set; } = false;
     int mastertype = 570;
     IGrid Grid { get; set; }
-
+    public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
-       // var models = await Mediator.Send(new GetAllMasterTypeQuery("MasterType"));
-          // _codemaster = models;
-        var model = await Mediator.Send(new GetAllIctMasterQuery());
-                _ictmaster = model;
-        _ictmasterList = model.Where(w => w.MasterType == mastertype).ToList();
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
-       // _ictmaster = await Mediator.Send(new GetAllIctMasterQuery());
         CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
     {
         var model = await Mediator.Send(new GetAllIctMasterQuery());
-         _ictmaster = model;
+        _ictmaster = model;
         _ictmasterList = model.Where(w => w.MasterType == mastertype).ToList();
+        if (_ictmasterList.Count > 0)
+        {
+
+            _selectedItems = _ictmasterList.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -140,9 +145,13 @@
                     Name = editableictmaster.Name,
                     CompanyId = editableictmaster.CompanyId,
                     SiteId = editableictmaster.SiteId,
-                    ZoneId=editableictmaster.ZoneId,
+                    ZoneId = editableictmaster.ZoneId,
                     LocationId = editableictmaster.LocationId,
-                    AreaId = editableictmaster.AreaId
+                    AreaId = editableictmaster.AreaId,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
 
                 };
             await Mediator.Send(request);
@@ -159,6 +168,7 @@
         var request = new DeleteIctmasterCommand(editablePlant.IctmasterId);
         await Mediator.Send(request);
         await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
     }
     async Task UpdateMasterAsync(ViewIctmaster editableictmaster)
     {
@@ -175,7 +185,9 @@
                 SiteId = editableictmaster.SiteId,
                 ZoneId = editableictmaster.ZoneId,
                 LocationId = editableictmaster.LocationId,
-                AreaId = editableictmaster.AreaId
+                AreaId = editableictmaster.AreaId,
+                ModifiedDate = DateTime.Now,
+                ModifiedByUserId = applicationUser.UserID,
             };
         await Mediator.Send(request);
         await UpdateDataAsync();
@@ -185,12 +197,8 @@
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
-
-
-
     }
     async Task ExportToExcel()
-
     {
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
             {
@@ -227,25 +235,22 @@
         EditEnabled = true;
         DeleteEnabled = true;
         StateHasChanged();
-
     }
-
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
     void addEdit()
     {
         Grid.StartEditDataItemAsync(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
     void addDelete()
     {
         Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
 }

@@ -45,6 +45,7 @@
         CssClass="ch-360"
         style="height: calc(100vh - 220px);"
         FocusedRowEnabled="true"
+        RowDoubleClick="OnRowDoubleClick"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true">
     <Columns>
@@ -125,6 +126,11 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "PlantID");
         _selectedItems = _plants.FirstOrDefault(f => f.PlantID == (long?)UniqueId);
         StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
     }
     void addNew()
     {

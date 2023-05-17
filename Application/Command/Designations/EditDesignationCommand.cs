@@ -27,8 +27,7 @@ namespace Application.Command.designations
         public long? SubSectionID { get; set; }
         public EditDesignationCommand()
         {
-            this.ModifiedDate = DateTime.Now;
-            this.ModifiedByUserId = 1;
+
         }
     }
 }

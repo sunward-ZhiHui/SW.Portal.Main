@@ -10,7 +10,8 @@
 @using DevExpress.Export
 @using Application.Response;
 @inject IJSRuntime jsRuntime
-
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -42,9 +43,10 @@
         CssClass="ch-360" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
+        RowDoubleClick="OnRowDoubleClick"
         AllowSelectRowByClick="true">
     <Columns>
-
+        <DxGridDataColumn FieldName="IctmasterId" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Site" Caption="Site" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
@@ -166,7 +168,7 @@
     private List<ViewIctmaster>? _masterSite;
     private List<ViewIctmaster>? _masterZone;
     private List<ViewIctmaster>? _masterLocation;
-
+    public ApplicationUser applicationUser { get; private set; }
     IGrid Grid { get; set; }
     private ViewIctmaster _selectedItems;
     bool EditEnabled { get; set; } = false;
@@ -174,17 +176,23 @@
     int masterType = 574;
     protected override async Task OnInitializedAsync()
     {
-        var model = await Mediator.Send(new GetAllIctMasterQuery());
-        _ictmaster = model;
-        _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
     {
         var model = await Mediator.Send(new GetAllIctMasterQuery());
         _ictmaster = model;
         _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
+        if (_ictmasterList.Count > 0)
+        {
+            _selectedItems = _ictmasterList.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -216,7 +224,11 @@
                     ZoneId = editableictmaster.ZoneId,
                     LocationId = editableictmaster.LocationId,
                     AreaId = editableictmaster.AreaId,
-                    ParentIctid = editableictmaster.ParentIctid
+                    ParentIctid = editableictmaster.ParentIctid,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
 
                 };
             await Mediator.Send(request);
@@ -250,7 +262,9 @@
                 ZoneId = editableictmaster.ZoneId,
                 LocationId = editableictmaster.LocationId,
                 AreaId = editableictmaster.AreaId,
-                ParentIctid = editableictmaster.ParentIctid
+                ParentIctid = editableictmaster.ParentIctid,
+                ModifiedDate = DateTime.Now,
+                ModifiedByUserId = applicationUser.UserID,
             };
         await Mediator.Send(request);
         await UpdateDataAsync();
@@ -335,11 +349,15 @@
         StateHasChanged();
 
     }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        EditEnabled = false;
-        DeleteEnabled = false;
+
         _masterCompany = new List<ViewIctmaster>();
         _masterSite = new List<ViewIctmaster>();
         _masterZone = new List<ViewIctmaster>();
@@ -347,13 +365,9 @@
     void addEdit()
     {
         Grid.StartEditDataItemAsync(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
     void addDelete()
     {
         Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
 }

@@ -8,7 +8,8 @@
 @using DevExpress.Export
 @using Application.Response;
 @inject IJSRuntime jsRuntime
-
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 
 @page "/LevelMaster"
 
@@ -33,7 +34,7 @@
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
         CustomizeElement="Grid_CustomizeElement"
-         ShowSearchBox="true"
+        ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -45,12 +46,13 @@
         CssClass="ch-360 " style="height: calc(100vh - 220px);"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
-        AllowSelectRowByClick="true" 
+        AllowSelectRowByClick="true"
+        RowDoubleClick="OnRowDoubleClick"
         ValidationEnabled="true">
-       
-        
+
+
     <Columns>
-        
+        <DxGridDataColumn FieldName="LevelID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
@@ -103,16 +105,24 @@
     private ViewLevel _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
+    public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
-        _levelItems = await Mediator.Send(new GetAllLevelMasterQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
     {
-        var model = await Mediator.Send(new GetAllLevelMasterQuery());
-        _levelItems = model;
+        _levelItems = await Mediator.Send(new GetAllLevelMasterQuery());
+        if (_levelItems.Count > 0)
+        {
+            _selectedItems = _levelItems.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -133,6 +143,10 @@
                     Name = editableData.Name,
                     StatusCodeId = editableData.StatusCodeID.Value,
                     CompanyId = editableData.CompanyID,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
                 };
             await Mediator.Send(request);
             await UpdateDataAsync();
@@ -149,6 +163,7 @@
         var request = new DeleteLevelMasterCommand(editableData.LevelID);
         await Mediator.Send(request);
         await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsync(ViewLevel editableData)
     {
@@ -157,8 +172,10 @@
                 LevelId = editableData.LevelID,
                 Name = editableData.Name,
                 StatusCodeId = editableData.StatusCodeID.Value,
+                ModifiedDate = DateTime.Now,
                 AddedByUserId = editableData.AddedByUserID,
                 AddedDate = editableData.AddedDate,
+                ModifiedByUserId = applicationUser.UserID,
                 CompanyId = editableData.CompanyID,
             };
         await Mediator.Send(request);
@@ -194,28 +211,23 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "LevelID");
         _selectedItems = _levelItems.FirstOrDefault(f => f.LevelID == (long?)UniqueId);
-        EditEnabled = true;
-        DeleteEnabled = true;
-        StateHasChanged();
 
     }
-
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
     void addEdit()
     {
         Grid.StartEditDataItemAsync(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
     void addDelete()
     {
         Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
     }
 }

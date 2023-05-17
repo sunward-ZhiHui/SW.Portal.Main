@@ -118,6 +118,39 @@ namespace CMS.Application.Handlers.QueryHandlers
             return customerResponse;
         }
     }
+    public class UpdateTopicDueDateHandler : IRequestHandler<UpdateTopicDueDate, long>
+    {
+        private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;
+
+        public UpdateTopicDueDateHandler(IForumTopicsQueryRepository forumTopicsQueryRepository)
+        {
+            _forumTopicsQueryRepository = forumTopicsQueryRepository;
+
+        }
+
+        public async Task<long> Handle(UpdateTopicDueDate request, CancellationToken cancellationToken)
+        {
+            var req = await _forumTopicsQueryRepository.UpdateDueDate(request);
+            return req;
+        }
+    }
+    public class UpdateTopicClosedHandler : IRequestHandler<UpdateTopicClosed, long>
+    {
+        private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;
+
+        public UpdateTopicClosedHandler(IForumTopicsQueryRepository forumTopicsQueryRepository)
+        {
+            _forumTopicsQueryRepository = forumTopicsQueryRepository;
+
+        }
+
+        public async Task<long> Handle(UpdateTopicClosed request, CancellationToken cancellationToken)
+        {
+            var req = await _forumTopicsQueryRepository.UpdateTopicClose(request);
+            return req;
+        }
+    }
+
     public class CreateForumParticipantHandler : IRequestHandler<CreateTopicParticipant, long>
     {
         private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;

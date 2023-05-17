@@ -200,8 +200,8 @@ main {
 }
 
 .uk-card-default {
-    background: #fff;
-    color: #666;
+   /* background: #fff;*/
+    /*color: #666;*/
    /* box-shadow: 0 5px 15px rgba(0,0,0,.08);*/
 }
 
@@ -215,6 +215,8 @@ main {
 
 .uk-margin-medium-bottom {
     margin-bottom: 10px !important;
+    border: 1px solid #cfcdcdee;
+    border-radius: 10px;
 }
 
 .uk-card-default .uk-card-header {
@@ -239,7 +241,7 @@ main {
 }
 
 .uk-card-default .uk-card-title {
-    color: #333;
+    /*color: #333;*/
     float: left;
     margin-top: 5px;
 }
@@ -726,10 +728,12 @@ main {
     .content-container .mini-menu-bar {
         /*width: 360px;*/
         height: 100%;
-        background-color: #f0f0f0;
+        /* background-color: #f0f0f0;*/
         position: relative;
         /* box-shadow: -5px -1px 13px -11px #78787b; */
         /*box-shadow: -15px 0 10px -20px #78787b;*/
+        border: 1px solid #cfcdcdee;
+        border-radius: 4px;
     }
 
         .content-container .mini-menu-bar .mini-menu-bar-top {
@@ -893,7 +897,7 @@ main {
         width: 100%;
         height: 100%;
         position: relative;
-        background-color: #f5f5f5;
+       /* background-color: #f5f5f5;*/
         box-shadow: -15px 0px 10px -20px #78787b;
     }
 
@@ -903,12 +907,14 @@ main {
            /* width: calc(100% - 40px);
             background-color: aqua;*/
         }
-
-            .content-container .menu-bar-content-container .content-padding-20 .menu-bar-content-container-heading {
-                /*height: 63px;*/
-                width: 100%;
-                background-color: #f5f5f5;
-            }
+.attmode {
+    color: var(--bs-body-color);    
+}
+.content-container .menu-bar-content-container .content-padding-20 .menu-bar-content-container-heading {
+    /*height: 63px;*/
+    width: 100%;
+    /* background-color: #f5f5f5;*/
+}
 
                 .content-container .menu-bar-content-container .content-padding-20 .menu-bar-content-container-heading .heading-icon-text {
                     height: 100%;
@@ -1172,11 +1178,14 @@ main {
         font-size: 18px;
        /* margin-right: 10px;*/
     }
-
-.tActive {
-    border-bottom: 3px solid var(--bs-primary);
-   /* background: var(--bs-primary);*/   
+.cdspcc {
+    margin-right: 10px;
 }
+
+        .tActive {
+            border-bottom: 3px solid var(--bs-primary);
+            /* background: var(--bs-primary);*/
+        }
 .btnDelete {
     color: red;
     border: none;

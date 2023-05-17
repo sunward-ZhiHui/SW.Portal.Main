@@ -29,7 +29,7 @@
         DataItemDeleting="Grid_DataItemDeleting"
         CustomizeEditModel="Grid_CustomizeEditModel"
         CustomizeElement="Grid_CustomizeElement"
-         ShowSearchBox="true"
+        ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -43,6 +43,7 @@
         style="height: calc(50vh - 50px);"
         FocusedRowEnabled="true"
         RowClick="OnRowOtherDutyClick"
+        RowDoubleClick="OnRowOtherDutyDoubleClick"
         AllowSelectRowByClick="true">
     <Columns>
         <DxGridDataColumn FieldName="EmployeeOtherDutyInformationId" MinWidth="80" Visible="false" />
@@ -192,7 +193,6 @@
             var model = await Mediator.Send(new GetAllPlantQuery());
             var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
             _stausItems = models;
-            _employeeOtherDutyInfoItems = await Mediator.Send(new GetEmployeeOtherDutyInformationQuery(EmployeeIds));
             _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
             _plantItems = await Mediator.Send(new GetAllPlantQuery());
             _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
@@ -204,6 +204,7 @@
             _leveMasterItems = await Mediator.Send(new GetAllLevelMasterQuery());
             _languageMasterItems = await Mediator.Send(new GetAllLanguageQuery());
             _view_ApplicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterDetailQuery(326));
+            await UpdateDataAsync();
         }
     }
     void SelectedItemOtherChanged(ViewDesignation viewDesignation)
@@ -220,32 +221,36 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeOtherDutyInformationId");
         _employeeOtherDutyInfoselectedItems = _employeeOtherDutyInfoItems.FirstOrDefault(f => f.EmployeeOtherDutyInformationId == (long?)UniqueId);
-        EditEnabledOtherDuty = true;
-        DeleteEnabledOtherDuty = true;
-        StateHasChanged();
 
+    }
+    void OnRowOtherDutyDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowOtherDutyClick(e);
+        addEditOtherDuty();
     }
     void addNewOtherDuty()
     {
         Grid.StartEditNewRowAsync();
-        EditEnabledOtherDuty = false;
-        DeleteEnabledOtherDuty = false;
     }
     void addEditOtherDuty()
     {
         Grid.StartEditDataItemAsync(_employeeOtherDutyInfoselectedItems);
-        EditEnabledOtherDuty = false;
-        DeleteEnabledOtherDuty = false;
     }
     void addDeleteOtherDuty()
     {
         Grid.ShowDataItemDeleteConfirmation(_employeeOtherDutyInfoselectedItems);
-        EditEnabledOtherDuty = false;
-        DeleteEnabledOtherDuty = false;
+
     }
     async Task UpdateDataAsync()
     {
         _employeeOtherDutyInfoItems = await Mediator.Send(new GetEmployeeOtherDutyInformationQuery(EmployeeIds));
+        if (_employeeOtherDutyInfoItems.Count > 0)
+        {
+            _employeeOtherDutyInfoselectedItems = _employeeOtherDutyInfoItems.FirstOrDefault();
+            EditEnabledOtherDuty = true;
+            DeleteEnabledOtherDuty = true;
+            StateHasChanged();
+        }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -319,6 +324,7 @@
         var request = new DeleteEmployeeOtherDutyInformationCommand(editablePlant.EmployeeOtherDutyInformationId);
         await Mediator.Send(request);
         await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsync(View_EmployeeOtherDutyInformation editablePlant)
     {

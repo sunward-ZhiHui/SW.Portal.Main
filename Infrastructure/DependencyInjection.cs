@@ -79,8 +79,8 @@ namespace Infrastructure
             services.AddTransient<IFileUploadCommandRepository, FileUploadCommandRepository>();
             services.AddScoped(typeof(ILocalStorageService<>), typeof(LocalStorageService<>));
             services.AddTransient<IDocumentsCommandRepository, DocumentsCommandRepository>();
-
-
+            services.AddTransient<ISectionCommandRepository, SectionCommandRepository>();
+            services.AddTransient<ILevelMasterCommandRepository, LevelMasterCommandRepository>();
 
             return services;
         }

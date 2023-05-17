@@ -81,36 +81,38 @@
     protected override async Task OnInitializedAsync()
     {
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+        if (_employeeItems.Count > 0)
+        {
 
+            _selectedItems = _employeeItems.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
 
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeID");
         _selectedItems = _employeeItems.FirstOrDefault(f => f.EmployeeID == (long?)UniqueId);
-        EditEnabled = true;
-        DeleteEnabled = true;
-        StateHasChanged();
+       
 
     }
     void addNew()
     {
-        EditEnabled = false;
-        DeleteEnabled = false;
+       
         NavigationManager.NavigateTo("EmployeeForm");
     }
     void addEdit()
     {
         //Grid.StartEditDataItemAsync(_selectedItems);
         NavigationManager.NavigateTo("EmployeeForm/" + _selectedItems.SessionId + "");
-        EditEnabled = false;
-        DeleteEnabled = false;
+       
     }
     void addDelete()
     {
         Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
+        
     }
     async Task UpdateDataAsync()
     {

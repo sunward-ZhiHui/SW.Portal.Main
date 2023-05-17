@@ -45,23 +45,12 @@
         RowClick="OnRowEmailInfoClick"
         style="height: calc(50vh - 50px);"
         AllowSelectRowByClick="true"
+        RowDoubleClick="OnRowDoubleClick"
         CssClass="ch-360">
     <Columns>
         <DxGridDataColumn FieldName="EmployeeEmailInfoID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="EmailGuide" Caption="Email Guide" MinWidth="80" />
         <DxGridDataColumn FieldName="Subscription" Caption="Subscription" MinWidth="80" />
-        @* <DxGridCommandColumn Width="150px" NewButtonVisible="true" EditButtonVisible="true">
-        <CellDisplayTemplate>
-        @{
-        <DxButton Click="() => EmailGrid.StartEditDataItemAsync(context.DataItem)"
-        Text="Edit" RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained" />
-        <DxButton Click="() => EmailGrid.ShowDataItemDeleteConfirmation(context.DataItem)"
-        Text="Delete" RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained" />
-        <NavLink href="javascrtpit:void(0);" @onclick="@(() => OpenEmailPopUp((View_EmployeeEmailInfo)context.DataItem))" RenderStyle="@ButtonRenderStyle.Secondary">Forward To</NavLink>
-        <NavLink href="javascrtpit:void(0);" @onclick="@(() => OpenEmailAuthPopUp((View_EmployeeEmailInfo)context.DataItem))" RenderStyle="@ButtonRenderStyle.Secondary" style="padding:5px;">Authority</NavLink>
-        }
-        </CellDisplayTemplate>
-        </DxGridCommandColumn>*@
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{
@@ -128,13 +117,12 @@
                 FocusedRowEnabled="true"
                 RowClick="OnRowForwardClick"
                 style="height: calc(50vh - 50px);padding:10px;"
+                RowDoubleClick="OnRowEmailInfoDoubleClick"
                 AllowSelectRowByClick="true"
                 CssClass="ch-360">
             <Columns>
                 <DxGridDataColumn FieldName="EmployeeEmailInfoForwardID" MinWidth="80" Visible="false" />
                 <DxGridDataColumn FieldName="EmailAddress" Caption="Email Address" MinWidth="80" />
-                @* <DxGridCommandColumn Width="150px">
-                </DxGridCommandColumn>*@
             </Columns>
             <EditFormTemplate Context="EditFormContext">
                 @{
@@ -191,14 +179,14 @@
                 style="height: calc(50vh - 50px);padding:10px;"
                 FocusedRowEnabled="true"
                 RowClick="OnRowAuthorityClick"
+                RowDoubleClick="OnRowEmailInfoAuthorityDoubleClick"
                 AllowSelectRowByClick="true">
             <Columns>
                 <DxGridDataColumn FieldName="EmployeeEmailInfoAuthorityID" MinWidth="80" Visible="false" />
                 <DxGridDataColumn FieldName="Name" MinWidth="80" />
                 <DxGridDataColumn FieldName="Description" MinWidth="80" />
                 <DxGridDataColumn FieldName="Purpose" MinWidth="80" />
-                @*<DxGridCommandColumn Width="80">
-                </DxGridCommandColumn>*@
+
             </Columns>
             <EditFormTemplate Context="EditFormContext">
                 @{
@@ -255,49 +243,46 @@
         {
             AddEnabledEmailInfo = true;
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-            _EmployeeEmailInfoItems = await Mediator.Send(new GetEmployeeEmailInfoQuery(EmployeeIds));
             _view_ApplicationMasterDetailsEmailGuide = await Mediator.Send(new GetAllApplicationMasterDetailQuery(327));
             _view_ApplicationMasterDetailsSubscription = await Mediator.Send(new GetAllApplicationMasterDetailQuery(328));
+            await UpdateDataAsyncEmailInfo();
         }
     }
     async Task UpdateDataAsyncEmailInfo()
     {
         _EmployeeEmailInfoItems = await Mediator.Send(new GetEmployeeEmailInfoQuery(EmployeeIds));
+        if (_EmployeeEmailInfoItems.Count > 0)
+        {
+            _emailInfoItemsselectedItems = _EmployeeEmailInfoItems.FirstOrDefault();
+            EditEnabledEmailInfo = true;
+            DeleteEnabledEmailInfo = true;
+            ForwardToEnabledEmailInfo = true;
+            AuthorityEnabledEmailInfo = true;
+            StateHasChanged();
+        }
     }
     void OnRowEmailInfoClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeEmailInfoID");
         _emailInfoItemsselectedItems = _EmployeeEmailInfoItems.FirstOrDefault(f => f.EmployeeEmailInfoID == (long?)UniqueId);
-        EditEnabledEmailInfo = true;
-        DeleteEnabledEmailInfo = true;
-        ForwardToEnabledEmailInfo = true;
-        AuthorityEnabledEmailInfo = true;
-        StateHasChanged();
 
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowEmailInfoClick(e);
+        addEditEmailInfo();
     }
     void addNewEmailInfo()
     {
         EmailGrid.StartEditNewRowAsync();
-        EditEnabledEmailInfo = false;
-        DeleteEnabledEmailInfo = false;
-        ForwardToEnabledEmailInfo = false;
-        AuthorityEnabledEmailInfo = false;
     }
     void addEditEmailInfo()
     {
         EmailGrid.StartEditDataItemAsync(_emailInfoItemsselectedItems);
-        EditEnabledEmailInfo = false;
-        DeleteEnabledEmailInfo = false;
-        ForwardToEnabledEmailInfo = false;
-        AuthorityEnabledEmailInfo = false;
     }
     void addDeleteEmilInfo()
     {
         EmailGrid.ShowDataItemDeleteConfirmation(_emailInfoItemsselectedItems);
-        EditEnabledEmailInfo = false;
-        DeleteEnabledEmailInfo = false;
-        ForwardToEnabledEmailInfo = false;
-        AuthorityEnabledEmailInfo = false;
     }
     async Task addForwardToEmilInfo()
     {
@@ -357,6 +342,7 @@
         var request = new DeleteEmployeeEmailInfoCommand(editablePlant.EmployeeEmailInfoID);
         await Mediator.Send(request);
         await UpdateDataAsyncEmailInfo();
+        EmailGrid.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsyncEmailInfo(View_EmployeeEmailInfo editablePlant)
     {
@@ -382,27 +368,27 @@
         StateHasChanged();
 
     }
+    void OnRowEmailInfoDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowForwardClick(e);
+        addEditEmailForward();
+    }
     void addNewEmailForward()
     {
         GridEmail.StartEditNewRowAsync();
-        EditEnabledEmailForward = false;
-        DeleteEnabledEmailForward = false;
+
     }
     void addEditEmailForward()
     {
         GridEmail.StartEditDataItemAsync(_employeeEmailInfoForwardselectedItems);
-        EditEnabledEmailForward = false;
-        DeleteEnabledEmailForward = false;
+
     }
     void addDeleteEmailForward()
     {
         GridEmail.ShowDataItemDeleteConfirmation(_employeeEmailInfoForwardselectedItems);
-        EditEnabledEmailForward = false;
-        DeleteEnabledEmailForward = false;
     }
     async void OpenEmailPopUp(View_EmployeeEmailInfo Id)
     {
-        //await windowRef1.ShowAtAsync(popupTarget1);
         employeeEmailInfoID = Id.EmployeeEmailInfoID;
         PopupForwardToVisible = true;
         StateHasChanged();
@@ -411,6 +397,13 @@
     async Task UpdateDataEmailAsync()
     {
         _employeeEmailInfoForwardItems = await Mediator.Send(new GetEmployeeEmailInfoForwardQuery(employeeEmailInfoID));
+        if (_employeeEmailInfoForwardItems.Count > 0)
+        {
+            _employeeEmailInfoForwardselectedItems = _employeeEmailInfoForwardItems.FirstOrDefault();
+            EditEnabledEmailForward = true;
+            DeleteEnabledEmailForward = true;
+            StateHasChanged();
+        }
     }
     void Grid_CustomizeEditModelEmail(GridCustomizeEditModelEventArgs e)
     {
@@ -451,6 +444,7 @@
         var request = new DeleteEmployeeEmailInfoForwardCommand(editablePlant.EmployeeEmailInfoForwardID);
         await Mediator.Send(request);
         await UpdateDataEmailAsync();
+        GridEmail.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsyncEmail(EmployeeEmailInfoForward editablePlant)
     {
@@ -475,28 +469,28 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeEmailInfoAuthorityID");
         _employeeEmailInfoAuthorityselectedItems = _employeeEmailInfoAuthorityItems.FirstOrDefault(f => f.EmployeeEmailInfoAuthorityID == (long?)UniqueId);
-        EditEnabledAuthority = true;
-        DeleteEnabledAuthority = true;
+
         StateHasChanged();
 
+    }
+    void OnRowEmailInfoAuthorityDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowAuthorityClick(e);
+        addEditAuthority();
     }
     void addNewAuthority()
     {
         GridEmailAuth.StartEditNewRowAsync();
-        EditEnabledAuthority = false;
-        DeleteEnabledAuthority = false;
+
     }
     void addEditAuthority()
     {
         GridEmailAuth.StartEditDataItemAsync(_employeeEmailInfoAuthorityselectedItems);
-        EditEnabledAuthority = false;
-        DeleteEnabledAuthority = false;
+
     }
     void addDeleteAuthority()
     {
         GridEmailAuth.ShowDataItemDeleteConfirmation(_employeeEmailInfoAuthorityselectedItems);
-        EditEnabledAuthority = false;
-        DeleteEnabledAuthority = false;
     }
     async void OpenEmailAuthPopUp(View_EmployeeEmailInfo Id)
     {
@@ -509,6 +503,14 @@
     async Task UpdateDataEmailAuthAsync()
     {
         _employeeEmailInfoAuthorityItems = await Mediator.Send(new GetEmployeeEmailInfoAuthorityQuery(employeeEmailInfoID));
+        if (_employeeEmailInfoAuthorityItems.Count > 0)
+        {
+
+            _employeeEmailInfoAuthorityselectedItems = _employeeEmailInfoAuthorityItems.FirstOrDefault();
+            EditEnabledAuthority = true;
+            EditEnabledAuthority = true;
+            StateHasChanged();
+        }
     }
     void Grid_CustomizeEditModelEmailAuth(GridCustomizeEditModelEventArgs e)
     {
@@ -551,6 +553,7 @@
         var request = new DeleteEmployeeEmailInfoAuthorityCommand(editablePlant.EmployeeEmailInfoAuthorityID);
         await Mediator.Send(request);
         await UpdateDataEmailAuthAsync();
+        GridEmailAuth.SetFocusedRowIndex(0);
     }
     async Task UpdatePlantAsyncEmailAuth(EmployeeEmailInfoAuthority editablePlant)
     {

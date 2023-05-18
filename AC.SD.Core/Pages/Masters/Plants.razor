@@ -49,7 +49,7 @@
         RowClick="OnRowClick"
         AllowSelectRowByClick="true">
     <Columns>
-
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="PlantID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="PlantCode" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" MinWidth="80" />
@@ -102,6 +102,7 @@
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
+    bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));

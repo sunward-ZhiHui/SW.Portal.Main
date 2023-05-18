@@ -181,6 +181,20 @@ namespace CMS.Application.Handlers.QueryHandlers
             //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
         }
     }
+    public class GetAllForumTopicsHandler : IRequestHandler<GetAllForumTopics, List<ForumTopics>>
+    {
+
+        private readonly IQueryRepository<ForumTopics> _queryRepository;
+        public GetAllForumTopicsHandler(IQueryRepository<ForumTopics> queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ForumTopics>> Handle(GetAllForumTopics request, CancellationToken cancellationToken)
+        {
+            return (List<ForumTopics>)await _queryRepository.GetListAsync();
+            //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
+        }
+    }
     //public class GetForumTopicListHandler : IRequestHandler<GetForumTopicList, string type>
     //{
     //    private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;

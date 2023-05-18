@@ -31,21 +31,7 @@ namespace DocumentApi.Controllers
             long documentId = 0;
             try
             {
-                
-                for(var i=0; i < files.Headers.Count; i++)
-                {
-
-                }
-
-                files.Headers.ForEach(f =>
-                 {
-                 });
-
-
-
-
-
-                     var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
+                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
                 if (!System.IO.Directory.Exists(serverPaths))
                 {
                     System.IO.Directory.CreateDirectory(serverPaths);

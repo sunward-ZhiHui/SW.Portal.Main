@@ -8,28 +8,36 @@
 @page "/Users"
 @inject IJSRuntime jsRuntime
 
-
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Reset Password" IconCssClass="fa fa-key" Click="@ShowPopup" Enabled="@ResetEnabled" />
+                <DxMenuItem Text="Unlock" IconCssClass="fa fa-unlock" Click="@((e) => UnSetLock(_selectedItems.UserID))" Enabled="@UnlockEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxGrid @ref="Grid"   
         Data="_employeeItems"
         KeyFieldName="UserID"
-       
-        EditModelSaving="Grid_EditModelSaving"
-        DataItemDeleting="Grid_DataItemDeleting"
         CustomizeElement="Grid_CustomizeElement"
-        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"
         SelectionMode="GridSelectionMode.Multiple"
-
         SelectAllCheckboxMode="CurrentSelectAllCheckboxMode"
         @bind-SelectedDataItems="SelectedDataItems"
-
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360 grid-auto-height">
+        CssClass="ch-360 " style="height: calc(100vh - 220px);"
+        FocusedRowEnabled="true"
+        RowClick="OnRowClick"
+        AllowSelectRowByClick="true">
     <Columns>
         
         <DxGridDataColumn FieldName="SageID" MinWidth="80" />
@@ -40,15 +48,15 @@
         <DxGridDataColumn FieldName="ModifiedDate"  />
         <DxGridDataColumn FieldName="Locked"  />
         <DxGridDataColumn FieldName="ModifiedByUser"  />
-        <DxGridDataColumn FieldName="UserID" AllowSort="false" MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
+       @* <DxGridDataColumn FieldName="UserID" AllowSort="false" MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
             <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button></CellDisplayTemplate>
            
-        </DxGridDataColumn>
-        <DxGridDataColumn FieldName="UserID" AllowSort="false"  MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
+        </DxGridDataColumn>*@
+      @*  <DxGridDataColumn FieldName="UserID" AllowSort="false"  MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
             
-          @*  <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ResetPasswords((long)context.Value)">Reset Password</button></CellDisplayTemplate>*@
+          @*  <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ResetPasswords((long)context.Value)">Reset Password</button></CellDisplayTemplate>
             <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ShowPopup((long)context.Value)">Reset Password</button></CellDisplayTemplate>
-       </DxGridDataColumn>
+       </DxGridDataColumn>*@
 
        @* <DxGridDataColumn  FieldName="Locked" Width="10%" MinWidth="90">
             <CellDisplayTemplate>
@@ -75,12 +83,12 @@
     <div class="text-center">
         <Content>
         <p>
-                <div id="@("label"+UserLst.UserID)" class="display-field Text"> Do You Want To  Reset the  @UserLst.NickName ,@UserLst.UserID,@UserLst.LastName Password</div>
-           
+                <div id="@("label"+_selectedItems.UserID)" class="display-field Text"> Do You Want To  Reset the  @_selectedItems.NickName ,@_selectedItems.UserID,@_selectedItems.LastName Password</div>
+          
         </p>
-    </Content> 
+    </Content>
        
-        <DxButton class =align-Button Text="Yes" Click="@((e) => ResetPasswords(UserLst.UserID))" />
+        <DxButton class=align-Button Text="Yes" Click="@((e) => ResetPasswords(_selectedItems.UserID))" />
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
 </DxPopup>
@@ -95,13 +103,14 @@
     IReadOnlyList<object> SelectedDataItems { get; set; }
     IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     bool PopupVisible { get; set; } = false;
-    ViewEmployee UserLst { get; set; }
     DxPopup? popup;
     bool MessageVisible { get; set; } 
     string MessageHeader = "";
     string MessageBody = "";
     private List<ViewEmployee> _employeeItems;
-    //IEnumerable<ViewEmployee> _lock;
+    private ViewEmployee _selectedItems;
+    bool ResetEnabled { get; set; } = true;
+    bool UnlockEnabled { get; set; } = false;
     IGrid Grid { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -114,24 +123,8 @@
     {
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
     }
-    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
-    {
 
-    }
-    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
-    {
-
-
-    }
-    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
-    {
-
-    }
-    async Task UpdatePlantAsync(ViewPlants editablePlant)
-    {
-
-    }
-    private async void UnSetLock(long UserID)
+    private async void UnSetLock(long? UserID)
     {
         var users = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
         if(users!=null)
@@ -161,6 +154,7 @@
             onShowPopupMessage("Message", "Password Reset Successfully");
         }
     }
+
     private async void onShowPopupMessage(string headerText, string bodyText)
     {
         MessageVisible = true;
@@ -180,18 +174,36 @@
             e.CssClass = "header-bold";
         }
     }
-    void ShowPopup(long? UserID)
+    void ShowPopup()
     {
-        UserLst = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
-        // lId = UserID;
+
+        _selectedItems = _employeeItems.FirstOrDefault(a => a.UserID == _selectedItems.UserID);
+        //lId = UserID;
         PopupVisible = true;
         InvokeAsync(StateHasChanged);
     }
+
     async void ClosePopup()
     {
         PopupVisible = false;
     }
-   
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UserID");
+        _selectedItems = _employeeItems.FirstOrDefault(f => f.UserID == (long?)UniqueId);
+        if (_selectedItems.Locked == true)
+        {
+            UnlockEnabled = true;
+        }
+        else
+        {
+            UnlockEnabled = false;
+        }
+        ResetEnabled = true;
+       
+        StateHasChanged();
+
+    }
 
     //private void EditPerson(ViewEmployee context)
     //{

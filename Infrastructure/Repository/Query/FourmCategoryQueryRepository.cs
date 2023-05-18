@@ -24,7 +24,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM ForumTypes WHERE ID = @Id";
+                var query = "SELECT * FROM ForumCategorys WHERE ID = @Id";
                 var parameters = new DynamicParameters();
                 parameters.Add("ID", id, DbType.Int64);
 

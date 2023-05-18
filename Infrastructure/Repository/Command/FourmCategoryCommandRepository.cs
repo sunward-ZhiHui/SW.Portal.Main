@@ -18,7 +18,7 @@ namespace Infrastructure.Repository.Command
         {
 
         }
-        public async Task<ForumTypes> InsertAsync(ForumTypes forumTypes)
+        public async Task<ForumCategorys> InsertAsync(ForumCategorys forumTypes)
         {
             try
             {

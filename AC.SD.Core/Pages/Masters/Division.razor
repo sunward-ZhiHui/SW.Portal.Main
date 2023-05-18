@@ -49,8 +49,10 @@
         CssClass="ch-360 " style="height: calc(100vh - 220px);"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
+        RowDoubleClick="OnRowDoubleClick"
         AllowSelectRowByClick="true">
     <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="DivisionID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="PlantDescription" Caption="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" MinWidth="80" />
@@ -115,6 +117,7 @@
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     IGrid? Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
     public ApplicationUser? applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
@@ -231,7 +234,11 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DivisionID");
         _selectedItems = _divisions.FirstOrDefault(f => f.DivisionID == (long?)UniqueId);
     }
-
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
     void addNew()
     {
         Grid.StartEditNewRowAsync();

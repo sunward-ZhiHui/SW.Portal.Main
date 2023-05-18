@@ -51,7 +51,7 @@
         <DxFormLayoutTabPage Caption="Personal Information">
             <EditForm Model="@employee" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
 
-                <div style="position: fixed;height: calc(80vh - 60px);overflow-y: scroll;">
+                <div style="height: calc(100vh - 100px);overflow-y: scroll;">
                     <DataAnnotationsValidator />
                     <DxFormLayoutGroup Caption="Personal Information" ColSpanMd="12">
                         <DxFormLayoutItem Caption="First Name" ColSpanMd="6">
@@ -246,7 +246,7 @@
                 </DxFormLayoutTabPages>
             </DxFormLayout>
         </DxFormLayoutTabPage>
-        <DxFormLayoutTabPage Caption="Personal Information">
+        <DxFormLayoutTabPage Caption="Upload">
             <EmployeePhoto _employeeDatas="@_employeeData" _applicationUser="@applicationUser"></EmployeePhoto>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Signature">

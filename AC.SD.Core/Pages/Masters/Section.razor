@@ -45,8 +45,10 @@
         style="height: calc(100vh - 220px);"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
+        RowDoubleClick="OnRowDoubleClick"
         AllowSelectRowByClick="true">
     <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="SectionId" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="Division" MinWidth="80" />
@@ -123,6 +125,7 @@
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
+    bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
 
@@ -248,6 +251,11 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SectionId");
         _selectedItems = _sectionItems.FirstOrDefault(f => f.SectionId == (long?)UniqueId);
         StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
     }
     void addNew()
     {

@@ -12,38 +12,59 @@
 @page "/FourmCategorys"
 
 
-<div class="g-title">
-    <div class="g-left"></div>
-
-    <span class=""></span><span class="g-text"></span>
-    <div class="g-right">
-        <button type="button" CssClass="download-btn"
-                IconCssClass="demo-download-icon"
-                Text="Free Trial"
-                class="btn btn-excel" @onclick="ExportToExcel" title="Export to Excel">
-            <i class="fa fa-file-excel-o"></i>Export
-        </button>
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew"  />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+            </Items>
+        </DxMenu>
     </div>
 </div>
 
-<DxGrid id="myGrid" Data="@_categorys" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible" BodyText=" Record Saved  Sucessfully">
+
+
+    <div class="text-center">
+        <p>@errorMessage</p>
+
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+
+</DxPopup>
+
+<DxGrid @ref="Grid" id="myGrid" Data="@_categorys" EditModelSaving="@OnEditModelSaving"
+    DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" 
+    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
+        KeyFieldName="ID"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"             
-        CssClass=" ch-360" style="height: calc(100vh - 220px);" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
+        CssClass="ch-360"
+        style="height: calc(100vh - 220px);"
+        FocusedRowEnabled="true"
+        RowClick="OnRowClick"
+        AllowSelectRowByClick="true"
+        CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
 
     <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px">            
         </DxGridDataColumn>
         <DxGridDataColumn FieldName="TypeId" MinWidth="200" Caption="TypeName" />
         <DxGridDataColumn FieldName="Name" MinWidth="200" />
         <DxGridDataColumn FieldName="Description" />
-        <DxGridCommandColumn Width="160px" />
+        <DxGridCommandColumn Width="160px" Visible="false" />
     </Columns>
 
-    <EditFormTemplate Context="EditFormContext">
+    <EditFormTemplate Context="EditFormContext" >
         @{
             var categorys = (ForumCategorys)EditFormContext.EditModel;
         }
@@ -82,14 +103,21 @@
     Dictionary<long, string>? CategoryNamesIndex { get; set; }    
     private List<ForumCategorys>? _categorys; 
     List<ForumTypes>? Types {get; set;}
+    IGrid? Grid { get; set; }
+
+    private ForumCategorys _selectedItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool ExportSelectedRowsOnly { get; set; }
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? errorMessage;
     bool MessageVisible { get; set; }
     string styleClass = "";
     string MessageHeader = "Error";
     string MessageBody = "";
     private bool loading;
-    DxPopup? popup;
-    bool PopupVisible { get; set; } = false;
-    IGrid? Grid { get; set; }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,31 +156,43 @@
 
         if (e.IsNew)
         {
-           
-                //var ex = _categorys.Where(x => x.Name == editModel.Name && x.TypeId == editModel.TypeId);
-                //if (ex == null)
-                //{
-                    var createReq = new CreateForumCategoryCommand
 
-                        {
-                            Name = editModel.Name,
-                            Description = editModel.Description,
-                            TypeId = editModel.TypeId
-                        };
-                    var result = await Mediator.Send(createReq);
-                    await UpdateDataAsync();
-                //}
-                //else
-                //{
-                //    onShowPopupMessage("Error", "The entered value exists.");
-                //}
-      
+            var ex = _categorys.Where(x => x.Name == editModel.Name && x.TypeId == editModel.TypeId);
+            if (ex.Any())
+            {
+
+               // addNew();
+                onShowPopupMessage("Error", "The entered value Already exists.");
+
+            }    
+            else
+            {
+
+                var createReq = new CreateForumCategoryCommand
+
+                    {
+                        Name = editModel.Name,
+                        Description = editModel.Description,
+                        TypeId = editModel.TypeId
+                    };
+                var result = await Mediator.Send(createReq);
+                await UpdateDataAsync();
+            }
+
         }
         else
         {    
-           
+            var ex = _categorys.Where(x => x.Name == editModel.Name && x.TypeId == editModel.TypeId && x.ID != editModel.ID);
+            if (ex.Any())
+            {
+               // addEdit();
+                onShowPopupMessage("Error", "The entered value Already exists.");
+
+            }
+            else
+            {
                 var UpdateReq = new EditFourmCategoryCommand
-                {
+                    {
                         ID = editModel.ID,
                         Name = editModel.Name,
                         TypeId = editModel.TypeId,
@@ -162,11 +202,12 @@
                         AddedDate = editModel.AddedDate,
                         SessionId = editModel.SessionId,
 
-                };
+                    };
 
                 var ans = await Mediator.Send(UpdateReq);
                 await UpdateDataAsync();
-           
+            }
+
         }     
 
     }
@@ -182,6 +223,8 @@
 
     private async void onShowPopupMessage(string headerText, string bodyText)
     {
+      //  addNew();
+      //  addEdit();
         MessageVisible = true;
         MessageBody = bodyText;
         MessageHeader = headerText;
@@ -197,5 +240,37 @@
                 e.DisplayText = CategoryNamesIndex[ID];
         }
     }
+   
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedItems = _categorys.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        EditEnabled = true;
+        DeleteEnabled = true;
+        StateHasChanged();
 
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
+    void addDelete()
+    {
+        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        EditEnabled = false;
+        DeleteEnabled = false;
+    }
 }

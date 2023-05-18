@@ -63,6 +63,7 @@
         ValidationEnabled="true">
 
     <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="LayoutPlanTypeId" Caption="LayoutPlanTypeId" MinWidth="80" />
         <DxGridDataColumn FieldName="VersionNo" Caption="VersionNo" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="80" />
@@ -122,6 +123,7 @@
     private ViewLayOutPlanType _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
+    bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
         var model = await Mediator.Send(new  GetAllLayOutPlanTypeQuery());

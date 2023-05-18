@@ -52,6 +52,7 @@
 
 
     <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="LevelID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" MinWidth="80" />
@@ -106,6 +107,7 @@
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
+    bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));

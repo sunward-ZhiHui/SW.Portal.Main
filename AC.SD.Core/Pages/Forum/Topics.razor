@@ -94,7 +94,7 @@
                         </DxFormLayoutItem>
                         <DxFormLayoutItem ColSpanMd="4">
                             <label for="EndDate">End Date </label>
-                            <DxDateEdit @bind-Date="@Data.EndDate" CssClass="cw-320" Mask="DD-MMMM-yyyy" />
+                            <DxDateEdit @bind-Date="@Data.EndDate" CssClass="cw-320" Mask="dd-MMMM-yyyy" />
                             <div class="">
                                 <ValidationMessage For="@(() => Data.EndDate)" />
                             </div>
@@ -335,7 +335,9 @@
     bool PopupVisible { get; set; } = false;
     ForumTopics? Data { get; set; } = new ForumTopics();
     IEnumerable<ForumTypes>? _types;
+    IEnumerable<ForumTopics>? _topics;
     private List<ViewEmployee>? _participant;
+    private List<ApplicationUser> _applicationUsers;
     IEnumerable<ForumTypes>? Values;
     IEnumerable<ForumCategorys>? _category;
     private List<ForumCategorys>? _forumCategorys;
@@ -358,7 +360,7 @@
     private async Task SubmitForm()
     {
         //myForm.OnSubmit();    
-       // await JSRuntime.InvokeVoidAsync("submitForm", myForm);
+        // await JSRuntime.InvokeVoidAsync("submitForm", myForm);
         //await JSRuntime.InvokeVoidAsync("submitForm");
         await JSRuntime.InvokeVoidAsync("myInteropFunctions.submitForm");
     }
@@ -373,7 +375,7 @@
             ");
         }
     }
-  
+
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     //GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }   
@@ -440,7 +442,7 @@
     }
     private void onSubmit()
     {
-        
+
     }
 
 
@@ -461,6 +463,8 @@
         var typemodel = await Mediator.Send(new GetAllForumTypes());
         _types = typemodel;
 
+        var topics = await Mediator.Send(new GetAllForumTopics());
+        _topics = topics;
         //var appusers = await Mediator.Send(new GetAllApplicationUserQuery());
         //_participant = appusers;
 
@@ -528,7 +532,7 @@
                 }
             }
         }
-      
+
 
         //var slsls = participantIds.Distinct().ToList();
         string participantidsString = string.Join(",", participantIds); // convert the array to a comma-separated string
@@ -537,49 +541,58 @@
 
         DateTime? nullableDateTime = DateTime.Now;
 
-
-       
-
-        var createReq = new CreateForumTopics
-            {
-                TicketNo = Data.TicketNo,
-                TopicName = Data.TopicName,
-                TypeId  = (long)Data.TypeId,
-                CategoryId  = Data.CategoryId,
-                StartDate = Data.StartDate, 
-                Description = Data.Description,
-                StatusCodeID = 1,
-                AddedByUserID = applicationUser.UserID,
-                AddedDate = DateTime.Now,
-                SessionId = Guid.NewGuid(),
-                Participants = participantidsString,
-                To = toidsString,
-                CC = ccidsString
-
-            };
-
-
-
-
-        try
+        var ex = _topics.Where(x => x.TicketNo == Data.TicketNo && x.TopicName == Data.TopicName);
+        if (ex.Any())
         {
-            var result = await Mediator.Send(createReq);
-            if(result !=null)
-            {
-                onShowPopupMessage("success", "Topic have been saved successully");
-                onRestText();
-            }
-            else
-            {
-                onShowPopupMessage("Error", result.ToString());
-            }
+
+            //addNew();
+            onShowPopupMessage("Error", "The entered value Already exists.");
+
         }
-        catch(Exception ex)
+        else
         {
-            onShowPopupMessage("Error", ex.Message);
+
+
+            var createReq = new CreateForumTopics
+                {
+                    TicketNo = Data.TicketNo,
+                    TopicName = Data.TopicName,
+                    TypeId = (long)Data.TypeId,
+                    CategoryId = Data.CategoryId,
+                    StartDate = Data.StartDate,
+                    Description = Data.Description,
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+                    Participants = participantidsString,
+                    To = toidsString,
+                    CC = ccidsString
+
+                };
+
+
+
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                if (result != null)
+                {
+                    onShowPopupMessage("success", "Topic have been saved successully");
+                    onRestText();
+                }
+                else
+                {
+                    onShowPopupMessage("Error", result.ToString());
+                }
+            }
+            catch (Exception eq)
+            {
+                onShowPopupMessage("Error", eq.Message);
+            }
+
         }
-
-
     }
     private async void onShowPopupMessage(string headerText, string bodyText)
     {

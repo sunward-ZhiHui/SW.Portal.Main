@@ -10,14 +10,40 @@
 @inject IMediator Mediator
 @using System.ComponentModel.DataAnnotations
 @using DevExpress.Blazor.Internal
-@inject IJSRuntime jsRuntime;
+@inject IJSRuntime JSRuntime;
 @using System.Collections.Generic
+@using System.Reflection;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-
-
 @page "/ForumTopics"
+<div class="card w-100 tooltips" style="margin-bottom:10px;">
+    <div class="card-body p-0 tooltiptops">
+        <div class="row">
+            <div class="col-md-1">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>                                           
+                        <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onRestText" />
+                        @*<DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@HandleValidSubmit" />
+                        <DxMenuItem Text="Submit" Click="@SubmitForm"/>  *@                     
+                    </Items>
+                </DxMenu>
+            </div>
+            <div class="col-md-1" style="margin-left: -37px; margin-top: 6px;">
+                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    <i class="fa fa-save"></i>
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
-<div class="g-title">
+@*<div class="g-title">
     <div class="g-left"></div>
    
     <span class=""></span><span class="g-text"></span>
@@ -29,7 +55,7 @@
             <i class="fa fa-file-excel-o"></i>Export
         </button>
     </div>
-</div>
+</div>*@
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
     <div class="text-center">
@@ -37,15 +63,15 @@
     </div>
 </DxPopup>
 
-<div class="card cw-480" >
-    <EditForm Model="@Data"
+<div class="card cw-480 toolnext">
+    <EditForm id="@MyID" @ref="myForm" Model="@Data"
               OnValidSubmit="@HandleValidSubmit"
               OnInvalidSubmit="@HandleInvalidSubmit"
               Context="EditFormContext">
         <DataAnnotationsValidator />       
         <div class="card-body">
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-8 ">
                     <DxFormLayout>
                         <DxFormLayoutItem ColSpanMd="6">
                             <label for="TicketNo">TicketNo </label>
@@ -219,22 +245,22 @@
                             <ValidationMessage For="@(() => Data.Description)" />
                         </DxFormLayoutItem>
 
-                        <DxFormLayoutItem ColSpanMd="12">                          
+                   @*     <DxFormLayoutItem ColSpanMd="12">                          
 
                             <DxButton RenderStyle="ButtonRenderStyle.Secondary"
                                       Text="Reset"
                                       Click="onRestText"
                                       IconCssClass="btn-icon-undo"
                                       CssClass="me-1" />
-
+                           
 
 
                             <DxButton SubmitFormOnClick="true"
                                       Text="Submit"
                                       CssClass="btn-submit"
-                                      style="float:right"
+                                      style="float:right"                                    
                                       RenderStyle="ButtonRenderStyle.Secondary" />
-                        </DxFormLayoutItem>
+                        </DxFormLayoutItem>*@
 
                     </DxFormLayout>                    
                 </div>
@@ -252,7 +278,7 @@
                                 PageSizeSelectorAllRowsItemVisible="true"
                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
                                 PageSize="20"
-                                style="height:calc(100vh - 285px);min-height:400px !important"
+                                style="height:calc(100vh - 250px);min-height:400px !important"
                                 CssClass="ch-360"
                                 SelectionMode="GridSelectionMode.Multiple"
                                 AllowSelectRowByClick="true"                                                       
@@ -286,8 +312,11 @@
     </BodyTemplate>
 </DxPopup>
 
-@code {
 
+
+@code {
+    private EditForm myForm;
+    private string MyID = "myForm";
     private List<ForumTypes> selectedItems = new List<ForumTypes>();
     List<int> selectedValues = new List<int>();
     IGrid? Grid { get; set; }
@@ -326,6 +355,25 @@
     IReadOnlyList<object>? SelectedToDataItems { get; set; }
     IReadOnlyList<object>? SelectedCCDataItems { get; set; }
 
+    private async Task SubmitForm()
+    {
+        //myForm.OnSubmit();    
+       // await JSRuntime.InvokeVoidAsync("submitForm", myForm);
+        //await JSRuntime.InvokeVoidAsync("submitForm");
+        await JSRuntime.InvokeVoidAsync("myInteropFunctions.submitForm");
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                window.submitForm = function () {
+                    document.getElementById('myForm').submit();
+                };
+            ");
+        }
+    }
+  
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     //GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }   
@@ -390,6 +438,12 @@
         SelectedCCItems = null;
         SelectedToItems = null;
     }
+    private void onSubmit()
+    {
+        
+    }
+
+
 
     private void HandleSelectedRowsChanged(IEnumerable<ViewEmployee> selectedRows)
     {

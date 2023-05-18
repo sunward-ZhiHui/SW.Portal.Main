@@ -51,7 +51,7 @@
         RowDoubleClick="OnRowDoubleClick"
         AllowSelectRowByClick="true">
     <Columns>
-
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="DesignationID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="SubSectionName" MinWidth="80" />
@@ -187,6 +187,7 @@
     private List<ViewSubSection> _subsectionItems;
     private List<ViewDivision>? _divisionsItems;
     IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
     private ViewDesignation _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;

@@ -43,6 +43,7 @@
         RowClick="OnRowClick"
         AllowSelectRowByClick="true" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
     <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="IctmasterId" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
@@ -99,6 +100,7 @@
     bool DeleteEnabled { get; set; } = false;
     int mastertype = 570;
     IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
     public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {

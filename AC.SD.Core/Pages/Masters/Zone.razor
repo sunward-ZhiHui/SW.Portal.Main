@@ -44,6 +44,7 @@
         RowDoubleClick="OnRowDoubleClick"
         AllowSelectRowByClick="true" CustomizeCellDisplayText=" Grid_CustomizeCellDisplayText">
     <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="IctmasterId" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
@@ -113,6 +114,7 @@
     private ViewIctmaster _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
+      bool ExportSelectedRowsOnly { get; set; }
     IGrid Grid { get; set; }
     int masterType = 571;
     public ApplicationUser applicationUser { get; private set; }

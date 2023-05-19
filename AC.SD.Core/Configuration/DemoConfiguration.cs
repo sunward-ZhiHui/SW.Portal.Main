@@ -1,27 +1,35 @@
 using System;
 using System.Collections.Generic;
 using DevExpress.Blazor.DocumentMetadata;
- 
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using AC.SD.Model.DemoData;
+using Core.EntityModels;
+using Core.Repositories.Query;
+using System.Linq;
 
-namespace AC.SD.Core.Configuration {
-    public class DemoConfiguration {
+namespace AC.SD.Core.Configuration
+{
+    public class DemoConfiguration
+    {
         public const string DocBaseUrl = "https://docs.devexpress.com/Blazor/";
         public static readonly string PagesFolderName = "Pages";
         public static readonly string DescriptionsFolderName = "Descriptions";
-
-        protected DemoConfiguration() {
+        private readonly IAppPermissionQueryRepository _queryRepository;
+        protected DemoConfiguration()
+        {
         }
-        public DemoConfiguration(IConfiguration configuration) {
+        public DemoConfiguration(IConfiguration configuration, IAppPermissionQueryRepository queryRepository)
+        {
             Configuration = configuration;
-
+            _queryRepository = queryRepository;
             Model = DemoModel.Create(IsServerSide);
             Products = Model.Products;
             RootPages = Model.RootPages;
             Redirects = Model.Redirects ?? new Dictionary<string, string>();
             Search = new DemoSearchHelper(Model.Search, RootPages);
+            AppPermissionModels = DoNavMenuLists();
         }
 
         private IConfiguration Configuration { get; set; }
@@ -38,50 +46,62 @@ namespace AC.SD.Core.Configuration {
 
         public virtual IEnumerable<DemoProductInfo> Products { get; }
         public virtual IEnumerable<DemoRootPage> RootPages { get; }
+        public virtual IEnumerable<AppPermissionModel> AppPermissionModels { get; set; }
         public Dictionary<string, string> Redirects { get; private set; }
 
-        public T GetConfigurationValue<T>(string key) {
+        public T GetConfigurationValue<T>(string key)
+        {
             return Configuration.GetValue<T>(key);
         }
 
-        public DemoPageBase GetDemoPageByUrl(NavigationManager navigationManager, string currentUrl) {
+        public DemoPageBase GetDemoPageByUrl(NavigationManager navigationManager, string currentUrl)
+        {
             var demoPageUrl = navigationManager.ToAbsoluteUri(currentUrl).GetLeftPart(UriPartial.Path).Replace(navigationManager.BaseUri, "");
             return Model.GetDemoPageByUrl(demoPageUrl);
         }
-        public DemoItem GetDemoItem(string id) {
+        public DemoItem GetDemoItem(string id)
+        {
             return Model.GetDemoItem(id);
         }
 
-        string GetDemoItemDescriptionResourcePath(DemoItem item) {
+        string GetDemoItemDescriptionResourcePath(DemoItem item)
+        {
             return Model.GetDemoItemDescriptionResourcePath(item, PagesFolderName);
         }
-        public string GetDemoDescription(DemoItem item) {
+        public string GetDemoDescription(DemoItem item)
+        {
             string path = GetDemoItemDescriptionResourcePath(item);
             return GetDemoFileContent(path);
         }
-        string GetDemoItemRazorResourcePath(DemoItem item) {
+        string GetDemoItemRazorResourcePath(DemoItem item)
+        {
             return Model.GetDemoItemRazorResourcePath(item, PagesFolderName);
         }
-        public Dictionary<string, string> GetDemoCodeFiles(DemoItem item) {
+        public Dictionary<string, string> GetDemoCodeFiles(DemoItem item)
+        {
             var result = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-            if(item.IsRazorFileVisible()) {
+            if (item.IsRazorFileVisible())
+            {
                 string razorPath = GetDemoItemRazorResourcePath(item);
                 result.Add("Razor", GetDemoFileContent(razorPath));
             }
-            foreach(var codeFile in item.GetAdditionalCodeFiles()) {
+            foreach (var codeFile in item.GetAdditionalCodeFiles())
+            {
                 string codeFilePath = codeFile.Path.Replace("\\", ".");
                 string codeFileContent = GetDemoFileContent(codeFilePath);
                 result[codeFile.Title] = codeFile.GetPreparedContent(codeFileContent);
             }
             return result;
         }
-        protected string GetDemoFileContent(string path) {
+        protected string GetDemoFileContent(string path)
+        {
             return DemoUtils.GetFileContent(typeof(DemoConfiguration), "AC.SD.Core." + path);
         }
 
         // Metadata
-        public virtual void ConfigureMetadata(IDocumentMetadataCollection metadataCollection) {
-            if(Model == null)
+        public virtual void ConfigureMetadata(IDocumentMetadataCollection metadataCollection)
+        {
+            if (Model == null)
                 return;
 
             metadataCollection.AddDefault()
@@ -90,13 +110,16 @@ namespace AC.SD.Core.Configuration {
                 .Viewport("width=device-width, initial-scale=1.0");
 
             var titleFormat = Model.TitleFormat ?? "{0}";
-            foreach(var rootPage in Model.RootPages) {
+            foreach (var rootPage in Model.RootPages)
+            {
                 var title = rootPage.SeoTitle ?? rootPage.Title;
                 ConfigurePage(metadataCollection, rootPage, title, titleFormat);
             }
         }
-        static void ConfigurePage(IDocumentMetadataCollection metadataCollection, DemoPageBase page, string title, string titleFormat, bool stopIndexation = false) {
-            if(page.Url != null && !page.IsMaintenanceMode) {
+        static void ConfigurePage(IDocumentMetadataCollection metadataCollection, DemoPageBase page, string title, string titleFormat, bool stopIndexation = false)
+        {
+            if (page.Url != null && !page.IsMaintenanceMode)
+            {
                 var pageUrl = page.Url == "./" ? "" : page.Url;
                 var metaBuilder = metadataCollection.AddPage(pageUrl)
                     .OpenGraph("url", page.OG_Url)
@@ -108,15 +131,21 @@ namespace AC.SD.Core.Configuration {
                     .Meta("description", page.GetDescription())
                     .Meta("keywords", page.GetKeywords());
 
-                if(stopIndexation)
+                if (stopIndexation)
                     metaBuilder.Meta("robots", "none");
             }
-            foreach(var subPage in page.Pages)
+            foreach (var subPage in page.Pages)
                 ConfigurePage(metadataCollection, subPage, string.Join(" - ", title, subPage.Title), titleFormat, page.IsMaintenanceMode);
         }
         // Search
-        public List<DemoSearchResult> DoSearch(string request) {
+        public List<DemoSearchResult> DoSearch(string request)
+        {
             return Search.DoSearch(request);
+        }
+        public List<AppPermissionModel> DoNavMenuLists()
+        {
+            var appPermissionModels = _queryRepository.GetAllByAsync().ToList();
+            return appPermissionModels;
         }
     }
 }

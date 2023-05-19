@@ -106,8 +106,8 @@
     IGrid? Grid { get; set; }
 
     private ForumCategorys _selectedItems;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = true;
     bool ExportSelectedRowsOnly { get; set; }
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
@@ -161,7 +161,7 @@
             if (ex.Any())
             {
 
-               // addNew();
+                //addNew();
                 onShowPopupMessage("Error", "The entered value Already exists.");
 
             }    
@@ -185,7 +185,8 @@
             var ex = _categorys.Where(x => x.Name == editModel.Name && x.TypeId == editModel.TypeId && x.ID != editModel.ID);
             if (ex.Any())
             {
-               // addEdit();
+                // addEdit();
+              //  Grid.StartEditDataItemAsync(editModel);
                 onShowPopupMessage("Error", "The entered value Already exists.");
 
             }
@@ -223,8 +224,8 @@
 
     private async void onShowPopupMessage(string headerText, string bodyText)
     {
-      //  addNew();
-      //  addEdit();
+       //addNew();
+      // addEdit();
         MessageVisible = true;
         MessageBody = bodyText;
         MessageHeader = headerText;

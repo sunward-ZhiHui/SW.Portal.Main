@@ -82,6 +82,7 @@ namespace Infrastructure
             services.AddTransient<ISectionCommandRepository, SectionCommandRepository>();
             services.AddTransient<ILevelMasterCommandRepository, LevelMasterCommandRepository>();
             services.AddTransient<IAppPermissionQueryRepository, AppPermissionQueryRepository>();
+            services.AddTransient<IMenuPermissionQueryRepository, MenuPermissionQueryRepository>();
             return services;
         }
     }

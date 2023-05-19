@@ -2,20 +2,26 @@
 @using global::Core.EntityModels;
 @inject DemoConfiguration Configuration
 @inject NavigationManager NavigationManager
-
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
 @{
+
+    var Lists = Configuration.DoNavMenuLists();
     var siteMode = Configuration.GetConfigurationValue<bool>("SiteMode");
+    
 }
 
 <DxTreeView @ref="@treeView"
             CssClass="sidebar-tree"
             ExpandButtonIconCssClass="demo-icon-expand"
             CollapseButtonIconCssClass="demo-icon-collapse"
-            NodeExpandCollapseAction="TreeViewNodeExpandCollapseAction.NodeClick"
             AllowSelectNodes="true"
             SelectionChanged="@SelectionChanged">
     <Nodes>
-        @foreach (var demoPage in Pagess)
+        @foreach (var demoPage in Lists)
         {
            
                 <NavMenuLeaf Page="@demoPage"></NavMenuLeaf>
@@ -27,13 +33,22 @@
     DxTreeView treeView;
 
     [Parameter]
-    public IEnumerable<AppPermissionModel> Pagess { get; set; }
+    public IEnumerable<PortalMenuModel> Pagess { get; set; }
     public IEnumerable<DemoPageBase> Pages { get; set; }
 
+    public IEnumerable<PortalMenuModel> _appPermissionItems { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionQuery(1));
+    }
     protected override void OnInitialized() {
+        
         NavigationManager.LocationChanged += OnLocationChanged;
     }
-    protected override void OnAfterRender(bool firstRender) {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionQuery(1));
         UpdateSelection(NavigationManager.Uri, true);
     }
     void OnLocationChanged(object sender, LocationChangedEventArgs args) {

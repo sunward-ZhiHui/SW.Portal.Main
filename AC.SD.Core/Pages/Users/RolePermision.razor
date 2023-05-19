@@ -8,12 +8,12 @@
 <h3>Role Permision</h3>
 
 @code {
-    private List<AppPermissionModel> _appPermissionItems;
+    private List<PortalMenuModel> _appPermissionItems;
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        _appPermissionItems = await Mediator.Send(new GetAllAppPermissionQuery());
+        _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionQuery(1));
     }
 }

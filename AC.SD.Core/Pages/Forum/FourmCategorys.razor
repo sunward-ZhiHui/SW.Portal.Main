@@ -18,7 +18,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew"  />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
@@ -55,6 +55,7 @@
         CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
 
     <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px">            
         </DxGridDataColumn>
         <DxGridDataColumn FieldName="TypeId" MinWidth="200" Caption="TypeName" />
@@ -63,7 +64,7 @@
         <DxGridCommandColumn Width="160px" Visible="false" />
     </Columns>
 
-    <EditFormTemplate Context="EditFormContext">
+    <EditFormTemplate Context="EditFormContext" >
         @{
             var categorys = (ForumCategorys)EditFormContext.EditModel;
         }
@@ -105,21 +106,18 @@
     IGrid? Grid { get; set; }
 
     private ForumCategorys _selectedItems;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
-
+    bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = true;
     bool ExportSelectedRowsOnly { get; set; }
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     string? errorMessage;
-
-
     bool MessageVisible { get; set; }
     string styleClass = "";
     string MessageHeader = "Error";
     string MessageBody = "";
     private bool loading;
-   
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -162,8 +160,11 @@
             var ex = _categorys.Where(x => x.Name == editModel.Name && x.TypeId == editModel.TypeId);
             if (ex.Any())
             {
+
+                //addNew();
                 onShowPopupMessage("Error", "The entered value Already exists.");
-            }
+
+            }    
             else
             {
 
@@ -184,7 +185,10 @@
             var ex = _categorys.Where(x => x.Name == editModel.Name && x.TypeId == editModel.TypeId && x.ID != editModel.ID);
             if (ex.Any())
             {
+                // addEdit();
+              //  Grid.StartEditDataItemAsync(editModel);
                 onShowPopupMessage("Error", "The entered value Already exists.");
+
             }
             else
             {
@@ -204,7 +208,7 @@
                 var ans = await Mediator.Send(UpdateReq);
                 await UpdateDataAsync();
             }
-           
+
         }     
 
     }
@@ -220,6 +224,8 @@
 
     private async void onShowPopupMessage(string headerText, string bodyText)
     {
+       //addNew();
+      // addEdit();
         MessageVisible = true;
         MessageBody = bodyText;
         MessageHeader = headerText;

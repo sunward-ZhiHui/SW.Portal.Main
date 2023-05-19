@@ -52,6 +52,7 @@
         RowDoubleClick="OnRowDoubleClick"
         AllowSelectRowByClick="true">
     <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="DivisionID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="PlantDescription" Caption="Company" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" MinWidth="80" />
@@ -116,6 +117,7 @@
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     IGrid? Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
     public ApplicationUser? applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {

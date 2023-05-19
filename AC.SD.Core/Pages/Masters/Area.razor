@@ -43,6 +43,7 @@
         RowDoubleClick="OnRowDoubleClick"
         AllowSelectRowByClick="true">
     <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="IctmasterId" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
@@ -150,7 +151,10 @@
     private List<ViewIctmaster>? _masterCompany;
     private List<ViewIctmaster>? _masterSite;
     private List<ViewIctmaster>? _masterZone;
-
+    bool ExportSelectedRowsOnly
+    {
+        get; set;
+    }
     IGrid Grid { get; set; }
     private ViewIctmaster _selectedItems;
     bool EditEnabled { get; set; } = false;

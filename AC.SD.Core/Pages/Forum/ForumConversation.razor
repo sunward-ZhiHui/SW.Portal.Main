@@ -15,7 +15,9 @@
 @using DevExpress.Blazor.Office
 @using System.Globalization
 @using System;
-
+@using Application.Command.Document;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
 
 <style>
 
@@ -313,7 +315,8 @@
                                                               style="float:right"
                                                       RenderStyle="ButtonRenderStyle.Secondary" />
                                                     <div style="display:flex;" class="attmode">
-                                                        <div class="fa fa-paperclip cdspcc" aria-hidden="true"></div>
+                                                        <div @onclick="@(() => isFileUpload = true)" class="fa fa-paperclip cdspcc" aria-hidden="true"></div>
+                                                        @*<DxUpload @ref="uploadComponent" Name="files" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded"></DxUpload>*@
                                                         <div class="fa fa-ellipsis-v cdspcc" aria-hidden="true"></div>
                                                     </div>
 
@@ -542,6 +545,28 @@
     </BodyTemplate>
 </DxPopup>
 
+<DxPopup @bind-Visible="@isFileUpload" HeaderText="Attachments">
+    <BodyTemplate Context="PopupContext">
+        <div style="padding: 15px;">
+            <div class="">              
+                <DxUpload @ref="uploadComponent" Name="files"
+                          UploadMode="@UploadMode.OnButtonClick"
+                          AllowMultiFileUpload="true"
+                          UploadUrl="@GetUploadUrl()"
+                          SelectedFilesChanged="@SelectedFilesChanged"                         
+                          CssClass="@(SelectedFilesCount > 0 ? "w-100" : string.Empty)">                           
+                </DxUpload>              
+               @* <DxButton Text="Add" RenderStyle="ButtonRenderStyle.Success" @onclick="UploadFiles"></DxButton>*@
+                <button class="btn btn-success" RenderStyle="ButtonRenderStyle.Success" style="float:right;" @onclick="UploadFiles">Add</button>
+            </div>
+        </div>
+    </BodyTemplate>
+</DxPopup>
+<style>
+    .dxuc-upload-icon {
+        display: none; /* or any other style to disable or hide the icon */
+    }
+</style>
 @code {
     private class Model
     {
@@ -553,6 +578,7 @@
         [Required(ErrorMessage = "Remarks is required")]
         public string? Remarks { get; set; }
     }
+    private DxUpload uploadComponent;  
 
     private Model _dataDuDate = new Model();
     private ModelClose _dataTopicClose = new ModelClose();   
@@ -567,6 +593,7 @@
     string isMenuvisible = "Posts";
     DxTreeView treeView;
     IGrid? Grid { get; set; }
+    bool isFileUpload = false;
     bool isDueDate =false;
     bool isTopicClosed = false;
     bool isAllPlistVisible = false;
@@ -599,6 +626,51 @@
     string MessageHeader = "Error";
     string MessageBody = "";   
 
+    [Parameter]
+    public ViewEmployee _employeeDatas { get; set; }
+    [Parameter]
+    public ApplicationUser _applicationUser { get; set; }
+
+    [Parameter]
+    public UploadMode UploadMode { get; set; }
+    private string myFile { get; set; }
+
+    int SelectedFilesCount { get; set; }
+    protected void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        SelectedFilesCount = files.ToList().Count;       
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OpenFileUpload()
+    {
+        //uploadComponent.OpenFileDialog();
+    }
+    public string GetUploadUrl()
+    {
+        var sessionId = "69F5EC47-9E30-4C4C-996C-7B421EA52340";
+
+        string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + sessionId;
+        return url.ToString();
+    }
+    private async Task UploadFiles()
+    {
+        var lst = SelectedFilesCount;
+        uploadComponent.UploadAllFiles();
+    }
+    async Task OnFileUploaded(FileUploadEventArgs e)
+    {
+        var request = new EditDocumentCommand
+            {
+                AddedByUserId = _applicationUser.AddedByUserID,
+                ModifiedByUserId = _applicationUser.ModifiedByUserID,
+                SessionId = _employeeDatas.SessionId,
+            };
+        var response = await Mediator.Send(request);       
+        await InvokeAsync(StateHasChanged);
+       
+    }
     private void onTopicClosedPop()
     {
         isTopicClosed = true;

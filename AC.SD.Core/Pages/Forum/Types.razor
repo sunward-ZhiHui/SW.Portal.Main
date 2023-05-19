@@ -97,10 +97,8 @@
     private List<ForumTypes>? _types;
     IGrid? Grid { get; set; }
     private ForumTypes _selectedItems;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
-
-
+    bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = true;
     bool ExportSelectedRowsOnly { get; set; }
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;

@@ -44,6 +44,7 @@
         RowClick="OnRowClick"
         AllowSelectRowByClick="true">
     <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="EmployeeID" MinWidth="80" Visible="false" />
         <DxGridDataColumn FieldName="SageID" MinWidth="80" />
         <DxGridDataColumn FieldName="FirstName" MinWidth="80" />
@@ -78,6 +79,7 @@
     bool DeleteEnabled { get; set; } = false;
     private ViewEmployee _selectedItems;
     IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());

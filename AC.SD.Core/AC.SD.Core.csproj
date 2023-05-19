@@ -50,6 +50,9 @@
     <Compile Remove="Services\WorldcitiesDataService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="wwwroot\images\icons\align-left.svg" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="DataProviders\IDataProvider.cs" />
   </ItemGroup>
   <ItemGroup>

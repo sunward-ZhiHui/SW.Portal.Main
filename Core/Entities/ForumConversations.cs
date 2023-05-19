@@ -26,5 +26,7 @@ namespace Core.Entities
         public string LastName { get; set; }
         public string UserCode { get; set; }
         public string UserEmail { get; set; }
+        public List<Documents>? documents { get; set; } 
+
     }
 }

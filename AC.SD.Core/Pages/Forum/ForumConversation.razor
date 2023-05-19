@@ -217,10 +217,17 @@
                                                         @item.Message
                                                     </p>
 
-                                                    <a href="#" class="tag"><i class="fas fa-file-image" aria-hidden="true"></i> Exampl.jpg</a>
+                                                    @if (item.documents != null && item.documents.Any())
+                                                    {
+                                                        @foreach (var attachment in item.documents)
+                                                        {
+                                                            <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                        }
+                                                    }
+                                                   @* <a href="#" class="tag"><i class="fas fa-file-image" aria-hidden="true"></i> Exampl.jpg</a>
                                                     <a href="#" class="tag"><i class="fas fa-file-excel" aria-hidden="true"></i> Exampl.xls</a>
                                                     <a href="#" class="tag"><i class="fas fa-file-pdf" aria-hidden="true"></i> Exampl.pdf</a>
-                                                    <a href="#" class="tag"><i class="fas fa-file" aria-hidden="true"></i> Exampl.txt</a>
+                                                    <a href="#" class="tag"><i class="fas fa-file" aria-hidden="true"></i> Exampl.txt</a>*@
                                                 </div>
 
                                                 <div class="cw-480">
@@ -317,7 +324,7 @@
                                                     <div style="display:flex;" class="attmode">
                                                         <div @onclick="@(() => isFileUpload = true)" class="fa fa-paperclip cdspcc" aria-hidden="true"></div>
                                                         @*<DxUpload @ref="uploadComponent" Name="files" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded"></DxUpload>*@
-                                                        <div class="fa fa-ellipsis-v cdspcc" aria-hidden="true"></div>
+                                                        <div class="fa fa-ellipsis-v cdspcc" aria-hidden="true"></div>                                                       
                                                     </div>
 
 
@@ -550,8 +557,7 @@
         <div style="padding: 15px;">
             <div class="">              
                 <DxUpload @ref="uploadComponent" Name="files"
-                          UploadMode="@UploadMode.OnButtonClick"
-                          AllowMultiFileUpload="true"
+                          UploadMode="@UploadMode.OnButtonClick"                        
                           UploadUrl="@GetUploadUrl()"
                           SelectedFilesChanged="@SelectedFilesChanged"                         
                           CssClass="@(SelectedFilesCount > 0 ? "w-100" : string.Empty)">                           
@@ -567,7 +573,11 @@
         display: none; /* or any other style to disable or hide the icon */
     }
 </style>
+
+
+
 @code {
+  
     private class Model
     {
         [Required(ErrorMessage = "Due Date is required")]
@@ -624,7 +634,9 @@
     bool MessageVisible { get; set; }
     string styleClass = "";
     string MessageHeader = "Error";
-    string MessageBody = "";   
+    string MessageBody = "";
+    Guid? sessionId;
+    private string uploadUrl;
 
     [Parameter]
     public ViewEmployee _employeeDatas { get; set; }
@@ -648,16 +660,52 @@
     }
     public string GetUploadUrl()
     {
-        var sessionId = "69F5EC47-9E30-4C4C-996C-7B421EA52340";
+        //var sessionId = Guid.NewGuid();
 
         string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + sessionId;
         return url.ToString();
     }
+    private void closeUploadFiles()
+    {
+        isFileUpload = false;
+        var lst = SelectedFilesCount;
+    }
     private async Task UploadFiles()
     {
-        var lst = SelectedFilesCount;
-        uploadComponent.UploadAllFiles();
+       //var lst = SelectedFilesCount;
+
+        var createReq = new CreateForumCoversation
+            {
+
+                TopicID = (long.Parse(@SelectedGroup)),
+                Message = Data.Message != null ? Data.Message : "Attachments",
+                ParticipantId = applicationUser.UserID,
+                ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                SessionId = Guid.NewGuid()
+            };
+            sessionId = createReq.SessionId;
+            var result = await Mediator.Send(createReq);       
+            
+            //uploadComponent.UploadAllFiles();
+        await Task.Run(() => uploadComponent.UploadAllFiles());
+            await LoadData();
+           onRestText();
+           closeReply();
+        
+
+
+
+        //uploadComponent.UploadAllFiles();
+        
+        
+    }
+    public void ClearUploadedFiles()
+    {
+        uploadComponent.CancelAllFilesUpload();
     }
     async Task OnFileUploaded(FileUploadEventArgs e)
     {
@@ -909,7 +957,7 @@
             {
 
                 TopicID = (long.Parse(@SelectedGroup)),
-                Message = Data.Message,
+                Message = Data.Message != null ? Data.Message : "Attachments",
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
                 StatusCodeID = 1,
@@ -921,6 +969,11 @@
 
         if (result == 1)
         {
+            //var getRec = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
+            //sessionId = getRec.Last().SessionId;
+           
+            //uploadUrl = GetUploadUrl();           
+            //uploadComponent.UploadAllFiles();
             await LoadData();
             onRestText();
             closeReply();

@@ -30,7 +30,7 @@ namespace DocumentApi.Controllers
         {
             long documentId = 0;
             try
-            {
+            {                
                 var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
                 if (!System.IO.Directory.Exists(serverPaths))
                 {

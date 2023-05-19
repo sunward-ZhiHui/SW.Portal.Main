@@ -150,11 +150,10 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FC.ID,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FCS.Message as ReplyMessage,FCS.AddedDate as ReplyDateTime,RAU.UserName as ReplyUserName FROM ForumConversations FC 
-                                LEFT JOIN ForumConversations FCS ON FCS.ID = FC.ReplyId
-                                LEFT JOIN ApplicationUser RAU ON RAU.UserID = FCS.AddedByUserID
+                var query = @"SELECT FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId FROM ForumConversations FC                                
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
+                               
                                 WHERE FC.TopicId = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate ASC;";
 
 
@@ -185,14 +184,20 @@ namespace Infrastructure.Repository.Query
                             var parameterss = new DynamicParameters();
                             parameterss.Add("TopicId", TopicId, DbType.Int64);
                             parameterss.Add("ReplyId", topic.ID, DbType.Int64);
+                        var subQueryResults = connection.Query<ForumConversations>(subQuery, parameterss).ToList();
 
-                            // Execute the subquery using Dapper's Query method and pass in the topic ID as a parameter
-                            var subQueryResults = connection.Query<ForumConversations>(subQuery, parameterss).ToList();
 
-                            // Assign the subquery results to the topic's Conversations property
-                            topic.ReplyConversation = subQueryResults;
-                        
-                       
+
+
+                        var subQueryDocs = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
+                                   
+                        var parametersDocs = new DynamicParameters();
+                        parametersDocs.Add("SessionID", topic.SessionId);                                       
+
+                        var subQueryDocsResults = connection.Query<Documents>(subQueryDocs, parametersDocs).ToList();
+
+                        topic.ReplyConversation = subQueryResults;
+                        topic.documents = subQueryDocsResults;
 
                     }
 

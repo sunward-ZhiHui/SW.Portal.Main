@@ -47,7 +47,7 @@
     </BodyTemplate>
 </DxPopup>
 
-<DxGrid @ref="Grid" Data="@_types" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleeDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+<DxGrid @ref="Grid" Data="@_types" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         KeyFieldName="ID"
         PageSizeSelectorVisible="true"
@@ -259,13 +259,13 @@
         PopupVisible = false;
         await UpdateDataAsync();
     }
-    async Task OnDeleeDataItem(GridDataItemDeletingEventArgs e)
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
         var editModel = (ForumTypes)e.DataItem;
-
-        string result = string.Empty;
-        result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
-        Console.WriteLine(result);
+      
+            string result = string.Empty;
+            result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
+            Console.WriteLine(result);
         await UpdateDataAsync();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

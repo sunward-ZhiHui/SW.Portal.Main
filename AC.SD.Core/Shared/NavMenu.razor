@@ -1,4 +1,5 @@
 ﻿@using AC.SD.Core.Configuration
+@using global::Core.EntityModels;
 @inject DemoConfiguration Configuration
 @inject NavigationManager NavigationManager
 
@@ -14,10 +15,11 @@
             AllowSelectNodes="true"
             SelectionChanged="@SelectionChanged">
     <Nodes>
-        @foreach(var demoPage in Pages) {
-            if(!demoPage.IsMaintenanceMode || !siteMode) {
+        @foreach (var demoPage in Pagess)
+        {
+           
                 <NavMenuLeaf Page="@demoPage"></NavMenuLeaf>
-            }
+           
         }
     </Nodes>
 </DxTreeView>
@@ -25,6 +27,7 @@
     DxTreeView treeView;
 
     [Parameter]
+    public IEnumerable<AppPermissionModel> Pagess { get; set; }
     public IEnumerable<DemoPageBase> Pages { get; set; }
 
     protected override void OnInitialized() {

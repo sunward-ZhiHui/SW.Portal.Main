@@ -1,45 +1,48 @@
 ﻿@using AC.SD.Core.Configuration
 @inject DemoConfiguration Configuration
 @using global::Core.EntityModels;
-@if (Page.Children != null && Page.Children.Count > 0) {
-    <DxTreeViewNode Text="@Page.Title" NavigateUrl="@Page.Url">
+@if (Page.Items != null && Page.Items.Count > 0)
+{
+    <DxTreeViewNode Text="@Page.Title" NavigateUrl="@Page.Component">
         <Nodes>
-            @foreach (var childPage in Page.Children)
+            @foreach (var childPage in Page.Items)
             {
                 <NavMenuLeaf Page="@childPage"></NavMenuLeaf>
             }
         </Nodes>
     </DxTreeViewNode>
-    } else {
-    <DxTreeViewNode Text="@Page.Title" NavigateUrl="@Page.Url">
+}
+else
+{
+    <DxTreeViewNode Text="@Page.Title" NavigateUrl="@Page.Component">
     </DxTreeViewNode>
+}
+
+@code {
+    [Parameter]
+    public PortalMenuModel Page { get; set; }
+
+    protected string GetItemBadgeText(DemoItem page)
+    {
+        var status = page.GetStatus();
+        if (status == DemoItemStatus.Preview)
+            return "CTP";
+        if (status == DemoItemStatus.MaintenanceMode)
+            return "Maintenance";
+        if (status == DemoItemStatus.New)
+            return "New";
+        if (status == DemoItemStatus.Updated)
+            return "Upd";
+        return string.Empty;
     }
 
-    @code {
-        [Parameter]
-        public AppPermissionModel Page { get; set; }
-
-        protected string GetItemBadgeText(DemoItem page)
-        {
-            var status = page.GetStatus();
-            if (status == DemoItemStatus.Preview)
-                return "CTP";
-            if (status == DemoItemStatus.MaintenanceMode)
-                return "Maintenance";
-            if (status == DemoItemStatus.New)
-                return "New";
-            if (status == DemoItemStatus.Updated)
-                return "Upd";
-            return string.Empty;
-        }
-
-        protected string GetItemCssClass(DemoPageBase page)
-        {
-            var status = page.GetStatus();
-            if (status == DemoItemStatus.Preview)
-                return "item-ctp";
-            if (status == DemoItemStatus.MaintenanceMode)
-                return "item-maintenance";
-            return "";
-        }
+    protected string GetItemCssClass(DemoPageBase page)
+    {
+        var status = page.GetStatus();
+        if (status == DemoItemStatus.Preview)
+            return "item-ctp";
+        if (status == DemoItemStatus.MaintenanceMode)
+            return "item-maintenance";
+        return "";
+    }
 }

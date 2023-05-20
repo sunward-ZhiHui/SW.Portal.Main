@@ -14,6 +14,8 @@ namespace Core.Repositories.Query
         Task<T> GetItem<T>(string key);
         Task SetItem<T>(string key, T value);
         Task RemoveItem(string key);
+
+        Task<string> GetItemOne<T>(string key);
         //Task SetItem(object userKey, ApplicationUser newEntity);
     }
 }

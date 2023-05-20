@@ -178,9 +178,11 @@
     int masterType = 574;
     protected override async Task OnInitializedAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()

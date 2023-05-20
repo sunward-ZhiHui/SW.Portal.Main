@@ -194,6 +194,7 @@
     public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         _sections = await Mediator.Send(new GetAllSectionQuery());
         _departments = await Mediator.Send(new GetAllDepartmentQuery());
         _divisions = await Mediator.Send(new GetAllDivisionQuery());
@@ -203,6 +204,7 @@
         _subsectionListItems = await Mediator.Send(new GetAllSubSectionQuery());
         levelItems = await Mediator.Send(new GetAllLevelMasterQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()

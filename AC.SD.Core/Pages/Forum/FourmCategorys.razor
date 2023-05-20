@@ -132,7 +132,9 @@
 
     async Task UpdateDataAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         _categorys = await Mediator.Send(new GetAllForumCategorys());
+         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
 
     async Task ExportToExcel()

@@ -155,6 +155,7 @@
     }
     async Task UpdateDataAsync()
     {
+         await jsRuntime.InvokeAsync<string>("showLoading");
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
         if (_departmentItems.Count > 0)
         {
@@ -163,6 +164,7 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void SelectedItemChanged(long? plantID)
     {

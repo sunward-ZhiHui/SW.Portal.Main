@@ -207,6 +207,7 @@
     }
     async Task UpdateDataAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         _designationItems = await Mediator.Send(new GetAllDesignationQuery());
         if (_designationItems.Count > 0)
         {
@@ -215,6 +216,7 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

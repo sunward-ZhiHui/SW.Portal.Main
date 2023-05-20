@@ -133,8 +133,10 @@
     }
     async Task UpdateDataAsync()
     {
+         await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllLayOutPlanTypeQuery());
         _layout = model;
+         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

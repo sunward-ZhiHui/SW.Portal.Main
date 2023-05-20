@@ -126,10 +126,12 @@
     bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new  GetAllLayOutPlanTypeQuery());
         // var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         // _stausItems = models;
         _layout = model;
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     async Task UpdateDataAsync()
     {

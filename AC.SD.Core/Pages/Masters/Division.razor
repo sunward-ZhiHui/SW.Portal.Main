@@ -121,12 +121,13 @@
     public ApplicationUser? applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
-
+        await jsRuntime.InvokeAsync<string>("showLoading");
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         var plants = await Mediator.Send(new GetAllPlantQuery());
         _stausItems = models;
         _plantItems = plants;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()

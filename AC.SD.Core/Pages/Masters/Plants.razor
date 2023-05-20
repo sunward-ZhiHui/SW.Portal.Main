@@ -108,7 +108,9 @@
     {
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _stausItems = models;
+        await jsRuntime.InvokeAsync<string>("showLoading");
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()

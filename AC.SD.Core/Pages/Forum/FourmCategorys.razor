@@ -52,7 +52,7 @@
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true"
-        CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
+        CustomizeCellDisplayText="Grid_CustomizeCellDisplayText" @bind-SelectedDataItems="SelectedDataItems">
 
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
@@ -98,13 +98,26 @@
 
     </BodyTemplate>
 </DxPopup>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
+    <div class="text-center">
+        <Content>
+        <p>
+                <div > Do you want to delete</div>
+          
+        </p>
+    </Content>
+       
+        <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
+        <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
 
 @code {
     Dictionary<long, string>? CategoryNamesIndex { get; set; }    
     private List<ForumCategorys>? _categorys; 
     List<ForumTypes>? Types {get; set;}
     IGrid? Grid { get; set; }
-
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     private ForumCategorys _selectedItems;
     bool EditEnabled { get; set; } = true;
     bool DeleteEnabled { get; set; } = true;
@@ -117,22 +130,28 @@
     string MessageHeader = "Error";
     string MessageBody = "";
     private bool loading;
-
+    bool Blukdeletepopup { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
         var types = await Mediator.Send(new GetAllForumTypes());
         Types = types;
-
+        await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllForumCategorys());
         _categorys = model;     
-
+        await jsRuntime.InvokeAsync<string>("hideLoading");
         CategoryNamesIndex = Types.ToDictionary(i => i.ID, i => i.Name);
     }   
 
     async Task UpdateDataAsync()
     {
         _categorys = await Mediator.Send(new GetAllForumCategorys());
+        if (_categorys.Count > 0)
+        {
+
+            _selectedItems = _categorys.FirstOrDefault();
+            StateHasChanged();
+        }
     }
 
     async Task ExportToExcel()
@@ -251,27 +270,47 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _categorys.FirstOrDefault(f => f.ID == (long?)UniqueId);
-        EditEnabled = true;
-        DeleteEnabled = true;
         StateHasChanged();
 
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
     }
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        EditEnabled = false;
-        DeleteEnabled = false;
+
     }
     void addEdit()
     {
+
         Grid.StartEditDataItemAsync(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
+
     }
     void addDelete()
     {
-        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
+        Blukdeletepopup = true;
+    }
+    void bulkDelete()
+    {
+        if (SelectedDataItems != null)
+        {
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ForumCategorys forumCategorys)
+                {
+
+                    var request = new DeleteFourmCategoryCommand(forumCategorys.ID);
+                    Mediator.Send(request);
+                    UpdateDataAsync();
+                    Blukdeletepopup = false;
+                    Grid.SetFocusedRowIndex(0);
+                }
+
+            }
+        }
     }
 }

@@ -9,6 +9,7 @@
 @using DevExpress.Export
 @using Application.Response;
 @using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -162,10 +163,11 @@
     int masterType = 573;
     protected override async Task OnInitializedAsync()
     {
-
+        await jsRuntime.InvokeAsync<string>("showLoading");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()

@@ -10,6 +10,8 @@
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="DevExpress.Blazor.ProjectTemplates" Version="22.2.3" />
     <PackageReference Include="DevExpress.Data" Version="22.2.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
   </ItemGroup>
 
   <ItemGroup>

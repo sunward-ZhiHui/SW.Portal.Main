@@ -229,7 +229,7 @@ main {
 }
 .uk-card-footer {
     padding: 6px 10px;
-    background: #e8e7e7b0;
+    /*background: #e8e7e7b0;*/
     border-top: 1px solid #d4d4d4;
 }
 
@@ -311,7 +311,7 @@ main {
 
 .uk-label {
     display: inline-block;
-    padding: 0 10px;   
+    /*padding: 0 10px;   */
     line-height: 1.5;
     font-size: .875rem;   
     vertical-align: middle;

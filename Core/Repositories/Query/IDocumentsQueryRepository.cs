@@ -14,5 +14,6 @@ namespace Core.Repositories.Query
     {
         Task<Documents> GetBySessionIdAsync(Guid? SessionId);
         Task<Documents> GetByIdAsync(long? Id);
+        Task<long> Delete(long? DocumentId);
     }
 }

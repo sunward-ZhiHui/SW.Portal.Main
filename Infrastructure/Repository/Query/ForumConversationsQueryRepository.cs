@@ -152,8 +152,7 @@ namespace Infrastructure.Repository.Query
 
                 var query = @"SELECT FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId FROM ForumConversations FC                                
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
-                               
+                                INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
                                 WHERE FC.TopicId = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate ASC;";
 
 
@@ -174,7 +173,8 @@ namespace Infrastructure.Repository.Query
                                         FC.Message,
                                         AU.UserName,
                                         AU.UserID,
-                                        FC.ReplyId
+                                        FC.ReplyId,
+                                        FC.SessionId
                                     FROM
                                         ForumConversations FC
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
@@ -184,9 +184,7 @@ namespace Infrastructure.Repository.Query
                             var parameterss = new DynamicParameters();
                             parameterss.Add("TopicId", TopicId, DbType.Int64);
                             parameterss.Add("ReplyId", topic.ID, DbType.Int64);
-                        var subQueryResults = connection.Query<ForumConversations>(subQuery, parameterss).ToList();
-
-
+                        var subQueryResults = connection.Query<ForumConversations>(subQuery, parameterss).ToList();                     
 
 
                         var subQueryDocs = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
@@ -199,8 +197,51 @@ namespace Infrastructure.Repository.Query
                         topic.ReplyConversation = subQueryResults;
                         topic.documents = subQueryDocsResults;
 
+                        foreach (var conversation in topic.ReplyConversation)
+                        {
+                            var subQueryReplyDocs = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath from ForumConversations FC
+                                                        INNER JOIN Documents D ON D.SessionID = FC.SessionId
+                                                        WHERE D.SessionID = @SessionID";
+                            var parametersReplyDocs = new DynamicParameters();
+                            parametersReplyDocs.Add("SessionID", conversation.SessionId);
+                            parameterss.Add("ReplyId", conversation.ReplyId, DbType.Int64);
+
+                            //var subQueryReplyDocsResults = connection.Query<Documents>(subQueryReplyDocs, parametersReplyDocs).ToList();
+                            //topic.ReplyConversation.documents = subQueryReplyDocsResults;
+
+
+                            var subQueryReplyDocsResults = connection.Query<Documents>(subQueryReplyDocs, parametersReplyDocs).ToList();
+
+                            conversation.documents = subQueryReplyDocsResults;
+                        }
+
                     }
 
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<Documents>> GetTopicDocListAsync(long TopicId)
+        {
+            try
+            {
+
+                var query = @"select FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath from ForumConversations FC 
+                                INNER JOIN Documents D on D.SessionID = FC.SessionId
+                                where FC.TopicID = @TopicId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<Documents>(query, parameters).ToList();
                     return res;
                 }
             }

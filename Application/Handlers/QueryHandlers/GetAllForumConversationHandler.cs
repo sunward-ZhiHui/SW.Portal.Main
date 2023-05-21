@@ -27,7 +27,7 @@ namespace Application.Handlers.QueryHandlers
             //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
         }
     }
-
+    //Get discussion list
     public class GetDiscussionListHandler : IRequestHandler<GetDiscussionList, List<ForumConversations>>
     {
         private readonly IForumConversationsQueryRepository _conversationQueryRepository;
@@ -40,6 +40,20 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<ForumConversations>> Handle(GetDiscussionList request, CancellationToken cancellationToken)
         {
             return (List<ForumConversations>)await _conversationQueryRepository.GetDiscussionListAsync(request.TopicId);           
+        }
+    }
+    public class GetTopicDocListHandler : IRequestHandler<GetTopicDocList, List<Documents>>
+    {
+        private readonly IForumConversationsQueryRepository _conversationQueryRepository;
+
+        public GetTopicDocListHandler(IForumConversationsQueryRepository conversationQueryRepository)
+        {
+
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<Documents>> Handle(GetTopicDocList request, CancellationToken cancellationToken)
+        {
+            return (List<Documents>)await _conversationQueryRepository.GetTopicDocListAsync(request.TopicId);
         }
     }
 

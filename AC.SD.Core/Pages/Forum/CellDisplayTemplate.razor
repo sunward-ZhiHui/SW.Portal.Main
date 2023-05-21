@@ -1,0 +1,192 @@
+@using MediatR
+@using Application.Queries;
+@using Application.Response;
+@inject IMediator Mediator
+@using DevExpress.Blazor.Internal
+@using System.Collections.Generic
+@using DevExpress.Blazor.RichEdit
+@using DevExpress.Blazor.Office
+@using System.Globalization
+@using System;
+@using Application.Command.Document;
+@using Microsoft.AspNetCore.Http;
+@using System.IO;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime JsRuntime;
+@using System.Threading;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.AspNetCore.Components.Forms
+@using DevExpress.Blazor
+@using System.Linq;
+@inject NavigationManager NavigationManager
+@page "/upload"
+
+@*<DxUpload @ref="uploadComponent" Name="files"
+          UploadMode="@UploadMode.OnButtonClick"
+          AllowMultiFileUpload="true"     
+          SelectedFilesChanged="GetSelectedFiles">
+</DxUpload>*@
+
+
+<button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Select File</button>
+<div class="alert alert-info @(MessageVisible? " visible" : " invisible")">@MyMessage</div>
+<DxUpload Name="myFile"
+          Visible="@UploadVisible"
+          ExternalSelectButtonCssSelector="#overviewDemoSelectButton"         
+          MaxFileSize="15000000"
+          UploadUrl="@GetUploadUrl("api/Upload/Upload/")"
+          SelectedFilesChanged="@SelectedFilesChanged1"
+          FileUploaded="@OnFileUploaded"
+          FileUploadStart="@OnFileUploadStart"
+          CssClass="w-100">
+</DxUpload>
+
+
+<DxUpload @ref="uploadComponent" Name="files"
+          UploadMode="@UploadMode.OnButtonClick"
+          AllowMultiFileUpload="true"
+          ValueChanged="HandleFileSelection">
+</DxUpload>
+<button class="btn btn-primary" @onclick="HandleUpload">Upload</button>
+
+@code {
+    bool MessageVisible { get; set; } = false;
+    string MyMessage { get; set; } = "";
+    private DxUpload uploadComponent;   
+    int SelectedFilesCount { get; set; }
+
+    private List<UploadFileInfo> selectedFile = new List<UploadFileInfo>();
+
+    List<IFormFile> formFiles = new List<IFormFile>();
+
+    // private List<IFormFile> selectedFiles = new List<IFormFile>();
+
+    private List<IFormFile> selectedFiles = new List<IFormFile>();
+   
+    bool UploadVisible { get; set; } = false;
+    protected void SelectedFilesChanged1(IEnumerable<UploadFileInfo> files)
+    {
+        UploadVisible = files.ToList().Count > 0;
+       // selectedFiles.AddRange(files);
+        InvokeAsync(StateHasChanged);
+    }
+    protected string GetUploadUrl(string url)
+    {
+        return NavigationManager.ToAbsoluteUri(url).AbsoluteUri;
+    }
+    void OnFileUploaded(FileUploadEventArgs e)
+    {
+        MyMessage = "The " + e.FileInfo.Name + " file was uploaded.";
+        MessageVisible = true;
+        InvokeAsync(StateHasChanged);
+    }
+    void OnFileUploadStart(FileUploadStartEventArgs e)
+    {
+        selectedFiles.Clear();
+       // selectedFiles.AddRange(e.FileInfo);
+
+        // Perform additional operations or update UI based on the selected files
+
+        InvokeAsync(StateHasChanged);
+    }
+
+ 
+    public void GetSelectedFiles(IEnumerable<IFormFile> files)
+    {
+        selectedFiles.Clear();       
+        selectedFiles.AddRange(files.Cast<IFormFile>());
+
+        // Perform additional operations or update UI based on the selected files
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    //private async Task HandleFileSelection(IEnumerable<UploadFileInfo> files)
+    //{
+    //    //selectedFiles.Clear();
+    //    ////selectedFiles.AddRange(files.Select(file => ConvertToIFormFile(file)));
+    //    //selectedFiles.AddRange(files.Select(file => (IFormFile)file));       
+       
+    //    //foreach (var file in files)
+    //    //{
+    //    //    var formFile = ConvertToIFormFile(file);
+    //    //    selectedFiles.Add(formFile);
+    //    //}
+
+    //    //await InvokeAsync(StateHasChanged);
+    //}
+
+    //private IFormFile ConvertToIFormFile(UploadFileInfo uploadFileInfo)
+    //{
+    //    //Stream fileStream = uploadFileInfo.ContentReadStream; // Assuming the 'ContentReadStream' property exists
+    //    //string fileName = uploadFileInfo.Name; // Assuming the 'Name' property represents the file name
+
+    //    //string contentType = GetContentTypeFromExtension(fileName); // Custom method to determine content type
+
+    //    //IFormFile formFile = new FormFile(fileStream, 0, fileStream.Length, null, fileName)
+    //    //    {
+    //    //        ContentType = contentType
+    //    //    };
+
+    //    //return formFile;
+    //}
+
+    private string GetContentTypeFromExtension(string fileName)
+    {
+        string extension = Path.GetExtension(fileName);
+
+        switch (extension.ToLower())
+        {
+            case ".jpg":
+            case ".jpeg":
+                return "image/jpeg";
+            case ".png":
+                return "image/png";
+            case ".pdf":
+                return "application/pdf";
+            // Add more cases for other file extensions and their corresponding content types
+            default:
+                return "application/octet-stream"; // Default content type for unknown file types
+        }
+    }
+
+    private void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+
+        var tempFiles = files.ToList();
+        selectedFile.Clear();
+        selectedFile.AddRange(tempFiles);
+    }
+
+
+    //private void SelectedFilesChanged(IEnumerable<IFormFile> files, int arg1, string arg2)
+    //{
+    //    selectedFiles.AddRange(files);
+    //}
+
+    //private async Task SelectedFilesChanged(IEnumerable<IBrowserFile> files)
+    //{       
+    //    selectedFiles.AddRange(files);
+    //}
+
+    private async Task<bool> HandleUpload()
+    {        
+
+        var createReq = new UploadFilesRequest
+            {
+                Files = selectedFiles
+            };
+      
+        var result = await Mediator.Send(createReq);
+
+
+       // var result = await Mediator.Send(new UploadFilesRequest { Files = selectedFiles });
+
+        // Clear the selected files list
+        selectedFile.Clear();
+
+        return result;
+    }  
+   
+}

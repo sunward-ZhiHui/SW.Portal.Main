@@ -74,12 +74,12 @@
                 <div class="col-md-8 ">
                     <DxFormLayout>
                         <DxFormLayoutItem ColSpanMd="6">
-                            <label for="TicketNo">TicketNo </label>
+                            <label for="TicketNo">Topic </label>
                             <DxTextBox @bind-Text="@Data.TicketNo" ShowValidationIcon="true" NullText="Ticket No" />
                            
                         </DxFormLayoutItem>
                         <DxFormLayoutItem ColSpanMd="6">
-                            <label for="TopicName">TopicName </label>
+                            <label for="TopicName">Topic Name </label>
                             <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Topic Name" />                           
                                 <ValidationMessage For="@(() => Data.TopicName)" />                           
                         </DxFormLayoutItem>

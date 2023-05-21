@@ -24,10 +24,10 @@ using Core.Repositories.Query.Base;
 
 namespace Infrastructure.Repository.Query
 {
-    public class LocalStorageService<T>: ILocalStorageService<T> where T : class
+    public class LocalStorageService<T> : ILocalStorageService<T> where T : class
     {
         private IJSRuntime _jsRuntime;
-        public LocalStorageService(IJSRuntime jsRuntime)            
+        public LocalStorageService(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
         }
@@ -41,6 +41,15 @@ namespace Infrastructure.Repository.Query
 
             return JsonSerializer.Deserialize<T>(json);
         }
+        public async Task<string> GetItemOne<T>(string key)
+        {
+            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "user");
+            if (json == null)
+                return default;
+            var result = JsonSerializer.Deserialize<ApplicationUser>(json).UserName;
+            return result;
+        }
+
 
         public async Task SetItem<T>(string key, T value)
         {
@@ -50,7 +59,7 @@ namespace Infrastructure.Repository.Query
         public async Task RemoveItem(string key)
         {
             await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", key);
-        }     
-      
+        }
+
     }
 }

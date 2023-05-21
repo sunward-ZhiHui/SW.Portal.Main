@@ -8,6 +8,10 @@ using AC.SD.Model.DemoData;
 using Core.EntityModels;
 using Core.Repositories.Query;
 using System.Linq;
+using Core.Entities;
+using Microsoft.JSInterop;
+using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace AC.SD.Core.Configuration
 {
@@ -16,14 +20,16 @@ namespace AC.SD.Core.Configuration
         public const string DocBaseUrl = "https://docs.devexpress.com/Blazor/";
         public static readonly string PagesFolderName = "Pages";
         public static readonly string DescriptionsFolderName = "Descriptions";
-        private readonly IAppPermissionQueryRepository _queryRepository;
+        private readonly IMenuPermissionQueryRepository _queryRepository;
+        private IJSRuntime _jsRuntime;
         protected DemoConfiguration()
         {
         }
-        public DemoConfiguration(IConfiguration configuration, IAppPermissionQueryRepository queryRepository)
+        public DemoConfiguration(IConfiguration configuration, IMenuPermissionQueryRepository queryRepository, IJSRuntime jsRuntime)
         {
             Configuration = configuration;
             _queryRepository = queryRepository;
+            _jsRuntime = jsRuntime;
             Model = DemoModel.Create(IsServerSide);
             Products = Model.Products;
             RootPages = Model.RootPages;
@@ -46,7 +52,7 @@ namespace AC.SD.Core.Configuration
 
         public virtual IEnumerable<DemoProductInfo> Products { get; }
         public virtual IEnumerable<DemoRootPage> RootPages { get; }
-        public virtual IEnumerable<AppPermissionModel> AppPermissionModels { get; set; }
+        public virtual IEnumerable<PortalMenuModel> AppPermissionModels { get; set; }
         public Dictionary<string, string> Redirects { get; private set; }
 
         public T GetConfigurationValue<T>(string key)
@@ -142,9 +148,22 @@ namespace AC.SD.Core.Configuration
         {
             return Search.DoSearch(request);
         }
-        public List<AppPermissionModel> DoNavMenuLists()
+        public List<PortalMenuModel> DoNavMenuLists()
         {
-            var appPermissionModels = _queryRepository.GetAllByAsync().ToList();
+            long Userid = 1;
+            var appPermissionModels = _queryRepository.GetAllByPermissionAsync(Userid).ToList();
+            return appPermissionModels;
+        }
+        public async Task<string> GetByItemAsync()
+        {
+            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "user");
+            var result = JsonSerializer.Deserialize<ApplicationUser>(json);
+            return "Test";
+        }
+        public async Task<List<PortalMenuModel>> DoNavMenuListsItemsAsync()
+        {
+            long Userid = 1;
+            var appPermissionModels = (List<PortalMenuModel>)await _queryRepository.GetAllAsync(Userid);
             return appPermissionModels;
         }
     }

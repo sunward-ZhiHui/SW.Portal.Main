@@ -1,5 +1,10 @@
 ﻿@using Application.Queries;
+@using DevExtreme.AspNet.Data.ResponseModel;
+@using DevExtreme.AspNet.Data;
+@using Duende.IdentityServer.Models;
 @using MediatR
+@using System.Threading;
+@using System.Text.Json;
 @using global::Core.Entities.Views;
 @using global::Core.Entities;
 @inject IMediator Mediator
@@ -23,6 +28,14 @@
         </DxMenu>
     </div>
 </div>
+@*@if (_employeeItems == null)
+{
+    <div class="spinner"></div>
+}
+else
+{*@
+
+
 <DxGrid @ref="Grid"
         Data="_employeeItems"
         KeyFieldName="EmployeeID"
@@ -43,6 +56,7 @@
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         AllowSelectRowByClick="true">
+           
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="EmployeeID" MinWidth="80" Visible="false" />
@@ -82,7 +96,10 @@
     bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+      //  await Task.Run(LoadEmployeesAsync);
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+        await jsRuntime.InvokeAsync<string>("hideLoading");
         if (_employeeItems.Count > 0)
         {
 
@@ -93,32 +110,42 @@
         }
 
     }
+    private async Task LoadEmployeesAsync()
+    {
+        //System.Threading.Thread.Sleep(10);
+        //_employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+        // Retrieve data from the server and initialize
+        // Employees property which the View will bind
+    }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "EmployeeID");
         _selectedItems = _employeeItems.FirstOrDefault(f => f.EmployeeID == (long?)UniqueId);
-       
+
 
     }
     void addNew()
     {
-       
+
         NavigationManager.NavigateTo("EmployeeForm");
     }
     void addEdit()
     {
         //Grid.StartEditDataItemAsync(_selectedItems);
         NavigationManager.NavigateTo("EmployeeForm/" + _selectedItems.SessionId + "");
-       
+
     }
     void addDelete()
     {
         Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-        
+
     }
     async Task UpdateDataAsync()
     {
+         await jsRuntime.InvokeAsync<string>("showLoading");
+
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void NewEmployeeForm(MouseEventArgs args)
     {
@@ -176,4 +203,5 @@
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
     }
+   
 }

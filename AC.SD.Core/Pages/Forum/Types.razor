@@ -348,7 +348,7 @@
     {
         Blukdeletepopup = true;
     }
-    void  bulkDelete()
+  async Task bulkDelete()
     {
         if (SelectedDataItems != null)
         {
@@ -359,15 +359,15 @@
                 {
 
                     var request = new DeleteForumTypeCommand(forumTypes.ID);
-                    Mediator.Send(request);
+                 await Mediator.Send(request);
                     Blukdeletepopup = false;
-                    
-                    UpdateDataAsync();
                         Grid.SetFocusedRowIndex(0);
-                    }
+                }
                 
             }
+           await UpdateDataAsync();
         }
+        
     }
     //void RowClickDelete()
     //{

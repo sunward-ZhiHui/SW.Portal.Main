@@ -113,6 +113,7 @@
     }
     async Task UpdateDataAsync()
     {
+         await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllIctMasterQuery());
         _ictmaster = model;
         _ictmasterList = model.Where(w => w.MasterType == mastertype).ToList();
@@ -124,6 +125,7 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

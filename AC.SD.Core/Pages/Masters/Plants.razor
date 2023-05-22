@@ -115,6 +115,7 @@
     }
     async Task UpdateDataAsync()
     {
+         await jsRuntime.InvokeAsync<string>("showLoading");
         _plants = await Mediator.Send(new GetAllPlantQuery());
         if (_plants.Count > 0)
         {
@@ -124,6 +125,7 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
+         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void OnRowClick(GridRowClickEventArgs e)
     {

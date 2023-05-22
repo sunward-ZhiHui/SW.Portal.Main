@@ -5,4 +5,8 @@
     grid.style.height = gridHeight + 'px';
 }
 
+function myFunction() {
+    alert(1);
+}
+
 

@@ -167,6 +167,7 @@
     }
     async Task UpdateDataAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         _subsectionItems = await Mediator.Send(new GetAllSubSectionQuery());
         if (_subsectionItems.Count > 0)
         {
@@ -176,6 +177,7 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
+         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {

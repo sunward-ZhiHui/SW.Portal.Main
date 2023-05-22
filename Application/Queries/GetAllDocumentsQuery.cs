@@ -18,5 +18,13 @@ namespace Application.Queries
             this.SessionId = SessionId;
         }
     }
+    public class DeleteDoc : Documents, IRequest<long>
+    {
+        public long DocumentId { get; private set; }
+        public DeleteDoc(long DocumentId)
+        {
+            this.DocumentId = DocumentId;
+        }
+    }
 
 }

@@ -1,6 +1,7 @@
 ﻿using Application.Command.Document;
 using Application.Commands;
 using Application.Common.Mapper;
+using Application.Queries;
 using Application.Response;
 using Core.Entities;
 using Core.Repositories.Command;
@@ -93,6 +94,22 @@ namespace Application.Handlers.CommandHandler
                 StatusCodeId = request.StatusCodeId,
             };
             return response;
+        }
+    }
+
+    public class DeleteDocHandler : IRequestHandler<DeleteDoc, long>
+    {
+        private readonly IDocumentsQueryRepository _documentsQueryRepository;
+
+        public DeleteDocHandler(IDocumentsQueryRepository documentsQueryRepository)
+        {
+            _documentsQueryRepository = documentsQueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteDoc request, CancellationToken cancellationToken)
+        {
+            var req = await _documentsQueryRepository.Delete(request.DocumentId);
+            return req;
         }
     }
 }

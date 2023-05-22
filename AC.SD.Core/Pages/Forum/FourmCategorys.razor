@@ -145,6 +145,7 @@
 
     async Task UpdateDataAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         _categorys = await Mediator.Send(new GetAllForumCategorys());
         if (_categorys.Count > 0)
         {
@@ -152,6 +153,7 @@
             _selectedItems = _categorys.FirstOrDefault();
             StateHasChanged();
         }
+         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
 
     async Task ExportToExcel()

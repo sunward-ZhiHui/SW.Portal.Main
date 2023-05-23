@@ -6,6 +6,7 @@ using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
 using MediatR;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Data;
 using System.Linq;
@@ -36,9 +37,33 @@ namespace CMS.Application.Handlers.QueryHandlers
             }
 
             return true; // Return true if all files are saved successfully
-
         }
+    }
+    public class DownloadFileHandler : IRequestHandler<DownloadFileRequest, Documents>
+    {
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        public DownloadFileHandler(IWebHostEnvironment host)
+        {
+            _hostingEnvironment = host;
+        }
+        public Task<Documents> Handle(DownloadFileRequest request, CancellationToken cancellationToken)
+        {
+            // Read the file content from the specified FilePath
+            //var BaseUrl = _hostingEnvironment.ContentRootPath + @"\AppUpload\";
+            var filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\" + request.FilePath;
+            var fileContent = File.ReadAllBytes(filePath);
 
+            // Create and populate the DownloadFileResponse
+            var response = new Documents
+            {
+                FileName = request.FileName,
+                FileData = fileContent,
+                ContentType = request.ContentType,
+                FilePath = filePath
 
-    }  
+            };
+
+            return Task.FromResult(response);
+        }
+    }
 }

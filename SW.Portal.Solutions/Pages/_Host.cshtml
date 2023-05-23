@@ -17,10 +17,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
     <meta property="og:url" content="https://dxpr.es/2WogLq7" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Native Blazor Components powered by DevExpress" />
+    <meta property="og:title" content="For all the moments you want to cherish" />
     <link href="_content/AC.SD.Core/css/app.css" rel="stylesheet" />
-    <meta property="og:description" content="DevExpress UI for Blazor ships with native user interface components (including a Data Grid, Pivot Grid, Charts and Scheduler) so you can design rich user experiences with both Blazor." />
-    <meta property="og:image" content="https://static.devexpress.com/Products/Blazor/blazor-components-grid-pivot-scheduler-charts-editor-devexpress.jpg" />
+    <link href="_content/AC.SD.Core/css/toast.css" rel="stylesheet" />
+    <link href="_content/AC.SD.Core/toast/style.css" rel="stylesheet" />
+    <meta property="og:description" content="Invested in continuous innovation and research for your quality assurance." />
+    <meta property="og:image" content="_content/AC.SD.Core/images/login/SW-Logo.png" />
    @* <meta http-equiv="Content-Security-Policy"
           content="base-uri 'self';
                default-src 'self';
@@ -68,6 +70,8 @@
     <environment include="ServerSide">
         <component type="typeof(DemoStylesheetContainer)" render-mode="Server" param-InitialThemeName="@InitialThemeName" />
         <script src="_framework/blazor.server.js" defer></script>
+        <script src="_content/AC.SD.Core/common.js"></script>
+        <script src="_content/AC.SD.Core/toast/script.js"></script>
     </environment>
     <environment include="Wasm.AspNetCoreHosted">
         <component type="typeof(DemoStylesheetContainer)" render-mode="WebAssemblyPrerendered" param-InitialThemeName="@InitialThemeName" />
@@ -125,6 +129,7 @@
 </head>
 <body>
     <div class="load-indicator" style="display:none;"></div>
+    <ul class="notifications"></ul>
     @{
         var isIEOrEdgeLegacy = Request.Headers["User-Agent"].Any(userAgent => userAgent.Contains("MSIE") || userAgent.Contains("Trident"));
     }

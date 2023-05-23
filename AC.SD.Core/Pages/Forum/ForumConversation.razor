@@ -19,10 +19,8 @@
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime;
+@inject HttpClient httpClient
 
-<style>
-
-</style>
 <link href="_content/AC.SD.Core/css/forum-discussion.css" rel="stylesheet" />
 
 <div class="">
@@ -226,14 +224,25 @@
                                                             <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
                                                         }
                                                     }
-                                                   @* <div class="tag fa fa-plus-square"></div>*@
-
-                                                    <DxUpload @ref="MyUpload" Name="files"
-                                                      UploadUrl="@GetDocUploadUrl(item.SessionId)"
-                                                      SelectedFilesChanged="@SelectedFilesChanged1"
+                                                   @* *@
+                                                    @{
+                                                        string firststring = "#overviewDemoSelectButton_";
+                                                        Guid? secondstring = @item.SessionId;
+                                                        string extt = firststring + secondstring;
+                                                    }
+                                                    @*<button id="overviewDemoSelectButton_@item.SessionId" class="btn border-primary btn-primary m-1">Select File</button>*@
+                                                    <div id="overviewDemoSelectButton_@item.SessionId" class="tag fa fa-plus-square"></div>
+                                                <DxUpload @ref="MyUpload" Name="files"
+                                                  Visible="@UploadVisible"
+                                                  ExternalSelectButtonCssSelector="@(extt)"
+                                                  UploadUrl="@GetDocUploadUrl(item.SessionId)"
+                                                  Id="@(extt)"
+                                                  SelectedFilesChanged="@SelectedFilesChanged1"
                                                       CssClass="w-100"
-                                                     FileUploaded="@HandleUploadSuccess">
-                                                    </DxUpload>
+                                                     FileUploaded="@HandleUploadSuccess">  
+                                             
+                                                </DxUpload>
+
                                                    @* <a href="#" class="tag"><i class="fas fa-file-image" aria-hidden="true"></i> Exampl.jpg</a>
                                                     <a href="#" class="tag"><i class="fas fa-file-excel" aria-hidden="true"></i> Exampl.xls</a>
                                                     <a href="#" class="tag"><i class="fas fa-file-pdf" aria-hidden="true"></i> Exampl.pdf</a>
@@ -597,7 +606,7 @@
 
 
 
-@code {
+@code {    
     DxUpload MyUpload { get; set; }
     bool UploadVisible { get; set; } = true;
     private bool uploadSuccess = false;
@@ -675,6 +684,10 @@
     private string myFile { get; set; }
 
     int SelectedFilesCount { get; set; }
+
+    private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
+    IEnumerable<UploadFileInfo> Filess { get; set; }
+
     protected async void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
         SelectedFilesCount = files.ToList().Count;       
@@ -685,9 +698,15 @@
     bool UploadVisible1 { get; set; } = false;
     protected void SelectedFilesChanged1(IEnumerable<UploadFileInfo> files)
     {
-        Files = files;
-        UploadVisible1 = files.ToList().Count > 0;       
+        Filess = files;
+        SelectedFiles.AddRange(files);
+        UploadVisible1 = files.ToList().Count > 0;   
+
         InvokeAsync(StateHasChanged);
+    }
+    private void RemoveFile(UploadFileInfo file)
+    {
+        SelectedFiles.Remove(file);
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -699,17 +718,34 @@
     }
 
     private async Task HandleUploadSuccess()
-    {
-       // MyUpload.RemoveAllFiles();
-        FirstFile = Files.First();
+    {   
+
+        FirstFile = Filess.First();
         MyUpload.RemoveFile(FirstFile);
+
+
+
+
+        //MyUpload.RemoveAllFiles();
+        ///SelectedFiles.Clear();
         await AnotherFunction();
+        // await TriggerCancelIcon();
+    }
+    async Task OnButtonClick()
+    {
+        var FirstFile = Filess.First();
+        MyUpload.RemoveFile(FirstFile);      
+    }   
+    private async Task TriggerCancelIcon()
+    {
+        await JSRuntime.InvokeVoidAsync("myFunction");
+        await JSRuntime.InvokeVoidAsync("createToast(success)");
     }
 
     private async Task AnotherFunction()
     {
         await LoadData();
-        
+
     }
 
     private void OpenFileUpload()
@@ -849,8 +885,42 @@
     }
     public async Task onDocDownload(long Id)
     {
+        var lst =  _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
+
+        //string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        //string url = BaseUrl + "Upload/DownloadFile?DocumentId=" + Id;
+
+        //var requestData = new StringContent("Request body goes here");
+
+        //var response = await httpClient.PostAsync(url, requestData);
+        //var  responseMessage = await response.Content.ReadAsStringAsync();
+        var request = new DownloadFileRequest
+            {
+                FileName = lst.FileName, 
+                FilePath = lst.FilePath, 
+                ContentType = lst.ContentType
+            };
+
+        var response = await Mediator.Send(request);
+
+        // Trigger file download
+        await JSRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.FileData, response.ContentType,"");
+
+
+
+
+        //string BaseUrl = Configuration["DocumentsUrl:FileUrl"];
         //_documents =  _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
-        //DocPopupVisible = true;
+
+        //if (_documents != null && _documents.DocumentId > 0)
+        //{
+        //    var filePath = BaseUrl + _documents.FilePath;
+        //    if (System.IO.File.Exists(filePath))
+        //    {
+                
+        //    }
+        //}     
+
     }
     public async Task onDocDelete(long Id)
     {
@@ -998,6 +1068,7 @@
     }
     protected override async Task OnInitializedAsync()
     {
+
         //var model = await Mediator.Send(new GetAllForumTypes());
         //_types = model;
         //Items = model.Select((item, index) => (item, index));

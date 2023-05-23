@@ -37,6 +37,7 @@ public class Program
         {
 
             services.AddOptions();
+            services.AddControllers();
             services.AddHttpContextAccessor();
             services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
             

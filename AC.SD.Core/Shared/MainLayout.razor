@@ -186,7 +186,7 @@
     [Inject]
     NavigationManager NavigationManager { get; set; }
     [Inject]
-    IJSRuntime JsRuntime { get; set; }
+    IJSRuntime JSRuntime { get; set; }
     private bool loading;
     public ApplicationUser applicationUser { get; private set; }
 
@@ -294,6 +294,7 @@
 
             await pageHelper.InvokeVoidAsync("DemoPageHelper.demoMatchesQuery", "(min-width: 1200px)", DotNetObjectReference.Create(this));
             await pageHelper.InvokeVoidAsync("DemoPageHelper.patchAppElement");
+            //await JSRuntime.InvokeVoidAsync("import", "../_content/AC.SD.Core/common.js");
         }
         else
         {

@@ -295,7 +295,7 @@
     {
         Blukdeletepopup = true;
     }
-    void bulkDelete()
+    async Task bulkDelete()
     {
         if (SelectedDataItems != null)
         {
@@ -306,7 +306,7 @@
                 {
 
                     var request = new DeleteFourmCategoryCommand(forumCategorys.ID);
-                    Mediator.Send(request);
+                   await Mediator.Send(request);
                     UpdateDataAsync();
                     Blukdeletepopup = false;
                     Grid.SetFocusedRowIndex(0);
@@ -314,5 +314,6 @@
 
             }
         }
+       await UpdateDataAsync();
     }
 }

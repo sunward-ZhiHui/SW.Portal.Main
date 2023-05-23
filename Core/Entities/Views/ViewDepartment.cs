@@ -10,7 +10,6 @@ namespace Core.Entities.Views
     public class ViewDepartment
     {
         public long DepartmentId { get; set; }
-        [Required(ErrorMessage = "Company is Required")]
         public long? CompanyId { get; set; }
         public long? Hodid { get; set; }
         [Required(ErrorMessage = "Department Name is Required")]
@@ -36,5 +35,7 @@ namespace Core.Entities.Views
         public string? StatusCode { get; set; }
         public string? AddedBy { get; set; }
         public string? ModifiedBy { get; set; }
+        public string? DepartmentDrop { get; set; }
+        
     }
 }

@@ -54,7 +54,7 @@
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="DesignationID" MinWidth="80" Visible="false" />
-        <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
         <DxGridDataColumn FieldName="SubSectionName" MinWidth="80" />
         <DxGridDataColumn FieldName="LevelName" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" MinWidth="80" />
@@ -71,65 +71,59 @@
             var plant = (ViewDesignation)EditFormContext.EditModel;
         }
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                <DxComboBox Data="@_plantItems"
-                            SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect.PlantID))"
-                            NullText="Select Company..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Description"
-                            ValueFieldName="PlantID"
-                            @bind-Value="@plant.CompanyID" ShowValidationIcon="true" />
-                <ValidationMessage For="@(() => plant.CompanyID)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                <DxComboBox Data="@_divisionsItems"
-                            NullText="Select Division..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Name"
-                            ValueFieldName="DivisionID"
-                            @bind-Value="@plant.DivisionID"
-                            SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect.DivisionID))"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => plant.DivisionID)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-                <DxComboBox Data="@_departmentsItems"
-                            NullText="Select Department..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="DepartmentName"
-                            ValueFieldName="DepartmentId"
-                            @bind-Value="@plant.DepartmentID"
-                            SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepChanged(plantSelect.DepartmentId))"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => plant.DivisionID)" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                <DxComboBox Data="@_sectionItems"
-                            NullText="Select Section..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="SectionName"
-                            ValueFieldName="SectionId"
-                            @bind-Value="@plant.SectionID"
-                            SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSecChanged(plantSelect.SectionId))"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => plant.DivisionID)" />
-            </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
-                <DxComboBox Data="@_subsectionItems"
+                <DxComboBox Data="@_subsectionListItems"
                             NullText="Select SubSection..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="SubSectionName"
+                            TextFieldName="SubSectionDrop"
                             ValueFieldName="SubSectionId"
                             @bind-Value="@plant.SubSectionID"
+                            SelectedItemChanged="@((ViewSubSection plantSelect) => SelectedItemChanged(plantSelect))"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => plant.SubSectionID)" />
             </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Description"
+                            ValueFieldName="PlantID"
+                            @bind-Value="@CompanyID" ReadOnly="true" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                <DxComboBox Data="@_divisions"
+                            NullText="Select Division..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Name"
+                            ValueFieldName="DivisionID"
+                            ReadOnly="true"
+                            @bind-Value="@DivisionID">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                <DxComboBox Data="@_departments"
+                            NullText="Select Department..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="DepartmentName"
+                            ValueFieldName="DepartmentId"
+                            ReadOnly="true"
+                            @bind-Value="@DepartmentID">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                <DxComboBox Data="@_sections"
+                            NullText="Select Section..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="SectionName"
+                            ValueFieldName="SectionId"
+                            ReadOnly="true"
+                            @bind-Value="@SectionID">
+                </DxComboBox>
+            </DxFormLayoutItem>
+
             <DxFormLayoutItem Caption="Level Master" ColSpanMd="6">
-                <DxComboBox Data="@_levelListItems"
+                <DxComboBox Data="@levelItems"
                             NullText="Select Level Master..."
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="Name"
@@ -199,10 +193,8 @@
 </DxPopup>
 
 @code {
-    private List<ViewSection> _sectionItems;
     private List<ViewSection> _sections;
     private List<ViewDepartment> _departments;
-    private List<ViewDepartment> _departmentsItems;
     private List<ViewDivision>? _divisions;
     private List<ViewPlants> _plantItems;
     private List<ViewDesignation> _designationItems;
@@ -210,8 +202,11 @@
     private List<ViewLevel> levelItems;
     private List<ViewLevel> _levelListItems;
     private List<ViewSubSection> _subsectionListItems;
-    private List<ViewSubSection> _subsectionItems;
     private List<ViewDivision>? _divisionsItems;
+    long? CompanyID = null;
+    long? DivisionID = null;
+    long? DepartmentID = null;
+    long? SectionID = null;
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     private ViewDesignation _selectedItems;
@@ -229,7 +224,6 @@
         await jsRuntime.InvokeAsync<string>("showLoading");
         _sections = await Mediator.Send(new GetAllSectionQuery());
         _departments = await Mediator.Send(new GetAllDepartmentQuery());
-        _divisions = await Mediator.Send(new GetAllDivisionQuery());
         _divisions = await Mediator.Send(new GetAllDivisionQuery());
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
@@ -257,38 +251,26 @@
         var dep = (ViewDesignation)e.DataItem;
         if (e.IsNew)
         {
-            _levelListItems = new List<ViewLevel>();
-            _subsectionItems = new List<ViewSubSection>();
-            _sectionItems = new List<ViewSection>();
-            _departmentsItems = new List<ViewDepartment>();
-            _divisionsItems = new List<ViewDivision>();
+            CompanyID = null;
+            DivisionID = null;
+            SectionID = null;
+            DepartmentID = null;
+
         }
         else
         {
-            SelectedItemChanged(dep.CompanyID);
-            SelectedItemSecChanged(dep.SectionID);
-            SelectedItemDivisionChanged(dep.DivisionID);
-            SelectedItemDepChanged(dep.DepartmentID);
+            CompanyID = dep.CompanyID;
+            DivisionID = dep.DivisionID;
+            SectionID = dep.SectionID;
+            DepartmentID = dep.DepartmentID;
         }
     }
-    void SelectedItemChanged(long? plantID)
+    void SelectedItemChanged(ViewSubSection plantID)
     {
-        _levelListItems = levelItems.Where(c => c.CompanyID == plantID).ToList();
-        _divisionsItems = _divisions.Where(c => c.CompanyId == plantID).ToList();
-
-    }
-    void SelectedItemSecChanged(long? plantID)
-    {
-
-        _subsectionItems = _subsectionListItems.Where(c => c.SectionId == plantID).ToList();
-    }
-    void SelectedItemDivisionChanged(long? plantID)
-    {
-        _departmentsItems = _departments.Where(c => c.DivisionId == plantID).ToList();
-    }
-    void SelectedItemDepChanged(long? plantID)
-    {
-        _sectionItems = _sections.Where(c => c.DepartmentId == plantID).ToList();
+        CompanyID = plantID.CompanyId;
+        DivisionID = plantID.DivisionId;
+        SectionID = plantID.SectionId;
+        DepartmentID = plantID.DepartmentId;
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
@@ -301,7 +283,7 @@
                     Description = editableData.Description,
                     StatusCodeId = editableData.StatusCodeID.Value,
                     Code = editableData.Code,
-                    CompanyId = editableData.CompanyID,
+                    CompanyId = CompanyID,
                     LevelId = editableData.LevelID,
                     HeadCount = editableData.HeadCount,
                     SubSectionID = editableData.SubSectionID,
@@ -309,7 +291,7 @@
                     ModifiedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
-                    SectionID = editableData.SectionID,
+                    SectionID = SectionID,
 
                 };
             await Mediator.Send(request);
@@ -338,8 +320,8 @@
                 Description = editableData.Description,
                 StatusCodeId = editableData.StatusCodeID.Value,
                 AddedByUserId = editableData.AddedByUserID,
-                CompanyId = editableData.CompanyID,
-                SectionID = editableData.SectionID,
+                CompanyId = CompanyID,
+                SectionID = SectionID,
                 AddedDate = editableData.AddedDate,
                 Code = editableData.Code,
                 HeadCount = editableData.HeadCount,

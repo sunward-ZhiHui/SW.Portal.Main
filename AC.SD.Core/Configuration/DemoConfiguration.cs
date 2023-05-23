@@ -12,6 +12,8 @@ using Core.Entities;
 using Microsoft.JSInterop;
 using System.Threading.Tasks;
 using System.Text.Json;
+using AC.SD.Core.Data;
+using Infrastructure.Repository.Query;
 
 namespace AC.SD.Core.Configuration
 {
@@ -21,15 +23,16 @@ namespace AC.SD.Core.Configuration
         public static readonly string PagesFolderName = "Pages";
         public static readonly string DescriptionsFolderName = "Descriptions";
         private readonly IMenuPermissionQueryRepository _queryRepository;
-        private IJSRuntime _jsRuntime;
+        public ApplicationUser applicationUser { get; private set; }
+        private readonly ILocalStorageService<ApplicationUser> _localStorageService;
         protected DemoConfiguration()
         {
         }
-        public DemoConfiguration(IConfiguration configuration, IMenuPermissionQueryRepository queryRepository, IJSRuntime jsRuntime)
+        public DemoConfiguration(IConfiguration configuration, IMenuPermissionQueryRepository queryRepository, ILocalStorageService<ApplicationUser> localStorageService)
         {
             Configuration = configuration;
+            _localStorageService = localStorageService;
             _queryRepository = queryRepository;
-            _jsRuntime = jsRuntime;
             Model = DemoModel.Create(IsServerSide);
             Products = Model.Products;
             RootPages = Model.RootPages;
@@ -154,12 +157,13 @@ namespace AC.SD.Core.Configuration
             var appPermissionModels = _queryRepository.GetAllByPermissionAsync(Userid).ToList();
             return appPermissionModels;
         }
-        public async Task<string> GetByItemAsync()
-        {
-            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "user");
-            var result = JsonSerializer.Deserialize<ApplicationUser>(json);
-            return "Test";
-        }
+       /* public List<PortalMenuModel> GetByItemAsync()
+        
+           *//* applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");*//*
+            long Userid = 1;
+            var result = _queryRepository.GetAllByPermissionAsync(Userid).ToList();
+            return result;
+        }*/
         public async Task<List<PortalMenuModel>> DoNavMenuListsItemsAsync()
         {
             long Userid = 1;

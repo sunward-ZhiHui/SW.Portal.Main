@@ -738,7 +738,7 @@
     }   
     private async Task TriggerCancelIcon()
     {
-        await JSRuntime.InvokeVoidAsync("myFunction");
+        await JSRuntime.InvokeVoidAsync("myFunction()");
         await JSRuntime.InvokeVoidAsync("createToast(success)");
     }
 

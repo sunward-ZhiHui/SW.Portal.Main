@@ -49,7 +49,7 @@
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="SubSectionId" MinWidth="80" Visible="false" />
-        <DxGridDataColumn FieldName="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
         <DxGridDataColumn FieldName="Division" MinWidth="80" />
         <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="80" />
         <DxGridDataColumn FieldName="SectionName" Caption="Section" MinWidth="80" />
@@ -68,7 +68,7 @@
                 <DxComboBox Data="@_sectionItems"
                             NullText="Select Section..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="SectionName"
+                            TextFieldName="SectionDrop"
                             ValueFieldName="SectionId"
                             SelectedItemChanged="@((ViewSection depSelect) => SelectedItemChanged(depSelect))"
                             @bind-Value="@sections.SectionId"

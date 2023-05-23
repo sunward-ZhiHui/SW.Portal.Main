@@ -19,5 +19,6 @@ namespace Core.Entities
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public long? DivisionID { get; set; }
     }
 }

@@ -33,6 +33,7 @@
         KeyFieldName="LevelID"
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
+        CustomizeEditModel="Grid_CustomizeEditModel"
         CustomizeElement="Grid_CustomizeElement"
         ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -54,7 +55,8 @@
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="LevelID" MinWidth="80" Visible="false" />
-        <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="PlantCode"  Caption="Company Code" MinWidth="80" />
+        <DxGridDataColumn FieldName="DivisionName" Caption="Division" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
@@ -69,12 +71,23 @@
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Description"
+                            TextFieldName="PlantCode"
                             ValueFieldName="PlantID"
                             @bind-Value="@plant.CompanyID"
+                            SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect.PlantID))"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => plant.CompanyID)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                <DxComboBox Data="@_divisionsItems"
+                            NullText="Select Division..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="DivisionDrop"
+                            ValueFieldName="DivisionID"
+                            @bind-Value="@plant.DivisionID">
+                </DxComboBox>
+                <ValidationMessage For="@(() => plant.DivisionID)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@plant.Name" ShowValidationIcon="true" />
@@ -99,6 +112,8 @@
 </DxGrid>
 
 @code {
+    private List<ViewDivision>? _divisions;
+    private List<ViewDivision>? _divisionsItems;
     private List<ViewLevel> _levelItems;
     private List<CodeMaster> _stausItems;
     private List<ViewPlants> _plantItems;
@@ -110,6 +125,7 @@
     bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        _divisions = await Mediator.Send(new GetAllDivisionQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -126,13 +142,26 @@
             StateHasChanged();
         }
     }
+    void SelectedItemChanged(long? plantID)
+    {
+        if (plantID != null)
+        {
+            _divisionsItems = _divisions.Where(w => w.CompanyId == plantID).ToList();
+        }
+    }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        _divisionsItems = new List<ViewDivision>();
         if (e.IsNew)
         {
             var newData = (ViewLevel)e.EditModel;
             newData.Name = "";
             newData.StatusCodeID = null;
+        }
+        else
+        {
+            var newData = (ViewLevel)e.EditModel;
+            SelectedItemChanged(newData.CompanyID);
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -147,6 +176,7 @@
                     CompanyId = editableData.CompanyID,
                     AddedByUserId = applicationUser.UserID,
                     ModifiedByUserId = applicationUser.UserID,
+                    DivisionID=editableData.DivisionID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
                 };
@@ -175,6 +205,7 @@
                 Name = editableData.Name,
                 StatusCodeId = editableData.StatusCodeID.Value,
                 ModifiedDate = DateTime.Now,
+                DivisionID = editableData.DivisionID,
                 AddedByUserId = editableData.AddedByUserID,
                 AddedDate = editableData.AddedDate,
                 ModifiedByUserId = applicationUser.UserID,

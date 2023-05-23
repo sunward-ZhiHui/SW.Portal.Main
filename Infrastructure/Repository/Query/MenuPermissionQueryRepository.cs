@@ -24,6 +24,7 @@ namespace Infrastructure.Repository.Query
     {
         private readonly ILocalStorageService<ApplicationUser> _localStorageService;
         private IJSRuntime _jsRuntime;
+
         public MenuPermissionQueryRepository(IConfiguration configuration, ILocalStorageService<ApplicationUser> localStorageService, IJSRuntime jsRuntime)
             : base(configuration)
         {
@@ -32,9 +33,10 @@ namespace Infrastructure.Repository.Query
         }
         public IReadOnlyList<PortalMenuModel> GetAllByPermissionAsync(long? Id)
         {
-            try
-            {
-                var query = "Select  * from view_UserPermission where UserID = @UserID and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder";
+            /* try
+             {*/
+            /*var result = await GetAsync();*/
+            var query = "Select  * from view_UserPermission where UserID = @UserID and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", Id, DbType.Int64);
                 using (var connection = CreateConnection())
@@ -122,36 +124,18 @@ namespace Infrastructure.Repository.Query
                     });
                     return menuList.Where(w => w.Header != "CMS App").ToList();
                 }
-            }
+            /*}
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
-            }
+            }*/
         }
-        public string Get()
+        public async Task<long?> GetAsync()
         {
-            return Task.Run(() => GetAsync()).GetAwaiter().GetResult();
+            var result = await _localStorageService.GetItem<ApplicationUser>("user");
+            return result.UserID;
+            
         }
-        public async Task<string> GetAsync()
-        {
-             var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "user");
-            var result = JsonSerializer.Deserialize<ApplicationUser>(json).UserName;
-            return result;
-        }
-        /* public  string GetByItemAsync()
-         {
-             ApplicationUser applicationUser = new ApplicationUser();
-             var result = Task.Run(async () => await _localStorageService.GetItem<ApplicationUser>("user")).ConfigureAwait(false);
-
-             ApplicationUser config = result.GetAwaiter().GetResult();
-             var task = Task.Run(async () => await _localStorageService.GetItem<ApplicationUser>("user"));
-             if (task.IsFaulted && task.Exception != null)
-             {
-                 throw task.Exception;
-             }
-
-             return task.Result;
-         }*/
         public async Task<IReadOnlyList<PortalMenuModel>> GetAllAsync(long? Id)
         {
             try

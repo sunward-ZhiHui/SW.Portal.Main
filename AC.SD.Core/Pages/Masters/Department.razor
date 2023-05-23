@@ -53,7 +53,7 @@
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="DepartmentId" MinWidth="80" Visible="false" />
-        <DxGridDataColumn FieldName="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
         <DxGridDataColumn FieldName="Division" MinWidth="80" />
         <DxGridDataColumn FieldName="DepartmentName" Caption="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="DepartmentCode" Caption="Code" MinWidth="80" />
@@ -68,29 +68,21 @@
             var department = (ViewDepartment)EditFormContext.EditModel;
         }
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                <DxComboBox Data="@_plantItems"
-                            SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect.PlantID))"
-                            NullText="Select Company..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Description"
-                            ValueFieldName="PlantID"
-                            @bind-Value="@department.CompanyId" ShowValidationIcon="true" />
-                <ValidationMessage For="@(() => department.CompanyId)" />
-            </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                @{
-                    SelectedItemChanged(department.CompanyId);
-                }
-                <DxComboBox Data="@_divisionsListItems"
+
+                <DxComboBox Data="@_divisionsItems"
                             NullText="Select Division..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Name"
+                            TextFieldName="DivisionDrop"
                             ValueFieldName="DivisionID"
+                            SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemChanged(plantSelect))"
                             @bind-Value="@department.DivisionId"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => department.DivisionId)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                <DxTextBox @bind-Text="@companyName" ReadOnly="true" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Department Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@department.DepartmentName" ShowValidationIcon="true" />
@@ -135,8 +127,9 @@
     private ViewDepartment _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
+    long? companyId = null;
     IGrid Grid { get; set; }
-
+    string companyName = "";
     bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
@@ -150,7 +143,14 @@
     {
         if (e.IsNew)
         {
-            _divisionsListItems = new List<ViewDivision>();
+            companyName = "";
+            companyId =null;
+        }
+        else
+        {
+            var dep = (ViewDepartment)e.DataItem;
+            companyName = dep.Company;
+            companyId = dep.CompanyId;
         }
     }
     async Task UpdateDataAsync()
@@ -164,11 +164,12 @@
             StateHasChanged();
         }
     }
-    void SelectedItemChanged(long? plantID)
+    void SelectedItemChanged(ViewDivision plantID)
     {
-        if (plantID > 0)
+        if (plantID != null)
         {
-            _divisionsListItems = _divisionsItems.Where(c => c.CompanyId == plantID).ToList();
+            companyName = plantID.PlantDescription;
+            companyId = plantID.CompanyId;
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -178,7 +179,7 @@
         {
             var request = new CreateDepartmentCommand
                 {
-                    CompanyId = editableDepartment.CompanyId,
+                    CompanyId = companyId,
                     DivisionId = editableDepartment.DivisionId,
                     Name = editableDepartment.DepartmentName,
                     Code = editableDepartment.DepartmentCode,
@@ -212,7 +213,7 @@
         var request = new EditDepartmentCommand
             {
                 DepartmentId = editableDepartment.DepartmentId,
-                CompanyId = editableDepartment.CompanyId,
+                CompanyId = companyId,
                 DivisionId = editableDepartment.DivisionId,
                 Name = editableDepartment.DepartmentName,
                 Code = editableDepartment.DepartmentCode,

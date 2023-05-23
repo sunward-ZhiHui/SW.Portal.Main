@@ -26,5 +26,9 @@ namespace Core.Entities.Views
         public string? ModifiedBy { get; set; }
         public string? AddedBy { get; set; }
         public string? CompanyName { get; set; }
+        [Required(ErrorMessage = "Division is Required")]
+        public long? DivisionID { get; set; }
+        public string? DivisionName { get; set; }
+        public string? PlantCode { get; set; }
     }
 }

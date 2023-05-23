@@ -5,8 +5,7 @@
 @using global::Core.Entities;
 @inject IMediator Mediator
 @using DevExpress.Export
-@inject IJSRuntime jsRuntime
-
+@inject IJSRuntime jsRuntime;
 @page "/FourmTypes"
 
 
@@ -18,7 +17,7 @@
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
             </Items>
         </DxMenu>
@@ -26,7 +25,7 @@
 </div>
 
 
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  @bind-Visible="@PopupVisible" BodyText=" Record Saved  Sucessfully" >
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  @bind-Visible="@PopupVisible"  >
 
     
        <div class="text-center">
@@ -35,6 +34,17 @@
         <DxButton  Text="OK" Click="@(() => ClosePopup())" />
     </div>
     
+
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+
+
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+
 
 </DxPopup>
 
@@ -62,7 +72,8 @@
         CustomizeElement="Grid_CustomizeElement"
         AutoExpandAllGroupRows="true"
         SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
 
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
@@ -71,7 +82,7 @@
         <DxGridDataColumn FieldName="Description" />
         <DxGridCommandColumn Width="160px" Visible="false" />
     </Columns>
-
+  @*  @bind-SelectedDataItems="SelectedDataItems"*@
     <EditFormTemplate Context="EditFormContext">
         @{
             var types = (ForumTypes)EditFormContext.EditModel;
@@ -89,41 +100,64 @@
     </EditFormTemplate>
     
 </DxGrid>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
+    <div class="text-center">
+        <Content>
+        <p>
+                <div > Do you want to delete</div>
+          
+        </p>
+    </Content>
+       
+        <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
+        <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
 
 
 @code {
-
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
     private List<ForumTypes>? _types;
     IGrid? Grid { get; set; }
     private ForumTypes _selectedItems;
-    bool EditEnabled { get; set; } = true;
-    bool DeleteEnabled { get; set; } = true;
+    //bool EditEnabled { get; set; } = true;
+    //bool DeleteEnabled { get; set; } = true;
     bool ExportSelectedRowsOnly { get; set; }
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     string? errorMessage;
+    string? DeleteerrorMessage;
     bool MessageVisible { get; set; }
     string styleClass = "";
     string MessageHeader = "Error";
     string MessageBody = "";
     private bool loading;
-  
-
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = true;
 
     protected override async Task OnInitializedAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllForumTypes());
         _types = model;
-
+        await jsRuntime.InvokeAsync<string>("hideLoading");
         //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
     } 
     async Task UpdateDataAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         _types = await Mediator.Send(new GetAllForumTypes());
+        if (_types.Count > 0)
+        {
+
+            _selectedItems = _types.FirstOrDefault();
+            StateHasChanged();
+        }
+        await jsRuntime.InvokeAsync<string>("hideLoading");
         // _types = model;
     }
-    async Task ExportToExcel()
+    async Task ExportToExcel() 
 
     {
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
@@ -133,7 +167,7 @@
           CustomizeCell = OnCustomizeCell
         });
 
-      
+
     }
 
 
@@ -168,7 +202,8 @@
     //}
 
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {
+    {   
+      
         var editModel = (ForumTypes)e.EditModel;        
 
         if (e.IsNew)
@@ -189,7 +224,8 @@
                 try
                 {
                     var result = await Mediator.Send(createReq);
-                    PopupVisible = true;
+                   
+                    onShowPopupMessage("Success", "Record save Successfully");
                 }
                 catch (Exception eq)
                 {
@@ -240,14 +276,15 @@
 
                 var ans = await Mediator.Send(UpdateReq);
                 await UpdateDataAsync();
-              
+
             }
-           
+
         }     
 
     }
     private async void onShowPopupMessage(string headerText, string bodyText)
     {
+       
         MessageVisible = true;
         MessageBody = bodyText;
         MessageHeader = headerText;
@@ -256,17 +293,28 @@
     }
     async void ClosePopup()
     {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
         PopupVisible = false;
         await UpdateDataAsync();
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
-    {
+    { 
+
         var editModel = (ForumTypes)e.DataItem;
-      
-            string result = string.Empty;
-            result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
-            Console.WriteLine(result);
+
+        //  string result = string.Empty;
+        //  result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
+        // Console.WriteLine(result);
+        // await UpdateDataAsync();
+
+        var request = new DeleteForumTypeCommand(editModel.ID);
+        await Mediator.Send(request);
         await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+
+
+
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -280,33 +328,84 @@
             e.CssClass = "header-bold";
         }
     }
+    void Onclick(DataGridSelection<ForumTypes> e)
+    {
 
-   
+
+
+    }
+
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _types.FirstOrDefault(f => f.ID == (long?)UniqueId);
-        EditEnabled = true;
-        DeleteEnabled = true;
+
         StateHasChanged();
 
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
     }
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        EditEnabled = false;
-        DeleteEnabled = false;
+
     }
     void addEdit()
     {
+
         Grid.StartEditDataItemAsync(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
+
     }
     void addDelete()
     {
-        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-        EditEnabled = false;
-        DeleteEnabled = false;
+        Blukdeletepopup = true;
     }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is ForumTypes forumTypes)
+                    {
+
+                        var request = new DeleteForumTypeCommand(forumTypes.ID);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch(Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if(SelectedDataItems.Count > 0)
+        {
+            EditEnabled = false;
+        }
+    }
+    //void RowClickDelete()
+    //{
+       
+    //        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        
+    //}
 }

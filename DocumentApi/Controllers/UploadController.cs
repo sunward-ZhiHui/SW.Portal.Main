@@ -75,6 +75,24 @@ namespace DocumentApi.Controllers
             }
             return Ok(documentId.ToString());
         }
+        [HttpPost]
+        [Route("DownloadFile")]
+        public async Task<ActionResult> DownloadFile(long DocumentId)
+        {
+            var lst = _context.Documents.Where(x=>x.DocumentId == DocumentId).ToList();
+            if (lst.Count > 0)
+            {
+                var BaseUrl = _hostingEnvironment.ContentRootPath + @"\AppUpload\";
+
+                var filePath = BaseUrl + lst[0].FilePath;
+                if (System.IO.File.Exists(filePath))
+                {
+                    var fileBytes = System.IO.File.ReadAllBytes(filePath);
+                    return File(fileBytes, "application/octet-stream", lst[0].FileName);
+                }
+            }
+            return NotFound();
+        }
         private string getNextFileName(string fileName)
         {
             string extension = Path.GetExtension(fileName);

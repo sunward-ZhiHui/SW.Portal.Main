@@ -27,8 +27,8 @@ namespace Application.Common.Mapper
             CreateMap<ApplicationRole, CreateRoleCommand>().ReverseMap();
             CreateMap<ApplicationRole, EditRoleCommand>().ReverseMap();
 
+            CreateMap<Documents, DocumentsResponse>().ReverseMap();
 
-          
             CreateMap<ForumTypes, CreateForumTypeCommand>().ReverseMap();
             CreateMap<ForumTypes, EditForumTypeCommand>().ReverseMap();
             CreateMap<Plant, CreatePlantCommand>().ReverseMap();

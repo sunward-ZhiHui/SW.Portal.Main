@@ -45,5 +45,13 @@ namespace Application.Queries
             this.TopicId = TopicId;
         }
     }
-    
+    public class GetTopicDocList : PagedRequest, IRequest<List<Documents>>
+    {
+        public long TopicId { get; private set; }
+        public GetTopicDocList(long TopicId)
+        {
+            this.TopicId = TopicId;
+        }
+    }
+
 }

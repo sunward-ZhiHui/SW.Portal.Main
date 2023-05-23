@@ -142,7 +142,10 @@ else
     }
     async Task UpdateDataAsync()
     {
+         await jsRuntime.InvokeAsync<string>("showLoading");
+
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void NewEmployeeForm(MouseEventArgs args)
     {

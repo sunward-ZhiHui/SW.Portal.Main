@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Blazored.Toast;
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
 
@@ -36,10 +37,10 @@ namespace SW.Portal.Solutions.ServerSide {
         public abstract void ConfigureServices(WebHostBuilderContext context, IServiceCollection services);
         public virtual void Configure(IWebHostBuilder builder) {
             builder.UseEnvironment(EnvironmentName);
-            builder.UseStaticWebAssets();
-
+            builder.UseStaticWebAssets();      
             builder.ConfigureServices(ConfigureServices);
             builder.Configure(ConfigureApp);
+
             
 
             void ConfigureApp(WebHostBuilderContext context, IApplicationBuilder app) {
@@ -101,7 +102,7 @@ namespace SW.Portal.Solutions.ServerSide {
 
                 
                 services.AddServerSideBlazor();
-
+                services.AddBlazoredToast();
                 services.AddRazorPages();
                 services.AddResponseCompression(options => {
                     options.EnableForHttps = true;

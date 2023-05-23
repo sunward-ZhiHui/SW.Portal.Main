@@ -9,6 +9,7 @@
 @using DevExpress.Export
 @using Application.Response;
 @using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -162,14 +163,16 @@
     int masterType = 573;
     protected override async Task OnInitializedAsync()
     {
-
+        await jsRuntime.InvokeAsync<string>("showLoading");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllIctMasterQuery());
         _ictmaster = model;
         _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
@@ -181,6 +184,7 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
+         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

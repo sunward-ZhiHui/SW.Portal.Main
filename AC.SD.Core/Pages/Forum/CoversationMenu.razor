@@ -72,7 +72,9 @@
     }
     async Task UpdateDataAsync()
     {
+         await jsRuntime.InvokeAsync<string>("showLoading");
         _forumConversations = await Mediator.Send(new GetAllForumConversation());
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {

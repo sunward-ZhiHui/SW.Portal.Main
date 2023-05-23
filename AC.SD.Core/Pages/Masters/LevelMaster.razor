@@ -48,6 +48,7 @@
         RowClick="OnRowClick"
         AllowSelectRowByClick="true"
         RowDoubleClick="OnRowDoubleClick"
+         SelectedDataItemsChanged="@SelectedDataItemsChanged"
         ValidationEnabled="true">
 
 
@@ -97,6 +98,19 @@
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
     </TotalSummary>
 </DxGrid>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
+    <div class="text-center">
+        <Content>
+        <p>
+                <div > Do you want to delete</div>
+          
+        </p>
+    </Content>
+       
+        <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
+        <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
 
 @code {
     private List<ViewLevel> _levelItems;
@@ -104,8 +118,12 @@
     private List<ViewPlants> _plantItems;
     IGrid Grid { get; set; }
     private ViewLevel _selectedItems;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = true;
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
     bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
@@ -213,6 +231,11 @@
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
     }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "LevelID");
@@ -234,6 +257,36 @@
     }
     void addDelete()
     {
-        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        if (SelectedDataItems != null)
+        {
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ViewLevel forumlevel)
+                {
+
+                    //var editableData = (ViewLevel)e.DataItem;
+                    var request = new DeleteLevelMasterCommand(forumlevel.LevelID);
+                    await Mediator.Send(request);
+                    await UpdateDataAsync();
+                    Grid.SetFocusedRowIndex(0);
+                }
+
+            }
+        }
+        await UpdateDataAsync();
+    }
+
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
     }
 }

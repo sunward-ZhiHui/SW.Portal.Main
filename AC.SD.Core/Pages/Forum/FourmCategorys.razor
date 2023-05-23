@@ -51,8 +51,9 @@
         style="height: calc(100vh - 220px);"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
+        SelectedDataItemsChanged="@SelectedDataItemsChanged"
         AllowSelectRowByClick="true"
-        CustomizeCellDisplayText="Grid_CustomizeCellDisplayText" @bind-SelectedDataItems="SelectedDataItems">
+        CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
 
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
@@ -315,5 +316,14 @@
             }
         }
        await UpdateDataAsync();
+    }
+
+     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if(SelectedDataItems.Count > 0)
+        {
+            EditEnabled = false;
+        }
     }
 }

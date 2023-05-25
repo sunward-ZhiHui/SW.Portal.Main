@@ -34,7 +34,7 @@ namespace Infrastructure.Repository.Query
 
         public async Task<T> GetItem<T>(string key)
         {
-            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", key);
+            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "user");
 
             if (json == null)
                 return default;

@@ -9,6 +9,13 @@ function myFunction() {
     alert(1);
 }
 
+function setRichEditHeight(elementId) {
+    const richEditElement = document.getElementById(elementId);
+    if (richEditElement) {
+        richEditElement.style.height = "100%";
+    }
+}
+
 window.downloadFile = (fileName, fileContent, contentType, folderPath) => {
     const blob = new Blob([fileContent], { type: contentType });
     const url = URL.createObjectURL(blob);

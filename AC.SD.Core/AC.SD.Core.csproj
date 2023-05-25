@@ -65,6 +65,7 @@
     <PackageReference Include="DevExpress.Blazor.Server.WebAssembly" Version="22.2.6" />
     <PackageReference Include="DevExpress.Blazor.RichEdit" Version="22.2.6" />
     <PackageReference Include="DevExpress.Data" Version="22.2.6" />
+    <PackageReference Include="DevExpress.Document.Processor" Version="22.2.6" />
     <PackageReference Include="FontAwesome" Version="4.7.0" />    
   
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
@@ -75,6 +76,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.5" />
     
     <PackageReference Include="Toast.Blazor" Version="1.0.2" />
+    
+    <PackageReference Include="ViewerJsBlazor" Version="1.0.0" />
 	<Reference Include="Devexpress.blazor.v22.2, Version=22.2.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
 
   </ItemGroup>

@@ -9,7 +9,7 @@
 @using Application.Response;
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-<div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
+<div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
@@ -40,7 +40,7 @@
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="ch-360"
-        style="height: calc(50vh - 50px);"
+        style="height: calc(100vh - 333px);"
         FocusedRowEnabled="true"
         RowClick="OnRowOtherDutyClick"
         RowDoubleClick="OnRowOtherDutyDoubleClick"

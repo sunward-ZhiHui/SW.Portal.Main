@@ -12,6 +12,7 @@
     text-align: center;
     background: #000
 }
+
 aside {
     width: 200px;
     background-color: #f2f2f2;
@@ -729,7 +730,7 @@ main {
     /* Mini Menu Bar Content Container Design CSS */
 
     .content-container .mini-menu-bar {
-        /*width: 360px;*/
+        width: 360px;
         height: 100%;
         /* background-color: #f0f0f0;*/
         position: relative;
@@ -737,10 +738,11 @@ main {
         /*box-shadow: -15px 0 10px -20px #78787b;*/
         border: 1px solid #cfcdcdee;
         border-radius: 4px;
+        overflow: auto;
     }
 
         .content-container .mini-menu-bar .mini-menu-bar-top {
-            width: 290px;
+           /* width: 290px;*/
             /*position: absolute;*/
             top: 0;
             margin-left: 10px;

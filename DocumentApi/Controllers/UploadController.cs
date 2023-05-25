@@ -42,7 +42,7 @@ namespace DocumentApi.Controllers
                 ext = files.FileName;
                 int i = ext.LastIndexOf('.');
                 string lhs = i < 0 ? ext : ext.Substring(0, i), rhs = i < 0 ? "" : ext.Substring(i + 1);
-                var fileName1 = SessionId + "." + rhs;
+                var fileName1 = Guid.NewGuid() + "." + rhs;
                 var serverPath = serverPaths + @"\" + fileName1;
                 var filePath = getNextFileName(serverPath);
                 newFile = filePath.Replace(serverPaths + @"\", "");

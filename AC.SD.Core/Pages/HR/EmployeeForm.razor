@@ -48,10 +48,11 @@
     <div class="card-header">*@
 <DxFormLayout CssClass="w-100">
     <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+        <div>
         <DxFormLayoutTabPage Caption="Personal Information">
             <EditForm Model="@employee" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
 
-                <div style="height: calc(100vh - 100px);overflow-y: scroll;">
+                <div style="height: calc(100vh - 285px);overflow: auto; border: 1px solid #d5d4d4; border-top: none;">
                     <DataAnnotationsValidator />
                     <DxFormLayoutGroup Caption="Personal Information" ColSpanMd="12">
                         <DxFormLayoutItem Caption="First Name" ColSpanMd="6">
@@ -228,29 +229,32 @@
         </DxFormLayoutTabPage>
 
         <DxFormLayoutTabPage Caption="Other Duty Information">
-            <EmployeeOtherDutyInformations EmployeeIds="@EmployeeIds"></EmployeeOtherDutyInformations>
+            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmployeeOtherDutyInformations EmployeeIds="@EmployeeIds"></EmployeeOtherDutyInformations></div>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="ICT">
-            <DxFormLayout CssClass="w-100" style="margin-top:10px;">
-                <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex">
-
-                    <DxFormLayoutTabPage Caption="Email Information">
-                        <EmailInfo EmployeeIds="@EmployeeIds"></EmailInfo>
-                    </DxFormLayoutTabPage>
-                    <DxFormLayoutTabPage Caption="Hardware Listing">
-                        <EmployeeICTHardInformation EmployeeIds="@EmployeeIds"></EmployeeICTHardInformation>
-                    </DxFormLayoutTabPage>
-                    <DxFormLayoutTabPage Caption="Software Listing">
-                        <EmployeeICTInformation EmployeeIds="@EmployeeIds"></EmployeeICTInformation>
-                    </DxFormLayoutTabPage>
-                </DxFormLayoutTabPages>
-            </DxFormLayout>
+            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none">
+                <DxFormLayout CssClass="w-100" style="margin-top:10px;">
+                    <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex">
+                        <DxFormLayoutTabPage Caption="Email Information">
+                            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmailInfo EmployeeIds="@EmployeeIds"></EmailInfo></div>
+                        </DxFormLayoutTabPage>
+                        <DxFormLayoutTabPage Caption="Hardware Listing">
+                            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmployeeICTHardInformation EmployeeIds="@EmployeeIds"></EmployeeICTHardInformation></div>
+                        </DxFormLayoutTabPage>
+                        <DxFormLayoutTabPage Caption="Software Listing">
+                            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><EmployeeICTInformation EmployeeIds="@EmployeeIds"></EmployeeICTInformation></div>
+                        </DxFormLayoutTabPage>
+                    </DxFormLayoutTabPages>
+                </DxFormLayout>
+            </div>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Upload">
-            <EmployeePhoto _employeeDatas="@_employeeData" _applicationUser="@applicationUser"></EmployeePhoto>
+            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%;height: calc(100vh - 285px);"><EmployeePhoto _employeeDatas="@_employeeData" _applicationUser="@applicationUser"></EmployeePhoto></div>
         </DxFormLayoutTabPage>
         <DxFormLayoutTabPage Caption="Signature">
+             <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none;width:100%;height: calc(100vh - 285px);"></div>
         </DxFormLayoutTabPage>
+        </div>
     </DxFormLayoutTabPages>
 </DxFormLayout>
 @*</div></div>*@

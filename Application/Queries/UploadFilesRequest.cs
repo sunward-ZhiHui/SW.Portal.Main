@@ -17,6 +17,7 @@ namespace Application.Queries
     {
         public string FileName { get; set; }
         public string FilePath { get; set; }
+        public byte[]? FileData { get; set; }
         public string ContentType { get; set; }
     }
 

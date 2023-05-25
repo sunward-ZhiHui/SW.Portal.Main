@@ -1,0 +1,209 @@
+﻿@using MediatR
+@using Application.Queries;
+@using Application.Response;
+@inject IMediator Mediator
+@using DevExpress.Blazor.Internal
+@using System.Collections.Generic
+@using DevExpress.Blazor.RichEdit
+@using DevExpress.Blazor.Office
+@using System.Globalization
+@using System;
+@using Application.Command.Document;
+@using Microsoft.AspNetCore.Http;
+@using System.IO;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime JsRuntime;
+@using System.Threading;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.AspNetCore.Components.Forms
+@using DevExpress.Blazor
+@using System.Linq;
+
+@using DevExpress.Utils.Internal
+
+@page "/file"
+<DxRichEdit @ref="@richEdit" ViewType="ViewType.Simple" BarMode="BarMode.Toolbar" CssClass="w-100 ch-720" />
+<DxRichEdit @ref="@richEdit" DocumentFormat="DocumentFormat.OpenXml" DocumentContent="@documentContent" ViewType="ViewType.Simple" BarMode="BarMode.Toolbar" CssClass="w-100 ch-720" DocumentContentChanged="OnDocumentContentChanged"></DxRichEdit>
+
+
+
+<button @onclick="LoadDocumentAsyncdoc">Load doc</button>
+<button @onclick="LoadDocumentAsyncpdf">Load pdf</button>
+<button @onclick="LoadDocumentAsyncxlsx">Load xlsx</button>
+<button @onclick="LoadDocumentAsyncppt">Load ppt</button>
+
+@*<DxRichEdit @ref="richEdit" ViewType="ViewType.Simple" BarMode="BarMode.Toolbar" CssClass="w-100 ch-720" />*@
+@*
+<button @onclick="InsertText">Insert Text</button>
+<button @onclick="UpdateText">Update Text</button>
+<button @onclick="DeleteText">Delete Text</button>*@
+
+
+
+@code {
+    //private DxRichEdit richEdit;   
+    DxRichEdit richEdit { get; set; }
+
+   // string BaseUrl = Configuration["DocumentsUrl:FileUrl"];
+
+    byte[] documentContent;
+    string filePath_old = @"http://localhost/SunwardDoc/Documents/21c984af-3b75-4284-8ae1-8513d5df003e/21c984af-3b75-4284-8ae1-8513d5df003e.docx";
+    //string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\fd522b3f-d2e0-4a10-9bd8-c21237f1e784\fd522b3f-d2e0-4a10-9bd8-c21237f1e784.txt";
+    //string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\d5f99b77-439f-4a04-9387-27b99d4eecfb/d5f99b77-439f-4a04-9387-27b99d4eecfb.xlsx";
+    string doc = @"Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
+   
+
+    string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
+
+
+    async Task OnDocumentContentChanged(byte[] content)
+    {
+        try
+        {
+            documentContent = content;
+            await File.WriteAllBytesAsync(filePath, documentContent);
+        }
+        catch (OperationCanceledException e)
+        {
+            Console.WriteLine($"{nameof(OperationCanceledException)} thrown with message: {e.Message}");
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {       
+        try
+        {
+            // Wait for the component to fully initialize
+            await Task.Delay(10); // Delay for a short period of time
+
+            if (richEdit != null)
+            {
+                await richEdit.LoadDocumentAsync(filePath);
+                documentContent = await File.ReadAllBytesAsync(filePath);
+            }
+        }
+        catch (OperationCanceledException e)
+        {
+            Console.WriteLine($"{nameof(OperationCanceledException)} thrown with message: {e.Message}");
+        }
+    }
+
+    async Task LoadDocumentAsyncdoc()
+    {
+        string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
+
+        string fileExtension = Path.GetExtension(filePath);
+
+        using (Stream stream = File.OpenRead(filePath))
+        {
+            DocumentFormat documentFormat = GetDocumentFormat(fileExtension);
+            await richEdit.LoadDocumentAsync(stream, documentFormat);
+        }
+    }
+    async Task LoadDocumentAsyncpdf()
+    {
+        string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.pdf";
+
+        string fileExtension = Path.GetExtension(filePath);
+
+        using (Stream stream = File.OpenRead(filePath))
+        {
+            DocumentFormat documentFormat = GetDocumentFormat(fileExtension);
+            await richEdit.LoadDocumentAsync(stream, documentFormat);
+        }
+    }
+
+    async Task LoadDocumentAsyncxlsx()
+    {
+        string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.xlsx";
+
+        string fileExtension = Path.GetExtension(filePath);
+
+        using (Stream stream = File.OpenRead(filePath))
+        {
+            DocumentFormat documentFormat = GetDocumentFormat(fileExtension);
+            await richEdit.LoadDocumentAsync(stream, documentFormat);
+        }
+    }
+    async Task LoadDocumentAsyncppt()
+    {
+        string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.ppt";
+
+        string fileExtension = Path.GetExtension(filePath);
+
+        using (Stream stream = File.OpenRead(filePath))
+        {
+            DocumentFormat documentFormat = GetDocumentFormat(fileExtension);
+            await richEdit.LoadDocumentAsync(stream, documentFormat);
+        }
+    }
+    
+
+    DocumentFormat GetDocumentFormat(string fileExtension)
+    {
+        switch (fileExtension.ToLower())
+        {
+            case ".docx":
+                return DocumentFormat.OpenXml;
+            case ".xlsx":
+                return DocumentFormat.Rtf;
+            case ".pptx":
+                return DocumentFormat.Rtf;
+            case ".pdf":
+                return DocumentFormat.Rtf;
+            // Add support for other document formats as needed
+            default:
+                throw new NotSupportedException("Document format not supported.");
+        }
+    }
+
+
+
+
+    //private void InsertText()
+    //{
+    //    richEdit.InsertText("Hello, World!");
+    //}
+
+    //private void UpdateText()
+    //{
+    //    var selection = richEdit.GetSelection();
+    //    if (selection != null)
+    //    {
+    //        richEdit.Document.Selection = selection;
+    //        richEdit.Document.InsertText(selection.Start, "Updated Text");
+    //    }
+    //}
+
+    //private void DeleteText()
+    //{
+    //    var selection = richEdit.GetSelection();
+    //    if (selection != null)
+    //    {
+    //        richEdit.Document.Selection = selection;
+    //        richEdit.Document.Delete(selection);
+    //    }
+    //}
+    private string content = string.Empty;
+
+    private void HandleContentChange(string newContent)
+    {
+        content = newContent;
+    }
+
+    private void InsertText()
+    {
+        content = "Inserted Text" + content;
+    }
+
+    private void UpdateText()
+    {
+        content += "\nUpdated Text";
+    }
+
+    private void DeleteText()
+    {
+       // var selection = richEdit.GetSelection();
+       // content = content.Remove(selection.Start, selection.Length);
+    }
+}

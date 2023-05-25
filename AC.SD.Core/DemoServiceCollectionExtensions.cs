@@ -35,18 +35,18 @@ namespace AC.SD.Core
                 {
                     //Write the selected word to a dictionary file
                 };
-                opts.Dictionaries.Add(new ISpellDictionary
-                {
-                    DictionaryPath = "Data.Dictionaries.english.xlg",
-                    GrammarPath = "Data.Dictionaries.english.aff",
-                    Culture = "en-US"
-                });
-                opts.Dictionaries.Add(new Dictionary
-                {
-                    DictionaryPath = "Data.Dictionaries.custom.dic",
-                    AlphabetPath = "Data.Dictionaries.english.txt",
-                    Culture = "en-US"
-                });
+                //opts.Dictionaries.Add(new ISpellDictionary
+                //{
+                //    DictionaryPath = "Data.Dictionaries.english.xlg",
+                //    GrammarPath = "Data.Dictionaries.english.aff",
+                //    Culture = "en-US"
+                //});
+                //opts.Dictionaries.Add(new Dictionary
+                //{
+                //    DictionaryPath = "Data.Dictionaries.custom.dic",
+                //    AlphabetPath = "Data.Dictionaries.english.txt",
+                //    Culture = "en-US"
+                //});
             });
 
             services.AddDocumentMetadata(ConfigureMetadata);

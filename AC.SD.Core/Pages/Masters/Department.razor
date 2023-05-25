@@ -159,6 +159,7 @@
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     IGrid Grid { get; set; }
+    long? companyId = null;
     string companyName = "";
     bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()

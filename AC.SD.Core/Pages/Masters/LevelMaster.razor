@@ -33,6 +33,7 @@
         KeyFieldName="LevelID"
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
+        CustomizeEditModel="Grid_CustomizeEditModel"
         CustomizeElement="Grid_CustomizeElement"
         ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -48,13 +49,15 @@
         RowClick="OnRowClick"
         AllowSelectRowByClick="true"
         RowDoubleClick="OnRowDoubleClick"
+         SelectedDataItemsChanged="@SelectedDataItemsChanged"
         ValidationEnabled="true">
 
 
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="LevelID" MinWidth="80" Visible="false" />
-        <DxGridDataColumn FieldName="CompanyName" Caption="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="PlantCode"  Caption="Company Code" MinWidth="80" />
+        <DxGridDataColumn FieldName="DivisionName" Caption="Division" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
@@ -69,12 +72,23 @@
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Description"
+                            TextFieldName="PlantCode"
                             ValueFieldName="PlantID"
                             @bind-Value="@plant.CompanyID"
+                            SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect.PlantID))"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => plant.CompanyID)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                <DxComboBox Data="@_divisionsItems"
+                            NullText="Select Division..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="DivisionDrop"
+                            ValueFieldName="DivisionID"
+                            @bind-Value="@plant.DivisionID">
+                </DxComboBox>
+                <ValidationMessage For="@(() => plant.DivisionID)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@plant.Name" ShowValidationIcon="true" />
@@ -97,20 +111,40 @@
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
     </TotalSummary>
 </DxGrid>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
+    <div class="text-center">
+        <Content>
+        <p>
+                <div > Do you want to delete</div>
+          
+        </p>
+    </Content>
+       
+        <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
+        <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
 
 @code {
+    private List<ViewDivision>? _divisions;
+    private List<ViewDivision>? _divisionsItems;
     private List<ViewLevel> _levelItems;
     private List<CodeMaster> _stausItems;
     private List<ViewPlants> _plantItems;
     IGrid Grid { get; set; }
     private ViewLevel _selectedItems;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = true;
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
     bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
+        _divisions = await Mediator.Send(new GetAllDivisionQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -130,13 +164,26 @@
         }
           await jsRuntime.InvokeAsync<string>("hideLoading");
     }
+    void SelectedItemChanged(long? plantID)
+    {
+        if (plantID != null)
+        {
+            _divisionsItems = _divisions.Where(w => w.CompanyId == plantID).ToList();
+        }
+    }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        _divisionsItems = new List<ViewDivision>();
         if (e.IsNew)
         {
             var newData = (ViewLevel)e.EditModel;
             newData.Name = "";
             newData.StatusCodeID = null;
+        }
+        else
+        {
+            var newData = (ViewLevel)e.EditModel;
+            SelectedItemChanged(newData.CompanyID);
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -151,6 +198,7 @@
                     CompanyId = editableData.CompanyID,
                     AddedByUserId = applicationUser.UserID,
                     ModifiedByUserId = applicationUser.UserID,
+                    DivisionID=editableData.DivisionID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
                 };
@@ -179,6 +227,7 @@
                 Name = editableData.Name,
                 StatusCodeId = editableData.StatusCodeID.Value,
                 ModifiedDate = DateTime.Now,
+                DivisionID = editableData.DivisionID,
                 AddedByUserId = editableData.AddedByUserID,
                 AddedDate = editableData.AddedDate,
                 ModifiedByUserId = applicationUser.UserID,
@@ -213,6 +262,11 @@
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
     }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "LevelID");
@@ -234,6 +288,36 @@
     }
     void addDelete()
     {
-        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        if (SelectedDataItems != null)
+        {
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ViewLevel forumlevel)
+                {
+
+                    //var editableData = (ViewLevel)e.DataItem;
+                    var request = new DeleteLevelMasterCommand(forumlevel.LevelID);
+                    await Mediator.Send(request);
+                    await UpdateDataAsync();
+                    Grid.SetFocusedRowIndex(0);
+                }
+
+            }
+        }
+        await UpdateDataAsync();
+    }
+
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
     }
 }

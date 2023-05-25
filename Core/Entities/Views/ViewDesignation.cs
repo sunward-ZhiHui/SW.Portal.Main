@@ -11,7 +11,6 @@ namespace Core.Entities.Views
     {
         [Key]
         public long DesignationID { get; set; }
-        [Required(ErrorMessage = "Company is Required")]
         public long? CompanyID { get; set; }
         [Required(ErrorMessage = "Designation Name is Required")]
         public string? Name { get; set; }

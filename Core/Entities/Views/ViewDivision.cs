@@ -31,5 +31,7 @@ namespace Core.Entities.Views
         public string? StatusCode { get; set; }
         public string? ModifiedBy { get; set; }
         public string? AddedBy { get; set; }
+
+        public string? DivisionDrop { get; set; }
     }
 }

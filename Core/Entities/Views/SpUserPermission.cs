@@ -26,5 +26,6 @@ namespace Core.Entities.Views
         public string Name { get; set; }
         public string Component { get; set; }
         public string ScreenID { get; set; }
+        public bool? IsCmsApp { get;set; }
     }
 }

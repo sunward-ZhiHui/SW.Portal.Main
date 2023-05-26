@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Blazored.Toast;
+using AC.SD.Core.Services;
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
 
@@ -55,9 +56,7 @@ namespace SW.Portal.Solutions.ServerSide {
                 app.UseAuthentication();
                 app.UseHttpsRedirection();
                 app.UseStaticFiles();
-
                
-
 
                 app.UseResponseCompression();
                 app.UseRouting();
@@ -100,7 +99,7 @@ namespace SW.Portal.Solutions.ServerSide {
                         policy.RequireAuthenticatedUser());
                 });
 
-                
+                services.AddScoped<ToastService>();
                 services.AddServerSideBlazor();
                 services.AddBlazoredToast();
                 services.AddRazorPages();

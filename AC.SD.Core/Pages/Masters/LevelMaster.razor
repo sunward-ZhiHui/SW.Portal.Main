@@ -10,6 +10,7 @@
 @inject IJSRuntime jsRuntime
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
 
 @page "/LevelMaster"
 
@@ -111,7 +112,7 @@
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
     </TotalSummary>
 </DxGrid>
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
+@*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
         <Content>
         <p>
@@ -124,7 +125,22 @@
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
 </DxPopup>
-
+*@
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     private List<ViewDivision>? _divisions;
     private List<ViewDivision>? _divisionsItems;
@@ -203,11 +219,13 @@
                     ModifiedDate = DateTime.Now,
                 };
             await Mediator.Send(request);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
         }
         else
         {
             await UpdatePlantAsync(editableData);
+
         }
 
     }
@@ -234,6 +252,7 @@
                 CompanyId = editableData.CompanyID,
             };
         await Mediator.Send(request);
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         await UpdateDataAsync();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -261,6 +280,13 @@
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -303,6 +329,8 @@
                     //var editableData = (ViewLevel)e.DataItem;
                     var request = new DeleteLevelMasterCommand(forumlevel.LevelID);
                     await Mediator.Send(request);
+                    Blukdeletepopup = false;
+                    toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
                     await UpdateDataAsync();
                     Grid.SetFocusedRowIndex(0);
                 }

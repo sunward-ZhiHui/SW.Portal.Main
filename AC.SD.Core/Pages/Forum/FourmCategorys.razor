@@ -7,6 +7,7 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
 
 
 @page "/FourmCategorys"
@@ -99,7 +100,7 @@
 
     </BodyTemplate>
 </DxPopup>
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
+@*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
         <Content>
         <p>
@@ -111,8 +112,22 @@
         <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
+</DxPopup>*@
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
 </DxPopup>
-
 @code {
     Dictionary<long, string>? CategoryNamesIndex { get; set; }    
     private List<ForumCategorys>? _categorys; 
@@ -184,8 +199,8 @@
             {
 
                 //addNew();
-                onShowPopupMessage("Error", "The entered value Already exists.");
-
+               // onShowPopupMessage("Error", "The entered value Already exists.");
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
             }    
             else
             {
@@ -198,6 +213,7 @@
                         TypeId = editModel.TypeId
                     };
                 var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
                 await UpdateDataAsync();
             }
 
@@ -209,7 +225,8 @@
             {
                 // addEdit();
               //  Grid.StartEditDataItemAsync(editModel);
-                onShowPopupMessage("Error", "The entered value Already exists.");
+              //  onShowPopupMessage("Error", "The entered value Already exists.");
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
 
             }
             else
@@ -228,6 +245,7 @@
                     };
 
                 var ans = await Mediator.Send(UpdateReq);
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
                 await UpdateDataAsync();
             }
 
@@ -263,7 +281,13 @@
                 e.DisplayText = CategoryNamesIndex[ID];
         }
     }
-   
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
+    }
     async void ClosePopup()
     {
         PopupVisible = false;
@@ -310,6 +334,7 @@
                    await Mediator.Send(request);
                     UpdateDataAsync();
                     Blukdeletepopup = false;
+                    toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
                     Grid.SetFocusedRowIndex(0);
                 }
 

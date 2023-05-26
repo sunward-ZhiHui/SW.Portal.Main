@@ -1790,7 +1790,7 @@ body,
 .align-items {
     float: right;
     margin-right: 2%;
-    background-color: lightgray;
+   background-color: lightgray;
 }
 .Text{
     text-align : left;

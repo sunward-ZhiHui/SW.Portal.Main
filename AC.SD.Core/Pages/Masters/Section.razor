@@ -46,11 +46,12 @@
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         RowDoubleClick="OnRowDoubleClick"
+        SelectedDataItemsChanged="@SelectedDataItemsChanged"
         AllowSelectRowByClick="true">
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="SectionId" MinWidth="80" Visible="false" />
-        <DxGridDataColumn FieldName="Company" MinWidth="80" />
+        <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
         <DxGridDataColumn FieldName="Division" MinWidth="80" />
         <DxGridDataColumn FieldName="SectionName" Caption="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="SectionCode" Caption="Code" MinWidth="80" />
@@ -67,7 +68,7 @@
                 <DxComboBox Data="@_departmentItems"
                             NullText="Select Department..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="DepartmentName"
+                            TextFieldName="DepartmentDrop"
                             ValueFieldName="DepartmentId"
                             SelectedItemChanged="@((ViewDepartment depSelect) => SelectedItemChanged(depSelect))"
                             @bind-Value="@sections.DepartmentId"
@@ -114,6 +115,31 @@
     </TotalSummary>
 </DxGrid>
 
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
+    <div class="text-center">
+        <Content>
+        <p>
+                <div > Do you want to delete</div>
+          
+        </p>
+    </Content>
+       
+        <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
+        <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+
+
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+
+
+</DxPopup>
+
 @code {
     private List<ViewSection> _sectionItems;
     private List<CodeMaster> _stausItems;
@@ -121,9 +147,14 @@
     string companyName = "";
     string divisionName = "";
     IGrid Grid { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     private ViewSection _selectedItems;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = true;
+    bool Blukdeletepopup { get; set; } = false;
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? DeleteerrorMessage;
     public ApplicationUser applicationUser { get; private set; }
     bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
@@ -159,7 +190,7 @@
     }
     async Task UpdateDataAsync()
     {
-         await jsRuntime.InvokeAsync<string>("showLoading");
+        await jsRuntime.InvokeAsync<string>("showLoading");
         _sectionItems = await Mediator.Send(new GetAllSectionQuery());
         if (_sectionItems.Count > 0)
         {
@@ -168,7 +199,7 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
-         await jsRuntime.InvokeAsync<string>("hideLoading");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
@@ -268,8 +299,49 @@
     {
         Grid.StartEditDataItemAsync(_selectedItems);
     }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
     void addDelete()
     {
-        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is ViewSection section)
+                    {
+                        // var editableData = (ViewSection)e.DataItem;
+                        var request = new DeleteSectionCommand(section.SectionId);
+                        await Mediator.Send(request);
+                        await UpdateDataAsync();
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+    await UpdateDataAsync();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
     }
 }

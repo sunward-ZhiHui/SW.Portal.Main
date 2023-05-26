@@ -7,6 +7,7 @@ using Core.Repositories.Query.Base;
 using MediatR;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Data;
 using System.Linq;
@@ -14,14 +15,16 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
+
 namespace CMS.Application.Handlers.QueryHandlers
 {
     public class UploadFilesHandler : IRequestHandler<UploadFilesRequest, bool>
     {
         private readonly IFileStorageService _fileStorageService;
+       
         public UploadFilesHandler(IFileStorageService fileStorageService)
         {           
-            _fileStorageService = fileStorageService;
+            _fileStorageService = fileStorageService;            
         }
 
         public async Task<bool> Handle(UploadFilesRequest request, CancellationToken cancellationToken)
@@ -42,16 +45,26 @@ namespace CMS.Application.Handlers.QueryHandlers
     public class DownloadFileHandler : IRequestHandler<DownloadFileRequest, Documents>
     {
         private readonly IWebHostEnvironment _hostingEnvironment;
-        public DownloadFileHandler(IWebHostEnvironment host)
+        private readonly IConfiguration _configuration;
+        public DownloadFileHandler(IWebHostEnvironment host, IConfiguration configuration)
         {
             _hostingEnvironment = host;
+            _configuration = configuration;
         }
         public Task<Documents> Handle(DownloadFileRequest request, CancellationToken cancellationToken)
         {
             // Read the file content from the specified FilePath
-            //var BaseUrl = _hostingEnvironment.ContentRootPath + @"\AppUpload\";
-            var filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\" + request.FilePath;
-            var fileContent = File.ReadAllBytes(filePath);
+            string BaseUrll = _configuration["DocumentsUrl:FileUrl"];
+
+
+            string originalString = _hostingEnvironment.ContentRootPath;
+            string substringToRemove = "SW.Portal.Solutions\\";
+            string result = originalString.Replace(substringToRemove, string.Empty);
+
+
+            var BaseUrl = result + @"\DocumentApi\AppUpload\" + request.FilePath;
+            //var filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\" + request.FilePath;
+            var fileContent = File.ReadAllBytes(BaseUrl);
 
             // Create and populate the DownloadFileResponse
             var response = new Documents
@@ -59,7 +72,7 @@ namespace CMS.Application.Handlers.QueryHandlers
                 FileName = request.FileName,
                 FileData = fileContent,
                 ContentType = request.ContentType,
-                FilePath = filePath
+                FilePath = BaseUrl
 
             };
 

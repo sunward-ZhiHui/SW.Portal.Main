@@ -1,6 +1,7 @@
 ﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
+@using Microsoft.AspNetCore.Http;
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
@@ -19,10 +20,14 @@
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime;
-@inject HttpClient httpClient
+@inject HttpClient httpClient;
+@using System.IO;
+@using Microsoft.JSInterop;
+@using DevExpress.DocumentView;
+@inject NavigationManager NavigationManager
+@using System.Web;
 
 <link href="_content/AC.SD.Core/css/forum-discussion.css" rel="stylesheet" />
-
 <div class="">
 
     @* <DxFormLayout CssClass="w-100">
@@ -233,13 +238,14 @@
                                                     @*<button id="overviewDemoSelectButton_@item.SessionId" class="btn border-primary btn-primary m-1">Select File</button>*@
                                                     <div id="overviewDemoSelectButton_@item.SessionId" class="tag fa fa-plus-square"></div>
                                                 <DxUpload @ref="MyUpload" Name="files"
+                                                  AcceptedFileTypes=@AcceptedFileTypes
                                                   Visible="@UploadVisible"
                                                   ExternalSelectButtonCssSelector="@(extt)"
                                                   UploadUrl="@GetDocUploadUrl(item.SessionId)"
                                                   Id="@(extt)"
                                                   SelectedFilesChanged="@SelectedFilesChanged1"
-                                                      CssClass="w-100"
-                                                     FileUploaded="@HandleUploadSuccess">  
+                                                  CssClass="w-100"
+                                                  FileUploaded="@HandleUploadSuccess">  
                                              
                                                 </DxUpload>
 
@@ -402,6 +408,9 @@
                                     <DxGridDataColumn FieldName="FileIndex" Caption="#" Width="35px"></DxGridDataColumn>
                                     <DxGridDataColumn FieldName="FileName" MinWidth="200" />
                                     <DxGridDataColumn FieldName="FileSize" />
+                                    <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
+                                        <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview((long)context.Value)"></button></CellDisplayTemplate>
+                                    </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="DocumentId" Caption="Download" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="dxbl-btn fa fa-cloud-download" @onclick="() => onDocDownload((long)context.Value)"></button></CellDisplayTemplate>
                                     </DxGridDataColumn>
@@ -453,6 +462,16 @@
         </div>
     </div>
 </div>
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="100%" Height="100%" @bind-Visible="@PreviewDocPopup">
+    <BodyContentTemplate>
+        <DxRichEdit @ref="@richEdit" DocumentFormat="@MyDocumentFormat" DocumentContent="@documentContent" ViewType="ViewType.Simple" BarMode="BarMode.Toolbar" CssClass="w-100 h-900" DocumentContentChanged="OnDocumentContentChanged"></DxRichEdit>
+        
+      @*  <div id="pdfInterop"></div>*@
+       @* <iframe src="@documentPreviewUrl" type="@documentMimeType" width="800" height="600"></iframe>
+        <iframe src="https://www.example.com" width="100%" height="500"></iframe>*@
+    </BodyContentTemplate>    
+</DxPopup>
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="300px" @bind-Visible="@PopupVisible">
     <div class="text-center">
@@ -586,13 +605,17 @@
             <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Selected File</button>
             <div class="">              
                 <DxUpload @ref="uploadComponent" Name="files"                          
-                          Visible="@UploadVisible"
+                          Visible="@UploadVisible"                        
+                          AcceptedFileTypes=@AcceptedFileTypes
                           UploadMode="@UploadMode.OnButtonClick"                        
                           UploadUrl="@GetUploadUrl()"
                           AllowMultiFileUpload="false"
                           ExternalSelectButtonCssSelector="#overviewDemoSelectButton"                         
-                          SelectedFilesChanged="@SelectedFilesChanged">                           
-                </DxUpload>                             
+                          SelectedFilesChanged="@SelectedFilesChanged"
+                          FileUploaded="@isUploadSuccess"
+                          FileUploadError="@OnUploadError">
+                </DxUpload> 
+                <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                @* <button class="btn btn-success" RenderStyle="ButtonRenderStyle.Success" style="float:right;" @onclick="UploadFiles">Add</button>*@
             </div>
         </div>
@@ -606,7 +629,23 @@
 
 
 
-@code {    
+@code {
+    bool ErrorVisible { get; set; } = false;
+    string MyError { get; set; }
+    [Parameter]
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
+    public List<string> AllowedFileExtensions { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",".txt",".pdf",".PDF" };
+    public DocumentFormat MyDocumentFormat { get; set; }
+    private string? BaseUrl;
+    private string? FileUrl;
+    string documentPath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
+    string documentFormat = "docx";
+    private ElementReference OfficeContainerRef;
+    DxRichEdit richEdit { get; set; }
+    string previewUrl;
+    private string documentPreviewUrl;
+    private string documentMimeType;
+    byte[] documentContent;
     DxUpload MyUpload { get; set; }
     bool UploadVisible { get; set; } = true;
     private bool uploadSuccess = false;
@@ -631,10 +670,11 @@
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     bool DocPopupVisible { get; set; } = false;
+    bool PreviewDocPopup { get; set; } = false;
     private Dictionary<int, bool> itemVisibility = new Dictionary<int, bool>();
     AccordionExpandMode ExpandMode { get; set; } = AccordionExpandMode.SingleOrNone;
     AccordionExpandCollapseAction ExpandCollapseAction { get; set; } = AccordionExpandCollapseAction.HeaderClick;
-    DxRichEdit richEdit;
+
     string isMenuvisible = "Posts";
     DxTreeView treeView;
     IGrid? Grid { get; set; }
@@ -710,11 +750,37 @@
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender)
+        {
+            // await InitializeViewer();
+        }
+
+
         if (uploadSuccess)
         {
             // Invoke another function here
             //AnotherFunction();
         }
+    }
+    private async Task InitializeViewer()
+    {
+        await JSRuntime.InvokeVoidAsync("loadViewerJS");
+        string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.pdf";
+        // Set the document URL
+        string documentUrl = filePath;
+        await JSRuntime.InvokeVoidAsync("openViewer", "viewerContainer", documentUrl);
+    }
+    private async Task isUploadSuccess()
+    {
+        uploadComponent.RemoveAllFiles();
+        isFileUpload = false;
+        await LoadData();
+    }
+    void OnUploadError(FileUploadErrorEventArgs e)
+    {
+        MyError = e.RequestInfo.ResponseText;
+        ErrorVisible = true;
+        InvokeAsync(StateHasChanged);
     }
 
     private async Task HandleUploadSuccess()
@@ -722,9 +788,6 @@
 
         FirstFile = Filess.First();
         MyUpload.RemoveFile(FirstFile);
-
-
-
 
         //MyUpload.RemoveAllFiles();
         ///SelectedFiles.Clear();
@@ -737,8 +800,8 @@
         MyUpload.RemoveFile(FirstFile);      
     }   
     private async Task TriggerCancelIcon()
-    {
-        await JSRuntime.InvokeVoidAsync("myFunction");
+    {      
+        await JSRuntime.InvokeVoidAsync("myFunction()");
         await JSRuntime.InvokeVoidAsync("createToast(success)");
     }
 
@@ -883,44 +946,148 @@
         _participantLst = _participant.FirstOrDefault(a => a.ID == Id);
         PopupVisible = true;        
     }
-    public async Task onDocDownload(long Id)
+    public async Task onPreview(long Id)
     {
-        var lst =  _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
+        _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
 
-        //string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        //string url = BaseUrl + "Upload/DownloadFile?DocumentId=" + Id;
-
-        //var requestData = new StringContent("Request body goes here");
-
-        //var response = await httpClient.PostAsync(url, requestData);
-        //var  responseMessage = await response.Content.ReadAsStringAsync();
         var request = new DownloadFileRequest
             {
-                FileName = lst.FileName, 
-                FilePath = lst.FilePath, 
-                ContentType = lst.ContentType
+                FileName = _documents.FileName,
+                FilePath = _documents.FilePath,
+                ContentType = _documents.ContentType
             };
 
         var response = await Mediator.Send(request);
 
-        // Trigger file download
-        await JSRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.FileData, response.ContentType,"");
+        string extension = Path.GetExtension(_documents.FilePath);
+
+
+
+        if(extension.ToLower() == ".doc" || extension.ToLower() == ".docx")
+        {
+            MyDocumentFormat = DocumentFormat.OpenXml;
+            documentContent = await File.ReadAllBytesAsync(response.FilePath);            
+            PreviewDocPopup = true;
+        }
+        else if(extension.ToLower() == ".txt")
+        {
+            MyDocumentFormat = DocumentFormat.PlainText;
+            documentContent = await File.ReadAllBytesAsync(response.FilePath);
+            PreviewDocPopup = true;
+        }
+        else if (extension.ToLower() == ".pdf")
+        {
+            var url = FileUrl + _documents.FilePath;
+            await OpenUrlInNewTab(url);
+        }
+        else if (extension.ToLower() == ".pdf")
+        {
+            var url = FileUrl + _documents.FilePath;
+            await OpenUrlInNewTab(url);
+        }
+        else if (extension.ToLower() == ".jpeg" || extension.ToLower() == ".jpg" || extension.ToLower() == ".png" || extension.ToLower() == ".gif" || extension.ToLower() == ".bmp" || extension.ToLower() == ".svg")
+        {
+            var url = FileUrl + _documents.FilePath;
+            await OpenUrlInNewTab(url);
+        }
+        else
+        {
+            onShowPopupMessage("Error", "Document format not supported.");
+        }
+
+        //var base_url = BaseUrl;
+        //var file_url = FileUrl;
+
+        //var filePath1 = BaseUrl + _documents.FilePath;
+        //string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
+        // documentContent = await File.ReadAllBytesAsync(response.FilePath);
+
+        //string filePathpdf = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.pdf";
+
+        //await JSRuntime.InvokeVoidAsync("pdfInterop.renderPDF", "pdfInterop", filePathpdf);
 
 
 
 
-        //string BaseUrl = Configuration["DocumentsUrl:FileUrl"];
-        //_documents =  _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
+        //await Task.Delay(10);       
+        //await JSRuntime.InvokeVoidAsync("displayOfficeDocument", OfficeContainerRef, filePath);
 
-        //if (_documents != null && _documents.DocumentId > 0)
-        //{
-        //    var filePath = BaseUrl + _documents.FilePath;
-        //    if (System.IO.File.Exists(filePath))
+
+    }   
+    async Task OnDocumentContentChanged(byte[] content)
+    {
+
+        var request = new DownloadFileRequest
+            {
+                FileName = _documents.FileName,
+                FilePath = _documents.FilePath,
+                ContentType = _documents.ContentType
+            };
+
+        var response = await Mediator.Send(request);
+
+        // string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
+        string filePath = response.FilePath;
+
+        string extension = Path.GetExtension(response.FilePath);
+
+
+        try
+        {
+            if (extension.ToLower() == ".doc" || extension.ToLower() == ".docx")
+            {
+                MyDocumentFormat = DocumentFormat.OpenXml;
+                documentContent = content;
+                await File.WriteAllBytesAsync(filePath, documentContent);
+            }
+            else if (extension.ToLower() == ".txt")
+            {
+                MyDocumentFormat = DocumentFormat.PlainText;
+                documentContent = content;
+                await File.WriteAllBytesAsync(filePath, documentContent);
+            }
+            else if(extension.ToLower() == ".pdf")
+            {
+                var url = FileUrl + _documents.FilePath;
+                await OpenUrlInNewTab(url);
+            }
+            else
+            {
+                onShowPopupMessage("error", "Document format not supported.");
+            }
+
+            //documentContent = content;
+            //await File.WriteAllBytesAsync(filePath, documentContent);           
+        }
+        catch (OperationCanceledException e)
+        {
+            Console.WriteLine($"{nameof(OperationCanceledException)} thrown with message: {e.Message}");
+        }
+    }
+    private async Task OpenUrlInNewTab(string url)
+    {
+        await JSRuntime.InvokeVoidAsync("open", url, "_blank");
+    }
+    public async Task onDocDownload(long Id)
+    {
+        var lst =  _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
+
+
+        var url = FileUrl + lst.FilePath;
+        await OpenUrlInNewTab(url);
+        //NavigationManager.NavigateTo(url, forceLoad: true);
+
+        //var request = new DownloadFileRequest
         //    {
-                
-        //    }
-        //}     
+        //        FileName = lst.FileName, 
+        //        FilePath = lst.FilePath, 
+        //        ContentType = lst.ContentType
+        //    };
 
+        //var response = await Mediator.Send(request);
+
+        // Trigger file download
+        // await JSRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.FileData, response.ContentType,"");
     }
     public async Task onDocDelete(long Id)
     {
@@ -986,14 +1153,16 @@
     {
         if(long.Parse(@SelectedGroup) > 0)
         {
-             _topicDocList = await Mediator.Send(new GetTopicDocList(long.Parse(@SelectedGroup)));          
+            //await JSRuntime.InvokeAsync<string>("showLoading");
+            _topicDocList = await Mediator.Send(new GetTopicDocList(long.Parse(@SelectedGroup)));          
+            //await JSRuntime.InvokeAsync<string>("hideLoading");
         }
-       
+
     }
     private async Task LoadData()
     {
         _discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
-
+       OnMenuItemClick(isMenuvisible);
         // Generate index IDs for each row
         //var indexedDiscussionList = _discussionList.Select((item, index) => new
         //{
@@ -1068,6 +1237,9 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        
 
         //var model = await Mediator.Send(new GetAllForumTypes());
         //_types = model;

@@ -42,6 +42,7 @@
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
         RowDoubleClick="OnRowDoubleClick"
+        SelectedDataItemsChanged="@SelectedDataItemsChanged"
         AllowSelectRowByClick="true" CustomizeCellDisplayText=" Grid_CustomizeCellDisplayText">
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
@@ -104,7 +105,19 @@
 </DxGrid>
 
 @*SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"*@
-
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
+    <div class="text-center">
+        <Content>
+        <p>
+                <div > Do you want to delete</div>
+          
+        </p>
+    </Content>
+       
+        <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
+        <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
 @code {
     Dictionary<long, string>? CompanyNamesIndex { get; set; }
     private List<ViewPlants> _plantItems;
@@ -112,8 +125,12 @@
     private List<ViewIctmaster>? _master;
     private List<ViewIctmaster> _ictmasterList;
     private ViewIctmaster _selectedItems;
-    bool EditEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = true;
+    bool Blukdeletepopup { get; set; } = false;
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
       bool ExportSelectedRowsOnly { get; set; }
     IGrid Grid { get; set; }
     int masterType = 571;
@@ -276,6 +293,11 @@
         OnRowClick(e);
         addEdit();
     }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
     void addNew()
     {
         Grid.StartEditNewRowAsync();
@@ -289,9 +311,35 @@
     }
     void addDelete()
     {
-        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-
+        Blukdeletepopup = true;
     }
+    async Task bulkDelete()
+    {
+        if (SelectedDataItems != null)
+        {
+            foreach (object item in SelectedDataItems)
+            {
 
+                if (item is ViewIctmaster forumzone)
+                {
+                  //  var editablePlant = (ViewIctmaster)e.DataItem;
+                    var request = new DeleteIctmasterCommand(forumzone.IctmasterId);
+                    await Mediator.Send(request);
+                    await UpdateDataAsync();
+                }
+
+            }
+        }
+        await UpdateDataAsync();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+    }
+   
 }
 

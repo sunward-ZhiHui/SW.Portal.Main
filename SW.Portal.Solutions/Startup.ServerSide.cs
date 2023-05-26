@@ -16,6 +16,7 @@ using AC.SD.Core.Services;
 using Infrastructure;
 using Application;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Blazored.Toast;
 
 namespace SW.Portal.Solutions.ServerSide {
 
@@ -29,8 +30,8 @@ namespace SW.Portal.Solutions.ServerSide {
             bool detailedErrors = Configuration.GetValue("detailedErrors", false);
 #endif
             services.AddServerSideBlazor().AddCircuitOptions(x => x.DetailedErrors = detailedErrors);
+            services.AddBlazoredToast();
 
-            
 
             var optionsBuilder = services.AddOptions();
             optionsBuilder.AddOptions<DemoModel>("AC.SD.Core");

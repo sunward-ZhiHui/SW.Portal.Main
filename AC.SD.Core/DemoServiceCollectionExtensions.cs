@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using AC.SD.Core.Configuration;
 using AC.SD.Core.Services;
+using Blazored.Toast;
 using Core.Repositories.Query;
 using DevExpress.Blazor.DocumentMetadata;
 using DevExpress.Blazor.RichEdit.SpellCheck;
@@ -11,7 +12,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-
 
 namespace AC.SD.Core
 {
@@ -48,7 +48,7 @@ namespace AC.SD.Core
                 //    Culture = "en-US"
                 //});
             });
-
+            services.AddBlazoredToast();
             services.AddDocumentMetadata(ConfigureMetadata);
             services.AddSingleton<DemoConfiguration>();
             //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

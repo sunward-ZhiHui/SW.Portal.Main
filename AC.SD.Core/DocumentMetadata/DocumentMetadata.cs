@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-
+using Blazored.Toast;
 namespace DevExpress.Blazor.DocumentMetadata {
 
     interface IMetadataEntity {
@@ -33,6 +33,7 @@ namespace DevExpress.Blazor.DocumentMetadata {
             services.AddScoped<IDocumentMetadataService>(sp => sp.GetService<DocumentMetadataService>());
             services.AddScoped<IDocumentMetadataCollection>(sp => sp.GetService<DocumentMetadataService>());
             services.AddScoped<IObservable<Renderer>, DocumentMetadataObserver>();
+            services.AddBlazoredToast();
             return services;
         }
 

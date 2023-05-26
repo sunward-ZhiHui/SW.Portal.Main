@@ -6,6 +6,7 @@
 @inject IMediator Mediator
 @using DevExpress.Export
 @inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
 @page "/FourmTypes"
 
 
@@ -155,6 +156,7 @@
             StateHasChanged();
         }
         await jsRuntime.InvokeAsync<string>("hideLoading");
+        toastService.ShowToast("I'm a SUCCESS message", AC.SD.Core.Services.ToastLevel.Success);
         // _types = model;
     }
     async Task ExportToExcel() 

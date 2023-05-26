@@ -33,3 +33,31 @@ window.downloadFile = (fileName, fileContent, contentType, folderPath) => {
 };
 
 
+window.toastInterop = {
+    initialize: function (containerId) {
+        const container = document.getElementById(containerId);
+        container.addEventListener('animationend', function (event) {
+            if (event.animationName === 'fadeOut') {
+                container.removeChild(event.target);
+            }
+        });
+    },
+    showToast: function (message, severity) {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${severity}`;
+        toast.textContent = message;
+
+        const progress = document.createElement('div');
+        progress.className = 'toast-progress';
+        toast.appendChild(progress);
+
+        const container = document.querySelector('.toast-container');
+        container.appendChild(toast);
+
+        setTimeout(function () {
+            toast.classList.add('fadeOut');
+        }, 5000);
+    }
+};
+
+

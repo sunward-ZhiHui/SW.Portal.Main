@@ -1,5 +1,6 @@
 ﻿using Core.Entities.Base;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Entities
 {
@@ -12,6 +13,8 @@ namespace Core.Entities
         public string? Description { get; set; }
         [Required(ErrorMessage = "Please Select Type.")]
         public long TypeId { get; set; }
+        [NotMapped]
+        public int Index { get; set; }
     }
    
 }

@@ -10,6 +10,7 @@ namespace Core.Entities.Views
     public class ViewSection
     {
         public long SectionId { get; set; }
+        public int Index { get; set; }
         [Required(ErrorMessage = "Department is Required")]
         public long? DepartmentId { get; set; }
         [Required(ErrorMessage = "Section Name is Required")]

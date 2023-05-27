@@ -58,8 +58,9 @@
 
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-        <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px">            
-        </DxGridDataColumn>
+      @*  <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px">            
+        </DxGridDataColumn>*@
+        <DxGridDataColumn FieldName="Index" Caption="#" Width="35px"></DxGridDataColumn>
         <DxGridDataColumn FieldName="TypeId" MinWidth="200" Caption="TypeName" />
         <DxGridDataColumn FieldName="Name" MinWidth="200" />
         <DxGridDataColumn FieldName="Description" />
@@ -154,6 +155,10 @@
         Types = types;
         await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllForumCategorys());
+        for (int i = 0; i < model.Count; i++)
+        {
+            model[i].Index = i + 1;
+        }
         _categorys = model;     
         await jsRuntime.InvokeAsync<string>("hideLoading");
         CategoryNamesIndex = Types.ToDictionary(i => i.ID, i => i.Name);
@@ -162,7 +167,12 @@
     async Task UpdateDataAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
-        _categorys = await Mediator.Send(new GetAllForumCategorys());
+      var  model = await Mediator.Send(new GetAllForumCategorys());
+        for (int i = 0; i < model.Count; i++)
+        {
+            model[i].Index = i + 1;
+        }
+        _categorys = model;
         if (_categorys.Count > 0)
         {
 

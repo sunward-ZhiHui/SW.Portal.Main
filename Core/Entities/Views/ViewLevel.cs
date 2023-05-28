@@ -11,6 +11,7 @@ namespace Core.Entities.Views
     {
         [Key]
         public long LevelID { get; set; }
+        public int Index { get; set; }
         [Required(ErrorMessage = "Name is Required")]
         public string? Name { get; set; }
         [Required(ErrorMessage = "Company is Required")]

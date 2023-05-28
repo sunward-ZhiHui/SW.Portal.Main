@@ -10,6 +10,7 @@ namespace Core.Entities.Views
     public class ViewSubSection
     {
         public long SubSectionId { get; set; }
+        public int Index { get; set; }
         [Required(ErrorMessage = "SubSection Name is Required")]
         public string SubSectionName { get; set; }
         [Required(ErrorMessage = "SubSection Code is Required")]

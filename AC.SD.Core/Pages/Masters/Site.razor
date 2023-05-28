@@ -12,6 +12,8 @@
 @inject IJSRuntime jsRuntime
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -46,6 +48,7 @@
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="IctmasterId" MinWidth="80" Visible="false" />
+        <DxGridDataColumn FieldName="Index" Caption="#" Width="35px"></DxGridDataColumn>
         <DxGridDataColumn FieldName="CompanyId" Caption="Company" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Name" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
@@ -88,7 +91,7 @@
     </TotalSummary>
 </DxGrid>
 
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
+@*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
         <Content>
         <p>
@@ -101,8 +104,22 @@
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
 </DxPopup>
-
-
+*@
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
 
 
@@ -146,6 +163,10 @@
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllIctMasterQuery());
+        for (int i = 0; i < model.Count; i++)
+        {
+            model[i].Index = i + 1;
+        }
         _ictmaster = model;
         _ictmasterList = model.Where(w => w.MasterType == mastertype).ToList();
         if (_ictmasterList.Count > 0)
@@ -192,6 +213,7 @@
 
                 };
             await Mediator.Send(request);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
         }
         else
@@ -227,6 +249,7 @@
                 ModifiedByUserId = applicationUser.UserID,
             };
         await Mediator.Send(request);
+        toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         await UpdateDataAsync();
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
@@ -264,6 +287,13 @@
             if (CompanyNamesIndex.ContainsKey(ID))
                 e.DisplayText = CompanyNamesIndex[ID];
         }
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -310,6 +340,8 @@
                         // var editablePlant = (ViewIctmaster)e.DataItem;
                         var request = new DeleteIctmasterCommand(forumsite.IctmasterId);
                         await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         await UpdateDataAsync();
                         Grid.SetFocusedRowIndex(0);
                     }

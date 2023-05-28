@@ -10,6 +10,7 @@ namespace Core.Entities.Views
     public class ViewDepartment
     {
         public long DepartmentId { get; set; }
+        public int Index { get; set; }
         public long? CompanyId { get; set; }
         public long? Hodid { get; set; }
         [Required(ErrorMessage = "Department Name is Required")]

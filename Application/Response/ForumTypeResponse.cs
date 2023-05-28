@@ -10,6 +10,7 @@ namespace Application.Response
     public class ForumTypeResponse
     {
         public long ID { get; set; }
+        public long IndexId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }      
     }

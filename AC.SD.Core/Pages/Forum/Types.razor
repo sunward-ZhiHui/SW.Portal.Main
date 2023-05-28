@@ -78,7 +78,8 @@
 
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-        <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px"></DxGridDataColumn>
+        <DxGridDataColumn FieldName="Index" Caption="#" Width="35px"></DxGridDataColumn>
+       @* <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px"></DxGridDataColumn>*@
         <DxGridDataColumn FieldName="Name" MinWidth="200" />
         <DxGridDataColumn FieldName="Description" />
         <DxGridCommandColumn Width="160px" Visible="false" />
@@ -101,8 +102,9 @@
     </EditFormTemplate>
     
 </DxGrid>
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
+@*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
+        
         <Content>
         <p>
                 <div > Do you want to delete</div>
@@ -111,11 +113,24 @@
     </Content>
        
         <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
-        <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
+        <DxButton  class=align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
+</DxPopup>*@
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton  RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
 </DxPopup>
-
-
 @code {
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
@@ -136,11 +151,19 @@
     private bool loading;
     bool Blukdeletepopup { get; set; } = false;
     bool EditEnabled { get; set; } = true;
+    string SelectedGroup = "none";
 
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllForumTypes());
+        // _types = model;
+
+        for (int i = 0; i < model.Count; i++)
+        {
+            model[i].Index = i + 1;
+        }
+
         _types = model;
         await jsRuntime.InvokeAsync<string>("hideLoading");
         //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
@@ -148,7 +171,14 @@
     async Task UpdateDataAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
-        _types = await Mediator.Send(new GetAllForumTypes());
+       var model = await Mediator.Send(new GetAllForumTypes());
+
+        for (int i = 0; i < model.Count; i++)
+        {
+            model[i].Index = i + 1;
+        }
+
+        _types = model;
         if (_types.Count > 0)
         {
 
@@ -156,7 +186,7 @@
             StateHasChanged();
         }
         await jsRuntime.InvokeAsync<string>("hideLoading");
-        toastService.ShowToast("I'm a SUCCESS message", AC.SD.Core.Services.ToastLevel.Success);
+        //  toastService.ShowToast("I'm a SUCCESS message", AC.SD.Core.Services.ToastLevel.Success);
         // _types = model;
     }
     async Task ExportToExcel() 
@@ -205,7 +235,7 @@
 
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {   
-      
+
         var editModel = (ForumTypes)e.EditModel;        
 
         if (e.IsNew)
@@ -213,7 +243,8 @@
             var ex = _types.Where(x => x.Name == editModel.Name );
             if (ex.Any())
             {
-                onShowPopupMessage("Error", "The entered value Already exists.");
+                // onShowPopupMessage("Error", "The entered value Already exists.");
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
             }
             else
             {
@@ -226,8 +257,8 @@
                 try
                 {
                     var result = await Mediator.Send(createReq);
-                   
-                    onShowPopupMessage("Success", "Record save Successfully");
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    //  onShowPopupMessage("Success", "Record save Successfully");
                 }
                 catch (Exception eq)
                 {
@@ -260,7 +291,8 @@
             var ex = _types.Where(x => x.Name == editModel.Name && x.ID != editModel.ID );
             if (ex.Any())
             {
-                onShowPopupMessage("Error", "The entered value Already exists.");
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+                // onShowPopupMessage("Error", "The entered value Already exists.");
             }
             else
             {
@@ -277,6 +309,7 @@
                     };
 
                 var ans = await Mediator.Send(UpdateReq);
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
                 await UpdateDataAsync();
 
             }
@@ -286,7 +319,7 @@
     }
     private async void onShowPopupMessage(string headerText, string bodyText)
     {
-       
+
         MessageVisible = true;
         MessageBody = bodyText;
         MessageHeader = headerText;
@@ -298,7 +331,14 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        await UpdateDataAsync();
+       await UpdateDataAsync();
+   }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+       UpdateDataAsync();
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     { 
@@ -380,6 +420,7 @@
                         var request = new DeleteForumTypeCommand(forumTypes.ID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         Grid.SetFocusedRowIndex(0);
                     }
 
@@ -399,10 +440,15 @@
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
-        if(SelectedDataItems.Count > 0)
+        if(SelectedDataItems.Count > 1)
         {
             EditEnabled = false;
         }
+    }
+    private async Task LoadData()
+    {
+        _types = await Mediator.Send(new GetTypeList(long.Parse(@SelectedGroup)));
+      
     }
     //void RowClickDelete()
     //{

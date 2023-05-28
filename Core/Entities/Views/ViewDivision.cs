@@ -11,6 +11,7 @@ namespace Core.Entities.Views
     {
         [Key]
         public long DivisionID { get; set; }
+        public int Index { get; set; }
         [Required(ErrorMessage = "Company is Required")]
         public long? CompanyId { get; set; }
         [Required(ErrorMessage = "Code is Required")]

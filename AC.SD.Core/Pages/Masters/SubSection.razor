@@ -179,7 +179,7 @@
     bool DeleteEnabled { get; set; } = true;
     public ApplicationUser applicationUser { get; private set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
-
+    private ViewSubSection _selectlst;
     bool ExportSelectedRowsOnly { get; set; }
     protected override async Task OnInitializedAsync()
     {
@@ -346,7 +346,27 @@
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ViewSubSection viewSubSection)
+                {
+
+                    _selectlst = _subsectionItems.FirstOrDefault(f => f.SubSectionId == viewSubSection.SubSectionId);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
 
     }
     void addDelete()

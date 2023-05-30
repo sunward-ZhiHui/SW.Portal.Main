@@ -182,6 +182,9 @@
     private List<ViewIctmaster>? _masterSite;
     private List<ViewIctmaster>? _masterZone;
     IReadOnlyList<object> SelectedDataItems { get; set; }
+    private ViewIctmaster _selectlst;
+
+
     bool ExportSelectedRowsOnly
     {
         get; set;
@@ -400,7 +403,26 @@
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ViewIctmaster viewIctmaster)
+                {
+
+                    _selectlst = _ictmaster.FirstOrDefault(f => f.IctmasterId == viewIctmaster.IctmasterId);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
 
     }
     void addDelete()

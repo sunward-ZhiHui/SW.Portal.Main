@@ -158,6 +158,7 @@
     bool PopupVisible { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
     bool ExportSelectedRowsOnly { get; set; }
+    private ViewLevel _selectlst;
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -316,7 +317,26 @@
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ViewLevel viewLevel)
+                {
+
+                    _selectlst = _levelItems.FirstOrDefault(f => f.LevelID == viewLevel.LevelID);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
     }
     void addDelete()
     {

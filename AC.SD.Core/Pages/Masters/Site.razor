@@ -150,6 +150,7 @@
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     public ApplicationUser applicationUser { get; private set; }
+    private ViewIctmaster _selectlst;
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -319,7 +320,26 @@
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ViewIctmaster viewIctmaster)
+                {
+
+                    _selectlst = _ictmaster.FirstOrDefault(f => f.IctmasterId == viewIctmaster.IctmasterId);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
     }
     void addDelete()
     {

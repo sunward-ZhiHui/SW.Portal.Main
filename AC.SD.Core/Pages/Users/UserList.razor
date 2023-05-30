@@ -1,5 +1,6 @@
 ﻿@using Application.Queries;
 @using MediatR
+@using System.ComponentModel;
 @using global::Core.Entities.Views;
 @using global::Core.Entities;
 @inject IMediator Mediator
@@ -32,15 +33,16 @@
         PageSize="20"
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="CurrentSelectAllCheckboxMode"
-        @bind-SelectedDataItems="SelectedDataItems"
+       
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="ch-360 " style="height: calc(100vh - 220px);"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
-        AllowSelectRowByClick="true">
+        AllowSelectRowByClick="true" SelectedDataItemsChanged="@OnSelectedDataItemsChanged">
     <Columns>
-        
+        @* @bind-SelectedDataItems="SelectedDataItems"*@
+     @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
         <DxGridDataColumn FieldName="SageID" MinWidth="80" />
         <DxGridDataColumn FieldName="FirstName"  />
         <DxGridDataColumn FieldName="LastName" />
@@ -127,14 +129,17 @@
     bool ResetEnabled { get; set; } = true;
     bool UnlockEnabled { get; set; } = false;
     IGrid Grid { get; set; }
-
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
-        _employeeItems = await Mediator.Send(new GetAllEmployeeListQuery());
+        var model = await Mediator.Send(new GetAllEmployeeListQuery());
+        _employeeItems = model;
         await jsRuntime.InvokeAsync<string>("hideLoading");
 
     }
+
+
+
     async Task UpdateDataAsync()
     {
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
@@ -183,6 +188,7 @@
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
         {
             e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
         }
         if (e.ElementType == GridElementType.HeaderCell)
         {
@@ -204,26 +210,27 @@
         PopupVisible = false;
     }
     void OnRowClick(GridRowClickEventArgs e)
-    {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UserID");
-        _selectedItems = _employeeItems.FirstOrDefault(f => f.UserID == (long?)UniqueId);
-        if (_selectedItems.Locked == true)
-        {
-            UnlockEnabled = true;
-        }
-        else
+    {  
+       var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UserID");
+      _selectedItems = _employeeItems.FirstOrDefault(f => f.UserID == (long?)UniqueId);
+      
+       if (_selectedItems.Locked == true)
+          {
+                UnlockEnabled = true;
+           }
+       else
         {
             UnlockEnabled = false;
         }
-        ResetEnabled = true;
-       
+         
+              ResetEnabled = true;
         StateHasChanged();
-
+    
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
         SelectedDataItems = null;
-      
+
         PopupVisible = false;
         UpdateDataAsync();
     }
@@ -245,4 +252,13 @@
     //{
     //     Edit the selected person
     //}
-}
+  
+    void OnSelectedDataItemsChanged(IReadOnlyList<object> newSelection)
+    {
+    //    if (newSelection is IGridSelectionChanges changes) 
+    //    {
+    //        var invalid = changes.SelectedDataItems.Cast<ViewEmployee>().Where(x => x.LoginID == "AJW002MY").ToList();
+    //        invalid.ForEach(x => Grid.DeselectDataItem(x));
+    //     }
+     }
+ }

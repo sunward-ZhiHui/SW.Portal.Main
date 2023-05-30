@@ -148,6 +148,8 @@
     string MessageBody = "";
     private bool loading;
     bool Blukdeletepopup { get; set; } = false;
+    private ForumCategorys _selectlst;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -323,7 +325,27 @@
     void addEdit()
     {
 
-        Grid.StartEditDataItemAsync(_selectedItems);
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ForumCategorys forumCategorys)
+                {
+
+                    _selectlst = _categorys.FirstOrDefault(f => f.ID == forumCategorys.ID);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
+
 
     }
     void addDelete()

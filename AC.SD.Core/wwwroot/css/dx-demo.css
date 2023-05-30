@@ -1830,3 +1830,6 @@ body,
     z-index: 9999;
     background: url('../images/spinner.gif') center no-repeat;
 }
+.non-selectable-row .dxbs-grid-selection-cell {
+    pointer-events: none;
+}

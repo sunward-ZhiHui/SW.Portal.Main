@@ -17,7 +17,7 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled"/>
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
             </Items>
@@ -73,7 +73,7 @@
         CustomizeElement="Grid_CustomizeElement"
         AutoExpandAllGroupRows="true"
         SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages" 
         RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
 
     <Columns>
@@ -152,7 +152,7 @@
     bool Blukdeletepopup { get; set; } = false;
     bool EditEnabled { get; set; } = true;
     string SelectedGroup = "none";
-
+    private ForumTypes _selectlst;
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -171,7 +171,7 @@
     async Task UpdateDataAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
-       var model = await Mediator.Send(new GetAllForumTypes());
+        var model = await Mediator.Send(new GetAllForumTypes());
 
         for (int i = 0; i < model.Count; i++)
         {
@@ -331,14 +331,14 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-       await UpdateDataAsync();
-   }
+        await UpdateDataAsync();
+    }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-       UpdateDataAsync();
+        UpdateDataAsync();
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     { 
@@ -398,7 +398,29 @@
     void addEdit()
     {
 
-        Grid.StartEditDataItemAsync(_selectedItems);
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ForumTypes forumTypes)
+                {
+
+                    _selectlst = _types.FirstOrDefault(f => f.ID == forumTypes.ID);
+                   
+
+                }
+        } 
+            Grid.StartEditDataItemAsync(_selectlst);
+    }
+      else
+        {
+         Grid.StartEditDataItemAsync(_selectedItems);
+       }
+
+       // Grid.SelectDataItems(SelectedDataItems);
+
 
     }
     void addDelete()
@@ -440,10 +462,12 @@
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
-        if(SelectedDataItems.Count > 1)
-        {
-            EditEnabled = false;
-        }
+        
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false;
+            }
+        
     }
     private async Task LoadData()
     {

@@ -152,6 +152,7 @@
     bool PopupVisible { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     string? DeleteerrorMessage;
+    private ViewPlants _selectlst;
 
     protected override async Task OnInitializedAsync()
     {
@@ -211,7 +212,26 @@
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ViewPlants viewPlants)
+                {
+
+                    _selectlst = _plants.FirstOrDefault(f => f.PlantID == viewPlants.PlantID);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
 
     }
     void addDelete()

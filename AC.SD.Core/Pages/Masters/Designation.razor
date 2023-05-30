@@ -240,6 +240,7 @@
     string? errorMessage;
     bool Blukdeletepopup { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
+    private ViewDesignation _selectlst;
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -407,7 +408,26 @@
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ViewDesignation viewDesignation)
+                {
+
+                    _selectlst = _designationItems.FirstOrDefault(f => f.DesignationID == viewDesignation.DesignationID);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
 
     }
     void EulaPopupClosed(PopupClosedEventArgs args)

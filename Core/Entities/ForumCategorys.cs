@@ -13,8 +13,7 @@ namespace Core.Entities
         public string? Description { get; set; }
         [Required(ErrorMessage = "Please Select Type.")]
         public long TypeId { get; set; }
-        [NotMapped]
-        public int Index { get; set; }
+       
     }
    
 }

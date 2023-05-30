@@ -955,7 +955,7 @@ main {
                         width: 100%;
                     }
                     .msgOpen {
-                        height: calc(100% - 235px);
+                        height: calc(100% - 360px);
                     }
 
                     .msgClose {
@@ -1197,3 +1197,33 @@ main {
     background: none;
     font-size:14px;
 }
+
+.accordion {
+    border: 1px solid #ccc;
+}
+
+.accordion-item {
+    border: 1px solid #ccc;
+}
+
+.accordion-title {
+   /* background-color: #f1f1f1;*/
+    padding: 10px;
+    cursor: pointer;
+}
+
+.accordion-content {
+    padding: 10px;
+    display: block;
+}
+.dxreRoot {
+    height: calc(100vh - 60px);
+}
+.richeditorHeight {
+    height: calc(100vh - 148px);
+}
+
+.txtEditorMsg {
+    height: 180px;  
+}
+

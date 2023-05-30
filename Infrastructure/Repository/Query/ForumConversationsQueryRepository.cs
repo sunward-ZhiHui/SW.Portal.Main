@@ -17,6 +17,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using Microsoft.AspNetCore.Http;
 using Application.Response;
 using Core.Entities.Views;
+using DevExpress.Data.Filtering.Helpers;
 
 namespace Infrastructure.Repository.Query
 {
@@ -150,7 +151,7 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId FROM ForumConversations FC                                
+                var query = @"SELECT FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData FROM ForumConversations FC                                
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
                                 WHERE FC.TopicId = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate ASC;";
@@ -231,7 +232,7 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"select FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath from ForumConversations FC 
+                var query = @"select FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData from ForumConversations FC 
                                 INNER JOIN Documents D on D.SessionID = FC.SessionId
                                 where FC.TopicID = @TopicId";
 
@@ -293,8 +294,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedByUserID", forumConversations.AddedByUserID);
                             parameters.Add("SessionId", forumConversations.SessionId);
                             parameters.Add("AddedDate", forumConversations.AddedDate);
+                            parameters.Add("FileData", forumConversations.FileData);
+                            
 
-                            var query = "INSERT INTO ForumConversations(TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
+                            var query = "INSERT INTO ForumConversations(TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData) VALUES (@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData)";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

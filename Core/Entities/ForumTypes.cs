@@ -16,8 +16,7 @@ namespace Core.Entities
         [Required(ErrorMessage = "Please Enter Name.")]
         public string? Name { get; set; }
         public string? Description { get; set; }
-        [NotMapped]
-        public int Index { get; set; }
+       
 
     }
 }

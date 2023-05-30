@@ -28,15 +28,18 @@
 @using System.Web;
 @inject IToastService ToastService
 @inject AC.SD.Core.Services.ToastService toastService
+@using System.Text;
 
 <link href="_content/AC.SD.Core/css/forum-discussion.css" rel="stylesheet" />
 
-@*
+<div style="display:none;">
+
+
 <button class="btn btn-info" @onclick="@(() => toastService.ShowToast("I'm an INFO message", AC.SD.Core.Services.ToastLevel.Info))">Info Toast</button>
 <button class="btn btn-success" @onclick="@(() => toastService.ShowToast("I'm a SUCCESS message", AC.SD.Core.Services.ToastLevel.Success))">Success Toast</button>
 <button class="btn btn-warning" @onclick="@(() => toastService.ShowToast("I'm a WARNING message", AC.SD.Core.Services.ToastLevel.Warning))">Warning Toast</button>
 <button class="btn btn-danger" @onclick="@(() => toastService.ShowToast("I'm an ERROR message", AC.SD.Core.Services.ToastLevel.Error))">Error Toast</button>
-*@
+</div>
 <div class="">
 
     @* <DxFormLayout CssClass="w-100">
@@ -227,76 +230,62 @@
                                                     </div>
                                                 </div>
                                                 <div class="uk-card-body">
+                                                    @{
+                                                        string htmlString = "";
+                                                        // byte[] byteArray = Encoding.UTF8.GetBytes(item.Message);
+                                                        if(item.FileData != null)
+                                                        {
+                                                            htmlString = Encoding.UTF8.GetString(item.FileData);
+                                                        }
+                                                        else
+                                                        {
+                                                            htmlString = "";
+                                                        }
+                                                        
+                                                    }
                                                     <p class="uk-text-success">
-                                                        @item.Message
+                                                       @* <div>@htmlString</div>
+                                                        <div>@(new MarkupString(htmlString))</div>*@
+                                                        <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
                                                     </p>
 
-                                                    @if (item.documents != null && item.documents.Any())
-                                                    {
-                                                        @foreach (var attachment in item.documents)
-                                                        {
-                                                            <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
-                                                        }
-                                                    }
-                                                   @* *@
-                                                    @{
-                                                        string firststring = "#overviewDemoSelectButton_";
-                                                        Guid? secondstring = @item.SessionId;
-                                                        string extt = firststring + secondstring;
-                                                    }
-                                                    @*<button id="overviewDemoSelectButton_@item.SessionId" class="btn border-primary btn-primary m-1">Select File</button>*@
-                                                    <div id="overviewDemoSelectButton_@item.SessionId" class="tag fa fa-plus-square"></div>
-                                                <DxUpload @ref="MyUpload" Name="files"
-                                                  AcceptedFileTypes=@AcceptedFileTypes
-                                                  Visible="@UploadVisible"
-                                                  ExternalSelectButtonCssSelector="@(extt)"
-                                                  UploadUrl="@GetDocUploadUrl(item.SessionId)"
-                                                  Id="@(extt)"
-                                                  SelectedFilesChanged="@SelectedFilesChanged1"
-                                                  CssClass="w-100"
-                                                  FileUploaded="@HandleUploadSuccess">  
-                                             
-                                                </DxUpload>
+                                                    <div class="uk-card-footer">
+                                                        <div>
+                                                            <div class="accordion-item">
+                                                                <div class="accordion-title" @onclick="@(() => ToggleDocItemVisibility(item.ID))"> Attachment </div>
 
-                                                   @* <a href="#" class="tag"><i class="fas fa-file-image" aria-hidden="true"></i> Exampl.jpg</a>
-                                                    <a href="#" class="tag"><i class="fas fa-file-excel" aria-hidden="true"></i> Exampl.xls</a>
-                                                    <a href="#" class="tag"><i class="fas fa-file-pdf" aria-hidden="true"></i> Exampl.pdf</a>
-                                                    <a href="#" class="tag"><i class="fas fa-file" aria-hidden="true"></i> Exampl.txt</a>*@
-                                                </div>
-
-                                                <div class="cw-480">
-
-                                                    @* <DxAccordion ExpandMode="ExpandMode" ExpandCollapseAction="ExpandCollapseAction" AnimationType="LayoutAnimationType.Slide">
-                                                        <Items>
-                                                            @foreach (var (employee, i) in Items)
-                                                            {
-                                                                <DxAccordionItem Text=@($"{employee.ID} {employee.Name}")>
-                                                                    <ContentTemplate>
-                                                                        <div class="py-3 px-3">
-                                                                            @employee.Name
-                                                                        </div>
-                                                                    </ContentTemplate>
-                                                                </DxAccordionItem>
-                                                            }
-                                                        </Items>
-                                                    </DxAccordion>*@
-
-                                                   @* <DxAccordion Data=@_types>
-                                                        <DataMappings>
-                                                            <DxAccordionDataMapping Key="ID" 
-                                                                                    Text="Name" />
-                                                        </DataMappings>
-                                                        <ItemTemplate>
-                                                            @{
-                                                                var dataItem = (ForumTypes)context.DataItem;
-                                                            }
-                                                            <div class="my-class">
-                                                                @dataItem.Name
-                                                              
+                                                                @*<p style="color: #5151b3;" class="handline" @onclick="@(() => ToggleDocItemVisibility(item.ID))">Attachment </p>*@
+                                                               
+                                                                   @if (DocitemVisibility.ContainsKey(item.ID) && DocitemVisibility[item.ID])
+                                                                    {
+                                                                        @foreach (var attachment in item.documents)
+                                                                        {
+                                                                            <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                        }
+                                                                
+                                                           
+                                                                        
+                                                                            string firststring = "#overviewDemoSelectButton_";
+                                                                            Guid? secondstring = item.SessionId;
+                                                                            string extt = firststring + secondstring;
+                                                                        
+                                                                    <div id="overviewDemoSelectButton_@item.SessionId" class="tag fa fa-plus-square"></div>
+                                                                            <DxUpload @ref="MyUpload" Name="files"
+                                                                              AcceptedFileTypes=@AcceptedFileTypes
+                                                                              Visible="@UploadVisible"
+                                                                              ExternalSelectButtonCssSelector="@extt"
+                                                                              UploadUrl="@GetDocUploadUrl(@item.SessionId)"
+                                                                              Id="@extt"
+                                                                              SelectedFilesChanged="@SelectedFilesChanged1"
+                                                                              CssClass="w-100"
+                                                                              FileUploaded="@HandleUploadSuccess">
+                                                                            </DxUpload>
+                                                                    }
+                                                                
                                                             </div>
-                                                        </ItemTemplate>
-                                                    </DxAccordion>*@
-                                                </div>
+                                                        </div>
+                                                    </div>
+                                                </div>                              
 
                                                 @if (item.ReplyConversation.Count() > 0)
                                                 {
@@ -354,9 +343,13 @@
                                         <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
                                             <DataAnnotationsValidator />
                                             <DxFormLayout>
-                                                <DxFormLayoutItem ColSpanMd="12">
-                                                    <DxMemo @bind-Text="@Data.Message" NullText="Message" />
-                                                    <ValidationMessage For="@(() => Data.Message)" />
+                                                <DxFormLayoutItem ColSpanMd="12">                                                    
+                                                    <div class="">
+                                                        <DxRichEdit @ref="@richEdit" DocumentFormat="DocumentFormat.Rtf" DocumentContent="@msgContent"
+                                                            DocumentContentChanged="OnmsgContentChanged" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple"></DxRichEdit>
+                                                    </div>
+                                                   @* <DxMemo @bind-Text="@Data.Message" NullText="Message" style="height:170px;" />
+                                                    <ValidationMessage For="@(() => Data.Message)" />*@
                                                 </DxFormLayoutItem>
                                                 <DxFormLayoutItem ColSpanMd="12">
                                                     <DxButton SubmitFormOnClick="true"
@@ -416,7 +409,7 @@
                                 @*    <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
                                     <DxGridDataColumn FieldName="FileIndex" Caption="#" Width="35px"></DxGridDataColumn>
                                     <DxGridDataColumn FieldName="FileName" MinWidth="200" />
-                                    <DxGridDataColumn FieldName="FileSize" />
+                                    @*<DxGridDataColumn FieldName="FileSize" />*@
                                     <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview((long)context.Value)"></button></CellDisplayTemplate>
                                     </DxGridDataColumn>
@@ -474,8 +467,9 @@
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="100%" Height="100%" @bind-Visible="@PreviewDocPopup">
     <BodyContentTemplate>
-        <DxRichEdit @ref="@richEdit" DocumentFormat="@MyDocumentFormat" DocumentContent="@documentContent" ViewType="ViewType.Simple" BarMode="BarMode.Toolbar" CssClass="w-100 h-900" DocumentContentChanged="OnDocumentContentChanged"></DxRichEdit>
-        
+        <div class="richeditorHeight">
+            <DxRichEdit @ref="@richEdit" DocumentFormat="@MyDocumentFormat" DocumentContent="@documentContent" ViewType="ViewType.Simple" BarMode="BarMode.Toolbar" CssClass="w-100" DocumentContentChanged="OnDocumentContentChanged"></DxRichEdit>
+        </div>
       @*  <div id="pdfInterop"></div>*@
        @* <iframe src="@documentPreviewUrl" type="@documentMimeType" width="800" height="600"></iframe>
         <iframe src="https://www.example.com" width="100%" height="500"></iframe>*@
@@ -642,14 +636,6 @@
 *@
 
 @code {
-    private void ShowToast()
-    {
-        ToastService.ShowSuccess("This is a success toast message", options =>
-        {
-            //options.Duration = TimeSpan.FromSeconds(5);
-            options.ShowProgressBar = true;
-        });
-    }
     bool ErrorVisible { get; set; } = false;
     string MyError { get; set; }
     [Parameter]
@@ -666,6 +652,7 @@
     private string documentPreviewUrl;
     private string documentMimeType;
     byte[] documentContent;
+    byte[] msgContent;
     DxUpload MyUpload { get; set; }
     bool UploadVisible { get; set; } = true;
     private bool uploadSuccess = false;
@@ -692,6 +679,7 @@
     bool DocPopupVisible { get; set; } = false;
     bool PreviewDocPopup { get; set; } = false;
     private Dictionary<int, bool> itemVisibility = new Dictionary<int, bool>();
+    private Dictionary<int, bool> DocitemVisibility = new Dictionary<int, bool>();
     AccordionExpandMode ExpandMode { get; set; } = AccordionExpandMode.SingleOrNone;
     AccordionExpandCollapseAction ExpandCollapseAction { get; set; } = AccordionExpandCollapseAction.HeaderClick;
 
@@ -763,7 +751,7 @@
         UploadVisible1 = files.ToList().Count > 0;   
 
         InvokeAsync(StateHasChanged);
-    }
+    }   
     private void RemoveFile(UploadFileInfo file)
     {
         SelectedFiles.Remove(file);
@@ -1034,6 +1022,55 @@
 
 
     }   
+    async Task OnmsgContentChanged(byte[] content)
+    {
+        /* Surround the code that contains an asynchronous operation with a try-catch block to handle
+        the OperationCanceledException. This exception is thrown when an asynchronous operation is canceled. */
+        try
+        {
+            documentContent = content;
+
+            var createReq = new CreateForumCoversation
+                {
+
+                    TopicID = (long.Parse(@SelectedGroup)),
+                    Message = Data.Message != null ? Data.Message : "Attachments",
+                    FileData = content,
+                    ParticipantId = applicationUser.UserID,
+                    ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid()
+                };
+            var result = await Mediator.Send(createReq);
+
+            if (result == 1)
+            {
+                //var getRec = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
+                //sessionId = getRec.Last().SessionId;
+
+                //uploadUrl = GetUploadUrl();
+                //uploadComponent.UploadAllFiles();
+                await LoadData();
+                onRestText();
+                closeReply();
+            }
+            else
+            {
+
+            }
+
+
+
+
+            //await File.WriteAllBytesAsync("C:\\Users\\Public\\annual-report.rtf", documentContent);
+        }
+        catch (OperationCanceledException e)
+        {
+            Console.WriteLine($"{nameof(OperationCanceledException)} thrown with message: {e.Message}");
+        }
+    }
     async Task OnDocumentContentChanged(byte[] content)
     {
 
@@ -1166,6 +1203,17 @@
         else
         {
             itemVisibility.Add(id, true);
+        }
+    }
+    private void ToggleDocItemVisibility(int id)
+    {
+        if (DocitemVisibility.ContainsKey(id))
+        {
+            DocitemVisibility[id] = !DocitemVisibility[id];
+        }
+        else
+        {
+            DocitemVisibility.Add(id, true);
         }
     }
     private List<string> data;

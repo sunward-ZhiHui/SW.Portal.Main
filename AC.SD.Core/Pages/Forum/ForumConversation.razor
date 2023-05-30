@@ -29,17 +29,11 @@
 @inject IToastService ToastService
 @inject AC.SD.Core.Services.ToastService toastService
 @using System.Text;
+@using RtfPipe;
+
 
 <link href="_content/AC.SD.Core/css/forum-discussion.css" rel="stylesheet" />
 
-<div style="display:none;">
-
-
-<button class="btn btn-info" @onclick="@(() => toastService.ShowToast("I'm an INFO message", AC.SD.Core.Services.ToastLevel.Info))">Info Toast</button>
-<button class="btn btn-success" @onclick="@(() => toastService.ShowToast("I'm a SUCCESS message", AC.SD.Core.Services.ToastLevel.Success))">Success Toast</button>
-<button class="btn btn-warning" @onclick="@(() => toastService.ShowToast("I'm a WARNING message", AC.SD.Core.Services.ToastLevel.Warning))">Warning Toast</button>
-<button class="btn btn-danger" @onclick="@(() => toastService.ShowToast("I'm an ERROR message", AC.SD.Core.Services.ToastLevel.Error))">Error Toast</button>
-</div>
 <div class="">
 
     @* <DxFormLayout CssClass="w-100">
@@ -247,6 +241,7 @@
                                                        @* <div>@htmlString</div>
                                                         <div>@(new MarkupString(htmlString))</div>*@
                                                         <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
+                                                       @* @item.Message*@
                                                     </p>
 
                                                     <div class="uk-card-footer">
@@ -339,15 +334,18 @@
                                                 </div>
                                             }
                                         }
-
+                                 @*       DocumentContentChanged="OnmsgContentChanged"
+                                Selection="@richSelection" SelectionChanged="OnSelectionChanged"
+                                 *@
                                         <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
-                                            <DataAnnotationsValidator />
+                                           @* <DataAnnotationsValidator />*@
                                             <DxFormLayout>
-                                                <DxFormLayoutItem ColSpanMd="12">                                                    
+                                                <DxFormLayoutItem ColSpanMd="12">
                                                     <div class="">
-                                                        <DxRichEdit @ref="@richEdit" DocumentFormat="DocumentFormat.Rtf" DocumentContent="@msgContent"
-                                                            DocumentContentChanged="OnmsgContentChanged" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple"></DxRichEdit>
-                                                    </div>
+                                                        <DxRichEdit @ref="msgrichEdit"  CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                                                       @* <DxRichEdit @ref="@msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContentChanged="OnmsgContentChanged" DocumentContent="@documentContent" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple"></DxRichEdit>
+                                                       *@
+                                                        </div>
                                                    @* <DxMemo @bind-Text="@Data.Message" NullText="Message" style="height:170px;" />
                                                     <ValidationMessage For="@(() => Data.Message)" />*@
                                                 </DxFormLayoutItem>
@@ -635,7 +633,11 @@
 <button class="btn btn-primary" @onclick="@(()=>ToastService.ShowSuccess("welcome to ass"))">Show Toast</button>
 *@
 
-@code {
+@code {   
+    Selection selection; 
+    Selection richSelection { get; set; }
+    [Parameter]
+    public EventCallback<IToolbar> CustomizeToolbar { get; set; }
     bool ErrorVisible { get; set; } = false;
     string MyError { get; set; }
     [Parameter]
@@ -648,6 +650,7 @@
     string documentFormat = "docx";
     private ElementReference OfficeContainerRef;
     DxRichEdit richEdit { get; set; }
+    DxRichEdit msgrichEdit { get; set; }
     string previewUrl;
     private string documentPreviewUrl;
     private string documentMimeType;
@@ -1022,44 +1025,82 @@
 
 
     }   
-    async Task OnmsgContentChanged(byte[] content)
+    void OnCustomizeToolbar(IToolbar toolbar)
+    {
+        //// Returns the first group
+        //IBarGroup firstGroup = toolbar.Groups[0];
+        //// Returns the Table group
+        //IBarGroup tableGroup = toolbar.Groups[RichEditToolbarGroupNames.Table];
+
+
+
+        toolbar.Groups.Clear();
+
+        // Inserts the File group at the first position in the group collection
+        //toolbar.Groups.Add(0, RichEditToolbarGroupNames.File);
+        toolbar.Groups.Add(0, RichEditToolbarGroupNames.Undo);
+        toolbar.Groups.Add(1, RichEditToolbarGroupNames.Font);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Table);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Picture);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
+
+
+
+
+    }
+
+    void OnContentRemoved(ContentRemovedEventArgs e)
+    {
+        // Handle the content removal event here
+    }
+    async Task OnSelectionChanged(Selection newSelection)
     {
         /* Surround the code that contains an asynchronous operation with a try-catch block to handle
         the OperationCanceledException. This exception is thrown when an asynchronous operation is canceled. */
         try
         {
-            documentContent = content;
+            richSelection = newSelection;
+            // Your code
+        }
+        catch (OperationCanceledException e)
+        {
+            Console.WriteLine($"{nameof(OperationCanceledException)} thrown with message: {e.Message}");
+        }
+    }
+    async Task OnmsgContentChanged(byte[] content)
+    {
 
-            var createReq = new CreateForumCoversation
-                {
+        /* Surround the code that contains an asynchronous operation with a try-catch block to handle
+        the OperationCanceledException. This exception is thrown when an asynchronous operation is canceled. */
+        try
+        {
+            msgContent = content;
 
-                    TopicID = (long.Parse(@SelectedGroup)),
-                    Message = Data.Message != null ? Data.Message : "Attachments",
-                    FileData = content,
-                    ParticipantId = applicationUser.UserID,
-                    ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
-                    StatusCodeID = 1,
-                    AddedByUserID = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    SessionId = Guid.NewGuid()
-                };
-            var result = await Mediator.Send(createReq);
+            //var createReq = new CreateForumCoversation
+            //    {
 
-            if (result == 1)
-            {
-                //var getRec = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
-                //sessionId = getRec.Last().SessionId;
+            //        TopicID = (long.Parse(@SelectedGroup)),
+            //        Message = Data.Message != null ? Data.Message : "Attachments",
+            //        FileData = content,
+            //        ParticipantId = applicationUser.UserID,
+            //        ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
+            //        StatusCodeID = 1,
+            //        AddedByUserID = applicationUser.UserID,
+            //        AddedDate = DateTime.Now,
+            //        SessionId = Guid.NewGuid()
+            //    };
+            //var result = await Mediator.Send(createReq);
 
-                //uploadUrl = GetUploadUrl();
-                //uploadComponent.UploadAllFiles();
-                await LoadData();
-                onRestText();
-                closeReply();
-            }
-            else
-            {
+            //if (result == 1)
+            //{               
+            //    await LoadData();
+            //    onRestText();
+            //    closeReply();
+            //}
+            //else
+            //{
 
-            }
+            //}
 
 
 
@@ -1229,8 +1270,9 @@
     }
     private async Task LoadData()
     {
+        await JSRuntime.InvokeAsync<string>("showLoading");
         _discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
-       OnMenuItemClick(isMenuvisible);
+        OnMenuItemClick(isMenuvisible);
         // Generate index IDs for each row
         //var indexedDiscussionList = _discussionList.Select((item, index) => new
         //{
@@ -1244,7 +1286,7 @@
         _participant = await Mediator.Send(new GetParticipantsList(long.Parse(@SelectedGroup)));
 
         _participant[1].IsEnabled = false; // Disable the second row
-
+        await JSRuntime.InvokeAsync<string>("hideLoading");
         //var plist = await Mediator.Send(new GetAllEmployeeListQuery());
         // _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
     }
@@ -1307,7 +1349,7 @@
     {
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
-        
+
 
         //var model = await Mediator.Send(new GetAllForumTypes());
         //_types = model;
@@ -1336,7 +1378,7 @@
     {
         _replyComment = null;
     }
-   async void OnMenuItemClick(string text)
+    async void OnMenuItemClick(string text)
     {
         isMenuvisible = text;
 
@@ -1372,12 +1414,41 @@
         SelectedNodes = item;
     }
     private async Task HandleValidSubmit()
-    {
+    {        
+        //var contentdd = msgContent;
+        //byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+        byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+        string htmlString = string.Empty;
+        var len = fileContent.Length;
+        //documentContent = null;            
+        
+        
+        htmlString = Encoding.UTF8.GetString(fileContent);
+        //if (fileContent != null)
+        //{
+        //    // Convert the RTF byte array to HTML string
+        //    htmlString = Rtf.ToHtml(fileContent);
+        //}
+
+        if(fileContent.Length == 480)
+        {
+            toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+            return;
+        }    
+
+
+
+        
+
+
         var createReq = new CreateForumCoversation
             {
 
                 TopicID = (long.Parse(@SelectedGroup)),
-                Message = Data.Message != null ? Data.Message : "Attachments",
+               // Message = Data.Message != null ? Data.Message : "Attachments",
+                Message = htmlString,
+                //FileData = Data.Message != null ? Encoding.UTF8.GetBytes(Data.Message) : Encoding.UTF8.GetBytes("Attachments"),
+                FileData = fileContent,
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
                 StatusCodeID = 1,
@@ -1391,12 +1462,14 @@
         {
             //var getRec = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
             //sessionId = getRec.Last().SessionId;
-           
+
             //uploadUrl = GetUploadUrl();           
             //uploadComponent.UploadAllFiles();
             await LoadData();
             onRestText();
             closeReply();
+
+            await msgrichEdit.NewDocumentAsync();
         }
         else
         {

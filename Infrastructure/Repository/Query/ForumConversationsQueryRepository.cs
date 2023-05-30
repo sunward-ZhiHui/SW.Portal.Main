@@ -295,7 +295,6 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("SessionId", forumConversations.SessionId);
                             parameters.Add("AddedDate", forumConversations.AddedDate);
                             parameters.Add("FileData", forumConversations.FileData);
-                            
 
                             var query = "INSERT INTO ForumConversations(TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData) VALUES (@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData)";
 

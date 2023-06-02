@@ -10,6 +10,9 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 
+
+
+
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -22,7 +25,7 @@
         </DxMenu>
     </div>
 </div>
-<DxGrid @ref="Grid"   
+<DxGrid @ref="Grid"  
         Data="_employeeItems"
         KeyFieldName="UserID"
         CustomizeElement="Grid_CustomizeElement"
@@ -39,11 +42,18 @@
         CssClass="ch-360 " style="height: calc(100vh - 220px);"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
-        AllowSelectRowByClick="true" SelectedDataItemsChanged="@OnSelectedDataItemsChanged">
+        AllowSelectRowByClick="true" >
     <Columns>
-        @* @bind-SelectedDataItems="SelectedDataItems"*@
-     @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
-        <DxGridDataColumn FieldName="SageID" MinWidth="80" />
+    
+  
+        <DxGridDataColumn FieldName="SageID" MinWidth="80" >
+        @* <CellDisplayTemplate>
+                @{
+                    var item = (ViewEmployee)context.DataItem;
+                }
+                <DxButton IconCssClass="btnDelete fas fa-trash" Enabled=@(item.LoginID != "crt") />
+            </CellDisplayTemplate>*@
+            </DxGridDataColumn>
         <DxGridDataColumn FieldName="FirstName"  />
         <DxGridDataColumn FieldName="LastName" />
         <DxGridDataColumn FieldName="NickName" MinWidth="80" />
@@ -117,7 +127,6 @@
 
 
     GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }
-    IReadOnlyList<object> SelectedDataItems { get; set; }
     IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     bool PopupVisible { get; set; } = false;
     DxPopup? popup;
@@ -129,12 +138,20 @@
     bool ResetEnabled { get; set; } = true;
     bool UnlockEnabled { get; set; } = false;
     IGrid Grid { get; set; }
+
+
+
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllEmployeeListQuery());
         _employeeItems = model;
+    
+
+
         await jsRuntime.InvokeAsync<string>("hideLoading");
+
+
 
     }
 
@@ -172,7 +189,9 @@
                 };
             var response = await Mediator.Send(request);
             PopupVisible = false;
+            InvokeAsync(StateHasChanged);
             toastService.ShowToast("Resetpassword Successfully.", AC.SD.Core.Services.ToastLevel.Success);
+           
         }
     }
 
@@ -185,6 +204,13 @@
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
+        //if (e.ElementType == GridElementType.DataRow && (System.String)e.Grid.GetRowValue(e.VisibleIndex, "LoginID") == "AJW002MY")
+        //{
+        //    //   e.CssClass = "highlighted-item";
+        //    ///  e.Style = " input[type > td]:disabled ";
+        //    // e.CssClass += "disabled-row";
+        //} 
+
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
         {
             e.CssClass = "alt-item";
@@ -210,27 +236,33 @@
         PopupVisible = false;
     }
     void OnRowClick(GridRowClickEventArgs e)
-    {  
-       var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UserID");
-      _selectedItems = _employeeItems.FirstOrDefault(f => f.UserID == (long?)UniqueId);
-      
-       if (_selectedItems.Locked == true)
-          {
-                UnlockEnabled = true;
-           }
-       else
+    {
+
+
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UserID");
+        _selectedItems = _employeeItems.FirstOrDefault(f => f.UserID == (long?)UniqueId);
+
+        if (_selectedItems.Locked == true)
+        {
+            UnlockEnabled = true;
+        }
+        else
         {
             UnlockEnabled = false;
         }
-         
-              ResetEnabled = true;
+
+        ResetEnabled = true;
         StateHasChanged();
-    
+
+
+       
+
+           
+      
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
-        SelectedDataItems = null;
-
         PopupVisible = false;
         UpdateDataAsync();
     }
@@ -253,12 +285,6 @@
     //     Edit the selected person
     //}
   
-    void OnSelectedDataItemsChanged(IReadOnlyList<object> newSelection)
-    {
-    //    if (newSelection is IGridSelectionChanges changes) 
-    //    {
-    //        var invalid = changes.SelectedDataItems.Cast<ViewEmployee>().Where(x => x.LoginID == "AJW002MY").ToList();
-    //        invalid.ForEach(x => Grid.DeselectDataItem(x));
-    //     }
-     }
- }
+    
+   
+}

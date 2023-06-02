@@ -1833,3 +1833,10 @@ body,
 .non-selectable-row .dxbs-grid-selection-cell {
     pointer-events: none;
 }
+.input[type=td]:disabled {
+    background: #dddddd;
+}
+.highlighted-item > td {
+   background-color: #dddddd;
+    
+}

@@ -378,9 +378,13 @@
      void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
-        if(SelectedDataItems.Count > 0)
+        if(SelectedDataItems.Count > 1)
         {
             EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
         }
     }
 }

@@ -408,18 +408,18 @@
                 {
 
                     _selectlst = _types.FirstOrDefault(f => f.ID == forumTypes.ID);
-                   
+
 
                 }
-        } 
+            } 
             Grid.StartEditDataItemAsync(_selectlst);
-    }
-      else
+        }
+        else
         {
-         Grid.StartEditDataItemAsync(_selectedItems);
-       }
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
 
-       // Grid.SelectDataItems(SelectedDataItems);
+        // Grid.SelectDataItems(SelectedDataItems);
 
 
     }
@@ -462,11 +462,15 @@
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
-        
-            if (SelectedDataItems.Count > 1)
-            {
-                EditEnabled = false;
-            }
+
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
         
     }
     private async Task LoadData()

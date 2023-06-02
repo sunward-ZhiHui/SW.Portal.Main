@@ -175,7 +175,7 @@ namespace Infrastructure.Repository.Query
                                         AU.UserName,
                                         AU.UserID,
                                         FC.ReplyId,
-                                        FC.SessionId
+                                        FC.SessionId,FC.FileData
                                     FROM
                                         ForumConversations FC
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
@@ -200,7 +200,7 @@ namespace Infrastructure.Repository.Query
 
                         foreach (var conversation in topic.ReplyConversation)
                         {
-                            var subQueryReplyDocs = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath from ForumConversations FC
+                            var subQueryReplyDocs = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath,FC.FileData from ForumConversations FC
                                                         INNER JOIN Documents D ON D.SessionID = FC.SessionId
                                                         WHERE D.SessionID = @SessionID";
                             var parametersReplyDocs = new DynamicParameters();

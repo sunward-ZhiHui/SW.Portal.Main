@@ -295,18 +295,38 @@
                                                                     {
                                                                         <div class="lstcoversationrply">
                                                                             <div><span style="font-weight:600">@item.UserName</span>, @item.AddedDate</div>
-                                                                            <div>@items.Message</div>
+                                                                            @*<div>@items.Message</div>*@
+                                                                            <div>
+                                                                                <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@items.FileData" />
+                                                                            </div>
                                                                             @if (items.documents != null && items.documents.Any())
                                                                             {
                                                                                 @foreach (var attachment in items.documents)
                                                                                 {
                                                                                     <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
-                                                                                }
+                                                                                }                                                                              
                                                                             }
-                                                                        </div>
+                                                                            @{
+                                                                                string firststring = "#overviewDemoSelectButton_";
+                                                                                Guid? secondstring = items.SessionId;
+                                                                                string extt = firststring + secondstring;
 
-                                                                       
+                                                                            }                                                                          
+
+                                                                            <div id="overviewDemoSelectButton_@items.SessionId" class="tag fa fa-plus-square"></div>
+                                                                            <DxUpload @ref="MyUpload" Name="files"
+                                                                              AcceptedFileTypes=@AcceptedFileTypes
+                                                                              Visible="@UploadVisible"
+                                                                              ExternalSelectButtonCssSelector="@extt"
+                                                                              UploadUrl="@GetDocUploadUrl(@items.SessionId)"
+                                                                              Id="@extt"
+                                                                              SelectedFilesChanged="@SelectedFilesChanged1"
+                                                                              CssClass="w-100"
+                                                                              FileUploaded="@HandleUploadSuccess">
+                                                                            </DxUpload>
+                                                                        </div>                                                                                                                                               
                                                                     }
+
                                                                 }
                                                             }
                                                         </div>
@@ -329,7 +349,8 @@
                                                 <div class="replybox">
                                                     <div> <i class="fa fa-reply" aria-hidden="true"></i> Reply</div>
                                                     <div class="closebtn" @onclick="closeReply">X</div>
-                                                    <p>@item.Message</p>
+                                                    @*<p>@item.Message</p>*@
+                                                    <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
                                                     <div>@item.UserName  , @item.AddedDate</div>
                                                 </div>
                                             }
@@ -337,42 +358,47 @@
                                  @*       DocumentContentChanged="OnmsgContentChanged"
                                 Selection="@richSelection" SelectionChanged="OnSelectionChanged"
                                  *@
-                                        <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
-                                           @* <DataAnnotationsValidator />*@
-                                            <DxFormLayout>
-                                                <DxFormLayoutItem ColSpanMd="12">
-                                                    <div class="">
-                                                        <DxRichEdit @ref="msgrichEdit"  CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
-                                                       @* <DxRichEdit @ref="@msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContentChanged="OnmsgContentChanged" DocumentContent="@documentContent" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple"></DxRichEdit>
-                                                       *@
+                                 @if(isCommand)
+                                        {
+                                            
+                                            <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
+                                                @* <DataAnnotationsValidator />*@
+                                                <DxFormLayout>
+                                                    <DxFormLayoutItem ColSpanMd="12">
+                                                        <div class="">
+                                                            <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                                                            @* <DxRichEdit @ref="@msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContentChanged="OnmsgContentChanged" DocumentContent="@documentContent" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple"></DxRichEdit>
+                                                *@
                                                         </div>
-                                                   @* <DxMemo @bind-Text="@Data.Message" NullText="Message" style="height:170px;" />
-                                                    <ValidationMessage For="@(() => Data.Message)" />*@
-                                                </DxFormLayoutItem>
-                                                <DxFormLayoutItem ColSpanMd="12">
-                                                    <DxButton SubmitFormOnClick="true"
+                                                        @* <DxMemo @bind-Text="@Data.Message" NullText="Message" style="height:170px;" />
+                                            <ValidationMessage For="@(() => Data.Message)" />*@
+                                                    </DxFormLayoutItem>
+                                                    <DxFormLayoutItem ColSpanMd="12">
+                                                        <DxButton SubmitFormOnClick="true"
                                                       Text=""
                                                       CssClass="fa fa-paper-plane sndrot"
-                                                              style="float:right"
+                                                                  style="float:right"
                                                       RenderStyle="ButtonRenderStyle.Secondary" />
-                                                    <div style="display:flex;" class="attmode">
-                                                        <div @onclick="@(() => isFileUpload = true)" class="fa fa-paperclip cdspcc" aria-hidden="true"></div>
-                                                        @*<DxUpload @ref="uploadComponent" Name="files" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded"></DxUpload>*@
-                                                        <div class="fa fa-ellipsis-v cdspcc" aria-hidden="true"></div>                                                       
-                                                    </div>
+                                                        <div style="display:flex;" class="attmode">
+                                                            <div @onclick="@(() => isFileUpload = true)" class="fa fa-paperclip cdspcc" aria-hidden="true"></div>
+                                                            @*<DxUpload @ref="uploadComponent" Name="files" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded"></DxUpload>*@
+                                                            <div class="fa fa-ellipsis-v cdspcc" aria-hidden="true"></div>
+                                                        </div>
 
 
-                                                    @*   <DxButton RenderStyle="ButtonRenderStyle.Secondary"
+                                                        @*   <DxButton RenderStyle="ButtonRenderStyle.Secondary"
                                             Text="Close"
                                             style="color: white;"
                                             Click="@(() => isComponentVisible = false)"
                                             IconCssClass="btn-icon-undo"
                                             CssClass="me-1 btn-success" />*@
 
-                                                </DxFormLayoutItem>
-                                            </DxFormLayout>
-                                        </EditForm>
+                                                    </DxFormLayoutItem>
+                                                </DxFormLayout>
+                                            </EditForm>
 
+                                        }
+                                       
                                         @* <DxRichEdit Height="500px" Width="100%"></DxRichEdit>*@
 
                                     </div>
@@ -633,7 +659,7 @@
 <button class="btn btn-primary" @onclick="@(()=>ToastService.ShowSuccess("welcome to ass"))">Show Toast</button>
 *@
 
-@code {   
+@code {
     Selection selection; 
     Selection richSelection { get; set; }
     [Parameter]
@@ -696,6 +722,7 @@
     bool isComponentVisible = true;
     bool isEnabled { get; set; } = false;
     bool isAddParticipant = false;
+    bool isCommand = false;
     bool isEllipsis = false;
     private List<Documents>? _topicDocList;
     IEnumerable<(ForumTypes, int)> Items;
@@ -722,8 +749,10 @@
     string styleClass = "";
     string MessageHeader = "Error";
     string MessageBody = "";
-    Guid? sessionId;
-    private string uploadUrl;
+    Guid? _sessionId;
+    private string uploadUrl;   
+
+    byte[] myBytes = Encoding.UTF8.GetBytes("Attachments");
 
     [Parameter]
     public ViewEmployee _employeeDatas { get; set; }
@@ -739,12 +768,17 @@
     private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
     IEnumerable<UploadFileInfo> Filess { get; set; }
 
+    private async Task ScrollToElement()
+    {
+        await JSRuntime.InvokeVoidAsync("scrollToElement", ".msgOpen");
+    }
     protected async void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
         SelectedFilesCount = files.ToList().Count;       
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
         uploadSuccess = false;
-        await UploadFiles();
+        if(files.ToList().Count > 0)
+            await UploadFiles();
     }
     bool UploadVisible1 { get; set; } = false;
     protected void SelectedFilesChanged1(IEnumerable<UploadFileInfo> files)
@@ -762,8 +796,8 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {
-            // await InitializeViewer();
+        {            
+            await JSRuntime.InvokeVoidAsync("window.addEventListener", "scroll", DotNetObjectReference.Create(this).Value, "HandleScroll");
         }
 
 
@@ -771,6 +805,37 @@
         {
             // Invoke another function here
             //AnotherFunction();
+        }
+    }
+
+    [JSInvokable("handleScroll")]
+    public void HandleScroll(string scrollDirection)
+    {
+        if (scrollDirection == "down")
+        {
+            // Scroll down logic
+            var scrollY = JSRuntime.InvokeAsync<int>("window.scrollY").Result;
+            var scrollDirection1 = scrollY < 100 ? "up" : "down";
+
+            if (scrollDirection1 == "up")
+            {
+                //isScrollingUp = true;
+                //isScrollingDown = false;
+            }
+            else
+            {
+                //isScrollingUp = false;
+                //isScrollingDown = true;
+            }
+
+            StateHasChanged();
+
+
+
+        }
+        else if (scrollDirection == "up")
+        {
+            // Scroll up logic
         }
     }
     private async Task InitializeViewer()
@@ -839,7 +904,7 @@
         //var sessionId = Guid.NewGuid();
 
         string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + sessionId;
+        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + _sessionId;
         return url.ToString();
     }
     private void closeUploadFiles()
@@ -849,21 +914,24 @@
     }
     private async Task UploadFiles()
     {
-        //var lst = SelectedFilesCount;
+        //var lst = SelectedFilesCount;    
+        byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf).ConfigureAwait(false);
 
         var createReq = new CreateForumCoversation
             {
 
                 TopicID = (long.Parse(@SelectedGroup)),
                 Message = Data.Message != null ? Data.Message : "Attachments",
+                FileData = fileContent.Length == 480 ? myBytes : fileContent,
+                //FileData = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf).ConfigureAwait(false),
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
                 StatusCodeID = 1,
                 AddedByUserID = applicationUser.UserID,
                 AddedDate = DateTime.Now,
-                SessionId = Guid.NewGuid()
+                SessionId = _sessionId
             };
-        sessionId = createReq.SessionId;
+        // _sessionId = createReq.SessionId;
         var result = await Mediator.Send(createReq);       
         isFileUpload = false;
         //uploadComponent.UploadAllFiles();
@@ -873,6 +941,9 @@
         await LoadData();
         onRestText();
         closeReply();
+        onloadSession();
+        //HandleScroll("down");
+        await msgrichEdit.NewDocumentAsync();
         //uploadComponent.UploadAllFiles();
     }
     public void ClearUploadedFiles()
@@ -1283,6 +1354,7 @@
         _headTopic = await Mediator.Send(new GetByIdTopics(long.Parse(@SelectedGroup)));
         isEnabled = true;
         isEllipsis = true;
+        isCommand = true;
         _participant = await Mediator.Send(new GetParticipantsList(long.Parse(@SelectedGroup)));
 
         _participant[1].IsEnabled = false; // Disable the second row
@@ -1350,7 +1422,7 @@
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
 
-
+        onloadSession();
         //var model = await Mediator.Send(new GetAllForumTypes());
         //_types = model;
         //Items = model.Select((item, index) => (item, index));
@@ -1362,6 +1434,10 @@
         _TreeView = await Mediator.Send(new GetTreeList(applicationUser.UserID));
 
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
+    }
+    void onloadSession()
+    {
+        _sessionId = Guid.NewGuid();
     }
     void getConversation()
     {
@@ -1387,12 +1463,14 @@
             isComponentVisible = true;
             isAddParticipant = false;
             isEllipsis = true;
+            isCommand = true;
         }
         else if (text == "Files")
         {
             isAddParticipant = false;
             isComponentVisible = false;
             isEllipsis = false;
+            isCommand = false;
             await loadTopicDocList();
         }
         else if (text == "AddParticipants")
@@ -1400,12 +1478,14 @@
             isAddParticipant = true;
             isComponentVisible = false;
             isEllipsis = false;
+            isCommand = false;
         }
         else
         {
             isAddParticipant = false;
             isComponentVisible = false;
             isEllipsis = false;
+            isCommand = false;
         }
     }
 
@@ -1421,8 +1501,8 @@
         string htmlString = string.Empty;
         var len = fileContent.Length;
         //documentContent = null;            
-        
-        
+
+
         htmlString = Encoding.UTF8.GetString(fileContent);
         //if (fileContent != null)
         //{
@@ -1435,10 +1515,6 @@
             toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
             return;
         }    
-
-
-
-        
 
 
         var createReq = new CreateForumCoversation
@@ -1454,7 +1530,7 @@
                 StatusCodeID = 1,
                 AddedByUserID = applicationUser.UserID,
                 AddedDate = DateTime.Now,
-                SessionId = Guid.NewGuid()
+                SessionId = _sessionId
             };
         var result = await Mediator.Send(createReq);
 
@@ -1468,7 +1544,8 @@
             await LoadData();
             onRestText();
             closeReply();
-
+            onloadSession();
+           // HandleScroll("down");
             await msgrichEdit.NewDocumentAsync();
         }
         else

@@ -13,6 +13,7 @@ using Application.Response;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Application.Queries;
 using Microsoft.AspNetCore.Http;
+using DevExpress.Data.Filtering.Helpers;
 
 namespace Infrastructure.Repository.Query
 {
@@ -264,6 +265,8 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("AddedDate", forumTopics.AddedDate);
                         parameterss.Add("StatusCodeID", forumTopics.StatusCodeID);
                         parameterss.Add("SessionId", forumTopics.SessionId);
+                        parameterss.Add("FileData", forumTopics.FileData);
+                        
 
                         parameterss.Add("To", forumTopics.To);
                         parameterss.Add("CC", forumTopics.CC);

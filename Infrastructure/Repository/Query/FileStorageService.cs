@@ -28,13 +28,14 @@ namespace Infrastructure.Repository.Query
         {
             _hostingEnvironment = host;
         }
-        public async Task<bool> SaveFileAsync(IFormFile file, Guid? SessionId)
+        public async Task<bool> SaveFileAsync(UploadFileInfo file, Guid? SessionId)
         {
             // Implement the file saving logic here
-            // You can use the necessary mechanisms to save the file to the desired location or storage
+            // You can use the necessary mechanisms to save the file to the desired location or storage          
 
             try
             {
+                string sourceFilePath = file.Name;
                 SessionId = Guid.NewGuid();
                 var fileName = Guid.NewGuid().ToString() + "_" + file.Name;
                 var filePath = Path.Combine("Uploads", fileName);              
@@ -74,7 +75,10 @@ namespace Infrastructure.Repository.Query
 
                 using (var targetStream = File.Create(serverPath))
                 {
-                    await file.CopyToAsync(targetStream);
+                    // await file.CopyToAsync(targetStream);
+
+                    // Copy the file to the destination folder
+                    File.Copy(sourceFilePath, serverPath, true);
                     targetStream.Flush();
                 }
 
@@ -91,8 +95,8 @@ namespace Infrastructure.Repository.Query
                             {
                                 var parameters = new DynamicParameters();
                                 parameters.Add("FileName", file.Name);
-                                parameters.Add("ContentType", file.ContentType);
-                                parameters.Add("FileSize", file.Length);
+                                parameters.Add("ContentType", file.Type);
+                                parameters.Add("FileSize", file.Size);
                                 parameters.Add("UploadDate", DateTime.Now);
                                 parameters.Add("AddedDate", DateTime.Now);
                                 parameters.Add("SessionId", SessionId);

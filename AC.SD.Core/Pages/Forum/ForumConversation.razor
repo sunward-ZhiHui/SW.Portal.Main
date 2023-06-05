@@ -155,7 +155,7 @@
                                 @foreach (var item in _headTopic)
                                 {
                                     <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
-                                        <div class="uk-card-header" style="height: 50px;">
+                                        <div class="uk-card-header" style="height: 50px; border-bottom: none;">
                                             <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
                                                 <div class="uk-card-title uk-first-column" style="font-size: 16px;">
                                                     @item.TicketNo - @item.TopicName
@@ -214,13 +214,15 @@
                                                     <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
                                                         <div class="uk-card-title uk-first-column" style="margin-right:10px;">@item.UserName</div>
                                                         <span class="uk-label uk-margin-auto-left">@item.AddedDate</span>
+                                                        <div title="Assigned To" class="handline" style="margin-top: -3px; float: right;" @onclick="@(() => assignedList(item.ID))"> <i class="fa fa-users" aria-hidden="true"></i> </div>
                                                         <span class="uk-label uk-margin-auto-left" style="float: right; margin-right: 15px;">
                                                             <div class="handline" @onclick="@(() => onreply(item.ID))">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" style="margin-top: -5px;" width="16" height="16" fill="currentColor" class="bi bi-reply" viewBox="0 0 16 16">
                                                                     <path d="M6.598 5.013a.144.144 0 0 1 .202.134V6.3a.5.5 0 0 0 .5.5c.667 0 2.013.005 3.3.822.984.624 1.99 1.76 2.595 3.876-1.02-.983-2.185-1.516-3.205-1.799a8.74 8.74 0 0 0-1.921-.306 7.404 7.404 0 0 0-.798.008h-.013l-.005.001h-.001L7.3 9.9l-.05-.498a.5.5 0 0 0-.45.498v1.153c0 .108-.11.176-.202.134L2.614 8.254a.503.503 0 0 0-.042-.028.147.147 0 0 1 0-.252.499.499 0 0 0 .042-.028l3.984-2.933zM7.8 10.386c.068 0 .143.003.223.006.434.02 1.034.086 1.7.271 1.326.368 2.896 1.202 3.94 3.08a.5.5 0 0 0 .933-.305c-.464-3.71-1.886-5.662-3.46-6.66-1.245-.79-2.527-.942-3.336-.971v-.66a1.144 1.144 0 0 0-1.767-.96l-3.994 2.94a1.147 1.147 0 0 0 0 1.946l3.994 2.94a1.144 1.144 0 0 0 1.767-.96v-.667z" />
                                                                 </svg>  Reply
-                                                            </div>                                                           
+                                                            </div>                                                            
                                                         </span>
+                                                        
                                                     </div>
                                                 </div>
                                                 <div class="uk-card-body">
@@ -295,6 +297,7 @@
                                                                     {
                                                                         <div class="lstcoversationrply">
                                                                             <div><span style="font-weight:600">@item.UserName</span>, @item.AddedDate</div>
+                                                                            <div class="handline" title="Assigned To" style="margin-top: -20px; float: right;" @onclick="@(() => assignedList(item.ID))"> <i class="fa fa-users" aria-hidden="true"></i> </div>
                                                                             @*<div>@items.Message</div>*@
                                                                             <div>
                                                                                 <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@items.FileData" />
@@ -341,7 +344,7 @@
 
                                 @if (isComponentVisible)
                                 {
-                                    <div class="open-button">
+                                    <div class="open-button-old" style="width:99.5%">
                                         @if (_replyComment != null && _replyComment.Any())
                                         {
                                             @foreach (var item in _replyComment)
@@ -360,10 +363,19 @@
                                  *@
                                  @if(isCommand)
                                         {
-                                            
+
                                             <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
                                                 @* <DataAnnotationsValidator />*@
                                                 <DxFormLayout>
+                                                    <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
+                                                        <DxTagBox NullText="Select Assign To..."
+                                                      Data="@_assigntoItems"
+                                                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                      ValueFieldName="UserID"
+                                                      TextFieldName="FirstName"
+                                                      @bind-Values="@Data.AssigntoIds"
+                                                      CssClass="cw-480" />
+                                                    </DxFormLayoutItem>
                                                     <DxFormLayoutItem ColSpanMd="12">
                                                         <div class="">
                                                             <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
@@ -584,6 +596,29 @@
 </DxPopup>
 
 
+<DxPopup @bind-Visible="@isAssignToVisible" HeaderText="Assigned To">
+    <BodyTemplate Context="PopupContext">      
+        <DxGrid @ref="Grid" Data="_conversationAssignTo"
+                KeyFieldName="ID"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                style="height:calc(100vh - 285px);min-height:400px !important"
+                CssClass="ch-360">
+            <Columns>                          
+                <DxGridDataColumn FieldName="RowIndex" Width="35" Caption="#" />
+                <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
+                <DxGridDataColumn FieldName="LastName" />
+            </Columns>
+        </DxGrid>
+
+    </BodyTemplate>
+</DxPopup>
+
+
 <DxPopup @bind-Visible="@isAllPlistVisible" HeaderText="Add Participants">
     <BodyTemplate Context="PopupContext">
         <div>
@@ -719,6 +754,7 @@
     bool isDueDate =false;
     bool isTopicClosed = false;
     bool isAllPlistVisible = false;
+    bool isAssignToVisible = false;
     bool isComponentVisible = true;
     bool isEnabled { get; set; } = false;
     bool isAddParticipant = false;
@@ -736,6 +772,7 @@
     TopicParticipant _participantLst { get; set; }
     Documents _documents { get; set; }
     private List<ViewEmployee>? _allparticipant;
+    private List<ForumConversationAssignTo>? _conversationAssignTo;
     private List<ViewEmployee>? _selectedlistpartlist;
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;
     public ForumTypes SelectedNodes { get; set; }
@@ -751,6 +788,7 @@
     string MessageBody = "";
     Guid? _sessionId;
     private string uploadUrl;   
+    private List<ForumAssignToList>? _assigntoItems;
 
     byte[] myBytes = Encoding.UTF8.GetBytes("Attachments");
 
@@ -870,6 +908,7 @@
         await AnotherFunction();
         // await TriggerCancelIcon();
     }
+
     async Task OnButtonClick()
     {
         var FirstFile = Filess.First();
@@ -923,6 +962,7 @@
                 TopicID = (long.Parse(@SelectedGroup)),
                 Message = Data.Message != null ? Data.Message : "Attachments",
                 FileData = fileContent.Length == 480 ? myBytes : fileContent,
+                AssigntoIds = Data.AssigntoIds.Count() == 0 ? _assigntoItems.Select(s => s.UserID).ToList() : Data.AssigntoIds,
                 //FileData = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf).ConfigureAwait(false),
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
@@ -1263,6 +1303,19 @@
         _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
         DocPopupVisible = true;
     }
+    private async void assignedList(long Id)
+    {
+        _conversationAssignTo = await Mediator.Send(new GetConversationAssignTo(Id));
+        if (_conversationAssignTo.Count > 0)
+        {
+            isAssignToVisible = true;
+        }
+        else
+        {
+            toastService.ShowToast("No data found", AC.SD.Core.Services.ToastLevel.Error);
+            //isAssignToVisible = false;
+        }
+    }
     private async void SubmitDocDelete(long Id)
     {
         if (Id > 0)
@@ -1343,6 +1396,17 @@
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
         _discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
+
+         _assigntoItems = await Mediator.Send(new GetAssignToList(long.Parse(@SelectedGroup)));        
+         var topicToList = await Mediator.Send(new GetTopicToList(long.Parse(@SelectedGroup)));
+        if (topicToList != null)
+        {
+             Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
+        }
+      
+       // Data.AssigntoIds = _assigntoItems.Take(1);
+
+
         OnMenuItemClick(isMenuvisible);
         // Generate index IDs for each row
         //var indexedDiscussionList = _discussionList.Select((item, index) => new
@@ -1423,6 +1487,7 @@
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
 
         onloadSession();
+       
         //var model = await Mediator.Send(new GetAllForumTypes());
         //_types = model;
         //Items = model.Select((item, index) => (item, index));
@@ -1525,6 +1590,7 @@
                 Message = htmlString,
                 //FileData = Data.Message != null ? Encoding.UTF8.GetBytes(Data.Message) : Encoding.UTF8.GetBytes("Attachments"),
                 FileData = fileContent,
+                AssigntoIds = Data.AssigntoIds.Count() == 0 ? _assigntoItems.Select(s => s.UserID).ToList() : Data.AssigntoIds,
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
                 StatusCodeID = 1,
@@ -1534,7 +1600,7 @@
             };
         var result = await Mediator.Send(createReq);
 
-        if (result == 1)
+        if (result > 1)
         {
             //var getRec = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
             //sessionId = getRec.Last().SessionId;

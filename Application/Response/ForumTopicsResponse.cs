@@ -31,6 +31,7 @@ namespace Application.Response
         public int SeqNo { get; set; }
         public string? SubjectName { get; set; }
         public string? label { get; set; }
+        public byte[] FileData { get; set; }
         public List<ForumTopicsResponse>? TopicList { get; set; }
 
         public ForumTopicsResponse()

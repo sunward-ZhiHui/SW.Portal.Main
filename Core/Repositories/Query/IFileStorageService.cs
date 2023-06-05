@@ -15,6 +15,6 @@ namespace Core.Repositories.Query
     public interface IFileStorageService : IQueryRepository<Documents>
     {
 
-        Task<bool> SaveFileAsync(IFormFile file,Guid? SessionId);
+        Task<bool> SaveFileAsync(UploadFileInfo file,Guid? SessionId);
     }
 }

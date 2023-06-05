@@ -5,6 +5,7 @@ using Core.Repositories.Command.Base;
 using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,6 +72,25 @@ namespace Application.Handlers.QueryHandlers
         public async Task<long> Handle(CreateForumCoversation request, CancellationToken cancellationToken)
         {
             var req = await _conversationQueryRepository.Insert(request);
+
+            var listData = request.AssigntoIds.ToList();
+            if (listData.Count > 0)
+            {
+                request.AssigntoIds.ToList().ForEach(a =>
+                {
+                    var conversationAssignTo = new ForumConversationAssignTo();
+                    conversationAssignTo.ConversationId = req;
+                    conversationAssignTo.TopicId = request.TopicID;
+                    conversationAssignTo.UserId = a;
+                    conversationAssignTo.StatusCodeID = request.StatusCodeID;
+                    conversationAssignTo.AddedByUserID = request.AddedByUserID;
+                    conversationAssignTo.SessionId = request.SessionId;
+                    conversationAssignTo.AddedDate = request.AddedDate;
+                    _conversationQueryRepository.InsertAssignTo(conversationAssignTo);
+                });
+            }
+
+
             return req;
         }
     }
@@ -134,6 +154,42 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<ViewEmployee>> Handle(GetAllParticipantListQuery request, CancellationToken cancellationToken)
         {
             return (List<ViewEmployee>)await _conversationQueryRepository.GetAllParticipantAsync(request.TopicId);
+        }
+    }
+    public class GetAssignToListHandler : IRequestHandler<GetAssignToList, List<ForumAssignToList>>
+    {
+        private readonly IForumConversationsQueryRepository _conversationQueryRepository;
+        public GetAssignToListHandler(IForumConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<ForumAssignToList>> Handle(GetAssignToList request, CancellationToken cancellationToken)
+        {
+            return (List<ForumAssignToList>)await _conversationQueryRepository.GetAllAssignToListAsync(request.TopicId);
+        }
+    }
+    public class GetTopicToListHandler : IRequestHandler<GetTopicToList, List<ForumTopicTo>>
+    {
+        private readonly IForumConversationsQueryRepository _conversationQueryRepository;
+        public GetTopicToListHandler(IForumConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<ForumTopicTo>> Handle(GetTopicToList request, CancellationToken cancellationToken)
+        {
+            return (List<ForumTopicTo>)await _conversationQueryRepository.GetTopicToListAsync(request.TopicId);
+        }
+    }
+    public class GetConversationAssignToHandler : IRequestHandler<GetConversationAssignTo, List<ForumConversationAssignTo>>
+    {
+        private readonly IForumConversationsQueryRepository _conversationQueryRepository;
+        public GetConversationAssignToHandler(IForumConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<ForumConversationAssignTo>> Handle(GetConversationAssignTo request, CancellationToken cancellationToken)
+        {
+            return (List<ForumConversationAssignTo>)await _conversationQueryRepository.GetConversationAssignToList(request.ConversationId);
         }
     }
 }

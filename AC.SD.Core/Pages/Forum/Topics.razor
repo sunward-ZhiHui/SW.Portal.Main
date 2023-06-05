@@ -15,6 +15,11 @@
 @using System.Reflection;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/ForumTopics"
+<style>
+    .txtEditorMsg {
+        height: 180px;
+    }
+</style>
 <div class="card w-100 tooltips" style="margin-bottom:10px;">
     <div class="card-body p-0 tooltiptops">
         <div class="row">
@@ -241,8 +246,9 @@
                             </DxListBox>*@
                         </DxFormLayoutItem>
                         <DxFormLayoutItem ColSpanMd="12">  
-                            <DxMemo @bind-Text="@Data.Description" NullText="Description" ShowValidationIcon="true" Rows="4" />
-                            <ValidationMessage For="@(() => Data.Description)" />
+                          @*  <DxMemo @bind-Text="@Data.Description" NullText="Description" ShowValidationIcon="true" Rows="4" />*@
+                            <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                           @* <ValidationMessage For="@(() => Data.Description)" />*@
                         </DxFormLayoutItem>
 
                    @*     <DxFormLayoutItem ColSpanMd="12">                          
@@ -325,7 +331,7 @@
     string styleClass = "";
     string MessageHeader = "Error";
     string MessageBody = "";
-
+    DxRichEdit msgrichEdit { get; set; }
     IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     bool IsOpen { get; set; } = false;
 
@@ -375,7 +381,19 @@
             ");
         }
     }
+    void OnCustomizeToolbar(IToolbar toolbar)
+    {
+       
+        toolbar.Groups.Clear();
 
+        // Inserts the File group at the first position in the group collection
+        //toolbar.Groups.Add(0, RichEditToolbarGroupNames.File);
+        toolbar.Groups.Add(0, RichEditToolbarGroupNames.Undo);
+        toolbar.Groups.Add(1, RichEditToolbarGroupNames.Font);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Table);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Picture);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
+    }
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     //GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }   
@@ -534,6 +552,9 @@
         }
 
 
+        byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+
+
         //var slsls = participantIds.Distinct().ToList();
         string participantidsString = string.Join(",", participantIds); // convert the array to a comma-separated string
         string toidsString = string.Join(",", selectedToIds); // convert the array to a comma-separated string
@@ -561,6 +582,7 @@
                     CategoryId = Data.CategoryId,
                     StartDate = Data.StartDate,
                     Description = Data.Description,
+                    FileData = fileContent,
                     StatusCodeID = 1,
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,

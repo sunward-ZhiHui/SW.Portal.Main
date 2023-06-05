@@ -53,5 +53,29 @@ namespace Application.Queries
             this.TopicId = TopicId;
         }
     }
+    public class GetAssignToList : PagedRequest, IRequest<List<ForumAssignToList>>
+    {
+        public long TopicId { get; set; }
+        public GetAssignToList(long topicId)
+        {
+            this.TopicId = topicId;
+        }
+    }
+    public class GetTopicToList : PagedRequest, IRequest<List<ForumTopicTo>>
+    {
+        public long TopicId { get; set; }
+        public GetTopicToList(long topicId)
+        {
+            this.TopicId = topicId;
+        }
+    }
+    public class GetConversationAssignTo : PagedRequest, IRequest<List<ForumConversationAssignTo>>
+    {
+        public long ConversationId { get; set; }
+        public GetConversationAssignTo(long Id)
+        {
+            this.ConversationId = Id;
+        }
+    }
 
 }

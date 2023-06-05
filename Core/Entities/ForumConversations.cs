@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,9 @@ namespace Core.Entities
         public string UserEmail { get; set; }
         public List<Documents>? documents { get; set; }
         public byte[] FileData { get; set; }
+
+        [NotMapped]
+        public IEnumerable<long> AssigntoIds { get; set; }
 
     }
 }

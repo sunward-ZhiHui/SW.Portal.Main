@@ -10,7 +10,7 @@ namespace Application.Queries
 {
     public class UploadFilesRequest : IRequest<bool>
     {
-        public List<IFormFile> Files { get; set; }
+        public List<UploadFileInfo>? Files { get; set; }
         public Guid SessionId { get; set; }
     }
     public class DownloadFileRequest : IRequest<Documents>

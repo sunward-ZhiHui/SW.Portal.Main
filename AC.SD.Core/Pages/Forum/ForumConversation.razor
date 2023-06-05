@@ -1,4 +1,5 @@
 ﻿@using Application.Commands;
+@using Application.Common.Helper;
 @using Application.Queries;
 @using Application.Response;
 @using Microsoft.AspNetCore.Http;
@@ -30,7 +31,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @using System.Text;
 @using RtfPipe;
-
+@inject Application.Common.Helper.Helper  dateformathelper
 
 <link href="_content/AC.SD.Core/css/forum-discussion.css" rel="stylesheet" />
 
@@ -213,7 +214,7 @@
                                                 <div class="uk-card-header">
                                                     <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
                                                         <div class="uk-card-title uk-first-column" style="margin-right:10px;">@item.UserName</div>
-                                                        <span class="uk-label uk-margin-auto-left">@Application.Common.DateFormatHelper.FormatDateTime(@item.AddedDate)</span>
+                                                        <span class="uk-label uk-margin-auto-left">@Application.Common.Helper.Helper.FormatDate(@item.AddedDate)</span>
                                                         <div title="Assigned To" class="handline" style="margin-top: -3px; float: right;" @onclick="@(() => assignedList(item.ID))"> <i class="fa fa-users" aria-hidden="true"></i> </div>
                                                         <span class="uk-label uk-margin-auto-left" style="float: right; margin-right: 15px;">
                                                             <div class="handline" @onclick="@(() => onreply(item.ID))">

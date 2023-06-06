@@ -456,7 +456,10 @@
         Data = new ForumTopics();
         SelectedDataItems = null;
         SelectedCCItems = null;
-        SelectedToItems = null;
+        SelectedToItems = null;        
+        SelectedToDataItems = null;       
+        participantIds.Clear();
+
     }
     private void onSubmit()
     {
@@ -497,7 +500,10 @@
     }   
 
     async void HandleValidSubmit()
-    {
+    {        
+        participantIds.Clear();
+
+
         if (@SelectedDataItems == null)
         {
             onShowPopupMessage("Error", "Please Select Participant");

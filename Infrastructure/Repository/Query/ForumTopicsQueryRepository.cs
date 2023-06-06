@@ -71,7 +71,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 //var query = "SELECT * FROM ForumTypes WHERE ID = @UserId";
-                var query = @"SELECT TS.ID,TS.TicketNo,TS.TopicName,TS.TypeId,TS.CategoryId,TS.Remarks,TS.SeqNo FROM ForumTopics TS 
+                var query = @"SELECT TS.ID,TS.TicketNo,TS.TopicName,TS.TypeId,TS.CategoryId,TS.Remarks,TS.SeqNo,TS.Status FROM ForumTopics TS 
                                 INNER JOIN ForumTopicParticipant TP ON TS.ID = TP.TopicId                                
                                 WHERE TP.UserId = @UserId";
                                 
@@ -163,8 +163,9 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT TP.ID,TP.TopicId,AU.UserCode,AU.UserName,TP.AddedDate,TP.SessionId,AU.UserID FROM ForumTopicParticipant TP 
-                                INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID                                
+                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY TP.ID DESC), TP.ID,TP.TopicId,AU.UserCode,AU.UserName,TP.AddedDate,TP.SessionId,AU.UserID, CASE WHEN FT.AddedByUserID = TP.UserID THEN 0 ELSE 1 END AS IsEnabled FROM ForumTopicParticipant TP 
+                                INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID   
+								INNER JOIN ForumTopics FT ON FT.ID = TP.TopicId                               
                                 WHERE TP.TopicId = @TopicId";
 
                 var parameters = new DynamicParameters();
@@ -415,7 +416,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("Remarks", forumTopics.Remarks);
                             parameters.Add("ID", forumTopics.ID);
 
-                            var query = " UPDATE ForumTopics SET Remarks = @Remarks WHERE ID = @ID";
+                            var query = " UPDATE ForumTopics SET Remarks = @Remarks, Status ='closed' WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 

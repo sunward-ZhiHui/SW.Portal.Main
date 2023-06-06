@@ -164,17 +164,28 @@
 
                                                     @if (isAddParticipant)
                                                     {
-                                                        <button @onclick="onAddPlist" class="btn btn-excel" style="margin-top: 2px;">Add Participant </button>
+                                                        @if(isCommandTopicClosed)
+                                                        {
+                                                            <button @onclick="onAddPlist" class="btn btn-excel" style="margin-top: 2px;">Add Participant </button>
+                                                        }                                                        
+                                                        
                                                     }
 
                                                     @if(isEllipsis)
                                                     {
-                                                        <DxMenu Orientation="Orientation.Horizontal" DisplayMode="MenuDisplayMode.Mobile">
-                                                            <Items>
-                                                                <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
-                                                                <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
-                                                            </Items>
-                                                        </DxMenu>
+                                                        @if(isCommandTopicClosed)
+                                                        {                                                           
+                                                            <DxMenu Orientation="Orientation.Horizontal" DisplayMode="MenuDisplayMode.Mobile">
+                                                                <Items>
+                                                                    <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
+                                                                    <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
+                                                                </Items>
+                                                            </DxMenu>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div style="color:red;margin-top: 10px;">Closed</div>
+                                                        }
                                                     }
 
                                                     @*<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
@@ -214,7 +225,7 @@
                                                     <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
                                                         <div class="uk-card-title uk-first-column" style="margin-right:10px;">@item.UserName</div>
                                                         <span class="uk-label uk-margin-auto-left">@Application.Common.DateFormatHelper.FormatDateTime(@item.AddedDate)</span>
-                                                        <div title="Assigned To" class="handline" style="margin-top: -3px; float: right;" @onclick="@(() => assignedList(item.ID))"> <i class="fa fa-users" aria-hidden="true"></i> </div>
+                                                        <div title="Assigned To" class="handline" style="margin-top: 0px; float: right;" @onclick="@(() => assignedList(item.ID))"> <i class="fa fa-users" aria-hidden="true"></i> </div>
                                                         <span class="uk-label uk-margin-auto-left" style="float: right; margin-right: 15px;">
                                                             <div class="handline" @onclick="@(() => onreply(item.ID))">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" style="margin-top: -5px;" width="16" height="16" fill="currentColor" class="bi bi-reply" viewBox="0 0 16 16">
@@ -363,8 +374,9 @@
                                  *@
                                  @if(isCommand)
                                         {
-
-                                            <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
+                                            @if(isCommandTopicClosed)
+                                            {
+                                                <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
                                                 @* <DataAnnotationsValidator />*@
                                                 <DxFormLayout>
                                                     <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
@@ -392,9 +404,28 @@
                                                                   style="float:right"
                                                       RenderStyle="ButtonRenderStyle.Secondary" />
                                                         <div style="display:flex;" class="attmode">
-                                                            <div @onclick="@(() => isFileUpload = true)" class="fa fa-paperclip cdspcc" aria-hidden="true"></div>
+                                                            @*<div @onclick="@(() => isFileUpload = true)" class="fa fa-paperclip cdspcc" aria-hidden="true"></div>*@
+                                                            <div id="attachmentSelectButton" class="fa fa-paperclip handline cdspcc" aria-hidden="true"></div>
+
+                                                            <div class="">
+                                                                <DxUpload @ref="uploadComponent" Name="files"
+                                                              Visible="@AttachmentUploadVisible"
+                                                                  AcceptedFileTypes=@AcceptedFileTypes
+                                                                  UploadMode="@UploadMode.OnButtonClick"
+                                                                  UploadUrl="@GetUploadUrl()"
+                                                                  AllowMultiFileUpload="true"
+                                                                  ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                                                                  SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                                                                  FileUploaded="@isUploadSuccess"
+                                                                  FileUploadError="@OnUploadError">
+                                                                </DxUpload>
+                                                                <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
+                                                                @* <button class="btn btn-success" RenderStyle="ButtonRenderStyle.Success" style="float:right;" @onclick="UploadFiles">Add</button>*@
+                                                            </div>
+
+
                                                             @*<DxUpload @ref="uploadComponent" Name="files" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded"></DxUpload>*@
-                                                            <div class="fa fa-ellipsis-v cdspcc" aria-hidden="true"></div>
+                                                            @*<div class="fa fa-ellipsis-v cdspcc" aria-hidden="true"></div>*@
                                                         </div>
 
 
@@ -408,7 +439,7 @@
                                                     </DxFormLayoutItem>
                                                 </DxFormLayout>
                                             </EditForm>
-
+                                            }
                                         }
                                        
                                         @* <DxRichEdit Height="500px" Width="100%"></DxRichEdit>*@
@@ -484,11 +515,18 @@
                                     <Columns>
                                         @*<DxDataGridColumn>
                                     <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
-                                    </DxDataGridColumn>*@                                       
+                                    </DxDataGridColumn>*@
+                                        <DxGridDataColumn FieldName="RowIndex" Width="30" Caption="#" />
                                         <DxGridDataColumn FieldName="UserName" MinWidth="100" />
                                         <DxGridDataColumn FieldName="UserCode" />
                                         <DxGridDataColumn FieldName="ID" Caption="Action" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
-                                            <CellDisplayTemplate><button class="btnDelete fas fa-trash" @onclick="() => onDeletePlist((long)context.Value)"></button></CellDisplayTemplate>
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    var item = (TopicParticipant)context.DataItem;
+                                                }
+                                                <DxButton IconCssClass="btnDelete fas fa-trash" style=" background: transparent; border: none;" Click="() => onDeletePlist((long)context.Value)" Enabled=@(item.IsEnabled) />
+                                                @*<button class="btnDelete fas fa-trash" Enabled=@(item.IsEnabled) @onclick="() => onDeletePlist((long)context.Value)"></button>*@
+                                            </CellDisplayTemplate>
                                         </DxGridDataColumn>                                        
                                     </Columns>
                                 </DxGrid>
@@ -661,7 +699,7 @@
     </BodyTemplate>
 </DxPopup>
 
-<DxPopup @bind-Visible="@isFileUpload" HeaderText="Attachments">
+@*<DxPopup @bind-Visible="@isFileUpload" HeaderText="Attachments">
     <BodyTemplate Context="PopupContext">
         <div style="padding: 15px;">
             <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Selected File</button>
@@ -677,12 +715,11 @@
                           FileUploaded="@isUploadSuccess"
                           FileUploadError="@OnUploadError">
                 </DxUpload> 
-                <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
-               @* <button class="btn btn-success" RenderStyle="ButtonRenderStyle.Success" style="float:right;" @onclick="UploadFiles">Add</button>*@
+                <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>               
             </div>
         </div>
     </BodyTemplate>
-</DxPopup>
+</DxPopup>*@
 <style>
     .dxuc-upload-icon {
         display: none; /* or any other style to disable or hide the icon */
@@ -719,6 +756,7 @@
     byte[] msgContent;
     DxUpload MyUpload { get; set; }
     bool UploadVisible { get; set; } = true;
+    bool AttachmentUploadVisible { get; set; } = false;
     private bool uploadSuccess = false;
     IEnumerable<UploadFileInfo> Files { get; set; }
     UploadFileInfo FirstFile { get; set; }
@@ -759,6 +797,7 @@
     bool isEnabled { get; set; } = false;
     bool isAddParticipant = false;
     bool isCommand = false;
+    bool isCommandTopicClosed = true;
     bool isEllipsis = false;
     private List<Documents>? _topicDocList;
     IEnumerable<(ForumTypes, int)> Items;
@@ -817,6 +856,11 @@
         uploadSuccess = false;
         if(files.ToList().Count > 0)
             await UploadFiles();
+    }
+    protected async void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        AttachmentUploadVisible = files.ToList().Count > 0;
+        SelectedFiles.AddRange(files);
     }
     bool UploadVisible1 { get; set; } = false;
     protected void SelectedFilesChanged1(IEnumerable<UploadFileInfo> files)
@@ -1397,14 +1441,14 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
         _discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
 
-         _assigntoItems = await Mediator.Send(new GetAssignToList(long.Parse(@SelectedGroup)));        
-         var topicToList = await Mediator.Send(new GetTopicToList(long.Parse(@SelectedGroup)));
+        _assigntoItems = await Mediator.Send(new GetAssignToList(long.Parse(@SelectedGroup)));        
+        var topicToList = await Mediator.Send(new GetTopicToList(long.Parse(@SelectedGroup)));
         if (topicToList != null)
         {
-             Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
+            Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
         }
-      
-       // Data.AssigntoIds = _assigntoItems.Take(1);
+
+        // Data.AssigntoIds = _assigntoItems.Take(1);
 
 
         OnMenuItemClick(isMenuvisible);
@@ -1416,12 +1460,17 @@
         //}).ToList();
 
         _headTopic = await Mediator.Send(new GetByIdTopics(long.Parse(@SelectedGroup)));
+
+
+        isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+
         isEnabled = true;
         isEllipsis = true;
         isCommand = true;
-        _participant = await Mediator.Send(new GetParticipantsList(long.Parse(@SelectedGroup)));
+        _participant = await Mediator.Send(new GetParticipantsList(long.Parse(@SelectedGroup)));      
 
-        _participant[1].IsEnabled = false; // Disable the second row
+        //_participant[1].IsEnabled = false; // Disable the second row
+
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //var plist = await Mediator.Send(new GetAllEmployeeListQuery());
         // _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
@@ -1607,6 +1656,8 @@
 
             //uploadUrl = GetUploadUrl();           
             //uploadComponent.UploadAllFiles();
+
+            uploadComponent.UploadAllFiles();
             await LoadData();
             onRestText();
             closeReply();

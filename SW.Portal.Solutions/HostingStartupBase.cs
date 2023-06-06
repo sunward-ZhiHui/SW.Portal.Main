@@ -23,6 +23,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Blazored.Toast;
 using AC.SD.Core.Services;
+using Application.Common.Helper;
 
 [assembly: HostingStartup(typeof(SW.Portal.Solutions.ServerSide.Startup))]
 
@@ -100,6 +101,7 @@ namespace SW.Portal.Solutions.ServerSide {
                 });
 
                 services.AddScoped<ToastService>();
+                services.AddScoped<Helper>();
                 services.AddServerSideBlazor();
                 services.AddBlazoredToast();
                 services.AddRazorPages();

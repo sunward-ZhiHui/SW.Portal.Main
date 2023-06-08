@@ -61,8 +61,15 @@
         <DxGridDataColumn FieldName="SubSectionName" Caption="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="SubSectionCode" Caption="Code" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
-        <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
-        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
+        <DxGridDataColumn FieldName="ModifiedDate" Width="180"  >
+            <CellDisplayTemplate>
+                @{
+                    var item = (ViewSubSection)context.DataItem;
+                }
+                @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="ModifiedBy" />
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{
@@ -127,7 +134,7 @@
         <Content>
         <p>
                 <div > Do you want to delete</div>
-          
+          DisplayFormat="dd/MMMM/yyyy"
         </p>
     </Content>
        
@@ -184,6 +191,7 @@
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
+       // Application.Common.Helper.Helper.FormatDate();
         _sectionItems = await Mediator.Send(new GetAllSectionQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");

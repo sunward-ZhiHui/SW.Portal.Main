@@ -1,4 +1,5 @@
 ﻿using Application.Response;
+using Core.Entities;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -9,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace Application.Commands
 {
-    public class CreateForumTypeCommand : IRequest<ForumTypeResponse>
+    public class CreateForumTypeCommand : IRequest<ForumTypeResponse  >
     {
         public long ID { get; set; }
-       
+      //  public ApplicationUser applicationusers { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime AddedDate { get; set; }
@@ -24,10 +25,7 @@ namespace Application.Commands
         public long? AddedByUserID { get; set; }
         public CreateForumTypeCommand()
         {
-            this.AddedDate = DateTime.Now;
-            this.SessionId = Guid.NewGuid();
-            this.StatusCodeID= 1;
-            this.AddedByUserID = 1;
+
         }
     }
 }

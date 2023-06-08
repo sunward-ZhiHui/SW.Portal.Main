@@ -13,7 +13,8 @@ namespace Core.Repositories.Query
         //Custom operation which is not generic
        // Task<IReadOnlyList<ForumCategorys>> GetAllAsync();
         Task<ForumCategorys> GetByIdAsync(Int64 id);
-       //Task<ForumCategorys> GetCustomerByEmail(string email);
+        //Task<ForumCategorys> GetCustomerByEmail(string email);
+        Task<IReadOnlyList<ForumCategorys>> GetAllCategoryUserAsync();
     }
    
 }

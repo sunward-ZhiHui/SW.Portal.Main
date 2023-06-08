@@ -36,7 +36,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        public async Task<IReadOnlyList<ForumTypes>> GetAllTypeUserAsync()
+        {
+            try
+            {
+                // var query = "Select AU.UserName,FT.* From ForumTypes FT inner join ApplicationUser AU on AU.UserID = FT.AddedByUserID";
+                var query = "select RowIndex = ROW_NUMBER() OVER(ORDER BY FT.ID DESC), AU.UserName as AddedBy,A.UserName as ModifiedBy,FT.* From ForumTypes FT left join ApplicationUser AU on AU.UserID = FT.AddedByUserID left join ApplicationUser A on A.UserID = FT.ModifiedByUserID";
+               /// Select AU.UserName,A.UserName,FC.* From ForumCategorys FC inner join ApplicationUser AU on AU.UserID = FC.AddedByUserID inner join ApplicationUser A on A.UserID = FC.ModifiedByUserID";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ForumTypes>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<ForumTypes> GetByIdAsync(long id)
         {
             try

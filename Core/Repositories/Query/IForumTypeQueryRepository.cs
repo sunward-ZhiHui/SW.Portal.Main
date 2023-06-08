@@ -14,5 +14,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ForumTypes>> GetAllAsync();
         Task<ForumTypes> GetByIdAsync(Int64 id);
         Task<ForumTypes> GetCustomerByEmail(string email);
+        Task<IReadOnlyList<ForumTypes>> GetAllTypeUserAsync();
     }
 }

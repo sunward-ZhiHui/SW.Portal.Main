@@ -20,6 +20,8 @@
 @using DevExpress.Blazor
 @using System.Linq;
 @inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
+
 @page "/upload"
 
 @*<DxUpload @ref="uploadComponent" Name="files"
@@ -42,11 +44,13 @@
           CssClass="w-100">
 </DxUpload>
 
-
-<DxUpload @ref="uploadComponent" Name="Files"
+<button id="overviewDemoSelectButton1" class="btn border-primary btn-primary m-1">Select1 File1</button>
+<DxUpload @ref="uploadComponent" Visible="@UploadVisible" Name="Files"
           UploadMode="@UploadMode.OnButtonClick"
+          ExternalSelectButtonCssSelector="#overviewDemoSelectButton1"
           AllowMultiFileUpload="true"
-          SelectedFilesChanged="@SelectedFilesChanged">
+          SelectedFilesChanged="@SelectedFilesChanged"
+          UploadUrl="@GetUploadUrl()">
 </DxUpload>
 <button class="btn btn-primary" @onclick="HandleUpload">Upload</button>
 
@@ -55,6 +59,15 @@
     string MyMessage { get; set; } = "";
     private DxUpload uploadComponent;   
     int SelectedFilesCount { get; set; }
+
+    public string GetUploadUrl()
+    {
+        //var sessionId = Guid.NewGuid();
+
+        string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        string url = BaseUrl + "Upload/UploadDocuments?SessionId=";
+        return url.ToString();
+    }
 
     private List<UploadFileInfo> selectedFile = new List<UploadFileInfo>();
 
@@ -157,6 +170,7 @@
 
     private void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
+        UploadVisible = files.ToList().Count > 0;
         var tempFiles = files.ToList();
         selectedFile.Clear();
         selectedFile.AddRange(files);
@@ -174,23 +188,18 @@
     //    selectedFiles.AddRange(files);
     //}
 
-    private async Task<bool> HandleUpload()
+    private async Task HandleUpload()
     {
-        var lst = selectedFiles;
-        var createReq = new UploadFilesRequest
-            {
-                Files = selectedFile
-            };
-      
-        var result = await Mediator.Send(createReq);
+        //var lst = selectedFiles;
+        //var createReq = new UploadFilesRequest
+        //    {
+        //        Files = selectedFile
+        //    };      
+        //var result = await Mediator.Send(createReq);       
+        //selectedFile.Clear();
+        //return result;
 
-
-       // var result = await Mediator.Send(new UploadFilesRequest { Files = selectedFiles });
-
-        // Clear the selected files list
-        selectedFile.Clear();
-
-        return result;
+        uploadComponent.UploadAllFiles();
     }  
    
 }

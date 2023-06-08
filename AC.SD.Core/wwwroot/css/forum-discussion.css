@@ -217,7 +217,7 @@ main {
 .uk-margin-medium-bottom {
     margin-bottom: 10px !important;
     border: 1px solid #cfcdcdee;
-    border-radius: 10px;
+    border-radius: 4px;
     margin-right: 10px;
 }
 
@@ -231,7 +231,7 @@ main {
 .uk-card-footer {
     padding: 6px 10px;
     /*background: #e8e7e7b0;*/
-    border-top: 1px solid #d4d4d4;
+    /*border-top: 1px solid #d4d4d4;*/
 }
 
 .uk-grid-column-small, .uk-grid-small {

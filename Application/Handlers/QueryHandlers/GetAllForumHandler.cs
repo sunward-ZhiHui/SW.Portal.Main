@@ -25,6 +25,20 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
     }
 
+    public class GetAllForumUsersHandler : IRequestHandler<GetAllForumTypesUsers, List<ForumTypes>>
+    {
+
+        private readonly IForumTypeQueryRepository _queryRepository;
+        public GetAllForumUsersHandler(IForumTypeQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ForumTypes>> Handle(GetAllForumTypesUsers request, CancellationToken cancellationToken)
+        {
+            return (List<ForumTypes>)await _queryRepository.GetAllTypeUserAsync();
+            //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
+        }
+    }
     public class GetAllForumCategoryHandler : IRequestHandler<GetAllForumCategorys, List<ForumCategorys>>
     {
        
@@ -36,6 +50,20 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<ForumCategorys>> Handle(GetAllForumCategorys request, CancellationToken cancellationToken)
         {
             return (List<ForumCategorys>)await _queryRepository.GetListAsync();
+            //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
+        }
+    }
+    public class GetAllForumCategoryUsersHandler : IRequestHandler<GetAllForumCategorysUsers, List<ForumCategorys>>
+    {
+
+        private readonly IForumCategoryQueryRepository _queryRepository;
+        public GetAllForumCategoryUsersHandler(IForumCategoryQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ForumCategorys>> Handle(GetAllForumCategorysUsers request, CancellationToken cancellationToken)
+        {
+            return (List<ForumCategorys>)await _queryRepository.GetAllCategoryUserAsync();
             //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
         }
     }

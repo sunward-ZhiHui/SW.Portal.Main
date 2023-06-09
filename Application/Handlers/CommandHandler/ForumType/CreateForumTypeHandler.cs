@@ -1,4 +1,5 @@
-﻿using Application.Commands;
+﻿using Application.Command.designations;
+using Application.Commands;
 using Application.Common.Mapper;
 using Application.Response;
 using Core.Entities;
@@ -32,5 +33,6 @@ namespace Application.Handlers.CommandHandler
             var customerResponse = RoleMapper.Mapper.Map<ForumTypeResponse>(newCustomer);
             return customerResponse;
         }
+       
     }
 }

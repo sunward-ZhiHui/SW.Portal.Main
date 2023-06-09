@@ -15,10 +15,10 @@ namespace Application.Commands
         public Guid? SessionId { get; set; }
         public long? AddedByUserID { get; set; }
         public int? StatusCodeID { get; set; }
+        public int? RowIndex { get; set; }
         public EditForumTypeCommand()
         {
-            this.ModifiedDate = DateTime.Now;
-            this.ModifiedByUserID = 1;
+           
         }
     }
 }

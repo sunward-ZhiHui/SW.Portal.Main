@@ -10,6 +10,10 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetAllForumCategorysUsers : PagedRequest, IRequest<List<ForumCategorys>>
+    {
+        public string SearchString { get; set; }
+    }
     public class GetListCategory : IRequest<List<ForumCategorys>>
     {
         public long ID { get; private set; }

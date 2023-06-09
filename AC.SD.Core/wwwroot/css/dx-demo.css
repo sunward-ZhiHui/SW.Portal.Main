@@ -25,6 +25,10 @@ body,
 {
     color:forestgreen;
 }
+.topoverdue
+{
+    white-space:nowrap;
+}
 .btn-excel:hover {
     color: white;
 }

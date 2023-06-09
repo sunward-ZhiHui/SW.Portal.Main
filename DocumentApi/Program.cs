@@ -1,4 +1,5 @@
 using DocumentApi.Models;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,17 +14,22 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.Configure<FormOptions>(x =>
+{
+    x.ValueLengthLimit = int.MaxValue;
+    x.MultipartBodyLengthLimit = long.MaxValue; // In case of multipart
+});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("_corsPolicy", x =>
+    options.AddPolicy("_sw_corsPolicy", x =>
     {
         x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();//.AllowCredentials();
     });
 });
 
 var app = builder.Build();
+app.UseCors("_sw_corsPolicy");
 app.UseRouting();
-app.UseCors("_corsPolicy");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

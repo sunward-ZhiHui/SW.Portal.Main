@@ -19,7 +19,23 @@ namespace Infrastructure.Repository.Query
         {
 
         }
-    
+        public async Task<IReadOnlyList<ForumCategorys>> GetAllCategoryUserAsync()
+        {
+            try
+            {
+              // var query = "select RowIndex = ROW_NUMBER() OVER(ORDER BY FC.ID DESC), AU.UserName,FC.* From ForumCategorys FC inner join ApplicationUser AU on AU.UserID = FC.AddedByUserID";
+               //var query = "Select AU.UserName,FC.* From ForumCategorys FC inner join ApplicationUser AU on AU.UserID = FC.AddedByUserID";
+               var query = "select RowIndex = ROW_NUMBER() OVER(ORDER BY FC.ID DESC),AU.UserName as AddedBy,A.UserName as ModifiedBy,FC.* From ForumCategorys FC left join ApplicationUser AU on AU.UserID = FC.AddedByUserID left join ApplicationUser A on  A.UserID = FC.ModifiedByUserID";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ForumCategorys>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<ForumCategorys> GetByIdAsync(long id)
         {
             try

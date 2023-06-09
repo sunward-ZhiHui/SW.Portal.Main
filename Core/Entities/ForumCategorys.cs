@@ -13,7 +13,13 @@ namespace Core.Entities
         public string? Description { get; set; }
         [Required(ErrorMessage = "Please Select Type.")]
         public long TypeId { get; set; }
-       
+        [NotMapped]
+        public string AddedBy { get; set; }
+        [NotMapped]
+        public int? RowIndex { get; set; }
+        [NotMapped]
+        public string ModifiedBy { get; set; }
+
     }
    
 }

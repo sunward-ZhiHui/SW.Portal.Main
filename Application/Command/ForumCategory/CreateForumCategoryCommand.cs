@@ -23,10 +23,7 @@ namespace Application.Command.ForumCategory
         public long? AddedByUserID { get; set; }
         public CreateForumCategoryCommand()
         {
-            this.AddedDate = DateTime.Now;
-            this.SessionId = Guid.NewGuid();
-            this.StatusCodeID = 1;
-            this.AddedByUserID = 1;
+           
         }
     }
     

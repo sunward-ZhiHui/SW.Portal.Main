@@ -31,7 +31,7 @@ namespace Core.Entities.Views
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
-        public DateTime? ModifiedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
         public string? ProfileCode { get; set; }
         public long? CompanyId { get; set; }
         public string? PlantCode { get; set; }

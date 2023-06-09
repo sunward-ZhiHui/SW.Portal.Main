@@ -61,7 +61,14 @@
         <DxGridDataColumn FieldName="DepartmentName" Caption="Name" MinWidth="80" />
         <DxGridDataColumn FieldName="DepartmentCode" Caption="Code" MinWidth="80" />
         <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
-        <DxGridDataColumn FieldName="ModifiedDate" Width="10%" />
+        <DxGridDataColumn FieldName="ModifiedDate" Width="180" >
+            <CellDisplayTemplate>
+                @{
+                    var item = (ViewDepartment)context.DataItem;
+                }
+                @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
         <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
 
 

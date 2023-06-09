@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using AC.SD.Core.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Blazored.SessionStorage;
 
 public class Program
 {
@@ -40,7 +41,7 @@ public class Program
             services.AddControllers();
             services.AddHttpContextAccessor();
             services.AddServerSideBlazor().AddCircuitOptions(options => { options.DetailedErrors = true; });
-            
+            services.AddBlazoredSessionStorage();
             services.AddSingleton<DemoConfiguration>();
             services.AddScoped<DemoThemeService>();
             services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();           

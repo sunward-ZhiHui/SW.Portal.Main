@@ -24,12 +24,13 @@ namespace Infrastructure.Repository.Query
     {
         private readonly ILocalStorageService<ApplicationUser> _localStorageService;
         private IJSRuntime _jsRuntime;
-
-        public MenuPermissionQueryRepository(IConfiguration configuration, ILocalStorageService<ApplicationUser> localStorageService, IJSRuntime jsRuntime)
+        private Blazored.SessionStorage.ISessionStorageService _sessionStorage;
+        public MenuPermissionQueryRepository(IConfiguration configuration, ILocalStorageService<ApplicationUser> localStorageService, IJSRuntime jsRuntime, Blazored.SessionStorage.ISessionStorageService sessionStorage)
             : base(configuration)
         {
             _localStorageService = localStorageService;
             _jsRuntime = jsRuntime;
+            _sessionStorage = sessionStorage;
         }
         public IReadOnlyList<PortalMenuModel> GetAllByPermissionAsync(long? Id)
         {
@@ -138,8 +139,9 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<IReadOnlyList<PortalMenuModel>> GetAllAsync(long? Id)
         {
-            try
-            {
+            /*try
+            {*/
+                var result = await _sessionStorage.GetItemAsync<string>("UserID");
                 var query = "Select  * from view_UserPermission where UserID = @UserID and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", Id, DbType.Int64);
@@ -228,11 +230,11 @@ namespace Infrastructure.Repository.Query
                     });
                     return menuList;
                 }
-            }
+            /*}
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
-            }
+            }*/
         }
 
     }

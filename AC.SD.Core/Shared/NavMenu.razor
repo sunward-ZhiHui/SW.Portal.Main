@@ -7,9 +7,22 @@
 @using global::Core.Entities;
 @inject IMediator Mediator
 @using DevExpress.Export
+@inject IJSRuntime Js;
+@using global::Core.Entities.Views;
+@functions {
+    async Task<List<PortalMenuModel>> NavMenuLists()
+    {
+        return await Configuration.DoNavMenuListsItemsAsync();
+    }
+    public List<PortalMenuModel>  listsItemss()
+    {
+        return Configuration.DoNavMenuLists();
+    }
+}
 @{
-
-    var Lists = Configuration.DoNavMenuLists();
+    
+    //var lists = Task.Run(async () => await NavMenuLists()).GetAwaiter().GetResult();
+    var lists = listsItemss();
     var siteMode = Configuration.GetConfigurationValue<bool>("SiteMode");
     
 }
@@ -21,7 +34,7 @@
             AllowSelectNodes="true"
             SelectionChanged="@SelectionChanged">
     <Nodes>
-        @foreach (var demoPage in Lists)
+        @foreach (var demoPage in lists)
         {
            
                 <NavMenuLeaf Page="@demoPage"></NavMenuLeaf>
@@ -32,15 +45,16 @@
 @code {
     DxTreeView treeView;
 
+    //[Parameter]
+    //public IEnumerable<PortalMenuModel> Pagess { get; set; }
+    //public IEnumerable<DemoPageBase> Pages { get; set; }
+    public List<PortalMenuModel> portalMenuModel { get; set; }
     [Parameter]
-    public IEnumerable<PortalMenuModel> Pagess { get; set; }
-    public IEnumerable<DemoPageBase> Pages { get; set; }
-
-    public IEnumerable<PortalMenuModel> _appPermissionItems { get; set; }
+    public PortalMenuPermission portalMenuModels { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionQuery(1));
+        this.StateHasChanged();
     }
     protected override void OnInitialized() {
         
@@ -48,8 +62,8 @@
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionQuery(1));
         UpdateSelection(NavigationManager.Uri, true);
+        this.StateHasChanged();
     }
     void OnLocationChanged(object sender, LocationChangedEventArgs args) {
         UpdateSelection(NavigationManager.Uri, true);

@@ -267,6 +267,12 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("StatusCodeID", forumTopics.StatusCodeID);
                         parameterss.Add("SessionId", forumTopics.SessionId);
                         parameterss.Add("FileData", forumTopics.FileData);
+
+                        parameterss.Add("Follow", forumTopics.Follow);
+                        parameterss.Add("OnBehalf", forumTopics.OnBehalf);
+                        parameterss.Add("Urgent", forumTopics.Urgent);
+                        parameterss.Add("OverDue", forumTopics.OverDue);
+                        parameterss.Add("DueDate", forumTopics.DueDate);
                         
 
                         parameterss.Add("To", forumTopics.To);

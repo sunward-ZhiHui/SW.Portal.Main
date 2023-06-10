@@ -749,7 +749,7 @@ main {
     /* Mini Menu Bar Content Container Design CSS */
 
     .content-container .mini-menu-bar {
-        width: 360px;
+        width: 85%;
         height: 100%;
         /* background-color: #f0f0f0;*/
         position: relative;

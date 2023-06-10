@@ -1,6 +1,8 @@
-﻿using DocumentApi.Models;
+﻿using Azure.Messaging;
+using DocumentApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.IIS.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -13,8 +15,8 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace DocumentApi.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("[controller]")]
     public class UploadController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -26,6 +28,8 @@ namespace DocumentApi.Controllers
         }
         [HttpPost]
         [Route("UploadDocuments")]
+        [DisableRequestSizeLimit]
+        [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = long.MaxValue)]
         public ActionResult UploadDocuments(IFormFile files, Guid? SessionId)
         {
             long documentId = 0;
@@ -69,9 +73,9 @@ namespace DocumentApi.Controllers
                 _context.SaveChanges();
                 documentId = documents.DocumentId;
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest();
+                throw new Exception("Error Message", ex);
             }
             return Ok(documentId.ToString());
         }
@@ -112,6 +116,13 @@ namespace DocumentApi.Controllers
         {
             var query = string.Format("Update Documents Set IsLatest='{1}' Where SessionId='{0}'", SessionId, 0);
             _context.Database.ExecuteSqlRaw(query);
+        }
+        
+        [HttpGet]
+        [Route("GetString")]
+        public string GetString()
+        {
+            return "OK";
         }
     }
 }

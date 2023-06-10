@@ -19,7 +19,7 @@ namespace Application.Response
         public long CategoryId { get; set; }
         public DateTime StartDate { get; set; } = DateTime.Now;
         public DateTime EndDate { get; set; }
-        public DateTime DueDate { get; set; }
+        public DateTime? DueDate { get; set; }
         public long TopicFrom { get; set; }
         public string To { get; set; }
         public string CC { get; set; }
@@ -32,6 +32,10 @@ namespace Application.Response
         public string? SubjectName { get; set; }
         public string? label { get; set; }
         public byte[] FileData { get; set; }
+        public string? Follow { get; set; }
+        public string? OnBehalf { get; set; }
+        public bool? Urgent { get; set; }
+        public bool? OverDue { get; set; }
         public List<ForumTopicsResponse>? TopicList { get; set; }
 
         public ForumTopicsResponse()

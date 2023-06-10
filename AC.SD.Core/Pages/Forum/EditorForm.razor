@@ -1,0 +1,46 @@
+﻿@using Application.Commands;
+@using Application.Common.Helper;
+@using Application.Queries;
+@using Application.Response;
+@using Microsoft.AspNetCore.Http;
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using MediatR
+@inject IMediator Mediator
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor.Internal
+@using System.Collections.Generic
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using DevExpress.Blazor.RichEdit
+@using DevExpress.Blazor.Office
+@using System.Globalization
+@using System;
+@using Application.Command.Document;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime;
+@inject HttpClient httpClient;
+@using System.IO;
+@using Microsoft.JSInterop;
+@using DevExpress.DocumentView;
+@inject NavigationManager NavigationManager
+@using System.Web;
+@inject IToastService ToastService
+@inject AC.SD.Core.Services.ToastService toastService
+@using System.Text;
+@using RtfPipe;
+@inject Application.Common.Helper.Helper dateformathelper
+
+<div class="d-flex flex-fill pt-1 pb-2 w-100">
+   <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" Context="EditFormContext">
+   </EditForm>
+</div>
+
+@code {
+    ForumConversations? Data { get; set; } = new ForumConversations();
+    void HandleValidSubmit()
+    {
+        
+    }
+}

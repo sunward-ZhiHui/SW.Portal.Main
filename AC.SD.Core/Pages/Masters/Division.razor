@@ -161,6 +161,10 @@
 </DxPopup>
 
 @code {
+    [Parameter]
+    public long? SiteId { get; set; }
+    [Parameter]
+    public string Type { get; set; }
     private List<ViewDivision>? _divisions;
     private List<CodeMaster>? _stausItems;
     private List<ViewPlants>? _plantItems;

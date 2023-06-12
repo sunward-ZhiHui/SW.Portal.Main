@@ -10,41 +10,35 @@
 @inject IJSRuntime jsRuntime
 
 @page "/ictMaster"
-
-
-<div class="cw-480 ch-220" >
-    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex" >
-        <DxTab Text="Site"></DxTab>
-        <DxTab Text="Zone"></DxTab>
-        <DxTab Text="Location"></DxTab>
-        <DxTab Text="Area"></DxTab>
-        <DxTab Text="SpecificaArea"></DxTab>
-    </DxTabs>
-    <div class="card tabs-border-top-0 tabs-border-radius-top-0" style="height: calc(100vh - 200px);">
-        <div class="card-body">
-            @switch (ActiveTabIndex)
-            {
-                case 0:
-                    <Site />
-                    break;
-                case 1:
-                    <Zone />
-                    break;
-                case 2:
-                    <Location />
-                    break;
-                case 3:
-                    <Area />
-                    break;
-                case 4:
-                    <SpecificArea/>
-                    break;
-            }
-        </div>
-    </div>
+@page "/ictMaster/{ActiveTabIndex:int}/{Type}/{SiteId:long}"
+@page "/ictMaster/{ActiveTabIndex:int}"
+<div class="cw-480 ch-220">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxFormLayoutTabPage Caption="Site">
+                <Site />
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Zone">
+                <Zone SiteId="@SiteId" Type="@Type" />
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Location">
+                <Location SiteId="@SiteId" Type="@Type" />
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Area">
+                <Area SiteId="@SiteId" Type="@Type" />
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="SpecificaArea">
+                <SpecificArea SiteId="@SiteId" Type="@Type" />
+            </DxFormLayoutTabPage>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
 </div>
 
 @code {
-    int ActiveTabIndex { get; set; } =0;
-  
+    [Parameter]
+    public long? SiteId { get; set; }
+    [Parameter]
+    public string Type { get; set; }
+    [Parameter]
+    public int ActiveTabIndex { get; set; } = 0;
 }

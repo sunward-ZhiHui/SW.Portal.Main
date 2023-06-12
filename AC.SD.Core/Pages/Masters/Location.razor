@@ -13,7 +13,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
-
+@inject NavigationManager NavigationManager
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -25,11 +25,14 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add Area" IconCssClass="fa fa-add" Click="@AddArea" />
+                <DxMenuItem Text="Reset Zone" IconCssClass="fa fa-refresh" Click="@ResetZone" Enabled="@isZoneEnabled" />
             </Items>
         </DxMenu>
     </div>
 </div>
 <DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
+        CustomizeEditModel="Grid_CustomizeEditModel"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -73,6 +76,7 @@
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
                             @bind-Value="@ict.CompanyId"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.CompanyId)" />
@@ -89,6 +93,7 @@
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.SiteId"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.SiteId)" />
@@ -103,6 +108,7 @@
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.ParentIctid"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.ZoneId)" />
@@ -158,6 +164,10 @@
 @* SelectedItemChanged="@((ViewIctmaster plant) => SelecteItemChanged(plant.IctmasterId))",SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"*@
 
 @code {
+    [Parameter]
+    public long? SiteId { get; set; }
+    [Parameter]
+    public string Type { get; set; }
     Dictionary<long, string>? CompanyNamesIndex { get; set; }
     private List<ViewPlants> _plantItems;
     private List<ViewIctmaster> _ictmaster;
@@ -179,6 +189,8 @@
     {
         get; set;
     }
+    bool isZoneEnabled { get; set; } = false;
+    bool isEnabled { get; set; } = true;
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -187,10 +199,14 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
+        if (Type == "Zone")
+        {
+            isZoneEnabled = true;
+        }
     }
     async Task UpdateDataAsync()
     {
-         await jsRuntime.InvokeAsync<string>("showLoading");
+        await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllIctMasterQuery());
         for (int i = 0; i < model.Count; i++)
         {
@@ -206,7 +222,7 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
-         await jsRuntime.InvokeAsync<string>("hideLoading");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -219,6 +235,18 @@
             newmaster.StatusCodeId = null;
             _masterCompany = new List<ViewIctmaster>();
             _masterSite = new List<ViewIctmaster>();
+            if (Type == "Zone")
+            {
+                var _ictmasters = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
+                if (_ictmasters != null)
+                {
+                    isEnabled = false;
+                    newmaster.CompanyId = _ictmasters.CompanyId;
+                    newmaster.SiteId = _ictmasters.ParentIctid;
+                    newmaster.ParentIctid = _ictmasters.IctmasterId;
+                    SelectedItemChanged(_ictmasters.CompanyId);
+                }
+            }
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -430,6 +458,19 @@
         {
             EditEnabled = true;
         }
+    }
+    void ResetZone()
+    {
+        SiteId = -1;
+        isEnabled = true;
+        isZoneEnabled = false;
+        Grid.CancelEditAsync();
+        NavigationManager.NavigateTo("ictMaster/2/Location/-1");
+
+    }
+    void AddArea()
+    {
+        NavigationManager.NavigateTo("ictMaster/3/Location/" + _selectedItems.IctmasterId);
     }
 }
 

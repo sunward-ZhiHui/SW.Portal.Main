@@ -83,7 +83,11 @@ namespace Infrastructure
             services.AddTransient<ILevelMasterCommandRepository, LevelMasterCommandRepository>();
             services.AddTransient<IAppPermissionQueryRepository, AppPermissionQueryRepository>();
             services.AddTransient<IMenuPermissionQueryRepository, MenuPermissionQueryRepository>();
+            services.AddTransient<IAppsamplingQueryRepository, AppsamplingQueryRepository>();
             services.AddTransient<IFileStorageService, FileStorageService>();
+            services.AddTransient<IApplicationMasterChildQueryRepository, ApplicationMasterChildQueryRepository>();
+            services.AddTransient<IAssetCatalogMasterQueryRepository, AssetCatalogMasterQueryRepository>();
+            services.AddTransient<IAssetCatalogMasterCommandRepository, AssetCatalogMasterCommandRepository>();
             return services;
         }
     }

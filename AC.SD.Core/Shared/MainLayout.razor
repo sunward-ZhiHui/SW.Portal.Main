@@ -9,6 +9,8 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using MediatR
 @inject IMediator Mediator
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
 <Toast />
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
 <link href="_content/AC.SD.Core/lib/font-awesome/css/all.css" rel="stylesheet" />
@@ -64,15 +66,15 @@
                                                 <div class="text-center">@applicationUser?.UserCode</div>
                                             </div>
                                             <div class="d-flex justify-content-center log-off-btn">
-                                                    <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Change Password</NavLink>
-                                                </div>
-                                            @*<div class="d-flex justify-content-center log-off-btn">
-                                                    <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@ResetPassword">Reset Password</NavLink>
-                                                </div>*@
-                                                <div class="d-flex justify-content-center log-off-btn">
-                                                    <NavLink href="javascrtpit:void(0);"  @onclick="@logout" RenderStyle="@ButtonRenderStyle.Secondary">Log Off</NavLink>
-                                                </div>
+                                                <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Change Password</NavLink>
                                             </div>
+                                            @*<div class="d-flex justify-content-center log-off-btn">
+                                            <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@ResetPassword">Reset Password</NavLink>
+                                            </div>*@
+                                            <div class="d-flex justify-content-center log-off-btn">
+                                                <NavLink href="javascrtpit:void(0);" @onclick="@logout" RenderStyle="@ButtonRenderStyle.Secondary">Log Off</NavLink>
+                                            </div>
+                                        </div>
                                     </div>
                                 </SubMenuTemplate>
                             </DxMenuItem>
@@ -100,8 +102,8 @@
         <div class="sidebar">
             <DemoSearchEditor @bind-SearchString="@SearchString" />
             <DxScrollView ScriptLoaded="@ScrollViewScriptLoaded">
-                <DemoSearchResultList SearchString="@SearchString" SearchResults="@SearchResults" />
-                <NavMenuFactoryComponent />
+                @* <DemoSearchResultList SearchString="@SearchString" SearchResults="@SearchResults" />*@
+                <NavMenu></NavMenu>
             </DxScrollView>
             <div class="info-wrapper">
                 @*<div class="version">Version: @DemoVersion.Version</div>*@
@@ -134,7 +136,7 @@
                 <DataAnnotationsValidator />
                 <div class="form-group">
                     <label>Old Password</label>
-                    <InputText @bind-Value="updatePassword.OldPassword"  type="password" class="form-control" />
+                    <InputText @bind-Value="updatePassword.OldPassword" type="password" class="form-control" />
                     <ValidationMessage For="@(() => updatePassword.OldPassword)" />
                 </div>
                 <div class="form-group">
@@ -190,8 +192,6 @@
     IJSRuntime JSRuntime { get; set; }
     private bool loading;
     public ApplicationUser applicationUser { get; private set; }
-
-
     protected string ThemeName
     {
         get { return _themeName; }
@@ -271,7 +271,7 @@
         }
 
     }
-    private async void onShowPopupMessage(string headerText,string bodyText)
+    private async void onShowPopupMessage(string headerText, string bodyText)
     {
         MessageVisible = true;
         MessageBody = bodyText;

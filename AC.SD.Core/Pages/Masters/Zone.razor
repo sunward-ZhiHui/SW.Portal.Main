@@ -11,6 +11,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
 @page "/zone"
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -23,6 +24,8 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add Location" IconCssClass="fa fa-add" Click="@AddLocation" />
+                <DxMenuItem Text="Reset Site" IconCssClass="fa fa-refresh" Click="@ResetSite" Enabled="@isSiteEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -69,6 +72,7 @@
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
                             @bind-Value="@ict.CompanyId"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.CompanyId)" />
@@ -84,6 +88,7 @@
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.ParentIctid"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.SiteId)" />
@@ -112,10 +117,10 @@
         <Content>
         <p>
                 <div > Do you want to delete</div>
-          
+
         </p>
     </Content>
-       
+
         <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
@@ -136,6 +141,10 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    [Parameter]
+    public long? SiteId { get; set; }
+    [Parameter]
+    public string Type { get; set; }
     Dictionary<long, string>? CompanyNamesIndex { get; set; }
     private List<ViewPlants> _plantItems;
     private List<ViewIctmaster> _ictmaster;
@@ -148,7 +157,10 @@
     bool Blukdeletepopup { get; set; } = false;
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
-      bool ExportSelectedRowsOnly { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    bool isEnabled { get; set; } = true;
+    bool isSiteEnabled { get; set; } = false;
+
     IGrid Grid { get; set; }
     int masterType = 571;
     public ApplicationUser applicationUser { get; private set; }
@@ -161,10 +173,15 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
+        if (Type == "Site")
+        {
+            isSiteEnabled = true;
+        }
+
     }
     async Task UpdateDataAsync()
     {
-         await jsRuntime.InvokeAsync<string>("showLoading");
+        await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllIctMasterQuery());
 
         for (int i = 0; i < model.Count; i++)
@@ -181,7 +198,7 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
-         await jsRuntime.InvokeAsync<string>("hideLoading");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -193,6 +210,18 @@
             newmaster.Description = "";
             newmaster.StatusCodeId = null;
             _master = new List<ViewIctmaster>();
+            if (Type == "Site")
+            {
+                var _ictmasters = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
+                if (_ictmasters != null)
+                {
+
+                    isEnabled = false;
+                    newmaster.CompanyId = _ictmasters.CompanyId;
+                    newmaster.ParentIctid = _ictmasters.IctmasterId;
+                    SelectedItemChanged(_ictmasters.CompanyId);
+                }
+            }
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -338,7 +367,7 @@
     }
     void addEdit()
     {
-        if (SelectedDataItems.Count == 1)
+        if (SelectedDataItems != null && SelectedDataItems.Count == 1)
         {
 
             foreach (object item in SelectedDataItems)
@@ -373,7 +402,7 @@
 
                 if (item is ViewIctmaster forumzone)
                 {
-                  //  var editablePlant = (ViewIctmaster)e.DataItem;
+                    //  var editablePlant = (ViewIctmaster)e.DataItem;
                     var request = new DeleteIctmasterCommand(forumzone.IctmasterId);
                     await Mediator.Send(request);
                     Blukdeletepopup = false;
@@ -397,6 +426,18 @@
             EditEnabled = true;
         }
     }
-   
+    void ResetSite()
+    {
+        SiteId = -1;
+        isEnabled = true;
+        isSiteEnabled = false;
+        Grid.CancelEditAsync();
+        NavigationManager.NavigateTo("ictMaster/1/Zone/-1");
+
+    }
+    void AddLocation()
+    {
+        NavigationManager.NavigateTo("ictMaster/2/Zone/" + _selectedItems.IctmasterId);
+    }
 }
 

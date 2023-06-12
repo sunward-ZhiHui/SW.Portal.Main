@@ -1,0 +1,46 @@
+﻿
+@inject IJSRuntime jsRuntime
+@page "/appsampling"
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+
+<DxGrid @ref="Grid" Data="@_samplingItems">
+    <Columns>
+        <DxGridDataColumn FieldName="SamplingId" SortIndex="0" />
+        <DxGridDataColumn FieldName="ScanDocument" />
+        <DxGridDataColumn FieldName="TicketNo" />
+        <DxGridDataColumn FieldName="SublotNo" />
+        <DxGridDataColumn FieldName="BatchNo" />
+        <DxGridDataColumn FieldName="ItemCode" />
+        <DxGridDataColumn FieldName="ItemDescription" />
+    </Columns>
+    <DetailRowTemplate>
+       
+        <AppsamplingLine_Content sampling="(AppSampling)context.DataItem" />
+    </DetailRowTemplate>
+</DxGrid>
+
+
+@code {
+    
+    private List<AppSampling> _samplingItems;
+    IGrid Grid { get; set; }
+   
+    //object MasterGridData { get; set; }
+    //object DetailGridData { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+
+        var model = await Mediator.Send(new GetAllSamplingQuery());
+        _samplingItems = model;
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+       // await UpdateDataAsync();
+    }
+}

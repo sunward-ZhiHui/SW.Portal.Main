@@ -13,7 +13,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
-
+@inject NavigationManager NavigationManager
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -25,12 +25,14 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Reset Area" IconCssClass="fa fa-file-excel" Click="@ResetArea" Enabled="@isAreaEnabled" />
             </Items>
         </DxMenu>
     </div>
 </div>
 
 <DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
+        CustomizeEditModel="Grid_CustomizeEditModel"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -75,6 +77,7 @@
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
                             @bind-Value="@ict.CompanyId"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.CompanyId)" />
@@ -91,6 +94,7 @@
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.SiteId"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.SiteId)" />
@@ -106,6 +110,7 @@
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.ZoneId"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
 
@@ -118,9 +123,11 @@
                 <DxComboBox Data="@_masterZone"
                             NullText="Select Location..."
                             FilteringMode="DataGridFilteringMode.Contains"
+                            SelectedItemChanged="@((ViewIctmaster plant) => SelectAreaChanges(plant.IctmasterId))"
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.LocationId"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.LocationId)" />
@@ -135,6 +142,7 @@
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.ParentIctid"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.AreaId)" />
@@ -165,10 +173,10 @@
         <Content>
         <p>
                 <div > Do you want to delete</div>
-          
+
         </p>
     </Content>
-       
+
         <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
@@ -190,6 +198,10 @@
 </DxPopup>
 
 @code {
+    [Parameter]
+    public long? SiteId { get; set; }
+    [Parameter]
+    public string Type { get; set; }
     Dictionary<long, string>? CompanyNamesIndex { get; set; }
     private List<ViewPlants> _plantItems;
     private List<ViewIctmaster> _ictmaster;
@@ -207,10 +219,12 @@
     bool ExportSelectedRowsOnly { get; set; }
     bool EditEnabled { get; set; } = true;
     bool DeleteEnabled { get; set; } = true;
-     DxPopup? popup;
+    DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     private ViewIctmaster _selectlst;
     int masterType = 574;
+    bool isAreaEnabled { get; set; } = false;
+    bool isEnabled { get; set; } = true;
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -219,10 +233,14 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
+        if (Type == "Area")
+        {
+            isAreaEnabled = true;
+        }
     }
     async Task UpdateDataAsync()
     {
-         await jsRuntime.InvokeAsync<string>("showLoading");
+        await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllIctMasterQuery());
         for (int i = 0; i < model.Count; i++)
         {
@@ -251,6 +269,23 @@
             _masterCompany = new List<ViewIctmaster>();
             _masterSite = new List<ViewIctmaster>();
             _masterZone = new List<ViewIctmaster>();
+            if (Type == "Area")
+            {
+                var _ictmasters = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
+                if (_ictmasters != null)
+                {
+                    isEnabled = false;
+                    newmaster.CompanyId = _ictmasters.CompanyId;
+                    newmaster.SiteId = _ictmasters.SiteId;
+                    newmaster.ZoneId = _ictmasters.ZoneId;
+                    newmaster.LocationId = _ictmasters.ParentIctid.Value;
+                    newmaster.ParentIctid = _ictmasters.IctmasterId;
+                    SelectedItemChanged(_ictmasters.CompanyId);
+                    SelectedChanged(_ictmasters.SiteId);
+                    SelectChanged(_ictmasters.ZoneId);
+                    SelectAreaChanges(_ictmasters.ParentIctid);
+                }
+            }
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -336,7 +371,7 @@
     }
     async void SelectChanged(long? siteId)
     {
-        
+
         if (siteId != null)
         {
             _masterZone = _ictmaster.Where(c => c.ParentIctid == siteId && c.MasterType == 572).ToList();
@@ -345,7 +380,7 @@
     }
     async void SelectAreaChanges(long? siteId)
     {
-       
+
         if (siteId != null)
         {
             _masterLocation = _ictmaster.Where(c => c.ParentIctid == siteId && c.MasterType == 573).ToList();
@@ -480,5 +515,14 @@
         {
             EditEnabled = true;
         }
+    }
+    void ResetArea()
+    {
+        SiteId = -1;
+        isEnabled = true;
+        isAreaEnabled = false;
+        Grid.CancelEditAsync();
+        NavigationManager.NavigateTo("ictMaster/4/Specific/-1");
+
     }
 }

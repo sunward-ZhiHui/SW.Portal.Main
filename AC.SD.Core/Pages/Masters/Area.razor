@@ -12,7 +12,7 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-
+@inject NavigationManager NavigationManager
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -23,12 +23,15 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add Specific Area" IconCssClass="fa fa-add" Click="@AddSpecificArea" />
+                <DxMenuItem Text="Reset Location" IconCssClass="fa fa-refresh" Click="@ResetLocation" Enabled="@isLocationEnabled" />
             </Items>
         </DxMenu>
     </div>
 </div>
 
 <DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
+        CustomizeEditModel="Grid_CustomizeEditModel"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -72,6 +75,7 @@
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
                             @bind-Value="@ict.CompanyId"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.CompanyId)" />
@@ -88,6 +92,7 @@
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.SiteId"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.SiteId)" />
@@ -103,6 +108,7 @@
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.ZoneId"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
 
@@ -118,6 +124,7 @@
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.ParentIctid"
+                            Enabled="@isEnabled"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => ict.LocationId)" />
@@ -148,10 +155,10 @@
         <Content>
         <p>
                 <div > Do you want to delete</div>
-          
+
         </p>
     </Content>
-       
+
         <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
@@ -172,6 +179,10 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    [Parameter]
+    public long? SiteId { get; set; }
+    [Parameter]
+    public string Type { get; set; }
     public ApplicationUser applicationUser { get; private set; }
     Dictionary<long, string>? CompanyNamesIndex { get; set; }
     private List<ViewPlants> _plantItems;
@@ -189,6 +200,8 @@
     {
         get; set;
     }
+    bool isLocationEnabled { get; set; } = false;
+    bool isEnabled { get; set; } = true;
     IGrid Grid { get; set; }
     private ViewIctmaster _selectedItems;
     bool EditEnabled { get; set; } = true;
@@ -205,6 +218,10 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
+        if (Type == "Location")
+        {
+            isLocationEnabled = true;
+        }
     }
     async Task UpdateDataAsync()
     {
@@ -224,7 +241,7 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
-         await jsRuntime.InvokeAsync<string>("hideLoading");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -238,6 +255,21 @@
             _masterCompany = new List<ViewIctmaster>();
             _masterSite = new List<ViewIctmaster>();
             _masterZone = new List<ViewIctmaster>();
+            if (Type == "Location")
+            {
+                var _ictmasters = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
+                if (_ictmasters != null)
+                {
+                    isEnabled = false;
+                    newmaster.CompanyId = _ictmasters.CompanyId;
+                    newmaster.SiteId = _ictmasters.SiteId;
+                    newmaster.ZoneId = _ictmasters.ParentIctid.Value;
+                    newmaster.ParentIctid = _ictmasters.IctmasterId;
+                    SelectedItemChanged(_ictmasters.CompanyId);
+                    SelectedChanged(_ictmasters.SiteId);
+                    SelectChanged(_ictmasters.ParentIctid);
+                }
+            }
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -263,13 +295,13 @@
                     ModifiedDate = DateTime.Now,
                 };
             await Mediator.Send(request);
-             toastService.ShowToast( "Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await UpdateDataAsync();
-             
+
         }
         else
         {
-            
+
             await UpdateMasterAsync(editableictmaster);
         }
     }
@@ -427,7 +459,7 @@
     }
     void addDelete()
     {
-       
+
         Blukdeletepopup = true;
     }
     async Task bulkDelete()
@@ -442,8 +474,8 @@
                     //var editablePlant = (ViewIctmaster)e.DataItem;
                     var request = new DeleteIctmasterCommand(forumarea.IctmasterId);
                     await Mediator.Send(request);
-                     Blukdeletepopup = false;
-                     toastService.ShowToast( "Record Delete Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    Blukdeletepopup = false;
+                    toastService.ShowToast("Record Delete Successfully", AC.SD.Core.Services.ToastLevel.Success);
                     await UpdateDataAsync();
                     Grid.SetFocusedRowIndex(0);
                 }
@@ -463,6 +495,19 @@
         {
             EditEnabled = true;
         }
+    }
+    void ResetLocation()
+    {
+        SiteId = -1;
+        isEnabled = true;
+        isLocationEnabled = false;
+        Grid.CancelEditAsync();
+        NavigationManager.NavigateTo("ictMaster/3/Area/-1");
+
+    }
+    void AddSpecificArea()
+    {
+        NavigationManager.NavigateTo("ictMaster/4/Area/" + _selectedItems.IctmasterId);
     }
 }
 

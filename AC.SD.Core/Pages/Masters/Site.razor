@@ -13,7 +13,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
-
+@inject NavigationManager NavigationManager
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -24,6 +24,8 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add Zone" IconCssClass="fa fa-add" Click="@AddZone" />
+
             </Items>
         </DxMenu>
     </div>
@@ -43,7 +45,7 @@
         RowDoubleClick="OnRowDoubleClick"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
-         SelectedDataItemsChanged="@SelectedDataItemsChanged"
+        SelectedDataItemsChanged="@SelectedDataItemsChanged"
         AllowSelectRowByClick="true" CustomizeCellDisplayText="Grid_CustomizeCellDisplayText">
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
@@ -96,10 +98,10 @@
         <Content>
         <p>
                 <div > Do you want to delete</div>
-          
+
         </p>
     </Content>
-       
+
         <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
     </div>
@@ -388,4 +390,9 @@
             EditEnabled = true;
         }
     }
+    void AddZone()
+    {
+        NavigationManager.NavigateTo("ictMaster/1/Site/" + _selectedItems.IctmasterId);
+    }
+
 }

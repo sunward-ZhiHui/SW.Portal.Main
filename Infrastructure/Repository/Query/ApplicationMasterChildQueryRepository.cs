@@ -21,6 +21,21 @@ namespace Infrastructure.Repository.Query
         {
 
         }
+        public async Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByAsync(string Ids)
+        {
+            try
+            {
+                var query = "select * from ApplicationMasterChild where ApplicationMasterParentID in(" + Ids + ")";
+                using (var connection = CreateConnection())
+                {
+                    return  (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllAsync(string Ids)
         {
             List<ApplicationMasterChildModel> applicationChildData = new List<ApplicationMasterChildModel>();

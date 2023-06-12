@@ -13,6 +13,7 @@ namespace Core.Repositories.Query
     public interface IApplicationMasterChildQueryRepository : IQueryRepository<ApplicationMasterChildModel>
     {
         //Custom operation which is not generic
+        Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByAsync(string Ids);
         Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllAsync(string Ids);
     }
 }

@@ -24,4 +24,16 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<ApplicationMasterChildModel>)await _queryRepository.GetAllAsync(request.SearchString);
         }
     }
+    public class GetAllApplicationMasterChildListHandler : IRequestHandler<GetAllApplicationMasterChildListQuery, List<ApplicationMasterChildModel>>
+    {
+        private readonly IApplicationMasterChildQueryRepository _queryRepository;
+        public GetAllApplicationMasterChildListHandler(IApplicationMasterChildQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ApplicationMasterChildModel>> Handle(GetAllApplicationMasterChildListQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationMasterChildModel>)await _queryRepository.GetAllByAsync(request.SearchString);
+        }
+    }
 }

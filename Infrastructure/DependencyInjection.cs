@@ -85,6 +85,8 @@ namespace Infrastructure
             services.AddTransient<IMenuPermissionQueryRepository, MenuPermissionQueryRepository>();
             services.AddTransient<IFileStorageService, FileStorageService>();
             services.AddTransient<IApplicationMasterChildQueryRepository, ApplicationMasterChildQueryRepository>();
+            services.AddTransient<IAssetCatalogMasterQueryRepository, AssetCatalogMasterQueryRepository>();
+            services.AddTransient<IAssetCatalogMasterCommandRepository, AssetCatalogMasterCommandRepository>();
             return services;
         }
     }

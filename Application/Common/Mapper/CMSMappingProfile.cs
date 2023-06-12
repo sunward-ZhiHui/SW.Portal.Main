@@ -16,6 +16,8 @@ using Application.Command.EmployeeOtherDutyInformations;
 using Application.Command.EmployeeEmailInfos;
 using Core.Repositories.Command;
 using Application.Command.EmployeeICTInformations;
+using Application.Handlers.CommandHandler.AssetCatalogMasters;
+using Application.Command.AssetCatalogMasters;
 
 namespace Application.Common.Mapper
 {
@@ -103,6 +105,11 @@ namespace Application.Common.Mapper
             CreateMap<EmployeeICTHardInformation, CreateEmployeeICTHardInformationCommand>().ReverseMap();
             CreateMap<EmployeeICTHardInformation, EditEmployeeICTHardInformationCommand>().ReverseMap();
             CreateMap<EmployeeICTHardInformation, DeleteEmployeeICTHardInformationCommand>().ReverseMap();
+
+
+            CreateMap<AssetCatalogMaster, CreateAssetCatalogMasterCommand>().ReverseMap();
+            CreateMap<AssetCatalogMaster, EditAssetCatalogMasterCommand>().ReverseMap();
+            CreateMap<AssetCatalogMaster, DeleteAssetCatalogMasterCommand>().ReverseMap();
         }
     }
 }

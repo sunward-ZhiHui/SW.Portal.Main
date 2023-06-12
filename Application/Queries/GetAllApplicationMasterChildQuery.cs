@@ -19,5 +19,13 @@ namespace Application.Queries
             this.SearchString = SearchString;
         }
     }
+    public class GetAllApplicationMasterChildListQuery : PagedRequest, IRequest<List<ApplicationMasterChildModel>>
+    {
+        public string SearchString { get; set; }
+        public GetAllApplicationMasterChildListQuery(string SearchString)
+        {
+            this.SearchString = SearchString;
+        }
+    }
 
 }

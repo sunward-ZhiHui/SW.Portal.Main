@@ -1,0 +1,115 @@
+﻿using Application.Command.AssetCatalogMasters;
+using Application.Command.Departments;
+using Application.Common.Mapper;
+using Application.Response;
+using Core.Entities;
+using Core.Repositories.Command;
+using Core.Repositories.Query;
+using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Application.Handlers.CommandHandler.AssetCatalogMasters
+{
+    public class CreateAssetCatalogMasterHandler : IRequestHandler<CreateAssetCatalogMasterCommand, AssetCatalogMasterResponse>
+    {
+        private readonly IAssetCatalogMasterCommandRepository _commandRepository;
+        public CreateAssetCatalogMasterHandler(IAssetCatalogMasterCommandRepository commandRepository)
+        {
+            _commandRepository = commandRepository;
+        }
+        public async Task<AssetCatalogMasterResponse> Handle(CreateAssetCatalogMasterCommand request, CancellationToken cancellationToken)
+        {
+            var queryEntity = RoleMapper.Mapper.Map<AssetCatalogMaster>(request);
+
+            if (queryEntity is null)
+            {
+                throw new ApplicationException("There is a problem in mapper");
+            }
+
+            var data = await _commandRepository.AddAsync(queryEntity);
+            var response = new AssetCatalogMasterResponse
+            {
+                AssetCatalogMasterId = (long)data,
+                StatusCodeId = queryEntity.StatusCodeId,
+                AssetDescription = queryEntity.AssetDescription,
+            };
+            return response;
+        }
+    }
+    public class EditAssetCatalogMasterHandler : IRequestHandler<EditAssetCatalogMasterCommand, AssetCatalogMasterResponse>
+    {
+        private readonly IAssetCatalogMasterCommandRepository _commandRepository;
+        private readonly IAssetCatalogMasterQueryRepository _queryRepository;
+        public EditAssetCatalogMasterHandler(IAssetCatalogMasterCommandRepository customerRepository, IAssetCatalogMasterQueryRepository customerQueryRepository)
+        {
+            _commandRepository = customerRepository;
+            _queryRepository = customerQueryRepository;
+        }
+        public async Task<AssetCatalogMasterResponse> Handle(EditAssetCatalogMasterCommand request, CancellationToken cancellationToken)
+        {
+            var queryrEntity = RoleMapper.Mapper.Map<AssetCatalogMaster>(request);
+
+            if (queryrEntity is null)
+            {
+                throw new ApplicationException("There is a problem in mapper");
+            }
+
+            try
+            {
+                await _commandRepository.UpdateAsync(queryrEntity);
+            }
+            catch (Exception exp)
+            {
+                throw new ApplicationException(exp.Message);
+            }
+            var response = new AssetCatalogMasterResponse
+            {
+                AssetCatalogMasterId = queryrEntity.AssetCatalogMasterId,
+                CompanyId = queryrEntity.CompanyId,
+                AddedByUserId = queryrEntity.AddedByUserId,
+                StatusCodeId = queryrEntity.StatusCodeId,
+                AssetDescription = queryrEntity.AssetDescription,
+            };
+
+            return response;
+        }
+    }
+    public class DeleteAssetCatalogMasterHandler : IRequestHandler<DeleteAssetCatalogMasterCommand, String>
+    {
+        private readonly IAssetCatalogMasterCommandRepository _commandRepository;
+        private readonly IAssetCatalogMasterQueryRepository _queryRepository;
+        public DeleteAssetCatalogMasterHandler(IAssetCatalogMasterCommandRepository customerRepository, IAssetCatalogMasterQueryRepository customerQueryRepository)
+        {
+            _commandRepository = customerRepository;
+            _queryRepository = customerQueryRepository;
+        }
+
+        public async Task<string> Handle(DeleteAssetCatalogMasterCommand request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var queryEntity = await _queryRepository.GetByIdAsync(request.Id);
+                var data = new AssetCatalogMaster
+                {
+                    AssetCatalogMasterId = request.Id,
+                    CompanyId = queryEntity.CompanyId,
+                    AssetDescription = queryEntity.AssetDescription,
+                    AddedByUserId = queryEntity.AddedByUserId,
+                    StatusCodeId = queryEntity.StatusCodeId,
+                };
+
+                await _commandRepository.DeleteAsync(data);
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+
+            return "AssetCatalogMaster has been deleted!";
+        }
+    }
+}

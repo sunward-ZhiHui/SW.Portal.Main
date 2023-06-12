@@ -1,0 +1,19 @@
+﻿@page "/AssetMasters"
+
+
+<div class="cw-480 ch-220">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxFormLayoutTabPage Caption="Asset Catlog">
+                <AssetCatlog></AssetCatlog>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Asset Parts N Maintenace Master">
+               
+            </DxFormLayoutTabPage>
+            
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+</div>
+@code {
+    public int ActiveTabIndex { get; set; } = 0;
+}

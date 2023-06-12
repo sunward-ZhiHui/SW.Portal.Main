@@ -40,6 +40,10 @@ namespace Core.Entities
         public string? OnBehalf { get; set; }
         public bool? Urgent { get; set; }
         public bool? OverDue { get; set; }
+        [NotMapped]
+        public string? FirstName { get; set; }
+        [NotMapped]
+        public string? LastName { get; set; }
 
         [NotMapped]
         public string? From { get; set; }
@@ -49,6 +53,12 @@ namespace Core.Entities
         public IEnumerable<long> ToIds { get; set; }
         [NotMapped]
         public IEnumerable<long> CCIds { get; set; }
+        [NotMapped]
+        public List<Documents>? documents { get; set; }
+        [NotMapped]
+        public List<ForumAssignToList>? TopicToList { get; set; }
+        [NotMapped]
+        public List<ForumAssignToList>? TopicCCList { get; set; }
 
     }
 }

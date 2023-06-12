@@ -33,24 +33,14 @@
 @using RtfPipe;
 @inject Application.Common.Helper.Helper  dateformathelper
 
-<link href="_content/AC.SD.Core/css/forum-discussion.css" rel="stylesheet" />
+<link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 
 <div class="">
-
-    @* <DxFormLayout CssClass="w-100">
-    <DxFormLayoutGroup Caption="General Information" ColSpanMd="3">
-    asdfasdf
-    </DxFormLayoutGroup>
-    <DxFormLayoutGroup Caption="Forum Discussion List" ColSpanMd="9">
-    asdfasdf
-    </DxFormLayoutGroup>
-    </DxFormLayout>*@
-
     <div class="main-container">
         <!--  -->
         <!-- Main Content -->
         <!--  -->
-        <div class="content-container">
+        <div class="content-container row">
             <!-- Side Bar -->
             @* <div class="side-menu-bar">
 
@@ -64,48 +54,117 @@
 
             </div>*@
             <!-- Mini Menu Bar -->
-            <div class="mini-menu-bar">
+            <div class="mini-menu-bar col-md-3">
                 <div class="mini-menu-bar-top">
-                    <div class="mini-menu-bar-heading">
+                    @*<div class="mini-menu-bar-heading">
                         <div class="files-title">General Information</div>
-                    </div>
-                    <!-- Views Accordion -->
-                   @* <div class="views-accordion">
-                        <DxTreeView Data="@_topics"
-                                    @bind-FilterString="FilterString"
-                                    FilterMinLength="2"
-                                    ShowFilterPanel="true"
-                                    FilterMode="FilterMode"
-                                    AllowSelectNodes=true
-                                    LoadChildNodesOnDemand="true"
-                                    SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
-                            <DataMappings>
-                                <DxTreeViewDataMapping Key="ID" CssClass="CssClass" Text="TopicName" Name="ID" />
-                            </DataMappings>
-                        </DxTreeView>
-                    </div>*@
-
-                    <div>
-                        <div class="views-accordion">                         
-                            <DxTreeView Data="@_TreeView"
-                                        @bind-FilterString="FilterString"
-                                        FilterMinLength="2"
-                                        ShowFilterPanel="true"
-                                        FilterMode="FilterMode"
-                                        AllowSelectNodes=true
-                                        LoadChildNodesOnDemand=false
-                                        SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
-                                <DataMappings>
-                                    <DxTreeViewDataMapping Children="children" CssClass="CssClass" Text="Label" Name="ID" />
-                                </DataMappings>
-                            </DxTreeView>
+                    </div> *@
+                    <div class="card w-100" style="margin-bottom:10px; margin-top:10px;">
+                        <div class="card-body p-0">
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Assign To" class="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" IconCssClass="fa fa-envelope" Click="@(() => OnLeftMenuItemClick("AssignTo"))" />
+                                    
+                                    <DxMenuItem Text="CC" class="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" IconCssClass="popup-image popup-icon-position" Click="@(() => OnLeftMenuItemClick("AssignCC"))" />
+                                </Items>
+                            </DxMenu>
                         </div>
                     </div>
 
+                    <div>
+                        <div class="views-accordion">
+                            @*@if (_forumTopicTo != null && _forumTopicTo.Any())
+                            {
+                                @foreach (var item in _forumTopicTo)
+                                {
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <article class="media">                                        
+                                                <div class="media-body">
+                                                    <div class="content">
+                                                        <p class="h5">@item.FirstName <small>@item.LastName</small> <small class="float-right text-muted">@Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</small></p>
+                                                        <p>@item.TopicName</p>
+                                                    </div>                                         
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </div>
+                                }
+                            }*@
 
+                        @if (isLeftMenuvisible == "AssignTo")
+                        {
+                            <DxGrid @ref="TOGrid"
+                                    Data="_forumTopicTo"
+                                    KeyFieldName="ID"
+                                    CustomizeElement="Grid_CustomizeElement"
+                                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                                    PageSizeSelectorVisible="true"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                    PageSize="20"                                                                  
+                                    ValidationEnabled="true"
+                                    AutoExpandAllGroupRows="true"
+                                    CssClass="ch-360 " style="height: calc(100vh - 220px);"                                  
+                                    RowClick="OnForumToRowClick"
+                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                    AllowSelectRowByClick="true">
+                                <Columns>  
+                                    <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
+                                    <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" />
+                                    <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="160">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                var item = (ForumTopics)context.DataItem;
+                                            }
+                                            @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    </Columns>
+                                <TotalSummary>
+                                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
+                                </TotalSummary>
+                                </DxGrid>
+                            }
+                            else if (isLeftMenuvisible == "AssignCC")
+                            {
+                                <DxGrid @ref="CCGrid"
+                                    Data="_forumTopicCC"
+                                    KeyFieldName="ID"
+                                    CustomizeElement="Grid_CustomizeElement"
+                                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                                    PageSizeSelectorVisible="true"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                    PageSize="20"
+                                    ValidationEnabled="true"
+                                    AutoExpandAllGroupRows="true"
+                                    CssClass="ch-360 " style="height: calc(100vh - 220px);"
+                                    RowClick="OnForumToRowClick"
+                                    AllowSelectRowByClick="true">
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
+                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" />
+                                        <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="160">
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    var item = (ForumTopics)context.DataItem;
+                                                }
+                                                @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    </Columns>
+                                    <TotalSummary>
+                                        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
+                                    </TotalSummary>
+                                </DxGrid>
+                            }
 
-
-
+                            
+                        </div>
+                    </div>
                 </div>
                 @*<div class="mini-menu-bar-down">
                 <div class="add-cloud-storage-btn">
@@ -116,20 +175,11 @@
                 </div>*@
             </div>
             <!-- Menu Bar Content -->
-            <div class="menu-bar-content-container">
+            <div class="menu-bar-content-container col-md-9">
                 <div class="content-padding-20">
                     <div class="menu-bar-content-container-heading">
-                        <div class="heading-icon-text">
-                           @* <div class="mb-cc-icon">
-                                <svg viewBox="-6 -6 32 32" role="presentation" class="app-svg icons-recents">
-                                    <g class="icons-default-fill">
-                                        <path d="M10 2C14.4183 2 18 5.58172 18 10C18 14.4183 14.4183 18 10 18C5.58172 18 2 14.4183 2 10C2 5.58172 5.58172 2 10 2ZM10 3C6.13401 3 3 6.13401 3 10C3 13.866 6.13401 17 10 17C13.866 17 17 13.866 17 10C17 6.13401 13.866 3 10 3ZM9.5 5C9.74546 5 9.94961 5.17688 9.99194 5.41012L10 5.5V10H12.5C12.7761 10 13 10.2239 13 10.5C13 10.7455 12.8231 10.9496 12.5899 10.9919L12.5 11H9.5C9.25454 11 9.05039 10.8231 9.00806 10.5899L9 10.5V5.5C9 5.22386 9.22386 5 9.5 5Z">
-                                        </path>
-                                    </g>
-                                </svg>
-                            </div>*@
+                        <div class="heading-icon-text">                          
                             <div class="mb-cc-text">
-
                                 <div class="card w-100">
                                     <div class="card-body p-0">
                                         <DxMenu Orientation="Orientation.Horizontal"
@@ -158,20 +208,39 @@
                                     <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
                                         <div class="uk-card-header" style="height: auto; border-bottom: none;">
                                             <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
-                                                @*<div class="uk-card-title uk-first-column" style="font-size: 16px;">
-                                                   <span> @item.TicketNo - @item.TopicName </span>
-                                                    <br>
-                                                    <div> Description :</div>
-                                                    <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
-                                                </div>*@
-
-
                                                 <div class="uk-card-header" style="border-bottom: none;">
                                                     <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
-                                                        <div class="uk-card-title uk-first-column" style="margin-right:10px; float: left; margin-top: 4px; margin-left: 10px;">@item.TicketNo - @item.TopicName</div>
+
+                                                        <div class="mailbox-read-info">
+                                                            <h3>@item.TopicName</h3>
+                                                            <h5>
+                                                                From: @item.FirstName
+                                                                <br>
+                                                                To:                                                                
+                                                                @if (item.TopicToList != null && item.TopicToList.Any())
+                                                                {
+                                                                    @foreach (var items in item.TopicToList)
+                                                                    {
+                                                                        <span>@items.FirstName ,</span>
+                                                                    }
+                                                                }
+                                                                <br>
+                                                                CC:
+                                                                @if (item.TopicCCList != null && item.TopicCCList.Any())
+                                                                {
+                                                                    @foreach (var items in item.TopicCCList)
+                                                                    {
+                                                                        <span>@items.FirstName ,</span>
+                                                                    }
+                                                                }                                                               
+                                                                <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@item.StartDate)</span>
+                                                            </h5>
+                                                        </div>                                                         
+
+                                                       @* <div class="uk-card-title uk-first-column" style="margin-right:10px; float: left; margin-top: 4px; margin-left: 10px;">@item.TicketNo - @item.TopicName</div>
                                                         <span class="uk-label uk-margin-auto-left">@Application.Common.Helper.Helper.FormatDate(@item.AddedDate)</span>
-                                                        
-                                                        <span class="uk-label uk-margin-auto-left" style="float: right; margin-top: -10px; margin-right: 0px;">
+                                                        *@
+                                                        <span class="uk-label uk-margin-auto-left" style="float: right; margin-top: -62px; margin-right: 10px;">
 
                                                             @if (isAddParticipant)
                                                             {
@@ -186,7 +255,9 @@
                                                             {
                                                                 @if (isCommandTopicClosed)
                                                                 {
-                                                                    <DxMenu Orientation="Orientation.Horizontal" DisplayMode="MenuDisplayMode.Mobile">
+                                                                    <div Id="showFlyout" class="handline fa fa-ellipsis-v" @onclick="() => IsOpenFlyout = true" style="font-size: 18px;    font-weight: bold;"></div>
+                                                                    @*<DxButton Id="showFlyout" Click="() => IsOpenFlyout = true">Show a flyout window</DxButton>*@
+                                                                    @*<DxMenu Orientation="Orientation.Horizontal" DisplayMode="MenuDisplayMode.Mobile">
                                                                         <Items>
                                                                             <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
                                                                             <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
@@ -201,7 +272,7 @@
                                                                             }
 
                                                                         </Items>
-                                                                    </DxMenu>
+                                                                    </DxMenu>*@
                                                                 }
                                                                 else
                                                                 {
@@ -218,7 +289,7 @@
                                                 </div>
 
                                                 @if(isDescription)
-                                                {
+                                                {   
                                                     <div>
                                                         <div> Description :</div>
                                                         <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
@@ -236,6 +307,45 @@
                         @* <div class="spacing-box"></div>  *@
                         @if (isMenuvisible == "Posts")
                         {
+                            @if (_headTopic != null && _headTopic.Any())
+                            {
+                                @foreach (var item in _headTopic)
+                                {
+
+                                    <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="margin-right: 10px;">
+                                        @*<div class="uk-card-header">
+                                            <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">                                               
+                                                <div class="mailbox-controls with-border pull-right">
+                                                    <div class="btn-group">
+                                                        <button type="button" @onclick="@(() => onreply(item.ID))" class="btn btn-default"><i class="fa fa-reply"></i> Reply</button>
+                                                    </div>                                                   
+                                                    <button type="button" @onclick="@(() => assignedList(item.ID))" class="btn btn-default btn-sm" data-toggle="tooltip" title="Assign To">
+                                                        <i class="fa fa-users"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>*@
+                                        <div class="uk-card-body">
+                                            <p class="uk-text-success">
+                                                <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
+
+                                            </p>
+
+                                            <div class="uk-card-footer">
+                                                <div>
+                                                    <div class="">                                                        
+                                                        @foreach (var attachment in item.documents)
+                                                        {
+                                                            <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                        }    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>                                                                         
+                                    </div>
+
+                                }
+                            }
 
 
                             <div id="tableData">
@@ -253,49 +363,39 @@
                                                 </div>
                                             }
 
-                                            <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
+                                            <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="margin-right: 10px;">
                                                 <div class="uk-card-header">
-                                                    <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
-                                                        <div class="uk-card-title uk-first-column" style="margin-right:10px; float: left; margin-top: 4px; margin-left: 10px;">@item.UserName</div>
-                                                        <span class="uk-label uk-margin-auto-left">@Application.Common.Helper.Helper.FormatDate(@item.AddedDate)</span>
-                                                        <div title="Assigned To" class="handline" style="margin-top: 0px; float: right;margin-right: 10px;" @onclick="@(() => assignedList(item.ID))"> <i class="fa fa-users" aria-hidden="true"></i> </div>
-                                                        <span class="uk-label uk-margin-auto-left" style="float: right; margin-right: 15px; margin-top: 1px;">
-                                                            <div class="handline" @onclick="@(() => onreply(item.ID))">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" style="margin-top: -5px;" width="16" height="16" fill="currentColor" class="bi bi-reply" viewBox="0 0 16 16">
-                                                                    <path d="M6.598 5.013a.144.144 0 0 1 .202.134V6.3a.5.5 0 0 0 .5.5c.667 0 2.013.005 3.3.822.984.624 1.99 1.76 2.595 3.876-1.02-.983-2.185-1.516-3.205-1.799a8.74 8.74 0 0 0-1.921-.306 7.404 7.404 0 0 0-.798.008h-.013l-.005.001h-.001L7.3 9.9l-.05-.498a.5.5 0 0 0-.45.498v1.153c0 .108-.11.176-.202.134L2.614 8.254a.503.503 0 0 0-.042-.028.147.147 0 0 1 0-.252.499.499 0 0 0 .042-.028l3.984-2.933zM7.8 10.386c.068 0 .143.003.223.006.434.02 1.034.086 1.7.271 1.326.368 2.896 1.202 3.94 3.08a.5.5 0 0 0 .933-.305c-.464-3.71-1.886-5.662-3.46-6.66-1.245-.79-2.527-.942-3.336-.971v-.66a1.144 1.144 0 0 0-1.767-.96l-3.994 2.94a1.147 1.147 0 0 0 0 1.946l3.994 2.94a1.144 1.144 0 0 0 1.767-.96v-.667z" />
-                                                                </svg>  Reply
-                                                            </div>                                                            
-                                                        </span>
+                                                    <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">                                                       
+                                                        <div class="mailbox-read-info">
+                                                           @* <h3>Message Subject Is Placed Here</h3>*@
+                                                            <h5>
+                                                                From: @item.UserName
+                                                                <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</span>
+                                                            </h5>
+                                                        </div>
+                                                        <!-- /.mailbox-read-info -->
+                                                        <div class="mailbox-controls with-border pull-right">
+                                                            <div class="btn-group">
+                                                                <button type="button" @onclick="@(() => onreply(item.ID))" class="btn btn-default"><i class="fa fa-reply"></i> Reply</button>
+                                                            </div>
+                                                            <!-- /.btn-group -->
+                                                            <button type="button" @onclick="@(() => assignedList(item.ID))" class="btn btn-default btn-sm" data-toggle="tooltip" title="Assign To">
+                                                                <i class="fa fa-users"></i>
+                                                            </button>
+                                                        </div>
                                                         
                                                     </div>
                                                 </div>
-                                                <div class="uk-card-body">
-                                                    @{
-                                                        string htmlString = "";
-                                                        // byte[] byteArray = Encoding.UTF8.GetBytes(item.Message);
-                                                        if(item.FileData != null)
-                                                        {
-                                                            htmlString = Encoding.UTF8.GetString(item.FileData);
-                                                        }
-                                                        else
-                                                        {
-                                                            htmlString = "";
-                                                        }
-                                                        
-                                                    }
-                                                    <p class="uk-text-success">
-                                                       @* <div>@htmlString</div>
-                                                        <div>@(new MarkupString(htmlString))</div>*@
+                                                <div class="uk-card-body">                                                   
+                                                    <p class="uk-text-success">                                                       
                                                         <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
-                                                       @* @item.Message*@
+                                                      
                                                     </p>
 
                                                     <div class="uk-card-footer">
                                                         <div>
                                                             <div class="accordion-item">
-                                                                <div class="accordion-title" @onclick="@(() => ToggleDocItemVisibility(item.ID))"> Attachment </div>
-
-                                                                @*<p style="color: #5151b3;" class="handline" @onclick="@(() => ToggleDocItemVisibility(item.ID))">Attachment </p>*@
+                                                                <div class="accordion-title" @onclick="@(() => ToggleDocItemVisibility(item.ID))"> Attachment </div>                                                               
                                                                
                                                                    @if (DocitemVisibility.ContainsKey(item.ID) && DocitemVisibility[item.ID])
                                                                     {
@@ -303,14 +403,11 @@
                                                                         {
                                                                             <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
                                                                         }
-                                                                
-                                                           
-                                                                        
                                                                             string firststring = "#overviewDemoSelectButton_";
                                                                             Guid? secondstring = item.SessionId;
                                                                             string extt = firststring + secondstring;
                                                                         
-                                                                    <div id="overviewDemoSelectButton_@item.SessionId" class="tag fa fa-plus-square"></div>
+                                                                        <div id="overviewDemoSelectButton_@item.SessionId" class="tag fa fa-plus-square"></div>
                                                                             <DxUpload @ref="MyUpload" Name="files"
                                                                               AcceptedFileTypes=@AcceptedFileTypes
                                                                               Visible="@UploadVisible"
@@ -326,7 +423,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>                              
+                                                </div>                                           
 
                                                 @if (item.ReplyConversation.Count() > 0)
                                                 {
@@ -340,9 +437,23 @@
                                                                     @foreach (var items in @item.ReplyConversation)
                                                                     {
                                                                         <div class="lstcoversationrply">
-                                                                            <div><span style="font-weight:600">@item.UserName</span>, @item.AddedDate</div>
-                                                                            <div class="handline" title="Assigned To" style="margin-top: -20px; float: right;" @onclick="@(() => assignedList(item.ID))"> <i class="fa fa-users" aria-hidden="true"></i> </div>
-                                                                            @*<div>@items.Message</div>*@
+                                                                            <div class="mailbox-read-info" style="border-bottom:1px solid #f4f4f4">
+                                                                               @* <h3>Message Subject Is Placed Here</h3>*@
+                                                                                <h5>
+                                                                                    From: @item.UserName
+                                                                                    <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</span>
+                                                                                </h5>
+                                                                            </div>
+                                                                            <!-- /.mailbox-read-info -->
+                                                                            <div class="mailbox-controls with-border pull-right">
+                                                                                <div class="btn-group">
+                                                                                    <button type="button" @onclick="@(() => onreply(item.ID))" class="btn btn-default"><i class="fa fa-reply"></i> Reply</button>
+                                                                                </div>
+                                                                                <!-- /.btn-group -->
+                                                                                <button type="button" @onclick="@(() => assignedList(item.ID))" class="btn btn-default btn-sm" data-toggle="tooltip" title="Assign To">
+                                                                                    <i class="fa fa-users"></i>
+                                                                                </button>
+                                                                            </div>
                                                                             <div>
                                                                                 <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@items.FileData" />
                                                                             </div>
@@ -388,126 +499,105 @@
 
                                 @if (isComponentVisible)
                                 {
-                                    <div id="dropdown-customization-target-container" class="open-button">
-                                        <DxButton Click="() => IsOpen = !IsOpen"
-                                          RenderStyle="@ButtonRenderStyle.Secondary">SHOW A DROPDOWN</DxButton>
-                                    </div>
 
-
-
-
-                                    <DxDropDown @bind-IsOpen="@IsOpen"
-                                        MinWidth="max(25vw, 250px)"
-                                        PositionMode="DropDownPositionMode.Bottom"
-                                        PositionTarget="#dropdown-customization-target-container"
-                                        RestrictionTarget="#Navigation-DropDown-Customization"
-                                        CloseMode="DropDownCloseMode.Close"
-                                        PreventCloseOnPositionTargetClick="true"
-                                        HeaderVisible="true"
-                                        HeaderText="Edit Contact"
-                                        FooterVisible="true">
-                                        <BodyTextTemplate>
-                                           welcome
-                                        </BodyTextTemplate>
-                                        <FooterTextTemplate>
-                                            <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="OK" Click="@context.CloseCallback" />
-                                            <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@context.CloseCallback" />
-                                        </FooterTextTemplate>
-                                    </DxDropDown>
-
-
-
-
-                                    <div class="open-button-old" style="width:99.5%">
-                                        @if (_replyComment != null && _replyComment.Any())
-                                        {
-                                            @foreach (var item in _replyComment)
-                                            {
-                                                <div class="replybox">
-                                                    <div> <i class="fa fa-reply" aria-hidden="true"></i> Reply</div>
-                                                    <div class="closebtn" @onclick="closeReply">X</div>
-                                                    @*<p>@item.Message</p>*@
-                                                    <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
-                                                    <div>@item.UserName  , @item.AddedDate</div>
-                                                </div>
-                                            }
-                                        }
-                                         @*       DocumentContentChanged="OnmsgContentChanged"
-                                        Selection="@richSelection" SelectionChanged="OnSelectionChanged"
-                                         *@
-                                        @if(isCommand)
-                                        {
-                                            @if(isCommandTopicClosed)
-                                            {
-                                                <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
-                                                @* <DataAnnotationsValidator />*@
+                                    <DxButton RenderStyle="ButtonRenderStyle.Success" CssClass="me-1 btn-success open-button"
+                                      Click="() => WindowVisible = !WindowVisible" style="width:200px;">New Conversation</DxButton>
+                                    <DxWindow @bind-Visible=WindowVisible 
+                                      HeaderText="Post"
+                                      HorizontalAlignment="HorizontalAlignment.Right"
+                                      VerticalAlignment="DevExpress.Blazor.VerticalAlignment.Bottom"
+                                      CloseOnEscape="true"
+                                      ShowFooter=false
+                                      AllowResize="true"
+                                      ShowCloseButton="false"                                                
+                                      Width="800px" @ref="dxWindow">
+                                        <BodyTemplate Context="Context">
+                                            <div class="close-button handline" @onclick="CloseClick">X</div>
+                                            <div style="padding: 20px">
                                                 <DxFormLayout>
-                                                    <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
-                                                        <DxTagBox NullText="Select Assign To..."
-                                                      Data="@_assigntoItems"
-                                                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                                      ValueFieldName="UserID"
-                                                      TextFieldName="FirstName"
-                                                      @bind-Values="@Data.AssigntoIds"
-                                                      CssClass="cw-480" />
-                                                    </DxFormLayoutItem>
-                                                    <DxFormLayoutItem ColSpanMd="12">
-                                                        <div class="">
-                                                            <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
-                                                            @* <DxRichEdit @ref="@msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContentChanged="OnmsgContentChanged" DocumentContent="@documentContent" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple"></DxRichEdit>
+                                                    <div class="open-button-old" style="width:99.5%">
+                                                        @if (_replyComment != null && _replyComment.Any())
+                                                        {
+                                                            @foreach (var item in _replyComment)
+                                                            {
+                                                                <div class="replybox">
+                                                                    <div> <i class="fa fa-reply" aria-hidden="true"></i> Reply</div>
+                                                                    <div class="closebtn" @onclick="closeReply">X</div>
+                                                                    @*<p>@item.Message</p>*@
+                                                                    <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg editor-reply-height" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
+                                                                    <div>@item.UserName  , @item.AddedDate</div>
+                                                                </div>
+                                                            }
+                                                        }
+                                                        @*       DocumentContentChanged="OnmsgContentChanged"
+                                                Selection="@richSelection" SelectionChanged="OnSelectionChanged"
                                                 *@
-                                                        </div>
-                                                        @* <DxMemo @bind-Text="@Data.Message" NullText="Message" style="height:170px;" />
-                                            <ValidationMessage For="@(() => Data.Message)" />*@
-                                                    </DxFormLayoutItem>
-                                                    <DxFormLayoutItem ColSpanMd="12">
-                                                        <DxButton SubmitFormOnClick="true"
-                                                      Text=""
-                                                      CssClass="fa fa-paper-plane sndrot"
-                                                                  style="float:right"
-                                                      RenderStyle="ButtonRenderStyle.Secondary" />
-                                                        <div style="display:flex;" class="attmode">
-                                                            @*<div @onclick="@(() => isFileUpload = true)" class="fa fa-paperclip cdspcc" aria-hidden="true"></div>*@
-                                                            <div id="attachmentSelectButton" class="fa fa-paperclip handline cdspcc" aria-hidden="true"></div>
+                                                        @if (isCommand)
+                                                        {
+                                                            @if (isCommandTopicClosed)
+                                                            {
+                                                                <div class="boxreplay">
 
-                                                            <div class="">
-                                                                <DxUpload @ref="uploadComponent" Name="files"
-                                                              Visible="@AttachmentUploadVisible"
-                                                                  AcceptedFileTypes=@AcceptedFileTypes
-                                                                  UploadMode="@UploadMode.OnButtonClick"
-                                                                  UploadUrl="@GetUploadUrl()"
-                                                                  AllowMultiFileUpload="true"
-                                                                  ExternalSelectButtonCssSelector="#attachmentSelectButton"
-                                                                  SelectedFilesChanged="@AttachmentSelectedFilesChanged"
-                                                                  FileUploaded="@isUploadSuccess"
-                                                                  FileUploadError="@OnUploadError">
-                                                                </DxUpload>
-                                                                <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
-                                                                @* <button class="btn btn-success" RenderStyle="ButtonRenderStyle.Success" style="float:right;" @onclick="UploadFiles">Add</button>*@
-                                                            </div>
+                                                                    <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
+                                                                        @* <DataAnnotationsValidator />*@
+                                                                        <DxFormLayout>
+                                                                            <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
+                                                                                <DxTagBox NullText="Select Assign To..."
+                                                                          Data="@_assigntoItems"
+                                                                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                                          ValueFieldName="UserID"
+                                                                          TextFieldName="FirstName"
+                                                                          @bind-Values="@Data.AssigntoIds"
+                                                                          CssClass="cw-480" />
+                                                                            </DxFormLayoutItem>
+                                                                            <DxFormLayoutItem ColSpanMd="12">
+                                                                                <div class="">
+                                                                                    <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg editor-box-height" ViewType="ViewType.Simple" />
+                                                                                </div>
+                                                                            </DxFormLayoutItem>
+                                                                            <DxFormLayoutItem ColSpanMd="12">
+                                                                                <DxButton SubmitFormOnClick="true"
+                                                                          Text=""
+                                                                          CssClass="fa fa-paper-plane sndrot"
+                                                                                          style="float:right"
+                                                                          RenderStyle="ButtonRenderStyle.Secondary" />
+                                                                                <div style="display:flex;" class="attmode">
+                                                                                    <div id="attachmentSelectButton" class="fa fa-paperclip handline cdspcc" aria-hidden="true"></div>
 
+                                                                                    <div class="">
+                                                                                        <DxUpload @ref="uploadComponent" Name="files"
+                                                                                  Visible="@AttachmentUploadVisible"                                                                                 
+                                                                                  AcceptedFileTypes=@AcceptedFileTypes
+                                                                                  UploadMode="@UploadMode.OnButtonClick"
+                                                                                  UploadUrl="@GetUploadUrl()"
+                                                                                  AllowMultiFileUpload="true"
+                                                                                  ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                                                                                  SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                                                                                  FileUploaded="@isUploadSuccess"
+                                                                                  FileUploadError="@OnUploadError">
+                                                                                        </DxUpload>
+                                                                                        <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </DxFormLayoutItem>
+                                                                        </DxFormLayout>
+                                                                    </EditForm>
+                                                                </div>
+                                                            }
+                                                        }
 
-                                                            @*<DxUpload @ref="uploadComponent" Name="files" UploadUrl="@GetUploadUrl()" FileUploaded="@OnFileUploaded"></DxUpload>*@
-                                                            @*<div class="fa fa-ellipsis-v cdspcc" aria-hidden="true"></div>*@
-                                                        </div>
+                                                        @* <DxRichEdit Height="500px" Width="100%"></DxRichEdit>*@
 
-
-                                                        @*   <DxButton RenderStyle="ButtonRenderStyle.Secondary"
-                                            Text="Close"
-                                            style="color: white;"
-                                            Click="@(() => isComponentVisible = false)"
-                                            IconCssClass="btn-icon-undo"
-                                            CssClass="me-1 btn-success" />*@
-
-                                                    </DxFormLayoutItem>
+                                                    </div>
                                                 </DxFormLayout>
-                                            </EditForm>
-                                            }
-                                        }
-                                       
-                                        @* <DxRichEdit Height="500px" Width="100%"></DxRichEdit>*@
-
-                                    </div>
+                                            </div>
+                                        </BodyTemplate>
+                                        <FooterTextTemplate>
+                                            <DxButton SubmitFormOnClick="true" Text="Post" CssClass="" RenderStyle="ButtonRenderStyle.Primary" />
+                                            <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="OK" Click="@context.CloseCallback" />
+                                            <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel" Click="@context.CloseCallback" />
+                                        </FooterTextTemplate>
+                                    </DxWindow>
                                 }
                                 else
                                 {
@@ -530,7 +620,7 @@
                                 PageSizeSelectorAllRowsItemVisible="true"
                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
                                 PageSize="20"
-                                    style="height:calc(100vh - 289px)"
+                                style="height:calc(100vh - 289px)"
                                 CssClass="ch-360"
                                 AutoExpandAllGroupRows="true"
                                 SelectionMode="GridSelectionMode.Multiple"
@@ -558,11 +648,7 @@
                           
                         }
                         else
-                        {
-                           @* <div class="card-header text-center">
-                                <span> Participant List</span>
-                                @*<DxButton style="float:right;" RenderStyle="ButtonRenderStyle.Info" class="btn btn-add" Click="@onClickParticipant">Add</DxButton>
-                            </div>*@
+                        {                          
                             <div class="">
                                 <DxGrid @ref="Grid" Data="_participant"
                                     KeyFieldName="ID"
@@ -601,6 +687,24 @@
         </div>
     </div>
 </div>
+
+<DxFlyout @bind-IsOpen="@IsOpenFlyout"
+          PositionTarget="#showFlyout"
+          Position="FlyoutPosition.Left"
+          CloseOnOutsideClick="true"
+          FooterVisible="false">
+           <BodyTextTemplate>
+                <DxMenu Orientation="Orientation.Horizontal">
+                    <Items>
+                        <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
+                        <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
+                    </Items>
+                </DxMenu>               
+            </BodyTextTemplate>
+    <FooterTextTemplate>       
+        <DxButton Text="close" Click="@context.CloseCallback" />
+    </FooterTextTemplate>
+</DxFlyout>
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="100%" Height="100%" @bind-Visible="@PreviewDocPopup">
     <BodyContentTemplate>
@@ -796,7 +900,16 @@
 
 
 @code {
+    IGrid TOGrid { get; set; }
+    IGrid CCGrid { get; set; }
+    DxWindow dxWindow;
+    bool WindowVisible { get; set; } = false;
+   
+    private List<ForumTopics>? _forumTopicTo;
+    private List<ForumTopics>? _forumTopicCC;
+
     bool IsOpen { get; set; } = false;
+    bool IsOpenFlyout { get; set; } = false;
     Selection selection; 
     Selection richSelection { get; set; }
     [Parameter]
@@ -848,10 +961,12 @@
     bool PreviewDocPopup { get; set; } = false;
     private Dictionary<int, bool> itemVisibility = new Dictionary<int, bool>();
     private Dictionary<int, bool> DocitemVisibility = new Dictionary<int, bool>();
+    private Dictionary<long, bool> topicitemVisibility = new Dictionary<long, bool>();
     AccordionExpandMode ExpandMode { get; set; } = AccordionExpandMode.SingleOrNone;
     AccordionExpandCollapseAction ExpandCollapseAction { get; set; } = AccordionExpandCollapseAction.HeaderClick;
 
     string isMenuvisible = "Posts";
+    string isLeftMenuvisible = "AssignTo";
     DxTreeView treeView;
     IGrid? Grid { get; set; }
     bool isFileUpload = false;
@@ -915,6 +1030,11 @@
     {
         await JSRuntime.InvokeVoidAsync("scrollToElement", ".msgOpen");
     }
+    async Task CloseClick(MouseEventArgs args)
+    {
+        await dxWindow.CloseAsync();
+        closeReply();
+    }
     protected async void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
         SelectedFilesCount = files.ToList().Count;       
@@ -940,6 +1060,19 @@
     private void RemoveFile(UploadFileInfo file)
     {
         SelectedFiles.Remove(file);
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -1120,7 +1253,7 @@
     {
         isDescription = true;
     }
-     private void hideTopicDescription()
+    private void hideTopicDescription()
     {
         isDescription = false;
     }
@@ -1254,14 +1387,13 @@
 
 
     }   
+
     void OnCustomizeToolbar(IToolbar toolbar)
     {
         //// Returns the first group
         //IBarGroup firstGroup = toolbar.Groups[0];
         //// Returns the Table group
         //IBarGroup tableGroup = toolbar.Groups[RichEditToolbarGroupNames.Table];
-
-
 
         toolbar.Groups.Clear();
 
@@ -1272,9 +1404,6 @@
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Table);
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Picture);
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
-
-
-
 
     }
 
@@ -1604,23 +1733,30 @@
         isAllPlistVisible = false;
         await LoadGetPList();
     }
+    async Task OnForumToRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");       
+        SelectedGroup = UniqueId.ToString();
+        await LoadData();
+        StateHasChanged();
+    }
     protected override async Task OnInitializedAsync()
     {
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
 
         onloadSession();
-       
-        //var model = await Mediator.Send(new GetAllForumTypes());
-        //_types = model;
-        //Items = model.Select((item, index) => (item, index));
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        _forumTopicTo = await Mediator.Send(new GetForumTopicTo(applicationUser.UserID));
+        _forumTopicCC = await Mediator.Send(new GetForumTopicCC(applicationUser.UserID));
 
         _topics = await Mediator.Send(new GetUserForumTopics(applicationUser.UserID));
 
         _TreeView = await Mediator.Send(new GetTreeList(applicationUser.UserID));
-
+        await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
     }
     void onloadSession()
@@ -1636,11 +1772,16 @@
         if (id > 0)
         {
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
+            WindowVisible = true;
         }
     }
     void closeReply()
     {
         _replyComment = null;
+    }
+    async void OnLeftMenuItemClick(string text)
+    {
+        isLeftMenuvisible = text;
     }
     async void OnMenuItemClick(string text)
     {

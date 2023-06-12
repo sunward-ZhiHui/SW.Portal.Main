@@ -46,10 +46,12 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                //var query = "SELECT * FROM ForumTopics WHERE ID = @Id";
-                var query = @"SELECT * FROM ForumTopics TS 
-                                INNER JOIN ForumTypes TP ON TS.TypeId = TP.ID                                
-                                WHERE TS.ID = @Id";
+                var query = @"SELECT * FROM ForumTopics TS
+                            INNER JOIN Employee E ON TS.TopicFrom = E.UserID
+                            WHERE ID = @Id";
+                //var query = @"SELECT * FROM ForumTopics TS 
+                //                INNER JOIN ForumTypes TP ON TS.TypeId = TP.ID                                
+                //                WHERE TS.ID = @Id";
                 var parameters = new DynamicParameters();
                 parameters.Add("ID", id, DbType.Int64);
 
@@ -57,6 +59,35 @@ namespace Infrastructure.Repository.Query
                 {
                     connection.Open();
                     var res = connection.Query<ForumTopics>(query, parameters).ToList();
+
+                    var subQueryDocs = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
+
+                    var parametersDocs = new DynamicParameters();
+                    parametersDocs.Add("SessionID", res[0].SessionId);
+
+                    var subQueryDocsResults = connection.Query<Documents>(subQueryDocs, parametersDocs).ToList();
+
+
+                    var subQueryTo = @"select E.FirstName,FT.UserId,FT.TopicId from forumtopicTo FT
+                                        INNER JOIN Employee E on E.UserID = FT.UserId
+                                        where FT.TopicId = @ID";
+                    var parametersTo = new DynamicParameters();
+                    parametersTo.Add("ID", res[0].ID);
+                    var subQueryToResults = connection.Query<ForumAssignToList>(subQueryTo, parametersTo).ToList();
+
+
+                    var subQueryCC = @"select E.FirstName,FC.UserId,FC.TopicId from forumtopicCC FC
+                                        INNER JOIN Employee E on E.UserID = FC.UserId
+                                        where FC.TopicId = @ID";
+                    var parametersCC = new DynamicParameters();
+                    parametersCC.Add("ID", res[0].ID);
+                    var subQueryCCResults = connection.Query<ForumAssignToList>(subQueryCC, parametersCC).ToList();
+
+
+                    res[0].documents = subQueryDocsResults;
+                    res[0].TopicToList = subQueryToResults;
+                    res[0].TopicCCList = subQueryCCResults;
+
                     return res;
 
                 }
@@ -105,6 +136,54 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<ForumTopics>> GetTopicToList(long UserId)
+        {
+            try
+            {                
+                var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM ForumTopics TS 
+                                INNER JOIN ForumTopicTo TP ON TS.ID = TP.TopicId 
+                                INNER JOIN Employee E ON TS.TopicFrom = E.UserId                         
+                                WHERE TP.UserId = @UserId order by TS.StartDate DESC";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<ForumTopics>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<ForumTopics>> GetTopicCCList(long UserId)
+        {
+            try
+            {
+                var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM ForumTopics TS 
+                                INNER JOIN ForumTopicCC TP ON TS.ID = TP.TopicId
+                                INNER JOIN Employee E ON TS.TopicFrom = E.UserId                                    
+                                WHERE TP.UserId = @UserId order by TS.StartDate DESC";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<ForumTopics>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async Task<List<ForumTopics>> GetTreeTopicList(long UserId)
         {
@@ -115,7 +194,7 @@ namespace Infrastructure.Repository.Query
                 var query = @"SELECT TS.ID,TS.TicketNo,TS.EndDate,TS.TopicName,TS.TypeId,TS.CategoryId,TS.Remarks,TS.SeqNo,TPS.Name as TypeName FROM ForumTopics TS 
                                 INNER JOIN ForumTopicParticipant TP ON TS.ID = TP.TopicId 
                                 INNER JOIN ForumTypes TPS ON TS.TypeId = TPS.ID 
-                                WHERE TP.UserId = @UserId";
+                                WHERE TP.UserId = @UserId order by TS.StartDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId);

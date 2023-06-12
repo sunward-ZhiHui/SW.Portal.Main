@@ -1,0 +1,40 @@
+﻿
+@page "/appsamplingline"
+
+@inject IJSRuntime jsRuntime
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+
+<DxGrid Data="@_samplingLineItems"
+        PageSize="5"
+        AutoExpandAllGroupRows="true">
+    <Columns>
+        <DxGridDataColumn FieldName="AppSamplingLineId" />
+        <DxGridDataColumn FieldName="AppSamplingId" Width="40%" />
+        <DxGridDataColumn FieldName="SamplingPurposeId" />
+        <DxGridDataColumn FieldName="DrumNo" />
+        <DxGridDataColumn FieldName="QcsampleNo" />
+        <DxGridDataColumn FieldName="Qty" />
+    </Columns>
+
+</DxGrid>
+@code {
+    [Parameter]
+    public AppSampling sampling { get; set; }
+    private List<AppSamplingLine> _samplingLineItems;
+    IGrid Grid { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var model = await Mediator.Send(new GetAllSamplingLineQuery());
+        _samplingLineItems = model
+            .Where(i => i.AppSamplingId == sampling.SamplingId)
+            .ToList();
+    }
+}
+

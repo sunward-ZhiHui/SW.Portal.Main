@@ -297,6 +297,10 @@ main {
     border-style: solid;
     border-color: transparent transparent rgb(199 199 199);
     border-radius: 5px;
+    padding-bottom: 10px;
+    margin-left: 25px;
+    border: 1px solid #cdcdcdee;
+    margin-bottom: 10px;
 }
 .replybox {
     color: black;
@@ -1349,9 +1353,12 @@ a.icon {
     border-bottom-left-radius: 3px;
     padding: 10px;
 }
+.uk-text-success {
+    margin-bottom: -10px;
+}
 .mailbox-read-info {
-   /* border-bottom: 1px solid #f4f4f4;*/
-    padding: 10px;
+    /* border-bottom: 1px solid #f4f4f4;*/
+    padding: 1px 10px;
 }
     .mailbox-read-info h3 {
         font-size: 20px;

@@ -53,7 +53,9 @@ namespace Infrastructure
             services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();
             services.AddTransient<IFourmCategoryCommandRepository, FourmCategoryCommandRepository>();
             services.AddTransient<IForumTopicsQueryRepository, ForumTopicsQueryRepository>();
+            services.AddTransient<IEmailTopicsQueryRepository, EmailTopicsQueryRepository>();
             services.AddTransient<IForumConversationsQueryRepository, ForumConversationsQueryRepository>();
+            services.AddTransient<IEmailConversationsQueryRepository, EmailConversationsQueryRepository>();
             services.AddTransient<IEmployeeEmailInfoQueryRepository, EmployeeEmailInfoQueryRepository>();
             services.AddTransient<IEmployeeReportTQueryoRepository, EmployeeReportTQueryoRepository>();
             services.AddTransient<IEmployeeEmailInfoForwardQueryRepository, EmployeeEmailInfoForwardQueryRepository>();

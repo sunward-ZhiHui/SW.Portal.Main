@@ -1,0 +1,27 @@
+﻿using Core.Entities;
+using Core.Repositories.Query.Base;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Core.Repositories.Query
+{
+    public interface IEmailTopicsQueryRepository : IQueryRepository<EmailTopics>
+    {
+        //Custom operation which is not generic
+        Task<IReadOnlyList<EmailTopics>> GetAllAsync();
+        Task<List<EmailTopics>> GetByIdAsync(Int64 id);
+        Task<List<EmailTopics>> GetUserTopicList(Int64 UserId);
+        Task<List<EmailTopics>> GetTopicToList(Int64 UserId);
+        Task<List<EmailTopics>> GetTopicCCList(Int64 UserId);      
+        Task<List<TopicParticipant>> GetParticipantList(Int64 topicId);        
+        Task<EmailTopics> GetCustomerByEmail(string email);
+        long Insert(EmailTopics EmailTopics);
+        Task<long> InsertParticipant(TopicParticipant topicParticipant);
+        Task<EmailTopics> GetTopicListAsync();      
+        Task<long> UpdateDueDate(EmailTopics EmailTopics);
+        Task<long> UpdateTopicClose(EmailTopics EmailTopics);
+    }
+}

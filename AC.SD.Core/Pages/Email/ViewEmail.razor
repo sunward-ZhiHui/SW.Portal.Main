@@ -12,7 +12,7 @@
 @using DevExpress.Blazor.Internal
 @using System.Collections.Generic
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@page "/ForumConversations"
+@page "/ViewEmail"
 @using DevExpress.Blazor.RichEdit
 @using DevExpress.Blazor.Office
 @using System.Globalization
@@ -56,23 +56,114 @@
             <!-- Mini Menu Bar -->
             <div class="mini-menu-bar col-md-3">
                 <div class="mini-menu-bar-top">
-                    <div class="mini-menu-bar-heading">
+                    @*<div class="mini-menu-bar-heading">
                         <div class="files-title">General Information</div>
-                    </div> 
+                    </div> *@
+                    <div class="card w-100" style="margin-bottom:10px; margin-top:10px;">
+                        <div class="card-body p-0">
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Assign To" class="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" IconCssClass="fa fa-envelope" Click="@(() => OnLeftMenuItemClick("AssignTo"))" />
+                                    
+                                    <DxMenuItem Text="CC" class="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" IconCssClass="popup-image popup-icon-position" Click="@(() => OnLeftMenuItemClick("AssignCC"))" />
+                                </Items>
+                            </DxMenu>
+                        </div>
+                    </div>
+
                     <div>
                         <div class="views-accordion">
-                            <DxTreeView Data="@_TreeView"
-                                        @bind-FilterString="FilterString"
-                                        FilterMinLength="2"
-                                        ShowFilterPanel="true"
-                                        FilterMode="FilterMode"
-                                        AllowSelectNodes=true
-                                        LoadChildNodesOnDemand=false
-                                        SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
-                                <DataMappings>
-                                    <DxTreeViewDataMapping Children="children" CssClass="CssClass" Text="Label" Name="ID" />
-                                </DataMappings>
-                            </DxTreeView>
+                            @*@if (_forumTopicTo != null && _forumTopicTo.Any())
+                            {
+                                @foreach (var item in _forumTopicTo)
+                                {
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <article class="media">                                        
+                                                <div class="media-body">
+                                                    <div class="content">
+                                                        <p class="h5">@item.FirstName <small>@item.LastName</small> <small class="float-right text-muted">@Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</small></p>
+                                                        <p>@item.TopicName</p>
+                                                    </div>                                         
+                                                </div>
+                                            </article>
+                                        </div>
+                                    </div>
+                                }
+                            }*@
+
+                        @if (isLeftMenuvisible == "AssignTo")
+                        {
+                            <DxGrid @ref="TOGrid"
+                                    Data="_forumTopicTo"
+                                    KeyFieldName="ID"
+                                    CustomizeElement="Grid_CustomizeElement"
+                                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                                    PageSizeSelectorVisible="true"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                    PageSize="20"                                                                  
+                                    ValidationEnabled="true"
+                                    AutoExpandAllGroupRows="true"
+                                    CssClass="w-100" style="height: calc(100vh - 220px);"
+                                    RowClick="OnEmailToRowClick"
+                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                    AllowSelectRowByClick="true">
+                                <Columns>  
+                                        <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="100" />
+                                    <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
+                                    <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="160">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                var item = (EmailTopics)context.DataItem;
+                                            }
+                                            @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />
+                                    </Columns>
+                                <TotalSummary>
+                                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
+                                </TotalSummary>
+                                </DxGrid>
+                            }
+                            else if (isLeftMenuvisible == "AssignCC")
+                            {
+                                <DxGrid @ref="CCGrid"
+                                    Data="_forumTopicCC"
+                                    KeyFieldName="ID"
+                                    CustomizeElement="Grid_CustomizeElement"
+                                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                                    PageSizeSelectorVisible="true"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                    PageSize="20"
+                                    ValidationEnabled="true"
+                                    AutoExpandAllGroupRows="true"
+                                    CssClass="ch-360 " style="height: calc(100vh - 220px);"
+                                    RowClick="OnEmailToRowClick"
+                                    AllowSelectRowByClick="true">
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
+                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" />
+                                        <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="160">
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    var item = (EmailTopics)context.DataItem;
+                                                }
+                                                @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    </Columns>
+                                    <TotalSummary>
+                                        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
+                                    </TotalSummary>
+                                </DxGrid>
+                            }
+
+                            
                         </div>
                     </div>
                 </div>
@@ -102,7 +193,7 @@
                                                 <DxMenuItem Text="Posts" class="@((isMenuvisible == "Posts" ? "tActive": "tfiles"))" IconCssClass="menu-icon-products menu-icon" Click="@(() => OnMenuItemClick("Posts"))" />
                                                 <DxMenuItem Text="Files" Enabled="@isEnabled" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
                                                 <DxMenuItem Text="Todo" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
-                                                <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />
+                                                @*<DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />*@
                                             </Items>
                                         </DxMenu>
                                     </div>
@@ -240,17 +331,20 @@
                                                 <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
 
                                             </p>
-
-                                            <div class="uk-card-footer">
-                                                <div>
-                                                    <div class="">                                                        
-                                                        @foreach (var attachment in item.documents)
-                                                        {
-                                                            <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
-                                                        }    
+                                            @if (item.documents.Any())
+                                            {
+                                                <div class="uk-card-footer">
+                                                    <div>
+                                                        <div class="">
+                                                            @foreach (var attachment in item.documents)
+                                                            {
+                                                                <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                            }
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            }
+                                            
                                         </div>                                                                         
                                     </div>
 
@@ -296,20 +390,19 @@
                                                                         <button type="button" @onclick="@(() => onreply(item.ID))" style="border: 1px solid #eeebeb; padding: 8px; border-radius: 5px;" class="">
                                                                             <i class="fa fa-reply"></i> Reply
                                                                         </button>
-                                                                    </div>                                                                   
+                                                                    </div>
                                                                 </div>
                                                             </h5>
                                                         </div>
-                                                       
+                                                        <!-- /.mailbox-read-info -->
                                                         @*<div class="mailbox-controls with-border pull-right">
                                                             <div class="btn-group">
                                                                 <button type="button" @onclick="@(() => onreply(item.ID))" class="btn btn-default"><i class="fa fa-reply"></i> Reply</button>
-                                                            </div>                                                            
+                                                            </div>                                                           
                                                             <button type="button" @onclick="@(() => assignedList(item.ID))" class="btn btn-default btn-sm" data-toggle="tooltip" title="Assign To">
                                                                 <i class="fa fa-users"></i>
                                                             </button>
-                                                        </div>*@
-                                                        
+                                                        </div>*@                                                        
                                                     </div>
                                                 </div>
                                                 <div class="uk-card-body">                                                   
@@ -317,34 +410,52 @@
                                                         <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
                                                       
                                                     </p>
-                                                    @if(item.documents.Any())
+
+                                                    @if (item.documents.Any())
                                                     {
                                                         <div class="uk-card-footer">
                                                             <div>
-                                                                @foreach (var attachment in item.documents)
-                                                                {
-                                                                    <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
-                                                                }
-                                                                @* string firststring = "#overviewDemoSelectButton_";
-                                                                Guid? secondstring = item.SessionId;
-                                                                string extt = firststring + secondstring;
-
-                                                                <div id="overviewDemoSelectButton_@item.SessionId" class="tag fa fa-plus-square"></div>
-                                                                <DxUpload @ref="MyUpload" Name="files"
-                                                                AcceptedFileTypes=@AcceptedFileTypes
-                                                                Visible="@UploadVisible"
-                                                                ExternalSelectButtonCssSelector="@extt"
-                                                                UploadUrl="@GetDocUploadUrl(@item.SessionId)"
-                                                                Id="@extt"
-                                                                SelectedFilesChanged="@SelectedFilesChanged1"
-                                                                CssClass="w-100"
-                                                                FileUploaded="@HandleUploadSuccess">
-                                                                </DxUpload>*@
-
+                                                                <div class="">
+                                                                    @foreach (var attachment in item.documents)
+                                                                    {
+                                                                        <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                    }
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     }
-                                                   
+
+                                                   @* <div class="uk-card-footer">
+                                                        <div>
+                                                            <div class="accordion-item">
+                                                                <div class="accordion-title" @onclick="@(() => ToggleDocItemVisibility(item.ID))"> Attachment </div>                                                               
+                                                               
+                                                                   @if (DocitemVisibility.ContainsKey(item.ID) && DocitemVisibility[item.ID])
+                                                                    {
+                                                                        @foreach (var attachment in item.documents)
+                                                                        {
+                                                                            <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                        }
+                                                                            string firststring = "#overviewDemoSelectButton_";
+                                                                            Guid? secondstring = item.SessionId;
+                                                                            string extt = firststring + secondstring;
+                                                                        
+                                                                        <div id="overviewDemoSelectButton_@item.SessionId" class="tag fa fa-plus-square"></div>
+                                                                            <DxUpload @ref="MyUpload" Name="files"
+                                                                              AcceptedFileTypes=@AcceptedFileTypes
+                                                                              Visible="@UploadVisible"
+                                                                              ExternalSelectButtonCssSelector="@extt"
+                                                                              UploadUrl="@GetDocUploadUrl(@item.SessionId)"
+                                                                              Id="@extt"
+                                                                              SelectedFilesChanged="@SelectedFilesChanged1"
+                                                                              CssClass="w-100"
+                                                                              FileUploaded="@HandleUploadSuccess">
+                                                                            </DxUpload>
+                                                                    }
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div>*@
                                                 </div>                                           
 
                                                 @if (item.ReplyConversation.Count() > 0)
@@ -379,8 +490,7 @@
                                                                             @*<div class="mailbox-controls with-border pull-right">
                                                                                 <div class="btn-group">
                                                                                     <button type="button" @onclick="@(() => onreply(item.ID))" class="btn btn-default"><i class="fa fa-reply"></i> Reply</button>
-                                                                                </div>
-                                                                                <!-- /.btn-group -->
+                                                                                </div>                                                                               
                                                                                 <button type="button" @onclick="@(() => assignedList(item.ID))" class="btn btn-default btn-sm" data-toggle="tooltip" title="Assign To">
                                                                                     <i class="fa fa-users"></i>
                                                                                 </button>
@@ -830,9 +940,15 @@
 *@
 
 
-@code {   
+@code {
+    IGrid TOGrid { get; set; }
+    IGrid CCGrid { get; set; }
     DxWindow dxWindow;
     bool WindowVisible { get; set; } = false;
+
+    private List<EmailTopics>? _forumTopicTo;
+    private List<EmailTopics>? _forumTopicCC;
+
     bool IsOpen { get; set; } = false;
     bool IsOpenFlyout { get; set; } = false;
     Selection selection; 
@@ -852,7 +968,6 @@
     private ElementReference OfficeContainerRef;
     DxRichEdit richEdit { get; set; }
     DxRichEdit msgrichEdit { get; set; }
-    private List<ForumTopics>? _TreeView;
     string previewUrl;
     private string documentPreviewUrl;
     private string documentMimeType;
@@ -907,20 +1022,20 @@
     bool isCommandTopicClosed = true;
     bool isEllipsis = false;
     private List<Documents>? _topicDocList;    
-    private List<ForumTopics>? _topics;
+    private List<EmailTopics>? _topics;
 
-    public List<ForumConversations> _discussionList;
-    public List<ForumConversations> _replyComment;
-    private List<ForumTopics>? _headTopic;
+    public List<EmailConversations> _discussionList;
+    public List<EmailConversations> _replyComment;
+    private List<EmailTopics>? _headTopic;
     string FilterString { get; set; }
     private List<TopicParticipant>? _participant;
     TopicParticipant _participantLst { get; set; }
     Documents _documents { get; set; }
     private List<ViewEmployee>? _allparticipant;
-    private List<ForumConversationAssignTo>? _conversationAssignTo;
+    private List<EmailConversationAssignTo>? _conversationAssignTo;
     private List<ViewEmployee>? _selectedlistpartlist;
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;    
-   ForumConversations? Data { get; set; } = new ForumConversations();
+    EmailConversations? Data { get; set; } = new EmailConversations();
     string SelectedGroup = "none";
     public ApplicationUser applicationUser { get; private set; }
     IReadOnlyList<object>? SelectedDataItems { get; set; }
@@ -932,7 +1047,7 @@
     string MessageBody = "";
     Guid? _sessionId;
     private string uploadUrl;   
-    private List<ForumAssignToList>? _assigntoItems;
+    private List<EmailAssignToList>? _assigntoItems;
 
     byte[] myBytes = Encoding.UTF8.GetBytes("Attachments");
 
@@ -1123,7 +1238,7 @@
         //var lst = SelectedFilesCount;    
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf).ConfigureAwait(false);
 
-        var createReq = new CreateForumCoversation
+        var createReq = new CreateEmailCoversation
             {
 
                 TopicID = (long.Parse(@SelectedGroup)),
@@ -1358,7 +1473,7 @@
         {
             msgContent = content;
 
-            //var createReq = new CreateForumCoversation
+            //var createReq = new CreateEmailCoversation
             //    {
 
             //        TopicID = (long.Parse(@SelectedGroup)),
@@ -1476,7 +1591,7 @@
     }
     private async void assignedList(long Id)
     {
-        _conversationAssignTo = await Mediator.Send(new GetConversationAssignTo(Id));
+        _conversationAssignTo = await Mediator.Send(new GetEmailConversationAssignTo(Id));
         if (_conversationAssignTo.Count > 0)
         {
             isAssignToVisible = true;
@@ -1558,7 +1673,7 @@
         if(long.Parse(@SelectedGroup) > 0)
         {
             //await JSRuntime.InvokeAsync<string>("showLoading");
-            _topicDocList = await Mediator.Send(new GetTopicDocList(long.Parse(@SelectedGroup)));          
+            _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));          
             //await JSRuntime.InvokeAsync<string>("hideLoading");
         }
 
@@ -1566,10 +1681,10 @@
     private async Task LoadData()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
-        _discussionList = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
+        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup)));
 
-        _assigntoItems = await Mediator.Send(new GetAssignToList(long.Parse(@SelectedGroup)));        
-        var topicToList = await Mediator.Send(new GetTopicToList(long.Parse(@SelectedGroup)));
+        _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup)));        
+        var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
         if (topicToList != null)
         {
             Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
@@ -1586,7 +1701,7 @@
         //    Item = item
         //}).ToList();
 
-        _headTopic = await Mediator.Send(new GetByIdTopics(long.Parse(@SelectedGroup)));
+        _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));
 
 
         isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
@@ -1657,7 +1772,7 @@
         isAllPlistVisible = false;
         await LoadGetPList();
     }
-    async Task OnForumToRowClick(GridRowClickEventArgs e)
+    async Task OnEmailToRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");       
         SelectedGroup = UniqueId.ToString();
@@ -1673,14 +1788,25 @@
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
-        await JSRuntime.InvokeAsync<string>("showLoading");      
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
 
-        _topics = await Mediator.Send(new GetUserForumTopics(applicationUser.UserID));
-        _TreeView = await Mediator.Send(new GetTreeList(applicationUser.UserID));
+        _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
-    }   
+    }
+    async Task onloadTwoGrid()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
     void onloadSession()
     {
         _sessionId = Guid.NewGuid();
@@ -1763,7 +1889,7 @@
         }    
 
 
-        var createReq = new CreateForumCoversation
+        var createReq = new CreateEmailCoversation
             {
 
                 TopicID = (long.Parse(@SelectedGroup)),
@@ -1796,8 +1922,9 @@
             closeReply();
             onloadSession();
             // HandleScroll("down");
-            await msgrichEdit.NewDocumentAsync();   
-             WindowVisible = false;
+            await msgrichEdit.NewDocumentAsync();
+            await onloadTwoGrid();
+            WindowVisible = false;
         }
         else
         {

@@ -61,6 +61,7 @@ namespace Application.Common.Mapper
 
             CreateMap<ForumCategorys, ForumCategoryResponse>().ReverseMap();
             CreateMap<ForumTopics, ForumTopicsResponse>().ReverseMap();
+            CreateMap<EmailTopics, EmailTopicsResponse>().ReverseMap();
             CreateMap<ApplicationUser, ApplicationUserResponse>().ReverseMap();
             CreateMap<ForumTypes, ForumTypeResponse>().ReverseMap();
 

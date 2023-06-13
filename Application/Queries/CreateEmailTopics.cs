@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Queries
 {
-    public class CreateForumTopics : ForumTopicsResponse, IRequest<long>
-    {       
-    }    
+    public class CreateEmailTopics : EmailTopicsResponse, IRequest<long>
+    {
+    }
 }

@@ -173,7 +173,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             var customerResponse = RoleMapper.Mapper.Map<long>(newTopics);
             return customerResponse;
         }
-    }
+    }    
     public class UpdateTopicDueDateHandler : IRequestHandler<UpdateTopicDueDate, long>
     {
         private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;

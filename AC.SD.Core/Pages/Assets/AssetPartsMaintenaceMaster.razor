@@ -1,0 +1,379 @@
+﻿@using Application.Command.AssetPartsMaintenaceMasters;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+<DxMenu CollapseItemsToHamburgerMenu="true"
+        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+        DisplayMode="MenuDisplayMode.Desktop">
+    <Items>
+        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+        <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+        <DxMenuItem Text="Masters List" IconCssClass="fa fa-add" Click="@addMastersEdit" Enabled="@EditEnabled" />
+    </Items>
+</DxMenu>
+<DxGrid @ref="AssetGrid"
+        Data="_assetPartsMaintenaceMasterItems"
+        KeyFieldName="AssetPartsMaintenaceMasterId"
+        EditModelSaving="Grid_EditModelSaving"
+        DataItemDeleting="Grid_DataItemDeleting"
+        CustomizeEditModel="Grid_CustomizeEditModel"
+        CustomizeElement="Grid_CustomizeElement"
+        ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360"
+        FocusedRowEnabled="true"
+        RowDoubleClick="OnRowDoubleClick"
+        SelectedDataItemsChanged="@SelectedDataItemsChanged"
+        RowClick="OnRowClick"
+        style="height: calc(100vh - 220px);"
+        AllowSelectRowByClick="true">
+    <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+        <DxGridDataColumn FieldName="AssetPartsMaintenaceMasterId" MinWidth="80" Visible="false" />
+        <DxGridDataColumn FieldName="Index" Caption="#" Width="35px"></DxGridDataColumn>
+        <DxGridDataColumn FieldName="AssetCatalog" Caption="Model" MinWidth="80" />
+        <DxGridDataColumn FieldName="AssetSection" MinWidth="80" />
+        <DxGridDataColumn FieldName="AssetSubSection" MinWidth="80" />
+        <DxGridDataColumn FieldName="ModifiedDate" Width="180">
+            <CellDisplayTemplate>
+                @{
+                    var item = (View_AssetPartsMaintenaceMaster)context.DataItem;
+                }
+                @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="ModifiedBy" Width="10%" />
+        <DxGridCommandColumn Width="160px" Visible="false" />
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var plant = (View_AssetPartsMaintenaceMaster)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Asset Catalog" ColSpanMd="6">
+                <DxComboBox Data="@_applicationMasterChildAssetCatalogItems"
+                            NullText="Select Catalog..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterChildId"
+                            @bind-Value="@plant.AssetCatalogId"
+                            SelectedItemChanged="@((ApplicationMasterChildModel plantSelect) => SelectedItemCatalogChanged(plantSelect.ApplicationMasterChildId))"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => plant.AssetCatalogId)" />
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="Asset Section" ColSpanMd="6">
+                <DxComboBox Data="@_applicationMasterChildSectionItems"
+                            NullText="Select Section..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterChildId"
+                            SelectedItemChanged="@((ApplicationMasterChildModel plantSelect) => SelectedItemSectionChanged(plantSelect.ApplicationMasterChildId))"
+                            @bind-Value="@plant.SectionId" />
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="Sub Section" ColSpanMd="6">
+                <DxComboBox Data="@_applicationMasterChildSubSectionItems"
+                            NullText="Select Sub Section..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterChildId"
+                            @bind-Value="@plant.SubSectionId" />
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </EditFormTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="AssetCatalogId" />
+    </TotalSummary>
+</DxGrid>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+
+
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+
+
+</DxPopup>
+<DxPopup @bind-Visible="@PopupForwardToVisible"
+         Width="auto"
+         CloseOnOutsideClick="false"
+         HeaderText="Asset Parts Maintenace Master Line"
+         ShowFooter="false">
+    <BodyTemplate Context="PopupContext">
+        <AssetPartsMaintenaceMasterChild _selectItems="_selectedItems"></AssetPartsMaintenaceMasterChild>
+    </BodyTemplate>
+</DxPopup>
+@code {
+    [Parameter]
+    public View_AssetCatalogMaster _selectItems { get; set; }
+    private List<ApplicationMasterChildModel> _applicationMasterChildAssetCatalogItems;
+    private List<ApplicationMasterChildModel> _applicationMasterChildSectionItems;
+    private List<ApplicationMasterChildModel> _applicationMasterChildSubSectionItems;
+    IGrid AssetGrid { get; set; }
+    bool PopupForwardToVisible { get; set; }
+    private List<View_AssetPartsMaintenaceMaster> _assetPartsMaintenaceMasterItems;
+    public View_AssetPartsMaintenaceMaster _selectedItems { get; set; }
+    public ApplicationUser applicationUser { get; private set; }
+    private View_AssetPartsMaintenaceMaster _selectlst;
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    string? DeleteerrorMessage;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = true;
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _applicationMasterChildAssetCatalogItems = await Mediator.Send(new GetAllApplicationMasterChildQuery("113"));
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        _assetPartsMaintenaceMasterItems = await Mediator.Send(new GetAllAssetPartsMaintenaceMasterQuery(_selectItems.AssetCatalogMasterId));
+        for (int i = 0; i < _assetPartsMaintenaceMasterItems.Count; i++)
+        {
+            _assetPartsMaintenaceMasterItems[i].Index = i + 1;
+        }
+        if (_assetPartsMaintenaceMasterItems.Count > 0)
+        {
+
+            _selectedItems = _assetPartsMaintenaceMasterItems.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
+    }
+    async Task SelectedItemCatalogChanged(long? values)
+    {
+        _applicationMasterChildSubSectionItems = new List<ApplicationMasterChildModel>();
+        _applicationMasterChildSectionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(values));
+    }
+    async Task SelectedItemSectionChanged(long? values)
+    {
+        _applicationMasterChildSubSectionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(values));
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+
+        }
+        else
+        {
+            var newmaster = (View_AssetPartsMaintenaceMaster)e.EditModel;
+            await SelectedItemCatalogChanged(newmaster.AssetCatalogId);
+            await SelectedItemSectionChanged(newmaster.SectionId);
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editablePlant = (View_AssetPartsMaintenaceMaster)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateAssetPartsMaintenaceMasterCommand
+                {
+
+                    AssetCatalogMasterId = _selectItems.AssetCatalogMasterId,
+                    SectionId = editablePlant.SectionId,
+                    SubSectionId = editablePlant.SubSectionId,
+                    AssetCatalogId = editablePlant.AssetCatalogId,
+                    StatusCodeId = 1,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+
+                };
+            await Mediator.Send(request);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+        else
+        {
+            await UpdatePlantAsync(editablePlant);
+        }
+    }
+    async Task UpdatePlantAsync(View_AssetPartsMaintenaceMaster editablePlant)
+    {
+        var request = new EditAssetPartsMaintenaceMasterCommand
+            {
+                AssetPartsMaintenaceMasterId = editablePlant.AssetPartsMaintenaceMasterId,
+                AssetCatalogMasterId = _selectItems.AssetCatalogMasterId,
+                SectionId = editablePlant.SectionId,
+                SubSectionId = editablePlant.SubSectionId,
+                AssetCatalogId = editablePlant.AssetCatalogId,
+                StatusCodeId = 1,
+                AddedByUserId = editablePlant.AddedByUserId,
+                ModifiedByUserId = applicationUser.UserID,
+                AddedDate = editablePlant.AddedDate,
+                ModifiedDate = DateTime.Now,
+            };
+        await Mediator.Send(request);
+        toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        await UpdateDataAsync();
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+    }
+
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is View_AssetPartsMaintenaceMaster plants)
+                    {
+                        var request = new DeleteAssetPartsMaintenaceMasterCommand(plants.AssetPartsMaintenaceMasterId);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        AssetGrid.SetFocusedRowIndex(0);
+                    }
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+        await UpdateDataAsync();
+    }
+    void addNew()
+    {
+        AssetGrid.StartEditNewRowAsync();
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "AssetPartsMaintenaceMasterId");
+        _selectedItems = _assetPartsMaintenaceMasterItems.FirstOrDefault(f => f.AssetPartsMaintenaceMasterId == (long?)UniqueId);
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
+    }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null && SelectedDataItems.Count == 1)
+        {
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is View_AssetPartsMaintenaceMaster viewPlants)
+                {
+                    _selectlst = _assetPartsMaintenaceMasterItems.FirstOrDefault(f => f.AssetPartsMaintenaceMasterId == viewPlants.AssetPartsMaintenaceMasterId);
+                }
+            }
+            AssetGrid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            AssetGrid.StartEditDataItemAsync(_selectedItems);
+        }
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
+    async Task ExportToExcel()
+    {
+        await AssetGrid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+    void addMastersEdit()
+    {
+        PopupForwardToVisible=true;
+        StateHasChanged();
+    }
+}

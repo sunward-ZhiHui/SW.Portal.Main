@@ -88,6 +88,12 @@ namespace Infrastructure
             services.AddTransient<IApplicationMasterChildQueryRepository, ApplicationMasterChildQueryRepository>();
             services.AddTransient<IAssetCatalogMasterQueryRepository, AssetCatalogMasterQueryRepository>();
             services.AddTransient<IAssetCatalogMasterCommandRepository, AssetCatalogMasterCommandRepository>();
+            services.AddTransient<IAssetPartsMaintenaceMasterQueryRepository, AssetPartsMaintenaceMasterQueryRepository>();
+            services.AddTransient<IAssetPartsMaintenaceMasterCommandRepository, AssetPartsMaintenaceMasterCommandRepository>();
+            services.AddTransient<IAssetEquipmentMaintenaceMasterQueryRepository, AssetEquipmentMaintenaceMasterQueryRepository>(); 
+            services.AddTransient<IAssetEquipmentMaintenaceMasterCommandRepository, AssetEquipmentMaintenaceMasterCommandRepository>();
+            services.AddTransient<IAssetEquipmentMaintenaceMasterAssetDocumentCommandRepository, AssetEquipmentMaintenaceMasterAssetDocumentCommandRepository>();
+            services.AddTransient<IAssetEquipmentMaintenaceMasterAssetDocumentQueryRepository, AssetEquipmentMaintenaceMasterAssetDocumentQueryRepository>();
             return services;
         }
     }

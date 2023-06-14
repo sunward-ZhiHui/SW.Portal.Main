@@ -15,4 +15,28 @@ namespace Infrastructure.Repository.Command
 
         }
     }
+    public class AssetPartsMaintenaceMasterCommandRepository : CommandRepository<AssetPartsMaintenaceMaster>, IAssetPartsMaintenaceMasterCommandRepository
+    {
+        public AssetPartsMaintenaceMasterCommandRepository(IConfiguration configuration)
+            : base(configuration)
+        {
+
+        }
+    }
+    public class AssetEquipmentMaintenaceMasterCommandRepository : CommandRepository<AssetEquipmentMaintenaceMaster>, IAssetEquipmentMaintenaceMasterCommandRepository
+    {
+        public AssetEquipmentMaintenaceMasterCommandRepository(IConfiguration configuration)
+            : base(configuration)
+        {
+
+        }
+    }
+    public class AssetEquipmentMaintenaceMasterAssetDocumentCommandRepository : CommandRepository<AssetEquipmentMaintenaceMasterAssetDocument>, IAssetEquipmentMaintenaceMasterAssetDocumentCommandRepository
+    {
+        public AssetEquipmentMaintenaceMasterAssetDocumentCommandRepository(IConfiguration configuration)
+            : base(configuration)
+        {
+
+        }
+    }
 }

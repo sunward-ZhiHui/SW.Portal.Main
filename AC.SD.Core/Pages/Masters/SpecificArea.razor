@@ -30,17 +30,12 @@
         </DxMenu>
     </div>
 </div>
-<div style="background-color: #eee;  font-size: 18px" class="card-body p-0">
+<div class="card-body bradcrumb-txt">
 
     @if (Type == "Area")
     {
         <div>  @comapnyName / @AreaName </div>
-    }
-  @*   else
-    {
-        <div>  @comapnyName / @AreaName </div>        
-    }*@
-
+    } 
 </div>
 <DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
         CustomizeEditModel="Grid_CustomizeEditModel"

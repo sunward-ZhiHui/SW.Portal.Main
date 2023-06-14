@@ -15,6 +15,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ForumConversations>> GetAllAsync();
         Task<long> Insert(ForumConversations company);
         Task<long> InsertAssignTo(ForumConversationAssignTo forumConversationAssignTo);
+        Task<long> InsertForumNotifications(ForumNotifications forumNotifications);
         Task<long> Update(ForumConversations company);
         Task<long> Delete(ForumConversations company);
         Task<IReadOnlyList<ViewEmployee>> GetAllParticipantAsync(long topicId);

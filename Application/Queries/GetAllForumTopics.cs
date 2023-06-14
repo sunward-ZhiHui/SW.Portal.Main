@@ -18,6 +18,22 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class GetForumTopicTo : PagedRequest, IRequest<List<ForumTopics>>
+    {
+        public long UserId { get; private set; }
+        public GetForumTopicTo(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
+    public class GetForumTopicCC : PagedRequest, IRequest<List<ForumTopics>>
+    {
+        public long UserId { get; private set; }
+        public GetForumTopicCC(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
     public class GetTreeList : PagedRequest, IRequest<List<ForumTopics>>
     {
         public long UserId { get; private set; }

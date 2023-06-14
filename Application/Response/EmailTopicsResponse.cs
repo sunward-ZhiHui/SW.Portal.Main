@@ -10,14 +10,11 @@ using System.Threading.Tasks;
 
 namespace Application.Response
 {
-    public class ForumTopicsResponse : BaseEntity
+    public class EmailTopicsResponse : BaseEntity
     {
         public long ID { get; set; }
-        [Required(ErrorMessage = "Please Enter Topic.")]
-        public string? TicketNo { get; set; }
-        [Required(ErrorMessage = "Please Enter Topic Name.")]
+        public string? TicketNo { get; set; }       
         public string? TopicName { get; set; }
-        [Required(ErrorMessage = "Please Select Type Name.")]
         public long TypeId { get; set; }
         public long CategoryId { get; set; }
         public DateTime StartDate { get; set; } = DateTime.Now;
@@ -39,15 +36,7 @@ namespace Application.Response
         public string? OnBehalf { get; set; }
         public bool? Urgent { get; set; }
         public bool? OverDue { get; set; }
-        public List<ForumTopicsResponse>? TopicList { get; set; }
-
-        public ForumTopicsResponse()
-        {
-            this.StatusCodeID = 0;
-            this.AddedByUserID = 1;
-            this.AddedDate = DateTime.Now;
-            this.SessionId = Guid.NewGuid();
-        }
+        public List<EmailTopicsResponse>? TopicList { get; set; }        
 
     }
 }

@@ -81,6 +81,34 @@ namespace CMS.Application.Handlers.QueryHandlers
            
         }
     }
+    public class GetForumTopicToHandler : IRequestHandler<GetForumTopicTo, List<ForumTopics>>
+    {
+
+        private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;
+        public GetForumTopicToHandler(IForumTopicsQueryRepository forumTopicsQueryRepository)
+        {
+            _forumTopicsQueryRepository = forumTopicsQueryRepository;
+        }
+        public async Task<List<ForumTopics>> Handle(GetForumTopicTo request, CancellationToken cancellationToken)
+        {
+            return await _forumTopicsQueryRepository.GetTopicToList(request.UserId);
+
+        }
+    }
+    public class GetForumTopicCCHandler : IRequestHandler<GetForumTopicCC, List<ForumTopics>>
+    {
+
+        private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;
+        public GetForumTopicCCHandler(IForumTopicsQueryRepository forumTopicsQueryRepository)
+        {
+            _forumTopicsQueryRepository = forumTopicsQueryRepository;
+        }
+        public async Task<List<ForumTopics>> Handle(GetForumTopicCC request, CancellationToken cancellationToken)
+        {
+            return await _forumTopicsQueryRepository.GetTopicCCList(request.UserId);
+
+        }
+    }
     public class GetTreeListHandler : IRequestHandler<GetTreeList, List<ForumTopics>>
     {
 
@@ -145,7 +173,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             var customerResponse = RoleMapper.Mapper.Map<long>(newTopics);
             return customerResponse;
         }
-    }
+    }    
     public class UpdateTopicDueDateHandler : IRequestHandler<UpdateTopicDueDate, long>
     {
         private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;

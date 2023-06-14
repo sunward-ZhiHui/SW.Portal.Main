@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    public class ForumConversations:BaseEntity
+    public class EmailConversations:BaseEntity
     {
         [Key]
         public int ID { get; set; }      
@@ -21,7 +21,7 @@ namespace Core.Entities
         public string? ReplyMessage { get; set; }
         public DateTime? ReplyDateTime { get; set; }
         public string? ReplyUserName { get; set; }
-        public List<ForumConversations>? ReplyConversation { get; set; }
+        public List<EmailConversations>? ReplyConversation { get; set; }
         public string UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -35,6 +35,7 @@ namespace Core.Entities
         [NotMapped]
         public IEnumerable<long> AllParticipantIds { get; set; }
         [NotMapped]
-        public List<ForumAssignToList>? AssignToList { get; set; }
+        public List<EmailAssignToList>? AssignToList { get; set; }
+
     }
 }

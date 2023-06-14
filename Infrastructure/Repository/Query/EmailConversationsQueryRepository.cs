@@ -23,13 +23,13 @@ using System.Threading;
 
 namespace Infrastructure.Repository.Query
 {
-    public class ForumConversationsQueryRepository : QueryRepository<ForumConversations>, IForumConversationsQueryRepository
+    public class EmailConversationsQueryRepository : QueryRepository<EmailConversations>, IEmailConversationsQueryRepository
     {
-        public ForumConversationsQueryRepository(IConfiguration configuration) : base(configuration)
+        public EmailConversationsQueryRepository(IConfiguration configuration) : base(configuration)
         {
         }
 
-        public async Task<long> Delete(ForumConversations forumConversations)
+        public async Task<long> Delete(EmailConversations forumConversations)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ParticipantId", forumConversations.ParticipantId, DbType.Int64);
                             parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
 
-                            var query = "DELETE  FROM ForumConversations WHERE ID = @ID";
+                            var query = "DELETE  FROM EmailConversations WHERE ID = @ID";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
@@ -77,7 +77,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"select  * from View_Employee where (StatusName!='Resign' or StatusName is null) and UserID NOT IN (SELECT AU.UserID FROM ForumTopicParticipant TP INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID WHERE TP.TopicId = @TopicId)";
+                var query = @"select  * from View_Employee where (StatusName!='Resign' or StatusName is null) and UserID NOT IN (SELECT AU.UserID FROM EmailTopicParticipant TP INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID WHERE TP.TopicId = @TopicId)";
                 var parameters = new DynamicParameters();
                     parameters.Add("TopicID", topicId);
                 using (var connection = CreateConnection())
@@ -90,18 +90,18 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<ForumAssignToList>> GetAllAssignToListAsync(long topicId)
+        public async Task<List<EmailAssignToList>> GetAllAssignToListAsync(long topicId)
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName FROM ForumTopicParticipant FT
+                var query = @"SELECT FT.UserId,E.FirstName FROM EmailTopicParticipant FT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
                                 WHERE TopicId = @TopicId";
 
                                 //UNION
 
-                                //SELECT FC.UserId,E.FirstName FROM ForumTopicCC FC
+                                //SELECT FC.UserId,E.FirstName FROM EmailTopicCC FC
                                 //INNER JOIN ApplicationUser AU ON AU.UserID = FC.UserId
                                 //INNER JOIN Employee E ON E.UserID = FC.UserId
                                 //WHERE TopicId = @TopicId";
@@ -109,7 +109,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("TopicID", topicId);
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ForumAssignToList>(query, parameters)).ToList();
+                    return (await connection.QueryAsync<EmailAssignToList>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -117,11 +117,11 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<ForumTopicTo>> GetTopicToListAsync(long topicId)
+        public async Task<List<EmailTopicTo>> GetTopicToListAsync(long topicId)
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName FROM ForumTopicTo FT
+                var query = @"SELECT FT.UserId,E.FirstName FROM EmailTopicTo FT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
                                 WHERE TopicId = @TopicId";
@@ -129,7 +129,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("TopicID", topicId);
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ForumTopicTo>(query, parameters)).ToList();
+                    return (await connection.QueryAsync<EmailTopicTo>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -154,7 +154,7 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("ID", topicParticipant.ID, DbType.Int64);                           
 
-                            var query = "DELETE  FROM ForumTopicParticipant WHERE ID = @ID";
+                            var query = "DELETE  FROM EmailTopicParticipant WHERE ID = @ID";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
@@ -178,15 +178,15 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<IReadOnlyList<ForumConversations>> GetAllAsync()
+        public async Task<IReadOnlyList<EmailConversations>> GetAllAsync()
         {
             try
             {
-                var query1 = "SELECT * FROM ForumConversations";
+                var query1 = "SELECT * FROM EmailConversations";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ForumConversations>(query1)).ToList();
+                    return (await connection.QueryAsync<EmailConversations>(query1)).ToList();
                 }
             }
             catch (Exception exp)
@@ -195,15 +195,15 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<ForumConversations>> GetDiscussionListAsync(long TopicId)
+        public async Task<List<EmailConversations>> GetDiscussionListAsync(long TopicId)
         {
             try
             {
 
-                var query = @"SELECT FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData FROM ForumConversations FC                                
+                var query = @"SELECT FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData FROM EmailConversations FC                                
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
-                                WHERE FC.TopicId = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate ASC;";
+                                WHERE FC.TopicId = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate ASC";
 
 
                 var parameters = new DynamicParameters();
@@ -212,7 +212,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     connection.Open();
-                    var res = connection.Query<ForumConversations>(query,parameters).ToList();
+                    var res = connection.Query<EmailConversations>(query,parameters).ToList();
 
                     foreach (var topic in res)
                     {
@@ -226,7 +226,7 @@ namespace Infrastructure.Repository.Query
                                         FC.ReplyId,
                                         FC.SessionId,FC.FileData
                                     FROM
-                                        ForumConversations FC
+                                        EmailConversations FC
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                     WHERE
                                         FC.TopicId = @TopicId AND FC.ReplyId = @ReplyId";
@@ -234,7 +234,7 @@ namespace Infrastructure.Repository.Query
                             var parameterss = new DynamicParameters();
                             parameterss.Add("TopicId", TopicId, DbType.Int64);
                             parameterss.Add("ReplyId", topic.ID, DbType.Int64);
-                        var subQueryResults = connection.Query<ForumConversations>(subQuery, parameterss).ToList();                     
+                        var subQueryResults = connection.Query<EmailConversations>(subQuery, parameterss).ToList();                     
 
 
                         var subQueryDocs = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
@@ -244,13 +244,13 @@ namespace Infrastructure.Repository.Query
 
                         var subQueryDocsResults = connection.Query<Documents>(subQueryDocs, parametersDocs).ToList();
 
-
-                        var subQueryassignTo = @"select E.FirstName,FCA.UserId,FCA.TopicId from ForumConversationAssignTo FCA
+                        var subQueryassignTo = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignTo FCA
                                         INNER JOIN Employee E on E.UserID = FCA.UserId
                                         where FCA.ConversationId = @Id";
-                        var parametersassignTo = new DynamicParameters();  
+                        var parametersassignTo = new DynamicParameters();
                         parametersassignTo.Add("Id", topic.ID, DbType.Int64);
-                        var subQueryAssignToResults = connection.Query<ForumAssignToList>(subQueryassignTo, parametersassignTo).ToList();
+                        var subQueryAssignToResults = connection.Query<EmailAssignToList>(subQueryassignTo, parametersassignTo).ToList();
+
 
                         topic.ReplyConversation = subQueryResults;
                         topic.documents = subQueryDocsResults;
@@ -258,7 +258,7 @@ namespace Infrastructure.Repository.Query
 
                         foreach (var conversation in topic.ReplyConversation)
                         {
-                            var subQueryReplyDocs = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath,FC.FileData from ForumConversations FC
+                            var subQueryReplyDocs = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath,FC.FileData from EmailConversations FC
                                                         INNER JOIN Documents D ON D.SessionID = FC.SessionId
                                                         WHERE D.SessionID = @SessionID";
                             var parametersReplyDocs = new DynamicParameters();
@@ -271,18 +271,17 @@ namespace Infrastructure.Repository.Query
 
                             var subQueryReplyDocsResults = connection.Query<Documents>(subQueryReplyDocs, parametersReplyDocs).ToList();
 
-
-                            var replysubQueryassignTo = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from ForumConversationAssignTo FCT
+                            var replysubQueryassignTo = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignTo FCT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
                                 INNER JOIN Employee E ON E.UserID = FCT.UserId
                                 WHERE FCT.ConversationId = @ConversationId";
                             var replyparametersassignTo = new DynamicParameters();
                             replyparametersassignTo.Add("ConversationId", conversation.ID, DbType.Int64);
-                            var replysubQueryAssignToResults = connection.Query<ForumAssignToList>(replysubQueryassignTo, replyparametersassignTo).ToList();
+                            var replysubQueryAssignToResults = connection.Query<EmailAssignToList>(replysubQueryassignTo, replyparametersassignTo).ToList();
+
 
                             conversation.documents = subQueryReplyDocsResults;
                             conversation.AssignToList = replysubQueryAssignToResults;
-
                         }
 
                     }
@@ -301,7 +300,7 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"select FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData from ForumConversations FC 
+                var query = @"select FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData from EmailConversations FC 
                                 INNER JOIN Documents D on D.SessionID = FC.SessionId
                                 where FC.TopicID = @TopicId";
 
@@ -321,17 +320,17 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<ForumConversations> GetByIdAsync(long id)
+        public async Task<EmailConversations> GetByIdAsync(long id)
         {
             try
             {
-                var query = "SELECT * FROM ForumConversations WHERE ID = @ID";
+                var query = "SELECT * FROM EmailConversations WHERE ID = @ID";
                 var parameters = new DynamicParameters();
                 parameters.Add("ID", id, DbType.Int64);
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryFirstOrDefaultAsync<ForumConversations>(query, parameters));
+                    return (await connection.QueryFirstOrDefaultAsync<EmailConversations>(query, parameters));
                 }
             }
             catch (Exception exp)
@@ -340,11 +339,11 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<ForumConversationAssignTo>> GetConversationAssignToList(long ConversationId)
+        public async Task<List<EmailConversationAssignTo>> GetConversationAssignToList(long ConversationId)
         {
             try
             {
-                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY FCT.ID DESC), FCT.ID,FCT.UserId,E.FirstName,E.LastName from ForumConversationAssignTo FCT
+                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY FCT.ID DESC), FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignTo FCT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
                                 INNER JOIN Employee E ON E.UserID = FCT.UserId
                                 WHERE FCT.ConversationId = @ConversationId";
@@ -354,7 +353,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     connection.Open();
-                    var res = connection.Query<ForumConversationAssignTo>(query, parameters).ToList();
+                    var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
                     return res;                   
                 }
             }
@@ -363,7 +362,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<long> Insert(ForumConversations forumConversations)
+        public async Task<long> Insert(EmailConversations forumConversations)
         {
             try
             {
@@ -388,7 +387,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", forumConversations.AddedDate);
                             parameters.Add("FileData", forumConversations.FileData);
 
-                            var query = "INSERT INTO ForumConversations(TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData) OUTPUT INSERTED.ID VALUES (@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData)";
+                            var query = "INSERT INTO EmailConversations(TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData) OUTPUT INSERTED.ID VALUES (@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
@@ -400,7 +399,7 @@ namespace Infrastructure.Repository.Query
                             //{
                             //    forumConversations.AssigntoIds.ToList().ForEach(a =>
                             //    {
-                            //        var conversationAssignTo = new ForumConversationAssignTo();
+                            //        var conversationAssignTo = new EmailConversationAssignTo();
                             //        conversationAssignTo.ConversationId = lastInsertedRecordId;
                             //        conversationAssignTo.TopicId = forumConversations.TopicID;
                             //        conversationAssignTo.UserId =  a;
@@ -415,7 +414,7 @@ namespace Infrastructure.Repository.Query
                             //        parameters1.Add("SessionId", forumConversations.SessionId);
                             //        parameters1.Add("AddedDate", forumConversations.AddedDate);
 
-                            //        var Assigntoquery = "INSERT INTO ForumConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
+                            //        var Assigntoquery = "INSERT INTO EmailConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
 
                             //         connection.ExecuteAsync(Assigntoquery, parameters1, transaction);
 
@@ -449,7 +448,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<long> InsertAssignTo(ForumConversationAssignTo conversationAssignTo)
+        public async Task<long> InsertAssignTo(EmailConversationAssignTo conversationAssignTo)
         {
             try
             {
@@ -471,7 +470,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("SessionId", conversationAssignTo.SessionId);
                             parameters.Add("AddedDate", conversationAssignTo.AddedDate);
 
-                            var query = "INSERT INTO ForumConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
+                            var query = "INSERT INTO EmailConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -495,7 +494,7 @@ namespace Infrastructure.Repository.Query
         }
 
 
-        public async Task<long> InsertForumNotifications(ForumNotifications forumNotifications)
+        public async Task<long> InsertEmailNotifications(EmailNotifications forumNotifications)
         {
             try
             {
@@ -516,7 +515,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", forumNotifications.AddedDate);
                             parameters.Add("IsRead", forumNotifications.IsRead);                           
 
-                            var query = "INSERT INTO ForumNotifications(ConversationId,TopicId,UserID,AddedByUserID,AddedDate,IsRead) VALUES (@ConversationId,@TopicId,@UserID,@AddedByUserID,@AddedDate,@IsRead)";
+                            var query = "INSERT INTO EmailNotifications(ConversationId,TopicId,UserID,AddedByUserID,AddedDate,IsRead) VALUES (@ConversationId,@TopicId,@UserID,@AddedByUserID,@AddedDate,@IsRead)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -539,7 +538,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<long> Update(ForumConversations forumConversations)
+        public async Task<long> Update(EmailConversations forumConversations)
         {
             try
             {
@@ -559,7 +558,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ParticipantId", forumConversations.ParticipantId, DbType.Int64);
                             parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
 
-                            var query = " UPDATE ForumConversations SET Name = @Name ,TopicID = @TopicID ,Message=@Message,ParticipantId =@ParticipantId,ReplyId=@ReplyId WHERE ID = @ID";
+                            var query = " UPDATE EmailConversations SET Name = @Name ,TopicID = @TopicID ,Message=@Message,ParticipantId =@ParticipantId,ReplyId=@ReplyId WHERE ID = @ID";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

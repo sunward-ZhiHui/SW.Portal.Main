@@ -90,6 +90,22 @@ namespace Application.Handlers.QueryHandlers
                 });
             }
 
+            var plistData = request.AllParticipantIds.ToList();
+            if (plistData.Count > 0)
+            {
+                request.AllParticipantIds.ToList().ForEach(a =>
+                {
+                    var forumNotifications = new ForumNotifications();
+                    forumNotifications.ConversationId = req;
+                    forumNotifications.TopicId = request.TopicID;
+                    forumNotifications.UserId = a;
+                    forumNotifications.AddedByUserID = request.AddedByUserID;
+                    forumNotifications.AddedDate = request.AddedDate;
+                    forumNotifications.IsRead = true;
+                    _conversationQueryRepository.InsertForumNotifications(forumNotifications);
+                });
+            }
+
 
             return req;
         }

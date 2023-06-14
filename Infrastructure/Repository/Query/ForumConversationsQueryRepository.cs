@@ -19,6 +19,7 @@ using Application.Response;
 using Core.Entities.Views;
 using DevExpress.Data.Filtering.Helpers;
 using Azure.Core;
+using System.Threading;
 
 namespace Infrastructure.Repository.Query
 {
@@ -93,17 +94,17 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName FROM ForumTopicTo FT
+                var query = @"SELECT FT.UserId,E.FirstName FROM ForumTopicParticipant FT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
-                                WHERE TopicId = @TopicId
-
-                                UNION
-
-                                SELECT FC.UserId,E.FirstName FROM ForumTopicCC FC
-                                INNER JOIN ApplicationUser AU ON AU.UserID = FC.UserId
-                                INNER JOIN Employee E ON E.UserID = FC.UserId
                                 WHERE TopicId = @TopicId";
+
+                                //UNION
+
+                                //SELECT FC.UserId,E.FirstName FROM ForumTopicCC FC
+                                //INNER JOIN ApplicationUser AU ON AU.UserID = FC.UserId
+                                //INNER JOIN Employee E ON E.UserID = FC.UserId
+                                //WHERE TopicId = @TopicId";
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicID", topicId);
                 using (var connection = CreateConnection())
@@ -243,8 +244,17 @@ namespace Infrastructure.Repository.Query
 
                         var subQueryDocsResults = connection.Query<Documents>(subQueryDocs, parametersDocs).ToList();
 
+
+                        var subQueryassignTo = @"select E.FirstName,FCA.UserId,FCA.TopicId from ForumConversationAssignTo FCA
+                                        INNER JOIN Employee E on E.UserID = FCA.UserId
+                                        where FCA.ConversationId = @Id";
+                        var parametersassignTo = new DynamicParameters();  
+                        parametersassignTo.Add("Id", topic.ID, DbType.Int64);
+                        var subQueryAssignToResults = connection.Query<ForumAssignToList>(subQueryassignTo, parametersassignTo).ToList();
+
                         topic.ReplyConversation = subQueryResults;
                         topic.documents = subQueryDocsResults;
+                        topic.AssignToList = subQueryAssignToResults;
 
                         foreach (var conversation in topic.ReplyConversation)
                         {
@@ -261,7 +271,18 @@ namespace Infrastructure.Repository.Query
 
                             var subQueryReplyDocsResults = connection.Query<Documents>(subQueryReplyDocs, parametersReplyDocs).ToList();
 
+
+                            var replysubQueryassignTo = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from ForumConversationAssignTo FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+                            var replyparametersassignTo = new DynamicParameters();
+                            replyparametersassignTo.Add("ConversationId", conversation.ID, DbType.Int64);
+                            var replysubQueryAssignToResults = connection.Query<ForumAssignToList>(replysubQueryassignTo, replyparametersassignTo).ToList();
+
                             conversation.documents = subQueryReplyDocsResults;
+                            conversation.AssignToList = replysubQueryAssignToResults;
+
                         }
 
                     }
@@ -451,6 +472,51 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", conversationAssignTo.AddedDate);
 
                             var query = "INSERT INTO ForumConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+
+        public async Task<long> InsertForumNotifications(ForumNotifications forumNotifications)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("UserID", forumNotifications.UserId);
+                            parameters.Add("ConversationId", forumNotifications.ConversationId);
+                            parameters.Add("TopicId", forumNotifications.TopicId);                            
+                            parameters.Add("AddedByUserID", forumNotifications.AddedByUserID);                            
+                            parameters.Add("AddedDate", forumNotifications.AddedDate);
+                            parameters.Add("IsRead", forumNotifications.IsRead);                           
+
+                            var query = "INSERT INTO ForumNotifications(ConversationId,TopicId,UserID,AddedByUserID,AddedDate,IsRead) VALUES (@ConversationId,@TopicId,@UserID,@AddedByUserID,@AddedDate,@IsRead)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 

@@ -53,7 +53,9 @@ namespace Infrastructure
             services.AddTransient<IForumTypeCommandRepository, ForumTypeCommandRepository>();
             services.AddTransient<IFourmCategoryCommandRepository, FourmCategoryCommandRepository>();
             services.AddTransient<IForumTopicsQueryRepository, ForumTopicsQueryRepository>();
+            services.AddTransient<IEmailTopicsQueryRepository, EmailTopicsQueryRepository>();
             services.AddTransient<IForumConversationsQueryRepository, ForumConversationsQueryRepository>();
+            services.AddTransient<IEmailConversationsQueryRepository, EmailConversationsQueryRepository>();
             services.AddTransient<IEmployeeEmailInfoQueryRepository, EmployeeEmailInfoQueryRepository>();
             services.AddTransient<IEmployeeReportTQueryoRepository, EmployeeReportTQueryoRepository>();
             services.AddTransient<IEmployeeEmailInfoForwardQueryRepository, EmployeeEmailInfoForwardQueryRepository>();
@@ -88,6 +90,12 @@ namespace Infrastructure
             services.AddTransient<IApplicationMasterChildQueryRepository, ApplicationMasterChildQueryRepository>();
             services.AddTransient<IAssetCatalogMasterQueryRepository, AssetCatalogMasterQueryRepository>();
             services.AddTransient<IAssetCatalogMasterCommandRepository, AssetCatalogMasterCommandRepository>();
+            services.AddTransient<IAssetPartsMaintenaceMasterQueryRepository, AssetPartsMaintenaceMasterQueryRepository>();
+            services.AddTransient<IAssetPartsMaintenaceMasterCommandRepository, AssetPartsMaintenaceMasterCommandRepository>();
+            services.AddTransient<IAssetEquipmentMaintenaceMasterQueryRepository, AssetEquipmentMaintenaceMasterQueryRepository>(); 
+            services.AddTransient<IAssetEquipmentMaintenaceMasterCommandRepository, AssetEquipmentMaintenaceMasterCommandRepository>();
+            services.AddTransient<IAssetEquipmentMaintenaceMasterAssetDocumentCommandRepository, AssetEquipmentMaintenaceMasterAssetDocumentCommandRepository>();
+            services.AddTransient<IAssetEquipmentMaintenaceMasterAssetDocumentQueryRepository, AssetEquipmentMaintenaceMasterAssetDocumentQueryRepository>();
             return services;
         }
     }

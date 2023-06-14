@@ -1,4 +1,5 @@
 ﻿using Application.Queries.Base;
+using Core.Entities;
 using Core.Entities.Views;
 using MediatR;
 using System;
@@ -20,4 +21,33 @@ namespace Application.Queries
             this.SubSectionId = SubSectionId;
         }
     }
+    public class GetAllAssetPartsMaintenaceMasterQuery : PagedRequest, IRequest<List<View_AssetPartsMaintenaceMaster>>
+    {
+        public string SearchString { get; set; }
+        public long? AssetCatalogMasterId { get; set; }
+        public GetAllAssetPartsMaintenaceMasterQuery(long? AssetCatalogMasterId)
+        {
+            this.AssetCatalogMasterId = AssetCatalogMasterId;
+        }
+    }
+
+    public class GetAllAssetEquipmentMaintenaceMasterQuery : PagedRequest, IRequest<List<View_AssetEquipmentMaintenaceMaster>>
+    {
+        public string SearchString { get; set; }
+        public long? AssetPartsMaintenaceMasterId { get; set; }
+        public GetAllAssetEquipmentMaintenaceMasterQuery(long? AssetPartsMaintenaceMasterId)
+        {
+            this.AssetPartsMaintenaceMasterId = AssetPartsMaintenaceMasterId;
+        }
+    }
+    public class GetAllAssetEquipmentMaintenaceMasterAssetDocumentQuery : PagedRequest, IRequest<List<AssetEquipmentMaintenaceMasterAssetDocument>>
+    {
+        public string SearchString { get; set; }
+        public long? AssetEquipmentMaintenaceMasterId { get; set; }
+        public GetAllAssetEquipmentMaintenaceMasterAssetDocumentQuery(long? AssetEquipmentMaintenaceMasterId)
+        {
+            this.AssetEquipmentMaintenaceMasterId = AssetEquipmentMaintenaceMasterId;
+        }
+    }
+    
 }

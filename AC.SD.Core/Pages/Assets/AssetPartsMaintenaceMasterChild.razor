@@ -1,0 +1,19 @@
+﻿@using global::Core.Entities.Views;
+<div class="cw-480 ch-220">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxFormLayoutTabPage Caption="Equipment maintenace Master">
+                <EquipmentMaintenaceMaster _selectItems="_selectItems"></EquipmentMaintenaceMaster>
+            </DxFormLayoutTabPage>
+            @* <DxFormLayoutTabPage Caption="Asset Parts N Maintenace Master">
+
+            </DxFormLayoutTabPage>*@
+
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+</div>
+@code {
+    [Parameter]
+    public View_AssetPartsMaintenaceMaster _selectItems { get; set; }
+    public int ActiveTabIndex { get; set; } = 0;
+}

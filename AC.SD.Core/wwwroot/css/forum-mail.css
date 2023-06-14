@@ -151,7 +151,7 @@ main {
     /* opacity: 0.8;*/
     position: fixed;
     bottom: 23px;
-    /* right: 28px;*/
+    right: 53px;
     /* width: 200px;*/
     width: calc(100vw - 614px);
 }
@@ -235,8 +235,7 @@ main {
 .uk-margin-medium-bottom {
     margin-bottom: 10px !important;
     border: 1px solid #cfcdcdee;
-    border-radius: 4px;
-    margin-right: 10px;
+    border-radius: 4px;   
 }
 
 .uk-card-default .uk-card-header {
@@ -289,14 +288,19 @@ main {
     cursor: pointer;
 }
 .lstcoversationrply {
-    padding: 10px;
+    /* padding: 10px;*/
     border: 1px;
+    border: 1px solid #c7c7c7ee;
     /*background-color: #e4efea;*/
     border-color: #f9e09b;
     border-width: 1px;
     border-style: solid;
     border-color: transparent transparent rgb(199 199 199);
     border-radius: 5px;
+    padding-bottom: 10px;
+    margin-left: 25px;
+    border: 1px solid #cdcdcdee;
+    margin-bottom: 10px;
 }
 .replybox {
     color: black;
@@ -305,6 +309,14 @@ main {
     border-radius: 4px;
     background: #eef2f0;
     margin-bottom: 10px;
+}
+.boxreplay {
+    padding: 10px;
+    border: 1px solid #efefef;
+    border-radius: 10px;
+    box-shadow: inset 0 -3em 3em rgba(0, 0, 0, 0.1), 0 0 0 2px rgb(255, 255, 255), 0.3em 0.3em 1em rgba(0, 0, 0, 0.3);
+    margin-left: 10px;
+    margin-right: 10px;
 }
 .closebtn {
     cursor: pointer;
@@ -673,7 +685,7 @@ main {
 .content-container {
     height: calc(100vh - 148px);
     width: 100%;    
-    display: flex;
+    /*display: flex;*/
 }
 
     .content-container .size-68-by-56 {
@@ -749,7 +761,6 @@ main {
     /* Mini Menu Bar Content Container Design CSS */
 
     .content-container .mini-menu-bar {
-        width: 85%;
         height: 100%;
         /* background-color: #f0f0f0;*/
         position: relative;
@@ -758,6 +769,7 @@ main {
         border: 1px solid #cfcdcdee;
         border-radius: 4px;
         overflow: auto;
+        padding: 0px;
     }
 
         .content-container .mini-menu-bar .mini-menu-bar-top {
@@ -918,15 +930,16 @@ main {
     /* Menu Bar Content Container Design CSS */
 
     .content-container .menu-bar-content-container {
-        width: 100%;
         height: 100%;
         position: relative;
-        /*background-color: #f5f5f5;*/       
+        /*background-color: #f5f5f5;*/
         box-shadow: -15px 0px 10px -20px #78787b;
+        padding: 0px;
+        margin-top: -10px;
     }
 
         .content-container .menu-bar-content-container .content-padding-20 {
-            margin: 0px 20px;
+            margin: 0px 10px;
             height: 100%;
            /* width: calc(100% - 40px);
             background-color: aqua;*/
@@ -975,7 +988,7 @@ main {
                     }
                     .msgOpen {
                         /* height: calc(100% - 360px);*/
-                        height: calc(100% - 155px);
+                        height: calc(100% - 222px);
                     }
 
                     .msgClose {
@@ -1244,9 +1257,159 @@ main {
 .richeditorHeight {
     height: calc(100vh - 148px);
 }
+.close-button {
+    text-align: right;
+    margin-top: -29px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 15px;
+    z-index: 99999;
+}
 
 .txtEditorMsg {
-   /* height: 180px;  */
+    /* height: 180px;  */
+    border: none;
+}
+.editor-box-height {
+    height: 250px;
+    border: 1px solid #bebebe;
+}
+.editor-reply-height
+{
+    height:180px !important;
+}
+
+.card-body {
+    padding: 10px 10px;
+    flex: 1 1 auto;
+    position: relative;
+}
+.text-muted {
+    color: #6c757d !important;
+}
+.d-flex {
+    display: -ms-flexbox !important;
+    display: flex !important;
+}
+.float-right {
+    float: right !important;
+}
+.media-body {
+    -ms-flex: 1;
+    flex: 1;
+}
+.media {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: start;
+    align-items: flex-start;
+}
+.card {
+    margin-bottom: 4px;
+}
+.small, small {
+    font-size: 13px;
+    font-weight: 400;
+}
+a.icon {
+    text-decoration: none;
+    cursor: pointer;
+}
+.icon i {
+    vertical-align: -1px;
+}
+.h5, h5 {
+    font-size: 13px;
+    font-weight: bold;
+}
+.box.box-primary {
+    border-top-color: #3c8dbc;
+}
+.box {
+    position: relative;
+    border-radius: 3px;   
+    border-top: 3px solid #d2d6de;
+    margin-bottom: 20px;
+    width: 100%;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
+.box-header.with-border {
+    border-bottom: 1px solid #f4f4f4;
+}
+.box-header {
+    color: #444;
+    display: block;
+    padding: 10px;
+    position: relative;
+}
+.no-padding {
+    padding: 0 !important;
+}
+.box-body {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    padding: 10px;
+}
+.uk-text-success {
+    margin-bottom: -10px;
+}
+.mailbox-read-info {
+    /* border-bottom: 1px solid #f4f4f4;*/
+    padding: 1px 10px;
+}
+    .mailbox-read-info h3 {
+        font-size: 20px;
+        margin: 0;
+    }
+    .mailbox-read-info h5 {
+        margin: 0;
+        padding: 5px 0 0 0;
+        font-weight: 500;
+        line-height: 1.1;
+        color: inherit;
+    }
+.mailbox-read-time {   
+    font-size: 13px;
+}
+.pull-right {
+    float: right !important;
+}
+.mailbox-controls.with-border {
+   /* border-bottom: 1px solid #f4f4f4;*/
+}
+.mailbox-controls {
+    padding: 5px;
+}
+.mailbox-read-message {
+    padding: 10px;
+}
+.box-footer {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top: 1px solid #f4f4f4;
+    padding: 10px;   
+}
+.list-unstyled, .chart-legend, .contacts-list, .users-list, .mailbox-attachments {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+    .mailbox-attachments li {
+        /*float: left;
+        width: 200px;*/
+        border-bottom: 1px solid #eee;
+        margin-bottom: 10px;
+        margin-right: 10px;
+    }
+.btn-default {
+    background-color: #f4f4f4;
+    color: #444;
+    border-color: #ddd;
 }
 
 

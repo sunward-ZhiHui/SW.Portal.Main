@@ -14,22 +14,10 @@
 @using System.Collections.Generic
 @using System.Reflection;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@using Microsoft.Extensions.Configuration;
-@inject IConfiguration Configuration;
-@inject HttpClient httpClient;
-@using System.IO;
 @page "/ForumTopics"
 <style>
     .txtEditorMsg {
-        height: calc(100vh - 402px);
-    }
-    .dxuc-file-list-view
-    {
-        padding: 20px;
-    }
-
-    .dxuc-upload-icon {
-        display: none; /* or any other style to disable or hide the icon */
+        height: 180px;
     }
 </style>
 <div class="card w-100 tooltips" style="margin-bottom:10px;">
@@ -39,10 +27,10 @@
                 <DxMenu CollapseItemsToHamburgerMenu="true"
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
-                    <Items>                                           
+                    <Items>
                         <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onRestText" />
                         @*<DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@HandleValidSubmit" />
-                        <DxMenuItem Text="Submit" Click="@SubmitForm"/>  *@                     
+                        <DxMenuItem Text="Submit" Click="@SubmitForm"/>  *@
                     </Items>
                 </DxMenu>
             </div>
@@ -62,7 +50,7 @@
 
 @*<div class="g-title">
     <div class="g-left"></div>
-   
+
     <span class=""></span><span class="g-text"></span>
     <div class="g-right">
         <button type="button" CssClass="download-btn"
@@ -76,7 +64,6 @@
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
     <div class="text-center">
-       
     </div>
 </DxPopup>
 
@@ -85,102 +72,238 @@
               OnValidSubmit="@HandleValidSubmit"
               OnInvalidSubmit="@HandleInvalidSubmit"
               Context="EditFormContext">
-        <DataAnnotationsValidator />       
+        <DataAnnotationsValidator />
         <div class="card-body">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-8 ">
                     <DxFormLayout>
-                        <DxFormLayoutItem Caption="From" ColSpanMd="12">
-                            <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />                           
-                        </DxFormLayoutItem>  
-                         <DxFormLayoutItem Caption="To" ColSpanMd="12">
-                            <DxTagBox NullText="Select To..."
-                                Data="_participant"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                ValueFieldName="UserID"
-                                TextFieldName="FirstName"
-                                TagsChanged="@onToChanged"
-                                @bind-Values="Data.ToIds"                                
-                                CssClass="cw-480">                     
-                            </DxTagBox>
-                            <ValidationMessage For="@(() => Data.ToIds)" />
+                        <DxFormLayoutItem ColSpanMd="6">
+                            <label for="TicketNo">Topic </label>
+                            <DxTextBox @bind-Text="@Data.TicketNo" ShowValidationIcon="true" NullText="Topic" />
+                            <ValidationMessage For="@(() => Data.TicketNo)" />
                         </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="CC" ColSpanMd="12">
-                            <DxTagBox NullText="Select Cc..."
-                                      Data="_participant"
-                                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                      ValueFieldName="UserID"
-                                      TextFieldName="FirstName"
-                                      TagsChanged="@onCcChanged"
-                                      @bind-Values="@Data.CCIds"
-                                      CssClass="cw-480" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
-                            <DxTextBox @bind-Text="@Data.OnBehalf" ShowValidationIcon="true" NullText="On Behalf of" />
-                            <ValidationMessage For="@(() => Data.OnBehalf)" />
+                        <DxFormLayoutItem ColSpanMd="6">
+                            <label for="TopicName">Topic Name </label>
+                            <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Topic Name" />
+                            <ValidationMessage For="@(() => Data.TopicName)" />
                         </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="" ColSpanMd="1">
-                            <DxCheckBox CssClass="w-100"
-                                        @bind-Checked="@Data.Urgent"
-                                        Alignment="default"
-                                        LabelPosition="LabelPosition.Right">
-                                Urgent
-                            </DxCheckBox>                            
-                        </DxFormLayoutItem>
-
-                          <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="1">
-                        <DxCheckBox CssClass="w-100"
-                                    @bind-Checked="@Data.OverDue"
-                                    Alignment="default"
-                                    LabelPosition="LabelPosition.Right">
-                            Allow OverDue
-                        </DxCheckBox>
-                        </DxFormLayoutItem>
-
-                        <DxFormLayoutItem Caption="Follow" ColSpanMd="2">
-                            <DxComboBox Data="@Follow"
-                                        NullText="Select Follow..."                                        
-                                        @bind-Value="@Data.Follow"
-                                        CssClass="cw-480">
-                            </DxComboBox>
-                            <ValidationMessage For="@(() => Data.Follow)" />
-                        </DxFormLayoutItem>
-                       
-                        <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">                           
-                            <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />                           
-                            <ValidationMessage For="@(() => Data.TopicName)" />                           
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Due Date" ColSpanMd="4">                           
-                            <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy"/>                          
-                        </DxFormLayoutItem>                         
-                        <DxFormLayoutItem ColSpanMd="8">  
-                            <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />                           
+                        <DxFormLayoutItem ColSpanMd="4">
+                            <label for="StartDate">Start Date </label>
+                            <DxDateEdit @bind-Date="@Data.StartDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
+                            <div class="">
+                                <ValidationMessage For="@(() => Data.StartDate)" />
+                            </div>
                         </DxFormLayoutItem>
                         <DxFormLayoutItem ColSpanMd="4">
-                            <DxFormLayout CssClass="w-100 ">
-                                <DxFormLayoutGroup Caption="Attachment" CssClass="txtEditorMsg" ColSpanMd="12">
-                                    <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
-                                    <div class="">
-                                        <DxUpload @ref="uploadComponent" Name="files"
-                                                  Visible="@AttachmentUploadVisible"
-                                                  AcceptedFileTypes=@AcceptedFileTypes
-                                                  UploadMode="@UploadMode.OnButtonClick"
-                                                  UploadUrl="@GetUploadUrl()"
-                                                  AllowMultiFileUpload="true"
-                                                  ExternalSelectButtonCssSelector="#attachmentSelectButton"
-                                                  SelectedFilesChanged="@AttachmentSelectedFilesChanged"
-                                                  FileUploaded="@isUploadSuccess"
-                                                  FileUploadError="@OnUploadError">
-                                        </DxUpload>
-                                        <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>                                       
-                                    </div>                                
-                                </DxFormLayoutGroup>
-                            </DxFormLayout>                           
+                            <label for="EndDate">End Date </label>
+                            <DxDateEdit @bind-Date="@Data.EndDate" CssClass="cw-320" Mask="dd-MMMM-yyyy" />
+                            <div class="">
+                                <ValidationMessage For="@(() => Data.EndDate)" />
+                            </div>
                         </DxFormLayoutItem>
-                    </DxFormLayout>                    
+                        <DxFormLayoutItem ColSpanMd="4">
+                            <label for="DueDate">DueDate </label>
+                            <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem ColSpanMd="6">
+                            <label for="TypeId">Type </label>
+                            <DxComboBox Data="@_types"
+                                        SelectedItemChanged="@((ForumTypes type) => SelectedItemChanged(type.ID))"
+                                        NullText="Select Type..."
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="Name"
+                                        ValueFieldName="ID"
+                                        @bind-Value="@Data.TypeId" ShowValidationIcon="true" />
+                            <ValidationMessage For="@(() => Data.TypeId)" />
+
+                            @*  <DxComboBox Data="@_types"
+                            SelectedItemChanged="@((ForumTypes type) => SelectedItemChanged(type.ID))"
+                            ListRenderMode="ListRenderMode.Virtual"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="@nameof(ForumTypes.Name)"
+                            @bind-Value="Data.TypeId"
+                            CssClass="cw-480" />*@
+                        </DxFormLayoutItem>
+                        @* @{
+                        SelectedItemChanged(@Data.CategoryId);
+                        }*@
+                        <DxFormLayoutItem ColSpanMd="6">
+                            <label for="CategoryId">Category </label>
+                            <DxComboBox Data="@_category"
+                                        NullText="Select Category..."
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="Name"
+                                        ValueFieldName="ID"
+                                        @bind-Value="@Data.CategoryId"
+                                        CssClass="cw-480" />
+                        </DxFormLayoutItem>
+
+                        @*  <DxFormLayoutItem ColSpanMd="6">
+                        <label for="ForumFrom">From </label>
+
+                        <DxComboBox Data="@SelectedDataItems"
+                        Multiple="true"
+                        NullText="Select Type..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Name"
+                        ValueFieldName="ID"
+                        @bind-Value="@Data.TopicFrom" ShowValidationIcon="true" />
+
+
+                        <DxListBox Data="@SelectedDataItems"
+                        TextFieldName="@nameof(ViewEmployee.FirstName)"
+                        SelectionMode="ListBoxSelectionMode.Multiple"
+                        ShowCheckboxes="@ShowCheckboxes"
+                        CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
+                        SearchEnabled="true" SearchMode="ListBoxSearchMode.Contains"
+                        style="flex-basis: 240px"
+                        @bind-Values="@Values">
+                        </DxListBox>
+
+
+                        </DxFormLayoutItem>*@
+
+                        <DxFormLayoutItem ColSpanMd="6">
+                            <div class="card-header text-center" style="border-top: 1px solid #d9d7d7;    border-left: 1px solid #d9d7d7;    border-right: 1px solid #d9d7d7;">
+                                <span> To </span>
+                            </div>
+                            <div class="">
+                                <DxGrid @ref="Grid" Data="@SelectedToItems"
+                                        KeyFieldName="UserID"
+                                        ShowSearchBox="true"
+                                        PagerNavigationMode="PagerNavigationMode.InputBox"
+                                        PageSizeSelectorVisible="true"
+                                        PageSizeSelectorAllRowsItemVisible="true"
+                                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                        PageSize="20"
+                                        style="height:calc(100vh - 500px); min-height:200px !important"
+                                        CssClass="ch-360"
+                                        SelectionMode="GridSelectionMode.Multiple"
+                                        AllowSelectRowByClick="true"
+                                        SelectedDataItemsChanged="@OnSelectedToDataItemsChanged">
+                                    <Columns>
+                                        <DxDataGridColumn>
+                                            <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+                                        </DxDataGridColumn>
+                                        <DxGridSelectionColumn Width="104px" />
+                                        <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
+                                        <DxGridDataColumn FieldName="LastName" />
+                                    </Columns>
+                                </DxGrid>
+                            </div>
+                            @* <label for="ForumTo">To </label>
+                            <DxListBox Data="@SelectedDataItems"
+                            TextFieldName="@nameof(ViewEmployee.FirstName)"
+                            SelectionMode="ListBoxSelectionMode.Multiple"
+                            ShowCheckboxes="@ShowCheckboxes"
+                            CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
+                            SearchEnabled="true" SearchMode="ListBoxSearchMode.Contains"
+                            style="flex-basis: 240px"
+                            @bind-Values="@Values">
+                            </DxListBox>*@
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem ColSpanMd="6">
+                            <div class="card-header text-center" style="border-top: 1px solid #d9d7d7;    border-left: 1px solid #d9d7d7;    border-right: 1px solid #d9d7d7;">
+                                <span> CC </span>
+                            </div>
+                            <div class="">
+                                <DxGrid @ref="Grid" Data="@SelectedCCItems"
+                                        KeyFieldName="UserID"
+                                        ShowSearchBox="true"
+                                        PagerNavigationMode="PagerNavigationMode.InputBox"
+                                        PageSizeSelectorVisible="true"
+                                        PageSizeSelectorAllRowsItemVisible="true"
+                                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                        PageSize="20"
+                                        style="height:calc(100vh - 500px);min-height:200px !important"
+                                        CssClass="ch-360"
+                                        SelectionMode="GridSelectionMode.Multiple"
+                                        AllowSelectRowByClick="true"
+                                        SelectedDataItemsChanged="@OnSelectedCCDataItemsChanged">
+                                    <Columns>
+                                        <DxDataGridColumn>
+                                            <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+                                        </DxDataGridColumn>
+                                        <DxGridSelectionColumn Width="104px" />
+                                        <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
+                                        <DxGridDataColumn FieldName="LastName" />
+                                    </Columns>
+                                </DxGrid>
+                            </div>
+
+                            @* <label for="ForumCC">CC </label>
+                            <DxListBox Data="@SelectedDataItems"
+                            TextFieldName="@nameof(ViewEmployee.FirstName)"
+                            SelectionMode="ListBoxSelectionMode.Multiple"
+                            ShowCheckboxes="@ShowCheckboxes"
+                            CssClass="w-auto mt-1 me-1 flex-grow-1 chi-220"
+                            SearchEnabled="true" SearchMode="ListBoxSearchMode.Contains"
+                            style="flex-basis: 240px"
+                            @bind-Values="@Values">
+                            </DxListBox>*@
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem ColSpanMd="12">
+                            @*  <DxMemo @bind-Text="@Data.Description" NullText="Description" ShowValidationIcon="true" Rows="4" />*@
+                            <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                            @* <ValidationMessage For="@(() => Data.Description)" />*@
+                        </DxFormLayoutItem>
+
+                        @*     <DxFormLayoutItem ColSpanMd="12">
+
+                        <DxButton RenderStyle="ButtonRenderStyle.Secondary"
+                        Text="Reset"
+                        Click="onRestText"
+                        IconCssClass="btn-icon-undo"
+                        CssClass="me-1" />
+
+
+
+                        <DxButton SubmitFormOnClick="true"
+                        Text="Submit"
+                        CssClass="btn-submit"
+                        style="float:right"
+                        RenderStyle="ButtonRenderStyle.Secondary" />
+                        </DxFormLayoutItem>*@
+
+                    </DxFormLayout>
                 </div>
-               </div>
+                <div class="card col-md-4" style="padding-left: 0px;padding-right: 0px;">
+                    <div class="card-header text-center">
+                        <span> Participant List</span>
+                        @*<DxButton style="float:right;" RenderStyle="ButtonRenderStyle.Info" class="btn btn-add" Click="@onClickParticipant">Add</DxButton>*@
+                    </div>
+                    <div class="card-body">
+                        <DxGrid @ref="Grid" Data="_participant"
+                                KeyFieldName="UserID"
+                                ShowSearchBox="true"
+                                PagerNavigationMode="PagerNavigationMode.InputBox"
+                                PageSizeSelectorVisible="true"
+                                PageSizeSelectorAllRowsItemVisible="true"
+                                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                PageSize="20"
+                                style="height:calc(100vh - 250px);min-height:400px !important"
+                                CssClass="ch-360"
+                                SelectionMode="GridSelectionMode.Multiple"
+                                AllowSelectRowByClick="true"
+                                SelectedDataItemsChanged="@OnSelectedDataItemsChanged"
+                                SelectedRowsChanged="HandleSelectedRowsChanged">
+                            <Columns>
+                                @*<DxDataGridColumn>
+                                <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+                                </DxDataGridColumn>*@
+                                <DxGridSelectionColumn Width="104px" />
+                                <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
+                                <DxGridDataColumn FieldName="LastName" />
+                            </Columns>
+                        </DxGrid>
+                    </div>
+                </div>
+            </div>
+
+
+
+
         </div>
     </EditForm>
 </div>
@@ -196,17 +319,6 @@
 
 
 @code {
-    [Parameter]
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
-    private DxUpload uploadComponent;
-    Guid? _sessionId;
-    string MyError { get; set; }
-    bool ErrorVisible { get; set; } = false;
-    bool isFileUpload = false;
-    private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
-    bool AttachmentUploadVisible { get; set; } = false;
-    List<string> Follow { get; set; }
-    string SelectedFollow { get; set; }
     private EditForm myForm;
     private string MyID = "myForm";
     private List<ForumTypes> selectedItems = new List<ForumTypes>();
@@ -229,11 +341,6 @@
     IEnumerable<ForumTypes>? _types;
     IEnumerable<ForumTopics>? _topics;
     private List<ViewEmployee>? _participant;
-    private List<ViewEmployee>? _Allparticipant;
-
-    private List<ViewEmployee>? _Toparticipant;
-    private List<ViewEmployee>? _CCparticipant;
-
     private List<ApplicationUser> _applicationUsers;
     IEnumerable<ForumTypes>? Values;
     IEnumerable<ForumCategorys>? _category;
@@ -243,10 +350,7 @@
     List<long> selectedToIds = new List<long>();
     List<long> SelectedCCIds = new List<long>();
 
-    List<string> sToIds = new List<string>();
-    List<string> sCCIds = new List<string>();
-
-    //List<ViewEmployee> ids = new List<ViewEmployee>(); 
+    //List<ViewEmployee> ids = new List<ViewEmployee>();
 
     public ApplicationUser? applicationUser { get; private set; }
 
@@ -256,71 +360,10 @@
 
     IReadOnlyList<object>? SelectedToDataItems { get; set; }
     IReadOnlyList<object>? SelectedCCDataItems { get; set; }
-    void onToChanged(IEnumerable<string> newTags)
-    {
-        sToIds = newTags.ToList();
 
-        List<string> concatList = sToIds.Concat(sCCIds).ToList();
-
-        //_CCparticipant = _Toparticipant.Where(c => !newTags.Contains(c.FirstName)).ToList();
-        _participant = _Toparticipant.Where(c => !concatList.Contains(c.FirstName)).ToList();
-        var todd = Data.ToIds;
-        var ccdd = Data.CCIds;
-
-        //foreach(var itm in Tags)
-        //{
-
-        //    _CCparticipant = _Toparticipant.Where(c => c.FirstName != itm).ToList();
-        //}       
-    }
-    public string GetUploadUrl()
-    {
-        string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + _sessionId;
-        return url.ToString();
-    }
-    void onloadSession()
-    {
-        _sessionId = Guid.NewGuid();
-    }
-    private async Task isUploadSuccess()
-    {
-        //uploadComponent.RemoveAllFiles();
-        //uploadComponent.CancelAllFilesUpload();
-        isFileUpload = false;
-        //await LoadData();
-    }
-    void OnUploadError(FileUploadErrorEventArgs e)
-    {
-        MyError = e.RequestInfo.ResponseText;
-        ErrorVisible = true;
-        InvokeAsync(StateHasChanged);
-    }
-    protected async void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
-    {
-        AttachmentUploadVisible = files.ToList().Count > 0;
-        SelectedFiles.AddRange(files);
-    }
-    void onCcChanged(IEnumerable<string> newTags)
-    {
-        sCCIds = newTags.ToList();
-
-
-        List<string> concatList = sCCIds.Concat(sToIds).ToList();
-
-        //_Toparticipant = _CCparticipant.Where(c => !newTags.Contains(c.FirstName)).ToList();
-        _participant = _Toparticipant.Where(c => !concatList.Contains(c.FirstName)).ToList();
-
-
-
-        //foreach (var itm in Tags)
-        //{
-        //    _Toparticipant = _CCparticipant.Where(c => c.FirstName != itm).ToList();
-        //}
-    }
     private async Task SubmitForm()
     {
-        //myForm.OnSubmit();    
+        //myForm.OnSubmit();
         // await JSRuntime.InvokeVoidAsync("submitForm", myForm);
         //await JSRuntime.InvokeVoidAsync("submitForm");
         await JSRuntime.InvokeVoidAsync("myInteropFunctions.submitForm");
@@ -351,7 +394,7 @@
     }
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
-    //GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }   
+    //GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }
 
     void OnSelectedDataItemsChanged(IReadOnlyList<object> selectedDataItems)
     {
@@ -366,19 +409,20 @@
     void OnSelectedToDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedToDataItems = SelectedToItems;
-        if(SelectedToItems !=null)
+        if (SelectedToItems != null)
         {
             List<object> newList = new List<object>(SelectedDataItems);
             // Remove the selected items from the new list
             newList.RemoveAll(item => SelectedToItems.Contains(item));
             SelectedCCItems = newList;
         }
+
     }
 
     void OnSelectedCCDataItemsChanged(IReadOnlyList<object> SelectedCCItems)
     {
         SelectedCCDataItems = SelectedCCItems;
-        if(SelectedCCItems != null)
+        if (SelectedCCItems != null)
         {
             List<object> newList = new List<object>(SelectedDataItems);
             // Remove the selected items from the new list
@@ -393,7 +437,7 @@
         var res = args;
         var lst = @SelectedDataItems;
 
-        if(args != null)
+        if (args != null)
         {
             ViewEmployee selectedEmployee = @SelectedDataItems as ViewEmployee;
             if (selectedEmployee != null)
@@ -403,26 +447,16 @@
                 //selectedToIds.Add((long)selectedEmployee.UserID);
 
             }
-        }      
+        }
     }
     private void onRestText()
     {
         Data = new ForumTopics();
         SelectedDataItems = null;
         SelectedCCItems = null;
-        SelectedToItems = null;        
-        SelectedToDataItems = null;       
+        SelectedToItems = null;
+        SelectedToDataItems = null;
         participantIds.Clear();
-        selectedToIds.Clear();
-        SelectedCCIds.Clear();
-        Data.From = applicationUser.UserName;
-        onloadSession();
-        Follow = new List<string>
-        {
-             "Follow Up","No Follow Up"
-        };
-
-        Data.Follow = Follow[1];
 
     }
     private void onSubmit()
@@ -442,16 +476,9 @@
     }
 
 
-    protected override async Task OnInitializedAsync() {
-
+    protected override async Task OnInitializedAsync()
+    {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        onloadSession();
-        Follow = new List<string>
-        {
-             "Follow Up","No Follow Up"
-        };
-
-        Data.Follow = Follow[1];
 
         var typemodel = await Mediator.Send(new GetAllForumTypes());
         _types = typemodel;
@@ -463,111 +490,71 @@
 
         _forumCategorys = await Mediator.Send(new GetAllForumCategorys());
 
-        var plist = await Mediator.Send(new GetAllEmployeeListQuery());            
+        var plist = await Mediator.Send(new GetAllEmployeeListQuery());
         _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
-        _Allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-
-        _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-        _CCparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-
         //var topicmodel = await Mediator.Send(new GetListCategory(1));
-        //_category = topicmodel;        
+        //_category = topicmodel;
 
-        Data.From = applicationUser.UserName;
-
-    }   
+    }
 
     async void HandleValidSubmit()
-    {        
+    {
         participantIds.Clear();
-        selectedToIds.Clear();
-        SelectedCCIds.Clear();
 
-        var lslsl = Data.ToIds;
 
-        //if (@SelectedDataItems == null)
-        //{
-        //    onShowPopupMessage("Error", "Please Select Participant");
-        //    return;
-        //}
-
-        //if (SelectedToDataItems == null)
-        //{
-        //    onShowPopupMessage("Error", "Please Select To");
-        //    return;
-        //}
-
-      
-
-        List<string> concatList = sToIds.Concat(sCCIds).ToList();
-
-        foreach (var itm in concatList)
+        if (@SelectedDataItems == null)
         {
-            var ls = _Allparticipant.Where(c => c.FirstName == itm).ToList();
-
-            for(var i=0;i<ls.Count;i++)
-            {
-                participantIds.Add(ls[i].UserID.Value);
-            }          
+            onShowPopupMessage("Error", "Please Select Participant");
+            return;
         }
+
+        if (SelectedToDataItems == null)
+        {
+            onShowPopupMessage("Error", "Please Select To");
+            return;
+        }
+
+        //if (SelectedCCDataItems == null)
+        //{
+        //    onShowPopupMessage("Error", "Please Select CC ");
+        //    return;
+        //}
+
+
+
+        if (@SelectedDataItems.Count > 0)
+        {
+            foreach (object item in SelectedDataItems)
+            {
+                if (item is ViewEmployee employee)
+                {
+                    //ids.Add(employee);
+                    participantIds.Add((long)employee.UserID);
+                }
+            }
+        }
+
 
         participantIds.Add(applicationUser.UserID);
 
-        foreach(var itm in sToIds)
+        foreach (object item in SelectedToDataItems)
         {
-            var ls = _Allparticipant.Where(c => c.FirstName == itm).ToList();
-           
-            for (var i = 0; i < ls.Count; i++)
+            if (item is ViewEmployee employee)
             {
-                selectedToIds.Add(ls[i].UserID.Value);
+                selectedToIds.Add((long)employee.UserID);
             }
         }
-
-        foreach (var itm in sCCIds)
+        if (SelectedCCDataItems != null)
         {
-            var ls = _Allparticipant.Where(c => c.FirstName == itm).ToList();
-            
-            for (var i = 0; i < ls.Count; i++)
+            foreach (object item in SelectedCCDataItems)
             {
-                SelectedCCIds.Add(ls[i].UserID.Value);
+                if (item is ViewEmployee employee)
+                {
+                    SelectedCCIds.Add((long)employee.UserID);
+                }
             }
         }
-
-
-
-        //if (@SelectedDataItems.Count > 0)
-        //{
-        //    foreach (object item in SelectedDataItems)
-        //    {
-        //        if (item is ViewEmployee employee)
-        //        {
-        //            //ids.Add(employee);
-        //            participantIds.Add((long)employee.UserID);
-        //        }
-        //    }            
-        //}    
-
-
-        //participantIds.Add(applicationUser.UserID);
-
-        //foreach (object item in SelectedToDataItems)
-        //{
-        //    if (item is ViewEmployee employee)
-        //    {               
-        //        selectedToIds.Add((long)employee.UserID);
-        //    }
-        //}
-        //if(SelectedCCDataItems !=null)
-        //{
-        //    foreach (object item in SelectedCCDataItems)
-        //    {
-        //        if (item is ViewEmployee employee)
-        //        {
-        //            SelectedCCIds.Add((long)employee.UserID);
-        //        }
-        //    }
-        //}
 
 
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
@@ -593,20 +580,18 @@
 
 
             var createReq = new CreateForumTopics
-                {                    
-                    TopicName = Data.TopicName,                    
-                    StartDate = DateTime.Now,
-                    OnBehalf = Data.OnBehalf,
-                    Follow = Data.Follow,
-                    Urgent = Data.Urgent,
-                    DueDate = Data.DueDate,
-                    OverDue = Data.OverDue,
+                {
+                    TicketNo = Data.TicketNo,
+                    TopicName = Data.TopicName,
+                    TypeId = (long)Data.TypeId,
+                    CategoryId = Data.CategoryId,
+                    StartDate = Data.StartDate,
+                    Description = Data.Description,
                     FileData = fileContent,
                     StatusCodeID = 1,
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
-                   // SessionId = Guid.NewGuid(),
-                   SessionId = _sessionId,
+                    SessionId = Guid.NewGuid(),
                     Participants = participantidsString,
                     To = toidsString,
                     CC = ccidsString
@@ -614,15 +599,13 @@
                 };
 
 
+
+
             try
             {
-                //_sessionId = createReq.SessionId;
                 var result = await Mediator.Send(createReq);
                 if (result != null)
-                {                    
-                    uploadComponent.UploadAllFiles();
-                    await Task.Delay(2000); // Delay for 2 seconds
-
+                {
                     onShowPopupMessage("success", "Topic have been saved successully");
                     onRestText();
                 }
@@ -648,27 +631,27 @@
     }
     void onClickParticipant()
     {
-        //var lst = SelectedDataItems;        
+        //var lst = SelectedDataItems;
         //PopupVisible = true;
     }
     void HandleInvalidSubmit()
     {
         FormSubmitResult = "";
     }
-   async void SelectedItemChanged(long typeId)
-    {   
+    async void SelectedItemChanged(long typeId)
+    {
         //if(typeId > 0)
         //{
         //    var modleCategory = await Mediator.Send(new GetListCategory(typeId));
         //    _category = modleCategory;
         //}
-     
+
         if (typeId > 0)
         {
             _category = _forumCategorys.Where(c => c.TypeId == typeId).ToList();
         }
 
-    } 
+    }
 
 
     async Task ExportToExcel()
@@ -676,7 +659,7 @@
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
             {
                 ExportSelectedRowsOnly = true,
-                
+
                 CustomizeCell = OnCustomizeCell
             });
     }

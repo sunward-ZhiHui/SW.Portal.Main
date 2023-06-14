@@ -12,4 +12,17 @@ namespace Core.Repositories.Command
     {
 
     }
+    public interface IAssetPartsMaintenaceMasterCommandRepository : ICommandRepository<AssetPartsMaintenaceMaster>
+    {
+
+    }
+    public interface IAssetEquipmentMaintenaceMasterCommandRepository : ICommandRepository<AssetEquipmentMaintenaceMaster>
+    {
+
+    }
+    public interface IAssetEquipmentMaintenaceMasterAssetDocumentCommandRepository : ICommandRepository<AssetEquipmentMaintenaceMasterAssetDocument>
+    {
+
+    }
+    
 }

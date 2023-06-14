@@ -27,5 +27,13 @@ namespace Application.Queries
             this.SearchString = SearchString;
         }
     }
+    public class GetAllApplicationMasterChildByIdQuery : PagedRequest, IRequest<List<ApplicationMasterChildModel>>
+    {
+        public long? Id { get; set; }
+        public GetAllApplicationMasterChildByIdQuery(long? Id)
+        {
+            this.Id = Id;
+        }
+    }
 
 }

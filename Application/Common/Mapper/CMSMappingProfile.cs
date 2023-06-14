@@ -18,6 +18,7 @@ using Core.Repositories.Command;
 using Application.Command.EmployeeICTInformations;
 using Application.Handlers.CommandHandler.AssetCatalogMasters;
 using Application.Command.AssetCatalogMasters;
+using Application.Command.AssetPartsMaintenaceMasters;
 
 namespace Application.Common.Mapper
 {
@@ -61,6 +62,7 @@ namespace Application.Common.Mapper
 
             CreateMap<ForumCategorys, ForumCategoryResponse>().ReverseMap();
             CreateMap<ForumTopics, ForumTopicsResponse>().ReverseMap();
+            CreateMap<EmailTopics, EmailTopicsResponse>().ReverseMap();
             CreateMap<ApplicationUser, ApplicationUserResponse>().ReverseMap();
             CreateMap<ForumTypes, ForumTypeResponse>().ReverseMap();
 
@@ -110,6 +112,14 @@ namespace Application.Common.Mapper
             CreateMap<AssetCatalogMaster, CreateAssetCatalogMasterCommand>().ReverseMap();
             CreateMap<AssetCatalogMaster, EditAssetCatalogMasterCommand>().ReverseMap();
             CreateMap<AssetCatalogMaster, DeleteAssetCatalogMasterCommand>().ReverseMap();
+
+            CreateMap<AssetPartsMaintenaceMaster, CreateAssetPartsMaintenaceMasterCommand>().ReverseMap();
+            CreateMap<AssetPartsMaintenaceMaster, EditAssetPartsMaintenaceMasterCommand>().ReverseMap();
+            CreateMap<AssetPartsMaintenaceMaster, DeleteAssetPartsMaintenaceMasterCommand>().ReverseMap();
+
+            CreateMap<AssetEquipmentMaintenaceMaster, CreateAssetEquipmentMaintenaceMasterCommand>().ReverseMap();
+            CreateMap<AssetEquipmentMaintenaceMaster, EditAssetEquipmentMaintenaceMasterCommand>().ReverseMap();
+            CreateMap<AssetEquipmentMaintenaceMaster, DeleteAssetEquipmentMaintenaceMasterCommand>().ReverseMap();
         }
     }
 }

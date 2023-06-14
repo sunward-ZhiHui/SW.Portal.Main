@@ -12,10 +12,12 @@ namespace Core.Entities
     public class ForumTopics : BaseEntity
     {
         [Key]
-        public long ID { get; set; }        
+        public long ID { get; set; }
+        [Required(ErrorMessage = "Please Enter Topic.")]
         public string? TicketNo { get; set; }
-        [Required(ErrorMessage = "Please Enter Subject Name.")]
-        public string? TopicName { get; set; }       
+        [Required(ErrorMessage = "Please Enter Topic Name.")]
+        public string? TopicName { get; set; }
+        [Required(ErrorMessage = "Please Select Type Name.")]
         public long? TypeId { get; set; }
         public string? TypeName { get; set; }
         public long CategoryId { get; set; }
@@ -35,20 +37,30 @@ namespace Core.Entities
         public string? Label { get; set; }
         public List<ForumTopics>? children { get; set; }
         public byte[] FileData { get; set; }      
-        public string? Follow { get; set; }
-        [Required(ErrorMessage = "Please Enter On Behalf of.")]
+        public string? Follow { get; set; }      
         public string? OnBehalf { get; set; }
         public bool? Urgent { get; set; }
         public bool? OverDue { get; set; }
+        [NotMapped]
+        public string? FirstName { get; set; }
+        [NotMapped]
+        public string? LastName { get; set; }
 
         [NotMapped]
         public string? From { get; set; }
 
-        [NotMapped]
-        [Required(ErrorMessage = "Please Select To.")]
+        [NotMapped]       
         public IEnumerable<long> ToIds { get; set; }
         [NotMapped]
         public IEnumerable<long> CCIds { get; set; }
+        [NotMapped]
+        public List<Documents>? documents { get; set; }
+        [NotMapped]
+        public List<ForumAssignToList>? TopicToList { get; set; }
+        [NotMapped]
+        public List<ForumAssignToList>? TopicCCList { get; set; }
+        [NotMapped]
+        public int? NotificationCount { get; set; }
 
     }
 }

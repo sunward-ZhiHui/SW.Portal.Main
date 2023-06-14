@@ -8,5 +8,5 @@ namespace Application.Queries
 {
     public class CreateForumTopics : ForumTopicsResponse, IRequest<long>
     {       
-    }   
+    }    
 }

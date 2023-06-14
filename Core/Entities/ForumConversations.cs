@@ -32,6 +32,9 @@ namespace Core.Entities
 
         [NotMapped]
         public IEnumerable<long> AssigntoIds { get; set; }
-
+        [NotMapped]
+        public IEnumerable<long> AllParticipantIds { get; set; }
+        [NotMapped]
+        public List<ForumAssignToList>? AssignToList { get; set; }
     }
 }

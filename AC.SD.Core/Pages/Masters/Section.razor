@@ -12,6 +12,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @page "/section"
+@inject NavigationManager NavigationManager
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -24,6 +25,8 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add SubSection" IconCssClass="fa fa-add" Click="@AddSubSection" />
+                <DxMenuItem Text="Reset Department" IconCssClass="fa fa-refresh" Click="@ResetDepartment" Enabled="@isDepartmentEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -81,6 +84,7 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="DepartmentDrop"
                             ValueFieldName="DepartmentId"
+                            Enabled="@isEnabled"
                             SelectedItemChanged="@((ViewDepartment depSelect) => SelectedItemChanged(depSelect))"
                             @bind-Value="@sections.DepartmentId"
                             ShowValidationIcon="true">
@@ -88,10 +92,10 @@
                 <ValidationMessage For="@(() => sections.DepartmentId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                <DxTextBox @bind-Text="@companyName" ReadOnly="true" />
+                <DxTextBox @bind-Text="@companyName" Enabled="@isEnabled" ReadOnly="true" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                <DxTextBox @bind-Text="@divisionName" ReadOnly="true" />
+                <DxTextBox @bind-Text="@divisionName" Enabled="@isEnabled" ReadOnly="true" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Section Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@sections.SectionName" ShowValidationIcon="true" />
@@ -131,7 +135,7 @@
         <Content>
         <p>
                 <div > Do you want to delete</div>
-          
+          DepartmentDrop
         </p>
     </Content>
        
@@ -167,6 +171,13 @@
 </DxPopup>
 
 @code {
+
+    [Parameter]
+    public long? PlantID { get; set; }
+    [Parameter]
+    public string Type { get; set; }
+    bool isDepartmentEnabled { get; set; } = false;
+    bool isEnabled { get; set; } = true;
     private List<ViewSection> _sectionItems;
     private List<CodeMaster> _stausItems;
     private List<ViewDepartment> _departmentItems;
@@ -192,13 +203,35 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
+        if (Type == "Department")
+        {
+            isDepartmentEnabled = true;
+        }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         if (e.IsNew)
         {
+            var newmaster = (ViewSection)e.EditModel;
             companyName = "";
             divisionName = "";
+            newmaster.SectionName = "";
+            newmaster.SectionCode = "";
+            newmaster.Description = "";
+            newmaster.ProfileCode = "";
+            if (Type == "Department")
+            {
+                var _masters = _sectionItems.FirstOrDefault(f => f.DepartmentId == PlantID);
+                if (_masters != null)
+                {
+                    isEnabled = false;
+                    newmaster.DepartmentId = _masters.DepartmentId;
+                    companyName = _masters.Company;
+                    divisionName = _masters.Division;
+
+                    // SelectedItemChanged(_ictmasters);
+                }
+            }
         }
         else
         {
@@ -409,5 +442,18 @@
         {
             EditEnabled = true;
         }
+    }
+    void ResetDepartment()
+    {
+        PlantID = -1;
+        isEnabled = true;
+        isDepartmentEnabled = false;
+        Grid.CancelEditAsync();
+        NavigationManager.NavigateTo("masters/3/section/-1");
+
+    }
+    void AddSubSection()
+    {
+        NavigationManager.NavigateTo("masters/4/section/" + _selectedItems.SectionId);
     }
 }

@@ -11,6 +11,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
 
 
 @page "/designation"
@@ -26,6 +27,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Reset Subsection" IconCssClass="fa fa-refresh" Click="@ResetSubSection" Enabled="@isSubsectionEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -90,6 +92,7 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="SubSectionDrop"
                             ValueFieldName="SubSectionId"
+                            Enabled="@isEnabled"
                             @bind-Value="@plant.SubSectionID"
                             SelectedItemChanged="@((ViewSubSection plantSelect) => SelectedItemChanged(plantSelect))"
                             ShowValidationIcon="true">
@@ -102,6 +105,7 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
+                            Enabled="@isEnabled"
                             @bind-Value="@CompanyID" ReadOnly="true" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Division" ColSpanMd="6">
@@ -110,6 +114,7 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="Name"
                             ValueFieldName="DivisionID"
+                            Enabled="@isEnabled"
                             ReadOnly="true"
                             @bind-Value="@DivisionID">
                 </DxComboBox>
@@ -120,6 +125,7 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="DepartmentName"
                             ValueFieldName="DepartmentId"
+                            Enabled="@isEnabled"
                             ReadOnly="true"
                             @bind-Value="@DepartmentID">
                 </DxComboBox>
@@ -131,6 +137,7 @@
                             TextFieldName="SectionName"
                             ValueFieldName="SectionId"
                             ReadOnly="true"
+                            Enabled="@isEnabled"
                             @bind-Value="@SectionID">
                 </DxComboBox>
             </DxFormLayoutItem>
@@ -221,6 +228,12 @@
 </DxPopup>
 
 @code {
+    [Parameter]
+    public long? PlantID { get; set; }
+    [Parameter]
+    public string Type { get; set; }
+    bool isSubsectionEnabled { get; set; } = false;
+    bool isEnabled { get; set; } = true;
     private List<ViewSection> _sections;
     private List<ViewDepartment> _departments;
     private List<ViewDivision>? _divisions;
@@ -261,6 +274,10 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
+        if (Type == "subsection")
+        {
+            isSubsectionEnabled = true;
+        }
     }
     async Task UpdateDataAsync()
     {
@@ -285,11 +302,26 @@
         var dep = (ViewDesignation)e.DataItem;
         if (e.IsNew)
         {
+            var newmaster = (ViewDesignation)e.EditModel;
+           
             CompanyID = null;
             DivisionID = null;
             SectionID = null;
             DepartmentID = null;
-
+            if (Type == "subsection")
+            {
+                var _masters = _designationItems.FirstOrDefault(f => f.SubSectionID == PlantID);
+                if (_masters != null)
+                {
+                    isEnabled = false;
+                    newmaster.SubSectionID = _masters.SubSectionID;
+                    CompanyID = _masters.CompanyID;
+                    DivisionID = _masters.DivisionID;
+                    DepartmentID = _masters.DepartmentID;
+                    SectionID = _masters.SectionID;
+                    // SelectedItemChanged(_ictmasters);
+                }
+            }
         }
         else
         {
@@ -498,5 +530,14 @@
         {
             EditEnabled = true;
         }
+    }
+     void ResetSubSection()
+    {
+        PlantID = -1;
+        isEnabled = true;
+        isSubsectionEnabled = false;
+        Grid.CancelEditAsync();
+        NavigationManager.NavigateTo("masters/5/subsection/-1");
+
     }
 }

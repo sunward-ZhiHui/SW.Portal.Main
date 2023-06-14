@@ -29,7 +29,19 @@
             </Items>
         </DxMenu>
     </div>
+   
 </div>
+
+<div style="background-color: #eee;  font-size: 18px" class="card-body p-0">
+  @* @if(comapnyName != null)*@
+  @if (Type == "Site")
+    {
+       <div> @comapnyName / @SiteName</div>
+    }
+   
+  
+                                                
+ </div>
 <DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving"
         CustomizeEditModel="Grid_CustomizeEditModel" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -141,6 +153,9 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+
+    string comapnyName = "";
+    string SiteName = "";
     [Parameter]
     public long? SiteId { get; set; }
     [Parameter]
@@ -160,7 +175,7 @@
     bool ExportSelectedRowsOnly { get; set; }
     bool isEnabled { get; set; } = true;
     bool isSiteEnabled { get; set; } = false;
-
+    private ViewPlants _selectplant;
     IGrid Grid { get; set; }
     int masterType = 571;
     public ApplicationUser applicationUser { get; private set; }
@@ -179,6 +194,15 @@
         }
 
     }
+    //async Task LoadDetailhistory()
+    //{
+    //    if (SiteId != null)
+    //    {
+    //        _selectedItems = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
+    //        comapnyName = _selectedItems.CompanyId;
+    //        SiteName = _selectedItems.Name;
+    //    }
+    //}
     async Task UpdateDataAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -190,6 +214,22 @@
         }
         _ictmaster = model;
         _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
+
+        if (SiteId != null && SiteId != -1)
+        {
+            _selectedItems = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
+           
+           
+              var item = _plantItems.Where(c => c.PlantID == _selectedItems.CompanyId);
+           // var item = _plantItems.Where(c => c.PlantID == SiteId);
+                _selectplant = item.FirstOrDefault();
+                comapnyName = _selectplant.Description;
+
+                SiteName = _selectedItems.Name;
+            
+          
+        }
+
         if (_ictmasterList.Count > 0)
         {
 
@@ -435,9 +475,11 @@
         NavigationManager.NavigateTo("ictMaster/1/Zone/-1");
 
     }
-    void AddLocation()
+    async Task AddLocation()
     {
         NavigationManager.NavigateTo("ictMaster/2/Zone/" + _selectedItems.IctmasterId);
+      // await LoadDetailhistory();
     }
+   
 }
 

@@ -1,0 +1,38 @@
+﻿@page "/masters"
+@page "/masters/{ActiveTabIndex:int}"
+@page "/masters/{ActiveTabIndex:int}/{Type}/{PlantID:long}"
+
+
+<div class="cw-480 ch-220">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxFormLayoutTabPage Caption="Company">
+                <Plants />
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Division">
+                <Division PlantID="@PlantID" Type="@Type" />
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Department">
+                <Department PlantID="@PlantID" Type="@Type" />
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Section">
+                <Section PlantID="@PlantID" Type="@Type" />
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Subsection">
+                <SubSection PlantID="@PlantID" Type="@Type" />
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Designation">
+                <Designation PlantID="@PlantID" Type="@Type" />
+            </DxFormLayoutTabPage>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+</div>
+@code {
+    [Parameter]
+    public long? PlantID { get; set; }
+   
+    [Parameter]
+    public string Type { get; set; }
+   [Parameter]
+    public int ActiveTabIndex { get; set; } = 0;
+}

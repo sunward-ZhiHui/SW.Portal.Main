@@ -29,7 +29,14 @@
         </DxMenu>
     </div>
 </div>
+<div style="background-color: #eee;  font-size: 18px" class="card-body p-0">
 
+  
+    @if (Type == "Location")
+    {
+        <div>  @comapnyName / @LocationName </div>
+    }
+</div>
 <DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
         CustomizeEditModel="Grid_CustomizeEditModel"
         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -179,6 +186,9 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+
+    string comapnyName = "";
+    string LocationName = "";
     [Parameter]
     public long? SiteId { get; set; }
     [Parameter]
@@ -194,7 +204,7 @@
     private List<ViewIctmaster>? _masterZone;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private ViewIctmaster _selectlst;
-
+    private ViewPlants _selectplant;
 
     bool ExportSelectedRowsOnly
     {
@@ -223,6 +233,17 @@
             isLocationEnabled = true;
         }
     }
+    //async Task LoadDetailhistory()
+    //{
+    //    if (SiteId != null)
+    //    {
+    //        _selectedItems = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
+    //        comapnyName = _selectedItems.CompanyId;
+    //        siteId = _selectedItems.SiteId;
+    //        ZoneId = _selectedItems.ParentIctid;
+    //        LocationName = _selectedItems.Name;
+    //    }
+    //}
     async Task UpdateDataAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -233,6 +254,14 @@
         }
         _ictmaster = model;
         _ictmasterList = model.Where(w => w.MasterType == masterType).ToList();
+        if (SiteId != null && SiteId != -1)
+        {
+            _selectedItems = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
+            var item = _plantItems.Where(c => c.PlantID == _selectedItems.CompanyId);
+            _selectplant = item.FirstOrDefault();
+            comapnyName = _selectplant.Description;
+            LocationName = _selectedItems.Name;
+        }
         if (_ictmasterList.Count > 0)
         {
 
@@ -505,9 +534,10 @@
         NavigationManager.NavigateTo("ictMaster/3/Area/-1");
 
     }
-    void AddSpecificArea()
+    async Task AddSpecificArea()
     {
         NavigationManager.NavigateTo("ictMaster/4/Area/" + _selectedItems.IctmasterId);
+       // await LoadDetailhistory();
     }
 }
 

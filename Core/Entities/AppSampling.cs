@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace Core.Entities
 
         public int SamplingId { get; set; }
         public string ScanDocument { get; set; }
+       
         public string TicketNo { get; set; }
         public string SublotNo { get; set; }
         public string BatchNo { get; set; }

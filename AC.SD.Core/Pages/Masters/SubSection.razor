@@ -12,6 +12,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -24,6 +25,8 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add Designation" IconCssClass="fa fa-add" Click="@AddDesignation" />
+                <DxMenuItem Text="Reset section" IconCssClass="fa fa-refresh" Click="@ResetSection" Enabled="@issectionEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -82,20 +85,21 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="SectionDrop"
                             ValueFieldName="SectionId"
+                            Enabled  ="@isEnabled"
                             SelectedItemChanged="@((ViewSection depSelect) => SelectedItemChanged(depSelect))"
                             @bind-Value="@sections.SectionId"
                             ShowValidationIcon="true">
                 </DxComboBox>
                 <ValidationMessage For="@(() => sections.SectionId)" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                <DxTextBox @bind-Text="@companyName" ReadOnly="true" />
+            <DxFormLayoutItem Caption="Company"  ColSpanMd="6">
+                <DxTextBox @bind-Text="@companyName" Enabled="@isEnabled" ReadOnly="true" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-                <DxTextBox @bind-Text="@divisionName" ReadOnly="true" />
+                <DxTextBox @bind-Text="@divisionName" Enabled="@isEnabled" ReadOnly="true" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-                <DxTextBox @bind-Text="@sectionName" ReadOnly="true" />
+                <DxTextBox @bind-Text="@sectionName" Enabled="@isEnabled" ReadOnly="true" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="SubSection Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@sections.SubSectionName" ShowValidationIcon="true" />
@@ -170,6 +174,12 @@
 
 </DxPopup>
 @code {
+    [Parameter]
+    public long? PlantID { get; set; }
+    [Parameter]
+    public string Type { get; set; }
+    bool issectionEnabled { get; set; } = false;
+    bool isEnabled { get; set; } = true;
     private List<ViewSubSection> _subsectionItems;
     private List<ViewSection> _sectionItems;
     private List<CodeMaster> _stausItems;
@@ -191,20 +201,38 @@
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
-       // Application.Common.Helper.Helper.FormatDate();
+        // Application.Common.Helper.Helper.FormatDate();
         _sectionItems = await Mediator.Send(new GetAllSectionQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
+        if (Type == "section")
+        {
+            issectionEnabled = true;
+        }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         if (e.IsNew)
         {
+            var newmaster = (ViewSubSection)e.EditModel;
             companyName ="";
             divisionName ="";
             sectionName = "";
+            if (Type == "section")
+            {
+                var _masters = _subsectionItems.FirstOrDefault(f => f.SectionId == PlantID);
+                if (_masters != null)
+                {
+                    isEnabled = false;
+                    newmaster.SectionId = _masters.SectionId;
+                    companyName = _masters.Company;
+                    divisionName = _masters.Division;
+                    sectionName = _masters.SectionName;
+                    // SelectedItemChanged(_ictmasters);
+                }
+            }
         }
         else
         {
@@ -423,5 +451,18 @@
         {
             EditEnabled = true;
         }
+    }
+    void ResetSection()
+    {
+        PlantID = -1;
+        isEnabled = true;
+        issectionEnabled = false;
+        Grid.CancelEditAsync();
+        NavigationManager.NavigateTo("masters/4/subsection/-1");
+
+    }
+    void AddDesignation()
+    {
+        NavigationManager.NavigateTo("masters/5/subsection/" + _selectedItems.SubSectionId);
     }
 }

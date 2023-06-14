@@ -40,8 +40,8 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM AppSamplingLine";
-
+                // var query = "SELECT * FROM AppSamplingLine";
+                var query = "select *, t2.Value as SamplingPurpose from AppSamplingLine t1 LEFT JOIN ApplicationMasterDetail t2 ON t2.ApplicationMasterDetailID = t1.SamplingPurposeID";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<AppSamplingLine>(query)).ToList();

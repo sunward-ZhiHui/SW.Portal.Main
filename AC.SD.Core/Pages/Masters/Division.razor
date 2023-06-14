@@ -11,6 +11,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
 
 @page "/Division"
 
@@ -28,6 +29,8 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add Department" IconCssClass="fa fa-add" Click="@AddLocation" />
+                <DxMenuItem Text="Reset Company" IconCssClass="fa fa-refresh" Click="@ResetCompany" Enabled="@isCompanyEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -39,6 +42,7 @@
         EditModelSaving="Grid_EditModelSaving"
         DataItemDeleting="Grid_DataItemDeleting"
         CustomizeElement="Grid_CustomizeElement"
+        CustomizeEditModel="Grid_CustomizeEditModel"
         ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
@@ -80,11 +84,13 @@
         }
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+               
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="PlantCode"
                             ValueFieldName="PlantID"
+                            Enabled="@isEnabled"
                             @bind-Value="@plant.CompanyId"
                             ShowValidationIcon="true">
                 </DxComboBox>
@@ -161,6 +167,11 @@
 </DxPopup>
 
 @code {
+
+    private List<ViewPlants> _plants;
+    [Parameter]
+    public long? PlantID { get; set; }
+
     [Parameter]
     public long? SiteId { get; set; }
     [Parameter]
@@ -182,17 +193,25 @@
     bool ExportSelectedRowsOnly { get; set; }
     public ApplicationUser? applicationUser { get; private set; }
     private ViewDivision _selectlst;
+    bool isEnabled { get; set; } = true;
+    bool isCompanyEnabled { get; set; } = false;
+    private ViewPlants? _selectItems;
+
 
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
-        var plants = await Mediator.Send(new GetAllPlantQuery());
         _stausItems = models;
+        var plants = await Mediator.Send(new GetAllPlantQuery());
         _plantItems = plants;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
+        if (Type == "Plants")
+        {
+            isCompanyEnabled = true;
+        }
     }
     async Task UpdateDataAsync()
     {
@@ -212,14 +231,29 @@
         }
         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
+
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         if (e.IsNew)
         {
             var newData = (ViewDivision)e.EditModel;
-            newData.PlantCode = "";
+             newData.PlantCode = "";
+            newData.Name = "";
             newData.Description = "";
             newData.StatusCodeID = null;
+           
+            if (Type == "Plants")
+            {
+                var _masters = _divisions.FirstOrDefault(f => f.CompanyId == PlantID);
+                if (_masters != null)
+                {
+
+                    isEnabled = false;
+                    newData.CompanyId = _masters.CompanyId;
+                   // newData.DivisionID = _masters.DivisionID;
+                   // SelectedItemChanged(_masters.CompanyId);
+                }
+            }
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -316,6 +350,7 @@
     void addNew()
     {
         Grid.StartEditNewRowAsync();
+     
     }
     void addEdit()
     {
@@ -404,4 +439,18 @@
             EditEnabled = true;
         }
     }
+    void ResetCompany()
+    {
+        PlantID = -1;
+        isEnabled = true;
+        isCompanyEnabled = false;
+        Grid.CancelEditAsync();
+        NavigationManager.NavigateTo("masters/1/Division/-1");
+
+    }
+    void AddLocation()
+    {
+        NavigationManager.NavigateTo("masters/2/Division/" + _selectedItems.DivisionID);
+    }
+    
 }

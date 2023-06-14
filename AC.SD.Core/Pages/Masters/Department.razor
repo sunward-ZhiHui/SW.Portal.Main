@@ -11,6 +11,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
 
 @page "/Department"
 
@@ -25,6 +26,8 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add Section" IconCssClass="fa fa-add" Click="@AddSection" />
+                <DxMenuItem Text="Reset Division" IconCssClass="fa fa-refresh" Click="@ResetDivision" Enabled="@isDivisionEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -83,8 +86,9 @@
                 <DxComboBox Data="@_divisionsItems"
                             NullText="Select Division..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="DivisionDrop"
+                            TextFieldName=" DivisionDrop"
                             ValueFieldName="DivisionID"
+                            Enabled="@isEnabled"
                             SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemChanged(plantSelect))"
                             @bind-Value="@department.DivisionId"
                             ShowValidationIcon="true">
@@ -92,7 +96,7 @@
                 <ValidationMessage For="@(() => department.DivisionId)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                <DxTextBox @bind-Text="@companyName" ReadOnly="true" />
+                <DxTextBox @bind-Text="@companyName" Enabled="@isEnabled" ReadOnly="true" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Department Name" ColSpanMd="6">
                 <DxTextBox @bind-Text="@department.DepartmentName" ShowValidationIcon="true" />
@@ -132,7 +136,7 @@
         <Content>
         <p>
                 <div > Do you want to delete</div>
-          
+          DivisionDrop
         </p>
     </Content>
        
@@ -168,6 +172,13 @@
 </DxPopup>
 
 @code {
+    [Parameter]
+    public long? PlantID { get; set; }
+    [Parameter]
+    public string Type { get; set; }
+    bool isDivisionEnabled { get; set; } = false;
+    bool isEnabled { get; set; } = true;
+
     private List<ViewPlants> _plantItems;
     private List<CodeMaster> _stausItems;
     private List<ViewDepartment> _departmentItems;
@@ -196,13 +207,37 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
+        if (Type == "Division")
+        {
+            isDivisionEnabled = true;
+        }
     }
+
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         if (e.IsNew)
         {
+            var newmaster = (ViewDepartment)e.EditModel;
+            newmaster.DepartmentName = "";
+            newmaster.StatusCode = "";
+            newmaster.ProfileCode = "";
+            newmaster.Description = "";
             companyName = "";
-            companyId =null;
+            companyId = null;
+
+
+            if (Type == "Division")
+            {
+                var _ictmasters = _departmentItems.FirstOrDefault(f => f.DivisionId == PlantID);
+                if (_ictmasters != null)
+                {
+                    isEnabled = false;
+                    newmaster.DivisionId = _ictmasters.DivisionId;
+                    companyName = _ictmasters.Company;
+
+                    // SelectedItemChanged(_ictmasters);
+                }
+            }
         }
         else
         {
@@ -233,6 +268,7 @@
     {
         if (plantID != null)
         {
+           
             companyName = plantID.PlantDescription;
             companyId = plantID.CompanyId;
         }
@@ -335,6 +371,7 @@
     void addNew()
     {
         Grid.StartEditNewRowAsync();
+       
     }
     void addEdit()
     {
@@ -420,4 +457,18 @@
             EditEnabled = true;
         }
     }
+    void ResetDivision()
+    {
+        PlantID = -1;
+        isEnabled = true;
+        isDivisionEnabled = false;
+        Grid.CancelEditAsync();
+        NavigationManager.NavigateTo("masters/2/Department/-1");
+
+    }
+    void AddSection()
+    {
+        NavigationManager.NavigateTo("masters/3/Department/" + _selectedItems.DepartmentId);
+    }
 }
+

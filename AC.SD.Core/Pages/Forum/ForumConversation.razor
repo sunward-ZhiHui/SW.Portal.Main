@@ -213,10 +213,12 @@
                             }
                         </div>
                     </div>
-                    <div class="@((isComponentVisible ? "menu-bar-content-container-content msgOpen" : "menu-bar-content-container-content msgClose"))">
+                    <div id="scrollContainer" @ref="scrollContainer" class="@((isComponentVisible ? "menu-bar-content-container-content msgOpen" : "menu-bar-content-container-content msgClose"))">
                         @* <div class="spacing-box"></div>  *@
                         @if (isMenuvisible == "Posts")
-                        {
+                        {           
+                            
+
                             @if (_headTopic != null && _headTopic.Any())
                             {
                                 @foreach (var item in _headTopic)
@@ -246,7 +248,7 @@
                                                     <div class="">                                                        
                                                         @foreach (var attachment in item.documents)
                                                         {
-                                                            <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                            <div class="tag handline" @onclick="@(() => onDisDocDownload(attachment.FilePath))"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
                                                         }    
                                                     </div>
                                                 </div>
@@ -323,7 +325,7 @@
                                                             <div>
                                                                 @foreach (var attachment in item.documents)
                                                                 {
-                                                                    <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                    <div class="tag handline" @onclick="@(() => onDisDocDownload(attachment.FilePath))"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
                                                                 }
                                                                 @* string firststring = "#overviewDemoSelectButton_";
                                                                 Guid? secondstring = item.SessionId;
@@ -392,7 +394,7 @@
                                                                             {
                                                                                 @foreach (var attachment in items.documents)
                                                                                 {
-                                                                                    <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                                    <div class="tag handline" @onclick="@(() => onDisDocDownload(attachment.FilePath))"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
                                                                                 }                                                                              
                                                                             }
                                                                             @{
@@ -433,6 +435,8 @@
 
                                     <DxButton RenderStyle="ButtonRenderStyle.Success" CssClass="me-1 btn-success open-button"
                                       Click="() => WindowVisible = !WindowVisible" style="width:200px;">New Conversation</DxButton>
+                                      
+
                                     <DxWindow @bind-Visible=WindowVisible 
                                       HeaderText="Post"
                                       HorizontalAlignment="HorizontalAlignment.Right"
@@ -831,6 +835,8 @@
 
 
 @code {   
+    private ElementReference scrollContainerRef;
+     private ElementReference scrollContainer;
     DxWindow dxWindow;
     bool WindowVisible { get; set; } = false;
     bool IsOpen { get; set; } = false;
@@ -874,7 +880,7 @@
     {
         [Required(ErrorMessage = "Remarks is required")]
         public string? Remarks { get; set; }
-    }
+    }    
     private DxUpload uploadComponent;  
 
     private Model _dataDuDate = new Model();
@@ -998,11 +1004,18 @@
             e.CssClass = "header-bold";
         }
     }
+     [JSInvokable]
+    public void OnScrollToBottom()
+    {
+        // Code to execute when user reaches the bottom
+    }
+   
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {            
-            await JSRuntime.InvokeVoidAsync("window.addEventListener", "scroll", DotNetObjectReference.Create(this).Value, "HandleScroll");
+        {    
+            //await JSRuntime.InvokeVoidAsync("scrollBottomInterop.initialize", scrollContainerRef);
+            //await JSRuntime.InvokeVoidAsync("window.addEventListener", "scroll", DotNetObjectReference.Create(this).Value, "HandleScroll");
         }
 
 
@@ -1207,6 +1220,11 @@
         }
 
     }
+    private async Task ScrollToBottom()
+    {
+        await JSRuntime.InvokeVoidAsync("scrollToBottom");
+    }
+
     async void SubmitTopicClose()
     {
         var UpdateReq = new UpdateTopicClosed
@@ -1447,6 +1465,11 @@
     private async Task OpenUrlInNewTab(string url)
     {
         await JSRuntime.InvokeVoidAsync("open", url, "_blank");
+    }
+    public async Task onDisDocDownload(string FilePath)
+    {
+        var url = FileUrl + FilePath;
+        await OpenUrlInNewTab(url);        
     }
     public async Task onDocDownload(long Id)
     {

@@ -338,7 +338,7 @@
                                                         <div class="">
                                                             @foreach (var attachment in item.documents)
                                                             {
-                                                                <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                <div class="tag handline" @onclick="@(() => onDisDocDownload(attachment.FilePath))"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
                                                             }
                                                         </div>
                                                     </div>
@@ -418,7 +418,7 @@
                                                                 <div class="">
                                                                     @foreach (var attachment in item.documents)
                                                                     {
-                                                                        <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                        <div class="tag handline" @onclick="@(() => onDisDocDownload(attachment.FilePath))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
                                                                     }
                                                                 </div>
                                                             </div>
@@ -502,7 +502,7 @@
                                                                             {
                                                                                 @foreach (var attachment in items.documents)
                                                                                 {
-                                                                                    <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                                    <div class="tag handline" @onclick="@(() => onDisDocDownload(attachment.FilePath))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
                                                                                 }                                                                              
                                                                             }
                                                                             @{
@@ -1126,6 +1126,11 @@
             // Invoke another function here
             //AnotherFunction();
         }
+    }
+    public async Task onDisDocDownload(string FilePath)
+    {
+        var url = FileUrl + FilePath;
+        await OpenUrlInNewTab(url);        
     }
 
     [JSInvokable("handleScroll")]

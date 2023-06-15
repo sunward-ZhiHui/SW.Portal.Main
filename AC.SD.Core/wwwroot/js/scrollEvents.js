@@ -1,10 +1,14 @@
-﻿window.scrollToElement = function (selector) {
-    var element = document.querySelector(selector);
-    if (element) {
-        var offset = element.offsetTop;
-        window.scrollTo({
-            top: offset,
-            behavior: 'smooth'
+﻿
+window.scrollToBottom = {
+    initialize: function (element) {
+        element.addEventListener('scroll', function () {
+            if (element.scrollHeight - element.scrollTop === element.clientHeight) {
+                element.click();
+            }
         });
+    },
+
+    isScrolledToBottom: function (element) {
+        return element.scrollHeight - element.scrollTop === element.clientHeight;
     }
 };

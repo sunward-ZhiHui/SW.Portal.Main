@@ -8,6 +8,9 @@
 function myFunction() {
     alert(1);
 }
+function scrollToBottom() {
+    window.scrollTo(0, document.body.msgOpen);
+}
 
 function setRichEditHeight(elementId) {
     const richEditElement = document.getElementById(elementId);

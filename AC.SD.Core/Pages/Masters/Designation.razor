@@ -34,6 +34,17 @@
 </div>
 
 
+  
+    @if (Type == "subsection")
+    {
+        <div style="" class="card-body  bradcrumb-txt">
+        <div> @companyName / @sectionName </div>
+        </div>
+    }
+
+
+
+
 
 
 <DxGrid @ref="Grid"
@@ -228,6 +239,10 @@
 </DxPopup>
 
 @code {
+    string companyName = "";
+  //  string divisionName = "";
+    string sectionName = "";
+   
     [Parameter]
     public long? PlantID { get; set; }
     [Parameter]
@@ -261,6 +276,9 @@
     bool Blukdeletepopup { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
     private ViewDesignation _selectlst;
+    private ViewSubSection _selectedsubsec;
+   
+    private ViewSection _selectsec;
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -288,6 +306,20 @@
             model[i].Index = i + 1;
         }
         _designationItems = model;
+        if (PlantID != null && PlantID != -1)
+        {
+              if (Type == "subsection")
+              {
+            _selectedsubsec = _subsectionListItems.FirstOrDefault(f => f.SubSectionId == PlantID);
+            var items = _sections.Where(c => c.SectionId == _selectedsubsec.SectionId);
+            _selectsec = items.FirstOrDefault();
+           
+           
+            companyName = _selectedsubsec.Company;
+          //  divisionName = _selectedsubsec.Division;
+            sectionName = _selectsec.SectionDrop;
+              }
+        }
         if (_designationItems.Count > 0)
         {
             _selectedItems = _designationItems.FirstOrDefault();

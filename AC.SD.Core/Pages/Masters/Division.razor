@@ -36,6 +36,18 @@
     </div>
 </div>
 
+    @* @if(comapnyName != null)*@
+    @if (Type == "Plants")
+    {
+        <div style="" class="card-body  bradcrumb-txt">
+
+        <div > @Plantcode / @Description</div>
+    </div>
+    }
+
+
+
+
 <DxGrid @ref="Grid"
         Data="_divisions"
         KeyFieldName="DivisionID"
@@ -167,7 +179,8 @@
 </DxPopup>
 
 @code {
-
+    string Plantcode = "";
+    string Description = "";
     private List<ViewPlants> _plants;
     [Parameter]
     public long? PlantID { get; set; }
@@ -195,8 +208,8 @@
     private ViewDivision _selectlst;
     bool isEnabled { get; set; } = true;
     bool isCompanyEnabled { get; set; } = false;
-    private ViewPlants? _selectItems;
-
+    // private ViewPlants? _selectItems;
+    private ViewPlants _selectplant;
 
     protected override async Task OnInitializedAsync()
     {
@@ -222,6 +235,20 @@
             model[i].Index = i + 1;
         }
         _divisions = model;
+
+        if (PlantID != null && PlantID != -1)
+        {
+            if (Type == "Plants")
+            {
+                _selectplant = _plantItems.FirstOrDefault(f => f.PlantID == PlantID);
+                Plantcode = _selectplant.PlantCode;
+
+                Description = _selectplant.Description;
+
+            }
+          
+
+        }
         if (_divisions.Count > 0)
         {
             _selectedItems = _divisions.FirstOrDefault();

@@ -31,6 +31,19 @@
         </DxMenu>
     </div>
 </div>
+
+
+   
+    @if (Type == "Department")
+    {
+    <div style="" class="card-body bradcrumb-txt">
+        <div > @divisionDrop /@Name  </div>
+        </div>
+    }
+
+
+
+
 <DxGrid @ref="Grid"
         Data="_sectionItems"
         KeyFieldName="SectionId"
@@ -171,7 +184,9 @@
 </DxPopup>
 
 @code {
-
+    string divisionDrop = "";
+    string Name = "";
+   // string  CompanyName ="";
     [Parameter]
     public long? PlantID { get; set; }
     [Parameter]
@@ -195,12 +210,16 @@
     public ApplicationUser applicationUser { get; private set; }
     bool ExportSelectedRowsOnly { get; set; }
     private ViewSection _selectlst;
+    private ViewDivision _selectdivision;
+    private List<ViewDivision> _divisionsItems;
+    private ViewDepartment _selectdep;
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _divisionsItems = await Mediator.Send(new GetAllDivisionQuery());
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
         if (Type == "Department")
@@ -257,6 +276,21 @@
             model[i].Index = i + 1;
         }
         _sectionItems = model;
+        if (PlantID != null && PlantID != -1)
+        {
+            if (Type == "Department")
+            {
+                _selectdep = _departmentItems.FirstOrDefault(f => f.DepartmentId == PlantID);
+
+                var items = _divisionsItems.Where(c => c.DivisionID == _selectdep.DivisionId);
+                _selectdivision = items.FirstOrDefault();
+                divisionDrop = _selectdivision.DivisionDrop;
+              //  companyName = _selectdep.PlantCode;
+                Name = _selectdep.DepartmentName;
+
+            }
+
+        }
         if (_sectionItems.Count > 0)
         {
             _selectedItems = _sectionItems.FirstOrDefault();

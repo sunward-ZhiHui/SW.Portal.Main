@@ -33,6 +33,18 @@
     </div>
 </div>
 
+    @* @if(comapnyName != null)*@
+    @if (Type == "Division")
+    {
+    <div style="" class="card-body  bradcrumb-txt">
+    
+        <div > @plantcode / @Name</div>
+    </div>
+    }
+
+
+
+
 <DxGrid @ref="Grid"
         Data="_departmentItems"
         KeyFieldName="DepartmentId"
@@ -172,6 +184,8 @@
 </DxPopup>
 
 @code {
+    string plantcode = "";
+    string Name = "";
     [Parameter]
     public long? PlantID { get; set; }
     [Parameter]
@@ -198,6 +212,10 @@
     string companyName = "";
     bool ExportSelectedRowsOnly { get; set; }
     private ViewDepartment _selectlst;
+    private ViewPlants _selectplant;
+    private ViewDivision _selectdivision;
+
+
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -255,6 +273,18 @@
             model[i].Index = i + 1;
         }
         _departmentItems = model;
+        if (PlantID != null && PlantID != -1)
+        {
+            if (Type == "Division")
+            {
+            _selectdivision = _divisionsItems.FirstOrDefault(f => f.DivisionID == PlantID);
+            var item = _plantItems.Where(c => c.PlantID == _selectdivision.CompanyId);
+            _selectplant = item.FirstOrDefault();
+            plantcode = _selectplant.PlantCode;
+            Name = _selectdivision.Name;
+
+            }
+        }
         if (_departmentItems.Count > 0)
         {
             _selectedItems = _departmentItems.FirstOrDefault();

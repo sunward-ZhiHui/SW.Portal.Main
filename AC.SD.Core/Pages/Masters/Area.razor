@@ -29,12 +29,14 @@
         </DxMenu>
     </div>
 </div>
-<div class="card-body bradcrumb-txt">  
+ 
     @if (Type == "Location")
     {
+        <div class="card-body bradcrumb-txt"> 
         <div>  @comapnyName / @LocationName </div>
+    </div>
     }
-</div>
+
 <DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving" ShowSearchBox="true"
         CustomizeEditModel="Grid_CustomizeEditModel"
         PagerNavigationMode="PagerNavigationMode.InputBox"

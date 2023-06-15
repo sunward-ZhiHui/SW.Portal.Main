@@ -32,16 +32,18 @@
    
 </div>
 
-<div style="" class="card-body bradcrumb-txt">
+
   @* @if(comapnyName != null)*@
   @if (Type == "Site")
     {
+    <div style="" class="card-body bradcrumb-txt">
        <div> @comapnyName / @SiteName</div>
-    }
+                                                       
+     </div>
+     }
    
   
-                                                
- </div>
+
 <DxGrid @ref="Grid" Data="_ictmasterList" KeyFieldName="IctmasterId" DataItemDeleting="Grid_DataItemDeleting" EditModelSaving="Grid_EditModelSaving"
         CustomizeEditModel="Grid_CustomizeEditModel" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"

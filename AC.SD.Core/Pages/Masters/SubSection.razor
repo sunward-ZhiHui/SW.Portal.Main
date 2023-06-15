@@ -31,6 +31,17 @@
         </DxMenu>
     </div>
 </div>
+
+    @if (Type == "section")
+    {
+        <div style="" class="card-body  bradcrumb-txt">
+        <div>@Depdrops  / @sectionName </div>
+        </div>
+    }
+
+
+
+
 <DxGrid @ref="Grid"
         Data="_subsectionItems"
         KeyFieldName="SubSectionId"
@@ -174,6 +185,9 @@
 
 </DxPopup>
 @code {
+
+    string Depdrops = "";
+
     [Parameter]
     public long? PlantID { get; set; }
     [Parameter]
@@ -197,7 +211,10 @@
     public ApplicationUser applicationUser { get; private set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private ViewSubSection _selectlst;
+    private ViewSection _selectsec;
+    private List<ViewDepartment> _departmentItems;
     bool ExportSelectedRowsOnly { get; set; }
+    private ViewDepartment _selectdep;
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -205,6 +222,7 @@
         _sectionItems = await Mediator.Send(new GetAllSectionQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
         if (Type == "section")
@@ -227,7 +245,7 @@
                 {
                     isEnabled = false;
                     newmaster.SectionId = _masters.SectionId;
-                    companyName = _masters.Company;
+                  //  companyName = _masters.Company;
                     divisionName = _masters.Division;
                     sectionName = _masters.SectionName;
                     // SelectedItemChanged(_ictmasters);
@@ -260,6 +278,19 @@
             model[i].Index = i + 1;
         }
         _subsectionItems = model;
+        if (PlantID != null && PlantID != -1)
+        {
+            if (Type == "section")
+            {
+                _selectsec = _sectionItems.FirstOrDefault(f => f.SectionId == PlantID);
+                var items = _departmentItems.Where(c => c.DepartmentId == _selectsec.DepartmentId);
+                _selectdep = items.FirstOrDefault();
+                Depdrops = _selectdep.DepartmentDrop;
+                companyName = _selectsec.Company;
+              //  divisionName = _selectsec.Division;
+                sectionName = _selectsec.SectionName;
+            }
+        }
         if (_subsectionItems.Count > 0)
         {
 

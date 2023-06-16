@@ -37,6 +37,14 @@ namespace Application.Queries
             this.TopicId = topicId;
         }
     }
+    public class GetEmailFullDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public long TopicId { get; private set; }
+        public GetEmailFullDiscussionList(long TopicId)
+        {
+            this.TopicId = TopicId;
+        }
+    }
     public class GetEmailDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long TopicId { get; private set; }

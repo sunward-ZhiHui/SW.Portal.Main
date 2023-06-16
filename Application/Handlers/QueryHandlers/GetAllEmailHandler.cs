@@ -53,7 +53,21 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
-    
+    public class GetSentTopicHandler : IRequestHandler<GetSentTopic, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _forumTopicsQueryRepository;
+        public GetSentTopicHandler(IEmailTopicsQueryRepository forumTopicsQueryRepository)
+        {
+            _forumTopicsQueryRepository = forumTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetSentTopic request, CancellationToken cancellationToken)
+        {
+            return await _forumTopicsQueryRepository.GetTopicSentList(request.UserId);
+
+        }
+    }
+
     public class GetEmailParticipantListHandler : IRequestHandler<GetEmailParticipantsList, List<TopicParticipant>>
     {
 

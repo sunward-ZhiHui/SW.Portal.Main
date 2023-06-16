@@ -65,9 +65,9 @@
                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                     DisplayMode="MenuDisplayMode.Desktop">
                                 <Items>
-                                    <DxMenuItem Text="Assign To" class="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" IconCssClass="fa fa-envelope" Click="@(() => OnLeftMenuItemClick("AssignTo"))" />
-                                    
+                                    <DxMenuItem Text="Assign To" class="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" IconCssClass="fa fa-envelope" Click="@(() => OnLeftMenuItemClick("AssignTo"))" />                                    
                                     <DxMenuItem Text="CC" class="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" IconCssClass="popup-image popup-icon-position" Click="@(() => OnLeftMenuItemClick("AssignCC"))" />
+                                    <DxMenuItem Text="Sent" class="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" IconCssClass="fa fa-paper-plane" Click="@(() => OnLeftMenuItemClick("Sent"))" />
                                 </Items>
                             </DxMenu>
                         </div>
@@ -161,6 +161,39 @@
                                         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
                                     </TotalSummary>
                                 </DxGrid>
+                            }
+                            else if(isLeftMenuvisible == "Sent")
+                            {
+                             <DxGrid @ref="SentGrid"
+                                    Data="_forumTopicSent"
+                                    KeyFieldName="ID"
+                                    CustomizeElement="Grid_CustomizeElement"
+                                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                                    PageSizeSelectorVisible="true"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                    PageSize="20"
+                                    ValidationEnabled="true"
+                                    AutoExpandAllGroupRows="true"
+                                    CssClass="ch-360 " style="height: calc(100vh - 220px);"
+                                    RowClick="OnEmailToRowClick"
+                                    AllowSelectRowByClick="true">
+                                    <Columns>
+                                        <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
+                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" />
+                                        <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="160">
+                                            <CellDisplayTemplate>
+                                                @{
+                                                    var item = (EmailTopics)context.DataItem;
+                                                }
+                                                @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+                                            </CellDisplayTemplate>
+                                        </DxGridDataColumn>
+                                    </Columns>
+                                    <TotalSummary>
+                                        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
+                                    </TotalSummary>
+                                </DxGrid>   
                             }
 
                             
@@ -326,6 +359,13 @@
                                                 </div>
                                             </div>
                                         </div>*@
+                                        @*<div class="mailbox-read-time pull-right">                                           
+                                            <div class="btn-group" style="float: right; margin-top: 4px;    margin-right: 5px;">
+                                                <button type="button" @onclick="@(() => onTopicreply(item.ID))" style="border: 1px solid #eeebeb; padding: 8px; border-radius: 5px;" class="">
+                                                    <i class="fa fa-reply"></i> Reply
+                                                </button>
+                                            </div>
+                                        </div>*@
                                         <div class="uk-card-body">
                                             <p class="uk-text-success">
                                                 <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
@@ -383,7 +423,7 @@
                                                                         <span>@items.FirstName ,</span>
                                                                     }
                                                                 }
-                                                                @*<span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</span>*@
+                                                                
                                                                 <div class="mailbox-read-time pull-right">
                                                                     <div class="" style="margin-right: 77px; margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
                                                                     <div class="btn-group" style="float: right; margin-top: -25px;">
@@ -393,22 +433,12 @@
                                                                     </div>
                                                                 </div>
                                                             </h5>
-                                                        </div>
-                                                        <!-- /.mailbox-read-info -->
-                                                        @*<div class="mailbox-controls with-border pull-right">
-                                                            <div class="btn-group">
-                                                                <button type="button" @onclick="@(() => onreply(item.ID))" class="btn btn-default"><i class="fa fa-reply"></i> Reply</button>
-                                                            </div>                                                           
-                                                            <button type="button" @onclick="@(() => assignedList(item.ID))" class="btn btn-default btn-sm" data-toggle="tooltip" title="Assign To">
-                                                                <i class="fa fa-users"></i>
-                                                            </button>
-                                                        </div>*@                                                        
+                                                        </div>                                                                                                            
                                                     </div>
                                                 </div>
                                                 <div class="uk-card-body">                                                   
                                                     <p class="uk-text-success">                                                       
-                                                        <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
-                                                      
+                                                        <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />                                                      
                                                     </p>
 
                                                     @if (item.documents.Any())
@@ -483,18 +513,17 @@
                                                                                             <span>@itms.FirstName ,</span>
                                                                                         }
                                                                                     }
-                                                                                    <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</span>
+                                                                                    @*<span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</span>*@
+                                                                                    <div class="mailbox-read-time pull-right">
+                                                                                        <div class="" style="margin-right: 77px; margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
+                                                                                        <div class="btn-group" style="float: right; margin-top: -25px;">
+                                                                                            <button type="button" @onclick="@(() => onunderreply(items.ID))" style="border: 1px solid #eeebeb; padding: 8px; border-radius: 5px;" class="">
+                                                                                                <i class="fa fa-reply"></i> Reply
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
                                                                                 </h5>
-                                                                            </div>
-                                                                            <!-- /.mailbox-read-info -->
-                                                                            @*<div class="mailbox-controls with-border pull-right">
-                                                                                <div class="btn-group">
-                                                                                    <button type="button" @onclick="@(() => onreply(item.ID))" class="btn btn-default"><i class="fa fa-reply"></i> Reply</button>
-                                                                                </div>                                                                               
-                                                                                <button type="button" @onclick="@(() => assignedList(item.ID))" class="btn btn-default btn-sm" data-toggle="tooltip" title="Assign To">
-                                                                                    <i class="fa fa-users"></i>
-                                                                                </button>
-                                                                            </div>*@
+                                                                            </div>                                                                           
                                                                             <div>
                                                                                 <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@items.FileData" />
                                                                             </div>
@@ -505,25 +534,54 @@
                                                                                     <div class="tag handline" @onclick="@(() => onDisDocDownload(attachment.FilePath))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
                                                                                 }                                                                              
                                                                             }
-                                                                            @{
-                                                                                string firststring = "#overviewDemoSelectButton_";
-                                                                                Guid? secondstring = items.SessionId;
-                                                                                string extt = firststring + secondstring;
+                                                                            @if (items.ReplyConversation.Count() > 0)
+                                                                            {
+                                                                                <div class="uk-card-footer">
+                                                                                    <div>
+                                                                                        <p style="color: #5151b3;" class="handline" @onclick="@(() => ToggleItemVisibility(items.ID))">@items.ReplyConversation.Count() replies </p>
+                                                                                        @if (@items.ReplyConversation != null && @items.ReplyConversation.Any())
+                                                                                        {
+                                                                                            @if (itemVisibility.ContainsKey(items.ID) && itemVisibility[items.ID])
+                                                                                            {
+                                                                                                 @foreach (var itm in @items.ReplyConversation)
+                                                                                                {
+                                                                                                    <div class="lstcoversationrply">
+                                                                                                    <div class="mailbox-read-info" style="border-bottom:1px solid #f4f4f4">
+                                                                                                        @* <h3>Message Subject Is Placed Here</h3>*@
+                                                                                                        <h5>
+                                                                                                            From: @itm.UserName
+                                                                                                            <br>
+                                                                                                            Assign To:
+                                                                                                            @if (itm.AssignToList != null && itm.AssignToList.Any())
+                                                                                                            {
+                                                                                                                @foreach (var itms in itm.AssignToList)
+                                                                                                                {
+                                                                                                                    <span>@itms.FirstName ,</span>
+                                                                                                                }
+                                                                                                            }
+                                                                                                            <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@itm.AddedDate)</span>                                                                                                            
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                    <div>
+                                                                                                        <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@itm.FileData" />
+                                                                                                    </div>
+                                                                                                    @if (itm.documents != null && itm.documents.Any())
+                                                                                                    {
+                                                                                                        @foreach (var attachment in itm.documents)
+                                                                                                        {
+                                                                                                            <div class="tag handline" @onclick="@(() => onDisDocDownload(attachment.FilePath))"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                                                        }
+                                                                                                    }
+                                                                                                    </div>
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    </div>
+                                                                                </div>
 
-                                                                            }                                                                          
-
-                                                                            @*<div id="overviewDemoSelectButton_@items.SessionId" class="tag fa fa-plus-square"></div>
-                                                                            <DxUpload @ref="MyUpload" Name="files"
-                                                                              AcceptedFileTypes=@AcceptedFileTypes
-                                                                              Visible="@UploadVisible"
-                                                                              ExternalSelectButtonCssSelector="@extt"
-                                                                              UploadUrl="@GetDocUploadUrl(@items.SessionId)"
-                                                                              Id="@extt"
-                                                                              SelectedFilesChanged="@SelectedFilesChanged1"
-                                                                              CssClass="w-100"
-                                                                              FileUploaded="@HandleUploadSuccess">
-                                                                            </DxUpload>*@
-                                                                        </div>                                                                                                                                               
+                                                                            }
+                                                                        </div>
+                                                                       
                                                                     }
 
                                                                 }
@@ -549,7 +607,7 @@
                                       VerticalAlignment="DevExpress.Blazor.VerticalAlignment.Bottom"
                                       CloseOnEscape="true"
                                       ShowFooter=false
-                                      AllowResize="true"
+                                      AllowResize="false"
                                       ShowCloseButton="true"                                                
                                       Width="800px" @ref="dxWindow">
                                         <BodyTemplate Context="Context">
@@ -578,6 +636,13 @@
                                                             @if (isCommandTopicClosed)
                                                             {
                                                                 <div class="boxreplay">
+                                                                    @if (_headTopic != null && _headTopic.Any())
+                                                                    {
+                                                                        @foreach (var item in _headTopic)
+                                                                        {
+                                                                            <h3>@item.TopicName</h3>
+                                                                        }
+                                                                    }
 
                                                                     <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
                                                                         @* <DataAnnotationsValidator />*@
@@ -597,11 +662,15 @@
                                                                                 </div>
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem ColSpanMd="12">
-                                                                                <DxButton SubmitFormOnClick="true"
-                                                                          Text=""
-                                                                          CssClass="fa fa-paper-plane sndrot"
-                                                                                          style="float:right"
-                                                                          RenderStyle="ButtonRenderStyle.Secondary" />
+                                                                               @* <DxButton SubmitFormOnClick="true" Text="" CssClass="fa fa-paper-plane sndrot" style="float:right" RenderStyle="ButtonRenderStyle.Secondary">
+                                                                                   
+                                                                                </DxButton>*@
+                                                                                <button disabled="@loading" class="fa fa-paper-plane sndrot" style="float:right; margin-top:10px;">
+                                                                                    @if (loading)
+                                                                                    {
+                                                                                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                                                                                    }                                                                                    
+                                                                                </button>
                                                                                 <div style="display:flex;" class="attmode">
                                                                                     <div id="attachmentSelectButton" class="fa fa-paperclip handline cdspcc" aria-hidden="true"></div>
 
@@ -943,11 +1012,13 @@
 @code {
     IGrid TOGrid { get; set; }
     IGrid CCGrid { get; set; }
+    IGrid SentGrid { get; set; }
     DxWindow dxWindow;
     bool WindowVisible { get; set; } = false;
 
     private List<EmailTopics>? _forumTopicTo;
     private List<EmailTopics>? _forumTopicCC;
+    private List<EmailTopics>? _forumTopicSent;
 
     bool IsOpen { get; set; } = false;
     bool IsOpenFlyout { get; set; } = false;
@@ -1025,6 +1096,7 @@
     private List<EmailTopics>? _topics;
 
     public List<EmailConversations> _discussionList;
+    public List<EmailConversations> _discussionFullList;
     public List<EmailConversations> _replyComment;
     private List<EmailTopics>? _headTopic;
     string FilterString { get; set; }
@@ -1687,6 +1759,7 @@
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
         _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup)));
+        _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
         _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup)));        
         var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
@@ -1796,6 +1869,7 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
         _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
         _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
 
         _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
 
@@ -1809,6 +1883,7 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
         _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
         _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
@@ -1825,6 +1900,23 @@
         if (id > 0)
         {
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
+            WindowVisible = true;
+        }        
+    }
+    private async Task onTopicreply(long id)
+    {
+        if (id > 0)
+        {
+            var lst = _headTopic.Where(c => c.ID == id).ToList();
+            WindowVisible = true;
+        }
+    }    
+    private async Task onunderreply(long id)
+    {
+        if (id > 0)
+        {
+            _replyComment = _discussionFullList.Where(c => c.ID == id).ToList();           
+
             WindowVisible = true;
         }
     }
@@ -1871,7 +1963,8 @@
         }
     }  
     private async Task HandleValidSubmit()
-    {        
+    {
+        loading = true;
         //var contentdd = msgContent;
         //byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
@@ -1890,6 +1983,7 @@
         if(fileContent.Length == 480)
         {
             toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+            loading = false;
             return;
         }    
 
@@ -1930,6 +2024,7 @@
             await msgrichEdit.NewDocumentAsync();
             await onloadTwoGrid();
             WindowVisible = false;
+            loading = false;
         }
         else
         {

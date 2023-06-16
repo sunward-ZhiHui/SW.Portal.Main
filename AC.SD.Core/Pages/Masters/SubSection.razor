@@ -32,15 +32,12 @@
     </div>
 </div>
 
-    @if (Type == "section")
+   @if (Type == "section")
     {
         <div style="" class="card-body  bradcrumb-txt">
         <div>@Depdrops  / @sectionName </div>
         </div>
     }
-
-
-
 
 <DxGrid @ref="Grid"
         Data="_subsectionItems"

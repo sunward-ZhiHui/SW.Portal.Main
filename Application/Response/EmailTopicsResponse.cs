@@ -33,7 +33,7 @@ namespace Application.Response
         public string? label { get; set; }
         public byte[] FileData { get; set; }
         public string? Follow { get; set; }
-        public string? OnBehalf { get; set; }
+        public long? OnBehalf { get; set; }
         public bool? Urgent { get; set; }
         public bool? OverDue { get; set; }
         public List<EmailTopicsResponse>? TopicList { get; set; }        

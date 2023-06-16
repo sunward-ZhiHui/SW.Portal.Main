@@ -20,7 +20,8 @@ namespace Core.Repositories.Query
         Task<long> Delete(EmailConversations company);
         Task<IReadOnlyList<ViewEmployee>> GetAllParticipantAsync(long topicId);
         Task<long> DeleteParticipant(TopicParticipant topicParticipant);
-        Task<EmailConversations> GetByIdAsync(Int64 id);
+        Task<EmailConversations> GetByIdAsync(Int64 id);        
+        Task<List<EmailConversations>> GetFullDiscussionListAsync(Int64 TopicId);
         Task<List<EmailConversations>> GetDiscussionListAsync(Int64 TopicId);
         Task<List<Documents>> GetTopicDocListAsync(long TopicId);
         Task<List<EmailAssignToList>> GetAllAssignToListAsync(long TopicId);

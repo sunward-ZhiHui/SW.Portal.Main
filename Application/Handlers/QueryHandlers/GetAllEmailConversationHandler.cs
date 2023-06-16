@@ -43,6 +43,21 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDiscussionListAsync(request.TopicId);           
         }
     }
+    public class GetEmailFullDiscussionListHandler : IRequestHandler<GetEmailFullDiscussionList, List<EmailConversations>>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetEmailFullDiscussionListHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<List<EmailConversations>> Handle(GetEmailFullDiscussionList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetFullDiscussionListAsync(request.TopicId);
+        }
+    }
+    
     public class GetEmailTopicDocListHandler : IRequestHandler<GetEmailTopicDocList, List<Documents>>
     {
         private readonly IEmailConversationsQueryRepository _conversationQueryRepository;

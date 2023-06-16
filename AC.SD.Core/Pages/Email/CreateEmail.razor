@@ -115,9 +115,14 @@
                                       @bind-Values="@Data.CCIds"
                                       CssClass="cw-480" />
                         </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
-                            <DxTextBox @bind-Text="@Data.OnBehalf" ShowValidationIcon="true" NullText="On Behalf of" />
-                            <ValidationMessage For="@(() => Data.OnBehalf)" />
+                        <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">                           
+                            <DxComboBox Data="@_Allparticipant"
+                                        NullText="Select OnBehalf..."
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="FirstName"
+                                        ValueFieldName="UserID"
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                        @bind-Value="@Data.OnBehalf" ShowValidationIcon="true" />                            
                         </DxFormLayoutItem>
 
                         <DxFormLayoutItem Caption="" ColSpanMd="1">
@@ -196,6 +201,7 @@
 
 
 @code {
+    
     [Parameter]
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
     private DxUpload uploadComponent;
@@ -231,6 +237,7 @@
 
     private List<ViewEmployee>? _Toparticipant;
     private List<ViewEmployee>? _CCparticipant;
+    IEnumerable<ForumTypes>? _OnBehalf;
 
     private List<ApplicationUser> _applicationUsers;  
 
@@ -470,6 +477,7 @@
 
     async void HandleValidSubmit()
     {        
+        await JSRuntime.InvokeAsync<string>("showLoading");
         participantIds.Clear();
         selectedToIds.Clear();
         SelectedCCIds.Clear();
@@ -576,6 +584,7 @@
 
             //addNew();
             onShowPopupMessage("Error", "The entered value Already exists.");
+            await JSRuntime.InvokeAsync<string>("hideLoading");
 
         }
         else
@@ -615,15 +624,18 @@
 
                     onShowPopupMessage("success", "Topic have been saved successully");
                     onRestText();
+                    await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
                 else
                 {
                     onShowPopupMessage("Error", result.ToString());
+                    await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
             }
             catch (Exception eq)
             {
                 onShowPopupMessage("Error", eq.Message);
+                await JSRuntime.InvokeAsync<string>("hideLoading");
             }
 
         }

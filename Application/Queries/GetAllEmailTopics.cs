@@ -33,7 +33,15 @@ namespace Application.Queries
         {
             this.UserId = UserId;
         }
-    }     
+    }
+    public class GetSentTopic : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long UserId { get; private set; }
+        public GetSentTopic(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
     public class GetEmailParticipantsList : PagedRequest, IRequest<List<TopicParticipant>>
     {
         public long TopicId { get; private set; }

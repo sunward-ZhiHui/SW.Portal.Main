@@ -500,18 +500,21 @@
 
     async void HandleValidSubmit()
     {
+        await JSRuntime.InvokeAsync<string>("showLoading");
         participantIds.Clear();
 
 
         if (@SelectedDataItems == null)
         {
             onShowPopupMessage("Error", "Please Select Participant");
+            await JSRuntime.InvokeAsync<string>("hideLoading");
             return;
         }
 
         if (SelectedToDataItems == null)
         {
             onShowPopupMessage("Error", "Please Select To");
+            await JSRuntime.InvokeAsync<string>("hideLoading");
             return;
         }
 
@@ -573,7 +576,7 @@
 
             //addNew();
             onShowPopupMessage("Error", "The entered value Already exists.");
-
+            await JSRuntime.InvokeAsync<string>("hideLoading");
         }
         else
         {
@@ -608,15 +611,18 @@
                 {
                     onShowPopupMessage("success", "Topic have been saved successully");
                     onRestText();
+                    await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
                 else
                 {
                     onShowPopupMessage("Error", result.ToString());
+                     await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
             }
             catch (Exception eq)
             {
                 onShowPopupMessage("Error", eq.Message);
+                await JSRuntime.InvokeAsync<string>("hideLoading");
             }
 
         }

@@ -37,7 +37,7 @@ namespace Infrastructure.Repository.Query
             /* try
              {*/
             /*var result = await GetAsync();*/
-            var query = "Select  * from view_UserPermission where UserID = @UserID and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder";
+            var query = "Select  * from view_UserPermission where UserID = @UserID and IsDisplay=1 and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", Id, DbType.Int64);
                 using (var connection = CreateConnection())
@@ -142,7 +142,7 @@ namespace Infrastructure.Repository.Query
             /*try
             {*/
                 var result = await _sessionStorage.GetItemAsync<string>("UserID");
-                var query = "Select  * from view_UserPermission where UserID = @UserID and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder";
+                var query = "Select  * from view_UserPermission where UserID = @UserID and IsDisplay=1 and IsNewPortal =1 and IsCmsApp =1  and (IsMobile is null or IsMobile=0) ORDER BY PermissionOrder";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", Id, DbType.Int64);
                 using (var connection = CreateConnection())

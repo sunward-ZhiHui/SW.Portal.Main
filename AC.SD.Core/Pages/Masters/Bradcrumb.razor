@@ -1,6 +1,170 @@
-﻿<h3>bradcrumb</h3>
-@page "/bradcrumbHelper"
+﻿
+@page "/bradcrumbtest"
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using Microsoft.JSInterop;
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
 
-@code {
 
+ @if(Type == "Plants")
+{
+    <div style="" class="card-body  bradcrumb-txt">
+
+        <div> @Plantcode / @Description</div>
+    </div>
+}
+
+
+
+ @if (Type == "Division")
+  {
+    <div style="" class="card-body  bradcrumb-txt">
+
+        <div> @plantcode / @Name</div>
+    </div>
+  }
+
+
+
+
+@if (Type == "Department")
+{
+    <div style="" class="card-body bradcrumb-txt">
+        <div> @divisionDrop /@Name  </div>
+    </div>
+}else
+{
+    <div> </div>
+}
+
+@if (Type == "section")
+{
+    <div style="" class="card-body  bradcrumb-txt">
+        <div>@Depdrops  / @sectionName </div>
+    </div>
+}
+
+@if (Type == "subsection")
+{
+    <div style="" class="card-body  bradcrumb-txt">
+        <div> @companyName / @sectionName </div>
+    </div>
+}
+
+
+@code 
+{
+    //  string divisionName = "";
+   
+    private List<ViewSection> _sectionItems;
+    string sectionName = "";
+    string Depdrops = "";
+    string plantcode = "";
+    string Name = "";
+    private ViewSection _selectsec;
+    private List<ViewPlants>? _plantItems;
+    private ViewPlants _selectplant;
+    [Parameter]
+    public long? PlantID { get; set; }
+    private ViewDivision _selectdivision;
+    [Parameter]
+    public string Type { get; set; }
+    private List<ViewDivision> _divisionsItems;
+    private ViewDepartment _selectdep;
+    private List<ViewDepartment> _departmentItems;
+    string Plantcode = "";
+    string Description = "";
+    string divisionDrop = "";
+    string companyName = "";
+    private List<ViewSection> _sections;
+    private ViewSubSection _selectedsubsec;
+    private List<ViewSubSection> _subsectionListItems;
+    protected override async Task OnInitializedAsync()
+    {
+        var plants = await Mediator.Send(new GetAllPlantQuery());
+        _plantItems = plants;
+        _divisionsItems = await Mediator.Send(new GetAllDivisionQuery());
+        _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
+        _subsectionListItems = await Mediator.Send(new GetAllSubSectionQuery());
+        _sections = await Mediator.Send(new GetAllSectionQuery());
+        _sectionItems = await Mediator.Send(new GetAllSectionQuery());
+        if (PlantID != null && PlantID != -1)
+        {
+            if (Type == "Plants")
+            {
+                _selectplant = _plantItems.FirstOrDefault(f => f.PlantID == PlantID);
+                Plantcode = _selectplant.PlantCode;
+
+                Description = _selectplant.Description;
+
+
+            }
+
+        
+
+      
+          else if (Type == "Division")
+          {
+                _selectdivision = _divisionsItems.FirstOrDefault(f => f.DivisionID == PlantID);
+                var item = _plantItems.Where(c => c.PlantID == _selectdivision.CompanyId);
+                _selectplant = item.FirstOrDefault();
+                plantcode = _selectplant.PlantCode;
+                Name = _selectdivision.Name;
+          }
+         
+
+            
+        
+
+       
+          else  if (Type == "Department")
+            {
+                _selectdep = _departmentItems.FirstOrDefault(f => f.DepartmentId == PlantID);
+
+                var items = _divisionsItems.Where(c => c.DivisionID == _selectdep.DivisionId);
+                _selectdivision = items.FirstOrDefault();
+                divisionDrop = _selectdivision.DivisionDrop;
+                //  companyName = _selectdep.PlantCode;
+                Name = _selectdep.DepartmentName;
+
+          }
+
+        
+
+      
+          else  if (Type == "section")
+          {
+                _selectsec = _sectionItems.FirstOrDefault(f => f.SectionId == PlantID);
+                var items = _departmentItems.Where(c => c.DepartmentId == _selectsec.DepartmentId);
+                _selectdep = items.FirstOrDefault();
+                Depdrops = _selectdep.DepartmentDrop;
+                companyName = _selectsec.Company;
+                //  divisionName = _selectsec.Division;
+                sectionName = _selectsec.SectionName;
+          }
+        
+
+        
+           else if (Type == "subsection")
+           {
+                _selectedsubsec = _subsectionListItems.FirstOrDefault(f => f.SubSectionId == PlantID);
+                var items = _sections.Where(c => c.SectionId == _selectedsubsec.SectionId);
+                _selectsec = items.FirstOrDefault();
+
+
+                companyName = _selectedsubsec.Company;
+                //  divisionName = _selectedsubsec.Division;
+                sectionName = _selectsec.SectionDrop;
+           }
+        }
+
+
+   }
 }

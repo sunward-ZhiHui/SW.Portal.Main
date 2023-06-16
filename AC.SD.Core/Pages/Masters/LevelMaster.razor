@@ -11,6 +11,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
 
 @page "/LevelMaster"
 
@@ -25,10 +26,18 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Reset Division" IconCssClass="fa fa-refresh" Click="@ResetDivision" Enabled="@isDivisionEnabled" />
             </Items>
         </DxMenu>
     </div>
 </div>
+@if (Type == "Division")
+    {
+    <div style="" class="card-body  bradcrumb-txt">
+    
+        <div > @plantcode / @Name</div>
+    </div>
+    }
 <DxGrid @ref="Grid"
         Data="_levelItems"
         KeyFieldName="LevelID"
@@ -83,6 +92,7 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="PlantCode"
                             ValueFieldName="PlantID"
+                            Enabled = "@isEnabled"
                             @bind-Value="@plant.CompanyID"
                             SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect.PlantID))"
                             ShowValidationIcon="true">
@@ -92,6 +102,7 @@
             <DxFormLayoutItem Caption="Division" ColSpanMd="6">
                 <DxComboBox Data="@_divisionsItems"
                             NullText="Select Division..."
+                            Enabled="@isEnabled"
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="DivisionDrop"
                             ValueFieldName="DivisionID"
@@ -150,6 +161,12 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    string plantcode = "";
+    string Name = "";
+    [Parameter]
+    public long? PlantID { get; set; }
+    [Parameter]
+    public string Type { get; set; }
     private List<ViewDivision>? _divisions;
     private List<ViewDivision>? _divisionsItems;
     private List<ViewLevel> _levelItems;
@@ -166,6 +183,10 @@
     public ApplicationUser applicationUser { get; private set; }
     bool ExportSelectedRowsOnly { get; set; }
     private ViewLevel _selectlst;
+    bool isEnabled { get; set; } = true;
+    bool isDivisionEnabled { get; set; } = false;
+    private ViewDivision _selectdivision;
+    private ViewPlants _selectplant;
     protected override async Task OnInitializedAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
@@ -175,6 +196,10 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
+        if (Type == "Division")
+        {
+            isDivisionEnabled = true;
+        }
     }
     async Task UpdateDataAsync()
     {
@@ -185,6 +210,18 @@
             model[i].Index = i + 1;
         }
         _levelItems = model;
+        if (PlantID != null && PlantID != -1)
+        {
+            if (Type == "Division")
+            {
+                _selectdivision = _divisions.FirstOrDefault(f => f.DivisionID == PlantID);
+                var item = _plantItems.Where(c => c.PlantID == _selectdivision.CompanyId);
+                _selectplant = item.FirstOrDefault();
+                plantcode = _selectplant.PlantCode;
+                Name = _selectdivision.Name;
+
+            }
+        }
         if (_levelItems.Count > 0)
         {
             _selectedItems = _levelItems.FirstOrDefault();
@@ -192,7 +229,7 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
-          await jsRuntime.InvokeAsync<string>("hideLoading");
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void SelectedItemChanged(long? plantID)
     {
@@ -203,12 +240,27 @@
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        _divisionsItems = new List<ViewDivision>();
+         _divisionsItems = new List<ViewDivision>();
         if (e.IsNew)
         {
             var newData = (ViewLevel)e.EditModel;
             newData.Name = "";
             newData.StatusCodeID = null;
+            if (Type == "Division")
+            {
+
+                var _masters = _levelItems.FirstOrDefault(f => f.DivisionID == PlantID);
+                if (_masters != null)
+                {
+
+                    isEnabled = false;
+                    newData.CompanyID = _masters.CompanyID;
+                    newData.DivisionID =_masters.DivisionID;
+                    // newData.DivisionID = _masters.DivisionID;
+                     SelectedItemChanged(_masters.CompanyID);
+                }
+            }
+           
         }
         else
         {
@@ -384,5 +436,14 @@
         {
             EditEnabled = true;
         }
+    }
+    void ResetDivision()
+    {
+        PlantID = -1;
+        isEnabled = true;
+        isDivisionEnabled = false;
+        Grid.CancelEditAsync();
+        NavigationManager.NavigateTo("masters/6/LevelMaster/-1");
+
     }
 }

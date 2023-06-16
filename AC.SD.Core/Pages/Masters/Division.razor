@@ -30,13 +30,14 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 <DxMenuItem Text="Add Department" IconCssClass="fa fa-add" Click="@AddLocation" />
+                <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelMaster" />
                 <DxMenuItem Text="Reset Company" IconCssClass="fa fa-refresh" Click="@ResetCompany" Enabled="@isCompanyEnabled" />
             </Items>
         </DxMenu>
     </div>
 </div>
 
-    @* @if(comapnyName != null)*@
+   
     @if (Type == "Plants")
     {
         <div style="" class="card-body  bradcrumb-txt">
@@ -44,9 +45,6 @@
         <div > @Plantcode / @Description</div>
     </div>
     }
-
-
-
 
 <DxGrid @ref="Grid"
         Data="_divisions"
@@ -246,7 +244,7 @@
                 Description = _selectplant.Description;
 
             }
-          
+
 
         }
         if (_divisions.Count > 0)
@@ -264,11 +262,11 @@
         if (e.IsNew)
         {
             var newData = (ViewDivision)e.EditModel;
-             newData.PlantCode = "";
+            newData.PlantCode = "";
             newData.Name = "";
             newData.Description = "";
             newData.StatusCodeID = null;
-           
+
             if (Type == "Plants")
             {
                 var _masters = _divisions.FirstOrDefault(f => f.CompanyId == PlantID);
@@ -277,8 +275,8 @@
 
                     isEnabled = false;
                     newData.CompanyId = _masters.CompanyId;
-                   // newData.DivisionID = _masters.DivisionID;
-                   // SelectedItemChanged(_masters.CompanyId);
+                    // newData.DivisionID = _masters.DivisionID;
+                    // SelectedItemChanged(_masters.CompanyId);
                 }
             }
         }
@@ -377,7 +375,7 @@
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-     
+
     }
     void addEdit()
     {
@@ -474,6 +472,10 @@
         Grid.CancelEditAsync();
         NavigationManager.NavigateTo("masters/1/Division/-1");
 
+    }
+    void AddLevelMaster()
+    {
+        NavigationManager.NavigateTo("masters/6/Division/" + _selectedItems.DivisionID);
     }
     void AddLocation()
     {

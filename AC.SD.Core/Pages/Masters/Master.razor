@@ -24,13 +24,15 @@
             <DxFormLayoutTabPage Caption="Designation">
                 <Designation PlantID="@PlantID" Type="@Type" />
             </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="LevelMaster">
+                <LevelMaster PlantID="@PlantID" Type="@Type" />
+            </DxFormLayoutTabPage>
         </DxFormLayoutTabPages>
     </DxFormLayout>
 </div>
 @code {
     [Parameter]
     public long? PlantID { get; set; }
-   
     [Parameter]
     public string Type { get; set; }
    [Parameter]

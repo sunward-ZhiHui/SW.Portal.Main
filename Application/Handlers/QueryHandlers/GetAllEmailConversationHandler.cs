@@ -116,7 +116,7 @@ namespace Application.Handlers.QueryHandlers
                     forumNotifications.UserId = a;
                     forumNotifications.AddedByUserID = request.AddedByUserID;
                     forumNotifications.AddedDate = request.AddedDate;
-                    forumNotifications.IsRead = true;
+                    forumNotifications.IsRead = false;
                     _conversationQueryRepository.InsertEmailNotifications(forumNotifications);
                 });
             }

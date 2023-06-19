@@ -164,7 +164,7 @@ namespace Infrastructure.Repository.Query
                             FROM
                                 EmailTopics TS
                             INNER JOIN
-                                EmailTopicParticipant TP ON TS.ID = TP.TopicId
+                                EmailTopicTo TP ON TS.ID = TP.TopicId
                             INNER JOIN
                                 Employee E ON TS.TopicFrom = E.UserId
                             LEFT JOIN
@@ -173,7 +173,7 @@ namespace Infrastructure.Repository.Query
                                         TopicId,
                                         COUNT(*) AS NotificationCount
                                     FROM
-                                        EmailNotifications WHERE UserId = @UserId
+                                       EmailNotifications WHERE UserId = @UserId
                                     GROUP BY
                                         TopicId
                                 ) FN ON TS.ID = FN.TopicId
@@ -181,9 +181,6 @@ namespace Infrastructure.Repository.Query
                                 TP.UserId = @UserId
                             ORDER BY
                                 TS.StartDate DESC";
-
-
-
 
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId);
@@ -224,8 +221,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailTopics>> GetTopicSentList(long UserId)
+        {
+            try
+            {
+                var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM EmailTopics TS                                
+                                INNER JOIN Employee E ON TS.TopicFrom = E.UserId                                    
+                                WHERE TS.TopicFrom = @UserId order by TS.StartDate DESC";
 
-      
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<List<TopicParticipant>> GetParticipantList(long topicId)
         {
             try

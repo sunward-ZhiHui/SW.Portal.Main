@@ -35,9 +35,8 @@ namespace Core.Entities
         public string? Label { get; set; }
         public List<ForumTopics>? children { get; set; }
         public byte[] FileData { get; set; }      
-        public string? Follow { get; set; }
-        [Required(ErrorMessage = "Please Enter On Behalf of.")]
-        public string? OnBehalf { get; set; }
+        public string? Follow { get; set; }        
+        public long? OnBehalf { get; set; }
         public bool? Urgent { get; set; }
         public bool? OverDue { get; set; }
         [NotMapped]

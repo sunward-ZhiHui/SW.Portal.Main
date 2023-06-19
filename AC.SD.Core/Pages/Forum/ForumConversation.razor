@@ -443,7 +443,7 @@
                                       VerticalAlignment="DevExpress.Blazor.VerticalAlignment.Bottom"
                                       CloseOnEscape="true"
                                       ShowFooter=false
-                                      AllowResize="true"
+                                      AllowResize="false"
                                       ShowCloseButton="true"                                                
                                       Width="800px" @ref="dxWindow">
                                         <BodyTemplate Context="Context">
@@ -491,11 +491,17 @@
                                                                                 </div>
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem ColSpanMd="12">
-                                                                                <DxButton SubmitFormOnClick="true"
+                                                                             @*   <DxButton SubmitFormOnClick="true"
                                                                           Text=""
                                                                           CssClass="fa fa-paper-plane sndrot"
                                                                                           style="float:right"
-                                                                          RenderStyle="ButtonRenderStyle.Secondary" />
+                                                                          RenderStyle="ButtonRenderStyle.Secondary" />*@
+                                                                                <button disabled="@loading" class="fa fa-paper-plane sndrot" style="float:right; margin-top:10px;">
+                                                                                    @if (loading)
+                                                                                    {
+                                                                                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                                                                                    }
+                                                                                </button>
                                                                                 <div style="display:flex;" class="attmode">
                                                                                     <div id="attachmentSelectButton" class="fa fa-paperclip handline cdspcc" aria-hidden="true"></div>
 
@@ -834,9 +840,9 @@
 *@
 
 
-@code {   
+@code {
     private ElementReference scrollContainerRef;
-     private ElementReference scrollContainer;
+    private ElementReference scrollContainer;
     DxWindow dxWindow;
     bool WindowVisible { get; set; } = false;
     bool IsOpen { get; set; } = false;
@@ -926,7 +932,7 @@
     private List<ForumConversationAssignTo>? _conversationAssignTo;
     private List<ViewEmployee>? _selectedlistpartlist;
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;    
-   ForumConversations? Data { get; set; } = new ForumConversations();
+    ForumConversations? Data { get; set; } = new ForumConversations();
     string SelectedGroup = "none";
     public ApplicationUser applicationUser { get; private set; }
     IReadOnlyList<object>? SelectedDataItems { get; set; }
@@ -1004,12 +1010,12 @@
             e.CssClass = "header-bold";
         }
     }
-     [JSInvokable]
+    [JSInvokable]
     public void OnScrollToBottom()
     {
         // Code to execute when user reaches the bottom
     }
-   
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -1763,7 +1769,8 @@
         }
     }  
     private async Task HandleValidSubmit()
-    {        
+    {
+        loading = true;
         //var contentdd = msgContent;
         //byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
@@ -1782,6 +1789,7 @@
         if(fileContent.Length == 480)
         {
             toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+            loading = false;
             return;
         }    
 
@@ -1820,7 +1828,8 @@
             onloadSession();
             // HandleScroll("down");
             await msgrichEdit.NewDocumentAsync();   
-             WindowVisible = false;
+            WindowVisible = false;
+            loading = false;
         }
         else
         {

@@ -1,12 +1,23 @@
 ﻿@implements IDisposable
 @inject DemoConfiguration Configuration
 @inject NavigationManager NavigationManager
-
+@using global::Core.EntityModels;
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@inject IJSRuntime jsRuntime
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 <div class="items">
-    @foreach(var item in Items) {
-        @if(!string.IsNullOrEmpty(item.Item2)) {
+    @foreach (var item in Items)
+    {
+        @if (!string.IsNullOrEmpty(item.Item2))
+        {
             <a href="@item.Item2">@item.Item1</a>
-        } else {
+        }
+        else
+        {
             <span>@item.Item1</span>
         }
         <span class="separator"></span>
@@ -14,35 +25,78 @@
 </div>
 
 @code {
+    [Parameter]
+    public PortalMenuModel _appPermissionListItems { get; set; }
+    private List<PortalMenuModel> _appPermissionItems;
+    public ApplicationUser applicationUser { get; private set; }
     const string HomePageTitle = "Home";
     List<Tuple<string, string>> Items { get; set; } = new List<Tuple<string, string>>();
-
-    protected override void OnInitialized() {
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+        BreadcrumbsGenerate();
         NavigationManager.LocationChanged += OnLocationChanged;
-        UpdateItems(NavigationManager.Uri);
+        //UpdateItems(NavigationManager.Uri);
     }
-    void OnLocationChanged(object sender, LocationChangedEventArgs args) {
-        UpdateItems(args.Location);
+    void BreadcrumbsGenerate()
+    {
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        Items.Add(new(HomePageTitle, ""));
+        if (UrlList.Length > 0 && UrlList[0] != null)
+        {
+            if (UrlList[0] != "dashboard")
+            {
+                var list1 = _appPermissionItems.FirstOrDefault(f => f.Component != null && f.Component.ToLower() == UrlList[0]);
+                if (list1 != null)
+                {
+                    if (list1.ParentID != null)
+                    {
+                        var list2 = _appPermissionItems.FirstOrDefault(f => f.PermissionID == list1.ParentID);
+                        if (list2 != null)
+                        {
+                            Items.Add(new(list2.Title, ""));
+                        }
+                    }
+                    Items.Add(new(list1.Title, ""));
+
+                }
+            }
+        }
     }
-    void UpdateItems(string currentUri) {
+    void OnLocationChanged(object sender, LocationChangedEventArgs args)
+    {
+        Items.Clear();
+        BreadcrumbsGenerate();
+        StateHasChanged();
+    }
+    void UpdateItems(string currentUri)
+    {
         Items.Clear();
 
         var currentPage = Configuration.GetDemoPageByUrl(NavigationManager, currentUri);
-        if(currentPage != null) {
+        if (currentPage != null)
+        {
             var demoPage = currentPage;
-            while(demoPage != null) {
+            while (demoPage != null)
+            {
                 var url = demoPage.GetUrl() != currentPage.GetUrl() ? demoPage.GetUrl() : "";
-                Items.Insert(0, new (demoPage.Title, url));
+                Items.Insert(0, new(demoPage.Title, url));
                 demoPage = demoPage.ParentPage;
             }
-            Items.Insert(0, new (HomePageTitle, "./"));
-        } else {
-            Items.Add(new (HomePageTitle, ""));
+            Items.Insert(0, new(HomePageTitle, "./"));
+        }
+        else
+        {
+            Items.Add(new(HomePageTitle, ""));
         }
         StateHasChanged();
     }
 
-    public void Dispose() {
+    public void Dispose()
+    {
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }

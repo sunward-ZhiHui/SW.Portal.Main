@@ -15,7 +15,8 @@ namespace Core.Repositories.Query
         Task<List<EmailTopics>> GetByIdAsync(Int64 id);
         Task<List<EmailTopics>> GetUserTopicList(Int64 UserId);
         Task<List<EmailTopics>> GetTopicToList(Int64 UserId);
-        Task<List<EmailTopics>> GetTopicCCList(Int64 UserId);      
+        Task<List<EmailTopics>> GetTopicCCList(Int64 UserId);
+        Task<List<EmailTopics>> GetTopicSentList(Int64 UserId);
         Task<List<TopicParticipant>> GetParticipantList(Int64 topicId);        
         Task<EmailTopics> GetCustomerByEmail(string email);
         long Insert(EmailTopics EmailTopics);

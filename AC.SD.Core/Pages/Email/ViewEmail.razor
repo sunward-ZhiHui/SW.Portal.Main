@@ -181,7 +181,7 @@
                                     <Columns>
                                         <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
                                         <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" />
-                                        <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="160">
+                                        <DxGridDataColumn FieldName="StartDate" Caption="Sent" Width="160">
                                             <CellDisplayTemplate>
                                                 @{
                                                     var item = (EmailTopics)context.DataItem;
@@ -341,57 +341,6 @@
                         @* <div class="spacing-box"></div>  *@
                         @if (isMenuvisible == "Posts")
                         {
-                            @if (_headTopic != null && _headTopic.Any())
-                            {
-                                @foreach (var item in _headTopic)
-                                {
-
-                                    <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="margin-right: 10px;">
-                                        @*<div class="uk-card-header">
-                                            <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">                                               
-                                                <div class="mailbox-controls with-border pull-right">
-                                                    <div class="btn-group">
-                                                        <button type="button" @onclick="@(() => onreply(item.ID))" class="btn btn-default"><i class="fa fa-reply"></i> Reply</button>
-                                                    </div>                                                   
-                                                    <button type="button" @onclick="@(() => assignedList(item.ID))" class="btn btn-default btn-sm" data-toggle="tooltip" title="Assign To">
-                                                        <i class="fa fa-users"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>*@
-                                        @*<div class="mailbox-read-time pull-right">                                           
-                                            <div class="btn-group" style="float: right; margin-top: 4px;    margin-right: 5px;">
-                                                <button type="button" @onclick="@(() => onTopicreply(item.ID))" style="border: 1px solid #eeebeb; padding: 8px; border-radius: 5px;" class="">
-                                                    <i class="fa fa-reply"></i> Reply
-                                                </button>
-                                            </div>
-                                        </div>*@
-                                        <div class="uk-card-body">
-                                            <p class="uk-text-success">
-                                                <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
-
-                                            </p>
-                                            @if (item.documents.Any())
-                                            {
-                                                <div class="uk-card-footer">
-                                                    <div>
-                                                        <div class="">
-                                                            @foreach (var attachment in item.documents)
-                                                            {
-                                                                <div class="tag handline" @onclick="@(() => onDisDocDownload(attachment.FilePath))"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            }
-                                            
-                                        </div>                                                                         
-                                    </div>
-
-                                }
-                            }
-
-
                             <div id="tableData">
                                 <div>
                                     @if (_discussionList != null && _discussionList.Any())
@@ -410,9 +359,9 @@
                                             <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="margin-right: 10px;">
                                                 <div class="uk-card-header">
                                                     <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">                                                       
-                                                        <div class="mailbox-read-info">
-                                                           @* <h3>Message Subject Is Placed Here</h3>*@
-                                                            <h5>
+                                                        <div class="mailbox-read-info">                                                           
+                                                           <h3>@item.Name</h3>
+                                                            <h5>                                                                
                                                                 From: @item.UserName
                                                                 <br>
                                                                 Assign To:
@@ -501,8 +450,8 @@
                                                                     {
                                                                         <div class="lstcoversationrply">
                                                                             <div class="mailbox-read-info" style="border-bottom:1px solid #f4f4f4">
-                                                                               @* <h3>Message Subject Is Placed Here</h3>*@
-                                                                                <h5>
+                                                                                <h3>@items.Name</h3>
+                                                                                <h5>                                                                                   
                                                                                     From: @items.UserName
                                                                                     <br>
                                                                                     Assign To:
@@ -547,8 +496,9 @@
                                                                                                 {
                                                                                                     <div class="lstcoversationrply">
                                                                                                     <div class="mailbox-read-info" style="border-bottom:1px solid #f4f4f4">
-                                                                                                        @* <h3>Message Subject Is Placed Here</h3>*@
+                                                                                                            <h3>@itm.Name</h3>
                                                                                                         <h5>
+                                                                                                            
                                                                                                             From: @itm.UserName
                                                                                                             <br>
                                                                                                             Assign To:
@@ -607,7 +557,7 @@
                                       VerticalAlignment="DevExpress.Blazor.VerticalAlignment.Bottom"
                                       CloseOnEscape="true"
                                       ShowFooter=false
-                                      AllowResize="false"
+                                      AllowResize="true"
                                       ShowCloseButton="true"                                                
                                       Width="800px" @ref="dxWindow">
                                         <BodyTemplate Context="Context">
@@ -647,6 +597,10 @@
                                                                     <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
                                                                         @* <DataAnnotationsValidator />*@
                                                                         <DxFormLayout>
+                                                                            <DxFormLayoutItem Caption="Subject Name" ColSpanMd="12">
+                                                                                <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" NullText="Subject Name" />
+                                                                                <ValidationMessage For="@(() => Data.Name)" />
+                                                                            </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
                                                                                 <DxTagBox NullText="Select Assign To..."
                                                                           Data="@_assigntoItems"
@@ -658,7 +612,7 @@
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem ColSpanMd="12">
                                                                                 <div class="">
-                                                                                    <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg editor-box-height" ViewType="ViewType.Simple" />
+                                                                                    <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 h-100 txtEditorMsg editor-box-height" ViewType="ViewType.Simple" />
                                                                                 </div>
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem ColSpanMd="12">
@@ -1521,6 +1475,9 @@
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Picture);
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
 
+        IBarGroup undoRedoGroup = toolbar.Groups[0];
+        undoRedoGroup.Items.Add(0, RichEditBarItemNames.FullScreen);
+
     }
 
     void OnContentRemoved(ContentRemovedEventArgs e)
@@ -1863,7 +1820,6 @@
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
 
         onloadSession();
-
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
         await JSRuntime.InvokeAsync<string>("showLoading");
@@ -1901,28 +1857,22 @@
         {
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
             WindowVisible = true;
+            Data.Name = _headTopic[0].TopicName;
         }        
-    }
-    private async Task onTopicreply(long id)
-    {
-        if (id > 0)
-        {
-            var lst = _headTopic.Where(c => c.ID == id).ToList();
-            WindowVisible = true;
-        }
-    }    
+    }   
     private async Task onunderreply(long id)
     {
         if (id > 0)
         {
-            _replyComment = _discussionFullList.Where(c => c.ID == id).ToList();           
-
+            _replyComment = _discussionFullList.Where(c => c.ID == id).ToList();
             WindowVisible = true;
+            Data.Name = _headTopic[0].TopicName;
         }
     }
     void closeReply()
     {
         _replyComment = null;
+        Data.Name = null;
     }
     async void OnLeftMenuItemClick(string text)
     {
@@ -2003,6 +1953,7 @@
                 StatusCodeID = 1,
                 AddedByUserID = applicationUser.UserID,
                 AddedDate = DateTime.Now,
+                Name = Data.Name,
                 SessionId = _sessionId
             };
         var result = await Mediator.Send(createReq);

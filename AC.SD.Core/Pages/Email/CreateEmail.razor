@@ -350,6 +350,9 @@
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Table);
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Picture);
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
+
+        IBarGroup undoRedoGroup = toolbar.Groups[0];
+        undoRedoGroup.Items.Add(0,RichEditBarItemNames.FullScreen);
     }
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();

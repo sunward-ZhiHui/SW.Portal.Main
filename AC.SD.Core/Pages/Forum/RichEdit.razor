@@ -20,147 +20,286 @@
 @using DevExpress.Blazor
 @using System.Linq;
 @using System.Drawing;
-
+@*
 @using DevExpress.Export.Xl;
 @using DevExpress.Spreadsheet;
 @using DevExpress.XtraRichEdit;
 @using DevExpress.XtraRichEdit.API.Native;
-@using DevExpress.XtraRichEdit.Export;
+@using DevExpress.XtraRichEdit.Export;*@
 
 
 @page "/file"
 
+
+<DxRichEdit @ref=@rich
+            CssClass="w-100 ch-720"
+            DocumentContent="@DocumentContent"
+            @bind-Selection=@selection
+            CustomizeRibbon=OnCustomizeRibbon
+            BarItemExceptionRaised=OnBarItemExceptionRaised />
+
+
+
+
 @code{
+    DxRichEdit rich;
+    Selection selection;
+    byte[] DocumentContent;
+    void OnCustomizeRibbon(IRibbon ribbon)
+    {
+        ribbon.Tabs.Clear();
+
+        // Inserts the Home tab at the end of the tab collection
+        ribbon.Tabs.Add(0,RichEditRibbonTabNames.Home);
+        // Inserts the File tab at the first position in the tab collection
+        //ribbon.Tabs.Add(0, RichEditRibbonTabNames.File);
+        ribbon.Tabs.Add(1, RichEditRibbonTabNames.Insert);
+        ribbon.Tabs.Add(2, RichEditRibbonTabNames.View);
+       
+
+        IRibbonTab tableTab = ribbon.Tabs.AddCustomTab("Table");
+        tableTab.Groups.Add(RichEditRibbonGroupNames.LayoutRowsAndColumns);
+        tableTab.Groups.Add(RichEditRibbonGroupNames.DesignBordersAndShadings);
+
+
+        BarGroupCollection groups = ribbon.Tabs[0].Groups;        
+        groups.Add(0, RichEditRibbonGroupNames.ViewFullScreen);
+
+        IRibbonTab homeTab = ribbon.Tabs[RichEditRibbonTabNames.Home];
+        // Removes the first group
+        //homeTab.Groups.Remove(5);        
+        // Removes the Font group
+        //homeTab.Groups.Remove(RichEditRibbonGroupNames.HomeFont);
+        // Removes all groups
+        //homeTab.Groups.Clear();
+
+
+        IRibbonTab ViewTab = ribbon.Tabs[RichEditRibbonTabNames.View];
+        ViewTab.Groups.Remove(1);
+        ViewTab.Groups.Remove(RichEditRibbonGroupNames.FileCommon);
+        
+        
+        //RibbonTabCollection tabs = model.Tabs;
+        ////RemoveOpenDocumentItem(tabs);
+        //RemoveTableContextTabs(tabs);
+        //AddCustomTableTab(tabs);
+        //RemoveItemsFromFontComboBox(tabs);
+        //CustomizeInsertHeaderItemAction(tabs);
+        ////DisableFieldDropDownCommandButton(tabs);
+    }
+    void RemoveOpenDocumentItem(RibbonTabCollection tabs)
+    {
+        IRibbonTab fileTab = tabs[RichEditRibbonTabNames.File];
+        IBarGroup fileCommonGroup = fileTab.Groups[RichEditRibbonGroupNames.FileCommon];
+        fileCommonGroup.Items.Remove(RichEditBarItemNames.OpenDocument);
+    }
+    void RemoveTableContextTabs(RibbonTabCollection tabs)
+    {
+        tabs.Remove(RichEditRibbonTabNames.TableDesign);
+        tabs.Remove(RichEditRibbonTabNames.TableLayout);
+    }
+    void AddCustomTableTab(RibbonTabCollection tabs)
+    {
+        IRibbonTab tableToolsTab = tabs.AddCustomTab("Table Tools", RichEditRibbonContextTabType.Table);
+        IBarGroup firstGroup = tableToolsTab.Groups.AddCustomGroup();
+        firstGroup.Items.Add(RichEditBarItemNames.SelectTableElementsMenu);
+        IBarGroup secondGroup = tableToolsTab.Groups.AddCustomGroup();
+        secondGroup.Items.Add(RichEditBarItemNames.InsertTableElementsMenu);
+        secondGroup.Items.Add(RichEditBarItemNames.DeleteTableElementsMenu);
+        IBarGroup thirdGroup = tableToolsTab.Groups.AddCustomGroup();
+        thirdGroup.Items.Add(RichEditBarItemNames.MergeTableCells);
+        //thirdGroup.Items.Add(RichEditBarItemNames.ShowSplitCellsDialog);
+        IBarGroup fourthGroup = tableToolsTab.Groups.AddCustomGroup();
+        fourthGroup.Items.Add(RichEditBarItemNames.TableCellShading);
+    }
+    void RemoveItemsFromFontComboBox(RibbonTabCollection tabs)
+    {
+        IRibbonTab homeTab = tabs[RichEditRibbonTabNames.Home];
+        IBarGroup homeFontGroup = homeTab.Groups[RichEditRibbonGroupNames.HomeFont];
+        IBarItem fontNameItem = homeFontGroup.Items[RichEditBarItemNames.FontName];
+        if (fontNameItem.Type == BarItemTypes.ComboBox)
+        {
+            IBarComboBox fontNameComboBox = (IBarComboBox)fontNameItem;
+            fontNameComboBox.Items.Remove("Arial");
+            fontNameComboBox.Items.Remove("Arial Black");
+        }
+    }
+    void CustomizeInsertHeaderItemAction(RibbonTabCollection tabs)
+    {
+        IRibbonTab insertTab = tabs[RichEditRibbonTabNames.Insert];
+        IBarGroup insertHeaderAndFooterGroup = insertTab.Groups[RichEditRibbonGroupNames.InsertHeaderAndFooter];
+        IBarItem insertHeaderItem = insertHeaderAndFooterGroup.Items[RichEditBarItemNames.InsertPageHeader];
+        if (insertHeaderItem.Type == BarItemTypes.Button)
+        {
+            IBarButton insertHeaderButton = (IBarButton)insertHeaderItem;
+            insertHeaderButton.Click = async () =>
+            {
+                var sections = await rich.DocumentAPI.Sections.GetAllAsync();
+                Section currentSection = sections.First(section => section.Interval.Start >= selection.CaretPosition);
+                SubDocument header = await currentSection.GetHeaderAsync();
+                if (header == null)
+                {
+                    rich.DocumentAPI.BeginUpdate();
+                    try
+                    {
+                        header = await currentSection.GetHeaderAsync(createIfNotExist: true);
+                        await header.AddTextAsync("This is sample text for a new Header.");
+                    }
+                    finally
+                    {
+                        rich.DocumentAPI.EndUpdate();
+                    }
+                }
+                selection = new Selection(header, 0);
+            };
+        }
+    }
+    void DisableFieldDropDownCommandButton(RibbonTabCollection tabs)
+    {
+        IRibbonTab mailMergeTab = tabs[RichEditRibbonTabNames.MailMerge];
+        IBarGroup fieldsGroup = mailMergeTab.Groups[RichEditRibbonGroupNames.MailMergeInsertFields];
+        IBarItem insertFieldItem = fieldsGroup.Items[RichEditBarItemNames.InsertFieldMenu];
+        if (insertFieldItem.Type == BarItemTypes.DropDown)
+        {
+            IBarDropDown insertFieldDropDown = (IBarDropDown)insertFieldItem;
+            insertFieldDropDown.Click = null;
+        }
+    }
+    void OnBarItemExceptionRaised(BarItemExceptionEventArgs args)
+    {
+        //Logger.LogError(args.Exception, args.Exception.Message);
+        //args.Handled = true;
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\d5f99b77-439f-4a04-9387-27b99d4eecfb/d5f99b77-439f-4a04-9387-27b99d4eecfb.xlsx";
+        //string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\d5f99b77-439f-4a04-9387-27b99d4eecfb/d5f99b77-439f-4a04-9387-27b99d4eecfb.xlsx";
 
-        RichEditDocumentServer server = new RichEditDocumentServer();
-        server.LoadDocument(filePath);
+        //RichEditDocumentServer server = new RichEditDocumentServer();
+        //server.LoadDocument(filePath);
 
-        server.ExportToPdf("result.pdf");
+        //server.ExportToPdf("result.pdf");
 
-        ReadExcelFile(filePath);
+        //ReadExcelFile(filePath);
         //ExcelFile(filePath);
-        excelfiles(filePath);
+        //excelfiles(filePath);
     }
 
-    void excelfiles(string filePath)
-    {
-        // Create an exporter instance.
-        IXlExporter exporter = XlExport.CreateExporter(XlDocumentFormat.Xlsx);
-        // Create the FileStream object with the specified file path.
-        using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
-        {
+    //void excelfiles(string filePath)
+    //{
+    //    // Create an exporter instance.
+    //    IXlExporter exporter = XlExport.CreateExporter(XlDocumentFormat.Xlsx);
+    //    // Create the FileStream object with the specified file path.
+    //    using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite))
+    //    {
 
-            // Create a new document and write it to the specified stream.
-            using (IXlDocument document = exporter.CreateDocument(stream))
-            {
-                // your code here
-            }
-        }
-    }
+    //        // Create a new document and write it to the specified stream.
+    //        using (IXlDocument document = exporter.CreateDocument(stream))
+    //        {
+    //            // your code here
+    //        }
+    //    }
+    //}
 
 
 
-    void ReadExcelFile(string filePath)
-    {
-        // Load the workbook
-        using (Workbook workbook = new Workbook())
-        {
-            workbook.LoadDocument(filePath);
+    //void ReadExcelFile(string filePath)
+    //{
+    //    // Load the workbook
+    //    using (Workbook workbook = new Workbook())
+    //    {
+    //        workbook.LoadDocument(filePath);
 
-            // Access the first worksheet
-            Worksheet worksheet = workbook.Worksheets[0];
+    //        // Access the first worksheet
+    //        Worksheet worksheet = workbook.Worksheets[0];
 
-            // Read data from cells
-            Cell cellA1 = worksheet.Cells["A1"];
-            string valueA1 = cellA1.Value.ToString();
+    //        // Read data from cells
+    //        Cell cellA1 = worksheet.Cells["A1"];
+    //        string valueA1 = cellA1.Value.ToString();
 
-            Cell cellB1 = worksheet.Cells["B1"];
-            int valueB1 = 0;
+    //        Cell cellB1 = worksheet.Cells["B1"];
+    //        int valueB1 = 0;
 
-            if (cellB1.Value.IsNumeric)
-            {
-                valueB1 = Convert.ToInt32(cellB1.Value.NumericValue);
-            }
-            else
-            {
-                Console.WriteLine("B1 does not contain a numeric value.");
-            }
+    //        if (cellB1.Value.IsNumeric)
+    //        {
+    //            valueB1 = Convert.ToInt32(cellB1.Value.NumericValue);
+    //        }
+    //        else
+    //        {
+    //            Console.WriteLine("B1 does not contain a numeric value.");
+    //        }
 
-            // Do something with the data
-            Console.WriteLine("A1: " + valueA1);
-            Console.WriteLine("B1: " + valueB1);
-        }
-    }
+    //        // Do something with the data
+    //        Console.WriteLine("A1: " + valueA1);
+    //        Console.WriteLine("B1: " + valueB1);
+    //    }
+    //}
 
-    void ExcelFile(string filePath)
-    {
-        using (Workbook workbook = new Workbook())
-        {
-            workbook.LoadDocument(filePath);
-            // Access the first worksheet in the workbook.
-            Worksheet worksheet = workbook.Worksheets[0];
+    //void ExcelFile(string filePath)
+    //{
+    //    using (Workbook workbook = new Workbook())
+    //    {
+    //        workbook.LoadDocument(filePath);
+    //        // Access the first worksheet in the workbook.
+    //        Worksheet worksheet = workbook.Worksheets[0];
 
-            // Set the unit of measurement.
-            workbook.Unit = DevExpress.Office.DocumentUnit.Point;
+    //        // Set the unit of measurement.
+    //        workbook.Unit = DevExpress.Office.DocumentUnit.Point;
 
-            workbook.BeginUpdate();
-            try
-            {
-                // Create a multiplication table.
-                worksheet.Cells["A1"].Value = "*";
-                for (int i = 1; i < 11; i++)
-                {
-                    // Create the header column.
-                    worksheet.Columns["A"][i].Value = i;
-                    // Create the header row.
-                    worksheet.Rows["1"][i].Value = i;
-                }
+    //        workbook.BeginUpdate();
+    //        try
+    //        {
+    //            // Create a multiplication table.
+    //            worksheet.Cells["A1"].Value = "*";
+    //            for (int i = 1; i < 11; i++)
+    //            {
+    //                // Create the header column.
+    //                worksheet.Columns["A"][i].Value = i;
+    //                // Create the header row.
+    //                worksheet.Rows["1"][i].Value = i;
+    //            }
 
-                // Multiply values of header cells.
-                worksheet.Range["B2:K11"].Formula = "=B$1*$A2";
+    //            // Multiply values of header cells.
+    //            worksheet.Range["B2:K11"].Formula = "=B$1*$A2";
 
-                // Obtain the data range.
-                CellRange tableRange = worksheet.GetDataRange();
+    //            // Obtain the data range.
+    //            CellRange tableRange = worksheet.GetDataRange();
 
-                // Specify the row height and column width.
-                tableRange.RowHeight = 40;
-                tableRange.ColumnWidth = 40;
+    //            // Specify the row height and column width.
+    //            tableRange.RowHeight = 40;
+    //            tableRange.ColumnWidth = 40;
 
-                // Align the table content.
-                tableRange.Alignment.Horizontal = SpreadsheetHorizontalAlignment.Center;
-                tableRange.Alignment.Vertical = SpreadsheetVerticalAlignment.Center;
+    //            // Align the table content.
+    //            tableRange.Alignment.Horizontal = SpreadsheetHorizontalAlignment.Center;
+    //            tableRange.Alignment.Vertical = SpreadsheetVerticalAlignment.Center;
 
-                // Fill the header cells.
-                CellRange headerCells = worksheet.Range.Union(worksheet.Range["A1:K1"],
-                    worksheet.Range["A2:A11"]);
-                headerCells.FillColor = Color.FromArgb(0xf7, 0x9b, 0x77);
-                headerCells.Font.Bold = true;
+    //            // Fill the header cells.
+    //            CellRange headerCells = worksheet.Range.Union(worksheet.Range["A1:K1"],
+    //                worksheet.Range["A2:A11"]);
+    //            headerCells.FillColor = Color.FromArgb(0xf7, 0x9b, 0x77);
+    //            headerCells.Font.Bold = true;
 
-                // Fill cells that contain multiplication results.
-                worksheet.Range["B2:K11"].FillColor = Color.FromArgb(0xfe, 0xf2, 0xe4);
-            }
-            finally
-            {
-                workbook.EndUpdate();
-            }
+    //            // Fill cells that contain multiplication results.
+    //            worksheet.Range["B2:K11"].FillColor = Color.FromArgb(0xfe, 0xf2, 0xe4);
+    //        }
+    //        finally
+    //        {
+    //            workbook.EndUpdate();
+    //        }
 
-            // Calculate the workbook.
-            workbook.Calculate();
+    //        // Calculate the workbook.
+    //        workbook.Calculate();
 
-            // Save the document file under the specified name.
-            workbook.SaveDocument("TestDoc.xlsx", DevExpress.Spreadsheet.DocumentFormat.OpenXml);
+    //        // Save the document file under the specified name.
+    //        workbook.SaveDocument("TestDoc.xlsx", DevExpress.Spreadsheet.DocumentFormat.OpenXml);
 
-            // Export the document to PDF.
-            workbook.ExportToPdf("TestDoc.pdf");
-        }
-        // Open the PDF document using the default viewer.
-        System.Diagnostics.Process.Start("TestDoc.pdf");
+    //        // Export the document to PDF.
+    //        workbook.ExportToPdf("TestDoc.pdf");
+    //    }
+    //    // Open the PDF document using the default viewer.
+    //    System.Diagnostics.Process.Start("TestDoc.pdf");
 
-        // Open the XLSX document using the default application.
-        System.Diagnostics.Process.Start("TestDoc.xlsx");
-    }
+    //    // Open the XLSX document using the default application.
+    //    System.Diagnostics.Process.Start("TestDoc.xlsx");
+    //}
 }

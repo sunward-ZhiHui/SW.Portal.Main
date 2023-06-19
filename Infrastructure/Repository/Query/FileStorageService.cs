@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Forms;
-using DevExpress.Blazor;
 using Microsoft.AspNetCore.Hosting;
 using System.Net.NetworkInformation;
 using System.IO;
@@ -28,7 +27,7 @@ namespace Infrastructure.Repository.Query
         {
             _hostingEnvironment = host;
         }
-        public async Task<bool> SaveFileAsync(UploadFileInfo file, Guid? SessionId)
+        public async Task<bool> SaveFileAsync(IFormFile file, Guid? SessionId)
         {
             // Implement the file saving logic here
             // You can use the necessary mechanisms to save the file to the desired location or storage          
@@ -95,8 +94,8 @@ namespace Infrastructure.Repository.Query
                             {
                                 var parameters = new DynamicParameters();
                                 parameters.Add("FileName", file.Name);
-                                parameters.Add("ContentType", file.Type);
-                                parameters.Add("FileSize", file.Size);
+                                parameters.Add("ContentType", file.ContentType);
+                                parameters.Add("FileSize", file.Length);
                                 parameters.Add("UploadDate", DateTime.Now);
                                 parameters.Add("AddedDate", DateTime.Now);
                                 parameters.Add("SessionId", SessionId);

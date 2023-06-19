@@ -57,6 +57,16 @@
     @{
         string InitialThemeName = HttpContextAccessor.HttpContext.Request.Cookies[AC.SD.Core.Services.DemoThemeService.ThemeCookieKey];
     }
+
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" defer></script>
+    <script>
+        window.OneSignal = window.OneSignal || [];
+        OneSignal.push(function () {
+            OneSignal.init({
+                appId: "8ecb8337-1e9d-40eb-b4fc-9c6028e86231",
+            });
+        });
+    </script>
     
     <script  type="text/javascript">
         function showLoading()

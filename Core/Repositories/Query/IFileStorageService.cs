@@ -1,6 +1,5 @@
 ﻿using Core.Entities;
 using Core.Repositories.Query.Base;
-using DevExpress.Blazor;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -15,6 +14,6 @@ namespace Core.Repositories.Query
     public interface IFileStorageService : IQueryRepository<Documents>
     {
 
-        Task<bool> SaveFileAsync(UploadFileInfo file,Guid? SessionId);
+        Task<bool> SaveFileAsync(IFormFile file,Guid? SessionId);
     }
 }

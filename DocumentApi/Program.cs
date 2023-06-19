@@ -1,8 +1,15 @@
 using DocumentApi.Models;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .WriteTo.File("Log/Log.txt")
+    .CreateLogger();
+builder.Host.UseSerilog();
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
 {

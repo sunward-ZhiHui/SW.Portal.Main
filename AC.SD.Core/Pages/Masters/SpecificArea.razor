@@ -35,7 +35,7 @@
     @if (Type == "Area")
     {
         <div class="card-body bradcrumb-txt">
-        <div>  @comapnyName / @AreaName </div>
+        <div>  @comapnyName/@siteName/@ZoneName/@LocationName / @AreaName </div>
     </div>
     } 
 
@@ -207,6 +207,9 @@
 
 @code {
     string comapnyName = "";
+    string siteName = "";
+    string ZoneName = "";
+    string LocationName = "";
     string AreaName = "";
     [Parameter]
     public long? SiteId { get; set; }
@@ -280,6 +283,9 @@
             // comapnyName = _selectedItems.CompanyId;
             _selectplant = item.FirstOrDefault();
             comapnyName = _selectplant.Description;
+            siteName = _selectedItems.Site;
+            ZoneName = _selectedItems.Zone;
+            LocationName = _selectedItems.ParentName;
             AreaName = _selectedItems.Name;
         }
         if (_ictmasterList.Count > 0)

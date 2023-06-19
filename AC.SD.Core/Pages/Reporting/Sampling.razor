@@ -10,7 +10,16 @@
 @using DevExpress.Export
 @using global::Core.Repositories.Query;
 
-<DxGrid @ref="Grid" Data="@_samplingItems">
+<DxGrid @ref="Grid" Data="@_samplingItems" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        style="height: calc(100vh - 220px);"
+        CssClass="ch-360"
+        AutoExpandAllGroupRows="true"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
     <Columns>
         <DxGridDataColumn FieldName="ScanDocument" />
         <DxGridDataColumn FieldName="TicketNo" />

@@ -1,0 +1,51 @@
+﻿@inject IJSRuntime jsRuntime
+@page "/productionEntry"
+@using Application.Queries;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+
+@inject IMediator Mediator
+@using MediatR
+
+<DxGrid @ref="Grid" Data="@_productionEntry" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        style="height: calc(100vh - 220px);"
+        CssClass="ch-360" 
+        AutoExpandAllGroupRows="true"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+    <Columns>
+        <DxGridDataColumn FieldName="LocationName" />
+        <DxGridDataColumn FieldName="ProductionOrderNo" />
+        <DxGridDataColumn FieldName="Deascription" />
+        <DxGridDataColumn FieldName="BatchNo" />
+        <DxGridDataColumn FieldName="StartDate" />
+        <DxGridDataColumn FieldName="ActualStartDate" />
+        <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" />
+        <DxGridDataColumn FieldName="Action" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center" >
+            <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview()"></button></CellDisplayTemplate>
+        </DxGridDataColumn>
+       @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@
+    </Columns>
+</DxGrid>
+@code {
+    IGrid Grid { get; set; }
+    private List<ViewProductionEntry> _productionEntry;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+
+        var model = await Mediator.Send(new GetAllProductionEntryQuery());
+        _productionEntry = model;
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await UpdateDataAsync();
+    }
+    void onPreview()
+    {
+        
+    }
+}

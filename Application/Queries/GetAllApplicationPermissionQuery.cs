@@ -19,5 +19,14 @@ namespace Application.Queries
             this.Id = Id;
         }
     }
+    public class GetAllApplicationPermissionAllQuery : PagedRequest, IRequest<List<PortalMenuModel>>
+    {
+        public long? Id { get; set; }
+        public GetAllApplicationPermissionAllQuery(long? Id)
+        {
+            this.Id = Id;
+        }
+    }
+
 
 }

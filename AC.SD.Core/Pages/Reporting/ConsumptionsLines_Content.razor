@@ -1,0 +1,47 @@
+﻿
+@page "/consumptionsLines"
+@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+
+<DxGrid Data="@consumptionLines"
+        PageSize="5" EditMode="GridEditMode.EditForm" 
+        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        CssClass="ch-360"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true">
+    <Columns>
+
+        <DxGridDataColumn FieldName="Description" />
+        <DxGridDataColumn FieldName="ProdLineNo" />
+        <DxGridDataColumn FieldName="LotNo" />
+        <DxGridDataColumn FieldName="SubLotNo" />
+        <DxGridDataColumn FieldName="DrumNo" />
+        <DxGridDataColumn FieldName="QCRefNo" />
+        <DxGridDataColumn FieldName="BatchNo" />
+        <DxGridDataColumn FieldName="Quantity" />
+        <DxGridDataColumn FieldName="UOM" />
+        <DxGridDataColumn FieldName="PostedtoNav" />
+        <DxGridDataColumn FieldName="AddedBy" />
+        <DxGridDataColumn FieldName="AddedDate" />
+    </Columns>
+
+</DxGrid>
+
+@code {
+    [Parameter]
+    public ViewConsumptionEntry consumptionEntry { get; set; }
+    private List<ViewConsumptionLines> consumptionLines;
+    IGrid Grid { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var model = await Mediator.Send(new GetAllConsumptionLinesQuery());
+        consumptionLines = model
+            .Where(i => i.ConsumptionEntryID == consumptionEntry.ConsumptionEntryID)
+            .ToList();
+    }
+}

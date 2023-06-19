@@ -37,7 +37,7 @@
     @if (Type == "Department")
     {
     <div style="" class="card-body bradcrumb-txt">
-        <div > @divisionDrop /@Name  </div>
+        <div > @divisionDrop /@companyName  /@divisionName</div>
         </div>
     }
 
@@ -183,8 +183,8 @@
 
 @code {
     string divisionDrop = "";
-    string Name = "";
-   // string  CompanyName ="";
+   
+    // string  CompanyName ="";
     [Parameter]
     public long? PlantID { get; set; }
     [Parameter]
@@ -283,8 +283,8 @@
                 var items = _divisionsItems.Where(c => c.DivisionID == _selectdep.DivisionId);
                 _selectdivision = items.FirstOrDefault();
                 divisionDrop = _selectdivision.DivisionDrop;
-              //  companyName = _selectdep.PlantCode;
-                Name = _selectdep.DepartmentName;
+              companyName = _selectdep.Company;
+                divisionName = _selectdep.Division;
 
             }
 

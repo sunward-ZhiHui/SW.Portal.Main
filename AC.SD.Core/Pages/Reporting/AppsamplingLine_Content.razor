@@ -12,7 +12,13 @@
 @using global::Core.Repositories.Query;
 
 <DxGrid Data="@_samplingLineItems"
-        PageSize="5"
+        PageSize="5"EditMode="GridEditMode.EditForm" 
+        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        CssClass="ch-360" 
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         AutoExpandAllGroupRows="true">
     <Columns>
        

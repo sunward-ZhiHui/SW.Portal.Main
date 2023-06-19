@@ -22,6 +22,8 @@ namespace Core.EntityModels
         public string Icon { get; set; }
         public string ScreenID { get; set; }
         public List<PortalMenuModel> Items { get; set; }
+        public long? ParentID { get; set; }
+        public long? PermissionID { get; set; }
     }
 
     public class PortalPermissionModel

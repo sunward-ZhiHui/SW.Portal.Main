@@ -35,7 +35,7 @@
    @if (Type == "section")
     {
         <div style="" class="card-body  bradcrumb-txt">
-        <div>@Depdrops  / @sectionName </div>
+        <div>@Depdrops/@companyName/@divisionName  / @sectionName </div>
         </div>
     }
 
@@ -284,7 +284,7 @@
                 _selectdep = items.FirstOrDefault();
                 Depdrops = _selectdep.DepartmentDrop;
                 companyName = _selectsec.Company;
-              //  divisionName = _selectsec.Division;
+                divisionName = _selectsec.Division;
                 sectionName = _selectsec.SectionName;
             }
         }

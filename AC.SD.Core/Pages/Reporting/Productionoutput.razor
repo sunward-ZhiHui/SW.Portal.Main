@@ -1,0 +1,45 @@
+﻿@inject IJSRuntime jsRuntime
+@page "/productionOutput"
+@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+
+<DxGrid @ref="Grid" Data="@_productionOutput" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        style="height: calc(100vh - 220px);"
+        CssClass="ch-360" 
+        AutoExpandAllGroupRows="true"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+    <Columns>
+        <DxGridDataColumn FieldName="LocationName" />
+        <DxGridDataColumn FieldName="ProductionOrderNo" />
+        <DxGridDataColumn FieldName="ItemNo" />
+        <DxGridDataColumn FieldName="Description" />
+        <DxGridDataColumn FieldName="BatchNo" />
+        <DxGridDataColumn FieldName="SubLotNo" />
+        <DxGridDataColumn FieldName="DrumNo" />
+        <DxGridDataColumn FieldName="NetWeight" />
+        <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" />
+       
+       @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@
+    </Columns>
+</DxGrid>
+@code {
+    IGrid Grid { get; set; }
+    private List<ViewProductionOutput> _productionOutput;
+
+    protected override async Task OnInitializedAsync()
+    {
+       
+        await jsRuntime.InvokeAsync<string>("showLoading");
+        var model = await Mediator.Send(new GetAllProductionOutputQuery());
+        _productionOutput = model;
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await UpdateDataAsync();
+    }
+}

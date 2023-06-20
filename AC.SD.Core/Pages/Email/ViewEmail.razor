@@ -226,7 +226,7 @@
                                                 <DxMenuItem Text="Posts" class="@((isMenuvisible == "Posts" ? "tActive": "tfiles"))" IconCssClass="menu-icon-products menu-icon" Click="@(() => OnMenuItemClick("Posts"))" />
                                                 <DxMenuItem Text="Files" Enabled="@isEnabled" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
                                                 <DxMenuItem Text="Todo" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
-                                                @*<DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />*@
+                                                <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />
                                             </Items>
                                         </DxMenu>
                                     </div>
@@ -591,13 +591,13 @@
                                                             @if (isCommandTopicClosed)
                                                             {
                                                                 <div class="boxreplay">
-                                                                    @if (_headTopic != null && _headTopic.Any())
+                                                                   @* @if (_headTopic != null && _headTopic.Any())
                                                                     {
                                                                         @foreach (var item in _headTopic)
                                                                         {
                                                                             <h3>@item.TopicName</h3>
                                                                         }
-                                                                    }
+                                                                    }*@
 
                                                                     <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
                                                                         @* <DataAnnotationsValidator />*@
@@ -713,7 +713,7 @@
                         }
                         else if (isMenuvisible == "Todo")
                         {
-                            <div>Todo</div>
+                            <ToDoList></ToDoList>
                           
                         }
                         else
@@ -740,7 +740,7 @@
                                         <DxGridDataColumn FieldName="ID" Caption="Action" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                             <CellDisplayTemplate>
                                                 @{
-                                                    var item = (TopicParticipant)context.DataItem;
+                                                    var item = (EmailParticipant)context.DataItem;
                                                 }
                                                 <DxButton IconCssClass="btnDelete fas fa-trash" style=" background: transparent; border: none;" Click="() => onDeletePlist((long)context.Value)" Enabled=@(item.IsEnabled) />
                                                 @*<button class="btnDelete fas fa-trash" Enabled=@(item.IsEnabled) @onclick="() => onDeletePlist((long)context.Value)"></button>*@
@@ -1073,8 +1073,8 @@
     public List<EmailConversations> _replyComment;
     private List<EmailTopics>? _headTopic;
     string FilterString { get; set; }
-    private List<TopicParticipant>? _participant;
-    TopicParticipant _participantLst { get; set; }
+    private List<EmailParticipant>? _participant;
+    EmailParticipant _participantLst { get; set; }
     Documents _documents { get; set; }
     private List<ViewEmployee>? _allparticipant;
     private List<EmailConversationAssignTo>? _conversationAssignTo;
@@ -1763,7 +1763,7 @@
         isEnabled = true;
         isEllipsis = true;
         isCommand = true;
-        _participant = await Mediator.Send(new GetParticipantsList(long.Parse(@SelectedGroup)));      
+        _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));      
 
         //_participant[1].IsEnabled = false; // Disable the second row
 
@@ -1788,13 +1788,20 @@
     }
     private async Task LoadGetPList()
     {
-        _participant = await Mediator.Send(new GetParticipantsList(long.Parse(@SelectedGroup)));
+        _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
         SelectedDataItems = null;
         participantIds.Clear();
     }
     private async Task onSubmitPList()
     {
         var lst = SelectedDataItems;
+
+        if (lst == null)
+        {
+            toastService.ShowToast("Please select participant", AC.SD.Core.Services.ToastLevel.Error);
+            loading = false;
+            return;
+        }
 
 
         if (SelectedDataItems != null)
@@ -1811,7 +1818,7 @@
         string participantidsString = string.Join(",", participantIds);
 
 
-        var createReq = new CreateTopicParticipant
+        var createReq = new CreateEmailTopicParticipant
             {
                 PList = participantidsString,
                 TopicId = long.Parse(@SelectedGroup),

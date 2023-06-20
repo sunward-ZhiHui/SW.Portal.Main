@@ -42,7 +42,7 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
-    public class GetEmailParticipantsList : PagedRequest, IRequest<List<TopicParticipant>>
+    public class GetEmailParticipantsList : PagedRequest, IRequest<List<EmailParticipant>>
     {
         public long TopicId { get; private set; }
         public GetEmailParticipantsList(long topicId)

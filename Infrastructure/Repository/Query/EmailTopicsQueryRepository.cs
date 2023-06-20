@@ -245,7 +245,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<TopicParticipant>> GetParticipantList(long topicId)
+        public async Task<List<EmailParticipant>> GetParticipantList(long topicId)
         {
             try
             {
@@ -260,7 +260,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     connection.Open();
-                    return (await connection.QueryAsync<TopicParticipant>(query,parameters)).ToList();
+                    return (await connection.QueryAsync<EmailParticipant>(query,parameters)).ToList();
                    // var result = connection.QueryAsync<TopicParticipant>(query, parameters).ToList();
                     //return result;
                 }

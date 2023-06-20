@@ -68,7 +68,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
     }
 
-    public class GetEmailParticipantListHandler : IRequestHandler<GetEmailParticipantsList, List<TopicParticipant>>
+    public class GetEmailParticipantListHandler : IRequestHandler<GetEmailParticipantsList, List<EmailParticipant>>
     {
 
         private readonly IEmailTopicsQueryRepository _forumTopicsQueryRepository;
@@ -76,7 +76,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         {
             _forumTopicsQueryRepository = forumTopicsQueryRepository;
         }
-        public async Task<List<TopicParticipant>> Handle(GetEmailParticipantsList request, CancellationToken cancellationToken)
+        public async Task<List<EmailParticipant>> Handle(GetEmailParticipantsList request, CancellationToken cancellationToken)
         {
             return await _forumTopicsQueryRepository.GetParticipantList(request.TopicId);
         }

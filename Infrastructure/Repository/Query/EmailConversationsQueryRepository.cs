@@ -94,15 +94,21 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName FROM EmailTopicTo FT
+                //var query = @"SELECT FT.UserId,E.FirstName FROM EmailTopicTo FT
+                //                INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
+                //                INNER JOIN Employee E ON E.UserID = FT.UserId
+                //                WHERE TopicId = @TopicId
+                //UNION
+                //SELECT FC.UserId,E.FirstName FROM EmailTopicCC FC
+                //                INNER JOIN ApplicationUser AU ON AU.UserID = FC.UserId
+                //                INNER JOIN Employee E ON E.UserID = FC.UserId
+                //                WHERE TopicId = @TopicId";
+
+                var query = @"SELECT FT.UserId,E.FirstName FROM EmailTopicParticipant FT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
-                                WHERE TopicId = @TopicId
-                UNION
-                SELECT FC.UserId,E.FirstName FROM EmailTopicCC FC
-                                INNER JOIN ApplicationUser AU ON AU.UserID = FC.UserId
-                                INNER JOIN Employee E ON E.UserID = FC.UserId
                                 WHERE TopicId = @TopicId";
+
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicID", topicId);
                 using (var connection = CreateConnection())

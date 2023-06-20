@@ -1,4 +1,11 @@
-﻿<link href="_content/AC.SD.Core/css/todoList.css" rel="stylesheet" />
+﻿@inject IMediator Mediator
+@inject IJSRuntime jsRuntime;
+@using Application.Queries;
+@using MediatR
+
+
+@using global::Core.Entities;
+<link href="_content/AC.SD.Core/css/todoList.css" rel="stylesheet" />
 <div class="page-content page-container" id="page-content">
     <div class="">
         <div class="row d-flex justify-content-center">
@@ -35,3 +42,61 @@
         </div>
     </div>
 </div>
+
+ @code{
+    private List<TopicToDoList>? _topicToDolist;
+    protected override async Task OnInitializedAsync()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+      
+        var models = await Mediator.Send(new GetAllTopicToDoList());
+        _topicToDolist = models;
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+        //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        // var com = await Mediator.Send(new CreateCompanyQuery());
+        var editModel = (TopicToDoList)e.EditModel;
+        if (e.IsNew)
+        {
+            var request = new CreateTopicTodoListQuery
+                {
+
+                    TopicName = editModel.TopicName,
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+                    StatusCodeID = 1,
+                    AddedByUserID = 1,
+                };
+
+            var result = Mediator.Send(request);
+        }
+        else
+
+        {
+            //   var come = await Mediator.Send(new EditCompanyQuery());
+            var req = new EditTopicTodoListQuery
+                {
+
+                    ID = editModel.ID,
+                    TopicName = editModel.TopicName,
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+                    StatusCodeID = 1,
+                    AddedByUserID = 1,
+
+
+                };
+
+            var ans = Mediator.Send(req);
+        }
+
+    }
+    async Task OnDataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var dataitem = (e.DataItem as TopicToDoList);
+        var come = await Mediator.Send(new DeleteTopicToDoListQuery(dataitem.ID));
+    }
+ }

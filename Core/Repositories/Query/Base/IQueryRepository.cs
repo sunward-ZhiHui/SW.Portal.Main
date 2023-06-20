@@ -14,5 +14,6 @@ namespace Core.Repositories.Query.Base
         Task<IEnumerable<T>> GetListAsync(string query);
         Task<IEnumerable<T>> GetListPaggedAsync(int pageNo, int pageSize, string condition, string orderby);
         void Add(T entity);
+       
     }
 }

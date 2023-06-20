@@ -5,6 +5,13 @@
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
 
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
 <DxGrid @ref="Grid" Data="@_productionOutput" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -29,17 +36,29 @@
        @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@
     </Columns>
 </DxGrid>
+</DxLoadingPanel>
 @code {
     IGrid Grid { get; set; }
-    private List<ViewProductionOutput> _productionOutput;
-
+  //  private List<ViewProductionOutput> _productionOutput;
+    object _productionOutput { get; set; }
+    bool PanelVisible { get; set; }
     protected override async Task OnInitializedAsync()
     {
-       
-        await jsRuntime.InvokeAsync<string>("showLoading");
+
+        PanelVisible = true;
+        await Task.Delay(3000);
+      //  _productionOutput = GetOutput(regenerate: true);
+        // await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllProductionOutputQuery());
         _productionOutput = model;
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
+        //  await jsRuntime.InvokeAsync<string>("hideLoading");
         // await UpdateDataAsync();
     }
+    //public IEnumerable<ViewProductionOutput> GetOutput(bool regenerate = false)
+    //{
+    //    if (regenerate) _productionOutput = null;
+    //    return null;
+    //}
+    
 }

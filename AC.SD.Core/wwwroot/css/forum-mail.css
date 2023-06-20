@@ -1272,7 +1272,8 @@ main {
     border: none;
 }
 .editor-box-height {
-    height: 250px;
+    min-height: 250px;
+    max-height:auto !important;
     border: 1px solid #bebebe;
 }
 .editor-reply-height

@@ -24,7 +24,7 @@ body,
 .bradcrumb-txt {
     font-size: 16px;
     padding: 8px;
-    border: 1px solid #c3c3c3ee;
+    border: 1px solid #ebebebee;
     margin-bottom: 10px;
     font-weight: bold;
 }
@@ -32,9 +32,12 @@ body,
 {
     color:forestgreen;
 }
-.topoverdue
-{
-    white-space:nowrap;
+.separator-txt {
+    margin-left: 6px;
+    margin-right: 6px;
+}
+.topoverdue {
+    white-space: nowrap;
 }
 .btn-excel:hover {
     color: white;
@@ -56,9 +59,10 @@ body,
 #app.root {
     min-width: 375px;
 }
-
+.breadmdf.items {
+    margin-left: 0px !important;
+}
 /* Blazor specific */
-
 #components-reconnect-modal > h5 {
     color: black;
     padding: 1rem;

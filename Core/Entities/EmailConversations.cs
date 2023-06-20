@@ -12,7 +12,8 @@ namespace Core.Entities
     public class EmailConversations:BaseEntity
     {
         [Key]
-        public int ID { get; set; }      
+        public int ID { get; set; }  
+        public string Name { get; set; }
         public long TopicID { get; set; }
         [Required(ErrorMessage = "Please Enter Message.")]
         public string Message { get; set; }

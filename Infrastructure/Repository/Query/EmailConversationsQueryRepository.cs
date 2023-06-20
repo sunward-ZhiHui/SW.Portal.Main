@@ -241,6 +241,7 @@ namespace Infrastructure.Repository.Query
                     {
                        
                             var subQuery = @"SELECT
+                                        FC.Name,
                                         FC.ID,
                                         FC.AddedDate,
                                         FC.Message,
@@ -281,7 +282,7 @@ namespace Infrastructure.Repository.Query
 
                         foreach (var conversation in topic.ReplyConversation)
                         {
-                            var subQueryReplyDocs = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath,FC.FileData from EmailConversations FC
+                            var subQueryReplyDocs = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath,FC.FileData,FC.Name from EmailConversations FC
                                                         INNER JOIN Documents D ON D.SessionID = FC.SessionId
                                                         WHERE D.SessionID = @SessionID";
                             var parametersReplyDocs = new DynamicParameters();
@@ -301,6 +302,7 @@ namespace Infrastructure.Repository.Query
 
 
                             var replyBysubQuery = @"SELECT
+                                        FC.Name,
                                         FC.ID,
                                         FC.AddedDate,
                                         FC.Message,
@@ -330,7 +332,7 @@ namespace Infrastructure.Repository.Query
                             {
 
 
-                                var subQueryReplyDocs1 = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath,FC.FileData from EmailConversations FC
+                                var subQueryReplyDocs1 = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath,FC.FileData,FC.Name from EmailConversations FC
                                                         INNER JOIN Documents D ON D.SessionID = FC.SessionId
                                                         WHERE D.SessionID = @SessionID";
                                 var parametersReplyDocs1 = new DynamicParameters();
@@ -370,7 +372,7 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"select FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData from EmailConversations FC 
+                var query = @"select FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name from EmailConversations FC 
                                 INNER JOIN Documents D on D.SessionID = FC.SessionId
                                 where FC.TopicID = @TopicId";
 

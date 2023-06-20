@@ -550,19 +550,24 @@
                                 {
 
                                     <DxButton RenderStyle="ButtonRenderStyle.Success" CssClass="me-1 btn-success open-button"
-                                      Click="() => WindowVisible = !WindowVisible" style="width:200px;">New Conversation</DxButton>
+                                      Click="onWindowVisible" style="width:200px;">New Conversation</DxButton>
                                     <DxWindow @bind-Visible=WindowVisible 
                                       HeaderText="Post"
                                       HorizontalAlignment="HorizontalAlignment.Right"
                                       VerticalAlignment="DevExpress.Blazor.VerticalAlignment.Bottom"
                                       CloseOnEscape="true"
+                                      ResizeCompleted="OnWindowResizeCompleted"
                                       ShowFooter=false
                                       AllowResize="true"
+                                      Closing="EulaClosing"
+                                      MinWidth="800"
+                                      Width="800"                                      
+                                      MinHeight="600"
                                       ShowCloseButton="true"                                                
-                                      Width="800px" @ref="dxWindow">
+                                      @ref="dxWindow">
                                         <BodyTemplate Context="Context">
                                             @*<div class="close-button handline" @onclick="CloseClick">X</div>*@
-                                            <div style="padding: 20px">
+                                            <div class="dxwinheight" style="padding: 20px; overflow: auto;">
                                                 <DxFormLayout>
                                                     <div class="open-button-old" style="width:99.5%">
                                                         @if (_replyComment != null && _replyComment.Any())
@@ -598,7 +603,7 @@
                                                                         @* <DataAnnotationsValidator />*@
                                                                         <DxFormLayout>
                                                                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="12">
-                                                                                <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" NullText="Subject Name" />
+                                                                                <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" NullText="Subject Name" Enabled="@IsReadOnly" />
                                                                                 <ValidationMessage For="@(() => Data.Name)" />
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
@@ -612,7 +617,7 @@
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem ColSpanMd="12">
                                                                                 <div class="">
-                                                                                    <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 h-100 txtEditorMsg editor-box-height" ViewType="ViewType.Simple" />
+                                                                                    <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 h-100 txtEditorMsg editor-box-height" Id="editor-box-height" ViewType="ViewType.Simple" />
                                                                                 </div>
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem ColSpanMd="12">
@@ -969,11 +974,13 @@
     IGrid SentGrid { get; set; }
     DxWindow dxWindow;
     bool WindowVisible { get; set; } = false;
+    private bool IsReadOnly = true;
 
     private List<EmailTopics>? _forumTopicTo;
     private List<EmailTopics>? _forumTopicCC;
     private List<EmailTopics>? _forumTopicSent;
 
+    private int ElementHeight { get; set; }
     bool IsOpen { get; set; } = false;
     bool IsOpenFlyout { get; set; } = false;
     Selection selection; 
@@ -1005,6 +1012,18 @@
     private bool uploadSuccess = false;
     IEnumerable<UploadFileInfo> Files { get; set; }
     UploadFileInfo FirstFile { get; set; }
+    public string MyHeight { get; set; } = "200px";
+    string width = "800px", height = "800px";
+    private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args) {
+        // (width, height) = ($"{args.Size.Width}px", $"{args.Size.Height}px");
+        (width) = ($"{args.Size.Width}px");
+        MyHeight =  $"{args.Size.Height}px";
+        string setHeight = $"{args.Size.Height - 290}";
+        string selector = ".editor-box-height";
+
+        //await JSRuntime.InvokeVoidAsync("adjustHeight", setHeight);
+        await JSRuntime.InvokeVoidAsync("setHeight", selector, setHeight);
+    }
     private class Model
     {
         [Required(ErrorMessage = "Due Date is required")]
@@ -1851,28 +1870,40 @@
     {
 
     }
+    private async Task onWindowVisible()
+    {
+        WindowVisible = true;   
+        string selector = ".dxwinheight";
+        ElementHeight = await JSRuntime.InvokeAsync<int>("getElementHeight", selector);
+    }
     private async Task onreply(long id)
     {
         if (id > 0)
         {
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
             WindowVisible = true;
-            Data.Name = _headTopic[0].TopicName;
+            Data.Name = _replyComment[0].Name;
+            IsReadOnly = false;
         }        
-    }   
+    }  
+     void EulaClosing(WindowClosingEventArgs args) {
+        closeReply();
+    }
     private async Task onunderreply(long id)
     {
         if (id > 0)
         {
             _replyComment = _discussionFullList.Where(c => c.ID == id).ToList();
             WindowVisible = true;
-            Data.Name = _headTopic[0].TopicName;
+            Data.Name = _replyComment[0].Name;
+            IsReadOnly = false;
         }
     }
     void closeReply()
     {
         _replyComment = null;
         Data.Name = null;
+        IsReadOnly = true;
     }
     async void OnLeftMenuItemClick(string text)
     {

@@ -1272,14 +1272,17 @@ main {
     border: none;
 }
 .editor-box-height {
-    min-height: 250px;
-    max-height:auto !important;
+    min-height: 350px;
+    max-height:800px;
     border: 1px solid #bebebe;
 }
-.editor-reply-height
+.editor-box-height .dxreSimplePage
 {
-    height:180px !important;
+    height:400px;
 }
+    .editor-reply-height {
+        height: 180px !important;
+    }
 
 .card-body {
     padding: 10px 10px;

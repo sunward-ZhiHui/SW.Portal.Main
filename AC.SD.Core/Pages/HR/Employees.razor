@@ -35,8 +35,14 @@
 else
 {*@
 
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
 
-<DxGrid @ref="Grid"
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         Data="_employeeItems"
         KeyFieldName="EmployeeID"
         EditModelSaving="Grid_EditModelSaving"
@@ -55,7 +61,7 @@ else
         style="height: calc(100vh - 200px);"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
-        AllowSelectRowByClick="true">
+            AllowSelectRowByClick="true" CustomizeFilterMenu="OnCustomizeFilterMenu">
            
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
@@ -93,6 +99,7 @@ else
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SageID" />
     </TotalSummary>
 </DxGrid>
+</DxLoadingPanel>
 
 @code {
     private List<ViewEmployee> _employeeItems;
@@ -101,12 +108,16 @@ else
     private ViewEmployee _selectedItems;
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
+    bool PanelVisible { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+       // await jsRuntime.InvokeAsync<string>("showLoading");
       //  await Task.Run(LoadEmployeesAsync);
+        PanelVisible = true;
+        await Task.Delay(3000);
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
+     //   await jsRuntime.InvokeAsync<string>("hideLoading");
         if (_employeeItems.Count > 0)
         {
 
@@ -210,5 +221,16 @@ else
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
     }
-   
+    void OnCustomizeFilterMenu(GridCustomizeFilterMenuEventArgs e)
+    {
+        if (e.DataColumn.FieldName == "FirstName")
+        {
+            e.DataItems.ForEach(di =>
+            {
+                long? CustomerID = _employeeItems.Where(c =>
+                    c.FirstName == di.Value.ToString()).FirstOrDefault()?.EmployeeID;
+                di.DisplayText = di.DisplayText + " (EmployeeID " + CustomerID + ")";
+            });
+        }
+    }
 }

@@ -33,9 +33,9 @@
 </div>
 @if (Type == "Division")
     {
-    <div style="" class="card-body  bradcrumb-txt">
-    
-        <div > @plantcode / @Name</div>
+    <div style="" class="breadcrumb card-body  bradcrumb-txt">
+
+        <div class="items"> @plantcode<span class="separator-txt fa fa-caret-right"></span>@Name</div>
     </div>
     }
 <DxGrid @ref="Grid"

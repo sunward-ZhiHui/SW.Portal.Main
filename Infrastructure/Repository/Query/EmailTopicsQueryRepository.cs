@@ -249,10 +249,10 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY TP.ID DESC), TP.ID,TP.TopicId,AU.UserCode,AU.UserName,TP.AddedDate,TP.SessionId,AU.UserID, CASE WHEN FT.AddedByUserID = TP.UserID THEN 0 ELSE 1 END AS IsEnabled FROM EmailTopicParticipant TP 
+                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY TP.ID ASC), TP.ID,TP.TopicId,AU.UserCode,AU.UserName,TP.AddedDate,TP.SessionId,AU.UserID, CASE WHEN FT.AddedByUserID = TP.UserID THEN 0 ELSE 1 END AS IsEnabled FROM EmailTopicParticipant TP 
                                 INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID   
 								INNER JOIN EmailTopics FT ON FT.ID = TP.TopicId                               
-                                WHERE TP.TopicId = @TopicId";
+                                WHERE TP.TopicId = @TopicId order by TP.ID ASC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", topicId);

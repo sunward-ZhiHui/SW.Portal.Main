@@ -12,6 +12,11 @@ namespace Application.Queries
 {
     public class GetAllTopicToDoList : PagedRequest, IRequest<List<TopicToDoList>>
     {
+        public long Uid { get; set; }
+        public GetAllTopicToDoList(long id)
+        {
+            this.Uid = id;
+        }
     }
     public class CreateTopicTodoListQuery : TopicToDoList, IRequest<long>
     {
@@ -21,11 +26,11 @@ namespace Application.Queries
     }
     public class DeleteTopicToDoListQuery : TopicToDoList, IRequest<long>
     {
-        public Int64 Id { get; private set; }
+        public long ID { get;set; }
 
-        public DeleteTopicToDoListQuery(Int64 Id)
+        public DeleteTopicToDoListQuery(long Id)
         {
-            this.Id = Id;
+            this.ID = Id;
         }
     }
 }

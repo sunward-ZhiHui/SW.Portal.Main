@@ -2,9 +2,12 @@
 @inject IJSRuntime jsRuntime;
 @using Application.Queries;
 @using MediatR
-
-
+@using global::Core.Repositories.Query;
 @using global::Core.Entities;
+@inject IJSRuntime JSRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
 <link href="_content/AC.SD.Core/css/todoList.css" rel="stylesheet" />
 <div class="page-content page-container" id="page-content">
     <div class="">
@@ -12,29 +15,45 @@
             <div class="col-md-12">
                 <div class="card px-3">
                     <div class="card-body">
+
+                        <EditForm id="@MyID" @ref="myForm" Model="@Data" OnValidSubmit="@HandleValidSubmit"                           
+                              Context="EditFormContext">
+                        <DataAnnotationsValidator />      
+                         <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                     <DxFormLayout>
+                                            <DxFormLayoutItem Caption="" ColSpanMd="11">
+                                                <DxTextBox @bind-Text="@Data.ToDoName" ShowValidationIcon="true" NullText="What do you need to do today?" />
+                                                <ValidationMessage For="@(() => Data.ToDoName)" />
+                                            </DxFormLayoutItem>
+                                            <DxFormLayoutItem ColSpanMd="1">
+                                                <DxButton CssClass="w-100"
+                                                          RenderStyle="ButtonRenderStyle.Primary"
+                                                          SubmitFormOnClick="true"
+                                                          Text="Add" />
+                                            </DxFormLayoutItem>
+                                     </DxFormLayout>
+                                </div>
+                            </div>
+                         </div>
+                        </EditForm>
                         
-                        <div class="add-items d-flex"> <input type="text" class="form-control todo-list-input" placeholder="What do you need to do today?"> <button class="add btn btn-primary font-weight-bold todo-list-add-btn">Add</button> </div>
+                        @*<div class="add-items d-flex"> <input type="text" class="form-control todo-list-input" placeholder="What do you need to do today?"> <button class="add btn btn-primary font-weight-bold todo-list-add-btn">Add</button> </div>*@
                         <div class="list-wrapper">
-                            <ul class="d-flex flex-column-reverse todo-list">
-                                <li>
-                                    <div class="form-check"> <label class="form-check-label">  For what reason would it be advisable. <i class="input-helper"></i></label> </div> <i class="remove mdi mdi-close-circle-outline"></i>
-                                </li>
-                                <li class="completed">
-                                    <div class="form-check"> <label class="form-check-label">  For what reason would it be advisable for me to think. <i class="input-helper"></i></label> </div> <i class="remove mdi mdi-close-circle-outline"></i>
-                                </li>
-                                <li>
-                                    <div class="form-check"> <label class="form-check-label">  it be advisable for me to think about business content? <i class="input-helper"></i></label> </div> <i class="remove mdi mdi-close-circle-outline"></i>
-                                </li>
-                                <li>
-                                    <div class="form-check"> <label class="form-check-label">  Print Statements all <i class="input-helper"></i></label> </div> <i class="remove mdi mdi-close-circle-outline"></i>
-                                </li>
-                                <li class="completed">
-                                    <div class="form-check"> <label class="form-check-label">  Call Rampbo <i class="input-helper"></i></label> </div> <i class="remove mdi mdi-close-circle-outline"></i>
-                                </li>
-                                <li>
-                                    <div class="form-check"> <label class="form-check-label">  Print bills <i class="input-helper"></i></label> </div> <i class="remove mdi mdi-close-circle-outline"></i>
-                                </li>
-                            </ul>
+
+                            @if (_topicToDolist != null && _topicToDolist.Any())
+                            {
+                                <ul class="d-flex flex-column-reverse todo-list">
+                                @foreach (var item in _topicToDolist)
+                                    {
+                                        <li class="@((item.Iscompleted ? "completed" : "not"))">
+                                            <div class="form-check"> <label class="form-check-label" @onclick="@(() => onCompleted(item.ID))">  @item.ToDoName <i class="input-helper"></i></label> </div> <i class="remove mdi mdi-close-circle-outline" @onclick="@(() => onDelete(item.ID))"></i>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                           
                         </div>
                     </div>
                 </div>
@@ -43,60 +62,68 @@
     </div>
 </div>
 
- @code{
+@code{
+    private EditForm myForm;
+    private string MyID = "myForm";
+    TopicToDoList? Data { get; set; } = new TopicToDoList();
     private List<TopicToDoList>? _topicToDolist;
+    public ApplicationUser? applicationUser { get; private set; }
+    async Task HandleValidSubmit()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        var request = new CreateTopicTodoListQuery
+                        {
+
+                            ToDoName = Data.ToDoName,
+                            AddedDate = DateTime.Now,
+                            SessionId = Guid.NewGuid(),
+                            Iscompleted = false,
+                            TopicId = 1,
+                            StatusCodeID = 1,
+                            AddedByUserID = applicationUser.UserID,
+                        };
+
+        var result = Mediator.Send(request); 
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        onRestText();
+        await UpdateDataAsync();
+        toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+    }
+    async Task UpdateDataAsync()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");        
+        _topicToDolist = await Mediator.Send(new GetAllTopicToDoList(applicationUser.UserID));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+    private void onRestText()
+    {
+        Data.ToDoName = null;
+    }
+    private async Task onCompleted(long id)
+    {
+        var req = new EditTopicTodoListQuery
+            {
+                ID = id,
+                Iscompleted = true,
+            };
+
+        var ans = Mediator.Send(req);
+
+        await UpdateDataAsync();
+    }
+    private async Task onDelete(long Id)
+    {
+        var req = new DeleteTopicToDoListQuery(Id);
+        var ans = Mediator.Send(req);
+        await UpdateDataAsync();
+    }
+    
     protected override async Task OnInitializedAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
-      
-        var models = await Mediator.Send(new GetAllTopicToDoList());
-        _topicToDolist = models;
-        await jsRuntime.InvokeAsync<string>("hideLoading");
-        //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
-    }
-    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {
-
-        // var com = await Mediator.Send(new CreateCompanyQuery());
-        var editModel = (TopicToDoList)e.EditModel;
-        if (e.IsNew)
-        {
-            var request = new CreateTopicTodoListQuery
-                {
-
-                    TopicName = editModel.TopicName,
-                    AddedDate = DateTime.Now,
-                    SessionId = Guid.NewGuid(),
-                    StatusCodeID = 1,
-                    AddedByUserID = 1,
-                };
-
-            var result = Mediator.Send(request);
-        }
-        else
-
-        {
-            //   var come = await Mediator.Send(new EditCompanyQuery());
-            var req = new EditTopicTodoListQuery
-                {
-
-                    ID = editModel.ID,
-                    TopicName = editModel.TopicName,
-                    AddedDate = DateTime.Now,
-                    SessionId = Guid.NewGuid(),
-                    StatusCodeID = 1,
-                    AddedByUserID = 1,
-
-
-                };
-
-            var ans = Mediator.Send(req);
-        }
-
-    }
-    async Task OnDataItemDeleting(GridDataItemDeletingEventArgs e)
-    {
-        var dataitem = (e.DataItem as TopicToDoList);
-        var come = await Mediator.Send(new DeleteTopicToDoListQuery(dataitem.ID));
-    }
+        await jsRuntime.InvokeAsync<string>("showLoading");      
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _topicToDolist = await Mediator.Send(new GetAllTopicToDoList(applicationUser.UserID));
+        await jsRuntime.InvokeAsync<string>("hideLoading");        
+    }    
  }

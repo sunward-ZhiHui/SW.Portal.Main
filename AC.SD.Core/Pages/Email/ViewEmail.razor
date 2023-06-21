@@ -280,7 +280,7 @@
                                                             {
                                                                 @if (isCommandTopicClosed)
                                                                 {
-                                                                    <button @onclick="onAddPlist" class="btn btn-excel" style="margin-top: 2px;">Add Participant </button>
+                                                                   @* <button @onclick="onAddPlist" class="btn btn-excel" style="margin-top: 2px;">Add Participant </button>*@
                                                                 }
 
                                                             }
@@ -717,38 +717,9 @@
                           
                         }
                         else
-                        {                          
-                            <div class="">
-                                <DxGrid @ref="Grid" Data="_participant"
-                                    KeyFieldName="ID"
-                                    ShowSearchBox="true"
-                                    PagerNavigationMode="PagerNavigationMode.InputBox"                                   
-                                    PageSizeSelectorAllRowsItemVisible="true"
-                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                    PageSize="20"
-                                    style="height:calc(100vh - 290px);min-height:400px !important"
-                                    CssClass="ch-360"
-                                    SelectionMode="GridSelectionMode.Multiple"
-                                    AllowSelectRowByClick="true">
-                                    <Columns>
-                                        @*<DxDataGridColumn>
-                                    <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
-                                    </DxDataGridColumn>*@
-                                        <DxGridDataColumn FieldName="RowIndex" Width="30" Caption="#" />
-                                        <DxGridDataColumn FieldName="UserName" MinWidth="100" />
-                                        <DxGridDataColumn FieldName="UserCode" />
-                                        <DxGridDataColumn FieldName="ID" Caption="Action" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
-                                            <CellDisplayTemplate>
-                                                @{
-                                                    var item = (EmailParticipant)context.DataItem;
-                                                }
-                                                <DxButton IconCssClass="btnDelete fas fa-trash" style=" background: transparent; border: none;" Click="() => onDeletePlist((long)context.Value)" Enabled=@(item.IsEnabled) />
-                                                @*<button class="btnDelete fas fa-trash" Enabled=@(item.IsEnabled) @onclick="() => onDeletePlist((long)context.Value)"></button>*@
-                                            </CellDisplayTemplate>
-                                        </DxGridDataColumn>                                        
-                                    </Columns>
-                                </DxGrid>
-                            </div>
+                        {          
+                            <ParticipantList Tid="@Tid"></ParticipantList>
+                           
                         }
                     </div>
                 </div>
@@ -786,17 +757,7 @@
     </BodyContentTemplate>    
 </DxPopup>
 
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="300px" @bind-Visible="@PopupVisible">
-    <div class="text-center">
-        <Content>
-            <p>
-                <div Position="Left" id="@("label"+_participantLst.UserName)" class="display-field"> Do you want to  Delete this <span style="color:red">@_participantLst.UserName</span> </div>
-            </p>
-        </Content>        
-        <DxButton style="align-items" Text="Yes" Click="@((e) => SubmitDelete(_participantLst.ID))" />
-        <DxButton CssClass="dx-button.dx-icon" Text="No" Click="@(() => ClosePopup())" />
-    </div>
-</DxPopup>
+
 
 <DxPopup @ref="popup" HeaderText="Doc Delete" ShowCloseButton="true" Width="300px" @bind-Visible="@DocPopupVisible">
     <div class="text-center">
@@ -893,39 +854,7 @@
 </DxPopup>
 
 
-<DxPopup @bind-Visible="@isAllPlistVisible" HeaderText="Add Participants">
-    <BodyTemplate Context="PopupContext">
-        <div>
-            <button class="btn btn-excel" style="float: right; margin-right: 10px; margin-top: 10px; margin-bottom: 10px;" @onclick="onSubmitPList">
-                Add
-            </button>            
-        </div>
-        <DxGrid @ref="Grid" Data="_allparticipant"
-                KeyFieldName="UserID"
-                ShowSearchBox="true"
-                PagerNavigationMode="PagerNavigationMode.InputBox"
-                PageSizeSelectorVisible="true"
-                PageSizeSelectorAllRowsItemVisible="true"
-                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                PageSize="20"
-                style="height:calc(100vh - 285px);min-height:400px !important"
-                CssClass="ch-360"
-                SelectionMode="GridSelectionMode.Multiple"
-                AllowSelectRowByClick="true"
-                SelectedDataItemsChanged="@OnSelectedDataItemsChanged"
-                SelectedRowsChanged="HandleSelectedRowsChanged">
-            <Columns>
-                @*<DxDataGridColumn>
-                <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
-                </DxDataGridColumn>*@
-                <DxGridSelectionColumn Width="104px" />
-                <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
-                <DxGridDataColumn FieldName="LastName" />
-            </Columns>
-        </DxGrid>
 
-    </BodyTemplate>
-</DxPopup>
 
 <DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
     <BodyTemplate Context="PopupContext">
@@ -968,7 +897,7 @@
 *@
 
 
-@code {
+@code {   
     IGrid TOGrid { get; set; }
     IGrid CCGrid { get; set; }
     IGrid SentGrid { get; set; }
@@ -981,6 +910,8 @@
     private List<EmailTopics>? _forumTopicSent;
 
     private int ElementHeight { get; set; }
+    [Parameter]
+    public long Tid { get; set; }    
     bool IsOpen { get; set; } = false;
     bool IsOpenFlyout { get; set; } = false;
     Selection selection; 
@@ -989,6 +920,7 @@
     public EventCallback<IToolbar> CustomizeToolbar { get; set; }
     bool ErrorVisible { get; set; } = false;
     string MyError { get; set; }
+
     [Parameter]
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
     public List<string> AllowedFileExtensions { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",".txt",".pdf",".PDF" };
@@ -1402,12 +1334,7 @@
             await LoadData();
         }
 
-    }
-    public async Task onDeletePlist(long Id)
-    {
-        _participantLst = _participant.FirstOrDefault(a => a.ID == Id);
-        PopupVisible = true;        
-    }
+    }   
     public async Task onPreview(long Id)
     {
         _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
@@ -1668,22 +1595,7 @@
             onShowPopupMessage("success", "Document has been deleted successfully");
         }
     }
-    private async void SubmitDelete(long Id)
-    {        
-        if (Id > 0)
-        {
-            var request = new DeleteParticipant
-                {
-                    ID = Id,
-
-                };
-            var response = await Mediator.Send(request);
-            PopupVisible = false;
-            isAllPlistVisible = false;
-            await LoadGetPList();
-            onShowPopupMessage("success", "Participant has been deleted successfully");
-        }
-    }
+   
     private async void onShowPopupMessage(string headerText, string bodyText)
     {
         MessageVisible = true;
@@ -1734,6 +1646,7 @@
     private async Task LoadData()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
+         Tid = long.Parse(@SelectedGroup);
         _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup)));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
@@ -1775,64 +1688,7 @@
     {
         SelectedDataItems = selectedDataItems;
     }
-    private async Task onAddPlist()
-    {
-        await LoadAllParticipantList();
-    }
-    private async Task LoadAllParticipantList()
-    {
-        var plist = await Mediator.Send(new GetAllParticipantListQuery(long.Parse(@SelectedGroup)));
-        _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-
-        isAllPlistVisible = true;
-    }
-    private async Task LoadGetPList()
-    {
-        _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
-        SelectedDataItems = null;
-        participantIds.Clear();
-    }
-    private async Task onSubmitPList()
-    {
-        var lst = SelectedDataItems;
-
-        if (lst == null)
-        {
-            toastService.ShowToast("Please select participant", AC.SD.Core.Services.ToastLevel.Error);
-            loading = false;
-            return;
-        }
-
-
-        if (SelectedDataItems != null)
-        {
-            foreach (object item in SelectedDataItems)
-            {
-                if (item is ViewEmployee employee)
-                {
-                    participantIds.Add((long)employee.UserID);
-                }
-            }
-        }
-
-        string participantidsString = string.Join(",", participantIds);
-
-
-        var createReq = new CreateEmailTopicParticipant
-            {
-                PList = participantidsString,
-                TopicId = long.Parse(@SelectedGroup),
-                UserId = applicationUser.UserID,
-                StatusCodeID = 1,
-                AddedByUserID = applicationUser.UserID,
-                AddedDate = DateTime.Now,
-                SessionId = Guid.NewGuid()  
-            };
-        var result = await Mediator.Send(createReq);
-
-        isAllPlistVisible = false;
-        await LoadGetPList();
-    }
+   
     async Task OnEmailToRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");       

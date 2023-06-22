@@ -37,7 +37,7 @@
     {
     <div style="" class="breadcrumb card-body  bradcrumb-txt">
 
-        <div class="items">@Name<span class="separator-txt fa fa-caret-right"></span>@plantcode</div>
+        <div class="items">@plantcode<span class="separator-txt fa fa-caret-right"></span>@Name</div>
     </div>
     }
 
@@ -96,7 +96,7 @@
                 <DxComboBox Data="@_divisionsItems"
                             NullText="Select Division..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName=" DivisionDrop"
+                            TextFieldName="DivisionDrop"
                             ValueFieldName="DivisionID"
                             Enabled="@isEnabled"
                             SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemChanged(plantSelect))"
@@ -212,7 +212,7 @@
     private ViewDepartment _selectlst;
     private ViewPlants _selectplant;
     private ViewDivision _selectdivision;
-
+ //   private List<ViewDivision> _divisions;
 
     protected override async Task OnInitializedAsync()
     {
@@ -220,6 +220,7 @@
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _divisionsItems = await Mediator.Send(new GetAllDivisionQuery());
+     //   _divisions = await Mediator.Send(new GetAllDivisionQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
@@ -250,8 +251,8 @@
                     isEnabled = false;
                     newmaster.DivisionId = _ictmasters.DivisionId;
                     companyName = _ictmasters.Company;
-
-                    // SelectedItemChanged(_ictmasters);
+                   // newmaster.Division = _selectdivision.DivisionDrop;
+                   // SelectedItemChanged(_ictmasters.DivisionId);
                 }
             }
         }
@@ -275,7 +276,7 @@
         {
             if (Type == "Division")
             {
-            _selectdivision = _divisionsItems.FirstOrDefault(f => f.DivisionID == PlantID);
+                _selectdivision = _divisionsItems.FirstOrDefault(f => f.DivisionID == PlantID);
             var item = _plantItems.Where(c => c.PlantID == _selectdivision.CompanyId);
             _selectplant = item.FirstOrDefault();
             plantcode = _selectplant.PlantCode;

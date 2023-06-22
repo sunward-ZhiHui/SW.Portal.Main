@@ -20,7 +20,7 @@ namespace Core.Entities
         public string LocationName { get; set; }
         public string ItemName { get; set; }
         public long? LocationID { get; set; }
-     
+         public int ProdLineNo { get; set; }
         public string BatchNo { get; set; }
         public string Deascription { get; set; }
      

@@ -32,9 +32,9 @@ namespace Core.Entities.Views
         public DateTime? ActualStartDate { get; set; }
        
         public string AddedBy { get; set; }
-          public string ProdTask { get; set; }
+       
       
-        public string Action { get; set; }
+       
 
     }
 }

@@ -23,6 +23,8 @@
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
     <Columns>
+        <DxGridDataColumn FieldName="OutputDate" />
+        <DxGridDataColumn FieldName="Time" />
         <DxGridDataColumn FieldName="LocationName" />
         <DxGridDataColumn FieldName="ProductionOrderNo" />
         <DxGridDataColumn FieldName="ItemNo" />
@@ -30,6 +32,7 @@
         <DxGridDataColumn FieldName="BatchNo" />
         <DxGridDataColumn FieldName="SubLotNo" />
         <DxGridDataColumn FieldName="DrumNo" />
+        <DxGridDataColumn FieldName="GrossWeight" />
         <DxGridDataColumn FieldName="NetWeight" />
         <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" />
        
@@ -39,26 +42,18 @@
 </DxLoadingPanel>
 @code {
     IGrid Grid { get; set; }
-  //  private List<ViewProductionOutput> _productionOutput;
-    object _productionOutput { get; set; }
+   private List<ViewProductionOutput> _productionOutput;
     bool PanelVisible { get; set; }
     protected override async Task OnInitializedAsync()
     {
 
         PanelVisible = true;
         await Task.Delay(3000);
-      //  _productionOutput = GetOutput(regenerate: true);
-        // await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllProductionOutputQuery());
         _productionOutput = model;
         PanelVisible = false;
-        //  await jsRuntime.InvokeAsync<string>("hideLoading");
-        // await UpdateDataAsync();
+       
     }
-    //public IEnumerable<ViewProductionOutput> GetOutput(bool regenerate = false)
-    //{
-    //    if (regenerate) _productionOutput = null;
-    //    return null;
-    //}
+    
     
 }

@@ -35,7 +35,7 @@
    @if (Type == "section")
     {
         <div style="" class="breadcrumb card-body  bradcrumb-txt">
-        <div class="items">@Depdrops<span class="separator-txt fa fa-caret-right"></span>@companyName<span class="separator-txt fa fa-caret-right"></span>@divisionName  <span class="separator-txt fa fa-caret-right"></span> @sectionName </div>
+        <div class="items">@companyName<span class="separator-txt fa fa-caret-right"></span>@divisionName<span class="separator-txt fa fa-caret-right"></span>@Depdrops  <span class="separator-txt fa fa-caret-right"></span> @sectionName </div>
         </div>
     }
 
@@ -128,11 +128,13 @@
                 <DxComboBox Data="@_stausItems"
                             NullText="Select Status..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="CodeValue"
                             ValueFieldName="CodeId"
+                            @bind-Text="@Text"
+                            TextFieldName="CodeValue"
                             @bind-Value="@sections.StatusCodeId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+
                 <ValidationMessage For="@(() => sections.StatusCodeId)" />
             </DxFormLayoutItem>
         </DxFormLayout>
@@ -143,8 +145,9 @@
 </DxGrid>
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
-        <Content>
-        <p>
+        <Content> @bind-Text="@Text"
+        <p> ValueFieldName="CodeId"
+             TextFieldName="CodeValue"
                 <div > Do you want to delete</div>
           DisplayFormat="dd/MMMM/yyyy"
         </p>
@@ -184,7 +187,7 @@
 @code {
 
     string Depdrops = "";
-
+    string Text { get; set; } = "Active";
     [Parameter]
     public long? PlantID { get; set; }
     [Parameter]
@@ -282,8 +285,8 @@
                 _selectsec = _sectionItems.FirstOrDefault(f => f.SectionId == PlantID);
                 var items = _departmentItems.Where(c => c.DepartmentId == _selectsec.DepartmentId);
                 _selectdep = items.FirstOrDefault();
-                Depdrops = _selectdep.DepartmentDrop;
-                companyName = _selectsec.Company;
+                Depdrops = _selectdep.DepartmentName;
+                companyName = _selectsec.PlantCode;
                 divisionName = _selectsec.Division;
                 sectionName = _selectsec.SectionName;
             }

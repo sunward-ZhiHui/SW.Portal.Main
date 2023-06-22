@@ -37,7 +37,7 @@
     @if (Type == "Department")
     {
     <div style="" class="breadcrumb card-body bradcrumb-txt">
-        <div class="items"> @divisionDrop <span class="separator-txt fa fa-caret-right"></span>@companyName  <span class="separator-txt fa fa-caret-right"></span>@divisionName</div>
+        <div class="items"> @companyName <span class="separator-txt fa fa-caret-right"></span>@divisionName  <span class="separator-txt fa fa-caret-right"></span>@Name</div>
         </div>
     }
 
@@ -182,9 +182,8 @@
 </DxPopup>
 
 @code {
-    string divisionDrop = "";
-   
-    // string  CompanyName ="";
+    string Name = "";
+    
     [Parameter]
     public long? PlantID { get; set; }
     [Parameter]
@@ -209,7 +208,6 @@
     bool ExportSelectedRowsOnly { get; set; }
     private ViewSection _selectlst;
     private ViewDivision _selectdivision;
-    private List<ViewDivision> _divisionsItems;
     private ViewDepartment _selectdep;
     protected override async Task OnInitializedAsync()
     {
@@ -217,7 +215,6 @@
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _divisionsItems = await Mediator.Send(new GetAllDivisionQuery());
         await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
         if (Type == "Department")
@@ -279,12 +276,9 @@
             if (Type == "Department")
             {
                 _selectdep = _departmentItems.FirstOrDefault(f => f.DepartmentId == PlantID);
-
-                var items = _divisionsItems.Where(c => c.DivisionID == _selectdep.DivisionId);
-                _selectdivision = items.FirstOrDefault();
-                divisionDrop = _selectdivision.DivisionDrop;
-              companyName = _selectdep.Company;
+                companyName = _selectdep.PlantCode;
                 divisionName = _selectdep.Division;
+                Name = _selectdep.DepartmentName;
 
             }
 

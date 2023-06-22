@@ -20,9 +20,10 @@ namespace Core.Entities.Views
          // public List<APPTransferOrderLinesModel> ConsumptionLines { get; set; }
         public string Description { get; set; }
         public bool? IsNewEntry { get; set; }
-        public int? LineNo { get; set; }
+      
         public string Company { get; set; }
         public string AddedBy { get; set; }
       public string   AddedDate { get; set; }
+        
     }
 }

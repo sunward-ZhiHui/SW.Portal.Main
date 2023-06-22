@@ -30,7 +30,7 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 <DxMenuItem Text="Add Department" IconCssClass="fa fa-add" Click="@AddLocation" />
-                <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelMaster" />
+               @* <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelMaster" />*@
                 <DxMenuItem Text="Reset Company" IconCssClass="fa fa-refresh" Click="@ResetCompany" Enabled="@isCompanyEnabled" />
             </Items>
         </DxMenu>
@@ -42,11 +42,19 @@
     {
         <div style="" class=" breadcrumb card-body  bradcrumb-txt">
 
-        <div class="items"> @Plantcode <span class="separator-txt fa fa-caret-right"></span> @Description</div>
+        <div class="items"> @Plantcode </div>
     </div>
     }
 
-<DxGrid @ref="Grid"
+
+
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+<DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         Data="_divisions"
         KeyFieldName="DivisionID"
         EditModelSaving="Grid_EditModelSaving"
@@ -135,6 +143,7 @@
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
     </TotalSummary>
 </DxGrid>
+</DxLoadingPanel>
 
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
@@ -178,11 +187,10 @@
 
 @code {
     string Plantcode = "";
-    string Description = "";
     private List<ViewPlants> _plants;
     [Parameter]
     public long? PlantID { get; set; }
-
+    bool PanelVisible { get; set; }
     [Parameter]
     public long? SiteId { get; set; }
     [Parameter]
@@ -211,13 +219,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
+        //await jsRuntime.InvokeAsync<string>("showLoading");
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _stausItems = models;
         var plants = await Mediator.Send(new GetAllPlantQuery());
         _plantItems = plants;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
         await UpdateDataAsync();
         if (Type == "Plants")
         {
@@ -226,7 +237,9 @@
     }
     async Task UpdateDataAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
+        //await jsRuntime.InvokeAsync<string>("showLoading");
         var  model = await Mediator.Send(new GetAllDivisionQuery());
         for (int i = 0; i < model.Count; i++)
         {
@@ -240,9 +253,6 @@
             {
                 _selectplant = _plantItems.FirstOrDefault(f => f.PlantID == PlantID);
                 Plantcode = _selectplant.PlantCode;
-
-                Description = _selectplant.Description;
-
             }
 
 
@@ -254,7 +264,8 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
     }
 
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
@@ -473,10 +484,10 @@
         NavigationManager.NavigateTo("masters/1/Division/-1");
 
     }
-    void AddLevelMaster()
-    {
-        NavigationManager.NavigateTo("masters/6/Division/" + _selectedItems.DivisionID);
-    }
+    //void AddLevelMaster()
+    //{
+    //    NavigationManager.NavigateTo("masters/6/Division/" + _selectedItems.DivisionID);
+    //}
     void AddLocation()
     {
         NavigationManager.NavigateTo("masters/2/Division/" + _selectedItems.DivisionID);

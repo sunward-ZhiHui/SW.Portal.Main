@@ -27,6 +27,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelmaster" />
                 <DxMenuItem Text="Reset Subsection" IconCssClass="fa fa-refresh" Click="@ResetSubSection" Enabled="@isSubsectionEnabled" />
             </Items>
         </DxMenu>
@@ -38,15 +39,20 @@
   @if (Type == "subsection")
    {
         <div style="" class="breadcrumb card-body  bradcrumb-txt">
-        <div class="items"> @secDrop <span class="separator-txt fa fa-caret-right"></span>@companyName<span class="separator-txt fa fa-caret-right"></span>@divisionName<span class="separator-txt fa fa-caret-right"></span>@DepartmentName <span class="separator-txt fa fa-caret-right"></span>@subsecName</div>
+        <div class="items"> @companyName <span class="separator-txt fa fa-caret-right"></span>@divisionName<span class="separator-txt fa fa-caret-right"></span>@DepartmentName<span class="separator-txt fa fa-caret-right"></span>@secName <span class="separator-txt fa fa-caret-right"></span>@Name</div>
         </div>
    }
 
 
+   <DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
 
 
-
-<DxGrid @ref="Grid"
+<DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         Data="_designationItems"
         KeyFieldName="DesignationID"
         EditModelSaving="Grid_EditModelSaving"
@@ -196,7 +202,7 @@
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
     </TotalSummary>
 </DxGrid>
-
+</DxLoadingPanel>
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
         <Content>
@@ -238,11 +244,12 @@
 </DxPopup>
 
 @code {
-    string secDrop = "";
+    string secName = "";
     string companyName = "";
     string divisionName = "";
     string DepartmentName = "";
-    string subsecName = "";
+    bool PanelVisible { get; set; }
+    string Name = "";
 
     [Parameter]
     public long? PlantID { get; set; }
@@ -282,7 +289,9 @@
     private ViewSection _selectsec;
     protected override async Task OnInitializedAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+       // await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
         _sections = await Mediator.Send(new GetAllSectionQuery());
         _departments = await Mediator.Send(new GetAllDepartmentQuery());
         _divisions = await Mediator.Send(new GetAllDivisionQuery());
@@ -291,7 +300,8 @@
         _subsectionListItems = await Mediator.Send(new GetAllSubSectionQuery());
         levelItems = await Mediator.Send(new GetAllLevelMasterQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
         await UpdateDataAsync();
         if (Type == "subsection")
         {
@@ -300,7 +310,9 @@
     }
     async Task UpdateDataAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+       // await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
         var  model = await Mediator.Send(new GetAllDesignationQuery());
         for (int i = 0; i < model.Count; i++)
         {
@@ -315,11 +327,11 @@
                 var items = _sections.Where(c => c.SectionId == _selectedsubsec.SectionId);
                 _selectsec = items.FirstOrDefault();
 
-                secDrop = _selectedsubsec.SubSectionDrop;
-                companyName = _selectedsubsec.Company;
+                Name = _selectedsubsec.SubSectionName;
+                companyName = _selectedsubsec.PlantCode;
                 divisionName = _selectedsubsec.Division;
                 DepartmentName = _selectsec.DepartmentName;
-                subsecName = _selectedsubsec.SubSectionName;
+                secName = _selectedsubsec.SectionName;
             }
         }
         if (_designationItems.Count > 0)
@@ -329,7 +341,8 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -571,7 +584,11 @@
         isEnabled = true;
         isSubsectionEnabled = false;
         Grid.CancelEditAsync();
-        NavigationManager.NavigateTo("masters/5/subsection/-1");
+        NavigationManager.NavigateTo("masters/5/designation/-1");
 
+    }
+    void AddLevelmaster()
+    {
+        NavigationManager.NavigateTo("masters/6/designation/" + _selectedItems.DesignationID);
     }
 }

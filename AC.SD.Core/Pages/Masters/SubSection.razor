@@ -35,11 +35,17 @@
    @if (Type == "section")
     {
         <div style="" class="breadcrumb card-body  bradcrumb-txt">
-        <div class="items">@Depdrops<span class="separator-txt fa fa-caret-right"></span>@companyName<span class="separator-txt fa fa-caret-right"></span>@divisionName  <span class="separator-txt fa fa-caret-right"></span> @sectionName </div>
+        <div class="items">@companyName<span class="separator-txt fa fa-caret-right"></span>@divisionName<span class="separator-txt fa fa-caret-right"></span>@Depdrops  <span class="separator-txt fa fa-caret-right"></span> @sectionName </div>
         </div>
     }
 
-<DxGrid @ref="Grid"
+     <DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+<DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         Data="_subsectionItems"
         KeyFieldName="SubSectionId"
         EditModelSaving="Grid_EditModelSaving"
@@ -128,11 +134,13 @@
                 <DxComboBox Data="@_stausItems"
                             NullText="Select Status..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="CodeValue"
                             ValueFieldName="CodeId"
+                            @bind-Text="@Text"
+                            TextFieldName="CodeValue"
                             @bind-Value="@sections.StatusCodeId"
                             ShowValidationIcon="true">
                 </DxComboBox>
+
                 <ValidationMessage For="@(() => sections.StatusCodeId)" />
             </DxFormLayoutItem>
         </DxFormLayout>
@@ -141,10 +149,12 @@
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SectionName" />
     </TotalSummary>
 </DxGrid>
+</DxLoadingPanel>
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
-        <Content>
-        <p>
+        <Content> @bind-Text="@Text"
+        <p> ValueFieldName="CodeId"
+             TextFieldName="CodeValue"
                 <div > Do you want to delete</div>
           DisplayFormat="dd/MMMM/yyyy"
         </p>
@@ -182,9 +192,9 @@
 
 </DxPopup>
 @code {
-
+    bool PanelVisible { get; set; }
     string Depdrops = "";
-
+    string Text { get; set; } = "Active";
     [Parameter]
     public long? PlantID { get; set; }
     [Parameter]
@@ -214,13 +224,16 @@
     private ViewDepartment _selectdep;
     protected override async Task OnInitializedAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+         PanelVisible = true;
+        await Task.Delay(3000);
+        //await jsRuntime.InvokeAsync<string>("showLoading");
         // Application.Common.Helper.Helper.FormatDate();
         _sectionItems = await Mediator.Send(new GetAllSectionQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
         await UpdateDataAsync();
         if (Type == "section")
         {
@@ -268,7 +281,9 @@
     }
     async Task UpdateDataAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
+       // await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllSubSectionQuery());
         for (int i = 0; i < model.Count; i++)
         {
@@ -282,8 +297,8 @@
                 _selectsec = _sectionItems.FirstOrDefault(f => f.SectionId == PlantID);
                 var items = _departmentItems.Where(c => c.DepartmentId == _selectsec.DepartmentId);
                 _selectdep = items.FirstOrDefault();
-                Depdrops = _selectdep.DepartmentDrop;
-                companyName = _selectsec.Company;
+                Depdrops = _selectdep.DepartmentName;
+                companyName = _selectsec.PlantCode;
                 divisionName = _selectsec.Division;
                 sectionName = _selectsec.SectionName;
             }
@@ -296,7 +311,8 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
@@ -394,6 +410,7 @@
     void addNew()
     {
         Grid.StartEditNewRowAsync();
+ 
 
     }
     void EulaPopupClosed(PopupClosedEventArgs args)

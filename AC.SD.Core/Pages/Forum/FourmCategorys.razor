@@ -41,7 +41,14 @@
 
 </DxPopup>
 
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
 <DxGrid @ref="Grid" id="myGrid" Data="@_categorys" EditModelSaving="@OnEditModelSaving"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
     DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" 
     ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -128,6 +135,7 @@
         </DxFormLayout>
     </EditFormTemplate>    
 </DxGrid>
+</DxLoadingPanel>
 <DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
     <BodyTemplate Context="PopupContext">
         <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
@@ -165,6 +173,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool PanelVisible { get; set; }
     Dictionary<long, string>? CategoryNamesIndex { get; set; }    
     private List<ForumCategorys>? _categorys; 
     List<ForumTypes>? Types {get; set;}
@@ -188,10 +197,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-
+        PanelVisible = true;
+        await Task.Delay(3000);
+        
         var types = await Mediator.Send(new GetAllForumTypes());
         Types = types;
-        await jsRuntime.InvokeAsync<string>("showLoading");
+        //await jsRuntime.InvokeAsync<string>("showLoading");
+        
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         var model = await Mediator.Send(new GetAllForumCategorys());
         var models = await Mediator.Send(new GetAllForumCategorysUsers());
@@ -200,13 +212,16 @@
         //    models[i].Index = i + 1;
         //}
         _categorys = models;
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
         CategoryNamesIndex = Types.ToDictionary(i => i.ID, i => i.Name);
     }   
 
     async Task UpdateDataAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
+       // await jsRuntime.InvokeAsync<string>("showLoading");
       var  model = await Mediator.Send(new GetAllForumCategorys());
         var models = await Mediator.Send(new GetAllForumCategorysUsers());
         //for (int i = 0; i < models.Count; i++)
@@ -214,13 +229,14 @@
         //    models[i].Index = i + 1;
         //}
         _categorys = models;
+        PanelVisible = false;
         if (_categorys.Count > 0)
         {
 
             _selectedItems = _categorys.FirstOrDefault();
             StateHasChanged();
         }
-         await jsRuntime.InvokeAsync<string>("hideLoading");
+       //  await jsRuntime.InvokeAsync<string>("hideLoading");
     }
 
     async Task ExportToExcel()

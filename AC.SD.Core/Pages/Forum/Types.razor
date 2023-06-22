@@ -60,7 +60,15 @@
     </BodyTemplate>
 </DxPopup>
 
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+
 <DxGrid @ref="Grid" Data="@_types" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         KeyFieldName="ID"
         PageSizeSelectorVisible="true"
@@ -138,6 +146,7 @@
     </EditFormTemplate>
     
 </DxGrid>
+</DxLoadingPanel>
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
         
@@ -168,7 +177,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-
+    bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
@@ -195,7 +204,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
+       // await jsRuntime.InvokeAsync<string>("showLoading");
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         var models = await Mediator.Send(new GetAllForumTypesUsers());
       //  var model = await Mediator.Send(new GetAllForumTypes());
@@ -207,12 +218,15 @@
         //}
 
         _types = models;
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
         //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
     } 
     async Task UpdateDataAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
+        //await jsRuntime.InvokeAsync<string>("showLoading");
       //  var model = await Mediator.Send(new GetAllForumTypes());
          var models = await Mediator.Send(new GetAllForumTypesUsers());
 
@@ -222,13 +236,14 @@
         //}
 
         _types = models;
+        PanelVisible = false;
         if (_types.Count > 0)
         {
 
             _selectedItems = _types.FirstOrDefault();
             StateHasChanged();
         }
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+      //  await jsRuntime.InvokeAsync<string>("hideLoading");
         //  toastService.ShowToast("I'm a SUCCESS message", AC.SD.Core.Services.ToastLevel.Success);
         // _types = model;
     }

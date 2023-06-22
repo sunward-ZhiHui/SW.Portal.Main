@@ -10,8 +10,17 @@
 @using DevExpress.Export
 @using global::Core.Repositories.Query;
 
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+
 <DxGrid @ref="Grid" Data="@_samplingItems" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"
@@ -33,10 +42,9 @@
         <AppsamplingLine_Content sampling="(AppSampling)context.DataItem" />
     </DetailRowTemplate>
 </DxGrid>
-
-
+</DxLoadingPanel>
 @code {
-    
+    bool PanelVisible { get; set; }
     private List<AppSampling> _samplingItems;
     IGrid Grid { get; set; }
    
@@ -44,11 +52,12 @@
     //object DetailGridData { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
 
         var model = await Mediator.Send(new GetAllSamplingQuery());
         _samplingItems = model;
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
        // await UpdateDataAsync();
     }
 }

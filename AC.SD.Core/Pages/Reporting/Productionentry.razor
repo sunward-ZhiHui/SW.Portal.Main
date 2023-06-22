@@ -7,9 +7,29 @@
 @inject IMediator Mediator
 @using MediatR
 
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Preview" IconCssClass="dxbl-btn fa fa-eye" Click="@onPreview" />
+               
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+
 <DxGrid @ref="Grid" Data="@_productionEntry" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"
         style="height: calc(100vh - 220px);"
@@ -25,23 +45,24 @@
         <DxGridDataColumn FieldName="StartDate" />
         <DxGridDataColumn FieldName="ActualStartDate" />
         <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" />
-        <DxGridDataColumn FieldName="Action" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center" >
-            <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview()"></button></CellDisplayTemplate>
-        </DxGridDataColumn>
-       @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@
     </Columns>
 </DxGrid>
+</DxLoadingPanel>
+
 @code {
+    bool PanelVisible { get; set; }
     IGrid Grid { get; set; }
     private List<ViewProductionEntry> _productionEntry;
 
     protected override async Task OnInitializedAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
-
+        //await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
         var model = await Mediator.Send(new GetAllProductionEntryQuery());
         _productionEntry = model;
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
         // await UpdateDataAsync();
     }
     void onPreview()

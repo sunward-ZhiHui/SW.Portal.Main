@@ -9,11 +9,10 @@ using System.Threading.Tasks;
 namespace Core.Repositories.Query
 {
     public interface ITopicTodoListQueryRepository : IQueryRepository<TopicToDoList>
-    {
-        //Custom operation which is not generic
-        Task<IReadOnlyList<TopicToDoList>> GetAllAsync();
+    {        
+        Task<IReadOnlyList<TopicToDoList>> GetAllAsync(long Uid);
         Task<long> Insert(TopicToDoList todolist);
         Task<long> Update(TopicToDoList todolist);
-        Task<long> Delete(TopicToDoList todolist);
+        Task<long> Delete(long id);
     }
 }

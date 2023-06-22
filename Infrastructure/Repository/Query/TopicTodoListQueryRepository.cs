@@ -20,15 +20,17 @@ namespace Infrastructure.Repository.Query
 
         }
 
-        public async Task<IReadOnlyList<TopicToDoList>> GetAllAsync()
+        public async Task<IReadOnlyList<TopicToDoList>> GetAllAsync(long Uid)
         {
             try
             {
-                var query = "SELECT * FROM TopicToDoList";
+                var parameters = new DynamicParameters();
+                parameters.Add("Uid", Uid);
+                var query = "SELECT * FROM TopicToDoList where AddedByUserID = @Uid order by ID desc";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<TopicToDoList>(query)).ToList();
+                    return (await connection.QueryAsync<TopicToDoList>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -50,11 +52,16 @@ namespace Infrastructure.Repository.Query
 
                         try
                         {
-
-
                             var parameters = new DynamicParameters();
-                            parameters.Add("TopicName", todolist.TopicName, DbType.String);
-                            var query = "INSERT INTO TopicToDoList(TopicName) VALUES (@TopicName)";
+                            parameters.Add("ToDoName", todolist.ToDoName, DbType.String);
+                            parameters.Add("TopicId", todolist.TopicId);
+                            parameters.Add("SessionId", todolist.SessionId);
+                            parameters.Add("AddedByUserID", todolist.AddedByUserID);
+                            parameters.Add("AddedDate", todolist.AddedDate);
+                            parameters.Add("Iscompleted", todolist.Iscompleted);
+                            parameters.Add("StatusCodeID", todolist.StatusCodeID);
+
+                            var query = "INSERT INTO TopicToDoList(ToDoName,TopicId,SessionId,AddedByUserID,AddedDate,StatusCodeID,Iscompleted) VALUES (@ToDoName,@TopicId,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@Iscompleted)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -95,11 +102,10 @@ namespace Infrastructure.Repository.Query
                         try
                         {
                             var parameters = new DynamicParameters();
-                            parameters.Add("TopicName", todolist.TopicName, DbType.String);
+                            parameters.Add("Iscompleted", todolist.Iscompleted);
                             parameters.Add("ID", todolist.ID, DbType.Int64);
 
-                            var query = " UPDATE TopicToDoList SET TopicName = @TopicName WHERE ID = @ID";
-
+                            var query = " UPDATE TopicToDoList SET Iscompleted = @Iscompleted WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -123,7 +129,7 @@ namespace Infrastructure.Repository.Query
         }
 
 
-        public async Task<long> Delete(TopicToDoList todolist)
+        public async Task<long> Delete(long id)
         {
             try
             {
@@ -136,11 +142,10 @@ namespace Infrastructure.Repository.Query
 
                         try
                         {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("TopicName", todolist.TopicName, DbType.String);
-                            parameters.Add("ID", todolist.ID, DbType.Int64);
+                            var parameters = new DynamicParameters();                            
+                            parameters.Add("id", id);
 
-                            var query = "DELETE  FROM TopicToDoList WHERE ID = @ID";
+                            var query = "DELETE  FROM TopicToDoList WHERE ID = @id";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

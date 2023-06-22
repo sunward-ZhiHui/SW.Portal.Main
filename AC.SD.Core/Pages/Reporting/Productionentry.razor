@@ -7,6 +7,18 @@
 @inject IMediator Mediator
 @using MediatR
 
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Preview" IconCssClass="dxbl-btn fa fa-eye" Click="@onPreview" />
+               
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -33,10 +45,6 @@
         <DxGridDataColumn FieldName="StartDate" />
         <DxGridDataColumn FieldName="ActualStartDate" />
         <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" />
-        <DxGridDataColumn FieldName="Action" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center" >
-            <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview()"></button></CellDisplayTemplate>
-        </DxGridDataColumn>
-       @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@
     </Columns>
 </DxGrid>
 </DxLoadingPanel>

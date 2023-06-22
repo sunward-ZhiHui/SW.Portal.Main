@@ -37,7 +37,7 @@
     @if (Type == "Department")
     {
     <div style="" class="breadcrumb card-body bradcrumb-txt">
-        <div class="items"> @divisionDrop <span class="separator-txt fa fa-caret-right"></span>@companyName  <span class="separator-txt fa fa-caret-right"></span>@divisionName</div>
+        <div class="items"> @companyName <span class="separator-txt fa fa-caret-right"></span>@divisionName  <span class="separator-txt fa fa-caret-right"></span>@Name</div>
         </div>
     }
 
@@ -188,6 +188,8 @@
 </DxPopup>
 
 @code {
+    string Name = "";
+    
     bool PanelVisible { get; set; }
     string divisionDrop = "";
    
@@ -216,7 +218,6 @@
     bool ExportSelectedRowsOnly { get; set; }
     private ViewSection _selectlst;
     private ViewDivision _selectdivision;
-    private List<ViewDivision> _divisionsItems;
     private ViewDepartment _selectdep;
     protected override async Task OnInitializedAsync()
     {
@@ -291,12 +292,9 @@
             if (Type == "Department")
             {
                 _selectdep = _departmentItems.FirstOrDefault(f => f.DepartmentId == PlantID);
-
-                var items = _divisionsItems.Where(c => c.DivisionID == _selectdep.DivisionId);
-                _selectdivision = items.FirstOrDefault();
-                divisionDrop = _selectdivision.DivisionDrop;
-              companyName = _selectdep.Company;
+                companyName = _selectdep.PlantCode;
                 divisionName = _selectdep.Division;
+                Name = _selectdep.DepartmentName;
 
             }
 

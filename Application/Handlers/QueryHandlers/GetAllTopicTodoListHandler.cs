@@ -15,32 +15,26 @@ namespace Application.Handlers.QueryHandlers
 {
     public class GetAllTopicTodoListHandler : IRequestHandler<GetAllTopicToDoList, List<TopicToDoList>>
     {
-        private readonly ITopicTodoListQueryRepository _topicTodoListQueryRepository;
-        private readonly IQueryRepository<ForumTypes> _queryRepository;
+        private readonly ITopicTodoListQueryRepository _topicTodoListQueryRepository;        
         public GetAllTopicTodoListHandler(ITopicTodoListQueryRepository topicTodoListQueryRepository)
         {
             _topicTodoListQueryRepository = topicTodoListQueryRepository;
         }
         public async Task<List<TopicToDoList>> Handle(GetAllTopicToDoList request, CancellationToken cancellationToken)
         {
-            return (List<TopicToDoList>)await _topicTodoListQueryRepository.GetAllAsync();
-            //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
+            return (List<TopicToDoList>)await _topicTodoListQueryRepository.GetAllAsync(request.Uid);            
         }
     }
     public class CreateTopicTodoListHandler : IRequestHandler<CreateTopicTodoListQuery, long>
     {
-        private readonly ITopicTodoListQueryRepository _topicTodoListQueryRepository;
-        private readonly IQueryRepository<TopicToDoList> _queryRepository;
+        private readonly ITopicTodoListQueryRepository _topicTodoListQueryRepository;      
         public CreateTopicTodoListHandler(ITopicTodoListQueryRepository topicTodoListQueryRepository, IQueryRepository<TopicToDoList> queryRepository)
         {
-            _topicTodoListQueryRepository = topicTodoListQueryRepository;
-
-            _queryRepository = queryRepository;
+            _topicTodoListQueryRepository = topicTodoListQueryRepository;           
         }
 
         public async Task<long> Handle(CreateTopicTodoListQuery request, CancellationToken cancellationToken)
         {
-
             var newlist = await _topicTodoListQueryRepository.Insert(request);
             return newlist;
 
@@ -49,12 +43,10 @@ namespace Application.Handlers.QueryHandlers
     }
     public class EditTopicTodoListHandler : IRequestHandler<EditTopicTodoListQuery, long>
     {
-        private readonly ITopicTodoListQueryRepository _topicTodoListQueryRepository;
-        private readonly IQueryRepository<TopicToDoList> _queryRepository;
+        private readonly ITopicTodoListQueryRepository _topicTodoListQueryRepository;        
         public EditTopicTodoListHandler(ITopicTodoListQueryRepository topicTodoListQueryRepository, IQueryRepository<TopicToDoList> queryRepository)
         {
-            _topicTodoListQueryRepository = topicTodoListQueryRepository;
-            _queryRepository = queryRepository;
+            _topicTodoListQueryRepository = topicTodoListQueryRepository;            
         }
 
         public async Task<long> Handle(EditTopicTodoListQuery request, CancellationToken cancellationToken)
@@ -66,17 +58,15 @@ namespace Application.Handlers.QueryHandlers
     public class DeleteCompanyHandler : IRequestHandler<DeleteTopicToDoListQuery,long>
     {
         private readonly ITopicTodoListQueryRepository _topicTodoListQueryRepository;
-        private readonly IQueryRepository<TopicToDoList> _queryRepository;
+        
         public DeleteCompanyHandler(ITopicTodoListQueryRepository topicTodoListQueryRepository, IQueryRepository<TopicToDoList> queryRepository)
         {
             _topicTodoListQueryRepository = topicTodoListQueryRepository;
-
-            _queryRepository = queryRepository;
         }
 
         public async Task<long> Handle(DeleteTopicToDoListQuery request, CancellationToken cancellationToken)
         {
-             var req = await _topicTodoListQueryRepository.Delete(request);
+             var req = await _topicTodoListQueryRepository.Delete(request.ID);
               return req;
         }
     }

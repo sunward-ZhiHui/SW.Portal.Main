@@ -30,5 +30,8 @@ namespace Core.Entities.Views
         public DateTime? ActualStartDate { get; set; }
         public string AddedBy { get; set; }
         public string AddedDate { get; set; }
+        public string OutputDate { get; set; }
+        public string Time { get; set; }
+        public string GrossWeight { get; set; }
     }
 }

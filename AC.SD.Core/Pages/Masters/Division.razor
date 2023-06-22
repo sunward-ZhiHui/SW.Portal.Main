@@ -30,7 +30,7 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 <DxMenuItem Text="Add Department" IconCssClass="fa fa-add" Click="@AddLocation" />
-                <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelMaster" />
+               @* <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelMaster" />*@
                 <DxMenuItem Text="Reset Company" IconCssClass="fa fa-refresh" Click="@ResetCompany" Enabled="@isCompanyEnabled" />
             </Items>
         </DxMenu>
@@ -42,7 +42,7 @@
     {
         <div style="" class=" breadcrumb card-body  bradcrumb-txt">
 
-        <div class="items"> @Plantcode <span class="separator-txt fa fa-caret-right"></span> @Description</div>
+        <div class="items"> @Plantcode </div>
     </div>
     }
 
@@ -187,7 +187,6 @@
 
 @code {
     string Plantcode = "";
-    string Description = "";
     private List<ViewPlants> _plants;
     [Parameter]
     public long? PlantID { get; set; }
@@ -254,9 +253,6 @@
             {
                 _selectplant = _plantItems.FirstOrDefault(f => f.PlantID == PlantID);
                 Plantcode = _selectplant.PlantCode;
-
-                Description = _selectplant.Description;
-
             }
 
 
@@ -488,10 +484,10 @@
         NavigationManager.NavigateTo("masters/1/Division/-1");
 
     }
-    void AddLevelMaster()
-    {
-        NavigationManager.NavigateTo("masters/6/Division/" + _selectedItems.DivisionID);
-    }
+    //void AddLevelMaster()
+    //{
+    //    NavigationManager.NavigateTo("masters/6/Division/" + _selectedItems.DivisionID);
+    //}
     void AddLocation()
     {
         NavigationManager.NavigateTo("masters/2/Division/" + _selectedItems.DivisionID);

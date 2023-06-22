@@ -31,5 +31,6 @@ namespace Core.Entities.Views
         public int LineNo { get; set; }
         public string ProductionOrderNo { get; set; }
         public int? DrumNo { get; set; }
+        public string? MaterialNo { get; set; }
     }
 }

@@ -1,0 +1,204 @@
+﻿@using MediatR
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@using Application.Queries;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IJSRuntime JSRuntime;
+
+<button @onclick="onAddPlist" class="btn btn-excel" style="margin-bottom: 7px; float: right; margin-right: 15px;">
+    Add Participant
+</button>
+<div class="">
+    <DxGrid @ref="Grid" Data="_participant"
+            KeyFieldName="ID"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height:calc(100vh - 290px);min-height:400px !important"
+            CssClass="ch-360"
+            SelectionMode="GridSelectionMode.Multiple"
+            AllowSelectRowByClick="true">
+        <Columns>
+            @*<DxDataGridColumn>
+            <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+            </DxDataGridColumn>*@
+            <DxGridDataColumn FieldName="RowIndex" Width="30" Caption="#" />
+            <DxGridDataColumn FieldName="UserName" MinWidth="100" />
+            <DxGridDataColumn FieldName="UserCode" />
+            <DxGridDataColumn FieldName="ID" Caption="Action" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailParticipant)context.DataItem;
+                    }
+                    <DxButton IconCssClass="btnDelete fas fa-trash" style=" background: transparent; border: none;" Click="() => onDeletePlist((long)context.Value)" Enabled=@(item.IsEnabled) />
+                    @*<button class="btnDelete fas fa-trash" Enabled=@(item.IsEnabled) @onclick="() => onDeletePlist((long)context.Value)"></button>*@
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+    </DxGrid>
+</div>
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="300px" @bind-Visible="@DelPopupVisible">
+    <div class="text-center">
+        <Content>
+            <p>
+                <div Position="Left" id="@("label"+_participantLst.UserName)" class="display-field"> Do you want to  Delete this <span style="color:red">@_participantLst.UserName</span> </div>
+            </p>
+        </Content>        
+        <DxButton style="align-items" Text="Yes" Click="@((e) => SubmitDelete(_participantLst.ID))" />
+        <DxButton CssClass="dx-button.dx-icon" Text="No" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@isAllPlistVisible" HeaderText="Add Participants">
+    <BodyTemplate Context="PopupContext">
+        <div>
+            <button class="btn btn-excel" style="float: right; margin-right: 10px; margin-top: 10px; margin-bottom: 10px;" @onclick="onSubmitPList">
+                Add
+            </button>
+        </div>
+        <DxGrid @ref="Grid" Data="_allparticipant"
+                KeyFieldName="UserID"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                style="height:calc(100vh - 285px);min-height:400px !important"
+                CssClass="ch-360"
+                SelectionMode="GridSelectionMode.Multiple"
+                AllowSelectRowByClick="true"
+                SelectedDataItemsChanged="@OnSelectedDataItemsChanged"
+                SelectedRowsChanged="HandleSelectedRowsChanged">
+            <Columns>
+                @*<DxDataGridColumn>
+                <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
+                </DxDataGridColumn>*@
+                <DxGridSelectionColumn Width="104px" />
+                <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
+                <DxGridDataColumn FieldName="LastName" />
+            </Columns>
+        </DxGrid>
+
+    </BodyTemplate>
+</DxPopup>
+
+@code{ 
+    IGrid Grid { get; set; }
+    DxPopup? popup;
+    bool DelPopupVisible = false;
+    bool isAllPlistVisible = false;
+    private bool loading;
+    EmailParticipant _participantLst { get; set; }
+    List<long> participantIds = new List<long>();
+    IReadOnlyList<object>? SelectedDataItems { get; set; }
+    public ApplicationUser applicationUser { get; private set; }
+    private List<ViewEmployee>? _allparticipant;
+    [Parameter]
+    public long Tid { get; set; }
+    private List<EmailParticipant>? _participant;
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _participant = await Mediator.Send(new GetEmailParticipantsList(Tid));
+    }
+    public async Task onDeletePlist(long Id)
+    {
+        _participantLst = _participant.FirstOrDefault(a => a.ID == Id);
+        DelPopupVisible = true;
+    }
+    private async Task SubmitDelete(long Id)
+    {
+        if (Id > 0)
+        {
+            var request = new DeleteEmailParticipant
+                {
+                    ID = Id,
+
+                };
+            var response = await Mediator.Send(request);
+
+            isAllPlistVisible = false;
+            await LoadGetPList();
+            toastService.ShowToast("Participant has been deleted successfully.", AC.SD.Core.Services.ToastLevel.Success);
+            loading = false;
+            DelPopupVisible = false;
+            //ClosePopup();
+            //onShowPopupMessage("success", "Participant has been deleted successfully");
+        }
+    }
+    private async Task onSubmitPList()
+    {
+        var lst = SelectedDataItems;
+
+        if (lst == null)
+        {
+            toastService.ShowToast("Please select participant", AC.SD.Core.Services.ToastLevel.Error);
+            loading = false;
+            return;
+        }
+
+
+        if (SelectedDataItems != null)
+        {
+            foreach (object item in SelectedDataItems)
+            {
+                if (item is ViewEmployee employee)
+                {
+                    participantIds.Add((long)employee.UserID);
+                }
+            }
+        }
+
+        string participantidsString = string.Join(",", participantIds);
+
+
+        var createReq = new CreateEmailTopicParticipant
+            {
+                PList = participantidsString,
+                TopicId = Tid,
+                UserId = applicationUser.UserID,
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                SessionId = Guid.NewGuid()
+            };
+        var result = await Mediator.Send(createReq);
+
+        isAllPlistVisible = false;
+        await LoadGetPList();
+        toastService.ShowToast("Participant has been added successfully.", AC.SD.Core.Services.ToastLevel.Success);
+    }
+    private async Task LoadGetPList()
+    {
+        _participant = await Mediator.Send(new GetEmailParticipantsList(Tid));
+        SelectedDataItems = null;
+        participantIds.Clear();
+    }
+    void OnSelectedDataItemsChanged(IReadOnlyList<object> selectedDataItems)
+    {
+        SelectedDataItems = selectedDataItems;
+    }
+    async void ClosePopup()
+    {
+        DelPopupVisible = false;        
+    }
+    private async Task onAddPlist()
+    {
+        await LoadAllParticipantList();
+    }
+    private async Task LoadAllParticipantList()
+    {
+        var plist = await Mediator.Send(new GetAllEmailParticipantListQuery(Tid));
+        _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+
+        isAllPlistVisible = true;
+    }
+}
+    

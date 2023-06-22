@@ -27,6 +27,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add LevelMaster" IconCssClass="fa fa-add" Click="@AddLevelmaster" />
                 <DxMenuItem Text="Reset Subsection" IconCssClass="fa fa-refresh" Click="@ResetSubSection" Enabled="@isSubsectionEnabled" />
             </Items>
         </DxMenu>
@@ -38,7 +39,7 @@
   @if (Type == "subsection")
    {
         <div style="" class="breadcrumb card-body  bradcrumb-txt">
-        <div class="items"> @secDrop <span class="separator-txt fa fa-caret-right"></span>@companyName<span class="separator-txt fa fa-caret-right"></span>@divisionName<span class="separator-txt fa fa-caret-right"></span>@DepartmentName <span class="separator-txt fa fa-caret-right"></span>@subsecName</div>
+        <div class="items"> @companyName <span class="separator-txt fa fa-caret-right"></span>@divisionName<span class="separator-txt fa fa-caret-right"></span>@DepartmentName<span class="separator-txt fa fa-caret-right"></span>@secName <span class="separator-txt fa fa-caret-right"></span>@Name</div>
         </div>
    }
 
@@ -243,12 +244,14 @@
 </DxPopup>
 
 @code {
-    string secDrop = "";
+    string secName = "";
     string companyName = "";
     string divisionName = "";
     string DepartmentName = "";
     string subsecName = "";
     bool PanelVisible { get; set; }
+    string Name = "";
+
     [Parameter]
     public long? PlantID { get; set; }
     [Parameter]
@@ -325,11 +328,11 @@
                 var items = _sections.Where(c => c.SectionId == _selectedsubsec.SectionId);
                 _selectsec = items.FirstOrDefault();
 
-                secDrop = _selectedsubsec.SubSectionDrop;
-                companyName = _selectedsubsec.Company;
+                Name = _selectedsubsec.SubSectionName;
+                companyName = _selectedsubsec.PlantCode;
                 divisionName = _selectedsubsec.Division;
                 DepartmentName = _selectsec.DepartmentName;
-                subsecName = _selectedsubsec.SubSectionName;
+                secName = _selectedsubsec.SectionName;
             }
         }
         if (_designationItems.Count > 0)
@@ -582,7 +585,11 @@
         isEnabled = true;
         isSubsectionEnabled = false;
         Grid.CancelEditAsync();
-        NavigationManager.NavigateTo("masters/5/subsection/-1");
+        NavigationManager.NavigateTo("masters/5/designation/-1");
 
+    }
+    void AddLevelmaster()
+    {
+        NavigationManager.NavigateTo("masters/6/designation/" + _selectedItems.DesignationID);
     }
 }

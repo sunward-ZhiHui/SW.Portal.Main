@@ -26,16 +26,16 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
-                <DxMenuItem Text="Reset Division" IconCssClass="fa fa-refresh" Click="@ResetDivision" Enabled="@isDivisionEnabled" />
+                <DxMenuItem Text="Reset Designation" IconCssClass="fa fa-refresh" Click="@ResetDesignation" Enabled="@isDesignationEnabled" />
             </Items>
         </DxMenu>
     </div>
 </div>
-@if (Type == "Division")
+@if (Type == "designation")
     {
     <div style="" class="breadcrumb card-body  bradcrumb-txt">
 
-        <div class="items"> @plantcode<span class="separator-txt fa fa-caret-right"></span>@Name</div>
+        <div class="items"> @companyName<span class="separator-txt fa fa-caret-right"></span>@divisionName<span class="separator-txt fa fa-caret-right"></span>@departmentName<span class="separator-txt fa fa-caret-right"></span>@secName<span class="separator-txt fa fa-caret-right"></span>@subsecName<span class="separator-txt fa fa-caret-right"></span>@Name</div>
     </div>
     }
     <DxLoadingPanel @bind-Visible="PanelVisible"
@@ -169,6 +169,11 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    string companyName = "";
+    string divisionName ="";
+    string  departmentName ="";
+    string secName ="";
+    string   subsecName = "";
     bool PanelVisible { get; set; }
     string plantcode = "";
     string Name = "";
@@ -177,6 +182,7 @@
     [Parameter]
     public string Type { get; set; }
     private List<ViewDivision>? _divisions;
+    private List<ViewDesignation>? _designation;
     private List<ViewDivision>? _divisionsItems;
     private List<ViewLevel> _levelItems;
     private List<CodeMaster> _stausItems;
@@ -193,8 +199,8 @@
     bool ExportSelectedRowsOnly { get; set; }
     private ViewLevel _selectlst;
     bool isEnabled { get; set; } = true;
-    bool isDivisionEnabled { get; set; } = false;
-    private ViewDivision _selectdivision;
+    bool isDesignationEnabled { get; set; } = false;
+    private ViewDesignation _selectdesignation;
     private ViewPlants _selectplant;
     protected override async Task OnInitializedAsync()
     {
@@ -202,15 +208,16 @@
         PanelVisible = true;
         await Task.Delay(3000);
         _divisions = await Mediator.Send(new GetAllDivisionQuery());
+        _designation = await Mediator.Send(new GetAllDesignationQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
        // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
         await UpdateDataAsync();
-        if (Type == "Division")
+        if (Type == "Designation")
         {
-            isDivisionEnabled = true;
+            isDesignationEnabled = true;
         }
     }
     async Task UpdateDataAsync()
@@ -226,13 +233,15 @@
         _levelItems = model;
         if (PlantID != null && PlantID != -1)
         {
-            if (Type == "Division")
+            if (Type == "designation")
             {
-                _selectdivision = _divisions.FirstOrDefault(f => f.DivisionID == PlantID);
-                var item = _plantItems.Where(c => c.PlantID == _selectdivision.CompanyId);
-                _selectplant = item.FirstOrDefault();
-                plantcode = _selectplant.PlantCode;
-                Name = _selectdivision.Name;
+                _selectdesignation = _designation.FirstOrDefault(f => f.DesignationID == PlantID);
+                companyName = _selectdesignation.PlantCode;
+                divisionName = _selectdesignation.DivisionName;
+                departmentName =_selectdesignation.DepartmentName;
+                secName = _selectdesignation.SectionName;
+                subsecName = _selectdesignation.SubSectionName;
+                Name = _selectdesignation.Name;
 
             }
         }
@@ -261,7 +270,7 @@
             var newData = (ViewLevel)e.EditModel;
             newData.Name = "";
             newData.StatusCodeID = null;
-            if (Type == "Division")
+            if (Type == "designation")
             {
 
                 var _masters = _levelItems.FirstOrDefault(f => f.DivisionID == PlantID);
@@ -452,13 +461,13 @@
             EditEnabled = true;
         }
     }
-    void ResetDivision()
+    void ResetDesignation()
     {
         PlantID = -1;
         isEnabled = true;
-        isDivisionEnabled = false;
+        isDesignationEnabled = false;
         Grid.CancelEditAsync();
-        NavigationManager.NavigateTo("masters/6/LevelMaster/-1");
+        NavigationManager.NavigateTo("masters/5/LevelMaster/-1");
 
     }
 }

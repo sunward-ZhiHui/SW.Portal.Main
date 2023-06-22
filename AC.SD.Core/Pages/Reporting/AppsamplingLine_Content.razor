@@ -11,7 +11,16 @@
 @using DevExpress.Export
 @using global::Core.Repositories.Query;
 
-<DxGrid Data="@_samplingLineItems"
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+
+
+<DxGrid Data="@_samplingLineItems" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         PageSize="5"EditMode="GridEditMode.EditForm" 
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -29,17 +38,23 @@
     </Columns>
 
 </DxGrid>
+</DxLoadingPanel>
 @code {
+    bool PanelVisible { get; set; }
     [Parameter]
     public AppSampling sampling { get; set; }
     private List<AppSamplingLine> _samplingLineItems;
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        PanelVisible = true;
+        await Task.Delay(3000);
         var model = await Mediator.Send(new GetAllSamplingLineQuery());
         _samplingLineItems = model
+         
             .Where(i => i.AppSamplingId == sampling.SamplingId)
             .ToList();
+        PanelVisible = false;
     }
 }
 

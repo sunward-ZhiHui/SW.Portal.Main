@@ -5,7 +5,14 @@
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
 
-<DxGrid Data="@consumptionLines"
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+<DxGrid Data="@consumptionLines" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         PageSize="5" EditMode="GridEditMode.EditForm" 
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -31,17 +38,21 @@
     </Columns>
 
 </DxGrid>
-
+</DxLoadingPanel>
 @code {
+    bool PanelVisible { get; set; }
     [Parameter]
     public ViewConsumptionEntry consumptionEntry { get; set; }
     private List<ViewConsumptionLines> consumptionLines;
     IGrid Grid { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        PanelVisible = true;
+        await Task.Delay(3000);
         var model = await Mediator.Send(new GetAllConsumptionLinesQuery());
         consumptionLines = model
             .Where(i => i.ConsumptionEntryID == consumptionEntry.ConsumptionEntryID)
             .ToList();
+        PanelVisible = false;
     }
 }

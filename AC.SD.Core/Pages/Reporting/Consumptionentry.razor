@@ -6,8 +6,17 @@
 @inject IMediator Mediator
 @using MediatR
 
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+
+
   <DxGrid @ref="Grid" Data="@_consumptionEntry"  EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"
@@ -28,18 +37,24 @@
         <ConsumptionsLines_Content consumptionEntry="(ViewConsumptionEntry)context.DataItem" />
     </DetailRowTemplate>
     </DxGrid>
+</DxLoadingPanel>
+
 @code{
+
+    bool PanelVisible { get; set; }
    private List<ViewConsumptionEntry> _consumptionEntry;
     IGrid Grid { get; set; }
    
    
     protected override async Task OnInitializedAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
-
+       // await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
         var model = await Mediator.Send(new GetAllConsumptionEntry());
         _consumptionEntry = model;
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
        // await UpdateDataAsync();
     }
 }

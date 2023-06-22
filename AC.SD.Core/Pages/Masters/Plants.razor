@@ -30,7 +30,13 @@
         </DxMenu>
     </div>
 </div>
-<DxGrid @ref="Grid"
+ <DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+<DxGrid @ref="Grid"  FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         Data="_plants"
         KeyFieldName="PlantID"
         EditModelSaving="Grid_EditModelSaving"
@@ -104,7 +110,7 @@
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
     </TotalSummary>
 </DxGrid>
-
+</DxLoadingPanel>
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
         <Content>
@@ -146,7 +152,7 @@
 </DxPopup>
 
 @code {
-    
+    bool PanelVisible { get; set; }
     public string Type { get; set; }
     private List<ViewPlants> _plants;
     IEnumerable<ViewPlants> _plantItems;
@@ -166,22 +172,29 @@
 
     protected override async Task OnInitializedAsync()
     {
+        PanelVisible = true;
+        await Task.Delay(3000);
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _stausItems = models;
-        await jsRuntime.InvokeAsync<string>("showLoading");
+       // await jsRuntime.InvokeAsync<string>("showLoading");
+        
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+        //await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
         var model = await Mediator.Send(new GetAllPlantQuery());
         for (int i = 0; i < model.Count; i++)
         {
             model[i].Index = i + 1;
         }
         _plants = model;
+        PanelVisible = false;
         if (_plants.Count > 0)
         {
 
@@ -190,7 +203,8 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+        //await jsRuntime.InvokeAsync<string>("hideLoading");
+        
     }
     void OnRowClick(GridRowClickEventArgs e)
     {

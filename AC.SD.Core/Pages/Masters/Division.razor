@@ -46,7 +46,15 @@
     </div>
     }
 
-<DxGrid @ref="Grid"
+
+
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+<DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         Data="_divisions"
         KeyFieldName="DivisionID"
         EditModelSaving="Grid_EditModelSaving"
@@ -135,6 +143,7 @@
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
     </TotalSummary>
 </DxGrid>
+</DxLoadingPanel>
 
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
@@ -182,7 +191,7 @@
     private List<ViewPlants> _plants;
     [Parameter]
     public long? PlantID { get; set; }
-
+    bool PanelVisible { get; set; }
     [Parameter]
     public long? SiteId { get; set; }
     [Parameter]
@@ -211,13 +220,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
+        //await jsRuntime.InvokeAsync<string>("showLoading");
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _stausItems = models;
         var plants = await Mediator.Send(new GetAllPlantQuery());
         _plantItems = plants;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
         await UpdateDataAsync();
         if (Type == "Plants")
         {
@@ -226,7 +238,9 @@
     }
     async Task UpdateDataAsync()
     {
-        await jsRuntime.InvokeAsync<string>("showLoading");
+        PanelVisible = true;
+        await Task.Delay(3000);
+        //await jsRuntime.InvokeAsync<string>("showLoading");
         var  model = await Mediator.Send(new GetAllDivisionQuery());
         for (int i = 0; i < model.Count; i++)
         {
@@ -254,7 +268,8 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
-        await jsRuntime.InvokeAsync<string>("hideLoading");
+       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        PanelVisible = false;
     }
 
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)

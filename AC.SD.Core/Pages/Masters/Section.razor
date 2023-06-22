@@ -189,10 +189,8 @@
 
 @code {
     string Name = "";
-    
     bool PanelVisible { get; set; }
-    string divisionDrop = "";
-   
+    private List<ViewDivision> _divisionsItems;
     // string  CompanyName ="";
     [Parameter]
     public long? PlantID { get; set; }

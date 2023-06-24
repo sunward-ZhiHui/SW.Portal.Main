@@ -20,7 +20,7 @@
     <div class="main-container">
 
         <div class="row">
-            <div class="menu-bar-content-container col-md-2">
+            <div class="menu-bar-content-container first-border col-md-2" style="height: calc(100vh - 136px);">
                 <div class="mini-menu-bar-top">
                     <div class="mini-menu-bar-heading">
                         <div class="files-title" style="width: 100%;padding-left: 20px;align-items: center;font-size: 18px;font-weight: bold;text-align: center;">
@@ -46,7 +46,7 @@
                     </div>
                 </div>
             </div>
-            <div class="menu-bar-content-container col-md-2">
+            <div class="menu-bar-content-container sec-border col-md-2">
                 @if (disabledState)
                 {
 
@@ -121,7 +121,7 @@
                                         RowDoubleClick="OnRowDoubleClick"
                                         SelectedDataItemsChanged="@SelectedDataItemsChanged"
                                         RowClick="OnRowClick"
-                                            style="height: calc(100vh - 220px);"
+                                        style="height: calc(100vh - 220px);"
                                         AllowSelectRowByClick="true">
                                         <Columns>
                                             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />

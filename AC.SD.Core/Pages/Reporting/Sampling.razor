@@ -24,8 +24,8 @@
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        style="height: calc(100vh - 220px);"
+            PageSize="20" CustomizeElement="Grid_CustomizeElement"
+        style="height: calc(100vh - 160px);"
         CssClass="ch-360"
         AutoExpandAllGroupRows="true"
         SelectionMode="GridSelectionMode.Multiple"
@@ -54,11 +54,21 @@
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-        await Task.Delay(3000);
-
         var model = await Mediator.Send(new GetAllSamplingQuery());
         _samplingItems = model;
         PanelVisible = false;
        // await UpdateDataAsync();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }

@@ -19,24 +19,26 @@
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"
-        style="height: calc(100vh - 220px);"
+        CustomizeElement="Grid_CustomizeElement"
+        style="height: calc(100vh - 160px); width:1090px;"
         CssClass="ch-360" 
         AutoExpandAllGroupRows="true"
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
     <Columns>
-        <DxGridDataColumn FieldName="OutputDate" />
-        <DxGridDataColumn FieldName="Time" />
-        <DxGridDataColumn FieldName="LocationName" />
-        <DxGridDataColumn FieldName="ProductionOrderNo" />
-        <DxGridDataColumn FieldName="ItemNo" />
-        <DxGridDataColumn FieldName="Description" />
-        <DxGridDataColumn FieldName="BatchNo" />
-        <DxGridDataColumn FieldName="SubLotNo" />
-        <DxGridDataColumn FieldName="DrumNo" />
-        <DxGridDataColumn FieldName="GrossWeight" />
-        <DxGridDataColumn FieldName="NetWeight" />
-        <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" />
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+        <DxGridDataColumn FieldName="OutputDate" Width="180px" />
+            <DxGridDataColumn FieldName="Time" Width="180px" />
+            <DxGridDataColumn FieldName="LocationName" Width="200px" />
+            <DxGridDataColumn FieldName="ProductionOrderNo" Width="180px" Caption="ProductionOrder" />
+            <DxGridDataColumn FieldName="ItemNo" Width="180px" />
+            <DxGridDataColumn FieldName="Description" Width="300px" />
+            <DxGridDataColumn FieldName="BatchNo" Width="180px" />
+            <DxGridDataColumn FieldName="SubLotNo" Width="180px" />
+            <DxGridDataColumn FieldName="DrumNo" Width="180px" />
+            <DxGridDataColumn FieldName="GrossWeight" Width="180px" />
+            <DxGridDataColumn FieldName="NetWeight" Width="180px" />
+            <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" Width="180px" />
        
        @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@
     </Columns>
@@ -50,12 +52,22 @@
     {
 
         PanelVisible = true;
-        await Task.Delay(3000);
         var model = await Mediator.Send(new GetAllProductionOutputQuery());
         _productionOutput = model;
         PanelVisible = false;
        
     }
-    
-    
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
+
 }

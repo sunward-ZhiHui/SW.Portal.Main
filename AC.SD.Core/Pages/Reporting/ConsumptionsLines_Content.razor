@@ -18,24 +18,22 @@
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        CssClass="ch-360"
+            CssClass="ch-360" style="height: calc(100vh - 300px); width:1090px;"
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        AutoExpandAllGroupRows="true">
+        CustomizeElement="Grid_CustomizeElement"
+        AutoExpandAllGroupRows="true" >
     <Columns>
-        <DxGridDataColumn FieldName="ItemNo" Caption="MaterialNo" />
-        <DxGridDataColumn FieldName="Description" />
-        <DxGridDataColumn FieldName="ProdLineNo" />
-        <DxGridDataColumn FieldName="LotNo" />
-        <DxGridDataColumn FieldName="SubLotNo" />
-        <DxGridDataColumn FieldName="DrumNo" />
-        <DxGridDataColumn FieldName="QCRefNo" />
-        <DxGridDataColumn FieldName="BatchNo" />
-        <DxGridDataColumn FieldName="Quantity" />
-        <DxGridDataColumn FieldName="UOM" />
-        <DxGridDataColumn FieldName="PostedtoNav" />
-        <DxGridDataColumn FieldName="AddedBy" />
-        <DxGridDataColumn FieldName="AddedDate" />
+        <DxGridDataColumn FieldName="ItemNo" MinWidth ="200"  Caption="MaterialNo" />
+            <DxGridDataColumn FieldName="Description" MinWidth="180" />
+            <DxGridDataColumn FieldName="LotNo" MinWidth="180" />
+            <DxGridDataColumn FieldName="SubLotNo" MinWidth="180" />
+            <DxGridDataColumn FieldName="DrumNo" MinWidth="180" />
+            <DxGridDataColumn FieldName="QCRefNo" MinWidth="180" />
+            <DxGridDataColumn FieldName="BatchNo" MinWidth="180" />
+            <DxGridDataColumn FieldName="Quantity" MinWidth="180" />
+            <DxGridDataColumn FieldName="UOM" MinWidth="180" />
+            <DxGridDataColumn FieldName="PostedtoNav" MinWidth="180" />
     </Columns>
 
 </DxGrid>
@@ -49,11 +47,22 @@
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-        await Task.Delay(3000);
         var model = await Mediator.Send(new GetAllConsumptionLinesQuery());
         consumptionLines = model
             .Where(i => i.ConsumptionEntryID == consumptionEntry.ConsumptionEntryID)
             .ToList();
         PanelVisible = false;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }

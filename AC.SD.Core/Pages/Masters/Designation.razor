@@ -52,6 +52,7 @@
                >
 
 
+<DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" 
 <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
  ColumnResizeMode="GridColumnResizeMode.NextColumn"
         Data="_designationItems"
@@ -78,7 +79,7 @@
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="DesignationID" MinWidth="80" Visible="false" />
-        <DxGridDataColumn FieldName="Index" Caption="#" Width="35px"></DxGridDataColumn>
+            <DxGridDataColumn FieldName="Index" Visible="false" Caption="#" Width="35px"></DxGridDataColumn>
         <DxGridDataColumn FieldName="PlantCode" Caption="Company Code" MinWidth="80" />
         <DxGridDataColumn FieldName="SubSectionName" MinWidth="80" />
         <DxGridDataColumn FieldName="LevelName" MinWidth="80" />
@@ -192,6 +193,7 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="CodeValue"
                             ValueFieldName="CodeId"
+                                @bind-Text="@Text"
                             @bind-Value="@plant.StatusCodeID"
                             ShowValidationIcon="true">
                 </DxComboBox>
@@ -251,7 +253,7 @@
     string DepartmentName = "";
     bool PanelVisible { get; set; }
     string Name = "";
-
+    string Text { get; set; } = "Active";
     [Parameter]
     public long? PlantID { get; set; }
     [Parameter]
@@ -292,7 +294,6 @@
     {
        // await jsRuntime.InvokeAsync<string>("showLoading");
         PanelVisible = true;
-        await Task.Delay(3000);
         _sections = await Mediator.Send(new GetAllSectionQuery());
         _departments = await Mediator.Send(new GetAllDepartmentQuery());
         _divisions = await Mediator.Send(new GetAllDivisionQuery());
@@ -313,7 +314,6 @@
     {
        // await jsRuntime.InvokeAsync<string>("showLoading");
         PanelVisible = true;
-        await Task.Delay(3000);
         var  model = await Mediator.Send(new GetAllDesignationQuery());
         for (int i = 0; i < model.Count; i++)
         {

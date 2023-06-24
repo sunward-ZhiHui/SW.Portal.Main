@@ -715,7 +715,7 @@
                         }
                         else if (isMenuvisible == "Todo")
                         {
-                            <ToDoList></ToDoList>
+                            <ToDoList Tid="@Tid"></ToDoList>
                           
                         }
                         else
@@ -1584,7 +1584,7 @@
             //isAssignToVisible = false;
         }
     }
-    private async void SubmitDocDelete(long Id)
+    private async Task SubmitDocDelete(long Id)
     {
         if (Id > 0)
         {
@@ -1594,7 +1594,8 @@
             DocPopupVisible = false;
             isAllPlistVisible = false;
             await loadTopicDocList();
-            onShowPopupMessage("success", "Document has been deleted successfully");
+            toastService.ShowToast("Document has been deleted successfully.", AC.SD.Core.Services.ToastLevel.Success);
+            //onShowPopupMessage("success", "Document has been deleted successfully");
         }
     }
    
@@ -1686,6 +1687,31 @@
         //var plist = await Mediator.Send(new GetAllEmployeeListQuery());
         // _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
     }
+    private async Task LoadDataPosts()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        Tid = long.Parse(@SelectedGroup);
+        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup)));
+        _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
+
+        _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup)));
+        var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
+        if (topicToList != null)
+        {
+            Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
+        }
+
+
+        isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+
+        isEnabled = true;
+        isEllipsis = true;
+        isCommand = true;
+        _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));     
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+       
+    }
     void OnSelectedDataItemsChanged(IReadOnlyList<object> selectedDataItems)
     {
         SelectedDataItems = selectedDataItems;
@@ -1774,7 +1800,7 @@
     {
         isLeftMenuvisible = text;
     }
-    async void OnMenuItemClick(string text)
+    async Task OnMenuItemClick(string text)
     {
         isMenuvisible = text;
 
@@ -1784,6 +1810,7 @@
             isAddParticipant = false;
             isEllipsis = true;
             isCommand = true;
+            await LoadDataPosts();
         }
         else if (text == "Files")
         {
@@ -1870,6 +1897,7 @@
             // HandleScroll("down");
             await msgrichEdit.NewDocumentAsync();
             await onloadTwoGrid();
+            await LoadDataPosts();
             WindowVisible = false;
             loading = false;
         }

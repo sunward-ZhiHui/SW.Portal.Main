@@ -54,10 +54,9 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data..."
                >
-    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true"
-            Data="_divisions"
+            
 <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn" ShowGroupPanel="true" ShowGroupedColumns="true"
         Data="_divisions"
         KeyFieldName="DivisionID"
         EditModelSaving="Grid_EditModelSaving"

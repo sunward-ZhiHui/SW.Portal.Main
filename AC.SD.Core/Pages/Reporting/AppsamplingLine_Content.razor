@@ -20,13 +20,12 @@
                >
 
 
-    <DxGrid Data="@_samplingLineItems" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" CustomizeElement="Grid_CustomizeElement"
-        PageSize="5"EditMode="GridEditMode.EditForm" 
-<DxGrid Data="@_samplingLineItems" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+    <DxGrid Data="@_samplingLineItems" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true"
         PageSize="5"EditMode="GridEditMode.EditForm"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
+            ShowSearchBox="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         CssClass="ch-360"    style="height: calc(100vh - 300px);"
         SelectionMode="GridSelectionMode.Multiple"

@@ -47,7 +47,7 @@ else
                   IconCssClass="btn-column-chooser"
                   Click="ColumnChooserButton_Click" />
     </div>
-    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" 
+   
 
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
@@ -69,7 +69,8 @@ else
         style="height: calc(100vh - 200px);"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
-            AllowSelectRowByClick="true" >
+            AllowSelectRowByClick="true"
+            ShowGroupPanel="true" ShowGroupedColumns="true">
            
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />

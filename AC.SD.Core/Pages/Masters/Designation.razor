@@ -53,6 +53,7 @@
 
 
 <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+ ColumnResizeMode="GridColumnResizeMode.NextColumn"
         Data="_designationItems"
         KeyFieldName="DesignationID"
         EditModelSaving="Grid_EditModelSaving"
@@ -199,7 +200,7 @@
         </DxFormLayout>
     </EditFormTemplate>
     <TotalSummary>
-        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Name" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
     </TotalSummary>
 </DxGrid>
 </DxLoadingPanel>

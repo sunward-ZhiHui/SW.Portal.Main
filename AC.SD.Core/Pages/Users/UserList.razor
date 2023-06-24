@@ -33,6 +33,7 @@
                 Text="Fetching Data..."
                >
 <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
         Data="_employeeItems"
         KeyFieldName="UserID"
         CustomizeElement="Grid_CustomizeElement"

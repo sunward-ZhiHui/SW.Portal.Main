@@ -21,7 +21,8 @@
 
 
 <DxGrid Data="@_samplingLineItems" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-        PageSize="5"EditMode="GridEditMode.EditForm" 
+        PageSize="5"EditMode="GridEditMode.EditForm"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"

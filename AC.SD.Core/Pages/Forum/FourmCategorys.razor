@@ -48,6 +48,7 @@
                 Text="Fetching Data..."
                >
 <DxGrid @ref="Grid" id="myGrid" Data="@_categorys" EditModelSaving="@OnEditModelSaving"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
     DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" 
     ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"

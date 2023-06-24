@@ -50,6 +50,7 @@
                >
 
 <DxGrid @ref="Grid" 
+     ColumnResizeMode="GridColumnResizeMode.NextColumn"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         Data="_departmentItems"
         KeyFieldName="DepartmentId"
@@ -144,7 +145,7 @@
         </DxFormLayout>
     </EditFormTemplate>
     <TotalSummary>
-        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DepartmentName" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
     </TotalSummary>
 </DxGrid>
 

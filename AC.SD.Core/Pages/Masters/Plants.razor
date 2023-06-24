@@ -37,6 +37,7 @@
                 Text="Fetching Data..."
                >
 <DxGrid @ref="Grid"  FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
         Data="_plants"
         KeyFieldName="PlantID"
         EditModelSaving="Grid_EditModelSaving"

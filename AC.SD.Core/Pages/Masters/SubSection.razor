@@ -46,6 +46,7 @@
                 Text="Fetching Data..."
                >
 <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
         Data="_subsectionItems"
         KeyFieldName="SubSectionId"
         EditModelSaving="Grid_EditModelSaving"
@@ -146,7 +147,7 @@
         </DxFormLayout>
     </EditFormTemplate>
     <TotalSummary>
-        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SectionName" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="PlantCode" />
     </TotalSummary>
 </DxGrid>
 </DxLoadingPanel>

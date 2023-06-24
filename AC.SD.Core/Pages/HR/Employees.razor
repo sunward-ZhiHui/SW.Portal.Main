@@ -41,8 +41,13 @@ else
                 IndicatorAreaVisible="false"
                 Text="Fetching Data..."
                >
-
-    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+    <div class="align-self-end pl-2 pb-2">
+        <DxButton Text="Column Chooser"
+                  RenderStyle="ButtonRenderStyle.Secondary"
+                  IconCssClass="btn-column-chooser"
+                  Click="ColumnChooserButton_Click" />
+    </div>
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" 
         Data="_employeeItems"
         KeyFieldName="EmployeeID"
         EditModelSaving="Grid_EditModelSaving"
@@ -114,7 +119,6 @@ else
        // await jsRuntime.InvokeAsync<string>("showLoading");
       //  await Task.Run(LoadEmployeesAsync);
         PanelVisible = true;
-        await Task.Delay(3000);
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
         PanelVisible = false;
      //   await jsRuntime.InvokeAsync<string>("hideLoading");
@@ -220,6 +224,10 @@ else
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
+    }
+    void ColumnChooserButton_Click()
+    {
+        Grid.ShowColumnChooser();
     }
     //void OnCustomizeFilterMenu(GridCustomizeFilterMenuEventArgs e)
     //{

@@ -20,7 +20,8 @@
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"
-        style="height: calc(100vh - 220px);"
+            CustomizeElement="Grid_CustomizeElement"
+        style="height: calc(100vh - 160px);"
         CssClass="ch-360" 
         AutoExpandAllGroupRows="true"
         SelectionMode="GridSelectionMode.Multiple"
@@ -51,11 +52,22 @@
     {
        // await jsRuntime.InvokeAsync<string>("showLoading");
         PanelVisible = true;
-        await Task.Delay(3000);
         var model = await Mediator.Send(new GetAllConsumptionEntry());
         _consumptionEntry = model;
         PanelVisible = false;
        // await jsRuntime.InvokeAsync<string>("hideLoading");
        // await UpdateDataAsync();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }

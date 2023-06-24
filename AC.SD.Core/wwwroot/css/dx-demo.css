@@ -1855,3 +1855,10 @@ body,
    background-color: #dddddd;
     
 }
+.scroll {
+    height: 100px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
+}
+

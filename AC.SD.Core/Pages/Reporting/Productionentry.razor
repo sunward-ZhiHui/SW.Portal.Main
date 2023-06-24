@@ -1,9 +1,11 @@
 ﻿@inject IJSRuntime jsRuntime
 @page "/productionEntry"
 @using Application.Queries;
+@using Microsoft.Extensions.Configuration;
+@using Microsoft.Extensions.Configuration;
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
-
+@inject IConfiguration Configuration
 @inject IMediator Mediator
 @using MediatR
 
@@ -13,12 +15,13 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Preview" IconCssClass="dxbl-btn fa fa-eye" Click="@onPreview" />
-               
+                <DxMenuItem IconCssClass="fa fa-eye" Text="View" Click="@onPreview" />
+                
             </Items>
         </DxMenu>
     </div>
 </div>
+
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -26,7 +29,7 @@
                 Text="Fetching Data..."
                >
 
-<DxGrid @ref="Grid" Data="@_productionEntry" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    <DxGrid @ref="Grid" Data="@_productionEntry" KeyFieldName="ProductionEntryID" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
@@ -36,37 +39,78 @@
         CssClass="ch-360" 
         AutoExpandAllGroupRows="true"
         SelectionMode="GridSelectionMode.Multiple"
+        RowClick="OnRowClick"
+        CustomizeElement="Grid_CustomizeElement"
+        FocusedRowEnabled="true"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
     <Columns>
-        <DxGridDataColumn FieldName="LocationName" />
-        <DxGridDataColumn FieldName="ProductionOrderNo" />
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="LocationName" Width="180px" />
+        <DxGridDataColumn FieldName="ProductionOrderNo" Caption="Production Order" Width="180px" />
         <DxGridDataColumn FieldName="Deascription" />
         <DxGridDataColumn FieldName="BatchNo" />
         <DxGridDataColumn FieldName="StartDate" />
-        <DxGridDataColumn FieldName="ActualStartDate" />
+        <DxGridDataColumn FieldName="ActualStartDate" Caption="Actual Date"/>
         <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" />
     </Columns>
 </DxGrid>
 </DxLoadingPanel>
-
+<DxPopup @bind-Visible="@PopupVisible"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Width="900px">
+    <BodyContentTemplate>
+        <img src="@image1" width="460" height="345">
+        <img src="@image2" width="460" height="345">
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+      
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     bool PanelVisible { get; set; }
     IGrid Grid { get; set; }
     private List<ViewProductionEntry> _productionEntry;
-
+    private ViewProductionEntry _selectedItems;
+    bool PopupVisible { get; set; } = false;
+    private string LiveUrl = "https://portal.sunwardpharma.com:2025/AppUpload/";
+    public string image1, image2;
     protected override async Task OnInitializedAsync()
     {
-        //await jsRuntime.InvokeAsync<string>("showLoading");
         PanelVisible = true;
-        await Task.Delay(3000);
         var model = await Mediator.Send(new GetAllProductionEntryQuery());
         _productionEntry = model;
         PanelVisible = false;
-       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
         // await UpdateDataAsync();
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProductionEntryID");
+        _selectedItems = _productionEntry.FirstOrDefault(f => f.ProductionEntryID == (long?)UniqueId);
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
     void onPreview()
     {
-        
+       
+         image1 = LiveUrl + _selectedItems.RoomStatus ;
+        image2 = LiveUrl + _selectedItems.RoomStatus1;
+        PopupVisible = true;
+    }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
     }
 }

@@ -63,6 +63,8 @@
 </div>
 
 @code{
+    [Parameter]
+    public long Tid { get; set; }
     private EditForm myForm;
     private string MyID = "myForm";
     TopicToDoList? Data { get; set; } = new TopicToDoList();
@@ -78,7 +80,7 @@
                             AddedDate = DateTime.Now,
                             SessionId = Guid.NewGuid(),
                             Iscompleted = false,
-                            TopicId = 1,
+                            TopicId = Tid,
                             StatusCodeID = 1,
                             AddedByUserID = applicationUser.UserID,
                         };

@@ -22,6 +22,7 @@ namespace Core.Entities
         public string LastName { get; set; }
         [NotMapped]
         public long? RowIndex { get; set; }
-
+        [NotMapped]
+        public string? AssigntoIds { get; set; }
     }
 }

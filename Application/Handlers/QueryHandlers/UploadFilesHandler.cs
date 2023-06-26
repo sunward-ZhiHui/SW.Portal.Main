@@ -14,6 +14,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Hosting;
 
 
 namespace CMS.Application.Handlers.QueryHandlers
@@ -21,10 +22,12 @@ namespace CMS.Application.Handlers.QueryHandlers
     public class UploadFilesHandler : IRequestHandler<UploadFilesRequest, bool>
     {
         private readonly IFileStorageService _fileStorageService;
-       
-        public UploadFilesHandler(IFileStorageService fileStorageService)
+        private readonly IWebHostEnvironment _hostingEnvironment;
+
+        public UploadFilesHandler(IFileStorageService fileStorageService, IWebHostEnvironment hostingEnvironment)
         {           
-            _fileStorageService = fileStorageService;            
+            _fileStorageService = fileStorageService;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public async Task<bool> Handle(UploadFilesRequest request, CancellationToken cancellationToken)
@@ -63,17 +66,21 @@ namespace CMS.Application.Handlers.QueryHandlers
             string result = originalString.Replace(substringToRemove, string.Empty);
 
 
-            var BaseUrl = result + @"\DocumentApi\AppUpload\" + request.FilePath;
+            //var BaseUrl = result + @"\DocumentApi\AppUpload\" + request.FilePath;
+            var BaseUrl = BaseUrll + request.FilePath;
             //var filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\" + request.FilePath;
-            var fileContent = File.ReadAllBytes(BaseUrl);
+            //var fileContent = File.ReadAllBytes(BaseUrl);
+            var serverFilePath = Path.Combine(_hostingEnvironment.WebRootPath ?? "", "AppUpload", request.FilePath);
 
             // Create and populate the DownloadFileResponse
             var response = new Documents
             {
                 FileName = request.FileName,
-                FileData = fileContent,
+                //FileData = fileContent,
                 ContentType = request.ContentType,
-                FilePath = BaseUrl
+                FilePath = BaseUrl,
+                ServerFilePath= serverFilePath
+                //FilePath = serverFilePath,
 
             };
 

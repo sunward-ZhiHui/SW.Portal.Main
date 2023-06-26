@@ -26,6 +26,26 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class GetSubEmailTopicTo : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long TopicId { get; private set; }
+        public long UserId { get; private set; }
+        public GetSubEmailTopicTo(long ID,long UserId)
+        {
+            this.TopicId = ID;
+            this.UserId = UserId;
+        }
+    }
+    public class GetSubEmailTopicCC : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long TopicId { get; private set; }
+        public long UserId { get; private set; }
+        public GetSubEmailTopicCC(long ID, long UserId)
+        {
+            this.TopicId = ID;
+            this.UserId = UserId;
+        }
+    }
     public class GetEmailTopicCC : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }

@@ -60,6 +60,10 @@ namespace Core.Entities
         public List<EmailAssignToList>? TopicCCList { get; set; }
         [NotMapped]
         public int? NotificationCount { get; set; }
+        [NotMapped]
+        public long ReplyId { get; set; }
+        [NotMapped]
+        public long? UserId { get; set; }
 
     }
 }

@@ -1,0 +1,71 @@
+﻿@using Application.Queries;
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using MediatR
+@inject IMediator Mediator
+
+<DxLoadingPanel @bind-Visible="PanelVisible" IsContentBlocked="true" ApplyBackgroundShading="true" IndicatorAreaVisible="false" Text="Fetching Data...">
+    <DxGrid Data="@_forumTopicTo" 
+            PageSize="20" EditMode="GridEditMode.EditForm"
+            PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            KeyFieldName="ReplyId"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            CssClass="w-100" style="height: calc(100vh - 467px);"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowClick="OnEmailToRowClick"
+            AutoExpandAllGroupRows="true"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="100" />
+            <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
+            <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="160">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailTopics)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />
+        </Columns>
+
+    </DxGrid>
+</DxLoadingPanel>
+
+
+
+@code {
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    [Parameter]
+    public EmailTopics Items { get; set; }
+    private List<EmailTopics>? _forumTopicTo;
+    public ApplicationUser applicationUser { get; private set; }
+    string SelectedId = "none";
+    [Parameter]
+    public Action<string> RId { get; set; }        
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;      
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _forumTopicTo = await Mediator.Send(new GetSubEmailTopicTo(Items.ID, applicationUser.UserID));
+        PanelVisible = false;
+    }
+
+    async Task OnEmailToRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ReplyId");
+        SelectedId = UniqueId.ToString();
+
+        //long rId = (long.Parse(@SelectedId));
+        RId?.Invoke(SelectedId);       
+
+        //await LoadData();
+       // functionService.onSubViewEmailClick(rid);
+        StateHasChanged();
+    }
+}

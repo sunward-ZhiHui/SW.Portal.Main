@@ -53,6 +53,24 @@ namespace Application.Queries
             this.TopicId = TopicId;
         }
     }
+    public class GetEmailConversationList : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public long ID { get; private set; }
+        public GetEmailConversationList(long Id)
+        {
+            this.ID = Id;
+        }
+    }
+    public class GetEmailReplyDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public long TopicId { get; private set; }
+        public long UserId { get; private set; }
+        public GetEmailReplyDiscussionList(long TopicId,long UserId)
+        {
+            this.TopicId = TopicId;
+            this.UserId = UserId;
+        }
+    }
     public class GetEmailTopicDocList : PagedRequest, IRequest<List<Documents>>
     {
         public long TopicId { get; private set; }

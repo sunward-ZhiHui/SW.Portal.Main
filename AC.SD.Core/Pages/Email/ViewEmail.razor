@@ -32,6 +32,7 @@
 @using System.Text;
 @using RtfPipe;
 @inject Application.Common.Helper.Helper  dateformathelper
+@using System.Net.Http;
 
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 
@@ -98,7 +99,8 @@
                         {
                             <DxGrid @ref="TOGrid"
                                     Data="_forumTopicTo"
-                                    KeyFieldName="ID"
+                                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                    KeyFieldName="ID"                                
                                     CustomizeElement="Grid_CustomizeElement"
                                     PagerNavigationMode="PagerNavigationMode.InputBox"
                                     PageSizeSelectorVisible="true"
@@ -122,8 +124,11 @@
                                             @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
-                                        <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />
-                                    </Columns>
+                                    <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />
+                                </Columns>
+                                 <DetailRowTemplate>       
+                                        <SubViewEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
+                                </DetailRowTemplate>
                                 <TotalSummary>
                                     <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
                                 </TotalSummary>
@@ -144,10 +149,11 @@
                                     AutoExpandAllGroupRows="true"
                                     CssClass="ch-360 " style="height: calc(100vh - 220px);"
                                     RowClick="OnEmailToRowClick"
+                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                     AllowSelectRowByClick="true">
                                     <Columns>
                                         <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
-                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" />
+                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
                                         <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="160">
                                             <CellDisplayTemplate>
                                                 @{
@@ -156,7 +162,11 @@
                                                 @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
                                             </CellDisplayTemplate>
                                         </DxGridDataColumn>
+                                        <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />
                                     </Columns>
+                                    <DetailRowTemplate>
+                                        <SubViewEmailCC Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
+                                    </DetailRowTemplate>                                   
                                     <TotalSummary>
                                         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
                                     </TotalSummary>
@@ -177,10 +187,11 @@
                                     AutoExpandAllGroupRows="true"
                                     CssClass="ch-360 " style="height: calc(100vh - 220px);"
                                     RowClick="OnEmailToRowClick"
+                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                     AllowSelectRowByClick="true">
                                     <Columns>
                                         <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
-                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" />
+                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
                                         <DxGridDataColumn FieldName="StartDate" Caption="Sent" Width="160">
                                             <CellDisplayTemplate>
                                                 @{
@@ -189,7 +200,8 @@
                                                 @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
                                             </CellDisplayTemplate>
                                         </DxGridDataColumn>
-                                    </Columns>
+                                        <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />
+                                    </Columns>                                    
                                     <TotalSummary>
                                         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
                                     </TotalSummary>
@@ -364,10 +376,19 @@
                                                             <h5>                                                                
                                                                 From: @item.UserName
                                                                 <br>
-                                                                Assign To:
+                                                                To:
                                                                 @if (item.AssignToList != null && item.AssignToList.Any())
                                                                 {
                                                                     @foreach (var items in item.AssignToList)
+                                                                    {
+                                                                        <span>@items.FirstName ,</span>
+                                                                    }
+                                                                }
+                                                                <br>
+                                                                CC:
+                                                                @if (item.AssignCCList != null && item.AssignCCList.Any())
+                                                                {
+                                                                    @foreach (var items in item.AssignCCList)
                                                                     {
                                                                         <span>@items.FirstName ,</span>
                                                                     }
@@ -454,12 +475,21 @@
                                                                                 <h5>                                                                                   
                                                                                     From: @items.UserName
                                                                                     <br>
-                                                                                    Assign To:
+                                                                                    To:
                                                                                     @if (items.AssignToList != null && items.AssignToList.Any())
                                                                                     {
                                                                                         @foreach (var itms in items.AssignToList)
                                                                                         {
                                                                                             <span>@itms.FirstName ,</span>
+                                                                                        }
+                                                                                    }
+                                                                                    <br>
+                                                                                    CC:
+                                                                                    @if (items.AssignCCList != null && items.AssignCCList.Any())
+                                                                                    {
+                                                                                        @foreach (var itm in items.AssignCCList)
+                                                                                        {
+                                                                                            <span>@itm.FirstName ,</span>
                                                                                         }
                                                                                     }
                                                                                     @*<span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</span>*@
@@ -501,10 +531,19 @@
                                                                                                             
                                                                                                             From: @itm.UserName
                                                                                                             <br>
-                                                                                                            Assign To:
+                                                                                                            To:
                                                                                                             @if (itm.AssignToList != null && itm.AssignToList.Any())
                                                                                                             {
                                                                                                                 @foreach (var itms in itm.AssignToList)
+                                                                                                                {
+                                                                                                                    <span>@itms.FirstName ,</span>
+                                                                                                                }
+                                                                                                            }
+                                                                                                             <br>
+                                                                                                            CC:
+                                                                                                            @if (itm.AssignCCList != null && itm.AssignCCList.Any())
+                                                                                                            {
+                                                                                                                @foreach (var itms in itm.AssignCCList)
                                                                                                                 {
                                                                                                                     <span>@itms.FirstName ,</span>
                                                                                                                 }
@@ -548,9 +587,12 @@
 
                                 @if (isComponentVisible)
                                 {
-
-                                    <DxButton RenderStyle="ButtonRenderStyle.Success" CssClass="me-1 btn-success open-button"
+                                    @if(IsConHistory)
+                                    {
+                                        <DxButton RenderStyle="ButtonRenderStyle.Success" CssClass="me-1 btn-success open-button"
                                       Click="onWindowVisible" style="width:200px;">New Conversation</DxButton>
+                                    }
+                                    
                                     <DxWindow @bind-Visible=WindowVisible 
                                       HeaderText="Post"
                                       HorizontalAlignment="HorizontalAlignment.Right"
@@ -897,7 +939,10 @@
 *@
 
 
-@code {   
+@code {
+    private bool IsConHistory = false;
+    [Parameter]
+    public EventCallback<string> RId { get; set; }
     IGrid TOGrid { get; set; }
     IGrid CCGrid { get; set; }
     IGrid SentGrid { get; set; }
@@ -911,7 +956,8 @@
 
     private int ElementHeight { get; set; }
     [Parameter]
-    public long Tid { get; set; }    
+    public long Tid { get; set; }
+    public long RTopicId = 0;
     bool IsOpen { get; set; } = false;
     bool IsOpenFlyout { get; set; } = false;
     Selection selection; 
@@ -999,7 +1045,7 @@
     bool isEllipsis = false;
     private List<Documents>? _topicDocList;    
     private List<EmailTopics>? _topics;
-
+    public List<EmailConversations> _getConversationList;
     public List<EmailConversations> _discussionList;
     public List<EmailConversations> _discussionFullList;
     public List<EmailConversations> _replyComment;
@@ -1014,6 +1060,7 @@
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;    
     EmailConversations? Data { get; set; } = new EmailConversations();
     string SelectedGroup = "none";
+    string SelectedReplyId = "none";
     public ApplicationUser applicationUser { get; private set; }
     IReadOnlyList<object>? SelectedDataItems { get; set; }
     List<long> participantIds = new List<long>();
@@ -1220,13 +1267,18 @@
         //var lst = SelectedFilesCount;    
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf).ConfigureAwait(false);
 
+
+        string assignCCidsString = string.Join(",", _assigntoItems.Select(s => s.UserID).ToList());
+        string assigntoidsString = string.Join(",", Data.AssigntoIds);
+
         var createReq = new CreateEmailCoversation
             {
 
                 TopicID = (long.Parse(@SelectedGroup)),
                 Message = Data.Message != null ? Data.Message : "Attachments",
                 FileData = fileContent.Length == 480 ? myBytes : fileContent,
-                AssigntoIds = Data.AssigntoIds.Count() == 0 ? _assigntoItems.Select(s => s.UserID).ToList() : Data.AssigntoIds,
+                //AssigntoIds = Data.AssigntoIds.Count() == 0 ? _assigntoItems.Select(s => s.UserID).ToList() : Data.AssigntoIds,
+                AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
                 //FileData = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf).ConfigureAwait(false),
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
@@ -1335,6 +1387,15 @@
         }
 
     }   
+    private async void onSubViewEmailClick(string RId)
+    {
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        await Task.Delay(1000); // Example asynchronous operation
+        await LoadReplyData();
+        StateHasChanged();
+    }
     public async Task onPreview(long Id)
     {
         _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
@@ -1355,13 +1416,24 @@
         if(extension.ToLower() == ".doc" || extension.ToLower() == ".docx")
         {
             MyDocumentFormat = DocumentFormat.OpenXml;
-            documentContent = await File.ReadAllBytesAsync(response.FilePath);            
+            //documentContent = await File.ReadAllBytesAsync(response.FilePath);      
+            var httpClient = new HttpClient();
+            var responses = await httpClient.GetAsync(response.FilePath);
+            documentContent = await responses.Content.ReadAsByteArrayAsync();
             PreviewDocPopup = true;
         }
         else if(extension.ToLower() == ".txt")
         {
+            var url = FileUrl + response.FilePath;
             MyDocumentFormat = DocumentFormat.PlainText;
-            documentContent = await File.ReadAllBytesAsync(response.FilePath);
+            //documentContent = await File.ReadAllBytesAsync(response.FilePath);          
+
+
+            var httpClient = new HttpClient();
+            var responses = await httpClient.GetAsync(response.FilePath);
+            documentContent = await responses.Content.ReadAsByteArrayAsync();
+
+            //documentContent = await File.ReadAllBytesAsync(fpaath);
             PreviewDocPopup = true;
         }
         else if (extension.ToLower() == ".pdf")
@@ -1502,7 +1574,8 @@
         var response = await Mediator.Send(request);
 
         // string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
-        string filePath = response.FilePath;
+        //string filePath = response.FilePath;
+        string filePath = response.ServerFilePath;
 
         string extension = Path.GetExtension(response.FilePath);
 
@@ -1516,9 +1589,9 @@
                 await File.WriteAllBytesAsync(filePath, documentContent);
             }
             else if (extension.ToLower() == ".txt")
-            {
+            {                
                 MyDocumentFormat = DocumentFormat.PlainText;
-                documentContent = content;
+                documentContent = content;                
                 await File.WriteAllBytesAsync(filePath, documentContent);
             }
             else if(extension.ToLower() == ".pdf")
@@ -1596,7 +1669,7 @@
             //onShowPopupMessage("success", "Document has been deleted successfully");
         }
     }
-   
+
     private async void onShowPopupMessage(string headerText, string bodyText)
     {
         MessageVisible = true;
@@ -1647,7 +1720,8 @@
     private async Task LoadData()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
-         Tid = long.Parse(@SelectedGroup);
+        RTopicId = 0;
+        Tid = long.Parse(@SelectedGroup);
         _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup)));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
@@ -1677,13 +1751,46 @@
         isEnabled = true;
         isEllipsis = true;
         isCommand = true;
-        _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));      
+        _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
 
         //_participant[1].IsEnabled = false; // Disable the second row
-
+        IsConHistory = true;
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //var plist = await Mediator.Send(new GetAllEmployeeListQuery());
         // _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+    }
+    private async Task LoadReplyData()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        //var rTopicId =@RTopicId;
+        //Tid = long.Parse(@SelectedReplyId);
+        Tid = RTopicId;
+        _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
+        _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
+
+        _assigntoItems = await Mediator.Send(new GetEmailAssignToList(RTopicId));        
+        var topicToList = await Mediator.Send(new GetEmailTopicToList(RTopicId));
+        if (topicToList != null)
+        {
+            Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
+        }   
+
+        OnMenuItemClick(isMenuvisible);
+
+        _headTopic = await Mediator.Send(new GetByIdEmailTopics(RTopicId));
+
+
+        isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+
+        isEnabled = true;
+        isEllipsis = true;
+        isCommand = true;
+        _participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
+
+
+        IsConHistory = false;
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
     }
     private async Task LoadDataPosts()
     {
@@ -1708,13 +1815,39 @@
         _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));     
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
-       
+
+    }
+    private async Task LoadReplyDataPosts()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        //Tid = long.Parse(@SelectedReplyId);
+        Tid = RTopicId;
+        _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
+        _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
+
+        _assigntoItems = await Mediator.Send(new GetEmailAssignToList(RTopicId));
+        var topicToList = await Mediator.Send(new GetEmailTopicToList(RTopicId));
+        if (topicToList != null)
+        {
+            Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
+        }
+
+
+        isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+
+        isEnabled = true;
+        isEllipsis = true;
+        isCommand = true;
+        _participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
     }
     void OnSelectedDataItemsChanged(IReadOnlyList<object> selectedDataItems)
     {
         SelectedDataItems = selectedDataItems;
     }
-   
+
     async Task OnEmailToRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");       
@@ -1775,7 +1908,7 @@
             IsReadOnly = false;
         }        
     }  
-     void EulaClosing(WindowClosingEventArgs args) {
+    void EulaClosing(WindowClosingEventArgs args) {
         closeReply();
     }
     private async Task onunderreply(long id)
@@ -1808,7 +1941,15 @@
             isAddParticipant = false;
             isEllipsis = true;
             isCommand = true;
-            await LoadDataPosts();
+            //await LoadDataPosts();
+            if (RTopicId == 0)
+            {
+                await LoadDataPosts();
+            }
+            else
+            {
+                await LoadReplyDataPosts();
+            }
         }
         else if (text == "Files")
         {
@@ -1835,7 +1976,7 @@
     }  
     private async Task HandleValidSubmit()
     {
-        loading = true;
+        loading = true;        
         //var contentdd = msgContent;
         //byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
@@ -1858,16 +1999,19 @@
             return;
         }    
 
+        string assignCCidsString = string.Join(",", _assigntoItems.Select(s => s.UserID).ToList());
+        string assigntoidsString = string.Join(",", Data.AssigntoIds);
+
 
         var createReq = new CreateEmailCoversation
             {
-
-                TopicID = (long.Parse(@SelectedGroup)),
+                //TopicID = (long.Parse(@SelectedGroup)),
+                TopicID = RTopicId == 0 ? (long.Parse(@SelectedGroup)) : RTopicId,
                // Message = Data.Message != null ? Data.Message : "Attachments",
                 Message = htmlString,
                 //FileData = Data.Message != null ? Encoding.UTF8.GetBytes(Data.Message) : Encoding.UTF8.GetBytes("Attachments"),
                 FileData = fileContent,
-                AssigntoIds = Data.AssigntoIds.Count() == 0 ? _assigntoItems.Select(s => s.UserID).ToList() : Data.AssigntoIds,
+                AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
                 AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
@@ -1888,14 +2032,34 @@
             //uploadComponent.UploadAllFiles();
 
             uploadComponent.UploadAllFiles();
-            await LoadData();
+
+            if(RTopicId == 0)
+            {
+                await LoadData();
+            }
+            else
+            {
+                await LoadReplyData();
+            }
+
+            // await LoadData();
+            
             onRestText();
             closeReply();
             onloadSession();
             // HandleScroll("down");
             await msgrichEdit.NewDocumentAsync();
             await onloadTwoGrid();
-            await LoadDataPosts();
+
+            if (RTopicId == 0)
+            {
+                await LoadDataPosts();
+            }
+            else
+            {
+                await LoadReplyDataPosts();
+            }
+           
             WindowVisible = false;
             loading = false;
         }

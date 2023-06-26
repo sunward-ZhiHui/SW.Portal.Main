@@ -32,7 +32,9 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data..."
                >
-<DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+
+<DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
         Data="_employeeItems"
         KeyFieldName="UserID"
         CustomizeElement="Grid_CustomizeElement"
@@ -153,7 +155,6 @@
     {
         //await jsRuntime.InvokeAsync<string>("showLoading");
         PanelVisible = true;
-        await Task.Delay(3000);
         var model = await Mediator.Send(new GetAllEmployeeListQuery());
         _employeeItems = model;
     

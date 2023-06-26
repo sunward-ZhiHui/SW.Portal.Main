@@ -237,7 +237,7 @@
                                                 </div>
                                             </div>
                                         </div>*@
-                                        <div class="uk-card-body">
+                                        <div class="uk-card-body ">
                                             <p class="uk-text-success">
                                                 <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
 
@@ -351,7 +351,7 @@
 
                                                 @if (item.ReplyConversation.Count() > 0)
                                                 {
-                                                    <div class="uk-card-footer">
+                                                    <div class="uk-card-footer ">
                                                         <div>
                                                             <p style="color: #5151b3;" class="handline" @onclick="@(() => ToggleItemVisibility(item.ID))">@item.ReplyConversation.Count() replies </p>
                                                             @if (@item.ReplyConversation != null && @item.ReplyConversation.Any())
@@ -557,6 +557,7 @@
 
                             <DxGrid @ref="Grid" Data="@_topicDocList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
                                 PagerNavigationMode="PagerNavigationMode.InputBox"
+                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                 PageSizeSelectorVisible="true"
                                 PageSizeSelectorAllRowsItemVisible="true"
                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -592,6 +593,7 @@
                         {                          
                             <div class="">
                                 <DxGrid @ref="Grid" Data="_participant"
+                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                     KeyFieldName="ID"
                                     ShowSearchBox="true"
                                     PagerNavigationMode="PagerNavigationMode.InputBox"                                   
@@ -745,6 +747,7 @@
 <DxPopup @bind-Visible="@isAssignToVisible" HeaderText="Assigned To">
     <BodyTemplate Context="PopupContext">      
         <DxGrid @ref="Grid" Data="_conversationAssignTo"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
                 KeyFieldName="ID"
                 ShowSearchBox="true"
                 PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -773,6 +776,7 @@
             </button>            
         </div>
         <DxGrid @ref="Grid" Data="_allparticipant"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
                 KeyFieldName="UserID"
                 ShowSearchBox="true"
                 PagerNavigationMode="PagerNavigationMode.InputBox"

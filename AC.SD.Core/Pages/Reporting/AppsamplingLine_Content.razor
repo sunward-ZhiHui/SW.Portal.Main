@@ -20,12 +20,14 @@
                >
 
 
-<DxGrid Data="@_samplingLineItems" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-        PageSize="5"EditMode="GridEditMode.EditForm" 
+    <DxGrid Data="@_samplingLineItems" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true"
+        PageSize="5"EditMode="GridEditMode.EditForm"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
+            ShowSearchBox="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        CssClass="ch-360" 
+        CssClass="ch-360"    style="height: calc(100vh - 300px);"
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         AutoExpandAllGroupRows="true">
@@ -48,13 +50,24 @@
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-        await Task.Delay(3000);
         var model = await Mediator.Send(new GetAllSamplingLineQuery());
         _samplingLineItems = model
          
             .Where(i => i.AppSamplingId == sampling.SamplingId)
             .ToList();
         PanelVisible = false;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
     }
 }
 

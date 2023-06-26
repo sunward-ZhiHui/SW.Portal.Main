@@ -1863,3 +1863,10 @@ body,
     border: 1px solid #cac4c4ee;
     border-radius: 4px;
 }
+.scroll {
+    height: 100px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column-reverse;
+}
+

@@ -41,8 +41,16 @@ else
                 IndicatorAreaVisible="false"
                 Text="Fetching Data..."
                >
+    <div class="align-self-end pl-2 pb-2">
+        <DxButton Text="Column Chooser"
+                  RenderStyle="ButtonRenderStyle.Secondary"
+                  IconCssClass="btn-column-chooser"
+                  Click="ColumnChooserButton_Click" />
+    </div>
+   
 
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
         Data="_employeeItems"
         KeyFieldName="EmployeeID"
         EditModelSaving="Grid_EditModelSaving"
@@ -61,7 +69,8 @@ else
         style="height: calc(100vh - 200px);"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"
-            AllowSelectRowByClick="true" >
+            AllowSelectRowByClick="true"
+            ShowGroupPanel="true" ShowGroupedColumns="true">
            
     <Columns>
         <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
@@ -114,7 +123,6 @@ else
        // await jsRuntime.InvokeAsync<string>("showLoading");
       //  await Task.Run(LoadEmployeesAsync);
         PanelVisible = true;
-        await Task.Delay(3000);
         _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
         PanelVisible = false;
      //   await jsRuntime.InvokeAsync<string>("hideLoading");
@@ -220,6 +228,10 @@ else
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
+    }
+    void ColumnChooserButton_Click()
+    {
+        Grid.ShowColumnChooser();
     }
     //void OnCustomizeFilterMenu(GridCustomizeFilterMenuEventArgs e)
     //{

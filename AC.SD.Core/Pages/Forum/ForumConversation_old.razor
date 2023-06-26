@@ -526,6 +526,7 @@
 
                             <DxGrid @ref="Grid" Data="@_topicDocList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
                                 PagerNavigationMode="PagerNavigationMode.InputBox"
+                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                 PageSizeSelectorVisible="true"
                                 PageSizeSelectorAllRowsItemVisible="true"
                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -567,6 +568,7 @@
                                 <DxGrid @ref="Grid" Data="_participant"
                                     KeyFieldName="ID"
                                     ShowSearchBox="true"
+                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                     PagerNavigationMode="PagerNavigationMode.InputBox"                                   
                                     PageSizeSelectorAllRowsItemVisible="true"
                                     PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -728,6 +730,7 @@
             </button>            
         </div>
         <DxGrid @ref="Grid" Data="_allparticipant"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
                 KeyFieldName="UserID"
                 ShowSearchBox="true"
                 PagerNavigationMode="PagerNavigationMode.InputBox"

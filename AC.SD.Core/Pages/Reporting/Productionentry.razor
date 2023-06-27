@@ -1,6 +1,7 @@
 ﻿@inject IJSRuntime jsRuntime
 @page "/productionEntry"
 @using Application.Queries;
+@using DevExpress.Export;
 @using Microsoft.Extensions.Configuration;
 @using Microsoft.Extensions.Configuration;
 @using global::Core.Entities;
@@ -16,7 +17,7 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem IconCssClass="fa fa-eye" Text="View" Click="@onPreview" />
-                
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />             
             </Items>
         </DxMenu>
     </div>
@@ -113,5 +114,28 @@
     async void ClosePopup()
     {
         PopupVisible = false;
+    }
+    async Task ExportToExcel()
+
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+
+                CustomizeCell = OnCustomizeCell
+            });
+
+
+    }
+
+
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+
+
+
     }
 }

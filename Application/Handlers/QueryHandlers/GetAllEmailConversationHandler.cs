@@ -1,4 +1,5 @@
-﻿using Application.Queries;
+﻿using Application.Common.Mapper;
+using Application.Queries;
 using Core.Entities;
 using Core.Entities.Views;
 using Core.Repositories.Command.Base;
@@ -41,6 +42,36 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<EmailConversations>> Handle(GetEmailDiscussionList request, CancellationToken cancellationToken)
         {
             return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDiscussionListAsync(request.TopicId);           
+        }
+    }
+    //Get Conversation list
+    public class GetEmailConversationListHandler : IRequestHandler<GetEmailConversationList, List<EmailConversations>>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetEmailConversationListHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<List<EmailConversations>> Handle(GetEmailConversationList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetConversationListAsync(request.ID);
+        }
+    }
+    //Get Reply discussion list
+    public class GetEmailReplyDiscussionListHandler : IRequestHandler<GetEmailReplyDiscussionList, List<EmailConversations>>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetEmailReplyDiscussionListHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<List<EmailConversations>> Handle(GetEmailReplyDiscussionList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetReplyDiscussionListAsync(request.TopicId,request.UserId);
         }
     }
     public class GetEmailFullDiscussionListHandler : IRequestHandler<GetEmailFullDiscussionList, List<EmailConversations>>
@@ -88,22 +119,33 @@ namespace Application.Handlers.QueryHandlers
         {
             var req = await _conversationQueryRepository.Insert(request);
 
-            var listData = request.AssigntoIds.ToList();
-            if (listData.Count > 0)
-            {
-                request.AssigntoIds.ToList().ForEach(a =>
-                {
-                    var conversationAssignTo = new EmailConversationAssignTo();
-                    conversationAssignTo.ConversationId = req;
-                    conversationAssignTo.TopicId = request.TopicID;
-                    conversationAssignTo.UserId = a;
-                    conversationAssignTo.StatusCodeID = request.StatusCodeID;
-                    conversationAssignTo.AddedByUserID = request.AddedByUserID;
-                    conversationAssignTo.SessionId = request.SessionId;
-                    conversationAssignTo.AddedDate = request.AddedDate;
-                    _conversationQueryRepository.InsertAssignTo(conversationAssignTo);
-                });
-            }
+
+            var conversationAssignTo = new EmailConversationAssignTo();
+            conversationAssignTo.ConversationId = req;
+            conversationAssignTo.TopicId = request.TopicID;            
+            conversationAssignTo.StatusCodeID = request.StatusCodeID;
+            conversationAssignTo.AddedByUserID = request.AddedByUserID;
+            conversationAssignTo.SessionId = request.SessionId;
+            conversationAssignTo.AddedDate = request.AddedDate;
+            conversationAssignTo.AssigntoIds = request.AssigntoIdss;
+            var reqq = await _conversationQueryRepository.InsertAssignTo_sp(conversationAssignTo);
+
+            //var listData = request.AssigntoIds.ToList();
+            //if (listData.Count > 0)
+            //{
+            //    request.AssigntoIds.ToList().ForEach(a =>
+            //    {
+            //        var conversationAssignTo = new EmailConversationAssignTo();
+            //        conversationAssignTo.ConversationId = req;
+            //        conversationAssignTo.TopicId = request.TopicID;
+            //        conversationAssignTo.UserId = a;
+            //        conversationAssignTo.StatusCodeID = request.StatusCodeID;
+            //        conversationAssignTo.AddedByUserID = request.AddedByUserID;
+            //        conversationAssignTo.SessionId = request.SessionId;
+            //        conversationAssignTo.AddedDate = request.AddedDate;
+            //        _conversationQueryRepository.InsertAssignTo(conversationAssignTo);
+            //    });
+            //}
 
             var plistData = request.AllParticipantIds.ToList();
             if (plistData.Count > 0)
@@ -170,8 +212,12 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(DeleteEmailParticipant request, CancellationToken cancellationToken)
         {
-            var req = await _conversationQueryRepository.DeleteParticipant(request);
-            return req;
+            //var req = await _conversationQueryRepository.DeleteParticipant(request);
+            //return req;
+
+            var newTopics = _conversationQueryRepository.DeleteParticipant(request);
+            var customerResponse = RoleMapper.Mapper.Map<long>(newTopics);
+            return customerResponse;
         }
     }
 

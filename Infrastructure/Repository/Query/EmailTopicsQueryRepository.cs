@@ -197,6 +197,134 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailTopics>> GetSubTopicToList(long TopicId, long UserId)
+        {
+            try
+            {
+                //var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM EmailTopics TS 
+                //                INNER JOIN EmailTopicTo TP ON TS.ID = TP.TopicId 
+                //                INNER JOIN Employee E ON TS.TopicFrom = E.UserId                         
+                //                WHERE TP.UserId = @UserId order by TS.StartDate DESC";
+
+
+
+                var query = @"SELECT TS.ID,EC.ID as ReplyId,EC.Name as TopicName,TS.Remarks,
+                                TS.SeqNo,
+                                TS.Status,
+                                TS.Follow,
+                                TS.OnBehalf,
+                                TS.Urgent,
+                                TS.OverDue,
+                                TS.DueDate,
+                                TS.StartDate,
+                                TS.FileData,
+                                TS.SessionId,
+                                E.FirstName,
+                                E.LastName,
+                                COALESCE(FN.NotificationCount, 0) AS NotificationCount
+                            FROM
+                                EmailTopics TS
+                         INNER JOIN
+                                EmailConversations EC ON TS.ID = EC.TopicId
+                            INNER JOIN
+                                EmailTopicTo TP ON TS.ID = TP.TopicId AND TP.UserId = @UserId
+                            INNER JOIN
+                                Employee E ON EC.AddedByUserID = E.UserId
+                             LEFT JOIN
+                            (
+                                SELECT
+                                    ReplyId,
+                                    COUNT(*) AS NotificationCount
+                                FROM
+                                    EmailConversations
+                                GROUP BY
+                                    ReplyId
+                            ) FN ON EC.ID = FN.ReplyId
+                            WHERE
+                                TS.id = @TopicId AND EC.ReplyId = 0
+                            ORDER BY
+                                TS.StartDate DESC";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<EmailTopics>> GetSubTopicCCList(long TopicId, long UserId)
+        {
+            try
+            {
+                //var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM EmailTopics TS 
+                //                INNER JOIN EmailTopicTo TP ON TS.ID = TP.TopicId 
+                //                INNER JOIN Employee E ON TS.TopicFrom = E.UserId                         
+                //                WHERE TP.UserId = @UserId order by TS.StartDate DESC";
+
+
+
+                var query = @"SELECT TS.ID,EC.ID as ReplyId,EC.Name as TopicName,TS.Remarks,
+                                TS.SeqNo,
+                                TS.Status,
+                                TS.Follow,
+                                TS.OnBehalf,
+                                TS.Urgent,
+                                TS.OverDue,
+                                TS.DueDate,
+                                TS.StartDate,
+                                TS.FileData,
+                                TS.SessionId,
+                                E.FirstName,
+                                E.LastName,
+                                COALESCE(FN.NotificationCount, 0) AS NotificationCount
+                            FROM
+                                EmailTopics TS
+                         INNER JOIN
+                                EmailConversations EC ON TS.ID = EC.TopicId
+                            INNER JOIN
+                                EmailTopicCC TP ON TS.ID = TP.TopicId AND TP.UserId = @UserId
+                            INNER JOIN
+                                Employee E ON EC.AddedByUserID = E.UserId
+                             LEFT JOIN
+                            (
+                                SELECT
+                                    ReplyId,
+                                    COUNT(*) AS NotificationCount
+                                FROM
+                                    EmailConversations
+                                GROUP BY
+                                    ReplyId
+                            ) FN ON EC.ID = FN.ReplyId
+                            WHERE
+                                TS.id = @TopicId AND EC.ReplyId = 0
+                            ORDER BY
+                                TS.StartDate DESC";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailTopics>> GetTopicCCList(long UserId)
         {
             try
@@ -355,34 +483,41 @@ namespace Infrastructure.Repository.Query
                     {
                         throw new Exception(exp.Message, exp);
                     }
+                }
 
-                   
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public long Insert_sp_Participant(TopicParticipant topicParticipant)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
 
-                    //connection.Open();
-                    //using (var transaction = connection.BeginTransaction())
-                    //{
+                    try
+                    {
+                        var parameters = new DynamicParameters();                      
+                        parameters.Add("TopicId", topicParticipant.TopicId);
+                        parameters.Add("SessionId", topicParticipant.SessionId);
+                        parameters.Add("AddedDate", topicParticipant.AddedDate);
+                        parameters.Add("AddedByUserID", topicParticipant.AddedByUserID);
+                        parameters.Add("StatusCodeID", topicParticipant.StatusCodeID);
+                        parameters.Add("PList", topicParticipant.PList);
+                        parameters.Add("Option", "INSERT");
 
-                    //    try
-                    //    {
-                    //        var parameters = new DynamicParameters();
-                    //        parameters.Add("TicketNo", EmailTopics.TicketNo, DbType.String);
-                    //        parameters.Add("TopicName", EmailTopics.TopicName, DbType.String);
+                        connection.Open();
 
-                    //        var query = "INSERT INTO EmailTopics(TicketNo, TopicName) VALUES (@TicketNo, @TopicName)";
-                    //        var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                           
-                           
-                    //        transaction.Commit();
-
-                    //        return rowsAffected;
-                    //    }
-                    //    catch (Exception exp)
-                    //    {
-                    //        transaction.Rollback();
-                    //        throw new Exception(exp.Message, exp);
-                    //    }
-                    //}
+                        var result = connection.QueryFirstOrDefault<long>("sp_Ins_EmailTopicParticipant", parameters, commandType: CommandType.StoredProcedure);
+                        return result;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
                 }
 
             }

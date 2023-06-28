@@ -25,6 +25,20 @@ namespace CMS.Application.Handlers.QueryHandlers
            
         }
     }
+    public class GetListBySessionHandler : IRequestHandler<GetListBySession, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetListBySessionHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetListBySession request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetBySessionTopicList(request.SessionId);
+
+        }
+    }
     public class GetEmailTopicToHandler : IRequestHandler<GetEmailTopicTo, List<EmailTopics>>
     {
 

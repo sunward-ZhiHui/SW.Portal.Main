@@ -52,7 +52,7 @@ namespace Application.Queries
         {
             this.TopicId = TopicId;
         }
-    }
+    }    
     public class GetEmailConversationList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long ID { get; private set; }

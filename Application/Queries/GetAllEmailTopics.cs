@@ -18,6 +18,14 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class GetListBySession : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public string SessionId { get; private set; }
+        public GetListBySession(string SessionId)
+        {
+            this.SessionId = SessionId;
+        }
+    }
     public class GetEmailTopicTo : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }

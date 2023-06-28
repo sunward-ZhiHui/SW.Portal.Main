@@ -13,6 +13,7 @@
 @using System.Collections.Generic
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/ViewEmail"
+@page "/ViewEmail/{ActiveSessionId}"
 @using DevExpress.Blazor.RichEdit
 @using DevExpress.Blazor.Office
 @using System.Globalization
@@ -149,8 +150,7 @@
                                     ValidationEnabled="true"
                                     AutoExpandAllGroupRows="true"
                                     CssClass="ch-360 " style="height: calc(100vh - 220px);"
-                                    RowClick="OnEmailToRowClick"
-                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                    RowClick="OnEmailToRowClick"                                    
                                     AllowSelectRowByClick="true">
                                     <Columns>
                                         <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
@@ -188,8 +188,7 @@
                                     ValidationEnabled="true"
                                     AutoExpandAllGroupRows="true"
                                     CssClass="ch-360 " style="height: calc(100vh - 220px);"
-                                    RowClick="OnEmailToRowClick"
-                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                    RowClick="OnEmailToRowClick"                                    
                                     AllowSelectRowByClick="true">
                                     <Columns>
                                         <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
@@ -942,6 +941,8 @@
 
 
 @code {
+    [Parameter]
+    public string ActiveSessionId { get; set; }
     private bool IsConHistory = false;
     [Parameter]
     public EventCallback<string> RId { get; set; }
@@ -1859,6 +1860,8 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        var sss = ActiveSessionId;
+
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
 
@@ -1871,6 +1874,15 @@
         _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
 
         _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+        
+        if (ActiveSessionId != null)
+        {
+             var lsts = await Mediator.Send(new GetListBySession(ActiveSessionId));
+            SelectedGroup = lsts[0].ID.ToString();
+            RTopicId = 0;
+            await LoadData();
+        }
+       
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));

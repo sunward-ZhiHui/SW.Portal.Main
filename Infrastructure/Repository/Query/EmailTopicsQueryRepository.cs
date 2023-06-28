@@ -136,6 +136,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<List<EmailTopics>> GetBySessionTopicList(string SessionId)
+        {
+            try
+            {                
+                var query = @"SELECT * FROM EmailTopics  WHERE SessionId = @SessionId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+
+                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailTopics>> GetTopicToList(long UserId)
         {
             try

@@ -32,11 +32,17 @@ namespace Core.Entities
         public byte[] FileData { get; set; }
 
         [NotMapped]
+        public string? AssigntoIdss { get; set; }
+        [NotMapped]
         public IEnumerable<long> AssigntoIds { get; set; }
         [NotMapped]
         public IEnumerable<long> AllParticipantIds { get; set; }
         [NotMapped]
         public List<EmailAssignToList>? AssignToList { get; set; }
+        [NotMapped]
+        public List<EmailAssignToList>? AssignCCList { get; set; }
+        [NotMapped]
+        public long? UserId { get; set; }
 
     }
 }

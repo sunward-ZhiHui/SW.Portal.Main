@@ -11,62 +11,30 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/AssetCatlog"
-<link href="_content/AC.SD.Core/css/forum-discussion.css" rel="stylesheet" />
+
 
 <div class="">
-
-
-
     <div class="main-container">
-
         <div class="row">
-            <div class="menu-bar-content-container first-border col-md-2" style="height: calc(100vh - 136px);">
-                <div class="mini-menu-bar-top">
-                    <div class="mini-menu-bar-heading">
-                        <div class="files-title" style="width: 100%;padding-left: 20px;align-items: center;font-size: 18px;font-weight: bold;text-align: center;">
-                            Grouping Information
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="views-accordion">
-                            <DxTreeView Data="@_applicationMasterChildItems"
-                                        @bind-FilterString="FilterString"
-                                        FilterMinLength="2"
-                                        ShowFilterPanel="true"
-                                        FilterMode="FilterMode"
-                                        AllowSelectNodes="true"
-                                        LoadChildNodesOnDemand=false
-                                        SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
-                                <DataMappings>
-                                    <DxTreeViewDataMapping Children="Children" CssClass="CssClass" Text="Label" Name="ParentID" />
-                                </DataMappings>
-                            </DxTreeView>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="menu-bar-content-container sec-border col-md-2">
-                @if (disabledState)
-                {
-
+            <div class="col-md-3" style="height: calc(100vh - 150px);">
+                <div style="height:50%; border: 1px solid #b2afaf; overflow: auto; margin-bottom: 10px;">
                     <div class="mini-menu-bar-top">
                         <div class="mini-menu-bar-heading">
                             <div class="files-title" style="width: 100%;padding-left: 20px;align-items: center;font-size: 18px;font-weight: bold;text-align: center;">
-                                Section Information
+                                Grouping Information
                             </div>
                         </div>
 
                         <div>
                             <div class="views-accordion">
-                                <DxTreeView Data="@_applicationMasterChildSectionItems"
-                                        @bind-FilterString="SectionFilterString"
-                                        FilterMinLength="2"
-                                        ShowFilterPanel="true"
-                                        FilterMode="SectionFilterMode"
-                                        AllowSelectNodes="@allowSelectNode"
-                                        LoadChildNodesOnDemand=false
-                                        SelectionChanged="@SectionSelectionChanged" AnimationType="LayoutAnimationType.Slide">
+                                <DxTreeView Data="@_applicationMasterChildItems"
+                                            @bind-FilterString="FilterString"
+                                            FilterMinLength="2"
+                                            ShowFilterPanel="true"
+                                            FilterMode="FilterMode"
+                                            AllowSelectNodes="true"
+                                            LoadChildNodesOnDemand=false
+                                            SelectionChanged="@SelectionChanged" AnimationType="LayoutAnimationType.Slide">
                                     <DataMappings>
                                         <DxTreeViewDataMapping Children="Children" CssClass="CssClass" Text="Label" Name="ParentID" />
                                     </DataMappings>
@@ -74,16 +42,46 @@
                             </div>
                         </div>
                     </div>
-                }
+                </div>
+                <div style="height:50%;border: 1px solid #b2afaf; overflow: auto;">
+                    @if (disabledState)
+                    {
+
+                        <div class="mini-menu-bar-top">
+                            <div class="mini-menu-bar-heading">
+                                <div class="files-title" style="width: 100%;padding-left: 20px;align-items: center;font-size: 18px;font-weight: bold;text-align: center;">
+                                    Section Information
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="views-accordion">
+                                    <DxTreeView Data="@_applicationMasterChildSectionItems"
+                                            @bind-FilterString="SectionFilterString"
+                                            FilterMinLength="2"
+                                            ShowFilterPanel="true"
+                                            FilterMode="SectionFilterMode"
+                                            AllowSelectNodes="@allowSelectNode"
+                                            LoadChildNodesOnDemand=false
+                                            SelectionChanged="@SectionSelectionChanged" AnimationType="LayoutAnimationType.Slide">
+                                        <DataMappings>
+                                            <DxTreeViewDataMapping Children="Children" CssClass="CssClass" Text="Label" Name="ParentID" />
+                                        </DataMappings>
+                                    </DxTreeView>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
-            <div class="menu-bar-content-container col-md-8">
+            <div class="col-md-9" style="border: 1px solid #b2afaf;">
                 @if (disabledSectionState)
                 {
 
-                    <div class="content-padding-20">
-                        <div id="tableData">
-                            <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
-                                <div class="uk-card-body">
+                    <div class="" style="margin-top:10px;">
+                        <div id="">
+                            <div class="">
+                                <div class="">
                                     <div class="card w-100" style="margin-bottom:10px;">
                                         <div class="card-body p-0">
                                             <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -121,7 +119,7 @@
                                         RowDoubleClick="OnRowDoubleClick"
                                         SelectedDataItemsChanged="@SelectedDataItemsChanged"
                                         RowClick="OnRowClick"
-                                        style="height: calc(100vh - 220px);"
+                                            style="height: calc(100vh - 220px);"
                                         AllowSelectRowByClick="true">
                                         <Columns>
                                             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
@@ -201,6 +199,17 @@
                 }
             </div>
         </div>
+        @*<div class="row">
+            <div class="menu-bar-content-container first-border col-md-2" style="height: calc(100vh - 136px);">
+              
+            </div>
+            <div class="menu-bar-content-container sec-border col-md-2">
+               
+            </div>
+            <div class="menu-bar-content-container col-md-8">
+               
+            </div>
+        </div>*@
     </div>
 </div>
 <DxPopup @bind-Visible="@Blukdeletepopup"
@@ -244,7 +253,8 @@
     private List<ApplicationMasterChildModel> _applicationMasterChildSectionItems;
     private List<View_AssetCatalogMaster> _assetCatalogMasters;
     private ApplicationMasterChildModel _applicationMasterChildSelectItems;
-    private ApplicationMasterChildModel _applicationMasterChildChildSelectItems;
+    //private ApplicationMasterChildModel _applicationMasterChildChildSelectItems;
+    private ApplicationMasterChildModel _applicationMasterChildChildSelectItems = new ApplicationMasterChildModel();
     private List<View_ApplicationMasterDetail> _assetModelItems;
     private List<View_ApplicationMasterDetail> _assetUomItems;
     public View_AssetCatalogMaster _selectedItems;
@@ -291,6 +301,11 @@
             _applicationMasterChildSelectItems = list;
             disabledState = true;
             allowSelectNode = true;
+            //vijay
+            disabledSectionState = true;
+            _applicationMasterChildSectionItems = await Mediator.Send(new GetAllApplicationMasterChildQuery("113,114,115"));
+            _applicationMasterChildChildSelectItems.ApplicationMasterChildId = 0;
+            await UpdateDataAsync();
             StateHasChanged();
         }
     }

@@ -20,6 +20,7 @@ using Core.Entities.Views;
 using DevExpress.Data.Filtering.Helpers;
 using Azure.Core;
 using System.Threading;
+using DevExpress.Xpo.DB.Helpers;
 
 namespace Infrastructure.Repository.Query
 {
@@ -142,37 +143,36 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<long> DeleteParticipant(TopicParticipant topicParticipant)
+        public long DeleteParticipant(TopicParticipant topicParticipant)
         {
             try
             {
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+                    try
                     {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ID", topicParticipant.ID, DbType.Int64);
+                        parameters.Add("Option", "DELETE");
 
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("ID", topicParticipant.ID, DbType.Int64);                           
+                        //var query = "DELETE  FROM EmailTopicParticipant WHERE ID = @ID";
+                        //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
-                            var query = "DELETE  FROM EmailTopicParticipant WHERE ID = @ID";
+                        connection.Open();
+                        var task = connection.ExecuteAsync("sp_Ins_EmailTopicParticipant", parameters, commandType: CommandType.StoredProcedure);
+                        task.Wait(); // Synchronously wait for the task to complete
+                        var rowsAffected = task.Result; // Retrieve the result
+                                                       
 
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        return rowsAffected;
                     }
+                    catch (Exception exp)
+                    {
+                           
+                        throw new Exception(exp.Message, exp);
+                    }
+                    
                 }
 
             }
@@ -282,9 +282,19 @@ namespace Infrastructure.Repository.Query
                         var subQueryAssignToResults = connection.Query<EmailAssignToList>(subQueryassignTo, parametersassignTo).ToList();
 
 
+                        var subQueryassignCC = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignCC FCA
+                                        INNER JOIN Employee E on E.UserID = FCA.UserId
+                                        where FCA.ConversationId = @Id";
+                        var parametersassignCC = new DynamicParameters();
+                        parametersassignCC.Add("Id", topic.ID, DbType.Int64);
+                        var subQueryAssignCCResults = connection.Query<EmailAssignToList>(subQueryassignCC, parametersassignCC).ToList();
+
+
+
                         topic.ReplyConversation = subQueryResults;
                         topic.documents = subQueryDocsResults;
                         topic.AssignToList = subQueryAssignToResults;
+                        topic.AssignCCList = subQueryAssignCCResults;
 
                         foreach (var conversation in topic.ReplyConversation)
                         {
@@ -304,6 +314,14 @@ namespace Infrastructure.Repository.Query
                             var replyparametersassignTo = new DynamicParameters();
                             replyparametersassignTo.Add("ConversationId", conversation.ID, DbType.Int64);
                             var replysubQueryAssignToResults = connection.Query<EmailAssignToList>(replysubQueryassignTo, replyparametersassignTo).ToList();
+
+                            var replysubQueryassignCC = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignCC FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+                            var replyparametersassignCC = new DynamicParameters();
+                            replyparametersassignCC.Add("ConversationId", conversation.ID, DbType.Int64);
+                            var replysubQueryAssignCCResults = connection.Query<EmailAssignToList>(replysubQueryassignCC, replyparametersassignCC).ToList();
 
 
 
@@ -330,6 +348,7 @@ namespace Infrastructure.Repository.Query
 
                             conversation.documents = subQueryReplyDocsResults;
                             conversation.AssignToList = replysubQueryAssignToResults;
+                            conversation.AssignCCList = replysubQueryAssignCCResults;
 
                             conversation.ReplyConversation = replyBysubQueryResults;
 
@@ -355,8 +374,226 @@ namespace Infrastructure.Repository.Query
                                 replyparametersassignTo1.Add("ConversationId", conversations.ID, DbType.Int64);
                                 var replysubQueryAssignToResultss = connection.Query<EmailAssignToList>(replysubQueryassignTo1, replyparametersassignTo1).ToList();
 
+
+                                var replysubQueryassignCC1 = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignCC FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+                                var replyparametersassignCC1 = new DynamicParameters();
+                                replyparametersassignCC1.Add("ConversationId", conversations.ID, DbType.Int64);
+                                var replysubQueryAssignCCResultss = connection.Query<EmailAssignToList>(replysubQueryassignCC1, replyparametersassignCC1).ToList();
+
+
                                 conversations.documents = subQueryReplyDocsResultss;
                                 conversations.AssignToList = replysubQueryAssignToResultss;
+                                conversations.AssignCCList = replysubQueryAssignCCResultss;
+
+                            }
+
+                        }
+
+                    }
+
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<EmailConversations>> GetConversationListAsync(long Id)
+        {
+            try
+            {
+
+                var query = @"SELECT * FROM EmailConversations FC 
+                                WHERE FC.ID = @ID";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("ID", Id, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailConversations>(query, parameters).ToList();                  
+
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<EmailConversations>> GetReplyDiscussionListAsync(long TopicId, long UserId)
+        {
+            try
+            {
+
+                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData FROM EmailConversations FC                                
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
+                                WHERE FC.ID = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate ASC";
+
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
+
+                    foreach (var topic in res)
+                    {
+
+                        var subQuery = @"SELECT
+                                        FC.Name,
+                                        FC.ID,
+                                        FC.AddedDate,
+                                        FC.Message,
+                                        AU.UserName,
+                                        AU.UserID,
+                                        FC.ReplyId,
+                                        FC.SessionId,FC.FileData
+                                    FROM
+                                        EmailConversations FC
+                                        INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                    WHERE
+                                       FC.ReplyId = @ReplyId";
+
+                        var parameterss = new DynamicParameters();
+                        parameterss.Add("TopicId", TopicId, DbType.Int64);
+                        parameterss.Add("ReplyId", topic.ID, DbType.Int64);
+                        var subQueryResults = connection.Query<EmailConversations>(subQuery, parameterss).ToList();
+
+
+                        var subQueryDocs = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
+
+                        var parametersDocs = new DynamicParameters();
+                        parametersDocs.Add("SessionID", topic.SessionId);
+
+                        var subQueryDocsResults = connection.Query<Documents>(subQueryDocs, parametersDocs).ToList();
+
+                        var subQueryassignTo = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignTo FCA
+                                        INNER JOIN Employee E on E.UserID = FCA.UserId
+                                        where FCA.ConversationId = @Id";
+                        var parametersassignTo = new DynamicParameters();
+                        parametersassignTo.Add("Id", topic.ID, DbType.Int64);
+                        var subQueryAssignToResults = connection.Query<EmailAssignToList>(subQueryassignTo, parametersassignTo).ToList();
+
+
+                        var subQueryassignCC = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignCC FCA
+                                        INNER JOIN Employee E on E.UserID = FCA.UserId
+                                        where FCA.ConversationId = @Id";
+                        var parametersassignCC = new DynamicParameters();
+                        parametersassignCC.Add("Id", topic.ID, DbType.Int64);
+                        var subQueryAssignCCResults = connection.Query<EmailAssignToList>(subQueryassignCC, parametersassignCC).ToList();
+
+
+                        topic.ReplyConversation = subQueryResults;
+                        topic.documents = subQueryDocsResults;
+                        topic.AssignToList = subQueryAssignToResults;
+                        topic.AssignCCList = subQueryAssignCCResults;
+
+                        foreach (var conversation in topic.ReplyConversation)
+                        {
+                            var subQueryReplyDocs = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath,FC.FileData,FC.Name from EmailConversations FC
+                                                        INNER JOIN Documents D ON D.SessionID = FC.SessionId
+                                                        WHERE D.SessionID = @SessionID";
+                            var parametersReplyDocs = new DynamicParameters();
+                            parametersReplyDocs.Add("SessionID", conversation.SessionId);
+                            parametersReplyDocs.Add("ReplyId", conversation.ReplyId, DbType.Int64);
+
+                            var subQueryReplyDocsResults = connection.Query<Documents>(subQueryReplyDocs, parametersReplyDocs).ToList();
+
+                            var replysubQueryassignTo = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignTo FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+                            var replyparametersassignTo = new DynamicParameters();
+                            replyparametersassignTo.Add("ConversationId", conversation.ID, DbType.Int64);
+                            var replysubQueryAssignToResults = connection.Query<EmailAssignToList>(replysubQueryassignTo, replyparametersassignTo).ToList();
+
+
+
+                            var replysubQueryassignCC = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignCC FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+                            var replyparametersassignCC = new DynamicParameters();
+                            replyparametersassignCC.Add("ConversationId", conversation.ID, DbType.Int64);
+                            var replysubQueryAssignCCResults = connection.Query<EmailAssignToList>(replysubQueryassignCC, replyparametersassignCC).ToList();
+
+
+
+                            var replyBysubQuery = @"SELECT
+                                        FC.Name,
+                                        FC.ID,
+                                        FC.AddedDate,
+                                        FC.Message,
+                                        AU.UserName,
+                                        AU.UserID,
+                                        FC.ReplyId,
+                                        FC.SessionId,FC.FileData
+                                    FROM
+                                        EmailConversations FC
+                                        INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                    WHERE
+                                         FC.ReplyId = @ReplyId";
+
+                            var reparameterss = new DynamicParameters();
+                            reparameterss.Add("TopicId", TopicId, DbType.Int64);
+                            reparameterss.Add("ReplyId", conversation.ID, DbType.Int64);
+                            var replyBysubQueryResults = connection.Query<EmailConversations>(replyBysubQuery, reparameterss).ToList();
+
+
+                            conversation.documents = subQueryReplyDocsResults;
+                            conversation.AssignToList = replysubQueryAssignToResults;
+                            conversation.AssignCCList = replysubQueryAssignCCResults;
+
+                            conversation.ReplyConversation = replyBysubQueryResults;
+
+
+                            foreach (var conversations in conversation.ReplyConversation)
+                            {
+
+
+                                var subQueryReplyDocs1 = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath,FC.FileData,FC.Name from EmailConversations FC
+                                                        INNER JOIN Documents D ON D.SessionID = FC.SessionId
+                                                        WHERE D.SessionID = @SessionID";
+                                var parametersReplyDocs1 = new DynamicParameters();
+                                parametersReplyDocs1.Add("SessionID", conversations.SessionId);
+                                parametersReplyDocs1.Add("ReplyId", conversations.ReplyId, DbType.Int64);
+
+                                var subQueryReplyDocsResultss = connection.Query<Documents>(subQueryReplyDocs1, parametersReplyDocs1).ToList();
+
+                                var replysubQueryassignTo1 = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignTo FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+                                var replyparametersassignTo1 = new DynamicParameters();
+                                replyparametersassignTo1.Add("ConversationId", conversations.ID, DbType.Int64);
+                                var replysubQueryAssignToResultss = connection.Query<EmailAssignToList>(replysubQueryassignTo1, replyparametersassignTo1).ToList();
+
+
+
+                                var replysubQueryassignCC1 = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignCC FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+                                var replyparametersassignCC1 = new DynamicParameters();
+                                replyparametersassignCC1.Add("ConversationId", conversations.ID, DbType.Int64);
+                                var replysubQueryAssignCCResultss = connection.Query<EmailAssignToList>(replysubQueryassignCC1, replyparametersassignCC1).ToList();
+
+
+
+                                conversations.documents = subQueryReplyDocsResultss;
+                                conversations.AssignToList = replysubQueryAssignToResultss;
+                                conversations.AssignCCList = replysubQueryAssignCCResultss;
 
                             }
 
@@ -572,7 +809,48 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<long> InsertAssignTo_sp(EmailConversationAssignTo conversationAssignTo)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
 
+                    connection.Open();
+                        try
+                        {
+                            var parameters = new DynamicParameters();                            
+                            parameters.Add("ConversationId", conversationAssignTo.ConversationId);
+                            parameters.Add("TopicId", conversationAssignTo.TopicId);
+                            parameters.Add("StatusCodeID", conversationAssignTo.StatusCodeID);
+                            parameters.Add("AddedByUserID", conversationAssignTo.AddedByUserID);
+                            parameters.Add("SessionId", conversationAssignTo.SessionId);
+                            parameters.Add("AddedDate", conversationAssignTo.AddedDate);
+                            parameters.Add("AssigntoIds", conversationAssignTo.AssigntoIds);
+                            parameters.Add("Option", "INSERT");
+                        
+                            //var query = "INSERT INTO EmailConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
+
+                            //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            var result = connection.QueryFirstOrDefault<long>("sp_Ins_EmailConvAssignTo", parameters, commandType: CommandType.StoredProcedure);
+                            return result;
+
+                            //return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {                            
+                            throw new Exception(exp.Message, exp);
+                        }
+                    
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<long> InsertEmailNotifications(EmailNotifications forumNotifications)
         {
             try

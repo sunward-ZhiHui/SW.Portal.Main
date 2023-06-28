@@ -1,0 +1,201 @@
+﻿@page "/rolePermission"
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+  <div class="main-container">
+
+    <div class="content-container row">
+      
+                 <div class="menu-bar-content-container col-md-8">
+                    <div class="content-padding-20">
+                        <div class="menu-bar-content-container-heading">
+                            <div class="heading-icon-text">
+                                <div class="mb-cc-text">
+                                    <div class="card w-100">
+                                        <div class="card-body p-0">
+                                        <DxGrid @ref="Grid"
+                                                Data="_rolePermission"
+                                                KeyFieldName="RolePermissionID"
+                                                ValidationEnabled="false"
+                                                EditModelSaving="Grid_EditModelSaving"
+                                                DataItemDeleting="Grid_DataItemDeleting"
+                                                EditMode="GridEditMode.EditRow"
+                                                EditorRenderMode="GridEditorRenderMode.Integrated"
+                                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                                ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                                PagerNavigationMode="PagerNavigationMode.InputBox"
+                                                PageSizeSelectorVisible="true"
+                                                PageSizeSelectorAllRowsItemVisible="true"
+                                                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                                PageSize="20"
+                                                CustomizeElement="Grid_CustomizeElement"
+                                                CssClass="ch-360"
+                                                style="height: calc(100vh - 160px);">
+                                            <Columns>
+                                                <DxGridCommandColumn Width="160px" />
+                                                <DxGridDataColumn FieldName="Name" Caption="User Role" MinWidth="80" />
+                                                <DxGridDataColumn FieldName="Description" MinWidth="80" />
+                                            </Columns>
+                                        </DxGrid>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                         </div>
+                    </div>
+                 </div>
+      <div class=" col-md-4">
+                <div class="mini-menu-bar-top" style="height: calc(100vh - 160px);">
+                <div class="mini-menu-bar-heading">
+                      <div class="files-title">Application MenuPermission</div>
+                </div>
+                <div>
+                    <div class="views-accordion">
+                            <DxTreeView Data="@Data" style="height: calc(100vh - 100px);"
+                                    AllowSelectNodes=true
+                                    LoadChildNodesOnDemand=false
+                                    AnimationType="LayoutAnimationType.Slide">
+                            <DataMappings>
+                                <DxTreeViewDataMapping Text="PermissionName"
+                                                       Key="PermissionID"
+                                                       ParentKey="ParentID" />
+                            </DataMappings>
+                        </DxTreeView>
+                    </div>
+                </div>
+            </div>
+
+       
+       
+      </div>
+     </div>
+  </div>
+
+</DxLoadingPanel>
+
+@code {
+   
+    bool PanelVisible { get; set; }
+    private  List<RolePermission> _rolePermission { get; set; }
+    private List<ApplicationPermission> Data { get; set; }
+    IGrid Grid { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        _rolePermission = await Mediator.Send(new GetAllRolePermission());
+        Data = await Mediator.Send(new GetAllApplicationPermission());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        PanelVisible = false;
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (RolePermission)e.EditModel;
+
+        if (e.IsNew)
+        {
+
+            var ex = _rolePermission.Where(x => x.Name == editModel.Name );
+            if (ex.Any())
+            {
+
+                //addNew();
+                // onShowPopupMessage("Error", "The entered value Already exists.");
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+
+                var createReq = new CreateRolePermissionQuery
+
+                    {
+                        Name = editModel.Name,
+                        Description = editModel.Description,
+                        StatusCodeID = 1,
+                        AddedByUserID = applicationUser.UserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        AddedDate = DateTime.Now,
+                        SessionId = Guid.NewGuid()
+                    };
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+
+        }
+        else
+        {
+            var ex = _rolePermission.Where(x => x.Name == editModel.Name && x.RolePermissionID != editModel.RolePermissionID);
+            if (ex.Any())
+            {
+
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+
+            }
+            else
+            {
+                var UpdateReq = new EditRolePermissionQuery
+                    {
+                        RolePermissionID = editModel.RolePermissionID,
+                        Name = editModel.Name,
+                        Description = editModel.Description,
+                        StatusCodeID = editModel.StatusCodeID,
+                        AddedByUserID = editModel.AddedByUserID,
+                        AddedDate = editModel.AddedDate,
+                        SessionId = editModel.SessionId,
+                        ModifiedByUserID = applicationUser.UserID,
+                        ModifiedDate = DateTime.Now,
+                    };
+
+                var ans = await Mediator.Send(UpdateReq);
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+
+        }
+
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _rolePermission = await Mediator.Send(new GetAllRolePermission());
+        PanelVisible = false;
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+        var editModel = (RolePermission)e.DataItem;
+
+        var request = new DeleteRolePermissionQuery(editModel.RolePermissionID);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
+}

@@ -90,6 +90,8 @@ namespace Infrastructure
             services.AddTransient<IConsumptionQueryRepository, ConsumptionQueryRepository>();
             services.AddTransient<IProductionOutputQueryRepository, ProductionOutputQueryRepository>();
             services.AddTransient<ITopicTodoListQueryRepository, TopicTodoListQueryRepository>();
+            services.AddTransient<IRolePermissionQueryRepository, RolePermissionQueryRepository>();
+            services.AddTransient<IApplicationPermissionQueryRepository, ApplicationPermissionQueryRepository>();
             services.AddTransient<IFileStorageService, FileStorageService>();
             services.AddTransient<IApplicationMasterChildQueryRepository, ApplicationMasterChildQueryRepository>();
             services.AddTransient<IAssetCatalogMasterQueryRepository, AssetCatalogMasterQueryRepository>();

@@ -19,7 +19,10 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="For all the moments you want to cherish" />
     <link href="_content/AC.SD.Core/css/app.css" rel="stylesheet" />
-    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js ">
+    </script>
+    <script src="script.js"></script>
+ 
    @* <link href="_content/AC.SD.Core/css/toast.css" rel="stylesheet" />*@
   @*  <link href="_content/AC.SD.Core/toast/style.css" rel="stylesheet" />*@
     <meta property="og:description" content="Invested in continuous innovation and research for your quality assurance." />
@@ -67,7 +70,7 @@
             });
         });
     </script>
-    
+
     <script  type="text/javascript">
         function showLoading()
         {
@@ -150,7 +153,8 @@
     
 </head>
 <body>
-    <div class="load-indicator" style="display:none;"></div>   
+
+  
     <Toast />
     @{
         var isIEOrEdgeLegacy = Request.Headers["User-Agent"].Any(userAgent => userAgent.Contains("MSIE") || userAgent.Contains("Trident"));

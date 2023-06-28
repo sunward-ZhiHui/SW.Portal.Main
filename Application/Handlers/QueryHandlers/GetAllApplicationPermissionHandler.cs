@@ -36,4 +36,16 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<PortalMenuModel>)await _queryRepository.GetAllByAsync(request.Id);
         }
     }
+    public class GetAllApplicationHandler : IRequestHandler<GetAllApplicationPermission, List<ApplicationPermission>>
+    {
+        private readonly IApplicationPermissionQueryRepository _queryRepository;
+        public GetAllApplicationHandler(IApplicationPermissionQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ApplicationPermission>> Handle(GetAllApplicationPermission request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationPermission>)await _queryRepository.GetAllAsync();
+        }
+    }
 }

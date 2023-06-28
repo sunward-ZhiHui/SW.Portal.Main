@@ -27,6 +27,9 @@ namespace Application.Queries
             this.Id = Id;
         }
     }
+    public class GetAllApplicationPermission : PagedRequest, IRequest<List<ApplicationPermission>>
+    {
 
+    }
 
 }

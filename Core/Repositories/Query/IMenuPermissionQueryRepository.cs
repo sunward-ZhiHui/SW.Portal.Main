@@ -1,4 +1,5 @@
 ﻿
+using Core.Entities;
 using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query.Base;
@@ -12,6 +13,7 @@ namespace Core.Repositories.Query
 {
     public interface IMenuPermissionQueryRepository : IQueryRepository<PortalMenuModel>
     {
+     
         Task<IReadOnlyList<PortalMenuModel>> GetAllAsync(long? Id);
         IReadOnlyList<PortalMenuModel> GetAllByPermissionAsync(long? Id);
         Task<IReadOnlyList<PortalMenuModel>> GetAllByAsync(long? Id);

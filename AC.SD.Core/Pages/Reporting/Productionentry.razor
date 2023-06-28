@@ -2,7 +2,6 @@
 @page "/productionEntry"
 @using Application.Queries;
 @using Microsoft.Extensions.Configuration;
-@using Microsoft.Extensions.Configuration;
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @inject IConfiguration Configuration
@@ -29,7 +28,8 @@
                 Text="Fetching Data..."
                >
 
-    <DxGrid @ref="Grid" Data="@_productionEntry" KeyFieldName="ProductionEntryID" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    <DxGrid @ref="Grid" Data="@_productionEntry" KeyFieldName="ProductionEntryID" 
+        EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -43,6 +43,7 @@
         RowClick="OnRowClick"
         CustomizeElement="Grid_CustomizeElement"
         FocusedRowEnabled="true"
+        AllowSelectRowByClick="true"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
     <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
@@ -56,6 +57,8 @@
     </Columns>
 </DxGrid>
 </DxLoadingPanel>
+
+
 <DxPopup @bind-Visible="@PopupVisible"
          ShowFooter="true"
          HeaderText="CRT"
@@ -75,10 +78,11 @@
     private List<ViewProductionEntry> _productionEntry;
     private ViewProductionEntry _selectedItems;
     bool PopupVisible { get; set; } = false;
-    private string LiveUrl = "https://portal.sunwardpharma.com:2025/AppUpload/";
+    private string LiveUrl;
     public string image1, image2;
     protected override async Task OnInitializedAsync()
     {
+        LiveUrl = Configuration["DocumentsUrl:ImageUrl"];
         PanelVisible = true;
         var model = await Mediator.Send(new GetAllProductionEntryQuery());
         _productionEntry = model;

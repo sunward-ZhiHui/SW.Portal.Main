@@ -6,6 +6,7 @@ using AC.SD.Core.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Blazored.SessionStorage;
 
+
 public class Program
 {
     public static async Task Main(string[] args)
@@ -44,7 +45,8 @@ public class Program
             services.AddBlazoredSessionStorage();
             services.AddSingleton<DemoConfiguration>();
             services.AddScoped<DemoThemeService>();
-            services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();           
+            services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();
+        
         }
     }
 }

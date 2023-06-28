@@ -41,13 +41,13 @@ else
                 IndicatorAreaVisible="false"
                 Text="Fetching Data..."
                >
-    <div class="align-self-end pl-2 pb-2">
+   @* <div class="align-self-end pl-2 pb-2">
         <DxButton Text="Column Chooser"
                   RenderStyle="ButtonRenderStyle.Secondary"
                   IconCssClass="btn-column-chooser"
                   Click="ColumnChooserButton_Click" />
     </div>
-   
+   *@
 
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
@@ -229,11 +229,11 @@ else
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
     }
-    void ColumnChooserButton_Click()
-    {
-        Grid.ShowColumnChooser();
-    }
-    //void OnCustomizeFilterMenu(GridCustomizeFilterMenuEventArgs e)
+    //void ColumnChooserButton_Click()
+    //{
+    //    Grid.ShowColumnChooser();
+    //}
+    ////void OnCustomizeFilterMenu(GridCustomizeFilterMenuEventArgs e)
     //{
     //    if (e.DataColumn.FieldName == "FirstName")
     //    {CustomizeFilterMenu="OnCustomizeFilterMenu"

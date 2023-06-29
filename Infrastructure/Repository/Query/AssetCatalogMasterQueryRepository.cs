@@ -24,7 +24,8 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from view_AssetCatalogMaster WHERE AssetCategoryId=@AssetCategoryId OR AssetSubSectionId = @AssetSubSectionId";
+                string query = "SELECT * FROM view_AssetCatalogMaster WHERE AssetCategoryId = @AssetCategoryId AND (@AssetSubSectionId IS NULL OR AssetSubSectionId = @AssetSubSectionId)";
+
                 var parameters = new DynamicParameters();
                 parameters.Add("AssetCategoryId", CategoryId, DbType.Int64);
                 parameters.Add("AssetSubSectionId", SubSectionId, DbType.Int64);

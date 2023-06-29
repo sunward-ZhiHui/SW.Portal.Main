@@ -1575,8 +1575,8 @@
         var response = await Mediator.Send(request);
 
         // string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
-        //string filePath = response.FilePath;
-        string filePath = response.ServerFilePath;
+        string filePath = FileUrl + response.FilePath;
+        //string filePath = response.ServerFilePath;
 
         string extension = Path.GetExtension(response.FilePath);
 

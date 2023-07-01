@@ -25,8 +25,9 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM ApplicationPermission";
-
+                //var query = "SELECT * FROM ApplicationPermission";
+                // var query = @"Select* from view_UserPermission where  IsDisplay = 1 and IsNewPortal = 1 and IsCmsApp = 1  and(IsMobile is null or IsMobile = 0) ORDER BY PermissionOrder";
+                var query = @"select * from applicationpermission where IsDisplay = 1 and PermissionID > =60000";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ApplicationPermission>(query)).ToList();

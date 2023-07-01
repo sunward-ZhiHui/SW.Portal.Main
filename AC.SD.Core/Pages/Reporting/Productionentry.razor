@@ -9,6 +9,7 @@
 @inject IMediator Mediator
 @using MediatR
 
+
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -65,8 +66,40 @@
          HeaderText="CRT"
          Width="900px">
     <BodyContentTemplate>
-        <img src="@image1" width="460" height="345">
-        <img src="@image2" width="460" height="345">
+      @*  <img src="@image1" width="460" height="345">
+        <img src="@image2" width="460" height="345">*@
+        <div class="slideshow-container">
+
+            <div class="mySlides fade ">
+                <div class="numbertext">1 / 3</div>
+                <img src="https://portal.sunwardpharma.com:2025/AppUpload/53a7d978-ea99-4d81-8e7e-0a27f734be7e.png" style="width:70%">
+                <div class="text">Caption Text</div>
+            </div>
+
+            <div class="mySlides fade">
+                <div class="numbertext">2 / 3</div>
+                <img src="https://portal.sunwardpharma.com:2025/AppUpload/53a7d978-ea99-4d81-8e7e-0a27f734be7e.png" style="width:70%">
+                <div class="text">Caption Two</div>
+            </div>
+
+            <div class="mySlides fade">
+                <div class="numbertext">3 / 3</div>
+                <img src="https://portal.sunwardpharma.com:2025/AppUpload/53a7d978-ea99-4d81-8e7e-0a27f734be7e.png" style="width:70%">
+                <div class="text">Caption Three</div>
+            </div>
+
+            <a class="prev" onclick="plusSlides(-1)">❮</a>
+            <a class="next" onclick="plusSlides(1)">❯</a>
+
+        </div>
+        <br>
+
+        <div style="text-align:center">
+            <span class="dot" onclick="currentSlide(1)"></span>
+            <span class="dot" onclick="currentSlide(2)"></span>
+            <span class="dot" onclick="currentSlide(3)"></span>
+        </div>
+
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
       
@@ -143,3 +176,4 @@
 
     }
 }
+

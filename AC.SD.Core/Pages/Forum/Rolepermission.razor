@@ -16,6 +16,20 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data..."
                >
+    <div class="card w-100" style="margin-bottom:10px;">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
+                    
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
   <div class="main-container">
 
     <div class="content-container row">
@@ -33,24 +47,43 @@
                                                 ValidationEnabled="false"
                                                 EditModelSaving="Grid_EditModelSaving"
                                                 DataItemDeleting="Grid_DataItemDeleting"
-                                                EditMode="GridEditMode.EditRow"
+                                                EditMode="GridEditMode.EditForm" SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
                                                 EditorRenderMode="GridEditorRenderMode.Integrated"
                                                 ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                                 FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                                                 ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-                                                PagerNavigationMode="PagerNavigationMode.InputBox"
+                                                PagerNavigationMode="PagerNavigationMode.InputBox" SelectionMode="GridSelectionMode.Multiple"
                                                 PageSizeSelectorVisible="true"
                                                 PageSizeSelectorAllRowsItemVisible="true"
                                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                                AllowSelectRowByClick="true"
                                                 PageSize="20"
-                                                CustomizeElement="Grid_CustomizeElement"
+                                                RowClick="OnRowClick"
+                                                RowDoubleClick="OnRowDoubleClick"
+                                                FocusedRowEnabled="true"
+                                                CustomizeElement="Grid_CustomizeElement" SelectedDataItemsChanged="@SelectedDataItemsChanged"
                                                 CssClass="ch-360"
                                                 style="height: calc(100vh - 160px);">
                                             <Columns>
-                                                <DxGridCommandColumn Width="160px" />
+                                                <DxGridSelectionColumn Width="160px" />
                                                 <DxGridDataColumn FieldName="Name" Caption="User Role" MinWidth="80" />
                                                 <DxGridDataColumn FieldName="Description" MinWidth="80" />
                                             </Columns>
+                                            <EditFormTemplate Context="EditFormContext">
+                                                @{
+                                                    var rolePermission = (RolePermission)EditFormContext.EditModel;
+                                                }
+                                                <DxFormLayout CssClass="w-100">
+                                                    <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
+                                                        <DxTextBox @bind-Text="@rolePermission.Name" />
+                                                        <ValidationMessage For="@(() => rolePermission.Name)" />
+                                                    </DxFormLayoutItem>
+                                                    <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                                                        <DxTextBox @bind-Text="@rolePermission.Description" />
+                                                    </DxFormLayoutItem>
+                                                    <ValidationSummary />
+                                                </DxFormLayout>
+                                            </EditFormTemplate>
                                         </DxGrid>
                                         </div>
                                     </div>
@@ -63,13 +96,19 @@
       <div class=" col-md-4">
                 <div class="mini-menu-bar-top" style="height: calc(100vh - 160px);">
                 <div class="mini-menu-bar-heading">
-                      <div class="files-title">Application MenuPermission</div>
+                        <div class="files-title">Application MenuPermission <button class="btn btn-primary" @onclick="OnSaveRolepermission">Save</button></div>
+                      
+
                 </div>
                 <div>
                     <div class="views-accordion">
-                            <DxTreeView Data="@Data" style="height: calc(100vh - 100px);"
+                            <DxTreeView Data="@Data" style="height: calc(100vh - 180px);"
                                     AllowSelectNodes=true
                                     LoadChildNodesOnDemand=false
+                                        CheckMode="TreeViewCheckMode.Recursive"
+                                        CheckAllVisible="true"
+                                        CheckedChanged="CheckedChanged"
+                                        SelectionChanged="@SelectionChanged"
                                     AnimationType="LayoutAnimationType.Slide">
                             <DataMappings>
                                 <DxTreeViewDataMapping Text="PermissionName"
@@ -86,24 +125,119 @@
       </div>
      </div>
   </div>
-
+    <DxPopup @bind-Visible="@Blukdeletepopup"
+             ShowFooter="true"
+             HeaderText="CRT"
+             Closed="EulaPopupClosed"
+             Width="300px">
+        <BodyContentTemplate>
+            <p>
+                Do you want to delete
+            </p>
+        </BodyContentTemplate>
+        <FooterContentTemplate Context="Context">
+            <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback"  />
+            <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+        </FooterContentTemplate>
+    </DxPopup>
 </DxLoadingPanel>
 
 @code {
-   
+   // long prelistIds = 2;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    List<long> permissionids = new List<long>();
     bool PanelVisible { get; set; }
+    // IReadOnlyList<ITreeViewNodeInfo> prelistIds = new List<ITreeViewNodeInfo>();
     private  List<RolePermission> _rolePermission { get; set; }
     private List<ApplicationPermission> Data { get; set; }
+    object SelectedGroup = "none";
+    bool Blukdeletepopup { get; set; } = false;
     IGrid Grid { get; set; }
+    private ApplicationPermission? _selecteItems;
+    private RolePermission? _selectedItems;
+    private RolePermission _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
+    string? DeleteerrorMessage;
+    bool EditEnabled { get; set; } = true;
+    bool PopupVisible { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
         _rolePermission = await Mediator.Send(new GetAllRolePermission());
         Data = await Mediator.Send(new GetAllApplicationPermission());
+
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         PanelVisible = false;
     }
+    void SelectionChanged(TreeViewNodeEventArgs e)
+    {
+        SelectedGroup = e.NodeInfo.Text;
+        InvokeAsync(StateHasChanged);
+    }
+    private async Task OnSaveRolepermission()
+    {
+
+        var listitems = permissionids;
+
+    }
+
+    void CheckedChanged(TreeViewCheckedChangedEventArgs e)
+    {
+        var item = e.CheckedItems;
+        
+        //var items = e.LastCheckedItems;
+       
+            if (e.LastCheckedItems.Count > 0)
+            {
+                List<long> newList = new List<long>(permissionids);
+                   newList.RemoveAll(item => permissionids.Contains(item));
+                 permissionids = newList;
+                foreach (var i in e.CheckedItems)
+                {
+                    if (i.DataItem is ApplicationPermission employee)
+                    {
+                        var pid = employee.PermissionID;
+                        permissionids.Add(pid);
+
+                        
+                    }
+                }
+
+            }
+        
+      
+        else
+        {
+            foreach (var ir in e.LastUncheckedItems)
+            {
+                if (ir.DataItem is ApplicationPermission test)
+                {
+                    var id = test.PermissionID;
+                    // UnCheckedIds.Remove(id);
+                    //  permissionids.Add(pid);
+                    permissionids.Remove(id);
+
+                }
+                //_selecteItems = i.DataItem;
+
+            }
+        }
+
+          
+            // _selecteItems = i.DataItem;
+           
+
+       
+        //if (e.LastUncheckedItems.Count > 0)
+        //{
+        //    List<long> newList = new List<long>(permissionids);
+        //    newList.RemoveAll(item => permissionids.Contains(item));
+        //    permissionids = newList;
+        //}
+       
+    }
+  
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editModel = (RolePermission)e.EditModel;
@@ -198,4 +332,116 @@
             e.CssClass = "header-bold";
         }
     }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RolePermissionID");
+        _selectedItems = _rolePermission.FirstOrDefault(f => f.RolePermissionID == (long?)UniqueId);
+        // Data = await Mediator.Send(new GetAllApplicationPermission());
+        StateHasChanged();
+
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is RolePermission rolePermission)
+                {
+
+                    _selectlst = _rolePermission.FirstOrDefault(f => f.RolePermissionID == rolePermission.RolePermissionID);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
+
+        // Grid.SelectDataItems(SelectedDataItems);
+
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is RolePermission rolePermission)
+                    {
+
+                        var request = new DeleteRolePermissionQuery(rolePermission.RolePermissionID);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        await UpdateDataAsync();
+                        toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+      //  await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+       // UpdateDataAsync();
+    }
+      
+    //async void ClosePopup()
+    //{
+    //    SelectedDataItems = null;
+    //    Blukdeletepopup = false;
+    //    PopupVisible = false;
+    //    await UpdateDataAsync();
+    //}
 }

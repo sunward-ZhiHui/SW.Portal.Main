@@ -371,12 +371,22 @@
     private async Task SectionSelectionChanged(TreeViewNodeEventArgs e)
     {
         disabledSectionState = false;
-        var list = (ApplicationMasterChildModel)e.NodeInfo.DataItem;
-        if (list.ApplicationMasterParentId == 115)
+        if(e.NodeInfo == null)
         {
             disabledSectionState = true;
-            _applicationMasterChildChildSelectItems = list;
-            await UpdateDataAsync();
+            _applicationMasterChildChildSelectItems = new ApplicationMasterChildModel();
+            await UpdateDataAsync();            
+        }
+        else 
+        {
+            var list = (ApplicationMasterChildModel)e.NodeInfo.DataItem;
+            if (list.ApplicationMasterParentId == 115)
+            {
+                disabledSectionState = true;
+                _applicationMasterChildChildSelectItems = list;
+                await UpdateDataAsync();
+            }
+           
         }
     }
     async Task UpdateDataAsync()

@@ -31,5 +31,7 @@ namespace Application.Queries
     {
 
     }
-
+    public class CreateApplicationRolePermissionQuery : ApplicationRolePermission, IRequest<long>
+    {
+    }
 }

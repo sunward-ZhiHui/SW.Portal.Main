@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,8 @@ namespace Core.Entities
         public bool IsMobile { get; set; }
         public bool IsProductionApp { get; set; }
         public bool IsCmsApp { get; set; }
+        [NotMapped]
+        public bool Checked { get; set; } = true;
 
     }
 }

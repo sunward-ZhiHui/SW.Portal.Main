@@ -11,7 +11,7 @@ namespace Core.Entities
     public class RolePermission:BaseEntity
     {
         [Key]
-        public long RolePermissionID { get; set; }
+        public long RoleID { get; set; }
         [Required(ErrorMessage = "Please Enter Name.")]
         public string Name { get; set;}
         public string Description { get; set;}

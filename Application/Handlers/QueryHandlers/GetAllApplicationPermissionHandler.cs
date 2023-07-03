@@ -48,4 +48,20 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<ApplicationPermission>)await _queryRepository.GetAllAsync();
         }
     }
+    public class CreateRolePermissionHandler : IRequestHandler<CreateApplicationRolePermissionQuery, long>
+    {
+        private readonly IApplicationPermissionQueryRepository _rolepermissionQueryRepository;
+        public CreateRolePermissionHandler(IApplicationPermissionQueryRepository rolepermissionQueryRepository)
+        {
+            _rolepermissionQueryRepository = rolepermissionQueryRepository;
+        }
+
+        public async Task<long> Handle(CreateApplicationRolePermissionQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _rolepermissionQueryRepository.Insert(request);
+            return newlist;
+
+        }
+
+    }
 }

@@ -43,7 +43,7 @@
                                         <div class="card-body p-0">
                                         <DxGrid @ref="Grid"
                                                 Data="_rolePermission"
-                                                KeyFieldName="RolePermissionID"
+                                                KeyFieldName="RoleID"
                                                 ValidationEnabled="false"
                                                 EditModelSaving="Grid_EditModelSaving"
                                                 DataItemDeleting="Grid_DataItemDeleting"
@@ -113,7 +113,8 @@
                             <DataMappings>
                                 <DxTreeViewDataMapping Text="PermissionName"
                                                        Key="PermissionID"
-                                                       ParentKey="ParentID" />
+                                                           ParentKey="ParentID" Name="PermissionID" 
+                                                           Checked="Checked" />
                             </DataMappings>
                         </DxTreeView>
                     </div>
@@ -143,10 +144,12 @@
 </DxLoadingPanel>
 
 @code {
-   // long prelistIds = 2;
+    DxTreeView treeview;
+    // long prelistIds = 2;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     List<long> permissionids = new List<long>();
     bool PanelVisible { get; set; }
+    IReadOnlyList<ITreeViewNodeInfo> checkedEmployees;
     // IReadOnlyList<ITreeViewNodeInfo> prelistIds = new List<ITreeViewNodeInfo>();
     private  List<RolePermission> _rolePermission { get; set; }
     private List<ApplicationPermission> Data { get; set; }
@@ -158,17 +161,23 @@
     private RolePermission _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
     string? DeleteerrorMessage;
-    bool EditEnabled { get; set; } = true;
+    bool EditEnabled { get; set; } = false;
     bool PopupVisible { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
+        checkedEmployees = new List<ITreeViewNodeInfo>();
         _rolePermission = await Mediator.Send(new GetAllRolePermission());
         Data = await Mediator.Send(new GetAllApplicationPermission());
 
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         PanelVisible = false;
+    }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        //  checkedEmployees = treeview.GetCheckedNodeInfo().ToList();
     }
     void SelectionChanged(TreeViewNodeEventArgs e)
     {
@@ -177,67 +186,76 @@
     }
     private async Task OnSaveRolepermission()
     {
-
         var listitems = permissionids;
+        var editModel = new ApplicationRolePermission();
+        var createReq = new CreateApplicationRolePermissionQuery
 
+            {
+                //RoleID = editModel.RoleID,
+                //PermissionID = editModel.PermissionID
+                RoleID = 1,
+                PermissionID = 6001
+            };
+
+        var result = await Mediator.Send(createReq);
+        toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        await UpdateDataAsync();
     }
 
     void CheckedChanged(TreeViewCheckedChangedEventArgs e)
     {
-        var item = e.CheckedItems;
-        
-        //var items = e.LastCheckedItems;
-       
-            if (e.LastCheckedItems.Count > 0)
-            {
-                List<long> newList = new List<long>(permissionids);
-                   newList.RemoveAll(item => permissionids.Contains(item));
-                 permissionids = newList;
-                foreach (var i in e.CheckedItems)
-                {
-                    if (i.DataItem is ApplicationPermission employee)
-                    {
-                        var pid = employee.PermissionID;
-                        permissionids.Add(pid);
 
-                        
-                    }
-                }
+        if (e.CheckedItems != null)
+            checkedEmployees = e.CheckedItems;
 
-            }
-        
-      
-        else
+
+        if (checkedEmployees.Count != 0)
         {
-            foreach (var ir in e.LastUncheckedItems)
+            foreach (var item in checkedEmployees)
             {
-                if (ir.DataItem is ApplicationPermission test)
-                {
-                    var id = test.PermissionID;
-                    // UnCheckedIds.Remove(id);
-                    //  permissionids.Add(pid);
-                    permissionids.Remove(id);
-
-                }
-                //_selecteItems = i.DataItem;
-
+                // permissionids.Add((long)item.Name);
             }
         }
 
-          
-            // _selecteItems = i.DataItem;
-           
 
-       
-        //if (e.LastUncheckedItems.Count > 0)
+
+
+        //    if (e.LastCheckedItems.Count > 0)
+        //    {
+        //        List<long> newList = new List<long>(permissionids);
+        //           newList.RemoveAll(item => permissionids.Contains(item));
+        //         permissionids = newList;
+        //        foreach (var i in e.CheckedItems)
+        //        {
+        //            if (i.DataItem is ApplicationPermission employee)
+        //            {
+        //                var pid = employee.PermissionID;
+        //                permissionids.Add(pid);
+
+
+        //            }
+        //        }
+
+        //    }
+
+
+        //else
         //{
-        //    List<long> newList = new List<long>(permissionids);
-        //    newList.RemoveAll(item => permissionids.Contains(item));
-        //    permissionids = newList;
+        //    foreach (var ir in e.LastUncheckedItems)
+        //    {
+        //        if (ir.DataItem is ApplicationPermission test)
+        //        {
+        //            var id = test.PermissionID;
+        //            permissionids.Remove(id);
+
+        //        }
+        //        //_selecteItems = i.DataItem;
+
+        //    }
         //}
-       
+
     }
-  
+
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editModel = (RolePermission)e.EditModel;
@@ -275,7 +293,7 @@
         }
         else
         {
-            var ex = _rolePermission.Where(x => x.Name == editModel.Name && x.RolePermissionID != editModel.RolePermissionID);
+            var ex = _rolePermission.Where(x => x.Name == editModel.Name && x.RoleID != editModel.RoleID);
             if (ex.Any())
             {
 
@@ -286,7 +304,7 @@
             {
                 var UpdateReq = new EditRolePermissionQuery
                     {
-                        RolePermissionID = editModel.RolePermissionID,
+                        RoleID = editModel.RoleID,
                         Name = editModel.Name,
                         Description = editModel.Description,
                         StatusCodeID = editModel.StatusCodeID,
@@ -315,7 +333,7 @@
     {
         var editModel = (RolePermission)e.DataItem;
 
-        var request = new DeleteRolePermissionQuery(editModel.RolePermissionID);
+        var request = new DeleteRolePermissionQuery(editModel.RoleID);
         await Mediator.Send(request);
         await UpdateDataAsync();
         toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -335,11 +353,16 @@
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RolePermissionID");
-        _selectedItems = _rolePermission.FirstOrDefault(f => f.RolePermissionID == (long?)UniqueId);
+        _selectedItems = _rolePermission.FirstOrDefault(f => f.RoleID == (long?)UniqueId);
         // Data = await Mediator.Send(new GetAllApplicationPermission());
+     //   LoadRoleLst();
         StateHasChanged();
 
     }
+    //void LoadRoleLst()
+    //{
+    //    _rolePermission = await Mediator.Send(new GetAllRolePermission(_selectedItems));
+    //}
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowClick(e);
@@ -362,7 +385,7 @@
                 if (item is RolePermission rolePermission)
                 {
 
-                    _selectlst = _rolePermission.FirstOrDefault(f => f.RolePermissionID == rolePermission.RolePermissionID);
+                    _selectlst = _rolePermission.FirstOrDefault(f => f.RoleID == rolePermission.RoleID);
 
 
                 }
@@ -394,7 +417,7 @@
                     if (item is RolePermission rolePermission)
                     {
 
-                        var request = new DeleteRolePermissionQuery(rolePermission.RolePermissionID);
+                        var request = new DeleteRolePermissionQuery(rolePermission.RoleID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         await UpdateDataAsync();

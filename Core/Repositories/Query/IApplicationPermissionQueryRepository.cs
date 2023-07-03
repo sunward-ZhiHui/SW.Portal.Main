@@ -13,6 +13,6 @@ namespace Core.Repositories.Query
     {
        
         Task<IReadOnlyList<ApplicationPermission>> GetAllAsync();
-    
+        Task<long> Insert(ApplicationRolePermission applicationrolepermission);
     }
 }

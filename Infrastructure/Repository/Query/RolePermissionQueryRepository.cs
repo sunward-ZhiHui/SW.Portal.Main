@@ -101,9 +101,9 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("Name", rolepermission.Name);
                             parameters.Add("Description", rolepermission.Description);
-                            parameters.Add("RolePermissionID", rolepermission.RolePermissionID, DbType.Int64);
+                            parameters.Add("RoleID", rolepermission.RoleID, DbType.Int64);
 
-                            var query = " UPDATE RolePermission SET Name = @Name,Description = @Description WHERE RolePermissionID = @RolePermissionID";
+                            var query = " UPDATE RolePermission SET Name = @Name,Description = @Description WHERE RoleID = @RoleID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -141,9 +141,9 @@ namespace Infrastructure.Repository.Query
                         try
                         {
                             var parameters = new DynamicParameters();
-                            parameters.Add("RolePermissionID", id);
+                            parameters.Add("RoleID", id);
 
-                            var query = "DELETE  FROM RolePermission WHERE RolePermissionID = @RolePermissionID";
+                            var query = "DELETE  FROM RolePermission WHERE RolePermissionID = @RoleID";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

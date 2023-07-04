@@ -59,34 +59,37 @@ namespace Infrastructure.Repository.Query
                 {
                     connection.Open();
                     var res = connection.Query<EmailTopics>(query, parameters).ToList();
+                    if(res.Count > 0)
+                    {
+                        var subQueryDocs = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
 
-                    var subQueryDocs = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
+                        var parametersDocs = new DynamicParameters();
+                        parametersDocs.Add("SessionID", res[0].SessionId);
 
-                    var parametersDocs = new DynamicParameters();
-                    parametersDocs.Add("SessionID", res[0].SessionId);
-
-                    var subQueryDocsResults = connection.Query<Documents>(subQueryDocs, parametersDocs).ToList();
+                        var subQueryDocsResults = connection.Query<Documents>(subQueryDocs, parametersDocs).ToList();
 
 
-                    var subQueryTo = @"select E.FirstName,FT.UserId,FT.TopicId from EmailtopicTo FT
+                        var subQueryTo = @"select E.FirstName,FT.UserId,FT.TopicId from EmailtopicTo FT
                                         INNER JOIN Employee E on E.UserID = FT.UserId
                                         where FT.TopicId = @ID";
-                    var parametersTo = new DynamicParameters();
-                    parametersTo.Add("ID", res[0].ID);
-                    var subQueryToResults = connection.Query<EmailAssignToList>(subQueryTo, parametersTo).ToList();
+                        var parametersTo = new DynamicParameters();
+                        parametersTo.Add("ID", res[0].ID);
+                        var subQueryToResults = connection.Query<EmailAssignToList>(subQueryTo, parametersTo).ToList();
 
 
-                    var subQueryCC = @"select E.FirstName,FC.UserId,FC.TopicId from EmailtopicCC FC
+                        var subQueryCC = @"select E.FirstName,FC.UserId,FC.TopicId from EmailtopicCC FC
                                         INNER JOIN Employee E on E.UserID = FC.UserId
                                         where FC.TopicId = @ID";
-                    var parametersCC = new DynamicParameters();
-                    parametersCC.Add("ID", res[0].ID);
-                    var subQueryCCResults = connection.Query<EmailAssignToList>(subQueryCC, parametersCC).ToList();
+                        var parametersCC = new DynamicParameters();
+                        parametersCC.Add("ID", res[0].ID);
+                        var subQueryCCResults = connection.Query<EmailAssignToList>(subQueryCC, parametersCC).ToList();
 
 
-                    res[0].documents = subQueryDocsResults;
-                    res[0].TopicToList = subQueryToResults;
-                    res[0].TopicCCList = subQueryCCResults;
+                        res[0].documents = subQueryDocsResults;
+                        res[0].TopicToList = subQueryToResults;
+                        res[0].TopicCCList = subQueryCCResults;
+
+                    }                   
 
                     return res;
 
@@ -171,7 +174,7 @@ namespace Infrastructure.Repository.Query
 
 
 
-                var query = @"SELECT TS.ID, TS.TopicName,TS.Remarks,
+                var query = @"SELECT TS.SessionId, TS.ID, TS.TopicName,TS.Remarks,
                                 TS.SeqNo,
                                 TS.Status,
                                 TS.Follow,

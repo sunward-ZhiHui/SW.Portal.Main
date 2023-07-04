@@ -69,8 +69,12 @@
                                 <Items>
                                     <DxMenuItem Text="Assign To" class="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" IconCssClass="fa fa-envelope" Click="@(() => OnLeftMenuItemClick("AssignTo"))" />                                    
                                     <DxMenuItem Text="CC" class="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" IconCssClass="popup-image popup-icon-position" Click="@(() => OnLeftMenuItemClick("AssignCC"))" />
-                                    <DxMenuItem Text="Sent" class="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" IconCssClass="fa fa-paper-plane" Click="@(() => OnLeftMenuItemClick("Sent"))" />
-                                </Items>
+                                    <DxMenuItem Text="Sent" class="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" IconCssClass="fa fa-paper-plane" Click="@(() => OnLeftMenuItemClick("Sent"))" />                                    
+                                    @if (ActiveSessionId != null)
+                                    {
+                                        <DxButton Click="@(() => TOGrid.ClearFilter())">Clear Filter</DxButton>
+                                    }
+                                    </Items>
                             </DxMenu>
                         </div>
                     </div>
@@ -99,7 +103,7 @@
                         @if (isLeftMenuvisible == "AssignTo")
                         {
                             <DxGrid @ref="TOGrid"
-                                    Data="_forumTopicTo"
+                                    Data="_forumTopicTo"                                    
                                     FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                                     KeyFieldName="ID"                                
                                     CustomizeElement="Grid_CustomizeElement"
@@ -114,10 +118,11 @@
                                     RowClick="OnEmailToRowClick"
                                     ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                     AllowSelectRowByClick="true">
-                                <Columns>  
-                                        <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="100" />
+                                <Columns>
+                                    <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
+                                    <DxGridDataColumn FieldName="FirstName" Caption="Name"  MinWidth="100" />
                                     <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
-                                    <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="160">
+                                        <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="180">
                                         <CellDisplayTemplate>
                                             @{
                                                 var item = (EmailTopics)context.DataItem;
@@ -125,7 +130,7 @@
                                             @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />
+                                    <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />                                       
                                 </Columns>
                                  <DetailRowTemplate>       
                                         <SubViewEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
@@ -258,7 +263,7 @@
 
                                                         <div class="mailbox-read-info">
                                                             <h3>@item.TopicName</h3>
-                                                            <h5>
+                                                           @* <h5>
                                                                 From: @item.FirstName
                                                                 <br>
                                                                 To:                                                                
@@ -279,13 +284,14 @@
                                                                     }
                                                                 }                                                               
                                                                 <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@item.StartDate)</span>
-                                                            </h5>
+                                                            </h5>*@
                                                         </div>                                                         
 
                                                        @* <div class="uk-card-title uk-first-column" style="margin-right:10px; float: left; margin-top: 4px; margin-left: 10px;">@item.TicketNo - @item.TopicName</div>
                                                         <span class="uk-label uk-margin-auto-left">@Application.Common.Helper.Helper.FormatDate(@item.AddedDate)</span>
                                                         *@
-                                                        <span class="uk-label uk-margin-auto-left" style="float: right; margin-top: -62px; margin-right: 10px;">
+                                                        <span class="mailbox-read-time pull-right" style="float: right; margin-top: -23px; margin-right: 40px;">@Application.Common.Helper.Helper.FormatDateTime(@item.StartDate)</span>
+                                                        <span class="uk-label uk-margin-auto-left" style="float: right; margin-top: -23px; margin-right: 15px;">
 
                                                             @if (isAddParticipant)
                                                             {
@@ -603,7 +609,7 @@
                                       Closing="EulaClosing"
                                       MinWidth="800"
                                       Width="800"                                      
-                                      MinHeight="600"
+                                      Height="600"
                                       ShowCloseButton="true"                                                
                                       @ref="dxWindow">
                                         <BodyTemplate Context="Context">
@@ -941,6 +947,7 @@
 @code {
     [Parameter]
     public string ActiveSessionId { get; set; }
+    public string filterrowname { get; set; }
     private bool IsConHistory = false;
     [Parameter]
     public EventCallback<string> RId { get; set; }
@@ -1575,9 +1582,9 @@
         var response = await Mediator.Send(request);
 
         // string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
-        string filePath = FileUrl + response.FilePath;
+        string filePath = response.FilePath;
         //string filePath = response.ServerFilePath;
-
+         var urlss = FileUrl + _documents.FilePath;
         string extension = Path.GetExtension(response.FilePath);
 
 
@@ -1744,18 +1751,20 @@
         //    Item = item
         //}).ToList();
 
-        _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));
+        if(long.Parse(@SelectedGroup) != 0)
+        {
+            _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));
 
+            isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
-        isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+            isEnabled = true;
+            isEllipsis = true;
+            isCommand = true;
+            _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
 
-        isEnabled = true;
-        isEllipsis = true;
-        isCommand = true;
-        _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
+            IsConHistory = true;            
+        }
 
-        //_participant[1].IsEnabled = false; // Disable the second row
-        IsConHistory = true;
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //var plist = await Mediator.Send(new GetAllEmployeeListQuery());
         // _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
@@ -1796,24 +1805,28 @@
     private async Task LoadDataPosts()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
-        Tid = long.Parse(@SelectedGroup);
-        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup)));
-        _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
-
-        _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup)));
-        var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
-        if (topicToList != null)
+        if(long.Parse(@SelectedGroup) > 0)
         {
-            Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
-        }
+            Tid = long.Parse(@SelectedGroup);
+            _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup)));
+            _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
+
+            _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup)));
+            var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
+            if (topicToList != null)
+            {
+                Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
+            }
 
 
-        isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+            isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
-        isEnabled = true;
-        isEllipsis = true;
-        isCommand = true;
-        _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));     
+            isEnabled = true;
+            isEllipsis = true;
+            isCommand = true;
+            _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));   
+
+        }        
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
 
@@ -1867,20 +1880,54 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
         await JSRuntime.InvokeAsync<string>("showLoading");
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
 
-        _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
-        
+      
+        filterrowname = "";
         if (ActiveSessionId != null)
         {
-             var lsts = await Mediator.Send(new GetListBySession(ActiveSessionId));
-            SelectedGroup = lsts[0].ID.ToString();
-            RTopicId = 0;
-            await LoadData();
+            var lsts = await Mediator.Send(new GetListBySession(ActiveSessionId));
+            if(lsts.Count > 0)
+            {
+                SelectedGroup = lsts[0].ID.ToString();
+                RTopicId = 0;
+                filterrowname = ActiveSessionId;
+
+                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+                _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+                _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+                
+                await LoadData();
+
+            }
+            else
+            {
+                RTopicId = 0;
+                SelectedGroup = "0";
+                await LoadData();
+
+                //if (long.Parse(@SelectedGroup) > 0)
+                //{
+                //    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+                //    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+                //    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                //    _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+                //}
+
+            }
+
         }
-       
+        else
+        {
+            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+            _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+            _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+            _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+        }
+
+
+      
+
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));

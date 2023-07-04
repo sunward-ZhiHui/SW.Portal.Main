@@ -5,7 +5,11 @@
 @using MediatR;
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
-
+<style>
+    .dxbl-loading-panel {
+        display: initial !important;
+    }
+</style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -23,7 +27,7 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data..."
                >
-<DxGrid @ref="Grid" Data="@_productionOutput" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+<DxGrid @ref="Grid" Data="@_productionOutput" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -31,22 +35,23 @@
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"
         CustomizeElement="Grid_CustomizeElement"
-            style="height: calc(100vh - 220px); width:1225px;"
-        CssClass="ch-360" 
+            style="height: calc(100vh - 220px);"
+        CssClass="w-100" 
         AutoExpandAllGroupRows="true"
         SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            TextWrapEnabled="false">
     <Columns>
-        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridSelectionColumn Width="60" FixedPosition="GridColumnFixedPosition.Left" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="OutputDate" Width="180px" />
-            <DxGridDataColumn FieldName="Time" Width="180px" />
-            <DxGridDataColumn FieldName="LocationName" Width="200px" />
-            <DxGridDataColumn FieldName="ProductionOrderNo" Width="180px" Caption="ProductionOrder" />
-            <DxGridDataColumn FieldName="ItemNo" Width="180px" />
-            <DxGridDataColumn FieldName="Description" Width="300px" />
-            <DxGridDataColumn FieldName="BatchNo" Width="180px" />
-            <DxGridDataColumn FieldName="SubLotNo" Width="180px" />
-            <DxGridDataColumn FieldName="DrumNo" Width="180px" />
+            <DxGridDataColumn FieldName="Time" MinWidth="180" />
+            <DxGridDataColumn FieldName="LocationName" MinWidth="200" />
+            <DxGridDataColumn FieldName="ProductionOrderNo" FixedPosition="GridColumnFixedPosition.Left" Width="220" Caption="ProductionOrder" />
+            <DxGridDataColumn FieldName="ItemNo" FixedPosition="GridColumnFixedPosition.Left" Width="180px" />
+            <DxGridDataColumn FieldName="Description" MinWidth="300" />
+            <DxGridDataColumn FieldName="BatchNo" MinWidth="180" />
+            <DxGridDataColumn FieldName="SubLotNo" MinWidth="180" />
+            <DxGridDataColumn FieldName="DrumNo" MinWidth="180" />
             <DxGridDataColumn FieldName="GrossWeight" Width="180px" />
             <DxGridDataColumn FieldName="NetWeight" Width="180px" />
             <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" Width="180px" />

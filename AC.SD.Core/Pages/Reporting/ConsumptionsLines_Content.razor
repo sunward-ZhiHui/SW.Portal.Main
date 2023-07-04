@@ -4,7 +4,12 @@
 @using MediatR;
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
-
+<style>
+    .dxbl-loading-panel
+    {
+        display: initial !important;
+    }
+</style>
 
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
@@ -13,18 +18,17 @@
                 Text="Fetching Data..."
                >
     <DxGrid Data="@consumptionLines" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-        PageSize="5" EditMode="GridEditMode.EditForm"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        PageSize="25"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            CssClass="ch-360" style="height: calc(100vh - 300px); width:1178px;"
+        CssClass="w-100 conswidth" style="height: calc(100vh - 438px);"
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
         CustomizeElement="Grid_CustomizeElement"
         AutoExpandAllGroupRows="true" >
     <Columns>
-        <DxGridDataColumn FieldName="ItemNo" MinWidth ="200"  Caption="MaterialNo" />
+            <DxGridDataColumn FieldName="ItemNo" MinWidth="200" Caption="MaterialNo" />
             <DxGridDataColumn FieldName="Description" MinWidth="180" />
             <DxGridDataColumn FieldName="LotNo" MinWidth="180" />
             <DxGridDataColumn FieldName="SubLotNo" MinWidth="180" />
@@ -32,7 +36,7 @@
             <DxGridDataColumn FieldName="QCRefNo" MinWidth="180" />
             <DxGridDataColumn FieldName="BatchNo" MinWidth="180" />
             <DxGridDataColumn FieldName="Quantity" MinWidth="180" />
-            <DxGridDataColumn FieldName="UOM" MinWidth="180" />
+            <DxGridDataColumn FieldName="UOM" MinWidth="150" />
             <DxGridDataColumn FieldName="PostedtoNav" MinWidth="180" />
     </Columns>
 

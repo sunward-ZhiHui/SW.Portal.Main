@@ -10,24 +10,32 @@ using System.Threading.Tasks;
 
 namespace Application.Queries
 {
-    public class GetAllRolePermission : PagedRequest, IRequest<List<RolePermission>>
+    public class GetAllRolePermission : PagedRequest, IRequest<List<ApplicationRole>>
     {
    
     }
-    public class CreateRolePermissionQuery : RolePermission, IRequest<long>
+    public class CreateRolePermissionQuery : ApplicationRole, IRequest<long>
     {
     }
-    public class EditRolePermissionQuery : RolePermission, IRequest<long>
+    public class EditRolePermissionQuery : ApplicationRole, IRequest<long>
     {
    
     }
-    public class DeleteRolePermissionQuery : RolePermission, IRequest<long>
+    public class DeleteRolePermissionQuery : ApplicationRole, IRequest<long>
     {
         public long ID { get; set; }
 
         public DeleteRolePermissionQuery(long Id)
         {
             this.ID = Id;
+        }
+    }
+    public class GetAllRolePermissionSelectedLst : PagedRequest, IRequest<List<ApplicationRole>>
+    {
+        public long RoleID { get; private set; }
+        public GetAllRolePermissionSelectedLst(long RoleId)
+        {
+            this.RoleID = RoleId;
         }
     }
 }

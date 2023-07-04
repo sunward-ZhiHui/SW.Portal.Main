@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Query
 {
-    public class RolePermissionQueryRepository : QueryRepository<RolePermission>, IRolePermissionQueryRepository
+    public class RolePermissionQueryRepository : QueryRepository<ApplicationRole>, IRolePermissionQueryRepository
     {
         public RolePermissionQueryRepository(IConfiguration configuration)
             : base(configuration)
@@ -20,15 +20,15 @@ namespace Infrastructure.Repository.Query
 
         }
 
-        public async Task<IReadOnlyList<RolePermission>> GetAllAsync()
+        public async Task<IReadOnlyList<ApplicationRole>> GetAllAsync()
         {
             try
             {
-                var query = "SELECT * FROM RolePermission";
+                var query = "SELECT * FROM ApplicationRole";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<RolePermission>(query)).ToList();
+                    return (await connection.QueryAsync<ApplicationRole>(query)).ToList();
                 }
             }
             catch (Exception exp)
@@ -36,7 +36,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<long> Insert(RolePermission rolepermission)
+        public async Task<long> Insert(ApplicationRole rolepermission)
         {
 
             try
@@ -51,14 +51,14 @@ namespace Infrastructure.Repository.Query
                         try
                         {
                             var parameters = new DynamicParameters();
-                            parameters.Add("Name", rolepermission.Name, DbType.String);
-                            parameters.Add("Description", rolepermission.Description);
-                            parameters.Add("SessionId", rolepermission.SessionId);
+                            parameters.Add("RoleName", rolepermission.RoleName, DbType.String);
+                            parameters.Add("RoleDescription", rolepermission.RoleDescription);
+                          
                             parameters.Add("AddedByUserID", rolepermission.AddedByUserID);
                             parameters.Add("AddedDate", rolepermission.AddedDate);
                             parameters.Add("StatusCodeID", rolepermission.StatusCodeID);
 
-                            var query = "INSERT INTO RolePermission(Name,Description,SessionId,AddedByUserID,AddedDate,StatusCodeID) VALUES (@Name,@Description,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
+                            var query = "INSERT INTO ApplicationRole(RoleName,RoleDescription,AddedByUserID,AddedDate,StatusCodeID) VALUES (@RoleName,@RoleDescription,@AddedByUserID,@AddedDate,@StatusCodeID)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -85,7 +85,7 @@ namespace Infrastructure.Repository.Query
             }
 
         }
-        public async Task<long> Update(RolePermission rolepermission)
+        public async Task<long> Update(ApplicationRole rolepermission)
         {
             try
             {
@@ -99,11 +99,11 @@ namespace Infrastructure.Repository.Query
                         try
                         {
                             var parameters = new DynamicParameters();
-                            parameters.Add("Name", rolepermission.Name);
-                            parameters.Add("Description", rolepermission.Description);
+                            parameters.Add("RoleName", rolepermission.RoleName);
+                            parameters.Add("RoleDescription", rolepermission.RoleDescription);
                             parameters.Add("RoleID", rolepermission.RoleID, DbType.Int64);
 
-                            var query = " UPDATE RolePermission SET Name = @Name,Description = @Description WHERE RoleID = @RoleID";
+                            var query = " UPDATE ApplicationRole SET RoleName = @RoleName,RoleDescription = @RoleDescription WHERE RoleID = @RoleID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -143,7 +143,7 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("RoleID", id);
 
-                            var query = "DELETE  FROM RolePermission WHERE RolePermissionID = @RoleID";
+                            var query = "DELETE  FROM ApplicationRole WHERE RoleID = @RoleID";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
@@ -160,6 +160,27 @@ namespace Infrastructure.Repository.Query
                     }
                 }
 
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public  async Task<List<ApplicationRole>> GetSelectedRolePermissionListAsync(long RoleId)
+        {
+            try
+            {
+                
+                        var parameters = new DynamicParameters();
+                        parameters.Add("RoleID", RoleId, DbType.Int64);
+                        var query = "SELECT * FROM ApplicationRole RP WHERE RP.RoleID =@RoleID";
+                        using (var connection = CreateConnection())
+                        {
+                            return (await connection.QueryAsync<ApplicationRole>(query, parameters)).ToList();
+                        }
+                       
+                    
             }
             catch (Exception exp)
             {

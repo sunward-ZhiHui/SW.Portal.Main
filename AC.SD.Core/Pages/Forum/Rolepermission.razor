@@ -66,20 +66,20 @@
                                                 style="height: calc(100vh - 160px);">
                                             <Columns>
                                                 <DxGridSelectionColumn Width="160px" />
-                                                <DxGridDataColumn FieldName="Name" Caption="User Role" MinWidth="80" />
-                                                <DxGridDataColumn FieldName="Description" MinWidth="80" />
+                                                <DxGridDataColumn FieldName="RoleName" Caption="User Role" MinWidth="80" />
+                                                <DxGridDataColumn FieldName="RoleDescription" MinWidth="80" />
                                             </Columns>
                                             <EditFormTemplate Context="EditFormContext">
                                                 @{
-                                                    var rolePermission = (RolePermission)EditFormContext.EditModel;
+                                                    var rolePermission = (ApplicationRole)EditFormContext.EditModel;
                                                 }
                                                 <DxFormLayout CssClass="w-100">
                                                     <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
-                                                        <DxTextBox @bind-Text="@rolePermission.Name" />
-                                                        <ValidationMessage For="@(() => rolePermission.Name)" />
+                                                        <DxTextBox @bind-Text="@rolePermission.RoleName" />
+                                                        <ValidationMessage For="@(() => rolePermission.RoleName)" />
                                                     </DxFormLayoutItem>
                                                     <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
-                                                        <DxTextBox @bind-Text="@rolePermission.Description" />
+                                                        <DxTextBox @bind-Text="@rolePermission.RoleDescription" />
                                                     </DxFormLayoutItem>
                                                     <ValidationSummary />
                                                 </DxFormLayout>
@@ -145,20 +145,20 @@
 
 @code {
     DxTreeView treeview;
-    // long prelistIds = 2;
+   
     IReadOnlyList<object> SelectedDataItems { get; set; }
     List<long> permissionids = new List<long>();
     bool PanelVisible { get; set; }
     IReadOnlyList<ITreeViewNodeInfo> checkedEmployees;
-    // IReadOnlyList<ITreeViewNodeInfo> prelistIds = new List<ITreeViewNodeInfo>();
-    private  List<RolePermission> _rolePermission { get; set; }
+    private List<ApplicationRole> _rolePermissionSelecteditem { get; set; }
+    private List<ApplicationRole> _rolePermission { get; set; }
     private List<ApplicationPermission> Data { get; set; }
     object SelectedGroup = "none";
     bool Blukdeletepopup { get; set; } = false;
     IGrid Grid { get; set; }
     private ApplicationPermission? _selecteItems;
-    private RolePermission? _selectedItems;
-    private RolePermission _selectlst;
+    private ApplicationRole? _selectedItems;
+    private ApplicationRole _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
     string? DeleteerrorMessage;
     bool EditEnabled { get; set; } = false;
@@ -258,12 +258,12 @@
 
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
-        var editModel = (RolePermission)e.EditModel;
+        var editModel = (ApplicationRole)e.EditModel;
 
         if (e.IsNew)
         {
 
-            var ex = _rolePermission.Where(x => x.Name == editModel.Name );
+            var ex = _rolePermission.Where(x => x.RoleName == editModel.RoleName );
             if (ex.Any())
             {
 
@@ -277,13 +277,12 @@
                 var createReq = new CreateRolePermissionQuery
 
                     {
-                        Name = editModel.Name,
-                        Description = editModel.Description,
+                        RoleName = editModel.RoleName,
+                        RoleDescription = editModel.RoleDescription,
                         StatusCodeID = 1,
                         AddedByUserID = applicationUser.UserID,
-                        ModifiedByUserID = applicationUser.UserID,
                         AddedDate = DateTime.Now,
-                        SessionId = Guid.NewGuid()
+                      //  SessionId = Guid.NewGuid()
                     };
                 var result = await Mediator.Send(createReq);
                 toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -293,7 +292,7 @@
         }
         else
         {
-            var ex = _rolePermission.Where(x => x.Name == editModel.Name && x.RoleID != editModel.RoleID);
+            var ex = _rolePermission.Where(x => x.RoleName == editModel.RoleName && x.RoleID != editModel.RoleID);
             if (ex.Any())
             {
 
@@ -305,8 +304,8 @@
                 var UpdateReq = new EditRolePermissionQuery
                     {
                         RoleID = editModel.RoleID,
-                        Name = editModel.Name,
-                        Description = editModel.Description,
+                        RoleName = editModel.RoleName,
+                        RoleDescription = editModel.RoleDescription,
                         StatusCodeID = editModel.StatusCodeID,
                         AddedByUserID = editModel.AddedByUserID,
                         AddedDate = editModel.AddedDate,
@@ -331,7 +330,7 @@
     }
     async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
     {
-        var editModel = (RolePermission)e.DataItem;
+        var editModel = (ApplicationRole)e.DataItem;
 
         var request = new DeleteRolePermissionQuery(editModel.RoleID);
         await Mediator.Send(request);
@@ -352,17 +351,17 @@
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RolePermissionID");
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RoleID");
         _selectedItems = _rolePermission.FirstOrDefault(f => f.RoleID == (long?)UniqueId);
         // Data = await Mediator.Send(new GetAllApplicationPermission());
-     //   LoadRoleLst();
+        LoadRoleLst();
         StateHasChanged();
 
     }
-    //void LoadRoleLst()
-    //{
-    //    _rolePermission = await Mediator.Send(new GetAllRolePermission(_selectedItems));
-    //}
+    async  Task LoadRoleLst()
+    {
+        _rolePermissionSelecteditem = await Mediator.Send(new GetAllRolePermissionSelectedLst(_selectedItems.RoleID));
+    }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowClick(e);
@@ -382,7 +381,7 @@
             foreach (object item in SelectedDataItems)
             {
 
-                if (item is RolePermission rolePermission)
+                if (item is ApplicationRole rolePermission)
                 {
 
                     _selectlst = _rolePermission.FirstOrDefault(f => f.RoleID == rolePermission.RoleID);
@@ -414,7 +413,7 @@
                 foreach (object item in SelectedDataItems)
                 {
 
-                    if (item is RolePermission rolePermission)
+                    if (item is ApplicationRole rolePermission)
                     {
 
                         var request = new DeleteRolePermissionQuery(rolePermission.RoleID);

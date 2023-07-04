@@ -8,12 +8,13 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public interface IRolePermissionQueryRepository : IQueryRepository<RolePermission>
+    public interface IRolePermissionQueryRepository : IQueryRepository<ApplicationRole>
     {
-        Task<IReadOnlyList<RolePermission>> GetAllAsync();
-        Task<long> Insert(RolePermission rolepermission);
-        Task<long> Update(RolePermission rolepermission);
+        Task<IReadOnlyList<ApplicationRole>> GetAllAsync();
+        Task<long> Insert(ApplicationRole rolepermission);
+        Task<long> Update(ApplicationRole rolepermission);
         Task<long> Delete(long id);
+        Task<List<ApplicationRole>> GetSelectedRolePermissionListAsync(Int64 RoleId);
 
     }
 }

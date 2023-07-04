@@ -11,16 +11,16 @@ using System.Threading.Tasks;
 
 namespace Application.Handlers.QueryHandlers
 {
-    public class GetAllRolePermissionHandler : IRequestHandler<GetAllRolePermission, List<RolePermission>>
+    public class GetAllRolePermissionHandler : IRequestHandler<GetAllRolePermission, List<ApplicationRole>>
     {
         private readonly IRolePermissionQueryRepository _rolepermissionQueryRepository;
         public GetAllRolePermissionHandler(IRolePermissionQueryRepository rolepermissionQueryRepository)
         {
             _rolepermissionQueryRepository = rolepermissionQueryRepository;
         }
-        public async Task<List<RolePermission>> Handle(GetAllRolePermission request, CancellationToken cancellationToken)
+        public async Task<List<ApplicationRole>> Handle(GetAllRolePermission request, CancellationToken cancellationToken)
         {
-            return (List<RolePermission>)await _rolepermissionQueryRepository.GetAllAsync();
+            return (List<ApplicationRole>)await _rolepermissionQueryRepository.GetAllAsync();
         }
     
     }
@@ -67,6 +67,21 @@ namespace Application.Handlers.QueryHandlers
         {
             var req = await _rolepermissionQueryRepository.Delete(request.ID);
             return req;
+        }
+    }
+
+    public class GetSelectedRolePermissionListHandler : IRequestHandler<GetAllRolePermissionSelectedLst, List<ApplicationRole>>
+    {
+        private readonly IRolePermissionQueryRepository _rolepermissionQueryRepository;
+
+        public GetSelectedRolePermissionListHandler(IRolePermissionQueryRepository rolepermissionQueryRepository)
+        {
+
+            _rolepermissionQueryRepository = rolepermissionQueryRepository;
+        }
+        public async Task<List<ApplicationRole>> Handle(GetAllRolePermissionSelectedLst request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationRole>)await _rolepermissionQueryRepository.GetSelectedRolePermissionListAsync(request.RoleID);
         }
     }
 }

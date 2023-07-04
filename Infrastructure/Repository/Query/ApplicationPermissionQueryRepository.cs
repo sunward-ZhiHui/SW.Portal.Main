@@ -46,37 +46,20 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+                    try
                     {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("RoleID", applicationrolepermission.RoleID);
-                            parameters.Add("PermissionID", applicationrolepermission.PermissionID);
-                          
-
-                            var query = "INSERT INTO ApplicationRolePermission(RoleID,PermissionID) VALUES (@RoleID,@PermissionID)";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        var parameters = new DynamicParameters();
+                        parameters.Add("RoleID", applicationrolepermission.RoleID);
+                        parameters.Add("PermissionIDs", applicationrolepermission.PermissionIDs);
+                        connection.Open();
+                        var result = connection.QueryFirstOrDefault<long>("sp_Ins_RolePermission", parameters, commandType: CommandType.StoredProcedure);
+                        return result;
                     }
+                    catch (Exception exp)
+                    {                        
+                        throw new Exception(exp.Message, exp);
+                    }                    
                 }
-
             }
 
             catch (Exception exp)

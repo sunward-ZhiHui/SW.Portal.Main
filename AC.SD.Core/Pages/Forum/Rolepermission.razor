@@ -63,7 +63,7 @@
                                                 FocusedRowEnabled="true"
                                                 CustomizeElement="Grid_CustomizeElement" SelectedDataItemsChanged="@SelectedDataItemsChanged"
                                                 CssClass="ch-360"
-                                                style="height: calc(100vh - 160px);">
+                                                style="height: calc(100vh - 220px);">
                                             <Columns>
                                                 <DxGridSelectionColumn Width="160px" />
                                                 <DxGridDataColumn FieldName="RoleName" Caption="User Role" MinWidth="80" />
@@ -94,7 +94,7 @@
                     </div>
                  </div>
       <div class=" col-md-4">
-                <div class="mini-menu-bar-top" style="height: calc(100vh - 160px);">
+                <div class="mini-menu-bar-top" style="height: calc(100vh - 220px);">
                 <div class="mini-menu-bar-heading">
                         <div class="files-title">Application MenuPermission <button class="btn btn-primary" @onclick="OnSaveRolepermission">Save</button></div>
                       
@@ -102,7 +102,7 @@
                 </div>
                 <div>
                     <div class="views-accordion">
-                            <DxTreeView Data="@Data" style="height: calc(100vh - 180px);"
+                            <DxTreeView Data="@Data" style="height: calc(100vh - 200px);"
                                     AllowSelectNodes=true
                                     LoadChildNodesOnDemand=false
                                         CheckMode="TreeViewCheckMode.Recursive"
@@ -145,7 +145,7 @@
 
 @code {
     DxTreeView treeview;
-   
+
     IReadOnlyList<object> SelectedDataItems { get; set; }
     List<long> permissionids = new List<long>();
     bool PanelVisible { get; set; }
@@ -186,16 +186,15 @@
     }
     private async Task OnSaveRolepermission()
     {
-        var listitems = permissionids;
+        
+        string pIDs = string.Join(",", permissionids);
         var editModel = new ApplicationRolePermission();
         var createReq = new CreateApplicationRolePermissionQuery
-
-            {
-                //RoleID = editModel.RoleID,
-                //PermissionID = editModel.PermissionID
-                RoleID = 1,
-                PermissionID = 6001
-            };
+        {
+                
+            RoleID = _selectedItems.RoleID,
+            PermissionIDs = pIDs
+        };
 
         var result = await Mediator.Send(createReq);
         toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -212,13 +211,10 @@
         if (checkedEmployees.Count != 0)
         {
             foreach (var item in checkedEmployees)
-            {
-                // permissionids.Add((long)item.Name);
+            { 
+                 permissionids.Add(long.Parse(item.Name));
             }
         }
-
-
-
 
         //    if (e.LastCheckedItems.Count > 0)
         //    {
@@ -365,7 +361,7 @@
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowClick(e);
-        addEdit();
+       // addEdit();
     }
     void addNew()
     {

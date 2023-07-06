@@ -120,7 +120,7 @@
                                     AllowSelectRowByClick="true">
                                 <Columns>
                                     <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
-                                    <DxGridDataColumn FieldName="FirstName" Caption="Name"  MinWidth="100" />
+                                        <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
                                     <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
                                         <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="180">
                                         <CellDisplayTemplate>
@@ -1139,11 +1139,11 @@
             e.CssClass = "alt-item";
             e.CssClass += "non-selectable-row";
         }
-        if (e.ElementType == GridElementType.HeaderCell)
-        {
-            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
-            e.CssClass = "header-bold";
-        }
+        //if (e.ElementType == GridElementType.HeaderCell)
+        //{
+        //    e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+        //    e.CssClass = "header-bold";
+        //}
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

@@ -70,7 +70,7 @@ namespace Application.Handlers.QueryHandlers
         }
     }
 
-    public class GetSelectedRolePermissionListHandler : IRequestHandler<GetAllRolePermissionSelectedLst, List<ApplicationRole>>
+    public class GetSelectedRolePermissionListHandler : IRequestHandler<GetAllRolePermissionSelectedLst, List<ApplicationPermission>>
     {
         private readonly IRolePermissionQueryRepository _rolepermissionQueryRepository;
 
@@ -79,9 +79,9 @@ namespace Application.Handlers.QueryHandlers
 
             _rolepermissionQueryRepository = rolepermissionQueryRepository;
         }
-        public async Task<List<ApplicationRole>> Handle(GetAllRolePermissionSelectedLst request, CancellationToken cancellationToken)
+        public async Task<List<ApplicationPermission>> Handle(GetAllRolePermissionSelectedLst request, CancellationToken cancellationToken)
         {
-            return (List<ApplicationRole>)await _rolepermissionQueryRepository.GetSelectedRolePermissionListAsync(request.RoleID);
+            return (List<ApplicationPermission>)await _rolepermissionQueryRepository.GetSelectedRolePermissionListAsync(request.RoleID);
         }
     }
 }

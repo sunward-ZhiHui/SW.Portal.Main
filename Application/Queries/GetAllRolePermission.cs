@@ -30,7 +30,7 @@ namespace Application.Queries
             this.ID = Id;
         }
     }
-    public class GetAllRolePermissionSelectedLst : PagedRequest, IRequest<List<ApplicationRole>>
+    public class GetAllRolePermissionSelectedLst : PagedRequest, IRequest<List<ApplicationPermission>>
     {
         public long RoleID { get; private set; }
         public GetAllRolePermissionSelectedLst(long RoleId)

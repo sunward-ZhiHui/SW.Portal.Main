@@ -34,7 +34,7 @@ namespace Core.Entities
         public bool IsProductionApp { get; set; }
         public bool IsCmsApp { get; set; }
         [NotMapped]
-        public bool Checked { get; set; } = true;
+        public bool Checked { get; set; } = false;
 
     }
 }

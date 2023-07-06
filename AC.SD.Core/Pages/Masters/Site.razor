@@ -14,7 +14,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
-<div class="card w-100" style="margin-bottom:10px;">
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
@@ -52,7 +52,7 @@
         ValidationEnabled="true"
         CustomizeElement="Grid_CustomizeElement"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360"
+            CssClass="ch-360" style="height: calc(100vh - 270px);"
         RowDoubleClick="OnRowDoubleClick"
         FocusedRowEnabled="true"
         RowClick="OnRowClick"

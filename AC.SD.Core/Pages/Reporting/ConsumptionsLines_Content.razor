@@ -28,8 +28,8 @@
         CustomizeElement="Grid_CustomizeElement"
         AutoExpandAllGroupRows="true" >
     <Columns>
-            <DxGridDataColumn FieldName="ItemNo" MinWidth="200" Caption="MaterialNo" />
-            <DxGridDataColumn FieldName="Description" MinWidth="180" />
+            <DxGridDataColumn FieldName="ItemNo" MinWidth="200" Caption="MaterialNo" FixedPosition="GridColumnFixedPosition.Left"/>
+            <DxGridDataColumn FieldName="Description" MinWidth="180" FixedPosition="GridColumnFixedPosition.Left" />
             <DxGridDataColumn FieldName="LotNo" MinWidth="180" />
             <DxGridDataColumn FieldName="SubLotNo" MinWidth="180" />
             <DxGridDataColumn FieldName="DrumNo" MinWidth="180" />
@@ -63,10 +63,10 @@
         {
             e.CssClass = "alt-item";
         }
-        if (e.ElementType == GridElementType.HeaderCell)
-        {
-            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
-            e.CssClass = "header-bold";
-        }
+        //if (e.ElementType == GridElementType.HeaderCell)
+        //{
+        //    e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+        //    e.CssClass = "header-bold";
+        //}
     }
 }

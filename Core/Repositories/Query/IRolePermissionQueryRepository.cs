@@ -14,7 +14,7 @@ namespace Core.Repositories.Query
         Task<long> Insert(ApplicationRole rolepermission);
         Task<long> Update(ApplicationRole rolepermission);
         Task<long> Delete(long id);
-        Task<List<ApplicationRole>> GetSelectedRolePermissionListAsync(Int64 RoleId);
+        Task<List<ApplicationPermission>> GetSelectedRolePermissionListAsync(Int64 RoleId);
 
     }
 }

@@ -167,17 +167,32 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public  async Task<List<ApplicationRole>> GetSelectedRolePermissionListAsync(long RoleId)
+        public  async Task<List<ApplicationPermission>> GetSelectedRolePermissionListAsync(long RoleId)
         {
             try
             {
                 
                         var parameters = new DynamicParameters();
                         parameters.Add("RoleID", RoleId, DbType.Int64);
-                        var query = "SELECT * FROM ApplicationRole RP WHERE RP.RoleID =@RoleID";
+
+                //var query = @"SELECT ARP.PermissionID,ARP.PermissionName,ARP.ParentID FROM ApplicationPermission ARP 
+                //            Left JOIN ApplicationRolePermission AP ON AP.PermissionID = ARP.PermissionID 
+                //                  WHERE AP.RoleID = @RoleID and ARP.IsDisplay =1 and ARP.PermissionID > =60000";
+                var query = @"SELECT
+                                ap.PermissionID,
+                                ap.PermissionName,
+                                ap.ParentID,
+                                CASE WHEN arp.RoleID IS NOT NULL THEN 'true' ELSE 'false' END AS Checked
+                            FROM
+                                ApplicationPermission ap
+                            LEFT JOIN
+                                ApplicationRolePermission arp ON ap.PermissionID = arp.PermissionID AND arp.RoleID = @RoleID
+                            WHERE
+                                ap.IsDisplay = 1 AND
+                                ap.PermissionID > 60000;";
                         using (var connection = CreateConnection())
                         {
-                            return (await connection.QueryAsync<ApplicationRole>(query, parameters)).ToList();
+                            return (await connection.QueryAsync<ApplicationPermission>(query, parameters)).ToList();
                         }
                        
                     

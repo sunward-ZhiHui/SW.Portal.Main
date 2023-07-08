@@ -1,0 +1,169 @@
+﻿@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@page "/testRole"
+
+
+ <div class="main-container">
+
+    <div class="content-container row">
+
+                 <div class="menu-bar-content-container col-md-8">
+                    <div class="content-padding-20">
+                        <div class="menu-bar-content-container-heading">
+                            <div class="heading-icon-text">
+                                <div class="mb-cc-text">
+                                    <div class="card w-100">
+                                        <div class="card-body p-0">
+
+                                        <DxGrid @ref="_RoleGrid"
+                                                Data="_rolePermission"
+                                                KeyFieldName="RoleID"
+
+                                                RowClick="OnRowClick"
+                                            RowDoubleClick="OnRowDoubleClick"
+                                                FocusedRowEnabled="true"
+                                                AllowSelectRowByClick="true"
+                                                CssClass="ch-360"
+                                                style="height: calc(100vh - 220px);">
+                                            <Columns>
+                                                <DxGridSelectionColumn Width="60px" />
+                                                <DxGridDataColumn FieldName="RoleName" Caption="User Role" MinWidth="80" />
+                                                <DxGridDataColumn FieldName="RoleDescription" MinWidth="80" />
+                                            </Columns>
+                                            <EditFormTemplate Context="EditFormContext">
+                                            @{
+                                                var rolePermission = (ApplicationRole)EditFormContext.EditModel;
+                                            }
+                                                <DxFormLayout CssClass="w-100">
+                                                    <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
+                                                        <DxTextBox @bind-Text="@rolePermission.RoleName" />
+                                                        <ValidationMessage For="@(() => rolePermission.RoleName)" />
+                                                    </DxFormLayoutItem>
+                                                    <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                                                        <DxTextBox @bind-Text="@rolePermission.RoleDescription" />
+                                                    </DxFormLayoutItem>
+                                                    <ValidationSummary />
+                                                </DxFormLayout>
+                                            </EditFormTemplate>
+                                        </DxGrid>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                         </div>
+                    </div>
+                 </div>
+
+      <div class=" col-md-4">
+                <div class="mini-menu-bar-top" style="height: calc(100vh - 200px);">
+                <div class="mini-menu-bar-heading">
+                        <div class="files-title">Application Permission </div>
+                    @*  <button class="btn btn-primary" @onclick="OnSaveRolepermission"> save</button>  @*   RowDoubleClick="OnRowDoubleClick"*@
+
+                </div>
+                <div>
+                    <div class="views-accordion">
+                            <DxTreeView Data="@Data" style="height: calc(100vh - 220px);"
+                                        AllowSelectNodes=true
+                                       CheckMode="TreeViewCheckMode.Recursive"
+                                        CheckAllVisible="true"
+                                        CheckedChanged="@onCheckedChanged"
+
+                                         AnimationType="LayoutAnimationType.Slide"
+                                        CssClass="h-300" @ref="treeview">
+                            <DataMappings>
+                                <DxTreeViewDataMapping Text="PermissionName"
+                                                       Key="PermissionID"
+                                                           AllowCheck="AllowCheck"
+                                                           ParentKey="ParentID" Name="PermissionID" 
+                                                           Checked="Checked" />
+                            </DataMappings>
+                        </DxTreeView>
+                    </div>
+                </div>
+            </div>
+
+
+
+      </div>
+     </div>
+  </div>
+@code {
+    DxTreeView treeview;
+    bool PanelVisible { get; set; }
+    List<long> permissionids = new List<long>();
+    IReadOnlyList<ITreeViewNodeInfo> checkedEmployees;
+    private List<ApplicationPermission> _rolePermissionSelecteditem { get; set; }
+    private List<ApplicationRole> _rolePermission { get; set; }
+    private List<ApplicationPermission> Data { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    bool SaveEnabled { get; set; } = false;
+    IGrid _RoleGrid { get; set; }
+    private ApplicationRolePermission? _selecteItems;
+    private ApplicationRole? _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+        //PanelVisible = true;
+
+        PanelVisible = true;
+        checkedEmployees = new List<ITreeViewNodeInfo>();
+        _rolePermission = await Mediator.Send(new GetAllRolePermission());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        PanelVisible = false;
+    }
+    void onCheckedChanged(TreeViewCheckedChangedEventArgs e)
+    {
+        permissionids.Clear();
+
+        if (e.CheckedItems != null)
+            checkedEmployees = e.CheckedItems;
+
+        if (checkedEmployees.Count != 0)
+        {
+
+            foreach (var item in checkedEmployees)
+            {
+
+                permissionids.Add(long.Parse(item.Name));
+
+            }
+        }
+    }
+
+    async void OnRowClick(GridRowClickEventArgs e)
+    {
+      
+        SaveEnabled = true;
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RoleID");
+        _selectedItems = _rolePermission.FirstOrDefault(f => f.RoleID == (long?)UniqueId);
+        // Data = await Mediator.Send(new GetAllApplicationPermission());
+        Data = await Mediator.Send(new GetAllRolePermissionSelectedLst(_selectedItems.RoleID));
+        StateHasChanged();
+
+    }
+    //async Task LoadRoleLst()
+    //{
+    //    //  await jsRuntime.InvokeAsync<string>("showLoading");
+    //    Data = await Mediator.Send(new GetAllRolePermissionSelectedLst(_selectedItems.RoleID));
+
+    //    //  await jsRuntime.InvokeAsync<string>("hideLoading");
+
+    //}
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+
+       OnRowClick(e);
+        //LoadRoleLst(_selectedItems.RoleID);
+
+    }
+}

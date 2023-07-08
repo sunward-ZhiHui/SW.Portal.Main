@@ -124,4 +124,10 @@ function showSlides(n) {
     //dots[slideIndex - 1].className += " active";
 }
 
+function ReloadUrl() {
+    location.reload();
+}
+   
+
+
 	

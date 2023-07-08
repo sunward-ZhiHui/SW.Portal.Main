@@ -169,5 +169,31 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public  async Task<IReadOnlyList<ApplicationPermission>> GetAllApplicationPermissionAsync(Int64 RoleId)
+        {
+            try
+            {
+
+                var parameters = new DynamicParameters();
+                parameters.Add("RoleID", RoleId, DbType.Int64);
+
+                var query = @"SELECT ARP.PermissionID,ARP.PermissionName,ARP.ParentID FROM ApplicationPermission ARP 
+                            Left JOIN ApplicationRolePermission AP ON AP.PermissionID = ARP.PermissionID 
+                                  WHERE AP.RoleID = @RoleID and ARP.IsDisplay =1 and ARP.PermissionID > =60000";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ApplicationPermission>(query, parameters)).ToList();
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
+    
 }

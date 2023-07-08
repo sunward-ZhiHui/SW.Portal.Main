@@ -156,5 +156,16 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<EmployeeReportTo>)await _queryRepository.GetAllByIdAsync(request.Id);
         }
     }
-
+    public class GetApplicationPermissionHandler : IRequestHandler<GetApplicationPermissionQuery, List<ApplicationPermission>>
+    {
+        private readonly IEmployeeQueryRepository _queryRepository;
+        public GetApplicationPermissionHandler(IEmployeeQueryRepository plantQueryRepository)
+        {
+            _queryRepository = plantQueryRepository;
+        }
+        public async Task<List<ApplicationPermission>> Handle(GetApplicationPermissionQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationPermission>)await _queryRepository.GetAllApplicationPermissionAsync(request.RoleID);
+        }
+    }
 }

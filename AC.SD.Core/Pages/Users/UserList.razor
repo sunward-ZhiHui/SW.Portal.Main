@@ -19,8 +19,8 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Reset Password" IconCssClass="fa fa-key" Click="@ShowPopup" Enabled="@ResetEnabled" />
-                <DxMenuItem Text="Unlock" IconCssClass="fa fa-unlock" Click="@((e) => UnSetLock(_selectedItems.UserID))" Enabled="@UnlockEnabled" />
+                <DxMenuItem Text="Reset Password" IconCssClass="fa fa-key" Click="@ShowPopup" Enabled="@ResetEnabled" Visible="@ResetShow" />
+                <DxMenuItem Text="Unlock" IconCssClass="fa fa-unlock" Click="@((e) => UnSetLock(_selectedItems.UserID))" Enabled="@UnlockEnabled" Visible="@UnlockShow" />
             </Items>
         </DxMenu>
     </div>
@@ -135,26 +135,72 @@
          BodyText="@MessageBody" />
 @code {
 
-    bool PanelVisible { get; set; }
-    GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }
-    IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
-    bool PopupVisible { get; set; } = false;
-    DxPopup? popup;
-    bool MessageVisible { get; set; } 
-    string MessageHeader = "";
-    string MessageBody = "";
+        bool PanelVisible { get; set; }
+        GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }
+        IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
+        bool PopupVisible { get; set; } = false;
+        DxPopup? popup;
+        bool MessageVisible { get; set; } 
+        string MessageHeader = "";
+        string MessageBody = "";
     private List<ViewEmployee> _employeeItems;
     private ViewEmployee _selectedItems;
     bool ResetEnabled { get; set; } = true;
     bool UnlockEnabled { get; set; } = false;
     IGrid Grid { get; set; }
-
-
+    private List<ApplicationPermission> applicationPermissions;
+    List<string> permissionids = new List<string>();
+    bool ResetShow { get; set; } = false;
+    bool UnlockShow { get; set; } = false;
+    string  permission ="";
 
     protected override async Task OnInitializedAsync()
     {
-        //await jsRuntime.InvokeAsync<string>("showLoading");
+
         PanelVisible = true;
+        // ApplicationPermission Hide and Show using Check menulist
+        var models = await Mediator.Send(new GetApplicationPermissionQuery(7));
+        applicationPermissions = models;
+       
+        foreach (var ir in applicationPermissions)
+        {
+            var pid = ir.PermissionName;
+            permissionids.Add(pid);
+            //permission = ir.PermissionName;
+            //if (permission == "Users")
+            //{
+            //    ResetShow = true;
+            //    UnlockShow = true;
+            //    break;
+            //}
+            //else if (permission == "Reset Password")
+            //{
+            //    ResetShow = true;
+
+            //}
+            //else if (permission == "Unlock")
+            //{
+            //    UnlockShow = true;
+            //}
+
+        }
+        if (permissionids.Any((f) => f == "Users"))
+        {
+            ResetShow = true;
+               UnlockShow = true;
+        }
+        if (permissionids.Any((f) => f == "Reset Password"))
+        {
+            ResetShow = true;
+           
+        }
+        if (permissionids.Any((f) => f == "Unlock"))
+        {
+            UnlockShow = true;
+
+        }
+        //await jsRuntime.InvokeAsync<string>("showLoading");
+      
         var model = await Mediator.Send(new GetAllEmployeeListQuery());
         _employeeItems = model;
     

@@ -785,7 +785,7 @@ body,
 }
 
 .toolnext {
-    height: calc(100vh - 200px) !important;
+    /*height: calc(100vh - 200px) !important;*/
     overflow: auto;
 }
 .btnSubmitForm {

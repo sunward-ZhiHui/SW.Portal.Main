@@ -1,5 +1,6 @@
 ﻿@implements IDisposable
 @inject DemoConfiguration Configuration
+@inject NavigationManager NavManager
 @inject NavigationManager NavigationManager
 @using global::Core.EntityModels;
 @using Application.Queries;
@@ -9,6 +10,8 @@
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
 <div class="items">
     @foreach (var item in Items)
     {
@@ -25,6 +28,7 @@
 </div>
 
 @code {
+
     [Parameter]
     public PortalMenuModel _appPermissionListItems { get; set; }
     private List<PortalMenuModel> _appPermissionItems;
@@ -33,12 +37,23 @@
     List<Tuple<string, string>> Items { get; set; } = new List<Tuple<string, string>>();
     protected override async Task OnInitializedAsync()
     {
+        //page navigation 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
-        BreadcrumbsGenerate();
-        NavigationManager.LocationChanged += OnLocationChanged;
-        //UpdateItems(NavigationManager.Uri);
+        if (applicationUser == null)
+        {
+                NavManager.NavigateTo($"Login",forceLoad:true);
+        }      
+        else
+        {
+            _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+       
+        }
+                BreadcrumbsGenerate();
+                NavigationManager.LocationChanged += OnLocationChanged;
+                //UpdateItems(NavigationManager.Uri);
+            
     }
+
     void BreadcrumbsGenerate()
     {
         string str = NavigationManager.Uri;

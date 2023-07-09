@@ -105,9 +105,11 @@ namespace Infrastructure.Repository.Query
                 //                INNER JOIN Employee E ON E.UserID = FC.UserId
                 //                WHERE TopicId = @TopicId";
 
-                var query = @"SELECT FT.UserId,E.FirstName FROM EmailTopicParticipant FT
+                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailTopicParticipant FT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
                                 WHERE TopicId = @TopicId";
 
                 var parameters = new DynamicParameters();
@@ -827,6 +829,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("SessionId", conversationAssignTo.SessionId);
                             parameters.Add("AddedDate", conversationAssignTo.AddedDate);
                             parameters.Add("AssigntoIds", conversationAssignTo.AssigntoIds);
+                            parameters.Add("AssignccIds", conversationAssignTo.AssignccIds);
                             parameters.Add("Option", "INSERT");
                         
                             //var query = "INSERT INTO EmailConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";

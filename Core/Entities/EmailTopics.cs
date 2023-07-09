@@ -65,5 +65,10 @@ namespace Core.Entities
         [NotMapped]
         public long? UserId { get; set; }
 
+        [NotMapped]
+        public bool? isValidateSession { get; set; }
+        [NotMapped]
+        public long ActivityEmailTopicId { get; set; }
+
     }
 }

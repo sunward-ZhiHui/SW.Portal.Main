@@ -4,6 +4,7 @@ using MediatR;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,7 +37,11 @@ namespace Application.Response
         public long? OnBehalf { get; set; }
         public bool? Urgent { get; set; }
         public bool? OverDue { get; set; }
-        public List<EmailTopicsResponse>? TopicList { get; set; }        
-
+        public List<EmailTopicsResponse>? TopicList { get; set; }
+        [NotMapped]
+        public bool? isValidateSession { get; set; }
+        [NotMapped]
+        public long ActivityEmailTopicId { get; set;}
+            
     }
 }

@@ -10,6 +10,10 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetActivityEmailTopics : PagedRequest, IRequest<List<ActivityEmailTopics>>
+    {
+        public string SearchString { get; set; }
+    }
     public class GetUserEmailTopics : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }
@@ -49,6 +53,16 @@ namespace Application.Queries
         public long TopicId { get; private set; }
         public long UserId { get; private set; }
         public GetSubEmailTopicCC(long ID, long UserId)
+        {
+            this.TopicId = ID;
+            this.UserId = UserId;
+        }
+    }
+    public class GetSubEmailTopicSent : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long TopicId { get; private set; }
+        public long UserId { get; private set; }
+        public GetSubEmailTopicSent(long ID, long UserId)
         {
             this.TopicId = ID;
             this.UserId = UserId;

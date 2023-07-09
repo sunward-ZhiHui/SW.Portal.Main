@@ -733,6 +733,7 @@ body,
     .demo-content .main > .content {
         flex: 1 1 auto;
         padding: 1.1rem 1.5rem 0 1.5rem;
+        overflow:auto;
     }
 }
 

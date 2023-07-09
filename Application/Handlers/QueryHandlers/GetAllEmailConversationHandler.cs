@@ -128,6 +128,7 @@ namespace Application.Handlers.QueryHandlers
             conversationAssignTo.SessionId = request.SessionId;
             conversationAssignTo.AddedDate = request.AddedDate;
             conversationAssignTo.AssigntoIds = request.AssigntoIdss;
+            conversationAssignTo.AssignccIds = request.AssignccIdss;
             var reqq = await _conversationQueryRepository.InsertAssignTo_sp(conversationAssignTo);
 
             //var listData = request.AssigntoIds.ToList();

@@ -34,7 +34,11 @@ namespace Core.Entities
         [NotMapped]
         public string? AssigntoIdss { get; set; }
         [NotMapped]
+        public string? AssignccIdss { get; set; }
+        [NotMapped]
         public IEnumerable<long> AssigntoIds { get; set; }
+        [NotMapped]
+        public IEnumerable<long> AssignccIds { get; set; }
         [NotMapped]
         public IEnumerable<long> AllParticipantIds { get; set; }
         [NotMapped]

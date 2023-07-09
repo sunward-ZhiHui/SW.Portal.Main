@@ -17,8 +17,10 @@
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration;
 @inject HttpClient httpClient;
+@inject AC.SD.Core.Services.ToastService toastService
 @using System.IO;
 @page "/CreateEmail"
+@page "/CreateEmail/{ActiveSessionId}"
 <style>
     .txtEditorMsg {
         height: calc(100vh - 477px);
@@ -46,7 +48,7 @@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="" style="margin-left: 88px; margin-top: -32px; float: left; z-index: 9999;">
+            <div class="" style="margin-left: 95px; margin-top: -33px; float: left; z-index: 9999;">
                 <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
                     @if (loading)
                     {
@@ -79,34 +81,39 @@
        
     </div>
 </DxPopup>
-
-<div class="card cw-480 toolnext">
-    <EditForm id="@MyID" @ref="myForm" Model="@Data"
+@if(isValidateSession)
+{
+    <div style="color:red; text-align:center;">Invalidate Session or Already Created</div>
+}
+else
+{
+    <div class="card cw-480 toolnext">
+        <EditForm id="@MyID" @ref="myForm" Model="@Data"
               OnValidSubmit="@HandleValidSubmit"
               OnInvalidSubmit="@HandleInvalidSubmit"
               Context="EditFormContext">
-        <DataAnnotationsValidator />       
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-12">
-                    <DxFormLayout>
-                        <DxFormLayoutItem Caption="From" ColSpanMd="12">
-                            <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />                           
-                        </DxFormLayoutItem>  
-                         <DxFormLayoutItem Caption="To" ColSpanMd="12">
-                            <DxTagBox NullText="Select To..."
-                                Data="_participant"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                ValueFieldName="UserID"
-                                TextFieldName="FirstName"
-                                TagsChanged="@onToChanged"
-                                @bind-Values="Data.ToIds"                                
-                                CssClass="cw-480">                     
-                            </DxTagBox>
-                            <ValidationMessage For="@(() => Data.ToIds)" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="CC" ColSpanMd="12">
-                            <DxTagBox NullText="Select Cc..."
+            <DataAnnotationsValidator />
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <DxFormLayout>
+                            <DxFormLayoutItem Caption="From" ColSpanMd="12">
+                                <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="To" ColSpanMd="12">
+                                <DxTagBox NullText="Select To..."
+                                      Data="_participant"
+                                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                      ValueFieldName="UserID"
+                                      TextFieldName="FirstName"
+                                      TagsChanged="@onToChanged"
+                                      @bind-Values="Data.ToIds"
+                                      CssClass="cw-480">
+                                </DxTagBox>
+                                <ValidationMessage For="@(() => Data.ToIds)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="CC" ColSpanMd="12">
+                                <DxTagBox NullText="Select Cc..."
                                       Data="_participant"
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                       ValueFieldName="UserID"
@@ -114,60 +121,60 @@
                                       TagsChanged="@onCcChanged"
                                       @bind-Values="@Data.CCIds"
                                       CssClass="cw-480" />
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">                           
-                            <DxComboBox Data="@_Allparticipant"
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
+                                <DxComboBox Data="@_Allparticipant"
                                         NullText="Select OnBehalf..."
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         TextFieldName="FirstName"
                                         ValueFieldName="UserID"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                        @bind-Value="@Data.OnBehalf" ShowValidationIcon="true" />                            
-                        </DxFormLayoutItem>
+                                        @bind-Value="@Data.OnBehalf" ShowValidationIcon="true" />
+                            </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="" ColSpanMd="1">
-                            <DxCheckBox CssClass="w-100"
+                            <DxFormLayoutItem Caption="" ColSpanMd="1">
+                                <DxCheckBox CssClass="w-100"
                                         @bind-Checked="@Data.Urgent"
                                         Alignment="default"
                                         LabelPosition="LabelPosition.Right">
-                                Urgent
-                            </DxCheckBox>                            
-                        </DxFormLayoutItem>
+                                    Urgent
+                                </DxCheckBox>
+                            </DxFormLayoutItem>
 
-                          <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="1">
-                        <DxCheckBox CssClass="w-100"
-                                    @bind-Checked="@Data.OverDue"
-                                    Alignment="default"
-                                    LabelPosition="LabelPosition.Right">
-                            Allow OverDue
-                        </DxCheckBox>
-                        </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="1">
+                                <DxCheckBox CssClass="w-100"
+                                        @bind-Checked="@Data.OverDue"
+                                        Alignment="default"
+                                        LabelPosition="LabelPosition.Right">
+                                    Allow OverDue
+                                </DxCheckBox>
+                            </DxFormLayoutItem>
 
-                        <DxFormLayoutItem Caption="Follow" ColSpanMd="2">
-                            <DxComboBox Data="@Follow"
-                                        NullText="Select Follow..."                                        
+                            <DxFormLayoutItem Caption="Follow" ColSpanMd="2">
+                                <DxComboBox Data="@Follow"
+                                        NullText="Select Follow..."
                                         @bind-Value="@Data.Follow"
                                         CssClass="cw-480">
-                            </DxComboBox>
-                            <ValidationMessage For="@(() => Data.Follow)" />
-                        </DxFormLayoutItem>
-                       
-                        <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">                           
-                            <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />                           
-                            <ValidationMessage For="@(() => Data.TopicName)" />                           
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Due Date" ColSpanMd="4">                           
-                            <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy"/>                          
-                        </DxFormLayoutItem>                         
-                        <DxFormLayoutItem ColSpanMd="8">  
-                            <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />                           
-                        </DxFormLayoutItem>
-                        <DxFormLayoutItem ColSpanMd="4">
-                            <DxFormLayout CssClass="w-100 ">
-                                <DxFormLayoutGroup Caption="Attachment" CssClass="txtEditorMsg" ColSpanMd="12">
-                                    <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
-                                    <div class="">
-                                        <DxUpload @ref="uploadComponent" Name="files"
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Data.Follow)" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
+                                <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />
+                                <ValidationMessage For="@(() => Data.TopicName)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Due Date" ColSpanMd="4">
+                                <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem ColSpanMd="8">
+                                <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem ColSpanMd="4">
+                                <DxFormLayout CssClass="w-100 ">
+                                    <DxFormLayoutGroup Caption="Attachment" CssClass="txtEditorMsg" ColSpanMd="12">
+                                        <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+                                        <div class="">
+                                            <DxUpload @ref="uploadComponent" Name="files"
                                                   Visible="@AttachmentUploadVisible"
                                                   AcceptedFileTypes=@AcceptedFileTypes
                                                   UploadMode="@UploadMode.OnButtonClick"
@@ -177,18 +184,20 @@
                                                   SelectedFilesChanged="@AttachmentSelectedFilesChanged"
                                                   FileUploaded="@isUploadSuccess"
                                                   FileUploadError="@OnUploadError">
-                                        </DxUpload>
-                                        <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>                                       
-                                    </div>                                
-                                </DxFormLayoutGroup>
-                            </DxFormLayout>                           
-                        </DxFormLayoutItem>
-                    </DxFormLayout>                    
+                                            </DxUpload>
+                                            <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
+                                        </div>
+                                    </DxFormLayoutGroup>
+                                </DxFormLayout>
+                            </DxFormLayoutItem>
+                        </DxFormLayout>
+                    </div>
                 </div>
-               </div>
-        </div>
-    </EditForm>
-</div>
+            </div>
+        </EditForm>
+    </div>
+}
+
 <DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
     <BodyTemplate Context="PopupContext">
         <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
@@ -201,7 +210,7 @@
 
 
 @code {
-    
+
     [Parameter]
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
     private DxUpload uploadComponent;
@@ -230,6 +239,8 @@
     string FormSubmitResult = "";
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
+    bool isValidateSession = false;
+    private long ActivityEmailTopicId;
     EmailTopics? Data { get; set; } = new EmailTopics();
     IEnumerable<EmailTopics>? _topics;
     private List<ViewEmployee>? _participant;
@@ -249,6 +260,8 @@
     List<string> sCCIds = new List<string>();
 
     //List<ViewEmployee> ids = new List<ViewEmployee>(); 
+    [Parameter]
+    public string ActiveSessionId { get; set; }
 
     public ApplicationUser? applicationUser { get; private set; }
 
@@ -450,6 +463,8 @@
     protected override async Task OnInitializedAsync() {
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        var plist = await Mediator.Send(new GetAllEmployeeListQuery());
+
         onloadSession();
         Follow = new List<string>
         {
@@ -463,7 +478,7 @@
         //var appusers = await Mediator.Send(new GetAllApplicationUserQuery());
         //_participant = appusers;
 
-        var plist = await Mediator.Send(new GetAllEmployeeListQuery());            
+
         _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
         _Allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
@@ -475,6 +490,46 @@
         //_category = topicmodel;        
 
         Data.From = applicationUser.UserName;
+
+
+        if (ActiveSessionId != null)
+        {
+            var acttopics = await Mediator.Send(new GetActivityEmailTopics());
+
+            //string sessionIdString = ActiveSessionId;
+            Guid activeSessionId = Guid.Parse(ActiveSessionId);
+            var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+
+            if(actItem.Count > 0)
+            {
+                isValidateSession = false;
+
+                Data.TopicName = actItem[0].SubjectName;
+                ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
+                List<long?> ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
+                var filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
+
+                //Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
+                IEnumerable<string> Totags = filteredToList.Select(s => s.FirstName).ToList();
+
+                List<long?> CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
+                var filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
+
+                //Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
+                IEnumerable<string> CCtags = filteredCCList.Select(s => s.FirstName).ToList();            
+
+                Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
+                sToIds = Totags.ToList();
+                Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
+                sCCIds = CCtags.ToList();
+            }
+            else
+            {
+                isValidateSession = true;
+            }
+
+        }
+
 
     }   
 
@@ -499,7 +554,7 @@
         //    return;
         //}
 
-      
+
 
         List<string> concatList = sToIds.Concat(sCCIds).ToList();
 
@@ -518,7 +573,7 @@
         foreach(var itm in sToIds)
         {
             var ls = _Allparticipant.Where(c => c.FirstName == itm).ToList();
-           
+
             for (var i = 0; i < ls.Count; i++)
             {
                 selectedToIds.Add(ls[i].UserID.Value);
@@ -528,7 +583,7 @@
         foreach (var itm in sCCIds)
         {
             var ls = _Allparticipant.Where(c => c.FirstName == itm).ToList();
-            
+
             for (var i = 0; i < ls.Count; i++)
             {
                 SelectedCCIds.Add(ls[i].UserID.Value);
@@ -586,7 +641,8 @@
         {
 
             //addNew();
-            onShowPopupMessage("Error", "The entered value Already exists.");
+            //onShowPopupMessage("Error", "The Subject Name Already exists.");
+            toastService.ShowToast("The Subject Name Already exists.", AC.SD.Core.Services.ToastLevel.Error);
             await JSRuntime.InvokeAsync<string>("hideLoading");
 
         }
@@ -611,7 +667,9 @@
                    SessionId = _sessionId,
                     Participants = participantidsString,
                     To = toidsString,
-                    CC = ccidsString
+                    CC = ccidsString,
+                    ActivityEmailTopicId = ActivityEmailTopicId,
+                    isValidateSession = isValidateSession
 
                 };
 
@@ -626,6 +684,9 @@
                     await Task.Delay(2000); // Delay for 2 seconds
 
                     onShowPopupMessage("success", "Topic have been saved successully");
+                    ActivityEmailTopicId = 0;
+                    //toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+
                     onRestText();
                     await JSRuntime.InvokeAsync<string>("hideLoading");
                 }

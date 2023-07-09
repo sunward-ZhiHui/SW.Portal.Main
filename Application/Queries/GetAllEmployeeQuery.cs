@@ -76,5 +76,12 @@ namespace Application.Queries
             this.Id = Id;
         }
     }
-
+    public class GetApplicationPermissionQuery : PagedRequest, IRequest<List<ApplicationPermission>>
+    {
+        public long RoleID { get; private set; }
+        public GetApplicationPermissionQuery(long RoleId)
+        {
+            this.RoleID = RoleId;
+        }
+    }
 }

@@ -285,20 +285,6 @@
         //    loading = false;
         //    StateHasChanged();
         //}
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity == null || !authState.User.Identity.IsAuthenticated)
-        {
-            var returnUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-            NavigationManager.NavigateTo($"/login?returnUrl={returnUrl}");
-        }
-        else
-        {
-            // Proceed with the action that requires login
-        }
-    }
+    }  
 
 }

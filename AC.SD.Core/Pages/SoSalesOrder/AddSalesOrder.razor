@@ -1,4 +1,5 @@
 ﻿@using Application.Command.Employees;
+@using Application.Command.SoSalesOrder;
 @using Application.Commands;
 @using Application.Queries;
 @using MediatR
@@ -11,6 +12,7 @@
 @using System.ComponentModel.DataAnnotations;
 @inject IJSRuntime JSRuntime;
 @using System.Reflection;
+@inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
 @page "/AddSalesOrder"
@@ -28,7 +30,7 @@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="" style="margin-left: 195px; margin-top: -32px; float: left;">
+            <div class="" style="">
                 <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
                     @if (loading)
                     {
@@ -70,6 +72,7 @@
                           <DxFormLayoutItem Caption="Customer Name" ColSpanMd="6">
                                 <DxComboBox Data="@_AllSoCustomer"
                                         NullText="Select Customer..."
+                                            ListRenderMode="ListRenderMode.Virtual"
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         TextFieldName="CustomerName"
                                         ValueFieldName="SoCustomerId"
@@ -141,9 +144,10 @@
 
     private List<SoCustomer>? _AllSoCustomer;
 
-    private List<ViewEmployee> _employeeItems;
 
-    SoSalesOrder Data = new SoSalesOrder();
+   SoSalesOrder Data = new SoSalesOrder();
+
+  //  ViewSoSalesOrder Data = new ViewSoSalesOrder();
     ViewEmployee _employeeData = new ViewEmployee(); 
 
 
@@ -154,17 +158,24 @@
 
     void SelectedItemChanged(SoCustomer soCustomer) 
     {
-        Data.ShipCode = soCustomer.ShipCode;
-        Data.AssignToRep = soCustomer.AssignToRep;
-        Data.Address1 = soCustomer.Address1;
+        if(soCustomer!=null)
+        {
+            Data.ShipCode = soCustomer.ShipCode;
+            Data.AssignToRep = soCustomer.AssignToRep;
+            Data.Address1 = soCustomer.Address1;
+        }
+        else
+        {
+            Data.ShipCode = "";
+            Data.AssignToRep = "";
+            Data.Address1 = "";
+        }
     }
 
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
-
-        _employeeItems = await Mediator.Send(new GetAllEmployeeByStatusQuery());
 
         Data.DocumentDate = DateTime.Now;
         Data.Date = DateTime.Now;
@@ -178,7 +189,7 @@
     void ResetForm()
     {
         _employeeData = new ViewEmployee();
-        //employee = new EmployeeResponse();
+        //employee = new EmployeeResponse();Data
         EmployeeIds = null;
         ActiveTabIndex = 0;
         ActiveSubTabIndex = 0;
@@ -193,8 +204,24 @@
       
     }
     
-    void onsubmitClick()
-    {
+  async  void onsubmitClick()
+  {
+
+        var editModel = new SoSalesOrder();
+       
+               var createReq = new CreateSoSalesOrderCommand
+                    {
+                        SoCustomerId = Data.SoCustomerId,
+                      Remark = Data.Remark,
+                    DocumentDate = Data.DocumentDate,
+                OrderDate = Data.OrderDate,
+                PrioityDeliveryDate = Data.PrioityDeliveryDate,
+                    
+               };
+
+        await Mediator.Send(createReq);
+        toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+     
         ActiveTabIndex = 0;
         ActiveSubTabIndex = 0;
     }

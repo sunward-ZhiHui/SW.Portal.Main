@@ -5,11 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Application.Response
 {
-    public class Navitems
+    public class NavitemsResponse
     {
-        [Key]
         public long ItemId { get; set; }
         public long? CompanyId { get; set; }
         public string No { get; set; }
@@ -56,7 +55,6 @@ namespace Core.Entities
         public long? ReplenishmentMethodId { get; set; }
         public string ImageUrl { get; set; }
         public bool? IsPortal { get; set; }
-        [Required(ErrorMessage = "Item SerialNo is Required")]
         public string ItemSerialNo { get; set; }
     }
 }

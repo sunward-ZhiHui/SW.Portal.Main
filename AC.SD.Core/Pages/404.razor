@@ -1,0 +1,60 @@
+﻿@page "/404"
+@layout NoLayout
+@inherits LayoutComponentBase
+
+<link href="_content/AC.SD.Core/css/pagenotfound.css" rel="stylesheet" />
+<!--
+VIEW IN FULL SCREEN MODE
+FULL SCREEN MODE: http://salehriaz.com/404Page/404.html
+
+DRIBBBLE: https://dribbble.com/shots/4330167-404-Page-Lost-In-Space
+-->
+
+<body class="bg-purple">
+
+        <div class="stars">
+            <div class="custom-navbar">
+                <div class="brand-logo">
+                    <img src="_content/AC.SD.Core/images/login/SW-Logo.png" width="80px">
+                </div>
+               @* <div class="navbar-links">
+                    <ul>
+                      <li><a href="http://salehriaz.com/404Page/404.html" target="_blank">Home</a></li>
+                      <li><a href="http://salehriaz.com/404Page/404.html" target="_blank">About</a></li>
+                      <li><a href="http://salehriaz.com/404Page/404.html" target="_blank">Features</a></li>
+                      <li><a href="http://salehriaz.com/404Page/404.html" class="btn-request" target="_blank">Request A Demo</a></li>
+                    </ul>
+                </div>*@
+            </div>
+            <div class="central-body">
+               @* <img class="image-404" src="_content/AC.SD.Core/images/404page/404.svg" width="300px">*@
+                <h1 class="errorStatus" style="font-size:185px;">404</h1>
+               <div class="errorStatus"> The page doesn't exists! </div>
+                <a href="dashboard" class="btn-go-home" style="width:155px;">GO BACK HOME</a>
+            </div>
+            <div class="objects">
+                <img class="object_rocket" src="_content/AC.SD.Core/images/404page/rocket.svg" width="40px">
+                <div class="earth-moon">
+                    <img class="object_earth" src="_content/AC.SD.Core/images/404page/earth.svg" width="100px">
+                    <img class="object_moon" src="_content/AC.SD.Core/images/404page/moon.svg" width="80px">
+                </div>
+                <div class="box_astronaut">
+                    <img class="object_astronaut" src="_content/AC.SD.Core/images/404page/astronaut.svg" width="140px">
+                </div>
+            </div>
+            <div class="glowing_stars">
+                <div class="star"></div>
+                <div class="star"></div>
+                <div class="star"></div>
+                <div class="star"></div>
+                <div class="star"></div>
+
+            </div>
+
+        </div>
+
+    </body>
+
+@code {
+     
+}

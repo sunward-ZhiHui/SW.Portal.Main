@@ -74,6 +74,7 @@ namespace SW.Portal.Solutions.ServerSide {
                     endpoints.MapControllers();
                     
                     endpoints.MapFallbackToPage("/_Host");
+                    //endpoints.MapFallbackToPage("/Login"); // Add this line to handle the login route
                 });
                 Configure(app, context.HostingEnvironment);
             };

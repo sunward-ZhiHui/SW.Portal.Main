@@ -1,4 +1,5 @@
 ﻿@using Application.Command.Employees;
+@using Application.Command.SoSalesOrder;
 @using Application.Commands;
 @using Application.Queries;
 @using MediatR
@@ -11,6 +12,7 @@
 @using System.ComponentModel.DataAnnotations;
 @inject IJSRuntime JSRuntime;
 @using System.Reflection;
+@inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
 @page "/AddSalesOrder"
@@ -28,7 +30,7 @@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="" style="margin-left: 195px; margin-top: -32px; float: left;">
+            <div class="" style="">
                 <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
                     @if (loading)
                     {
@@ -143,7 +145,9 @@
 
     private List<ViewEmployee> _employeeItems;
 
-    SoSalesOrder Data = new SoSalesOrder();
+   SoSalesOrder Data = new SoSalesOrder();
+
+  //  ViewSoSalesOrder Data = new ViewSoSalesOrder();
     ViewEmployee _employeeData = new ViewEmployee(); 
 
 
@@ -178,7 +182,7 @@
     void ResetForm()
     {
         _employeeData = new ViewEmployee();
-        //employee = new EmployeeResponse();
+        //employee = new EmployeeResponse();Data
         EmployeeIds = null;
         ActiveTabIndex = 0;
         ActiveSubTabIndex = 0;
@@ -193,8 +197,24 @@
       
     }
     
-    void onsubmitClick()
-    {
+  async  void onsubmitClick()
+  {
+
+        var editModel = new SoSalesOrder();
+       
+               var createReq = new CreateSoSalesOrderCommand
+                    {
+                        SoCustomerId = Data.SoCustomerId,
+                      Remark = Data.Remark,
+                    DocumentDate = Data.DocumentDate,
+                OrderDate = Data.OrderDate,
+                PrioityDeliveryDate = Data.PrioityDeliveryDate,
+                    
+               };
+
+        await Mediator.Send(createReq);
+        toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+     
         ActiveTabIndex = 0;
         ActiveSubTabIndex = 0;
     }

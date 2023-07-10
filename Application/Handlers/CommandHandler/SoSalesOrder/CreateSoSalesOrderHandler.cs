@@ -32,9 +32,13 @@ namespace Application.Handlers.CommandHandler
             var plantData = await _commandRepository.AddAsync(customerEntity);
             var response = new SoSalesOrderResponse
             {
-              
-                SoSalesOrderId = customerEntity.SoSalesOrderId
-               
+
+                SoCustomerId = customerEntity.SoCustomerId,
+                Remark = customerEntity.Remark,
+                DocumentDate = customerEntity.DocumentDate,
+                OrderDate = customerEntity.OrderDate,
+                PrioityDeliveryDate = customerEntity.PrioityDeliveryDate,
+
             };
             return response;
         }

@@ -19,6 +19,8 @@ using Application.Command.EmployeeICTInformations;
 using Application.Handlers.CommandHandler.AssetCatalogMasters;
 using Application.Command.AssetCatalogMasters;
 using Application.Command.AssetPartsMaintenaceMasters;
+using Application.Command.SoSalesOrder;
+using Application.Command.SoSalesOrderLine;
 
 namespace Application.Common.Mapper
 {
@@ -122,6 +124,16 @@ namespace Application.Common.Mapper
             CreateMap<AssetEquipmentMaintenaceMaster, CreateAssetEquipmentMaintenaceMasterCommand>().ReverseMap();
             CreateMap<AssetEquipmentMaintenaceMaster, EditAssetEquipmentMaintenaceMasterCommand>().ReverseMap();
             CreateMap<AssetEquipmentMaintenaceMaster, DeleteAssetEquipmentMaintenaceMasterCommand>().ReverseMap();
+
+            CreateMap<SoSalesOrder, SoSalesOrderResponse>().ReverseMap();
+            CreateMap<SoSalesOrder, CreateSoSalesOrderCommand>().ReverseMap();
+            CreateMap<SoSalesOrder, EditSoSalesOrderCommand>().ReverseMap();
+            CreateMap<SoSalesOrder, DeleteSoSalesOrderCommand>().ReverseMap();
+
+            CreateMap<SoSalesOrderLine, SoSalesOrderLineResponse>().ReverseMap();
+            CreateMap<SoSalesOrderLine, CreateSoSalesOrderLineCommand>().ReverseMap();
+            CreateMap<SoSalesOrderLine, EditSoSalesOrderLineCommand>().ReverseMap();
+            CreateMap<SoSalesOrderLine, DeleteSoSalesOrderLineCommand>().ReverseMap();
         }
     }
 }

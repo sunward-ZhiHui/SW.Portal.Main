@@ -92,6 +92,11 @@ namespace Infrastructure
             services.AddTransient<ITopicTodoListQueryRepository, TopicTodoListQueryRepository>();
             services.AddTransient<IRolePermissionQueryRepository, RolePermissionQueryRepository>();
             services.AddTransient<IApplicationPermissionQueryRepository, ApplicationPermissionQueryRepository>();
+            services.AddTransient<ISoCustomerQueryRepository, SoCustomerQueryRepository>();
+            services.AddTransient<ISoSalesOrderCommandRepository, SoSalesOrderCommandRepository>();
+            services.AddTransient<ISoSalesOrderLineCommandRepository, SoSalesOrderLineCommandRepository>();
+            services.AddTransient<ISoSalesOrderQueryRepository, SoSalesOrderQueryRepository>();
+            services.AddTransient<ISoSalesOrderLineQueryRepository, SoSalesOrderLineQueryRepository>();
             services.AddTransient<IFileStorageService, FileStorageService>();
             services.AddTransient<IApplicationMasterChildQueryRepository, ApplicationMasterChildQueryRepository>();
             services.AddTransient<IAssetCatalogMasterQueryRepository, AssetCatalogMasterQueryRepository>();

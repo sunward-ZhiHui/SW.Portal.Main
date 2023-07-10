@@ -19,8 +19,8 @@
                 <Items>
                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                     <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
-                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@OnSaveRolepermission" Enabled="@SaveEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                    <DxMenuItem Text="Save Permission" IconCssClass="fa fa-save" Click="@OnSaveRolepermission" Enabled="@SaveEnabled" />
 
                 </Items>
             </DxMenu>
@@ -52,7 +52,7 @@
                                                 ColumnResizeMode="GridColumnResizeMode.NextColumn"
                                                 FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                                                 ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-                                                PagerNavigationMode="PagerNavigationMode.InputBox" SelectionMode="GridSelectionMode.Multiple"
+                                                PagerNavigationMode="PagerNavigationMode.InputBox" 
                                                 PageSizeSelectorVisible="true"
                                                 PageSizeSelectorAllRowsItemVisible="true"
                                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -61,12 +61,13 @@
                                                 DataItemDeleting="Grid_DataItemDeleting"
                                                 RowClick="OnRowClick"
                                                 RowDoubleClick="OnRowDoubleClick"
-                                                FocusedRowEnabled="true"
+                                                FocusedRowEnabled="false"
                                                 AllowSelectRowByClick="true"
+                                                SelectionMode="GridSelectionMode.Single"
                                                 CssClass="ch-360"
                                                 style="height: calc(100vh - 220px);">
                                             <Columns>
-                                                <DxGridSelectionColumn Width="60px" />
+                                                <DxGridSelectionColumn   AllowSelectAll="false" Width="60px" />
                                                 <DxGridDataColumn FieldName="RoleName" Caption="User Role" MinWidth="80" />
                                                 <DxGridDataColumn FieldName="RoleDescription" MinWidth="80" />
                                             </Columns>
@@ -150,7 +151,7 @@
 
 @code {
     DxTreeView treeview;
- 
+
     IReadOnlyList<object> SelectedDataItems { get; set; }
     List<long> permissionids = new List<long>();
     bool PanelVisible { get; set; }
@@ -167,18 +168,19 @@
     private ApplicationRole _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
     string? DeleteerrorMessage;
+    bool DeleteEnabled { get; set; } = false;
     bool EditEnabled { get; set; } = false;
     bool SaveEnabled { get; set; } = false;
     bool PopupVisible { get; set; } = false;
 
     [Parameter]
     public EventCallback<GridRowClickEventArgs> RowClick { get; set; }
-  
+
 
     protected override async Task OnInitializedAsync()
     {
         //PanelVisible = true;
-       
+
         PanelVisible = true;
         _rolePermission = await Mediator.Send(new GetAllRolePermission());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -215,7 +217,7 @@
     void onCheckedChanged(TreeViewCheckedChangedEventArgs e)
     {
         permissionids.Clear();
-        
+
         if (e.CheckedItems != null)
             checkedEmployees = e.CheckedItems;
 
@@ -229,7 +231,7 @@
 
             }
         }
-      
+
         //        if (e.LastCheckedItems.Count > 0)
         //        {
         //            List<long> newList = new List<long>(permissionids);
@@ -359,32 +361,32 @@
             e.CssClass = "header-bold";
         }
     }
-  async  void OnRowClick(GridRowClickEventArgs e)
+    async  void OnRowClick(GridRowClickEventArgs e)
     {
-       checkedEmployees = new List<ITreeViewNodeInfo>();
-        SaveEnabled = true;
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RoleID");
-        _selectedItems = _rolePermission.FirstOrDefault(f => f.RoleID == (long?)UniqueId);
-        _TreeData = await Mediator.Send(new GetAllRolePermissionSelectedLst(_selectedItems.RoleID));
-   //   await  LoadRoleLst(_selectedItems.RoleID);
-       
-        StateHasChanged();
+        //     checkedEmployees = new List<ITreeViewNodeInfo>();
+        //      SaveEnabled = true;
+        //      var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RoleID");
+        //      _selectedItems = _rolePermission.FirstOrDefault(f => f.RoleID == (long?)UniqueId);
+        //      _TreeData = await Mediator.Send(new GetAllRolePermissionSelectedLst(_selectedItems.RoleID));
+        // //   await  LoadRoleLst(_selectedItems.RoleID);
+
+        //      StateHasChanged();
 
     }
     //async  Task LoadRoleLst(long RoleID)
     //{
     //  //  await jsRuntime.InvokeAsync<string>("showLoading");
     //    //Data = await Mediator.Send(new GetAllRolePermissionSelectedLst(RoleID));
-       
+
     //  //  await jsRuntime.InvokeAsync<string>("hideLoading");
-       
+
     //}
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
-      
-      OnRowClick(e);
-     
-       
+
+        //  OnRowClick(e);
+
+
     }
     void addNew()
     {
@@ -452,22 +454,38 @@
             PopupVisible = true;
         }
 
-      //  await UpdateDataAsync();
+        //  await UpdateDataAsync();
 
 
     }
-    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    async void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems != null)
+        {
+            foreach (object item in SelectedDataItems)
+            {
 
-        if (SelectedDataItems.Count > 1)
-        {
-            EditEnabled = false;
+                if (item is ApplicationRole rolePermission)
+                {
+
+
+                    SaveEnabled = true;
+                    EditEnabled = true;
+                    DeleteEnabled = true;
+                    _selectedItems = _rolePermission.FirstOrDefault(f => f.RoleID == rolePermission.RoleID);
+                    _TreeData = await Mediator.Send(new GetAllRolePermissionSelectedLst(_selectedItems.RoleID));
+                    StateHasChanged();
+
+                   
+                }
+
+            }
         }
-        else
-        {
-            EditEnabled = true;
-        }
+       
+      
+
+      
 
     }
     void EulaPopupClosed(PopupClosedEventArgs args)

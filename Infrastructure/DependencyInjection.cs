@@ -41,7 +41,7 @@ namespace Infrastructure
             services.AddTransient<ISectionQueryRepository, SectionQueryRepository>();
             services.AddTransient<ISubSectionQueryRepository, SubSectionQueryRepository>();
             services.AddTransient<IDesignationQueryRepository, DesignationQueryRepository>();
-            services.AddTransient<ILayOutPlanTypeQueryRepository,LayOutPlanTypeQueryRepository>();
+            services.AddTransient<ILayOutPlanTypeQueryRepository, LayOutPlanTypeQueryRepository>();
             services.AddTransient<IEmployeeQueryRepository, EmployeeQueryRepository>();
             services.AddTransient<IIctmasterQueryRepository, IctmasterQueryRepository>();
             services.AddTransient<IIctmasterCommandRepository, IctmasterCommandRepository>();
@@ -92,16 +92,22 @@ namespace Infrastructure
             services.AddTransient<ITopicTodoListQueryRepository, TopicTodoListQueryRepository>();
             services.AddTransient<IRolePermissionQueryRepository, RolePermissionQueryRepository>();
             services.AddTransient<IApplicationPermissionQueryRepository, ApplicationPermissionQueryRepository>();
+            services.AddTransient<ISoCustomerQueryRepository, SoCustomerQueryRepository>();
+            services.AddTransient<ISoSalesOrderCommandRepository, SoSalesOrderCommandRepository>();
+            services.AddTransient<ISoSalesOrderLineCommandRepository, SoSalesOrderLineCommandRepository>();
+            services.AddTransient<ISoSalesOrderQueryRepository, SoSalesOrderQueryRepository>();
+            services.AddTransient<ISoSalesOrderLineQueryRepository, SoSalesOrderLineQueryRepository>();
             services.AddTransient<IFileStorageService, FileStorageService>();
             services.AddTransient<IApplicationMasterChildQueryRepository, ApplicationMasterChildQueryRepository>();
             services.AddTransient<IAssetCatalogMasterQueryRepository, AssetCatalogMasterQueryRepository>();
             services.AddTransient<IAssetCatalogMasterCommandRepository, AssetCatalogMasterCommandRepository>();
             services.AddTransient<IAssetPartsMaintenaceMasterQueryRepository, AssetPartsMaintenaceMasterQueryRepository>();
             services.AddTransient<IAssetPartsMaintenaceMasterCommandRepository, AssetPartsMaintenaceMasterCommandRepository>();
-            services.AddTransient<IAssetEquipmentMaintenaceMasterQueryRepository, AssetEquipmentMaintenaceMasterQueryRepository>(); 
+            services.AddTransient<IAssetEquipmentMaintenaceMasterQueryRepository, AssetEquipmentMaintenaceMasterQueryRepository>();
             services.AddTransient<IAssetEquipmentMaintenaceMasterCommandRepository, AssetEquipmentMaintenaceMasterCommandRepository>();
             services.AddTransient<IAssetEquipmentMaintenaceMasterAssetDocumentCommandRepository, AssetEquipmentMaintenaceMasterAssetDocumentCommandRepository>();
             services.AddTransient<IAssetEquipmentMaintenaceMasterAssetDocumentQueryRepository, AssetEquipmentMaintenaceMasterAssetDocumentQueryRepository>();
+            services.AddTransient<INavItemsQueryRepository, NavItemsQueryRepository>();
             return services;
         }
     }

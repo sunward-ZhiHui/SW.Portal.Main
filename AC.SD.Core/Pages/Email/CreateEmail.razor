@@ -719,10 +719,10 @@ else
                     uploadComponent.UploadAllFiles();
                     await Task.Delay(2000); // Delay for 2 seconds
 
-                    onShowPopupMessage("success", "Topic have been saved successully");
+                 //   onShowPopupMessage("success", "Topic have been saved successully");
                     ActivityEmailTopicId = 0;
-                    //toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
-
+                    toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+                    await JSRuntime.InvokeAsync<string>("ReloadUrl");
                     onRestText();
                     await JSRuntime.InvokeAsync<string>("hideLoading");
                 }

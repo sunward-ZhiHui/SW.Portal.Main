@@ -1,0 +1,219 @@
+﻿@using Application.Command.Employees;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using System.ComponentModel.DataAnnotations;
+@inject IJSRuntime JSRuntime;
+@using System.Reflection;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@page "/AddSalesOrder"
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                        <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@ResetForm" />
+
+                    </Items>
+                </DxMenu>
+            </div>
+            <div class="" style="margin-left: 195px; margin-top: -32px; float: left;">
+                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    <i class="fa fa-save"></i>
+                    Save
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@*<div class="card">
+    <div class="card-header">*@
+<DxFormLayout CssClass="w-100">
+    <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+        <div>
+        <DxFormLayoutTabPage Caption="So Order">
+            <EditForm Model="@Data" id="@MyID" Context="EditFormContext" >
+
+                <div style="height: calc(100vh - 285px);overflow: auto; border: 1px solid #d5d4d4; border-top: none;">
+                    <DataAnnotationsValidator />
+                    <DxFormLayoutGroup Caption="So Order" ColSpanMd="12">
+                        <DxFormLayoutItem Caption="User Name" ColSpanMd="3">
+                                <DxTextBox @bind-Text="@Data.UserName" ShowValidationIcon="true" Enabled=false />
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Date" ColSpanMd="3">
+                            <DxDateEdit NullText="Date" @bind-Date="@Data.Date"  />
+                        </DxFormLayoutItem>  
+                        <DxFormLayoutItem Caption="Document Date" ColSpanMd="3">
+                            <DxDateEdit NullText="Select a Document Date" @bind-Date="@Data.DocumentDate"/>
+                        </DxFormLayoutItem>
+                         <DxFormLayoutItem Caption="OrderDate Date" ColSpanMd="3">
+                            <DxDateEdit NullText="Select a OrderDate Date" @bind-Date="@Data.OrderDate" />
+                        </DxFormLayoutItem>    
+                        
+                          <DxFormLayoutItem Caption="Customer Name" ColSpanMd="6">
+                                <DxComboBox Data="@_AllSoCustomer"
+                                        NullText="Select Customer..."
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="CustomerName"
+                                        ValueFieldName="SoCustomerId"
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                        @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true"
+                                        SelectedItemChanged="@((SoCustomer soCustomer) => SelectedItemChanged(soCustomer))"> 
+                                        <Columns>
+                                            <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
+                                            Caption="Customer Name"
+                                            Width="180px"/>
+                                                <DxListEditorColumn FieldName="@nameof(SoCustomer.ShipCode)"
+                                            Caption="Ship Code" />
+                                                <DxListEditorColumn FieldName="@nameof(SoCustomer.AssignToRep)"
+                                            Caption="AssignTo Rep"/>                                               
+                                        </Columns>
+                                </DxComboBox>
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="A/No" ColSpanMd="6">
+                                 <DxTextBox @bind-Text="@Data.ShipCode" ShowValidationIcon="true" Enabled=false />                               
+                            </DxFormLayoutItem>
+
+                             <DxFormLayoutItem Caption="Rep Code" ColSpanMd="6">
+                                 <DxTextBox @bind-Text="@Data.AssignToRep" ShowValidationIcon="true" Enabled=false />                                 
+                            </DxFormLayoutItem>
+
+                             <DxFormLayoutItem Caption="Prioity Delivery Date" ColSpanMd="6">
+                            <DxDateEdit NullText="Select a Prioity Delivery Date..." @bind-Date="@Data.PrioityDeliveryDate" CssClass="cw-320" />
+                        </DxFormLayoutItem> 
+
+                         <DxFormLayoutItem Caption="Remark" ColSpanMd="6">
+                                <DxMemo @bind-Text="@Data.Remark" Rows="5" ShowValidationIcon="true" />                
+                         </DxFormLayoutItem>
+
+                         <DxFormLayoutItem Caption="Delivery Address" ColSpanMd="6">
+                              <DxTextBox @bind-Text="@Data.Address1" ShowValidationIcon="true" Enabled=false />                               
+                        </DxFormLayoutItem>
+                    </DxFormLayoutGroup> 
+                </div>
+
+            </EditForm>
+
+        </DxFormLayoutTabPage>
+
+        <DxFormLayoutTabPage Caption="So Order Line">
+            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><SalesOrderLine SoSalesOrderId="@SoSalesOrderId"></SalesOrderLine></div>
+        </DxFormLayoutTabPage>    
+        
+        </div>
+    </DxFormLayoutTabPages>
+</DxFormLayout>
+@*</div></div>*@
+<DxPopup @bind-Visible="@MessageVisible"
+         HeaderText="@MessageHeader"
+         BodyText="@MessageBody" />
+
+
+@code {
+    long? SoSalesOrderId { get; set; }
+    [Parameter]
+    public Guid? SessionIds { get; set; }
+    private bool loading;
+    private string MyID = "myid";
+    long? EmployeeIds { get; set; }
+    bool EditEnabledTab { get; set; } = false;
+    int ActiveTabIndex { get; set; } = 0;
+    int ActiveSubTabIndex { get; set; } = 0;  
+
+
+    private List<SoCustomer>? _AllSoCustomer;
+
+    private List<ViewEmployee> _employeeItems;
+
+    SoSalesOrder Data = new SoSalesOrder();
+    ViewEmployee _employeeData = new ViewEmployee(); 
+
+
+    public ApplicationUser applicationUser { get; private set; }
+    bool MessageVisible { get; set; }
+    string MessageHeader = "";
+    string MessageBody = "";
+
+    void SelectedItemChanged(SoCustomer soCustomer) 
+    {
+        Data.ShipCode = soCustomer.ShipCode;
+        Data.AssignToRep = soCustomer.AssignToRep;
+        Data.Address1 = soCustomer.Address1;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
+
+        _employeeItems = await Mediator.Send(new GetAllEmployeeByStatusQuery());
+
+        Data.DocumentDate = DateTime.Now;
+        Data.Date = DateTime.Now;
+        Data.UserName = applicationUser.UserName;
+    }
+
+    void backUrl()
+    {
+        NavigationManager.NavigateTo("SalesOrder");
+    }
+    void ResetForm()
+    {
+        _employeeData = new ViewEmployee();
+        //employee = new EmployeeResponse();
+        EmployeeIds = null;
+        ActiveTabIndex = 0;
+        ActiveSubTabIndex = 0;
+        NavigationManager.NavigateTo("AddSalesOrder");
+    }
+
+    async Task loadEmployeeData(ViewEmployee _employeeData)
+    {
+
+        var employeeReportToItems = await Mediator.Send(new GetEmployeeReportToQuery(_employeeData.EmployeeID));
+        
+      
+    }
+    
+    void onsubmitClick()
+    {
+        ActiveTabIndex = 0;
+        ActiveSubTabIndex = 0;
+    }
+   
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        StateHasChanged();
+    }
+    void HandleInvalidSubmit()
+    {
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }       
+    }
+}

@@ -9,16 +9,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="DataProviders\**" />
-    <Compile Remove="Pages\NewFolder\**" />
     <Compile Remove="wwwroot1\**" />
     <Content Remove="DataProviders\**" />
-    <Content Remove="Pages\NewFolder\**" />
     <Content Remove="wwwroot1\**" />
     <EmbeddedResource Remove="DataProviders\**" />
-    <EmbeddedResource Remove="Pages\NewFolder\**" />
     <EmbeddedResource Remove="wwwroot1\**" />
     <None Remove="DataProviders\**" />
-    <None Remove="Pages\NewFolder\**" />
     <None Remove="wwwroot1\**" />
   </ItemGroup>
   <ItemGroup>

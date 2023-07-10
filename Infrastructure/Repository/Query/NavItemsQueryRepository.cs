@@ -37,11 +37,50 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<Navitems> GetByItemSerialNoAsync(string ItemSerialNo)
+        public async Task<long> Update(Navitems todolist)
         {
             try
             {
-                var query = "SELECT * FROM Navitems WHERE ItemSerialNo!=null and ItemSerialNo =" + ItemSerialNo;
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("ItemSerialNo", todolist.ItemSerialNo);
+                            parameters.Add("ItemId", todolist.ItemId, DbType.Int64);
+
+                            var query = " UPDATE Navitems SET ItemSerialNo = @ItemSerialNo WHERE ItemId = @ItemId";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<Navitems> GetByItemSerialNoExitsAsync(Navitems ItemSerialNo)
+        {
+            try
+            {
+                var query = "SELECT * FROM Navitems WHERE ItemSerialNo =" + "'" + ItemSerialNo.ItemSerialNo + "'";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryFirstOrDefaultAsync<Navitems>(query));
@@ -52,6 +91,20 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        public async Task<Navitems> GetByItemSerialNoAsync(string ItemSerialNo)
+        {
+            try
+            {
+                var query = "SELECT * FROM Navitems WHERE  ItemSerialNo =" + ItemSerialNo;
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<Navitems>(query));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

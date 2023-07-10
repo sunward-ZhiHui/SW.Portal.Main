@@ -162,9 +162,9 @@
         var models = await Mediator.Send(new GetApplicationPermissionQuery(7));
         applicationPermissions = models;
        
-        foreach (var ir in applicationPermissions)
+        foreach (var permissionlst in applicationPermissions)
         {
-            var pid = ir.PermissionName;
+            var pid = permissionlst.PermissionName;
             permissionids.Add(pid);
             //permission = ir.PermissionName;
             //if (permission == "Users")

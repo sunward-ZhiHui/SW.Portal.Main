@@ -46,7 +46,19 @@
                                         <DxGrid @ref="_RoleGrid"
                                                 Data="_rolePermission"
                                                 KeyFieldName="RoleID"
-                                             
+                                                EditMode="GridEditMode.EditForm" 
+                                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                                EditorRenderMode="GridEditorRenderMode.Integrated"
+                                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                                ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                                PagerNavigationMode="PagerNavigationMode.InputBox" SelectionMode="GridSelectionMode.Multiple"
+                                                PageSizeSelectorVisible="true"
+                                                PageSizeSelectorAllRowsItemVisible="true"
+                                                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                                PageSize="20"  CustomizeElement="Grid_CustomizeElement" SelectedDataItemsChanged="@SelectedDataItemsChanged"   ValidationEnabled="false"
+                                                EditModelSaving="Grid_EditModelSaving"
+                                                DataItemDeleting="Grid_DataItemDeleting"
                                                 RowClick="OnRowClick"
                                                 RowDoubleClick="OnRowDoubleClick"
                                                 FocusedRowEnabled="true"
@@ -93,7 +105,7 @@
                 </div>
                 <div>
                     <div class="views-accordion">
-                            <DxTreeView Data="@Data" style="height: calc(100vh - 220px);"
+                            <DxTreeView Data="@_TreeData" style="height: calc(100vh - 220px);"
                                         AllowSelectNodes=true
                                        CheckMode="TreeViewCheckMode.Recursive"
                                         CheckAllVisible="true"
@@ -145,7 +157,7 @@
     IReadOnlyList<ITreeViewNodeInfo> checkedEmployees;
     private List<ApplicationPermission> _rolePermissionSelecteditem { get; set; }
     private List<ApplicationRole> _rolePermission { get; set; }
-    private List<ApplicationPermission> Data { get; set; }
+    private List<ApplicationPermission> _TreeData { get; set; }
     object SelectedGroup = "none";
     bool Blukdeletepopup { get; set; } = false;
     IGrid _RoleGrid { get; set; }
@@ -353,7 +365,7 @@
         SaveEnabled = true;
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "RoleID");
         _selectedItems = _rolePermission.FirstOrDefault(f => f.RoleID == (long?)UniqueId);
-        Data = await Mediator.Send(new GetAllRolePermissionSelectedLst(_selectedItems.RoleID));
+        _TreeData = await Mediator.Send(new GetAllRolePermissionSelectedLst(_selectedItems.RoleID));
    //   await  LoadRoleLst(_selectedItems.RoleID);
        
         StateHasChanged();

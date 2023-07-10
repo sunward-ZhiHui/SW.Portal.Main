@@ -70,6 +70,7 @@
                           <DxFormLayoutItem Caption="Customer Name" ColSpanMd="6">
                                 <DxComboBox Data="@_AllSoCustomer"
                                         NullText="Select Customer..."
+                                            ListRenderMode="ListRenderMode.Virtual"
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         TextFieldName="CustomerName"
                                         ValueFieldName="SoCustomerId"
@@ -141,7 +142,6 @@
 
     private List<SoCustomer>? _AllSoCustomer;
 
-    private List<ViewEmployee> _employeeItems;
 
     SoSalesOrder Data = new SoSalesOrder();
     ViewEmployee _employeeData = new ViewEmployee(); 
@@ -154,17 +154,24 @@
 
     void SelectedItemChanged(SoCustomer soCustomer) 
     {
-        Data.ShipCode = soCustomer.ShipCode;
-        Data.AssignToRep = soCustomer.AssignToRep;
-        Data.Address1 = soCustomer.Address1;
+        if(soCustomer!=null)
+        {
+            Data.ShipCode = soCustomer.ShipCode;
+            Data.AssignToRep = soCustomer.AssignToRep;
+            Data.Address1 = soCustomer.Address1;
+        }
+        else
+        {
+            Data.ShipCode = "";
+            Data.AssignToRep = "";
+            Data.Address1 = "";
+        }
     }
 
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
-
-        _employeeItems = await Mediator.Send(new GetAllEmployeeByStatusQuery());
 
         Data.DocumentDate = DateTime.Now;
         Data.Date = DateTime.Now;

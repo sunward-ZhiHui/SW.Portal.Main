@@ -24,5 +24,7 @@ namespace Core.Entities
         public long? RowIndex { get; set; }
         [NotMapped]
         public string? AssigntoIds { get; set; }
+        [NotMapped]
+        public string? AssignccIds { get; set; }
     }
 }

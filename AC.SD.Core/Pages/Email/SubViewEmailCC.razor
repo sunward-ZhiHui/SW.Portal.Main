@@ -21,8 +21,8 @@
             AllowSelectRowByClick="true">
         <Columns>
             <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="100" />
-            <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
-            <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="160">
+            <DxGridDataColumn FieldName="TopicName" Caption="From" MinWidth="250" />
+            <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="180">
                 <CellDisplayTemplate>
                     @{
                         var item = (EmailTopics)context.DataItem;

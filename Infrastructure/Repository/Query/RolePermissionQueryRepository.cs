@@ -188,8 +188,12 @@ namespace Infrastructure.Repository.Query
                             LEFT JOIN
                                 ApplicationRolePermission arp ON ap.PermissionID = arp.PermissionID AND arp.RoleID = @RoleID
                             WHERE
-                                ap.IsDisplay = 1 AND
-                                ap.PermissionID > 60000;";
+                                ap.IsDisplay = 1
+                                AND ap.IsNewPortal = 1
+                                AND ap.IsCmsApp = 1
+                                AND (ap.IsMobile IS NULL OR ap.IsMobile = 0)
+                                AND ap.PermissionID > 60000
+                            ORDER BY ap.PermissionOrder";
                         using (var connection = CreateConnection())
                         {
                             return (await connection.QueryAsync<ApplicationPermission>(query, parameters)).ToList();

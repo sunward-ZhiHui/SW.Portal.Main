@@ -152,8 +152,7 @@
     
 </head>
 <body>
-
-  
+    <div class="load-indicator" style="display:none;"></div>
     <Toast />
     @{
         var isIEOrEdgeLegacy = Request.Headers["User-Agent"].Any(userAgent => userAgent.Contains("MSIE") || userAgent.Contains("Trident"));

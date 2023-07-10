@@ -35,10 +35,8 @@
             SelectionChanged="@SelectionChanged">
     <Nodes>
         @foreach (var demoPage in lists)
-        {
-           
-                <NavMenuLeaf Page="@demoPage"></NavMenuLeaf>
-           
+        {           
+            <NavMenuLeaf Page="@demoPage"></NavMenuLeaf>           
         }
     </Nodes>
 </DxTreeView>

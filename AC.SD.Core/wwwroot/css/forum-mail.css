@@ -988,7 +988,7 @@ main {
                     }
                     .msgOpen {
                         /* height: calc(100% - 360px);*/
-                        height: calc(100% - 222px);
+                        height: calc(100% - 160px);
                     }
 
                     .msgClose {

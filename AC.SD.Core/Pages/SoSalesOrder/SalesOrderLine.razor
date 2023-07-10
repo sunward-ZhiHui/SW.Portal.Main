@@ -130,30 +130,27 @@
         }
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Item SerialNo:" ColSpanMd="6">
-                <DxTextBox @bind-Text="@types.ItemSerialNo"   @onblur="HandleTextBoxBlur"/>
+                <DxTextBox @bind-Text="@TextValue"  @onblur="HandleTextBoxBlur"/>
                 <ValidationMessage For="@(() => types.ItemSerialNo)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Item No:" ColSpanMd="6">
-               <DxTextBox @bind-Text="@types.No" />
+               <DxTextBox @bind-Text="@No" />
             </DxFormLayoutItem>
              <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
-               <DxTextBox @bind-Text="@types.Description" />
+               <DxTextBox @bind-Text="@Description" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description2:" ColSpanMd="6">
-               <DxTextBox @bind-Text="@types.Description2" />
+               <DxTextBox @bind-Text="@Description2" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
-               <DxTextBox @bind-Text="@types.BaseUnitofMeasure" />
+               <DxTextBox @bind-Text="@BaseUnitofMeasure" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Qty:" ColSpanMd="6">
                 <DxSpinEdit @bind-Value="@types.Qty" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Unit price:" ColSpanMd="6">
                 <DxSpinEdit @bind-Value="@types.UnitPrice" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
-                <DxTextBox @bind-Text="@types.Description" />
-            </DxFormLayoutItem>
+            </DxFormLayoutItem>           
             <ValidationSummary />
         </DxFormLayout>
     </EditFormTemplate>
@@ -162,6 +159,11 @@
 </DxLoadingPanel>
 
 @code {
+    private string TextValue { get; set; }
+    private string No { get; set; }
+    private string Description { get; set; }
+    private string Description2 { get; set; }
+    private string BaseUnitofMeasure { get; set; }
     bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
@@ -191,9 +193,18 @@
     {
 
     }
-    private void HandleTextBoxBlur(FocusEventArgs args)
+    private async void HandleTextBoxBlur(FocusEventArgs args)
     {
+        var txtno = @TextValue;
+        if(txtno != null)
+        {
+            var navitems = await Mediator.Send(new GetAllNavItemsItemSerialNoQuery(txtno));
+        }
         
+        //No = navitems[0].No;
+        //Description = navitems[0].Description;
+        //Description2 = navitems[0].Description2;
+        //BaseUnitofMeasure = navitems[0].BaseUnitofMeasure;
     }
 
     protected override async Task OnInitializedAsync()

@@ -108,6 +108,7 @@ namespace Infrastructure
             services.AddTransient<IAssetEquipmentMaintenaceMasterAssetDocumentCommandRepository, AssetEquipmentMaintenaceMasterAssetDocumentCommandRepository>();
             services.AddTransient<IAssetEquipmentMaintenaceMasterAssetDocumentQueryRepository, AssetEquipmentMaintenaceMasterAssetDocumentQueryRepository>();
             services.AddTransient<INavItemsQueryRepository, NavItemsQueryRepository>();
+            services.AddTransient<INavItemsCommandRepository, NavItemsCommandRepository>();
             return services;
         }
     }

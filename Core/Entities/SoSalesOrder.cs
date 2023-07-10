@@ -36,7 +36,4 @@ namespace Core.Entities
         public DateTime? Date { get; set; }
     }
 }
-        
-         
-
 

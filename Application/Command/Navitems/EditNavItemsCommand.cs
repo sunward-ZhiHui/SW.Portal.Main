@@ -1,15 +1,17 @@
-﻿using System;
+﻿using Application.Response;
+using Core.Entities;
+using MediatR;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Application.Commands
 {
-    public class Navitems
+    public class EditNavItemsCommand : IRequest<NavitemsResponse>
     {
-        [Key]
         public long ItemId { get; set; }
         public long? CompanyId { get; set; }
         public string No { get; set; }
@@ -56,7 +58,9 @@ namespace Core.Entities
         public long? ReplenishmentMethodId { get; set; }
         public string ImageUrl { get; set; }
         public bool? IsPortal { get; set; }
-        [Required(ErrorMessage = "Item SerialNo is Required")]
         public string ItemSerialNo { get; set; }
+        public EditNavItemsCommand()
+        {
+        }
     }
 }

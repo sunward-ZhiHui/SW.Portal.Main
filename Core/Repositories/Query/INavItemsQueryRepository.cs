@@ -14,5 +14,7 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<Navitems>> GetAllAsync();
         Task<Navitems> GetByItemSerialNoAsync(string ItemSerialNo);
+        Task<long> Update(Navitems todolist);
+        Task<Navitems> GetByItemSerialNoExitsAsync(Navitems ItemSerialNo);
     }
 }

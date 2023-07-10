@@ -136,6 +136,7 @@ namespace Application.Common.Mapper
             CreateMap<SoSalesOrderLine, CreateSoSalesOrderLineCommand>().ReverseMap();
             CreateMap<SoSalesOrderLine, EditSoSalesOrderLineCommand>().ReverseMap();
             CreateMap<SoSalesOrderLine, DeleteSoSalesOrderLineCommand>().ReverseMap();
+            CreateMap<Navitems, EditNavItemsCommand>().ReverseMap();
         }
     }
 }

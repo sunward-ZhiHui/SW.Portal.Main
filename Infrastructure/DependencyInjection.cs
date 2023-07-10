@@ -41,7 +41,7 @@ namespace Infrastructure
             services.AddTransient<ISectionQueryRepository, SectionQueryRepository>();
             services.AddTransient<ISubSectionQueryRepository, SubSectionQueryRepository>();
             services.AddTransient<IDesignationQueryRepository, DesignationQueryRepository>();
-            services.AddTransient<ILayOutPlanTypeQueryRepository,LayOutPlanTypeQueryRepository>();
+            services.AddTransient<ILayOutPlanTypeQueryRepository, LayOutPlanTypeQueryRepository>();
             services.AddTransient<IEmployeeQueryRepository, EmployeeQueryRepository>();
             services.AddTransient<IIctmasterQueryRepository, IctmasterQueryRepository>();
             services.AddTransient<IIctmasterCommandRepository, IctmasterCommandRepository>();
@@ -103,10 +103,11 @@ namespace Infrastructure
             services.AddTransient<IAssetCatalogMasterCommandRepository, AssetCatalogMasterCommandRepository>();
             services.AddTransient<IAssetPartsMaintenaceMasterQueryRepository, AssetPartsMaintenaceMasterQueryRepository>();
             services.AddTransient<IAssetPartsMaintenaceMasterCommandRepository, AssetPartsMaintenaceMasterCommandRepository>();
-            services.AddTransient<IAssetEquipmentMaintenaceMasterQueryRepository, AssetEquipmentMaintenaceMasterQueryRepository>(); 
+            services.AddTransient<IAssetEquipmentMaintenaceMasterQueryRepository, AssetEquipmentMaintenaceMasterQueryRepository>();
             services.AddTransient<IAssetEquipmentMaintenaceMasterCommandRepository, AssetEquipmentMaintenaceMasterCommandRepository>();
             services.AddTransient<IAssetEquipmentMaintenaceMasterAssetDocumentCommandRepository, AssetEquipmentMaintenaceMasterAssetDocumentCommandRepository>();
             services.AddTransient<IAssetEquipmentMaintenaceMasterAssetDocumentQueryRepository, AssetEquipmentMaintenaceMasterAssetDocumentQueryRepository>();
+            services.AddTransient<INavItemsQueryRepository, NavItemsQueryRepository>();
             return services;
         }
     }

@@ -5,6 +5,7 @@
 @using DevExpress.Blazor.ComboBox;
 @using DevExpress.Export;
 @using MediatR
+@inject NavigationManager NavigationManager
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
@@ -84,6 +85,7 @@
 @if(isValidateSession)
 {
     <div style="color:red; text-align:center;">Invalidate Session or Already Created</div>
+    NavigationManager.NavigateTo($"404",forceLoad:true);
 }
 else
 {
@@ -109,6 +111,16 @@ else
                                       TagsChanged="@onToChanged"
                                       @bind-Values="Data.ToIds"
                                       CssClass="cw-480">
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                            Caption="Company"
+                                            Width="100px"/>
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                            Caption="Designation" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)"
+                                            Caption="First Name" 
+                                            Width="100px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
+                                            Caption="Nick Name" />
                                 </DxTagBox>
                                 <ValidationMessage For="@(() => Data.ToIds)" />
                             </DxFormLayoutItem>
@@ -120,7 +132,18 @@ else
                                       TextFieldName="FirstName"
                                       TagsChanged="@onCcChanged"
                                       @bind-Values="@Data.CCIds"
-                                      CssClass="cw-480" />
+                                      CssClass="cw-480">
+                                           <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                            Caption="Company"
+                                            Width="100px"/>
+                                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                            Caption="Designation" />
+                                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)"
+                                            Caption="First Name" 
+                                            Width="100px" />
+                                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
+                                            Caption="Nick Name" />
+                                </DxTagBox>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
                                 <DxComboBox Data="@_Allparticipant"
@@ -129,7 +152,20 @@ else
                                         TextFieldName="FirstName"
                                         ValueFieldName="UserID"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                        @bind-Value="@Data.OnBehalf" ShowValidationIcon="true" />
+                                        @bind-Value="@Data.OnBehalf" ShowValidationIcon="true">
+                                        <Columns>
+                                                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                            Caption="Company"
+                                            Width="100px"/>
+                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                            Caption="Designation" />
+                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)"
+                                            Caption="First Name" 
+                                            Width="100px" />
+                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
+                                            Caption="Nick Name" />
+                                        </Columns>
+                                        </DxComboBox>
                             </DxFormLayoutItem>
 
                             <DxFormLayoutItem Caption="" ColSpanMd="1">

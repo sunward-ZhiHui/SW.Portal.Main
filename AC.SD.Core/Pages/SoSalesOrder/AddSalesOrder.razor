@@ -62,10 +62,13 @@
                         <DxFormLayoutItem Caption="Date" ColSpanMd="3">
                             <DxDateEdit NullText="Date" @bind-Date="@Data.Date"  />
                         </DxFormLayoutItem>  
-                        <DxFormLayoutItem Caption="Document Date" ColSpanMd="3">
+                        <DxFormLayoutItem Caption="Document Date" ColSpanMd="4">
                             <DxDateEdit NullText="Select a Document Date" @bind-Date="@Data.DocumentDate"/>
                         </DxFormLayoutItem>
-                         <DxFormLayoutItem Caption="OrderDate Date" ColSpanMd="3">
+                            <DxFormLayoutItem Caption="Sign Order No" ColSpanMd="4">
+                                <DxTextBox @bind-Text="@Data.SignOrderNo" ShowValidationIcon="true" Enabled=false />
+                            </DxFormLayoutItem>
+                         <DxFormLayoutItem Caption="OrderDate Date" ColSpanMd="4">
                             <DxDateEdit NullText="Select a OrderDate Date" @bind-Date="@Data.OrderDate" />
                         </DxFormLayoutItem>    
                         
@@ -207,16 +210,21 @@
   async  void onsubmitClick()
   {
 
-        var editModel = new SoSalesOrder();
-       
+        var editModel = new SoSalesOrder();       
                var createReq = new CreateSoSalesOrderCommand
                     {
-                        SoCustomerId = Data.SoCustomerId,
-                      Remark = Data.Remark,
+                    SoCustomerId = Data.SoCustomerId,
+                    Remark = Data.Remark,
                     DocumentDate = Data.DocumentDate,
-                OrderDate = Data.OrderDate,
-                PrioityDeliveryDate = Data.PrioityDeliveryDate,
-                    
+                    OrderDate = Data.OrderDate,
+                    PrioityDeliveryDate = Data.PrioityDeliveryDate,
+                    SignOrderNo = Data.SignOrderNo,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid()
+
                };
 
         await Mediator.Send(createReq);

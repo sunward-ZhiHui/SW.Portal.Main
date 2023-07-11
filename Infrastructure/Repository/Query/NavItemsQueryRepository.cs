@@ -95,10 +95,13 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM Navitems WHERE  ItemSerialNo =" + ItemSerialNo;
+                var query = "SELECT * FROM Navitems WHERE  ItemSerialNo =@ItemSerialNo";
+                var parameters = new DynamicParameters();
+                parameters.Add("ItemSerialNo", ItemSerialNo, DbType.Int64);
+
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryFirstOrDefaultAsync<Navitems>(query));
+                    return (await connection.QueryFirstOrDefaultAsync<Navitems>(query, parameters));
                 }
             }
             catch (Exception exp)

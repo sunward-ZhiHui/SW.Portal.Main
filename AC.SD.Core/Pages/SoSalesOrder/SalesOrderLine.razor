@@ -128,22 +128,41 @@
         @{
             var types = (View_SoSalesOrderLine)EditFormContext.EditModel;
         }
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Item SerialNo:" ColSpanMd="6">
-                <DxTextBox @bind-Text="@TextValue"  @onblur="HandleTextBoxBlur"/>
-                <ValidationMessage For="@(() => types.ItemSerialNo)" />
+        <DxFormLayout CssClass="w-100">        
+
+                <DxFormLayoutItem Caption="Item SerialNo" ColSpanMd="6">
+                    <DxComboBox Data="@_AllNavitems"
+                            NullText="Select Customer..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="ItemSerialNo"
+                                ValueFieldName="ItemSerialNo"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@types.ItemSerialNo" ShowValidationIcon="true"
+                                SelectedItemChanged="@((Navitems navitems) => SelectedItemChanged(navitems))">
+                    <Columns>
+                            <DxListEditorColumn FieldName="@nameof(Navitems.ItemSerialNo)"
+                                                Caption="Item Serial No"
+                                            Width="180px" />
+                        <DxListEditorColumn FieldName="@nameof(Navitems.No)"
+                                            Caption="Item" />
+                        <DxListEditorColumn FieldName="@nameof(Navitems.Description)"
+                                            Caption="Description" />
+                    </Columns>
+                </DxComboBox>
             </DxFormLayoutItem>
+
             <DxFormLayoutItem Caption="Item No:" ColSpanMd="6">
-               <DxTextBox @bind-Text="@No" />
+                    <DxTextBox @bind-Text="@No" Enabled=false />
             </DxFormLayoutItem>
              <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
-               <DxTextBox @bind-Text="@Description" />
+               <DxTextBox @bind-Text="@Description" Enabled=false  />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description2:" ColSpanMd="6">
-               <DxTextBox @bind-Text="@Description2" />
+               <DxTextBox @bind-Text="@Description2" Enabled=false  />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
-               <DxTextBox @bind-Text="@BaseUnitofMeasure" />
+                    <DxTextBox @bind-Text="@BaseUnitofMeasure" Enabled=false />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Qty:" ColSpanMd="6">
                 <DxSpinEdit @bind-Value="@types.Qty" />
@@ -164,6 +183,9 @@
     private string Description { get; set; }
     private string Description2 { get; set; }
     private string BaseUnitofMeasure { get; set; }
+
+    private List<Navitems>? _AllNavitems;
+
     bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
@@ -189,27 +211,31 @@
     private View_SoSalesOrderLine _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
 
-    private async Task HandleTextBoxInput(ChangeEventArgs args)
+   
+    void SelectedItemChanged(Navitems navitems)
     {
-
-    }
-    private async void HandleTextBoxBlur(FocusEventArgs args)
-    {
-        var txtno = @TextValue;
-        if(txtno != null)
+        if (navitems != null)
         {
-            var navitems = await Mediator.Send(new GetAllNavItemsItemSerialNoQuery(txtno));
+            No = navitems.No;
+            Description = navitems.Description;
+            Description2 = navitems.Description2;
+            BaseUnitofMeasure = navitems.BaseUnitofMeasure;
         }
-        
-        //No = navitems[0].No;
-        //Description = navitems[0].Description;
-        //Description2 = navitems[0].Description2;
-        //BaseUnitofMeasure = navitems[0].BaseUnitofMeasure;
+        else
+        {
+            No = "";
+            Description = "";
+            Description2 = "";
+            BaseUnitofMeasure = "";
+        }
     }
-
+   
     protected override async Task OnInitializedAsync()
     {
-        PanelVisible = true;      
+        PanelVisible = true;     
+        var navitemslst = await Mediator.Send(new GetAllNavItemsQuery());
+        _AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _salesOrderLine = await Mediator.Send(new GetSalesOrderLine());        
         PanelVisible = false;      

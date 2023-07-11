@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Application.Response
 {
-    public class ApplicationMasterDetail
+    public class ApplicationMasterDetailResponse
     {
-        [Key]
         public long ApplicationMasterDetailId { get; set; }
         public long ApplicationMasterId { get; set; }
         public string Value { get; set; }

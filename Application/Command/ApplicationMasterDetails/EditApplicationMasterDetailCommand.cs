@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Application.Response;
+using MediatR;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Application.Command.ApplicationMasterDetails
 {
-    public class ApplicationMasterDetail
+    public class EditApplicationMasterDetailCommand : IRequest<ApplicationMasterDetailResponse>
     {
-        [Key]
         public long ApplicationMasterDetailId { get; set; }
         public long ApplicationMasterId { get; set; }
         public string Value { get; set; }
@@ -21,5 +21,8 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public long? ProfileId { get; set; }
         public long? FileProfileTypeId { get; set; }
+        public EditApplicationMasterDetailCommand()
+        {
+        }
     }
 }

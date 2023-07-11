@@ -1,63 +1,73 @@
-﻿
+﻿@inject IJSRuntime jsRuntime
 @page "/soCustomer"
 @using Application.Queries;
-@using MediatR
+@using DevExpress.Export;
+@using MediatR;
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
-@using global::Core.Repositories.Query;
 @inject IMediator Mediator
-@using DevExpress.Export
-
+<style>
+    .dxbl-loading-panel {
+        display: initial !important;
+    }
+</style>
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-
-    <DxGrid @ref="Grid" Data="@_AllSoCustomer" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+    <DxGrid @ref="Grid" Data="@_AllSoCustomer" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="SoCustomerId"
-            PageSizeSelectorVisible="true"
             PageSizeSelectorAllRowsItemVisible="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             PageSize="20"
-            style="height: calc(100vh - 180px);"
-            CssClass="ch-360"
-            AllowSelectRowByClick="true"
+            KeyFieldName="SoCustomerId"
             CustomizeElement="Grid_CustomizeElement"
+            style="height: calc(100vh - 220px);"
+            CssClass="w-100"
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            TextWrapEnabled="false">
         <Columns>
-       
-            <DxGridDataColumn FieldName="ShipCode" FixedPosition="GridColumnFixedPosition.Left" />
-            <DxGridDataColumn FieldName="CustomerName" MinWidth="170" FixedPosition="GridColumnFixedPosition.Left" />
-            <DxGridDataColumn FieldName="AssignToRep"  MinWidth="170"/>
-            <DxGridDataColumn FieldName="Address1" />
-            <DxGridDataColumn FieldName="Address2" />
-            <DxGridDataColumn FieldName="City" />
-            <DxGridDataColumn FieldName="StateCode" />
-            <DxGridDataColumn FieldName="PostCode" />
-            <DxGridDataColumn FieldName="Channel" />
+            <DxGridDataColumn FieldName="ShipCode" FixedPosition="GridColumnFixedPosition.Left" MinWidth="170" />
+            <DxGridDataColumn FieldName="CustomerName" MinWidth="200" FixedPosition="GridColumnFixedPosition.Left" />
+            <DxGridDataColumn FieldName="AssignToRep" MinWidth="170" />
+            <DxGridDataColumn FieldName="Address1" MinWidth="270" />
+            <DxGridDataColumn FieldName="Address2" MinWidth="270" />
+            <DxGridDataColumn FieldName="City" MinWidth="170" />
+            <DxGridDataColumn FieldName="StateCode" MinWidth="170" />
+            <DxGridDataColumn FieldName="PostCode" MinWidth="170" />
+            <DxGridDataColumn FieldName="Channel" MinWidth="170" />
+
+            @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@
         </Columns>
-        <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="CustomerName" />
-        </TotalSummary>
     </DxGrid>
-
 </DxLoadingPanel>
-
 @code {
-    IGrid? Grid { get; set; }
+    IGrid Grid { get; set; }
     private List<SoCustomer>? _AllSoCustomer;
     bool PanelVisible { get; set; }
     protected override async Task OnInitializedAsync()
     {
+
         PanelVisible = true;
         _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
         PanelVisible = false;
+
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -65,6 +75,34 @@
         {
             e.CssClass = "alt-item";
         }
+        //if (e.ElementType == GridElementType.HeaderCell)
+        //{
+        //    e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+        //    e.CssClass = "header-bold";
+        //}
+    }
+    async Task ExportToExcel()
+
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+
+                CustomizeCell = OnCustomizeCell
+            });
+
 
     }
+
+
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+
+
+
+    }
+
 }

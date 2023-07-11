@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Core.Entities.Views
 {
-    internal class View_SoSalesOrder
+    public class View_SoSalesOrder
     {
         public long SoSalesOrderId { get; set; }
         public int Index { get; set; }

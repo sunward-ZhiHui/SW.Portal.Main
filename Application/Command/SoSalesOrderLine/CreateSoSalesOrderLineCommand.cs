@@ -25,10 +25,6 @@ namespace Application.Command.SoSalesOrderLine
 
         public CreateSoSalesOrderLineCommand()
         {
-            this.AddedDate = DateTime.Now;
-            this.ModifiedDate = DateTime.Now;
-            this.AddedByUserId = 1;
-            this.ModifiedByUserId = 1;
 
         }
     }

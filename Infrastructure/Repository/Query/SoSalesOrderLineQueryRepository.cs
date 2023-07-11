@@ -12,14 +12,14 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Query
 {
-    public class SoSalesOrderLineQueryRepository : QueryRepository<ViewSoSalesOrderLine>, ISoSalesOrderLineQueryRepository
+    public class SoSalesOrderLineQueryRepository : QueryRepository<View_SoSalesOrderLine>, ISoSalesOrderLineQueryRepository
     {
         public SoSalesOrderLineQueryRepository(IConfiguration configuration)
             : base(configuration)
         {
 
         }
-        public async Task<IReadOnlyList<ViewSoSalesOrderLine>> GetAllAsync()
+        public async Task<IReadOnlyList<View_SoSalesOrderLine>> GetAllAsync()
         {
             try
             {
@@ -27,7 +27,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ViewSoSalesOrderLine>(query)).ToList();
+                    return (await connection.QueryAsync<View_SoSalesOrderLine>(query)).ToList();
                 }
             }
             catch (Exception exp)
@@ -35,7 +35,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<ViewSoSalesOrderLine> GetByIdAsync(long id)
+        public async Task<View_SoSalesOrderLine> GetByIdAsync(long id)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryFirstOrDefaultAsync<ViewSoSalesOrderLine>(query, parameters));
+                    return (await connection.QueryFirstOrDefaultAsync<View_SoSalesOrderLine>(query, parameters));
                 }
             }
             catch (Exception exp)

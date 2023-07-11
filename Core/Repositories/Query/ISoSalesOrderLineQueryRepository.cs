@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public interface ISoSalesOrderLineQueryRepository : IQueryRepository<ViewSoSalesOrderLine>
+    public interface ISoSalesOrderLineQueryRepository : IQueryRepository<View_SoSalesOrderLine>
     {
-        Task<IReadOnlyList<ViewSoSalesOrderLine>> GetAllAsync();
-        Task<ViewSoSalesOrderLine> GetByIdAsync(Int64 id);
+        Task<IReadOnlyList<View_SoSalesOrderLine>> GetAllAsync();
+        Task<View_SoSalesOrderLine> GetByIdAsync(Int64 id);
     }
    
 }

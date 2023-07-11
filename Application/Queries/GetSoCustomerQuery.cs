@@ -14,4 +14,10 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+
+
+    public class GetSalesOrderLine : PagedRequest, IRequest<List<View_SoSalesOrderLine>>
+    {
+        public string SearchString { get; set; }
+    }
 }

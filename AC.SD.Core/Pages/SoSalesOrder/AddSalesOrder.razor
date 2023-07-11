@@ -231,13 +231,16 @@
             var editModel = new SoSalesOrder();
             var createReq = new EditSoSalesOrderCommand
                 {
+                    
                     SoSalesOrderId = Data.SoSalesOrderId,
                     SoCustomerId = Data.SoCustomerId,
                     Remark = Data.Remark,
                     DocumentDate = Data.DocumentDate,
                     OrderDate = Data.OrderDate,
                     PrioityDeliveryDate = Data.PrioityDeliveryDate,
-                    SignOrderNo = Data.SignOrderNo,                   
+                    SignOrderNo = Data.SignOrderNo,   
+                    AddedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
                     ModifiedByUserId = applicationUser.UserID,                   
                     ModifiedDate = DateTime.Now,
                     SessionId = Data.SessionId,

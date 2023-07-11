@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public interface ISoSalesOrderQueryRepository : IQueryRepository<ViewSoSalesOrder>
+    public interface ISoSalesOrderQueryRepository : IQueryRepository<View_SoSalesOrder>
     {
-        Task<IReadOnlyList<ViewSoSalesOrder>> GetAllAsync();
-        Task<ViewSoSalesOrder> GetByIdAsync(Int64 id);
+        Task<IReadOnlyList<View_SoSalesOrder>> GetAllAsync();
+        Task<View_SoSalesOrder> GetByIdAsync(Int64 id);
     }
 }

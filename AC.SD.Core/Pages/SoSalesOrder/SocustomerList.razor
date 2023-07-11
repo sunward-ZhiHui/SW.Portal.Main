@@ -18,7 +18,7 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="ID"
+            KeyFieldName="SoCustomerId"
             PageSizeSelectorVisible="true"
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -32,8 +32,8 @@
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
         <Columns>
        
-            <DxGridDataColumn FieldName="ShipCode" />
-            <DxGridDataColumn FieldName="CustomerName" MinWidth="170"/>
+            <DxGridDataColumn FieldName="ShipCode" FixedPosition="GridColumnFixedPosition.Left" />
+            <DxGridDataColumn FieldName="CustomerName" MinWidth="170" FixedPosition="GridColumnFixedPosition.Left" />
             <DxGridDataColumn FieldName="AssignToRep"  MinWidth="170"/>
             <DxGridDataColumn FieldName="Address1" />
             <DxGridDataColumn FieldName="Address2" />
@@ -42,6 +42,9 @@
             <DxGridDataColumn FieldName="PostCode" />
             <DxGridDataColumn FieldName="Channel" />
         </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="CustomerName" />
+        </TotalSummary>
     </DxGrid>
 
 </DxLoadingPanel>

@@ -246,10 +246,17 @@
         _salesOrderLine = soline.Where(x => x.SoSalesOrderId == SoSalesOrderId).ToList();
 
         if(SoSalesOrderId > 0)
-        {
-            EditEnabled = true;
-            AddEnabled = true;
-            DeleteEnabled = true;
+        {          
+            AddEnabled = true;          
+
+            if (_salesOrderLine.Count > 0)
+            {
+
+                _selectedItems = _salesOrderLine.FirstOrDefault();
+                EditEnabled = true;
+                DeleteEnabled = true;
+                StateHasChanged();
+            }           
         }       
 
 
@@ -271,13 +278,13 @@
             Description = navitems.Description;
             Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
-           
+
         }
     }
     async Task UpdateDataAsync()
     {
         PanelVisible = true;       
-         var models = await Mediator.Send(new GetSalesOrderLine());
+        var models = await Mediator.Send(new GetSalesOrderLine());
         _salesOrderLine = models.Where(x => x.SoSalesOrderId == SoSalesOrderId).ToList();
         PanelVisible = false;
         StateHasChanged();
@@ -300,7 +307,7 @@
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
     }
-   
+
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {   
 
@@ -308,8 +315,8 @@
 
         if (e.IsNew)
         {
-           
-           
+
+
             var createReq = new CreateSoSalesOrderLineCommand
                 {
                     SoSalesOrderId = SoSalesOrderId,
@@ -337,8 +344,8 @@
             }
 
             await UpdateDataAsync();
-            
-          
+
+
         }
         else
         {               
@@ -407,7 +414,7 @@
         {
             e.CssClass = "alt-item";
         }
-       
+
     }
     void Onclick(DataGridSelection<View_SoSalesOrderLine> e)
     {
@@ -435,8 +442,7 @@
 
     }
     void addEdit()
-    {
-
+    {     
         if (SelectedDataItems.Count == 1)
         {
 

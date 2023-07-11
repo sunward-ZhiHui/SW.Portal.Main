@@ -26,12 +26,11 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                        <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@ResetForm" />
-
+                        @*<DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@ResetForm" />*@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="" style="float: left; margin-top: -33px; margin-left: 195px; z-index: 9999;">
+            <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
                 <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
                     @if (loading)
                     {

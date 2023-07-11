@@ -25,5 +25,8 @@ namespace Core.Entities.Views
         public string Description2 { get; set; }
         public string BaseUnitofMeasure { get; set; }
         public long? ItemId { get; set; }
+        public string? StatusCode { get; set; }
+        public string? ModifiedBy { get; set; }
+        public string? AddedBy { get; set; }
     }
 }

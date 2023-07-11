@@ -29,11 +29,11 @@ namespace Application.Handlers.CommandHandler
                 throw new ApplicationException("There is a problem in mapper");
             }
 
-            var plantData = await _commandRepository.AddAsync(customerEntity);
+            var SoSalesOrderId = await _commandRepository.AddAsync(customerEntity);
             var response = new SoSalesOrderResponse
             {
 
-                SoCustomerId = customerEntity.SoCustomerId,
+                SoSalesOrderId = SoSalesOrderId.Value,
                 Remark = customerEntity.Remark,
                 DocumentDate = customerEntity.DocumentDate,
                 OrderDate = customerEntity.OrderDate,

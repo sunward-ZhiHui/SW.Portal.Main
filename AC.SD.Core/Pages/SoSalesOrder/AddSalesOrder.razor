@@ -16,6 +16,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
 @page "/AddSalesOrder"
+@page "/AddSalesOrder/{SessionIds:guid}"
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <div class="row">
@@ -25,12 +26,11 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                        <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@ResetForm" />
-
+                        @*<DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@ResetForm" />*@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="" style="float: left; margin-top: -33px; margin-left: 195px; z-index: 9999;">
+            <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
                 <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
                     @if (loading)
                     {
@@ -50,25 +50,25 @@
 <DxFormLayout CssClass="w-100">
     <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
         <div>
-        <DxFormLayoutTabPage Caption="So Order">
+        <DxFormLayoutTabPage Caption="Sales Order">
             <EditForm Model="@Data" id="@MyID" Context="EditFormContext" >
 
                 <div style="height: calc(100vh - 285px);overflow: auto; border: 1px solid #d5d4d4; border-top: none;">
                     <DataAnnotationsValidator />
-                    <DxFormLayoutGroup Caption="So Order" ColSpanMd="12">
-                        <DxFormLayoutItem Caption="User Name" ColSpanMd="3">
+                    <DxFormLayoutGroup Caption="Sales Order" ColSpanMd="12">
+                        <DxFormLayoutItem Caption="User Name" ColSpanMd="6">
                                 <DxTextBox @bind-Text="@Data.UserName" ShowValidationIcon="true" Enabled=false />
                         </DxFormLayoutItem>
-                        <DxFormLayoutItem Caption="Date" ColSpanMd="3">
+                        <DxFormLayoutItem Caption="Date" ColSpanMd="6">
                             <DxDateEdit NullText="Date" @bind-Date="@Data.Date"  />
                         </DxFormLayoutItem>  
-                        <DxFormLayoutItem Caption="Document Date" ColSpanMd="4">
+                        <DxFormLayoutItem Caption="Document Date" ColSpanMd="6">
                             <DxDateEdit NullText="Select a Document Date" @bind-Date="@Data.DocumentDate"/>
                         </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Sign Order No" ColSpanMd="4">
-                                <DxTextBox @bind-Text="@Data.SignOrderNo" ShowValidationIcon="true" Enabled=false />
+                            <DxFormLayoutItem Caption="Sign Order No" ColSpanMd="6">
+                                <DxTextBox @bind-Text="@Data.SignOrderNo" ShowValidationIcon="true" />
                             </DxFormLayoutItem>
-                         <DxFormLayoutItem Caption="OrderDate Date" ColSpanMd="4">
+                         <DxFormLayoutItem Caption="OrderDate Date" ColSpanMd="6">
                             <DxDateEdit NullText="Select a OrderDate Date" @bind-Date="@Data.OrderDate" />
                         </DxFormLayoutItem>    
                         
@@ -104,15 +104,15 @@
 
                              <DxFormLayoutItem Caption="Prioity Delivery Date" ColSpanMd="6">
                             <DxDateEdit NullText="Select a Prioity Delivery Date..." @bind-Date="@Data.PrioityDeliveryDate" CssClass="cw-320" />
-                        </DxFormLayoutItem> 
-
-                         <DxFormLayoutItem Caption="Remark" ColSpanMd="6">
-                                <DxMemo @bind-Text="@Data.Remark" Rows="5" ShowValidationIcon="true" />                
-                         </DxFormLayoutItem>
+                        </DxFormLayoutItem>                         
 
                          <DxFormLayoutItem Caption="Delivery Address" ColSpanMd="6">
                               <DxTextBox @bind-Text="@Data.Address1" ShowValidationIcon="true" Enabled=false />                               
                         </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Remark" ColSpanMd="12">
+                                <DxMemo @bind-Text="@Data.Remark" Rows="5" ShowValidationIcon="true" />
+                            </DxFormLayoutItem>
                     </DxFormLayoutGroup> 
                 </div>
 
@@ -120,8 +120,8 @@
 
         </DxFormLayoutTabPage>
 
-        <DxFormLayoutTabPage Caption="So Order Line">
-            <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><SalesOrderLine ></SalesOrderLine></div>
+        <DxFormLayoutTabPage Caption="Sales Order Line">
+                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><SalesOrderLine SoSalesOrderId="@SoSalesOrderId"></SalesOrderLine></div>
         </DxFormLayoutTabPage>    
         
         </div>
@@ -134,7 +134,8 @@
 
 
 @code {
-    long? SoSalesOrderId { get; set; }
+    public long? SoSalesOrderId { get; set; }
+
     [Parameter]
     public Guid? SessionIds { get; set; }
     private bool loading;
@@ -143,15 +144,15 @@
     bool EditEnabledTab { get; set; } = false;
     int ActiveTabIndex { get; set; } = 0;
     int ActiveSubTabIndex { get; set; } = 0;  
-
+    private List<View_SoSalesOrder> _salesOrderItems;
 
     private List<SoCustomer>? _AllSoCustomer;
 
 
-   SoSalesOrder Data = new SoSalesOrder();
+    SoSalesOrder Data = new SoSalesOrder();
 
-  //  ViewSoSalesOrder Data = new ViewSoSalesOrder();
-    ViewEmployee _employeeData = new ViewEmployee(); 
+    //  ViewSoSalesOrder Data = new ViewSoSalesOrder();
+    View_SoSalesOrder _salesOrderItem = new View_SoSalesOrder();
 
 
     public ApplicationUser applicationUser { get; private set; }
@@ -180,6 +181,29 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
 
+        if(SessionIds != null)
+        {
+            var sorders = await Mediator.Send(new GetAllSoOrder());
+            _salesOrderItem = sorders.Where(x => x.SessionId == SessionIds).FirstOrDefault();
+
+            SoSalesOrderId = _salesOrderItem.SoSalesOrderId;
+            Data.SoSalesOrderId = _salesOrderItem.SoSalesOrderId;
+            Data.UserName = _salesOrderItem.AddedBy;
+            Data.Date = _salesOrderItem.AddedDate;
+            Data.ShipCode = _salesOrderItem.ShipCode;
+            Data.AssignToRep = _salesOrderItem.AssignToRep;
+            Data.Address1 = _salesOrderItem.Address1;
+            Data.SoCustomerId = _salesOrderItem.SoCustomerId;
+            Data.Remark = _salesOrderItem.Remark;
+            Data.DocumentDate = _salesOrderItem.DocumentDate;
+            Data.OrderDate = _salesOrderItem.OrderDate;
+            Data.PrioityDeliveryDate = _salesOrderItem.PrioityDeliveryDate;
+            Data.SignOrderNo = _salesOrderItem.SignOrderNo;
+            Data.SessionId = _salesOrderItem.SessionId;
+
+        }
+
+
         Data.DocumentDate = DateTime.Now;
         Data.Date = DateTime.Now;
         Data.UserName = applicationUser.UserName;
@@ -191,28 +215,46 @@
     }
     void ResetForm()
     {
-        _employeeData = new ViewEmployee();
+
         //employee = new EmployeeResponse();Data
-        EmployeeIds = null;
+        SoSalesOrderId = -1;
         ActiveTabIndex = 0;
         ActiveSubTabIndex = 0;
         NavigationManager.NavigateTo("AddSalesOrder");
     }
 
-    async Task loadEmployeeData(ViewEmployee _employeeData)
+    async void onsubmitClick()
     {
 
-        var employeeReportToItems = await Mediator.Send(new GetEmployeeReportToQuery(_employeeData.EmployeeID));
-        
-      
-    }
-    
-  async  void onsubmitClick()
-  {
+        if(Data.SoSalesOrderId > 0)
+        {
+            var editModel = new SoSalesOrder();
+            var createReq = new EditSoSalesOrderCommand
+                {
+                    SoSalesOrderId = Data.SoSalesOrderId,
+                    SoCustomerId = Data.SoCustomerId,
+                    Remark = Data.Remark,
+                    DocumentDate = Data.DocumentDate,
+                    OrderDate = Data.OrderDate,
+                    PrioityDeliveryDate = Data.PrioityDeliveryDate,
+                    SignOrderNo = Data.SignOrderNo,                   
+                    ModifiedByUserId = applicationUser.UserID,                   
+                    ModifiedDate = DateTime.Now,
+                    SessionId = Data.SessionId,
+                    StatusCodeId = 1
 
-        var editModel = new SoSalesOrder();       
-               var createReq = new CreateSoSalesOrderCommand
-                    {
+                };
+
+            await Mediator.Send(createReq);
+          
+
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+        else
+        {
+            var editModel = new SoSalesOrder();
+            var createReq = new CreateSoSalesOrderCommand
+                {
                     SoCustomerId = Data.SoCustomerId,
                     Remark = Data.Remark,
                     DocumentDate = Data.DocumentDate,
@@ -223,15 +265,21 @@
                     ModifiedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
-                    SessionId = Guid.NewGuid()
+                    SessionId = Guid.NewGuid(),
+                    StatusCodeId = 1
 
-               };
+                };
 
-        await Mediator.Send(createReq);
-        toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-     
-        ActiveTabIndex = 0;
-        ActiveSubTabIndex = 0;
+            var result = await Mediator.Send(createReq);
+
+            SoSalesOrderId = result.SoSalesOrderId;
+
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            
+        }
+
+        ActiveTabIndex = 1;
+        ActiveSubTabIndex = 1;
     }
    
     private async void onShowPopupMessage(string headerText, string bodyText)

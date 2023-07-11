@@ -28,9 +28,11 @@ body,
     margin-bottom: 10px;
     font-weight: bold;
 }
-.TxtGreen
-{
-    color:forestgreen;
+.save_hover:hover {
+    background: #dedede;
+}
+.TxtGreen {
+    color: forestgreen;
 }
 .separator-txt {
     margin-left: 6px;

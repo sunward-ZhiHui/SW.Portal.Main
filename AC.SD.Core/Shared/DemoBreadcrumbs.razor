@@ -50,7 +50,7 @@
         }
                 BreadcrumbsGenerate();
                 NavigationManager.LocationChanged += OnLocationChanged;
-                //UpdateItems(NavigationManager.Uri);
+        //UpdateItems(NavigationManager.Uri)dashboard;
             
     }
 
@@ -62,7 +62,7 @@
         Items.Add(new(HomePageTitle, ""));
         if (UrlList.Length > 0 && UrlList[0] != null)
         {
-            if (UrlList[0] != "dashboard")
+            if (UrlList[0] != "login")
             {
                 var list1 = _appPermissionItems.FirstOrDefault(f => f.Component != null && f.Component.ToLower() == UrlList[0]);
                 if (list1 != null)

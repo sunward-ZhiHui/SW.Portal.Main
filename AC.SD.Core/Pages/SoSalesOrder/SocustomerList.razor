@@ -1,0 +1,67 @@
+﻿
+@page "/soCustomer"
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@using DevExpress.Export
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" Data="@_AllSoCustomer" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="ID"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 180px);"
+            CssClass="ch-360"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+        <Columns>
+       
+            <DxGridDataColumn FieldName="ShipCode" />
+            <DxGridDataColumn FieldName="CustomerName" MinWidth="170"/>
+            <DxGridDataColumn FieldName="AssignToRep"  MinWidth="170"/>
+            <DxGridDataColumn FieldName="Address1" />
+            <DxGridDataColumn FieldName="Address2" />
+            <DxGridDataColumn FieldName="City" />
+            <DxGridDataColumn FieldName="StateCode" />
+            <DxGridDataColumn FieldName="PostCode" />
+            <DxGridDataColumn FieldName="Channel" />
+        </Columns>
+    </DxGrid>
+
+</DxLoadingPanel>
+
+@code {
+    IGrid? Grid { get; set; }
+    private List<SoCustomer>? _AllSoCustomer;
+    bool PanelVisible { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
+        PanelVisible = false;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+}

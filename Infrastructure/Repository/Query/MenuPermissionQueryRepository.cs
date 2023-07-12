@@ -61,7 +61,7 @@ namespace Infrastructure.Repository.Query
                         };
                         menuList.Add(menu);
                     });
-                    return menuList.Where(w => w.Header != "CMS App").ToList();
+                    return menuList.Where(w => w.Header != "HRMS App").ToList();
                 }
             }
             catch (Exception exp)
@@ -160,7 +160,7 @@ namespace Infrastructure.Repository.Query
                     }
 
                 });
-                return menuList.Where(w => w.Header != "CMS App").ToList();
+                return menuList.Where(w => w.Header != "HRMS App").ToList();
             }
             /*}
             catch (Exception exp)

@@ -13,5 +13,6 @@ namespace Core.Repositories.Query
     {
         //Custom operation which is not generic
         Task<IReadOnlyList<View_ApplicationMasterDetail>> GetApplicationMasterByCode(long? Id);
+        Task<View_ApplicationMasterDetail> GetByIdAsync(long? Id);
     }
 }

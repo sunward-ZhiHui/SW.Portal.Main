@@ -20,4 +20,9 @@ namespace Application.Queries
             this.Id = Id;
         }
     }
+    public class GetAllApplicationMasterQuery : IRequest<List<ApplicationMaster>>
+    {
+        public string? SearchString { get; private set; }
+
+    }
 }

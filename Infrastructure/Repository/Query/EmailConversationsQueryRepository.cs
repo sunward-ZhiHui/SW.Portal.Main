@@ -617,8 +617,10 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"select FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name from EmailConversations FC 
+                var query = @"select FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate from EmailConversations FC 
                                 INNER JOIN Documents D on D.SessionID = FC.SessionId
+								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID
+								LEFT JOIN Employee EMP ON EMP.UserID = D.ModifiedByUserID
                                 where FC.TopicID = @TopicId";
 
                 var parameters = new DynamicParameters();

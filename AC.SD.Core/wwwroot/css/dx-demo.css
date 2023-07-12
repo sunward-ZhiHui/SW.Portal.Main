@@ -17,6 +17,12 @@ body,
 .demo-content > div:not(.modal-backdrop) {
     background-color: var(--bs-body-bg);
 }
+.twoSection {
+    height: 50%;
+    border: 1px solid #b2afaf;
+    overflow: auto;
+    margin-bottom: 10px;
+}
 .btn-success, .btn-excel {
     background-color: var(--bs-primary);
     border-color: var(--bs-primary) !important;

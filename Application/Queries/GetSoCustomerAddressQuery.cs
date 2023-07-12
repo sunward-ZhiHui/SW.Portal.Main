@@ -14,6 +14,16 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetSoCustomerAddressByTypeQuery : Address, IRequest<List<Address>>
+    {
+        public string AddressType { get; set; }
+        public long? CustomerId { get; set; }
+        public GetSoCustomerAddressByTypeQuery(string AddressType, long CustomerId)
+        {
+            this.AddressType = AddressType;
+            this.CustomerId = CustomerId;
+        }
+    }
     public class CreateCustomerAddress : Address, IRequest<long>
     {
         public string SearchString { get; set; }

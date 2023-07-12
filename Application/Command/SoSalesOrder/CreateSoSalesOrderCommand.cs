@@ -24,6 +24,8 @@ namespace Application.Command.SoSalesOrder
         public DateTime? ModifiedDate { get; set; }
         public int? StatusCodeId { get; set; }
         public Guid? SessionId { get; set; }
+        public long? SoCustomerBillingAddressId { get; set; }
+        public long? SoCustomerShipingAddressId { get; set; }
 
         public CreateSoSalesOrderCommand()
         {

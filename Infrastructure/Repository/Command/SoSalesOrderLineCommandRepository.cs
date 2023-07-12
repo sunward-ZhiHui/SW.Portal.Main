@@ -18,54 +18,6 @@ namespace Infrastructure.Repository.Command
         public SoSalesOrderLineCommandRepository(IConfiguration configuration) : base(configuration)
         {
         }
-
-
-        public async Task<ViewSoSalesOrderLine> InsertAsync(ViewSoSalesOrderLine soSalesOrderLine)
-        {
-            try
-            {
-                using (var connection = CreateConnection())
-                {
-                    await connection.InsertAsync(soSalesOrderLine);
-                }
-                return soSalesOrderLine;
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<ViewSoSalesOrderLine> UpdateAsync(ViewSoSalesOrderLine soSalesOrderLine)
-        {
-            try
-            {
-                using (var connection = CreateConnection())
-                {
-                    await connection.UpdateAsync(soSalesOrderLine);
-                }
-                return soSalesOrderLine;
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-
-        public async Task<ViewSoSalesOrderLine> DeleteAsync(ViewSoSalesOrderLine soSalesOrderLine)
-        {
-            try
-            {
-                using (var connection = CreateConnection())
-                {
-                    await connection.DeleteAsync(soSalesOrderLine);
-                }
-                return soSalesOrderLine;
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
     }
 
 }

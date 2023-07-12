@@ -50,16 +50,16 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("Address1", address.Address1);
-                            parameters.Add("Address2", address.Address2);                           
+                            parameters.Add("Address2", address.Address2);
                             parameters.Add("PostCode", address.PostCode);
                             parameters.Add("City", address.City);
                             parameters.Add("Country", address.Country);
                             parameters.Add("CountryCode", address.CountryCode);
 
                             var query = "INSERT INTO [Address](Address1,Address2,PostCode,City,Country,CountryCode) OUTPUT INSERTED.AddressID VALUES (@Address1,@Address2,@PostCode,@City,@Country,@CountryCode)";
-                                                        
+
                             var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                                                       
+
                             transaction.Commit();
 
                             return lastInsertedRecordId;
@@ -102,7 +102,7 @@ namespace Infrastructure.Repository.Query
                             }
 
 
-                            var parametersAddress= new DynamicParameters();
+                            var parametersAddress = new DynamicParameters();
                             parametersAddress.Add("SoCustomerAddressId", address.SoCustomerAddressId);
                             parametersAddress.Add("IsBilling", address.isBilling, (DbType?)SqlDbType.Bit);
                             parametersAddress.Add("IsShipping", address.isShipping, (DbType?)SqlDbType.Bit);
@@ -112,13 +112,13 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("AddressID", address.AddressID);
                             parameters.Add("Address1", address.Address1);
-                            parameters.Add("Address2", address.Address2);                        
+                            parameters.Add("Address2", address.Address2);
                             parameters.Add("PostCode", address.PostCode);
                             parameters.Add("City", address.City);
                             parameters.Add("Country", address.Country);
                             parameters.Add("CountryCode", address.CountryCode);
 
-                            
+
                             var query = "UPDATE Address SET Address1 = @Address1,Address2 = @Address2,PostCode = @PostCode,City=@City,Country= @Country,CountryCode =@CountryCode WHERE AddressID = @AddressID";
 
                             var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
@@ -261,5 +261,5 @@ namespace Infrastructure.Repository.Query
             }
         }
     }
-    
+
 }

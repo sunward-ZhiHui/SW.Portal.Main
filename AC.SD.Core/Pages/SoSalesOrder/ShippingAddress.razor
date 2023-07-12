@@ -164,7 +164,6 @@
     private string Description2 { get; set; }
     private string BaseUnitofMeasure { get; set; }
 
-    private List<Navitems>? _AllNavitems;
 
     bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
@@ -214,9 +213,6 @@
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-        var navitemslst = await Mediator.Send(new GetAllNavItemsQuery());
-        _AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
-
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
         var soline = await Mediator.Send(new GetSoCustomerAddressQuery());

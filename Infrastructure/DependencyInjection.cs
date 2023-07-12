@@ -110,6 +110,7 @@ namespace Infrastructure
             services.AddTransient<IAssetEquipmentMaintenaceMasterAssetDocumentQueryRepository, AssetEquipmentMaintenaceMasterAssetDocumentQueryRepository>();
             services.AddTransient<INavItemsQueryRepository, NavItemsQueryRepository>();
             services.AddTransient<INavItemsCommandRepository, NavItemsCommandRepository>();
+            services.AddTransient<IApplicationMasterDetailCommandRepository, ApplicationMasterDetailCommandRepository>();
             return services;
         }
     }

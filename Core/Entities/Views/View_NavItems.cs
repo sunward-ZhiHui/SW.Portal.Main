@@ -1,18 +1,16 @@
-﻿using Application.Response;
-using Core.Entities;
-using MediatR;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Commands
+namespace Core.Entities.Views
 {
-    public class EditNavItemsCommand : IRequest<NavitemsResponse>
+    public class View_NavItems
     {
         public long ItemId { get; set; }
+        [Required(ErrorMessage = "Company is Required")]
         public long? CompanyId { get; set; }
         public string No { get; set; }
         public string RelatedItemNo { get; set; }
@@ -58,12 +56,19 @@ namespace Application.Commands
         public long? ReplenishmentMethodId { get; set; }
         public string ImageUrl { get; set; }
         public bool? IsPortal { get; set; }
+        [Required(ErrorMessage = "Item SerialNo is Required")]
         public string ItemSerialNo { get; set; }
+        public string? PlantCode { get; set; }
+        public string? PlantDescription { get; set; }
+        public int? CodeId { get; set; }
+        public string? StatusCode { get; set; }
+        public string? ModifiedBy { get; set; }
+        public string? AddedBy { get; set; }
         public long? PackSizeId { get; set; }
         public long? SupplyToId { get; set; }
         public long? UomId { get; set; }
-        public EditNavItemsCommand()
-        {
-        }
+        public string? PackSizeName { get; set; }
+        public string? SupplyToName { get; set; }
+        public string? UomName { get; set; }
     }
 }

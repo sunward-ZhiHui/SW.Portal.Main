@@ -45,9 +45,111 @@
     </div>
 </div>
 
+
+<div class="container" >
+    <div class="row align-items-start">
+      <div class="cw-480">
+          @*  <DxAccordion Data="@MyID"
+             
+                     SubItemExpandButtonIconCssClass="icon-square-plus"
+            SubItemCollapseButtonIconCssClass="icon-square-minus">*@
+            <DxFormLayout CssClass="w-100">
+   
+                <EditForm Model="@Data" id="@MyID" Context="EditFormContext">
+
+                    <div style="height: calc(100vh - 110px);overflow: auto; border: 1px solid #d5d4d4; border-top: none;">
+                        <DataAnnotationsValidator />
+                        <DxFormLayoutGroup Caption="Sales Order" ColSpanMd="12">
+                            <DxFormLayoutItem Caption="User Name" ColSpanMd="6">
+                                <DxTextBox @bind-Text="@Data.UserName" ShowValidationIcon="true" Enabled=false />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Date" ColSpanMd="6">
+                                <DxDateEdit NullText="Date" @bind-Date="@Data.Date" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Document Date" ColSpanMd="6">
+                                <DxDateEdit NullText="Select a Document Date" @bind-Date="@Data.DocumentDate" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Sign Order No" ColSpanMd="6">
+                                <DxTextBox @bind-Text="@Data.SignOrderNo" ShowValidationIcon="true" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="OrderDate Date" ColSpanMd="6">
+                                <DxDateEdit NullText="Select a OrderDate Date" @bind-Date="@Data.OrderDate" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Customer Name" ColSpanMd="6">
+                                <DxComboBox Data="@_AllSoCustomer"
+                                            NullText="Select Customer..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="CustomerName"
+                                            ValueFieldName="SoCustomerId"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true"
+                                            SelectedItemChanged="@((SoCustomer soCustomer) => SelectedItemChanged(soCustomer))">
+                                    <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
+                                                            Caption="Customer Name"
+                                                            Width="180px" />
+                                        <DxListEditorColumn FieldName="@nameof(SoCustomer.ShipCode)"
+                                                            Caption="Ship Code" />
+                                        <DxListEditorColumn FieldName="@nameof(SoCustomer.AssignToRep)"
+                                                            Caption="AssignTo Rep" />
+                                    </Columns>
+                                </DxComboBox>
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="A/No" ColSpanMd="6">
+                                <DxTextBox @bind-Text="@Data.ShipCode" ShowValidationIcon="true" Enabled=false />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Rep Code" ColSpanMd="6">
+                                <DxTextBox @bind-Text="@Data.AssignToRep" ShowValidationIcon="true" Enabled=false />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Prioity Delivery Date" ColSpanMd="6">
+                                <DxDateEdit NullText="Select a Prioity Delivery Date..." @bind-Date="@Data.PrioityDeliveryDate" CssClass="cw-320" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Delivery Address" ColSpanMd="6">
+                                <DxTextBox @bind-Text="@Data.Address1" ShowValidationIcon="true" Enabled=false />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Remark" ColSpanMd="12">
+                                <DxMemo @bind-Text="@Data.Remark" Rows="5" ShowValidationIcon="true" />
+                            </DxFormLayoutItem>
+                        </DxFormLayoutGroup>
+                    </div>
+
+                </EditForm>
+                <div class="row align-items-end">
+                    <div class="cw-480 ch-220">
+                        <DxFormLayout CssClass="w-100">
+                            <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex">
+                                <DxFormLayoutTabPage Caption="Sales Order Line">
+                                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><SalesOrderLine SoSalesOrderId="@SoSalesOrderId"></SalesOrderLine></div>
+                                    @*  <SalesOrderLine/>*@
+                                </DxFormLayoutTabPage>
+                                <DxFormLayoutTabPage Caption="Address">
+                                    <DxGrid>
+
+                                    </DxGrid>
+                                </DxFormLayoutTabPage>
+                            </DxFormLayoutTabPages>
+                        </DxFormLayout>
+                    </div>
+                </div>
+            </DxFormLayout>
+     @*   </DxAccordion>*@
+       </div>
+    </div>
+
+   
+ </div>
+
+
 @*<div class="card">
     <div class="card-header">*@
-<DxFormLayout CssClass="w-100">
+@*<DxFormLayout CssClass="w-100">
     <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
         <div>
         <DxFormLayoutTabPage Caption="Sales Order">
@@ -126,7 +228,7 @@
         
         </div>
     </DxFormLayoutTabPages>
-</DxFormLayout>
+</DxFormLayout>*@
 @*</div></div>*@
 <DxPopup @bind-Visible="@MessageVisible"
          HeaderText="@MessageHeader"
@@ -143,9 +245,9 @@
     long? EmployeeIds { get; set; }
     bool EditEnabledTab { get; set; } = false;
     int ActiveTabIndex { get; set; } = 0;
-    int ActiveSubTabIndex { get; set; } = 0;  
+   int ActiveSubTabIndex { get; set; } = 0;  
     private List<View_SoSalesOrder> _salesOrderItems;
-
+    List<SoSalesOrder> AccodianData { get; set; }
     private List<SoCustomer>? _AllSoCustomer;
 
 
@@ -218,7 +320,7 @@
 
         //employee = new EmployeeResponse();Data
         SoSalesOrderId = -1;
-        ActiveTabIndex = 0;
+       // ActiveTabIndex = 0;
         ActiveSubTabIndex = 0;
         NavigationManager.NavigateTo("AddSalesOrder");
     }
@@ -281,7 +383,7 @@
             
         }
 
-        ActiveTabIndex = 1;
+      //  ActiveTabIndex = 1;
         ActiveSubTabIndex = 1;
     }
    

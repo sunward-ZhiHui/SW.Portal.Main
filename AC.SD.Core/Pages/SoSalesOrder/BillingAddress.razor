@@ -85,30 +85,14 @@
             <DxGridDataColumn FieldName="Country" />
             <DxGridDataColumn FieldName="CountryCode" />
             <DxGridDataColumn FieldName="OfficePhone" />
-            @* <DxGridDataColumn FieldName="AddedDate">
-            <CellDisplayTemplate>
-            @{
-            var item = (Address)context.DataItem;
-            }
-            @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
-            </CellDisplayTemplate>
-            </DxGridDataColumn>*@
-            @*<DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" TextAlignment="GridTextAlignment.Left">
-            <CellDisplayTemplate>
-            @{
-            var item = (Address)context.DataItem;
-            }
-            <div> @item.AddedBy</div>
-            </CellDisplayTemplate>
-            </DxGridDataColumn> *@
+
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
-        @*  @bind-SelectedDataItems="SelectedDataItems"*@
         <EditFormTemplate Context="EditFormContext">
             @{
                 var dataItems = (Address)EditFormContext.EditModel;
             }
-            <DxFormLayout CssClass="w-100">              
+            <DxFormLayout CssClass="w-100">
 
                 <DxFormLayoutItem Caption="Address1:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@dataItems.Address1" />
@@ -116,9 +100,6 @@
                 <DxFormLayoutItem Caption="Address2:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@dataItems.Address2" />
                 </DxFormLayoutItem>
-               @* <DxFormLayoutItem Caption="AddressType:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@dataItems.AddressType" />
-                </DxFormLayoutItem>*@
                 <DxFormLayoutItem Caption="PostCode:" ColSpanMd="6">
                     @EditFormContext.GetEditor("PostCode")
                 </DxFormLayoutItem>
@@ -130,6 +111,9 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Country Code:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@dataItems.CountryCode" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@dataItems.isBilling">Is Default Address</DxCheckBox>
                 </DxFormLayoutItem>
                 <ValidationSummary />
             </DxFormLayout>
@@ -157,14 +141,6 @@
 @code {
     [Parameter]
     public long? SoCustomerId { get; set; }
-
-    private string TextValue { get; set; }
-    private string No { get; set; }
-    private string Description { get; set; }
-    private string Description2 { get; set; }
-    private string BaseUnitofMeasure { get; set; }
-
-
     bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
@@ -191,37 +167,15 @@
     private Address _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
 
-
-    void SelectedItemChanged(Navitems navitems)
-    {
-        if (navitems != null)
-        {
-            No = navitems.No;
-            Description = navitems.Description;
-            Description2 = navitems.Description2;
-            BaseUnitofMeasure = navitems.BaseUnitofMeasure;
-        }
-        else
-        {
-            No = "";
-            Description = "";
-            Description2 = "";
-            BaseUnitofMeasure = "";
-        }
-    }
-
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-
         var soline = await Mediator.Send(new GetSoCustomerAddressQuery());
         _soCusterAddress = soline.Where(x => x.AddressType == "Billing" && x.CustomerId == SoCustomerId).ToList();
-
         if (SoCustomerId > 0)
         {
             AddEnabled = true;
-
             if (_soCusterAddress.Count > 0)
             {
                 _selectedItems = _soCusterAddress.FirstOrDefault();
@@ -230,28 +184,10 @@
                 StateHasChanged();
             }
         }
-
-
         PanelVisible = false;
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        //var navitems = (Address)e.EditModel;
-        //if (e.IsNew)
-        //{
-        //    No = "";
-        //    Description = "";
-        //    Description2 = "";
-        //    BaseUnitofMeasure = "";
-        //}
-        //else
-        //{
-        //    No = navitems.No;
-        //    Description = navitems.Description;
-        //    Description2 = navitems.Description2;
-        //    BaseUnitofMeasure = navitems.BaseUnitofMeasure;
-
-        //}
     }
     async Task UpdateDataAsync()
     {
@@ -271,8 +207,6 @@
             });
 
     }
-
-
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
@@ -282,15 +216,11 @@
 
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
-
         var editModel = (Address)e.EditModel;
-
         if (e.IsNew)
         {
-
-
             var createReq = new CreateCustomerAddress
-                {                    
+                {
                     Address1 = editModel.Address1,
                     Address2 = editModel.Address2,
                     AddressType = "Billing",
@@ -298,12 +228,8 @@
                     City = editModel.City,
                     Country = editModel.Country,
                     CountryCode = editModel.CountryCode,
-                    CustomerId = SoCustomerId,       
-                    
-                    //AddedByUserId = applicationUser.UserID,
-                    //AddedDate = DateTime.Now,
-                    //ModifiedByUserId = applicationUser.UserID,
-                    //ModifiedDate = DateTime.Now,
+                    CustomerId = SoCustomerId,
+                    isBilling = editModel.isBilling,
                 };
 
             try
@@ -316,29 +242,24 @@
 
                 errorMessage = eq.Message;
                 PopupVisible = true;
-
             }
-
             await UpdateDataAsync();
-
-
         }
         else
         {
             var UpdateReq = new EditCustomerAddress
                 {
+                    SoCustomerAddressId = editModel.SoCustomerAddressId,
                     AddressID = editModel.AddressID,
                     Address1 = editModel.Address1,
                     Address2 = editModel.Address2,
                     AddressType = editModel.AddressType,
                     PostCode = editModel.PostCode,
                     City = editModel.City,
+                    CustomerId = editModel.CustomerId,
                     Country = editModel.Country,
                     CountryCode = editModel.CountryCode,
-                    //StatusCodeId = 1,
-                    //ModifiedByUserId = applicationUser.UserID,
-                    //ModifiedDate = DateTime.Now,
-
+                    isBilling = editModel.isBilling
                 };
 
             var ans = await Mediator.Send(UpdateReq);
@@ -346,7 +267,6 @@
             await UpdateDataAsync();
 
         }
-
     }
     private async void onShowPopupMessage(string headerText, string bodyText)
     {
@@ -373,14 +293,7 @@
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
-
         var editModel = (Address)e.DataItem;
-
-        //  string result = string.Empty;
-        //  result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
-        // Console.WriteLine(result);
-        // await UpdateDataAsync();
-
         var request = new DeleteCustomerAddress(editModel.AddressID, editModel.SoCustomerAddressId);
         await Mediator.Send(request);
         await UpdateDataAsync();
@@ -395,20 +308,11 @@
         }
 
     }
-    void Onclick(DataGridSelection<Address> e)
-    {
-
-
-
-    }
-
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "AddressID");
         _selectedItems = _soCusterAddress.FirstOrDefault(f => f.AddressID == (long?)UniqueId);
-
         StateHasChanged();
-
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
@@ -422,27 +326,7 @@
     }
     void addEdit()
     {
-        //if (SelectedDataItems.Count == 1)
-        //{
-
-        //    foreach (object item in SelectedDataItems)
-        //    {
-
-        //        if (item is Address address)
-        //        {
-        //            _selectlst = _soCusterAddress.FirstOrDefault(f => f.AddressID == address.AddressID);
-        //        }
-        //    }
-        //    Grid.StartEditDataItemAsync(_selectlst);
-        //}
-        //else
-        //{
-        //    Grid.StartEditDataItemAsync(_selectedItems);
-        //}
-
         Grid.StartEditDataItemAsync(_selectedItems);
-
-
     }
     void addDelete()
     {
@@ -456,10 +340,8 @@
             {
                 foreach (object item in SelectedDataItems)
                 {
-
                     if (item is Address address)
                     {
-
                         var request = new DeleteCustomerAddress(address.AddressID, address.SoCustomerAddressId);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;

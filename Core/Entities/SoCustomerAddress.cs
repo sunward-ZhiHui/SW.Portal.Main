@@ -16,8 +16,8 @@ namespace Core.Entities
         public long? CustomerId { get; set; }
         public long? AddressId { get; set; }
         public string? AddressType { get; set; }
-        public bool isBilling { get; set; }  
-        public bool isShipping { get; set;}      
+        public bool? isBilling { get; set; }  
+        public bool? isShipping { get; set;}      
 
     }
 }

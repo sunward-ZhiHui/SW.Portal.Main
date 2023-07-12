@@ -28,9 +28,8 @@ namespace Core.Entities
         [NotMapped]
         public long SoCustomerAddressId { get; set;}
         [NotMapped]
-        public bool isBilling { get; set; }
+        public bool? isBilling { get; set; }
         [NotMapped]
-        public bool isShipping { get; set; }
-
+        public bool? isShipping { get; set; }
     }
 }

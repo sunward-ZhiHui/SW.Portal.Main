@@ -49,6 +49,7 @@
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             TextWrapEnabled="false">
         <Columns>
+            <DxGridDataColumn FieldName="SoCustomerId" Visible=false />
             <DxGridDataColumn FieldName="ShipCode" FixedPosition="GridColumnFixedPosition.Left" MinWidth="170" />
             <DxGridDataColumn FieldName="CustomerName" MinWidth="200" FixedPosition="GridColumnFixedPosition.Left" />
             <DxGridDataColumn FieldName="AssignToRep" MinWidth="170" />
@@ -92,7 +93,8 @@
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
-        OnRowClick(e);        
+        OnRowClick(e);
+        addNew();
     }
     void addNew()
     {

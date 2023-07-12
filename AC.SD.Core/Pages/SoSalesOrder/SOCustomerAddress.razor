@@ -1,0 +1,124 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+<div>
+    <div class="row" style="text-align:center; margin-top: 10px;">
+        <div class="col-md-6">
+            <span>SHIPPING ADDRESS</span>
+            <div>
+                <div>
+                    <DxCheckBox CssClass="w-100" @bind-Checked="@ShippingChecked">
+                        Override Address
+                    </DxCheckBox>
+                </div>
+
+                @if (_soShippingCusterAddress != null && _soShippingCusterAddress.Any())
+                {
+                    @foreach (var item in _soShippingCusterAddress)
+                    {
+                        <div class="card">
+                            <div class="card-body">
+                                <article class="media">
+                                    <div class="media-body">
+                                        <div class="content">
+                                            <DxFormLayout CssClass="w-100">
+                                                <DxFormLayoutItem Caption="Address1 :" ColSpanMd="12">
+                                                    <DxTextBox @bind-Text="@item.Address1" Enabled=false />
+                                                </DxFormLayoutItem>
+                                                <DxFormLayoutItem Caption="Address2:" ColSpanMd="12">
+                                                    <DxTextBox @bind-Text="@item.Address2" Enabled=false />
+                                                </DxFormLayoutItem>
+                                                <DxFormLayoutItem Caption="City:" ColSpanMd="12">
+                                                    <DxTextBox @bind-Text="@item.City" Enabled=false />
+                                                </DxFormLayoutItem>
+                                                <DxFormLayoutItem Caption="Country:" ColSpanMd="12">
+                                                    <DxTextBox @bind-Text="@item.Country" Enabled=false />
+                                                </DxFormLayoutItem>
+                                                <DxFormLayoutItem Caption="Country Code:" ColSpanMd="12">
+                                                    <DxTextBox @bind-Text="@item.CountryCode" Enabled=false />
+                                                </DxFormLayoutItem>
+                                                <DxFormLayoutItem Caption="Post Code:" ColSpanMd="12">
+                                                    <DxSpinEdit @bind-Value="@item.PostCode" Enabled=false />
+                                                </DxFormLayoutItem>
+                                            </DxFormLayout>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    }
+                }
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <span>BILLING  ADDRESS</span>
+            <div>
+                <div>
+                    <DxCheckBox CssClass="w-100" @bind-Checked="@BillingChecked">
+                        Override Address
+                    </DxCheckBox>       
+                </div>
+
+
+                @if (_soBillingCusterAddress != null && _soBillingCusterAddress.Any())
+                {
+                    @foreach (var item in _soBillingCusterAddress)
+                    {
+                        <div class="card">
+                            <div class="card-body">
+                                <article class="media">
+                                    <div class="media-body">
+                                        <div class="content">
+                                            <DxFormLayout CssClass="w-100">
+                                                <DxFormLayoutItem Caption="Address1 :" ColSpanMd="12">
+                                                    <DxTextBox @bind-Text="@item.Address1" Enabled=false />
+                                                </DxFormLayoutItem>
+                                                <DxFormLayoutItem Caption="Address2:" ColSpanMd="12">
+                                                    <DxTextBox @bind-Text="@item.Address2" Enabled=false />
+                                                </DxFormLayoutItem>
+                                                <DxFormLayoutItem Caption="City:" ColSpanMd="12">
+                                                    <DxTextBox @bind-Text="@item.City" Enabled=false />
+                                                </DxFormLayoutItem>
+                                                 <DxFormLayoutItem Caption="Country:" ColSpanMd="12">
+                                                    <DxTextBox @bind-Text="@item.Country" Enabled=false />
+                                                  </DxFormLayoutItem>
+                                                  <DxFormLayoutItem Caption="Country Code:" ColSpanMd="12">
+                                                    <DxTextBox @bind-Text="@item.CountryCode" Enabled=false />
+                                                    </DxFormLayoutItem>
+                                                  <DxFormLayoutItem Caption="Post Code:" ColSpanMd="12">
+                                                    <DxSpinEdit @bind-Value="@item.PostCode" Enabled=false />                                                                                              
+                                                </DxFormLayoutItem>
+                                            </DxFormLayout>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code  {
+    bool ShippingChecked { get; set; }
+    bool BillingChecked { get; set; }
+    
+
+    private List<Address>? _soBillingCusterAddress;
+    private List<Address>? _soShippingCusterAddress;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var Billine = await Mediator.Send(new GetSoCustomerAddressQuery());
+        _soBillingCusterAddress = Billine.Where(x => x.AddressType == "Billing" && x.CustomerId == 1 && x.isBilling == true).ToList();
+
+        var shipline = await Mediator.Send(new GetSoCustomerAddressQuery());
+        _soShippingCusterAddress = shipline.Where(x => x.AddressType == "Shipping" && x.CustomerId == 1 && x.isShipping == true).ToList();
+    }
+}

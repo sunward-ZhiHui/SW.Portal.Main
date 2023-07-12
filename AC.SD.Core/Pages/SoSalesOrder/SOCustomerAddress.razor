@@ -15,6 +15,31 @@
                     </DxCheckBox>
                 </div>
 
+                <div style=" margin-top: 10px; margin-bottom: 10px;">
+                    <DxComboBox Data="@_soAllShippingCusterAddress"
+                                NullText="Select Customer..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Address1"
+                                ValueFieldName="AddressID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@ShippingAddressID" ShowValidationIcon="true"
+                                SelectedItemChanged="@((Address address) => SelectedItemChanged(address))">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(Address.Address1)"
+                                                Caption="Address1"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(Address.Address2)"
+                                                Caption="Address2" />
+                            <DxListEditorColumn FieldName="@nameof(Address.City)"
+                                                Caption="City" />
+                            <DxListEditorColumn FieldName="@nameof(Address.Country)"
+                                                Caption="Country" />
+                        </Columns>
+                    </DxComboBox>
+                </div>
+
+
                 @if (_soShippingCusterAddress != null && _soShippingCusterAddress.Any())
                 {
                     @foreach (var item in _soShippingCusterAddress)
@@ -64,6 +89,32 @@
                 </div>
 
 
+                <div style=" margin-top: 10px; margin-bottom: 10px;">
+                    <DxComboBox Data="@_soAllBillingCusterAddress"
+                                NullText="Select Customer..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Address1"
+                                ValueFieldName="AddressID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@BillingAddressID" ShowValidationIcon="true"
+                                SelectedItemChanged="@((Address address) => SelectedBillingItemChanged(address))">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(Address.Address1)"
+                                                Caption="Address1"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(Address.Address2)"
+                                                Caption="Address2" />
+                            <DxListEditorColumn FieldName="@nameof(Address.City)"
+                                                Caption="City" />
+                            <DxListEditorColumn FieldName="@nameof(Address.Country)"
+                                                Caption="Country" />
+                        </Columns>
+                    </DxComboBox>
+                </div>
+
+
+
                 @if (_soBillingCusterAddress != null && _soBillingCusterAddress.Any())
                 {
                     @foreach (var item in _soBillingCusterAddress)
@@ -108,17 +159,59 @@
 @code  {
     bool ShippingChecked { get; set; }
     bool BillingChecked { get; set; }
-    
-
+    long? ShippingAddressID;
+    long? BillingAddressID;
     private List<Address>? _soBillingCusterAddress;
     private List<Address>? _soShippingCusterAddress;
+
+    private List<Address>? _soAllBillingCusterAddress;
+    private List<Address>? _soAllShippingCusterAddress;
 
     protected override async Task OnInitializedAsync()
     {
         var Billine = await Mediator.Send(new GetSoCustomerAddressQuery());
         _soBillingCusterAddress = Billine.Where(x => x.AddressType == "Billing" && x.CustomerId == 1 && x.isBilling == true).ToList();
 
-        var shipline = await Mediator.Send(new GetSoCustomerAddressQuery());
-        _soShippingCusterAddress = shipline.Where(x => x.AddressType == "Shipping" && x.CustomerId == 1 && x.isShipping == true).ToList();
+        _soShippingCusterAddress = Billine.Where(x => x.AddressType == "Shipping" && x.CustomerId == 1 && x.isShipping == true).ToList();
+
+        _soAllBillingCusterAddress = Billine.Where(x => x.AddressType == "Billing" && x.CustomerId == 1).ToList();
+
+        _soAllShippingCusterAddress = Billine.Where(x => x.AddressType == "Shipping" && x.CustomerId == 1).ToList();
+
     }
+    void SelectedItemChanged(Address address)
+    {
+        if (address != null)
+        {
+            var itsmss = new Address();
+            itsmss.Address1 = address.Address1;
+            itsmss.Address2 = address.Address2;
+            itsmss.City = address.City;
+            itsmss.Country = address.Country;
+            itsmss.CountryCode = address.CountryCode;
+            itsmss.PostCode = address.PostCode;
+
+            _soShippingCusterAddress = new List<Address>(); // Create a new List<Address>
+            _soShippingCusterAddress.Add(itsmss); // Add the itsmss object to the list
+        }
+       
+    }
+    void SelectedBillingItemChanged(Address address)
+    {
+        if (address != null)
+        {
+            var itsmss = new Address();
+            itsmss.Address1 = address.Address1;
+            itsmss.Address2 = address.Address2;
+            itsmss.City = address.City;
+            itsmss.Country = address.Country;
+            itsmss.CountryCode = address.CountryCode;
+            itsmss.PostCode = address.PostCode;
+
+            _soAllBillingCusterAddress = new List<Address>(); // Create a new List<Address>
+            _soAllBillingCusterAddress.Add(itsmss); // Add the itsmss object to the list
+        }
+
+    }
+    
 }

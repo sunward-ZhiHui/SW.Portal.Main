@@ -253,9 +253,16 @@
             {
 
                 _selectedItems = _salesOrderLine.FirstOrDefault();
-                EditEnabled = true;
-                DeleteEnabled = true;
-                StateHasChanged();
+              
+                if(SelectedDataItems != null)
+               {
+                    EditEnabled = true;
+                    DeleteEnabled = true;
+
+                    StateHasChanged();
+               }
+              
+               
             }           
         }       
 
@@ -442,7 +449,9 @@
 
     }
     void addEdit()
-    {     
+    {   
+       
+
         if (SelectedDataItems.Count == 1)
         {
 
@@ -464,7 +473,7 @@
             Grid.StartEditDataItemAsync(_selectedItems);
         }
 
-        // Grid.SelectDataItems(SelectedDataItems);
+        //Grid.SelectDataItems(SelectedDataItems);
 
 
     }
@@ -511,10 +520,13 @@
         if (SelectedDataItems.Count > 1)
         {
             EditEnabled = false;
+            DeleteEnabled = false;
         }
         else
         {
             EditEnabled = true;
+           
+            DeleteEnabled = true;
         }
 
     }  

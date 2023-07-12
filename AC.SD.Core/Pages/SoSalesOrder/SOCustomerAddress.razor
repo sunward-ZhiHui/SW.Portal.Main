@@ -10,7 +10,7 @@
             <span>SHIPPING ADDRESS</span>
             <div>
                 <div>
-                    <DxCheckBox CssClass="w-100" @bind-Checked="@ShippingChecked">
+                    <DxCheckBox CssClass="w-100" Checked="@ShippingChecked" CheckedChanged="@((bool value) => ShippingCheckedChanged(value))">
                         Override Address
                     </DxCheckBox>
                 </div>
@@ -21,6 +21,7 @@
                                 ListRenderMode="ListRenderMode.Virtual"
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="Address1"
+                                Enabled="@ShippingEnabled"
                                 ValueFieldName="AddressID"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@ShippingAddressID" ShowValidationIcon="true"
@@ -83,7 +84,7 @@
             <span>BILLING  ADDRESS</span>
             <div>
                 <div>
-                    <DxCheckBox CssClass="w-100" @bind-Checked="@BillingChecked">
+                    <DxCheckBox CssClass="w-100" Checked="@BillingChecked" CheckedChanged="@((bool value) => BillingCheckedChanged(value))">
                         Override Address
                     </DxCheckBox>       
                 </div>
@@ -94,8 +95,9 @@
                                 NullText="Select Customer..."
                                 ListRenderMode="ListRenderMode.Virtual"
                                 FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="Address1"
+                                TextFieldName="Address1"                              
                                 ValueFieldName="AddressID"
+                                Enabled="@BillingEnabled"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@BillingAddressID" ShowValidationIcon="true"
                                 SelectedItemChanged="@((Address address) => SelectedBillingItemChanged(address))">
@@ -157,8 +159,13 @@
 </div>
 
 @code  {
-    bool ShippingChecked { get; set; }
-    bool BillingChecked { get; set; }
+    bool ShippingChecked { get; set; } = false; 
+    bool BillingChecked { get; set; } = false;
+
+    bool ShippingEnabled { get; set; } = false;
+    bool BillingEnabled { get; set; } = false;
+
+
     long? ShippingAddressID;
     long? BillingAddressID;
     private List<Address>? _soBillingCusterAddress;
@@ -194,7 +201,7 @@
             _soShippingCusterAddress = new List<Address>(); // Create a new List<Address>
             _soShippingCusterAddress.Add(itsmss); // Add the itsmss object to the list
         }
-       
+
     }
     void SelectedBillingItemChanged(Address address)
     {
@@ -212,6 +219,16 @@
             _soAllBillingCusterAddress.Add(itsmss); // Add the itsmss object to the list
         }
 
+    }    
+    void ShippingCheckedChanged(bool value)
+    {
+        ShippingChecked = value;
+        ShippingEnabled = value;
+    }
+    void BillingCheckedChanged(bool value)
+    {
+        BillingChecked = value;
+        BillingEnabled = value;
     }
     
 }

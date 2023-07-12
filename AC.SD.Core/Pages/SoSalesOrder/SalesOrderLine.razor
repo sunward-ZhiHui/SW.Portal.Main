@@ -123,14 +123,14 @@
                                 ValueFieldName="ItemSerialNo"
                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@types.ItemSerialNo" ShowValidationIcon="true"
-                                SelectedItemChanged="@((Navitems navitems) => SelectedItemChanged(navitems))">
+                                SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
                     <Columns>
-                            <DxListEditorColumn FieldName="@nameof(Navitems.ItemSerialNo)"
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
                                                 Caption="Item Serial No"
                                             Width="180px" />
-                        <DxListEditorColumn FieldName="@nameof(Navitems.No)"
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                             Caption="Item" />
-                        <DxListEditorColumn FieldName="@nameof(Navitems.Description)"
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
                                             Caption="Description" />
                     </Columns>
                 </DxComboBox>
@@ -187,7 +187,7 @@
     private string Description2 { get; set; }
     private string BaseUnitofMeasure { get; set; }
 
-    private List<Navitems>? _AllNavitems;
+    private List<View_NavItems>? _AllNavitems;
 
     bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
@@ -216,7 +216,7 @@
     public ApplicationUser? applicationUser { get; private set; }
 
 
-    void SelectedItemChanged(Navitems navitems)
+    void SelectedItemChanged(View_NavItems navitems)
     {
         if (navitems != null)
         {

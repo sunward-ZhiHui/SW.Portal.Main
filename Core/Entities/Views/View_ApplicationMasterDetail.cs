@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace Core.Entities.Views
         public long? ApplicationMasterID { get; set; }
         public string? Description { get; set; }
         public string? ApplicationMasterName { get; set; }
+        [Required(ErrorMessage = "Name is Required")]
         public string? Value { get; set; }
         public long? ApplicationMasterCodeID { get; set; }
         public int? StatusCodeId { get; set; }

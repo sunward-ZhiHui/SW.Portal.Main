@@ -14,22 +14,22 @@ using Core.Entities;
 
 namespace Infrastructure.Repository.Query
 {
-    public class NavItemsQueryRepository : QueryRepository<Navitems>, INavItemsQueryRepository
+    public class NavItemsQueryRepository : QueryRepository<View_NavItems>, INavItemsQueryRepository
     {
         public NavItemsQueryRepository(IConfiguration configuration)
             : base(configuration)
         {
 
         }
-        public async Task<IReadOnlyList<Navitems>> GetAllAsync()
+        public async Task<IReadOnlyList<View_NavItems>> GetAllAsync()
         {
             try
             {
-                var query = "select  * from Navitems";
+                var query = "select  * from view_NavItems";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<Navitems>(query)).ToList();
+                    return (await connection.QueryAsync<View_NavItems>(query)).ToList();
                 }
             }
             catch (Exception exp)
@@ -37,7 +37,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<long> Update(Navitems todolist)
+        public async Task<long> Update(View_NavItems todolist)
         {
             try
             {
@@ -53,8 +53,13 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("ItemSerialNo", todolist.ItemSerialNo);
                             parameters.Add("ItemId", todolist.ItemId, DbType.Int64);
-
-                            var query = " UPDATE Navitems SET ItemSerialNo = @ItemSerialNo WHERE ItemId = @ItemId";
+                            parameters.Add("ModifiedDate", todolist.ModifiedDate, DbType.DateTime);
+                            parameters.Add("ModifiedByUserId", todolist.ModifiedByUserId, DbType.Int64);
+                            parameters.Add("UomId", todolist.UomId, DbType.Int64);
+                            parameters.Add("SupplyToId", todolist.SupplyToId, DbType.Int64);
+                            parameters.Add("PackSizeId", todolist.PackSizeId, DbType.Int64);
+                            parameters.Add("CompanyId", todolist.CompanyId, DbType.Int64);
+                            var query = " UPDATE Navitems SET ItemSerialNo = @ItemSerialNo,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId,UomId=@UomId,SupplyToId=@SupplyToId,PackSizeId=@PackSizeId,CompanyId=@CompanyId WHERE ItemId = @ItemId";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -76,14 +81,14 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<Navitems> GetByItemSerialNoExitsAsync(Navitems ItemSerialNo)
+        public async Task<View_NavItems> GetByItemSerialNoExitsAsync(View_NavItems ItemSerialNo)
         {
             try
             {
-                var query = "SELECT * FROM Navitems WHERE ItemSerialNo =" + "'" + ItemSerialNo.ItemSerialNo + "'";
+                var query = "SELECT * FROM view_NavItems WHERE ItemSerialNo =" + "'" + ItemSerialNo.ItemSerialNo + "'";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryFirstOrDefaultAsync<Navitems>(query));
+                    return (await connection.QueryFirstOrDefaultAsync<View_NavItems>(query));
                 }
             }
             catch (Exception exp)
@@ -91,17 +96,17 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<Navitems> GetByItemSerialNoAsync(string ItemSerialNo)
+        public async Task<View_NavItems> GetByItemSerialNoAsync(string ItemSerialNo)
         {
             try
             {
-                var query = "SELECT * FROM Navitems WHERE  ItemSerialNo =@ItemSerialNo";
+                var query = "SELECT * FROM view_NavItems WHERE  ItemSerialNo =@ItemSerialNo";
                 var parameters = new DynamicParameters();
                 parameters.Add("ItemSerialNo", ItemSerialNo, DbType.Int64);
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryFirstOrDefaultAsync<Navitems>(query, parameters));
+                    return (await connection.QueryFirstOrDefaultAsync<View_NavItems>(query, parameters));
                 }
             }
             catch (Exception exp)

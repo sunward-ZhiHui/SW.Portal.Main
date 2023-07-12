@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public interface INavItemsQueryRepository : IQueryRepository<Navitems>
+    public interface INavItemsQueryRepository : IQueryRepository<View_NavItems>
     {
-        Task<IReadOnlyList<Navitems>> GetAllAsync();
-        Task<Navitems> GetByItemSerialNoAsync(string ItemSerialNo);
-        Task<long> Update(Navitems todolist);
-        Task<Navitems> GetByItemSerialNoExitsAsync(Navitems ItemSerialNo);
+        Task<IReadOnlyList<View_NavItems>> GetAllAsync();
+        Task<View_NavItems> GetByItemSerialNoAsync(string ItemSerialNo);
+        Task<long> Update(View_NavItems todolist);
+        Task<View_NavItems> GetByItemSerialNoExitsAsync(View_NavItems ItemSerialNo);
     }
 }

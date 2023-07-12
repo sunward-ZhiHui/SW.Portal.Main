@@ -2,6 +2,7 @@
 using Application.Common.Mapper;
 using Application.Response;
 using Core.Entities;
+using Core.Entities.Views;
 using Core.Repositories.Command;
 using Core.Repositories.Query;
 using MediatR;
@@ -24,8 +25,15 @@ namespace Application.Handlers.CommandHandler
         }
         public async Task<NavitemsResponse> Handle(EditNavItemsCommand request, CancellationToken cancellationToken)
         {
-            var queryrEntity = RoleMapper.Mapper.Map<Navitems>(request);
-
+            View_NavItems queryrEntity = new View_NavItems();
+            queryrEntity.ItemId= request.ItemId;
+            queryrEntity.ItemSerialNo= request.ItemSerialNo;
+            queryrEntity.PackSizeId=request.PackSizeId;
+            queryrEntity.UomId= request.UomId;
+            queryrEntity.CompanyId= request.CompanyId;
+            queryrEntity.SupplyToId= request.SupplyToId;
+            queryrEntity.ModifiedByUserId=request.ModifiedByUserId;
+            queryrEntity.ModifiedDate=request.ModifiedDate;
             if (queryrEntity is null)
             {
                 throw new ApplicationException("There is a problem in mapper");

@@ -191,13 +191,13 @@
 @code {
     string Plantcode = "";
     private List<ViewPlants> _plants;
-  
+
     string Text { get; set; } = "Active";
     bool PanelVisible { get; set; }
-   
+
     [Parameter]
     public long? PlantID { get; set; }
-  
+
     [Parameter]
     public long? SiteId { get; set; }
     [Parameter]
@@ -206,13 +206,13 @@
     private List<CodeMaster>? _stausItems;
     private List<ViewPlants>? _plantItems;
     private ViewDivision? _selectedItems;
-    bool EditEnabled { get; set; } = true;
+    bool EditEnabled { get; set; } = false;
     DxPopup? popup;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     bool PopupVisible { get; set; } = false;
     string? errorMessage;
     bool MessageVisible { get; set; }
-    bool DeleteEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     string? DeleteerrorMessage;
     IGrid? Grid { get; set; }
@@ -233,7 +233,8 @@
         var plants = await Mediator.Send(new GetAllPlantQuery());
         _plantItems = plants;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
+    
         PanelVisible = false;
         await UpdateDataAsync();
         if (Type == "Plants")
@@ -265,9 +266,13 @@
         if (_divisions.Count > 0)
         {
             _selectedItems = _divisions.FirstOrDefault();
-            EditEnabled = true;
-            DeleteEnabled = true;
-            StateHasChanged();
+            if (SelectedDataItems != null)
+            {
+                EditEnabled = true;
+                DeleteEnabled = true;
+                StateHasChanged();
+            }
+
         }
        // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
@@ -474,6 +479,12 @@
         else
         {
             EditEnabled = true;
+        }
+        if (SelectedDataItems != null)
+        {
+
+            DeleteEnabled = true;
+            StateHasChanged();
         }
     }
     void ResetCompany()

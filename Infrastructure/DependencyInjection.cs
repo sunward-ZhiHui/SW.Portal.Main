@@ -34,6 +34,7 @@ namespace Infrastructure
 
             services.AddScoped(typeof(IRequestHandler<>), typeof(CreateHandler<>));
             services.AddTransient<IPlantQueryRepository, PlantQueryRepository>();
+            services.AddTransient<ISoCustomerAddressQueryRepository, SoCustomerAddressQueryRepository>();
             services.AddTransient<IDivisionQueryRepository, DivisionQueryRepository>();
             services.AddTransient<ICodeMasterQueryRepository, CodeMasterQueryRepository>();
             services.AddTransient<IApplicationMasterDetailQueryRepository, ApplicationMasterDetailQueryRepository>();

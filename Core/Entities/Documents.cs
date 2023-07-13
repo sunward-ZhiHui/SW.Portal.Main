@@ -63,5 +63,9 @@ namespace Core.Entities
         public string? FilePath { get; set; }
         [NotMapped]
         public string? ServerFilePath { get; set; }
+        [NotMapped]
+        public string? AddedBy { get; set; }
+        [NotMapped]
+        public string? ModifiedBy { get; set; }       
     }
 }

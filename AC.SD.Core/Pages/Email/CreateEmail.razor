@@ -281,7 +281,7 @@ else
     IEnumerable<EmailTopics>? _topics;
     private List<ViewEmployee>? _participant;
     private List<ViewEmployee>? _Allparticipant;
-
+    long? AppUserId;
     private List<ViewEmployee>? _Toparticipant;
     private List<ViewEmployee>? _CCparticipant;
     IEnumerable<ForumTypes>? _OnBehalf;
@@ -327,7 +327,7 @@ else
     public string GetUploadUrl()
     {
         string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + _sessionId;
+        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
         return url.ToString();
     }
     void onloadSession()
@@ -499,6 +499,7 @@ else
     protected override async Task OnInitializedAsync() {
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        AppUserId = applicationUser.UserID;
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
 
         onloadSession();

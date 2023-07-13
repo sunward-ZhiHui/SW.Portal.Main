@@ -777,13 +777,34 @@
                                 SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
                                 <Columns>
                                 @*    <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
-                                    <DxGridDataColumn FieldName="FileIndex" Caption="#" Width="35px"></DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="FileIndex" Caption="#" Width="35px" FixedPosition="GridColumnFixedPosition.Left"></DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="SubjectName" MinWidth="200" FixedPosition="GridColumnFixedPosition.Left"  />
                                     <DxGridDataColumn FieldName="FileName" MinWidth="200" />
+
+                                    <DxGridDataColumn FieldName="AddedBy" MinWidth="200" />
+                                    <DxGridDataColumn FieldName="AddedDate" Width="180px">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                var item = (Documents)context.DataItem;
+                                            }
+                                            @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn FieldName="ModifiedBy" MinWidth="200" />
+                                    <DxGridDataColumn FieldName="ModifiedDate" Width="180px">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                var item = (Documents)context.DataItem;
+                                            }
+                                            @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+
                                     @*<DxGridDataColumn FieldName="FileSize" />*@
-                                    <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
+                                    <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" FixedPosition="GridColumnFixedPosition.Right"  MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview((long)context.Value)"></button></CellDisplayTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="DocumentId" Caption="Download" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
+                                    <DxGridDataColumn FieldName="DocumentId" Caption="Download" AllowSort="false" Width="90px" FixedPosition="GridColumnFixedPosition.Right"  MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="dxbl-btn fa fa-cloud-download" @onclick="() => onDocDownload((long)context.Value)"></button></CellDisplayTemplate>
                                     </DxGridDataColumn>
                                    @* <DxGridDataColumn FieldName="DocumentId" Caption="Delete" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
@@ -1085,6 +1106,7 @@
     bool isCommand = false;
     bool isCommandTopicClosed = true;
     bool isEllipsis = false;
+    long? AppUserId;
     private List<Documents>? _topicDocList;    
     private List<EmailTopics>? _topics;
     public List<EmailConversations> _getConversationList;
@@ -1288,7 +1310,7 @@
         //var sessionId = Guid.NewGuid();
 
         string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + sId;
+        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + sId + "&addedByUserId="+ AppUserId;
         return url.ToString();
     }
     public string GetUploadUrl()
@@ -1296,7 +1318,7 @@
         //var sessionId = Guid.NewGuid();
 
         string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + _sessionId;
+        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + _sessionId + "&addedByUserId="+ AppUserId;
         return url.ToString();
     }
     private void closeUploadFiles()
@@ -1914,7 +1936,7 @@
 
         onloadSession();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-
+        AppUserId = applicationUser.UserID;
         await JSRuntime.InvokeAsync<string>("showLoading");
 
 

@@ -32,6 +32,7 @@ namespace Application.Common.Mapper
             CreateMap<ApplicationRole, RoleResponse>().ReverseMap();
             CreateMap<ApplicationRole, CreateRoleCommand>().ReverseMap();
             CreateMap<ApplicationRole, EditRoleCommand>().ReverseMap();
+            CreateMap<Address, AddressResponse>().ReverseMap();
 
             CreateMap<Documents, DocumentsResponse>().ReverseMap();
 

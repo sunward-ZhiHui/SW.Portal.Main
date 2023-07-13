@@ -1,0 +1,89 @@
+﻿
+@page "/navItemslst"
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit"  />
+                <DxMenuItem Text="Post Name" IconCssClass="fa fa-add" Click="@Postname" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_navItems"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="ItemId"
+            EditModelSaving="Grid_EditModelSaving"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+          
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridDataColumn FieldName="PlantCode" Caption="Sign order no" MinWidth="80" />
+            <DxGridDataColumn FieldName="PlantCode" Caption="order Date" Width="30%" />
+            <DxGridDataColumn FieldName="PlantCode" Caption="Supply to" Width="50%" />
+        </Columns>
+    </DxGrid>
+</DxLoadingPanel>
+
+@code {
+    private List<View_NavItems> _navItems;
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+    }
+    void addNew()
+    {
+
+    }
+    void addEdit()
+    {
+
+    }
+    void Postname()
+    {
+        
+    }
+}

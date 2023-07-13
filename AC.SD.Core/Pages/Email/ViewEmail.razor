@@ -815,12 +815,12 @@
                                     </DxGridDataColumn>
 
                                     @*<DxGridDataColumn FieldName="FileSize" />*@
-                                    <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
+                                   @* <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview((long)context.Value)"></button></CellDisplayTemplate>
                                     </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="DocumentId" Caption="Download" AllowSort="false" Width="90px" FixedPosition="GridColumnFixedPosition.Right"  MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="dxbl-btn fa fa-cloud-download" @onclick="() => onDocDownload((long)context.Value)"></button></CellDisplayTemplate>
-                                    </DxGridDataColumn>
+                                    </DxGridDataColumn>*@
                                    @* <DxGridDataColumn FieldName="DocumentId" Caption="Delete" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="btnDelete fas fa-trash" @onclick="() => onDocDelete((long)context.Value)"></button></CellDisplayTemplate>
                                     </DxGridDataColumn>*@

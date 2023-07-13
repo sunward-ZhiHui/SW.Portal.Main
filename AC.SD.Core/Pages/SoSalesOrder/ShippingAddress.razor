@@ -79,11 +79,11 @@
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="AddressID" Visible="false" />
             <DxGridDataColumn FieldName="Address1" />
-            <DxGridDataColumn FieldName="Address2" />
-            <DxGridDataColumn FieldName="PostCode" />
+            <DxGridDataColumn FieldName="Address2" />          
             <DxGridDataColumn FieldName="City" />
             <DxGridDataColumn FieldName="Country" />
-            <DxGridDataColumn FieldName="CountryCode" />
+            <DxGridDataColumn FieldName="PostCode" />
+           @* <DxGridDataColumn FieldName="CountryCode" />*@
             <DxGridDataColumn FieldName="isShipping" Caption="Is Default Address" />
 
             <DxGridCommandColumn Width="160px" Visible="false" />
@@ -99,19 +99,19 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Address2:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@dataItems.Address2" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="PostCode:" ColSpanMd="6">
-                    @EditFormContext.GetEditor("PostCode")
-                </DxFormLayoutItem>
+                </DxFormLayoutItem>               
                 <DxFormLayoutItem Caption="City:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@dataItems.City" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Country:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@dataItems.Country" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Country Code:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@dataItems.CountryCode" />
+                <DxFormLayoutItem Caption="PostCode:" ColSpanMd="6">
+                    @EditFormContext.GetEditor("PostCode")
                 </DxFormLayoutItem>
+                @*<DxFormLayoutItem Caption="Country Code:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@dataItems.CountryCode" />
+                </DxFormLayoutItem>*@
                 <DxFormLayoutItem ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@dataItems.isShipping">Is Default Address</DxCheckBox>
                 </DxFormLayoutItem>

@@ -54,6 +54,7 @@
             FocusedRowEnabled="true"
             RowClick="OnRowClick"
             AllowSelectRowByClick="true"
+            RowDoubleClick="OnRowDoubleClick"
             ShowGroupPanel="true" ShowGroupedColumns="true">
 
         <Columns>
@@ -110,13 +111,18 @@
 
 
     }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
     void addNew()
     {
         NavigationManager.NavigateTo("AddSalesOrder");
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("AddSalesOrder/" + _selectedItems.SessionId + "");
+        NavigationManager.NavigateTo("EditSalesOrder/" + _selectedItems.SessionId + "");
 
     }
     void addDelete()

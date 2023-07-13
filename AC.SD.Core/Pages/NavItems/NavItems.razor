@@ -91,6 +91,15 @@
                                 ValueFieldName="PlantID"
                                 @bind-Value="@plant.CompanyId"
                                 ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                Caption="Company Name"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                Caption="Description" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                Caption="Nav Company" />
+                        </Columns>
                     </DxComboBox>
                     <ValidationMessage For="@(() => plant.CompanyId)" />
                 </DxFormLayoutItem>

@@ -42,7 +42,9 @@ namespace Application.Handlers.QueryHandlers
             var soCustomerAddress = new SoCustomerAddress();
             soCustomerAddress.AddressId = req;
             soCustomerAddress.CustomerId = request.CustomerId;
-            soCustomerAddress.AddressType = request.AddressType;          
+            soCustomerAddress.AddressType = request.AddressType;
+            soCustomerAddress.isBilling = request.isBilling;
+            soCustomerAddress.isShipping=request.isShipping;
             var reqq = await _soCustomerAddressQueryRepository.InsertSoCustomerAddress(soCustomerAddress);
 
             return req;

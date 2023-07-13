@@ -35,5 +35,7 @@ namespace Core.Entities.Views
         public string? ModifiedBy { get; set; }
         public string? AddedBy { get; set; }
         public int? CodeId { get; set; }
+        public long? SoCustomerBillingAddressId { get; set; }
+        public long? SoCustomerShipingAddressId { get; set; }
     }
 }

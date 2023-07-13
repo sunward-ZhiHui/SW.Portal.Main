@@ -3,19 +3,7 @@
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 
-<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
-    <div class="card-body p-0">
-        <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
-            <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit"  />
-                <DxMenuItem Text="Post Name" IconCssClass="fa fa-add" Click="@Postname" />
-            </Items>
-        </DxMenu>
-    </div>
-</div>
+
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -45,9 +33,11 @@
           
             AllowSelectRowByClick="true">
         <Columns>
-            <DxGridDataColumn FieldName="PlantCode" Caption="Sign order no" MinWidth="80" />
-            <DxGridDataColumn FieldName="PlantCode" Caption="order Date" Width="30%" />
-            <DxGridDataColumn FieldName="PlantCode" Caption="Supply to" Width="50%" />
+            <DxGridDataColumn FieldName="PlantCode" Caption="Sign Order No" Width="30%" />
+            <DxGridDataColumn FieldName="PlantCode" Caption="Sales Order No" Width="30%" />
+            <DxGridDataColumn FieldName="PlantCode" Caption="Order Date" Width="50%" />
+            <DxGridDataColumn FieldName="PlantCode" Caption="Order By " Width="30%" />
+           
         </Columns>
     </DxGrid>
 </DxLoadingPanel>

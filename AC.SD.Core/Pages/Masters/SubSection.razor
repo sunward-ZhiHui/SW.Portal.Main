@@ -215,8 +215,8 @@
     bool PopupVisible { get; set; } = false;
     private ViewSubSection _selectedItems;
     bool Blukdeletepopup { get; set; } = false;
-    bool EditEnabled { get; set; } = true;
-    bool DeleteEnabled { get; set; } = true;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private ViewSubSection _selectlst;
@@ -226,14 +226,15 @@
     private ViewDepartment _selectdep;
     protected override async Task OnInitializedAsync()
     {
-         PanelVisible = true;
+        PanelVisible = true;
         //await jsRuntime.InvokeAsync<string>("showLoading");
         // Application.Common.Helper.Helper.FormatDate();
         _sectionItems = await Mediator.Send(new GetAllSectionQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
-       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
+       
         PanelVisible = false;
         await UpdateDataAsync();
         if (Type == "section")
@@ -305,11 +306,14 @@
         }
         if (_subsectionItems.Count > 0)
         {
-
             _selectedItems = _subsectionItems.FirstOrDefault();
-            EditEnabled = true;
-            DeleteEnabled = true;
-            StateHasChanged();
+            if (SelectedDataItems != null)
+            {
+                EditEnabled = true;
+                DeleteEnabled = true;
+                StateHasChanged();
+            }
+
         }
        // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
@@ -491,6 +495,12 @@
         else
         {
             EditEnabled = true;
+        }
+        if (SelectedDataItems != null)
+        {
+
+            DeleteEnabled = true;
+            StateHasChanged();
         }
     }
     void ResetSection()

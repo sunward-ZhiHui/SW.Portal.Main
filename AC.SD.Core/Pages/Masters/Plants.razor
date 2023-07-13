@@ -163,8 +163,8 @@
     private List<CodeMaster> _stausItems;
     IGrid Grid { get; set; }
     private ViewPlants? _selectedItems;
-    bool EditEnabled { get; set; } = true;
-    bool DeleteEnabled { get; set; } = true;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
     bool ExportSelectedRowsOnly { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
@@ -179,10 +179,10 @@
         PanelVisible = true;
         var models = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _stausItems = models;
-       // await jsRuntime.InvokeAsync<string>("showLoading");
-        
+        // await jsRuntime.InvokeAsync<string>("showLoading");
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
         await UpdateDataAsync();
     }
@@ -197,14 +197,7 @@
         }
         _plants = model;
         PanelVisible = false;
-        if (_plants.Count > 0)
-        {
-
-            _selectedItems = _plants.FirstOrDefault();
-            EditEnabled = true;
-            DeleteEnabled = true;
-            StateHasChanged();
-        }
+      
         //await jsRuntime.InvokeAsync<string>("hideLoading");
         
     }
@@ -388,11 +381,22 @@
         if (SelectedDataItems.Count > 1)
         {
             EditEnabled = false;
+           
         }
         else
         {
             EditEnabled = true;
+           
         }
+      
+            if (SelectedDataItems != null)
+            {
+
+                DeleteEnabled = true;
+                StateHasChanged();
+            }
+
+        
     }
     void AddDivision()
     {

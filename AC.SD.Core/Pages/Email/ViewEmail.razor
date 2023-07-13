@@ -763,7 +763,19 @@
                         }
                         else if (isMenuvisible == "Files")
                         {
-
+                            <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+                                <div class="card-body p-0">
+                                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                        DisplayMode="MenuDisplayMode.Desktop">
+                                        <Items>
+                                            <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="@((e) => onPreview(_selectlst.DocumentId))"  />
+                                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="@((e) => onDocDownload(_selectlst.DocumentId))" />
+                                           
+                                        </Items>
+                                    </DxMenu>
+                                </div>
+                            </div>
                             <DxGrid @ref="Grid" Data="@_topicDocList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
                                 PagerNavigationMode="PagerNavigationMode.InputBox"
                                 PageSizeSelectorVisible="true"
@@ -773,6 +785,8 @@
                                 style="height:calc(100vh - 289px)"
                                 CssClass="ch-360"
                                 AutoExpandAllGroupRows="true"
+                                RowClick="OnRowClick"
+                                FocusedRowEnabled="true"
                                 SelectionMode="GridSelectionMode.Multiple"
                                 SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
                                 <Columns>
@@ -780,7 +794,7 @@
                                     <DxGridDataColumn FieldName="FileIndex" Caption="#" Width="35px"></DxGridDataColumn>
                                     <DxGridDataColumn FieldName="FileName" MinWidth="200" />
                                     @*<DxGridDataColumn FieldName="FileSize" />*@
-                                    <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
+                                  @*  <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview((long)context.Value)"></button></CellDisplayTemplate>
                                     </DxGridDataColumn>
                                     <DxGridDataColumn FieldName="DocumentId" Caption="Download" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
@@ -979,6 +993,8 @@
 
 
 @code {
+
+    private Documents _selectlst;
     [Parameter]
     public string ActiveSessionId { get; set; }
     public string filterrowname { get; set; }
@@ -1131,6 +1147,12 @@
     private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
     IEnumerable<UploadFileInfo> Filess { get; set; }
 
+     void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentId");
+        _selectlst = _topicDocList.FirstOrDefault(f => f.DocumentId == (long?)UniqueId);
+       
+    }
     private async Task ScrollToElement()
     {
         await JSRuntime.InvokeVoidAsync("scrollToElement", ".msgOpen");

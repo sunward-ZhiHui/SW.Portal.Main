@@ -53,6 +53,7 @@
             style="height: calc(100vh - 200px);"
             FocusedRowEnabled="true"
             RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClik"
             AllowSelectRowByClick="true"
             ShowGroupPanel="true" ShowGroupedColumns="true">
 
@@ -109,6 +110,11 @@
         _selectedItems = _salesOrderItems.FirstOrDefault(f => f.SoSalesOrderId == (long?)UniqueId);
 
 
+    }
+    void OnRowDoubleClik(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
     }
     void addNew()
     {

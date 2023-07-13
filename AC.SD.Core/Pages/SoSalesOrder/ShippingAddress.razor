@@ -1,7 +1,9 @@
 ﻿@using Application.Queries;
 @using Application.Response;
 @using MediatR
+@using global::Core.EntityModels;
 @using global::Core.Entities;
+@using global::Core.Entities.Views;
 @inject IMediator Mediator
 @using DevExpress.Export
 @using global::Core.Repositories.Query;
@@ -79,39 +81,81 @@
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="AddressID" Visible="false" />
             <DxGridDataColumn FieldName="Address1" />
-            <DxGridDataColumn FieldName="Address2" />          
-            <DxGridDataColumn FieldName="City" />
-            <DxGridDataColumn FieldName="Country" />
+            <DxGridDataColumn FieldName="Address2" />
+            <DxGridDataColumn FieldName="CountryName" Caption="Country" />
+            <DxGridDataColumn FieldName="StateName" Caption="State" />
+            <DxGridDataColumn FieldName="CityName" Caption="City" />
             <DxGridDataColumn FieldName="PostCode" />
-           @* <DxGridDataColumn FieldName="CountryCode" />*@
+
             <DxGridDataColumn FieldName="isShipping" Caption="Is Default Address" />
 
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         <EditFormTemplate Context="EditFormContext">
             @{
-                var dataItems = (Address)EditFormContext.EditModel;
+                var dataItems = (view_SoCustomerAddress)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
 
                 <DxFormLayoutItem Caption="Address1:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@dataItems.Address1" />
                 </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Country" ColSpanMd="6">
+                    <DxComboBox Data="@_countryListItems"
+                                NullText="Select Country..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                Enabled="@isEnabled"
+                                @bind-Value="@dataItems.CountryID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedCountryItemChanged(applicationMasterChildModel))"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => dataItems.CountryID)" />
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Address2:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@dataItems.Address2" />
-                </DxFormLayoutItem>               
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="State" ColSpanMd="6">
+                    <DxComboBox Data="@_stateListItems"
+                                NullText="Select State..."
+                                Enabled="@isEnabled"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@dataItems.StateID"
+                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedStateItemChanged(applicationMasterChildModel))">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => dataItems.StateID)" />
+                </DxFormLayoutItem>
+
+                @*<DxFormLayoutItem Caption="Country:" ColSpanMd="6">
+                <DxTextBox @bind-Text="@dataItems.CountryID" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="State:" ColSpanMd="6">
+                <DxTextBox @bind-Text="@dataItems.StateID" />
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="City:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@dataItems.City" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Country:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@dataItems.Country" />
-                </DxFormLayoutItem>
+                <DxTextBox @bind-Text="@dataItems.CityID" />
+                </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="PostCode:" ColSpanMd="6">
                     @EditFormContext.GetEditor("PostCode")
                 </DxFormLayoutItem>
-                @*<DxFormLayoutItem Caption="Country Code:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@dataItems.CountryCode" />
-                </DxFormLayoutItem>*@
+
+                <DxFormLayoutItem Caption="City" ColSpanMd="6">
+                    <DxComboBox Data="@_cityListItems"
+                                NullText="Select City..."
+                                Enabled="@isEnabled"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@dataItems.CityID">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => dataItems.CityID)" />
+                </DxFormLayoutItem>
                 <DxFormLayoutItem ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@dataItems.isShipping">Is Default Address</DxCheckBox>
                 </DxFormLayoutItem>
@@ -145,9 +189,10 @@
     Dictionary<long, string>? UsernameIndex { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
-    private List<Address>? _soCusterAddress;
+    private List<view_SoCustomerAddress>? _soCusterAddress;
+    private List<view_SoCustomerAddress>? _soAllCusterAddress;
     IGrid? Grid { get; set; }
-    private Address _selectedItems;
+    private view_SoCustomerAddress _selectedItems;
     //bool EditEnabled { get; set; } = true;
     bool DeleteEnabled { get; set; } = false;
     bool ExportSelectedRowsOnly { get; set; }
@@ -164,15 +209,69 @@
     bool EditEnabled { get; set; } = false;
     bool AddEnabled { get; set; } = false;
     string SelectedGroup = "none";
-    private Address _selectlst;
+    private view_SoCustomerAddress _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
+
+    bool isEnabled { get; set; } = true;
+
+    private List<ApplicationMasterChildModel> _countryListItems;
+    private List<ApplicationMasterChildModel> _stateListItems;
+    private List<ApplicationMasterChildModel> _cityListItems;
+
+    async void SelectedCountryItemChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+        if (applicationMasterChildModel != null)
+        {
+            CountryChanged(applicationMasterChildModel.ApplicationMasterChildId);
+            //_stateListItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(applicationMasterChildModel.ApplicationMasterChildId));
+        }
+        else
+        {
+            CountryChanged(-1);
+            StateChange(-1);
+        }
+    }
+    async void CountryChanged(long? ApplicationMasterChildId)
+    {
+        if (ApplicationMasterChildId != null)
+        {
+            _stateListItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+        }
+    }
+    async void SelectedStateItemChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+        if (applicationMasterChildModel != null)
+        {
+            // _cityListItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+            StateChange(applicationMasterChildModel.ApplicationMasterChildId);
+        }
+        else
+        {
+            StateChange(-1);
+        }
+    }
+    async void StateChange(long? ApplicationMasterChildID)
+    {
+        if (ApplicationMasterChildID != null)
+        {
+            _cityListItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+        }
+
+    }
+
+
 
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
+
+        _countryListItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("119"));
+        //_stateListItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("120"));
+        //_cityListItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("121"));
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        var soline = await Mediator.Send(new GetSoCustomerAddressQuery());
-        _soCusterAddress = soline.Where(x => x.AddressType == "Shipping" && x.CustomerId == SoCustomerId).ToList();
+        _soAllCusterAddress = await Mediator.Send(new GetSoCustomerAddressQuery());
+        _soCusterAddress = _soAllCusterAddress.Where(x => x.AddressType == "Shipping" && x.CustomerId == SoCustomerId).ToList();
         if (SoCustomerId > 0)
         {
             AddEnabled = true;
@@ -188,6 +287,18 @@
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        if (e.IsNew)
+        {
+
+        }
+        else
+        {
+            var editModel = (view_SoCustomerAddress)e.EditModel;
+            // SelectedCountryItemChanged(editModel.CountryID);
+            CountryChanged(editModel.CountryID);
+            //SelectedStateItemChanged(editModel.StateID);
+            StateChange(editModel.StateID);
+        }
     }
     async Task UpdateDataAsync()
     {
@@ -216,7 +327,7 @@
 
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
-        var editModel = (Address)e.EditModel;
+        var editModel = (view_SoCustomerAddress)e.EditModel;
         if (e.IsNew)
         {
             var createReq = new CreateCustomerAddress
@@ -225,9 +336,9 @@
                     Address2 = editModel.Address2,
                     AddressType = "Shipping",
                     PostCode = editModel.PostCode,
-                    City = editModel.City,
-                    Country = editModel.Country,
-                    CountryCode = editModel.CountryCode,
+                    CountryID = editModel.CountryID,
+                    StateID = editModel.StateID,
+                    CityID = editModel.CityID,
                     CustomerId = SoCustomerId,
                     isShipping = editModel.isShipping,
                 };
@@ -249,17 +360,17 @@
         {
             var UpdateReq = new EditCustomerAddress
                 {
-                    SoCustomerAddressId=editModel.SoCustomerAddressId,
+                    SoCustomerAddressId = editModel.SoCustomerAddressId,
                     AddressID = editModel.AddressID,
                     Address1 = editModel.Address1,
                     Address2 = editModel.Address2,
                     AddressType = editModel.AddressType,
                     PostCode = editModel.PostCode,
-                    City = editModel.City,
-                    CustomerId=editModel.CustomerId,
-                    Country = editModel.Country,
-                    CountryCode = editModel.CountryCode,
-                    isShipping=editModel.isShipping,
+                    CustomerId = editModel.CustomerId,
+                    CountryID = editModel.CountryID,
+                    StateID = editModel.StateID,
+                    CityID = editModel.CityID,
+                    isShipping = editModel.isShipping
                 };
 
             var ans = await Mediator.Send(UpdateReq);
@@ -293,7 +404,7 @@
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
-        var editModel = (Address)e.DataItem;
+        var editModel = (view_SoCustomerAddress)e.DataItem;
         var request = new DeleteCustomerAddress(editModel.AddressID, editModel.SoCustomerAddressId);
         await Mediator.Send(request);
         await UpdateDataAsync();
@@ -340,7 +451,7 @@
             {
                 foreach (object item in SelectedDataItems)
                 {
-                    if (item is Address address)
+                    if (item is view_SoCustomerAddress address)
                     {
                         var request = new DeleteCustomerAddress(address.AddressID, address.SoCustomerAddressId);
                         await Mediator.Send(request);

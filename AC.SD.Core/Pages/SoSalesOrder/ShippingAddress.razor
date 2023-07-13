@@ -1,0 +1,379 @@
+﻿@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@errorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
+    </BodyTemplate>
+</DxPopup>
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" Data="@_soCusterAddress" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="AddressID"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 452px); min-height:300px;"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+
+
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="AddressID" Visible="false" />
+            <DxGridDataColumn FieldName="Address1" />
+            <DxGridDataColumn FieldName="Address2" />
+            <DxGridDataColumn FieldName="PostCode" />
+            <DxGridDataColumn FieldName="City" />
+            <DxGridDataColumn FieldName="Country" />
+            <DxGridDataColumn FieldName="CountryCode" />
+            <DxGridDataColumn FieldName="isShipping" Caption="Is Default Address" />
+
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var dataItems = (Address)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+
+                <DxFormLayoutItem Caption="Address1:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@dataItems.Address1" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Address2:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@dataItems.Address2" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="PostCode:" ColSpanMd="6">
+                    @EditFormContext.GetEditor("PostCode")
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="City:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@dataItems.City" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Country:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@dataItems.Country" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Country Code:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@dataItems.CountryCode" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@dataItems.isShipping">Is Default Address</DxCheckBox>
+                </DxFormLayoutItem>
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    [Parameter]
+    public long? SoCustomerId { get; set; }
+    bool PanelVisible { get; set; }
+    Dictionary<long, string>? UsernameIndex { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private string gridHeight = "calc(100vh - 230px - 143px)";
+    private List<Address>? _soCusterAddress;
+    IGrid? Grid { get; set; }
+    private Address _selectedItems;
+    //bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = false;
+    bool ExportSelectedRowsOnly { get; set; }
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? errorMessage;
+    string? DeleteerrorMessage;
+    bool MessageVisible { get; set; }
+    string styleClass = "";
+    string MessageHeader = "Error";
+    string MessageBody = "";
+    private bool loading;
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
+    string SelectedGroup = "none";
+    private Address _selectlst;
+    public ApplicationUser? applicationUser { get; private set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        var soline = await Mediator.Send(new GetSoCustomerAddressQuery());
+        _soCusterAddress = soline.Where(x => x.AddressType == "Shipping" && x.CustomerId == SoCustomerId).ToList();
+        if (SoCustomerId > 0)
+        {
+            AddEnabled = true;
+            if (_soCusterAddress.Count > 0)
+            {
+                _selectedItems = _soCusterAddress.FirstOrDefault();
+                EditEnabled = true;
+                DeleteEnabled = true;
+                StateHasChanged();
+            }
+        }
+        PanelVisible = false;
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        var models = await Mediator.Send(new GetSoCustomerAddressQuery());
+        _soCusterAddress = models.Where(x => x.AddressType == "Shipping" && x.CustomerId == SoCustomerId).ToList();
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+
+                CustomizeCell = OnCustomizeCell
+            });
+
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (Address)e.EditModel;
+        if (e.IsNew)
+        {
+            var createReq = new CreateCustomerAddress
+                {
+                    Address1 = editModel.Address1,
+                    Address2 = editModel.Address2,
+                    AddressType = "Shipping",
+                    PostCode = editModel.PostCode,
+                    City = editModel.City,
+                    Country = editModel.Country,
+                    CountryCode = editModel.CountryCode,
+                    CustomerId = SoCustomerId,
+                    isShipping = editModel.isShipping,
+                };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+
+                errorMessage = eq.Message;
+                PopupVisible = true;
+            }
+            await UpdateDataAsync();
+        }
+        else
+        {
+            var UpdateReq = new EditCustomerAddress
+                {
+                    SoCustomerAddressId=editModel.SoCustomerAddressId,
+                    AddressID = editModel.AddressID,
+                    Address1 = editModel.Address1,
+                    Address2 = editModel.Address2,
+                    AddressType = editModel.AddressType,
+                    PostCode = editModel.PostCode,
+                    City = editModel.City,
+                    CustomerId=editModel.CustomerId,
+                    Country = editModel.Country,
+                    CountryCode = editModel.CountryCode,
+                    isShipping=editModel.isShipping,
+                };
+
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+    }
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
+    }
+    async void ClosePopup()
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
+    }
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+        var editModel = (Address)e.DataItem;
+        var request = new DeleteCustomerAddress(editModel.AddressID, editModel.SoCustomerAddressId);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "AddressID");
+        _selectedItems = _soCusterAddress.FirstOrDefault(f => f.AddressID == (long?)UniqueId);
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is Address address)
+                    {
+                        var request = new DeleteCustomerAddress(address.AddressID, address.SoCustomerAddressId);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+
+    }
+}

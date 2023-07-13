@@ -30,7 +30,7 @@ namespace DocumentApi.Controllers
         [Route("UploadDocuments")]
         [DisableRequestSizeLimit]
         [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = long.MaxValue)]
-        public ActionResult UploadDocuments(IFormFile files, Guid? SessionId)
+        public ActionResult UploadDocuments(IFormFile files, Guid? SessionId,long? addedByUserId)
         {
             long documentId = 0;
             try
@@ -62,7 +62,7 @@ namespace DocumentApi.Controllers
                     FileData = null,
                     FileSize = files.Length,
                     UploadDate = DateTime.Now,
-                    AddedByUserId = null,
+                    AddedByUserId = addedByUserId,
                     AddedDate = DateTime.Now,
                     SessionId = SessionId,
                     IsLatest = true,

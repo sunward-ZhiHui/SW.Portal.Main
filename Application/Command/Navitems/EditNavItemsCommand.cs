@@ -59,6 +59,9 @@ namespace Application.Commands
         public string ImageUrl { get; set; }
         public bool? IsPortal { get; set; }
         public string ItemSerialNo { get; set; }
+        public long? PackSizeId { get; set; }
+        public long? SupplyToId { get; set; }
+        public long? UomId { get; set; }
         public EditNavItemsCommand()
         {
         }

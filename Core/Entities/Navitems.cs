@@ -58,5 +58,8 @@ namespace Core.Entities
         public bool? IsPortal { get; set; }
         [Required(ErrorMessage = "Item SerialNo is Required")]
         public string ItemSerialNo { get; set; }
+        public long? PackSizeId { get; set; }
+        public long? SupplyToId { get; set; }
+        public long? UomId { get; set; }
     }
 }

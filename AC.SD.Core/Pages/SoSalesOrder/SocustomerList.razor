@@ -6,6 +6,7 @@
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
+@inject NavigationManager NavigationManager
 <style>
     .dxbl-loading-panel {
         display: initial !important;
@@ -18,6 +19,7 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add Address" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -38,11 +40,16 @@
             CustomizeElement="Grid_CustomizeElement"
             style="height: calc(100vh - 220px);"
             CssClass="w-100"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            FocusedRowEnabled="true"
+            RowDoubleClick="OnRowDoubleClick"
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             TextWrapEnabled="false">
         <Columns>
+            <DxGridDataColumn FieldName="SoCustomerId" Visible=false />
             <DxGridDataColumn FieldName="ShipCode" FixedPosition="GridColumnFixedPosition.Left" MinWidth="170" />
             <DxGridDataColumn FieldName="CustomerName" MinWidth="200" FixedPosition="GridColumnFixedPosition.Left" />
             <DxGridDataColumn FieldName="AssignToRep" MinWidth="170" />
@@ -61,13 +68,37 @@
     IGrid Grid { get; set; }
     private List<SoCustomer>? _AllSoCustomer;
     bool PanelVisible { get; set; }
+    bool AddEnabled { get; set; } = false;
+    private SoCustomer _selectedItems;
     protected override async Task OnInitializedAsync()
     {
 
         PanelVisible = true;
         _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
+
+        if (_AllSoCustomer.Count > 0)
+        {
+            _selectedItems = _AllSoCustomer.FirstOrDefault();
+            AddEnabled = true;
+            StateHasChanged();
+        }
+
         PanelVisible = false;
 
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SoCustomerId");
+        _selectedItems = _AllSoCustomer.FirstOrDefault(f => f.SoCustomerId == (long?)UniqueId);
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addNew();
+    }
+    void addNew()
+    {
+        NavigationManager.NavigateTo("AddCustomerAddress/" + _selectedItems.SoCustomerId + "");
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

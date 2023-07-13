@@ -19,8 +19,8 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled"/>
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled"/>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
             </Items>
@@ -29,10 +29,10 @@
 </div>
 
 
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  @bind-Visible="@PopupVisible">
-       <div class="text-center">
-        <p>@errorMessage</p>       
-        <DxButton  Text="OK" Click="@(() => ClosePopup())" />
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@errorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
     </div>
 </DxPopup>
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
@@ -54,111 +54,110 @@
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
-                Text="Fetching Data..."
-               >
+                Text="Fetching Data...">
 
     <DxGrid @ref="Grid" Data="@_salesOrderLine" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-        ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
             KeyFieldName="SoSalesOrderLineId"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        style="height: calc(100vh - 336px);"
-        CssClass="ch-360"
-        FocusedRowEnabled="true"
-        RowClick="OnRowClick"
-        AllowSelectRowByClick="true"
-        CustomizeElement="Grid_CustomizeElement"
-        CustomizeEditModel="Grid_CustomizeEditModel"
-        AutoExpandAllGroupRows="true"
-        SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages" 
-        RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
-    
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 336px);"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
 
-    <Columns>
-        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />            
-        <DxGridDataColumn FieldName="SoSalesOrderLineId" Visible="false"/>
-        <DxGridDataColumn FieldName="ItemSerialNo" />
-        <DxGridDataColumn FieldName="No" Caption="Item No" />
-         <DxGridDataColumn FieldName="Description" />
-         <DxGridDataColumn FieldName="Description2" />
-         <DxGridDataColumn FieldName="Qty" />
-         <DxGridDataColumn FieldName="BaseUnitofMeasure" Caption="Unit of measure" />
-         <DxGridDataColumn FieldName="UnitPrice" Caption="Unit price" />    
-        @* <DxGridDataColumn FieldName="AddedDate">
+
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="SoSalesOrderLineId" Visible="false" />
+            <DxGridDataColumn FieldName="ItemSerialNo" />
+            <DxGridDataColumn FieldName="No" Caption="Item No" />
+            <DxGridDataColumn FieldName="Description" />
+            <DxGridDataColumn FieldName="Description2" />
+            <DxGridDataColumn FieldName="Qty" />
+            <DxGridDataColumn FieldName="BaseUnitofMeasure" Caption="Unit of measure" />
+            <DxGridDataColumn FieldName="UnitPrice" Caption="Unit price" />
+            @* <DxGridDataColumn FieldName="AddedDate">
             <CellDisplayTemplate>
-                @{
-                    var item = (View_SoSalesOrderLine)context.DataItem;
-                }
-                @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
+            @{
+            var item = (View_SoSalesOrderLine)context.DataItem;
+            }
+            @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
             </CellDisplayTemplate>
-        </DxGridDataColumn>*@
+            </DxGridDataColumn>*@
             @*<DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" TextAlignment="GridTextAlignment.Left">
             <CellDisplayTemplate>
-                @{
-                    var item = (View_SoSalesOrderLine)context.DataItem;
-                }
-                    <div> @item.AddedBy</div>
+            @{
+            var item = (View_SoSalesOrderLine)context.DataItem;
+            }
+            <div> @item.AddedBy</div>
             </CellDisplayTemplate>
-              </DxGridDataColumn> *@             
-        <DxGridCommandColumn Width="160px" Visible="false" />
-    </Columns>
-  @*  @bind-SelectedDataItems="SelectedDataItems"*@
-    <EditFormTemplate Context="EditFormContext">
-        @{
-            var types = (View_SoSalesOrderLine)EditFormContext.EditModel;
-        }
-        <DxFormLayout CssClass="w-100">        
+            </DxGridDataColumn> *@
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        @*  @bind-SelectedDataItems="SelectedDataItems"*@
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (View_SoSalesOrderLine)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
 
                 <DxFormLayoutItem Caption="Item SerialNo" ColSpanMd="6">
                     <DxComboBox Data="@_AllNavitems"
-                            NullText="Select Item SerialNo..."
-                            ListRenderMode="ListRenderMode.Virtual"
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="ItemSerialNo"
+                                NullText="Select Item SerialNo..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="ItemSerialNo"
                                 ValueFieldName="ItemSerialNo"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@types.ItemSerialNo" ShowValidationIcon="true"
-                                SelectedItemChanged="@((Navitems navitems) => SelectedItemChanged(navitems))">
-                    <Columns>
-                            <DxListEditorColumn FieldName="@nameof(Navitems.ItemSerialNo)"
+                                SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
                                                 Caption="Item Serial No"
-                                            Width="180px" />
-                        <DxListEditorColumn FieldName="@nameof(Navitems.No)"
-                                            Caption="Item" />
-                        <DxListEditorColumn FieldName="@nameof(Navitems.Description)"
-                                            Caption="Description" />
-                    </Columns>
-                </DxComboBox>
-            </DxFormLayoutItem>
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
+                                                Caption="Item" />
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
+                                                Caption="Description" />
+                        </Columns>
+                    </DxComboBox>
+                </DxFormLayoutItem>
 
-            <DxFormLayoutItem Caption="Item No:" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Item No:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@No" Enabled=false />
-            </DxFormLayoutItem>
-             <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
-               <DxTextBox @bind-Text="@Description" Enabled=false  />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Description2:" ColSpanMd="6">
-               <DxTextBox @bind-Text="@Description2" Enabled=false  />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@Description" Enabled=false />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description2:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@Description2" Enabled=false />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@BaseUnitofMeasure" Enabled=false />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Qty:" ColSpanMd="6">
-                <DxSpinEdit @bind-Value="@types.Qty" />
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Unit price:" ColSpanMd="6">
-                <DxSpinEdit @bind-Value="@types.UnitPrice" />
-            </DxFormLayoutItem>           
-            <ValidationSummary />
-        </DxFormLayout>
-    </EditFormTemplate>
-    
-</DxGrid>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Qty:" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.Qty" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Unit price:" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.UnitPrice" />
+                </DxFormLayoutItem>
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+
+    </DxGrid>
 </DxLoadingPanel>
 
 <DxPopup @bind-Visible="@Blukdeletepopup"
@@ -187,7 +186,7 @@
     private string Description2 { get; set; }
     private string BaseUnitofMeasure { get; set; }
 
-    private List<Navitems>? _AllNavitems;
+    private List<View_NavItems>? _AllNavitems;
 
     bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
@@ -216,7 +215,7 @@
     public ApplicationUser? applicationUser { get; private set; }
 
 
-    void SelectedItemChanged(Navitems navitems)
+    void SelectedItemChanged(View_NavItems navitems)
     {
         if (navitems != null)
         {
@@ -236,37 +235,52 @@
 
     protected override async Task OnInitializedAsync()
     {
-        PanelVisible = true;     
-        var navitemslst = await Mediator.Send(new GetAllNavItemsQuery());
-        _AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
+       
+            PanelVisible = true;
+            var navitemslst = await Mediator.Send(new GetAllNavItemsQuery());
+            _AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
 
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
-        var soline = await Mediator.Send(new GetSalesOrderLine());
-        _salesOrderLine = soline.Where(x => x.SoSalesOrderId == SoSalesOrderId).ToList();
+            var soline = await Mediator.Send(new GetSalesOrderLine());
+            _salesOrderLine = soline.Where(x => x.SoSalesOrderId == SoSalesOrderId).ToList();
 
-        if(SoSalesOrderId > 0)
-        {          
-            AddEnabled = true;          
-
-            if (_salesOrderLine.Count > 0)
+            if (SoSalesOrderId > 0)
             {
+                AddEnabled = true;
 
-                _selectedItems = _salesOrderLine.FirstOrDefault();
-                EditEnabled = true;
-                DeleteEnabled = true;
-                StateHasChanged();
-            }           
-        }       
+                if (_salesOrderLine.Count > 0)
+                {
+
+                    _selectedItems = _salesOrderLine.FirstOrDefault();
+
+                    if (SelectedDataItems != null)
+                    {
+                        EditEnabled = true;
+                        DeleteEnabled = true;
+
+                        StateHasChanged();
+                    }
 
 
-        PanelVisible = false;      
-    } 
+                }
+            }
+
+        PanelVisible = false;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var navitemslst = await Mediator.Send(new GetAllNavItemsQuery());
+            _AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
+        }
+    }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         var navitems = (View_SoSalesOrderLine)e.EditModel;
         if (e.IsNew)
-        {           
+        {
             No = "";
             Description = "";
             Description2 = "";
@@ -283,20 +297,20 @@
     }
     async Task UpdateDataAsync()
     {
-        PanelVisible = true;       
+        PanelVisible = true;
         var models = await Mediator.Send(new GetSalesOrderLine());
         _salesOrderLine = models.Where(x => x.SoSalesOrderId == SoSalesOrderId).ToList();
         PanelVisible = false;
         StateHasChanged();
     }
-    async Task ExportToExcel() 
+    async Task ExportToExcel()
     {
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-        {
-           ExportSelectedRowsOnly = true,
+            {
+                ExportSelectedRowsOnly = true,
 
-          CustomizeCell = OnCustomizeCell
-        });
+                CustomizeCell = OnCustomizeCell
+            });
 
     }
 
@@ -309,9 +323,9 @@
     }
 
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {   
+    {
 
-        var editModel = (View_SoSalesOrderLine)e.EditModel;        
+        var editModel = (View_SoSalesOrderLine)e.EditModel;
 
         if (e.IsNew)
         {
@@ -324,8 +338,8 @@
                     Qty = editModel.Qty,
                     UnitPrice = editModel.UnitPrice,
                     StatusCodeId = 1,
-                    AddedByUserId= applicationUser.UserID,                       
-                    AddedDate = DateTime.Now, 
+                    AddedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
                 };
@@ -333,7 +347,7 @@
             try
             {
                 var result = await Mediator.Send(createReq);
-                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);                    
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
             }
             catch (Exception eq)
             {
@@ -348,7 +362,7 @@
 
         }
         else
-        {               
+        {
             var UpdateReq = new EditSoSalesOrderLineCommand
                 {
                     SoSalesOrderLineId = editModel.SoSalesOrderLineId,
@@ -356,7 +370,7 @@
                     ItemSerialNo = editModel.ItemSerialNo,
                     Qty = editModel.Qty,
                     UnitPrice = editModel.UnitPrice,
-                    StatusCodeId = 1,                   
+                    StatusCodeId = 1,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
 
@@ -364,9 +378,9 @@
 
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await UpdateDataAsync();            
+            await UpdateDataAsync();
 
-        }     
+        }
 
     }
     private async void onShowPopupMessage(string headerText, string bodyText)
@@ -393,7 +407,7 @@
         UpdateDataAsync();
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
-    { 
+    {
 
         var editModel = (View_SoSalesOrderLine)e.DataItem;
 
@@ -442,7 +456,9 @@
 
     }
     void addEdit()
-    {     
+    {
+
+
         if (SelectedDataItems.Count == 1)
         {
 
@@ -456,7 +472,7 @@
 
 
                 }
-            } 
+            }
             Grid.StartEditDataItemAsync(_selectlst);
         }
         else
@@ -464,7 +480,7 @@
             Grid.StartEditDataItemAsync(_selectedItems);
         }
 
-        // Grid.SelectDataItems(SelectedDataItems);
+        //Grid.SelectDataItems(SelectedDataItems);
 
 
     }
@@ -494,7 +510,7 @@
                 }
             }
         }
-        catch(Exception eq)
+        catch (Exception eq)
         {
             DeleteerrorMessage = eq.Message;
             PopupVisible = true;
@@ -511,11 +527,14 @@
         if (SelectedDataItems.Count > 1)
         {
             EditEnabled = false;
+            DeleteEnabled = false;
         }
         else
         {
             EditEnabled = true;
+
+            DeleteEnabled = true;
         }
 
-    }  
+    }
 }

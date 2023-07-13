@@ -35,5 +35,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<View_ApplicationMasterDetail> GetByIdAsync(long? Id)
+        {
+            try
+            {
+                var query = "SELECT * FROM view_ApplicationMasterDetail WHERE ApplicationMasterDetailID = @ApplicationMasterDetailID";
+                var parameters = new DynamicParameters();
+                parameters.Add("ApplicationMasterDetailID", Id, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<View_ApplicationMasterDetail>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

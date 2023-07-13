@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace Application.Queries
 {
-    public class GetAllNavItemsQuery : PagedRequest, IRequest<List<Navitems>>
+    public class GetAllNavItemsQuery : PagedRequest, IRequest<List<View_NavItems>>
     {
         public string SearchString { get; set; }
     }
 
-    public class GetAllNavItemsItemSerialNoQuery : PagedRequest, IRequest<Navitems>
+    public class GetAllNavItemsItemSerialNoQuery : PagedRequest, IRequest<View_NavItems>
     {
         public string SearchString { get; set; }
         public string ItemSerialNo { get; set; }

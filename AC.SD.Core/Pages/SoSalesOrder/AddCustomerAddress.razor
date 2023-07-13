@@ -1,0 +1,262 @@
+﻿@using Application.Command.Employees;
+@using Application.Command.SoSalesOrder;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using System.ComponentModel.DataAnnotations;
+@inject IJSRuntime JSRuntime;
+@using System.Reflection;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@page "/AddCustomerAddress"
+@page "/AddCustomerAddress/{SoCustomerId:long}"
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                        @*<DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@ResetForm" />*@
+                    </Items>
+                </DxMenu>
+            </div>
+           @* <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
+                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    <i class="fa fa-save"></i>
+                    Save
+                </button>
+            </div>*@
+
+        </div>
+    </div>
+</div>   
+<div class="" style="    margin-bottom: 10px;">
+    @if (_soCustomerItems != null && _soCustomerItems.Any())
+    {
+        @foreach (var item in _soCustomerItems)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <article class="media">
+                        <div class="media-body">
+                            <div class="content">
+                                <p class="h5">@item.ShipCode <small>@item.CustomerName</small> <small class="float-right text-muted">@item.ShipCode</small></p>
+                                <p>@item.Address1 / @item.Address2 / @item.City / @item.StateCode / @item.PostCode</p>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        }
+    }
+</div>
+<div class="">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+            <div>
+                <DxFormLayoutTabPage Caption="Billing Address">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><BillingAddress SoCustomerId="@SoCustomerId"></BillingAddress></div>
+                </DxFormLayoutTabPage>
+
+                <DxFormLayoutTabPage Caption="Shipping Address">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><ShippingAddress SoCustomerId="@SoCustomerId"></ShippingAddress></div>
+                </DxFormLayoutTabPage>
+
+            </div>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+</div>
+   
+
+
+@*<div class="card">
+    <div class="card-header">*@
+
+@*</div></div>*@
+<DxPopup @bind-Visible="@MessageVisible"
+         HeaderText="@MessageHeader"
+         BodyText="@MessageBody" />
+
+
+@code {    
+    [Parameter]
+    public long? SoCustomerId { get; set; }
+    private bool loading;
+    private string MyID = "myid";
+    long? EmployeeIds { get; set; }
+    bool EditEnabledTab { get; set; } = false;
+    int ActiveTabIndex { get; set; } = 0;
+    int ActiveSubTabIndex { get; set; } = 0;  
+    private List<SoCustomer> _soCustomerItems;
+
+    private List<SoCustomer>? _AllSoCustomer;
+
+
+    SoSalesOrder Data = new SoSalesOrder();
+
+    //  ViewSoSalesOrder Data = new ViewSoSalesOrder();
+    View_SoSalesOrder _salesOrderItem = new View_SoSalesOrder();
+
+
+    public ApplicationUser applicationUser { get; private set; }
+    bool MessageVisible { get; set; }
+    string MessageHeader = "";
+    string MessageBody = "";
+
+    void SelectedItemChanged(SoCustomer soCustomer) 
+    {
+        if(soCustomer!=null)
+        {
+            Data.ShipCode = soCustomer.ShipCode;
+            Data.AssignToRep = soCustomer.AssignToRep;
+            Data.Address1 = soCustomer.Address1;
+        }
+        else
+        {
+            Data.ShipCode = "";
+            Data.AssignToRep = "";
+            Data.Address1 = "";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
+
+        if (SoCustomerId != null)
+        {
+            var soCustmer = await Mediator.Send(new GetSoCustomerQuery());
+            _soCustomerItems = soCustmer.Where(x => x.SoCustomerId == SoCustomerId).ToList();
+
+            //SoSalesOrderId = _salesOrderItem.SoSalesOrderId;
+            //Data.SoSalesOrderId = _salesOrderItem.SoSalesOrderId;
+            //Data.UserName = _salesOrderItem.AddedBy;
+            //Data.Date = _salesOrderItem.AddedDate;
+            //Data.ShipCode = _salesOrderItem.ShipCode;
+            //Data.AssignToRep = _salesOrderItem.AssignToRep;
+            //Data.Address1 = _salesOrderItem.Address1;
+            //Data.SoCustomerId = _salesOrderItem.SoCustomerId;
+            //Data.Remark = _salesOrderItem.Remark;
+            //Data.DocumentDate = _salesOrderItem.DocumentDate;
+            //Data.OrderDate = _salesOrderItem.OrderDate;
+            //Data.PrioityDeliveryDate = _salesOrderItem.PrioityDeliveryDate;
+            //Data.SignOrderNo = _salesOrderItem.SignOrderNo;
+            //Data.SessionId = _salesOrderItem.SessionId;
+
+        }
+
+
+        Data.DocumentDate = DateTime.Now;
+        Data.Date = DateTime.Now;
+        Data.UserName = applicationUser.UserName;
+    }
+
+    void backUrl()
+    {
+        NavigationManager.NavigateTo("soCustomer");
+    }
+    void ResetForm()
+    {
+
+        //employee = new EmployeeResponse();Data
+        SoCustomerId = -1;
+        ActiveTabIndex = 0;
+        ActiveSubTabIndex = 0;
+        NavigationManager.NavigateTo("AddSalesOrder");
+    }
+
+    async void onsubmitClick()
+    {
+
+        if(Data.SoSalesOrderId > 0)
+        {
+            var editModel = new SoSalesOrder();
+            var createReq = new EditSoSalesOrderCommand
+                {
+                    
+                    SoSalesOrderId = Data.SoSalesOrderId,
+                    SoCustomerId = Data.SoCustomerId,
+                    Remark = Data.Remark,
+                    DocumentDate = Data.DocumentDate,
+                    OrderDate = Data.OrderDate,
+                    PrioityDeliveryDate = Data.PrioityDeliveryDate,
+                    SignOrderNo = Data.SignOrderNo,   
+                    AddedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedByUserId = applicationUser.UserID,                   
+                    ModifiedDate = DateTime.Now,
+                    SessionId = Data.SessionId,
+                    StatusCodeId = 1
+
+                };
+
+            await Mediator.Send(createReq);
+          
+
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+        else
+        {
+            var editModel = new SoSalesOrder();
+            var createReq = new CreateSoSalesOrderCommand
+                {
+                    SoCustomerId = Data.SoCustomerId,
+                    Remark = Data.Remark,
+                    DocumentDate = Data.DocumentDate,
+                    OrderDate = Data.OrderDate,
+                    PrioityDeliveryDate = Data.PrioityDeliveryDate,
+                    SignOrderNo = Data.SignOrderNo,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+                    StatusCodeId = 1
+
+                };
+
+            var result = await Mediator.Send(createReq);
+
+            //SoSalesOrderId = result.SoSalesOrderId;
+
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            
+        }
+
+        ActiveTabIndex = 1;
+        ActiveSubTabIndex = 1;
+    }
+   
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        StateHasChanged();
+    }
+    void HandleInvalidSubmit()
+    {
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }       
+    }
+}

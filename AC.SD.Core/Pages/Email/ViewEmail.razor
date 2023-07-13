@@ -1800,6 +1800,15 @@
             //await JSRuntime.InvokeAsync<string>("showLoading");
             _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));          
             //await JSRuntime.InvokeAsync<string>("hideLoading");
+
+            
+        if (_topicDocList.Count > 0)
+        {
+            _selectlst = _topicDocList.FirstOrDefault();
+            //EditEnabled = true;
+            //DeleteEnabled = true;
+            StateHasChanged();
+        }
         }
 
     }
@@ -2005,12 +2014,9 @@
             _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
         }
 
-
-
-
-
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
+
     }
     async Task onloadTwoGrid()
     {

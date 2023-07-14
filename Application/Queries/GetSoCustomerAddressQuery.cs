@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace Application.Queries
 {
-    public class GetSoCustomerAddressQuery : Address, IRequest<List<Address>>
+    public class GetSoCustomerAddressQuery : view_SoCustomerAddress, IRequest<List<view_SoCustomerAddress>>
     {
         public string SearchString { get; set; }
     }
-    public class GetSoCustomerAddressByTypeQuery : Address, IRequest<List<Address>>
+    public class GetSoCustomerAddressByTypeQuery : view_SoCustomerAddress, IRequest<List<Address>>
     {
         public string AddressType { get; set; }
         public long? CustomerId { get; set; }
@@ -24,11 +24,11 @@ namespace Application.Queries
             this.CustomerId = CustomerId;
         }
     }
-    public class CreateCustomerAddress : Address, IRequest<long>
+    public class CreateCustomerAddress : view_SoCustomerAddress, IRequest<long>
     {
         public string SearchString { get; set; }
     }
-    public class EditCustomerAddress : Address, IRequest<long>
+    public class EditCustomerAddress : view_SoCustomerAddress, IRequest<long>
     {
         public string SearchString { get; set; }
     }

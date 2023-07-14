@@ -194,8 +194,8 @@
     private ViewLevel _selectedItems;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     bool Blukdeletepopup { get; set; } = false;
-    bool EditEnabled { get; set; } = true;
-    bool DeleteEnabled { get; set; } = true;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
@@ -214,7 +214,8 @@
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
+       
         PanelVisible = false;
         await UpdateDataAsync();
         if (Type == "Designation")
@@ -249,9 +250,13 @@
         if (_levelItems.Count > 0)
         {
             _selectedItems = _levelItems.FirstOrDefault();
-            EditEnabled = true;
-            DeleteEnabled = true;
-            StateHasChanged();
+            if (SelectedDataItems != null)
+            {
+                EditEnabled = true;
+                DeleteEnabled = true;
+                StateHasChanged();
+            }
+
         }
        // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
@@ -456,6 +461,12 @@
         else
         {
             EditEnabled = true;
+        }
+        if (SelectedDataItems != null)
+        {
+
+            DeleteEnabled = true;
+            StateHasChanged();
         }
     }
     void ResetDesignation()

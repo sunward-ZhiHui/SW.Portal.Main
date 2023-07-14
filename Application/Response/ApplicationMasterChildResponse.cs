@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Application.Response
 {
-    public class ApplicationMasterChild
+    public class ApplicationMasterChildResponse
     {
-        [Key]
         public long ApplicationMasterChildId { get; set; }
         public long? ApplicationMasterParentId { get; set; }
         public string? Value { get; set; }
+        public string? Label { get; set; }
         public string? Description { get; set; }
         public long? ParentId { get; set; }
         public Guid? SessionId { get; set; }

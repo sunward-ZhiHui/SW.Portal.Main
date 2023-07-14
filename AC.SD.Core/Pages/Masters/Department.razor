@@ -211,8 +211,8 @@
     private ViewDepartment _selectedItems;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     bool Blukdeletepopup { get; set; } = false;
-    bool EditEnabled { get; set; } = true;
-    bool DeleteEnabled { get; set; } = true;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     string? DeleteerrorMessage;
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
@@ -223,18 +223,19 @@
     private ViewDepartment _selectlst;
     private ViewPlants _selectplant;
     private ViewDivision _selectdivision;
- //   private List<ViewDivision> _divisions;
+    //   private List<ViewDivision> _divisions;
 
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-       // await jsRuntime.InvokeAsync<string>("showLoading");
+        // await jsRuntime.InvokeAsync<string>("showLoading");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _divisionsItems = await Mediator.Send(new GetAllDivisionQuery());
-     //   _divisions = await Mediator.Send(new GetAllDivisionQuery());
+        //   _divisions = await Mediator.Send(new GetAllDivisionQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-       //await jsRuntime.InvokeAsync<string>("hideLoading");
+        //await jsRuntime.InvokeAsync<string>("hideLoading");
+       
         PanelVisible = false;
         await UpdateDataAsync();
         if (Type == "Division")
@@ -302,9 +303,12 @@
         if (_departmentItems.Count > 0)
         {
             _selectedItems = _departmentItems.FirstOrDefault();
-            EditEnabled = true;
-            DeleteEnabled = true;
-            StateHasChanged();
+            if (SelectedDataItems != null)
+            {
+                EditEnabled = true;
+                DeleteEnabled = true;
+                StateHasChanged();
+            }
         }
       //  await jsRuntime.InvokeAsync<string>("hideLoading");
     }
@@ -495,6 +499,12 @@
         else
         {
             EditEnabled = true;
+        }
+        if (SelectedDataItems != null)
+        {
+
+            DeleteEnabled = true;
+            StateHasChanged();
         }
     }
     void ResetDivision()

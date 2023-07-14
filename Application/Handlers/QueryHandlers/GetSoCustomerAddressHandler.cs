@@ -12,16 +12,16 @@ using System.Threading.Tasks;
 
 namespace Application.Handlers.QueryHandlers
 {
-    public class GetSoCustomerAddressHandler : IRequestHandler<GetSoCustomerAddressQuery, List<Address>>
+    public class GetSoCustomerAddressHandler : IRequestHandler<GetSoCustomerAddressQuery, List<view_SoCustomerAddress>>
     {
         private readonly ISoCustomerAddressQueryRepository _soCustomerAddressQueryRepository;
         public GetSoCustomerAddressHandler(ISoCustomerAddressQueryRepository soCustomerAddressQueryRepository)
         {
             _soCustomerAddressQueryRepository = soCustomerAddressQueryRepository;
         }
-        public async Task<List<Address>> Handle(GetSoCustomerAddressQuery request, CancellationToken cancellationToken)
+        public async Task<List<view_SoCustomerAddress>> Handle(GetSoCustomerAddressQuery request, CancellationToken cancellationToken)
         {           
-            return (List<Address>)await _soCustomerAddressQueryRepository.GetAllAsync();
+            return (List<view_SoCustomerAddress>)await _soCustomerAddressQueryRepository.GetAllAsync();
         }
     }
 

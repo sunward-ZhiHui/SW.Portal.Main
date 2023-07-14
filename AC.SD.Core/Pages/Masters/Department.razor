@@ -107,6 +107,7 @@
                             TextFieldName="DivisionDrop"
                             ValueFieldName="DivisionID"
                             Enabled="@isEnabled"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemChanged(plantSelect))"
                             @bind-Value="@department.DivisionId"
                             ShowValidationIcon="true">
@@ -303,12 +304,11 @@
         if (_departmentItems.Count > 0)
         {
             _selectedItems = _departmentItems.FirstOrDefault();
-            if (SelectedDataItems != null)
-            {
+          
                 EditEnabled = true;
                 DeleteEnabled = true;
                 StateHasChanged();
-            }
+            
         }
       //  await jsRuntime.InvokeAsync<string>("hideLoading");
     }
@@ -419,33 +419,33 @@
     }
     void addEdit()
     {
-        if (SelectedDataItems.Count == 1)
-        {
+        //if (SelectedDataItems.Count == 1)
+        //{
 
-            foreach (object item in SelectedDataItems)
-            {
+        //    foreach (object item in SelectedDataItems)
+        //    {
 
-                if (item is ViewDepartment viewDepartment)
-                {
+        //        if (item is ViewDepartment viewDepartment)
+        //        {
 
-                    _selectlst = _departmentItems.FirstOrDefault(f => f.DepartmentId == viewDepartment.DepartmentId);
+        //            _selectlst = _departmentItems.FirstOrDefault(f => f.DepartmentId == viewDepartment.DepartmentId);
 
 
-                }
-            }
-            Grid.StartEditDataItemAsync(_selectlst);
-        }
-        else
-        {
+        //        }
+        //    }
+        //    Grid.StartEditDataItemAsync(_selectlst);
+        //}
+        //else
+        //{
             Grid.StartEditDataItemAsync(_selectedItems);
-        }
+        //}
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+       // UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -471,9 +471,10 @@
                         // var editableDepartment = (ViewDepartment)e.DataItem;
                         var request = new DeleteDepartmentCommand(forumdepartment.DepartmentId);
                         await Mediator.Send(request);
-                        UpdateDataAsync();
+                       
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                      await  UpdateDataAsync();
                         Grid.SetFocusedRowIndex(0);
                     }
 
@@ -482,11 +483,13 @@
         }
         catch (Exception eq)
         {
-            DeleteerrorMessage = eq.Message;
-            PopupVisible = true;
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
 
-        await UpdateDataAsync();
+      //  await UpdateDataAsync();
     }
 
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
@@ -500,12 +503,7 @@
         {
             EditEnabled = true;
         }
-        if (SelectedDataItems != null)
-        {
-
-            DeleteEnabled = true;
-            StateHasChanged();
-        }
+       
     }
     void ResetDivision()
     {

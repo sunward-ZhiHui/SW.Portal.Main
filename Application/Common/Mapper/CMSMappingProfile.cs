@@ -22,6 +22,7 @@ using Application.Command.AssetPartsMaintenaceMasters;
 using Application.Command.SoSalesOrder;
 using Application.Command.SoSalesOrderLine;
 using Application.Command.ApplicationMasterDetails;
+using Application.Command.ApplicationMasterChilds;
 
 namespace Application.Common.Mapper
 {
@@ -143,6 +144,10 @@ namespace Application.Common.Mapper
             CreateMap<ApplicationMasterDetail, CreateApplicationMasterDetailCommand>().ReverseMap();
             CreateMap<ApplicationMasterDetail, EditApplicationMasterDetailCommand>().ReverseMap();
             CreateMap<ApplicationMasterDetail, DeleteApplicationMasterDetailCommand>().ReverseMap();
+
+            CreateMap<ApplicationMasterChild, CreateApplicationMasterChildCommand>().ReverseMap();
+            CreateMap<ApplicationMasterChild, EditApplicationMasterChildCommand>().ReverseMap();
+            CreateMap<ApplicationMasterChild, DeleteApplicationMasterChildCommand>().ReverseMap();
         }
     }
 }

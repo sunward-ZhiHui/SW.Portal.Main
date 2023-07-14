@@ -24,14 +24,17 @@ namespace Application.Handlers.CommandHandler
             try
             {
                 var queryEntity = await _queryRepository.GetByIdAsync(request.Id);
-                var data = new ApplicationMasterDetail
+                if (queryEntity != null)
                 {
-                    ApplicationMasterDetailId= request.Id,
-                    ApplicationMasterId = queryEntity.ApplicationMasterID.Value,
-                    Value=queryEntity.Value,
-                    Description= queryEntity.Description,
-                };
-                await _commandRepository.DeleteAsync(data);
+                    var data = new ApplicationMasterDetail
+                    {
+                        ApplicationMasterDetailId = request.Id,
+                        ApplicationMasterId = queryEntity.ApplicationMasterID.Value,
+                        Value = queryEntity.Value,
+                        Description = queryEntity.Description,
+                    };
+                    await _commandRepository.DeleteAsync(data);
+                }
             }
             catch (Exception exp)
             {

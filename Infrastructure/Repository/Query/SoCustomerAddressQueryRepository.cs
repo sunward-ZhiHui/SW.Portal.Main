@@ -13,22 +13,21 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Repository.Query
 {
-    public class SoCustomerAddressQueryRepository : QueryRepository<Address>, ISoCustomerAddressQueryRepository
+    public class SoCustomerAddressQueryRepository : QueryRepository<view_SoCustomerAddress>, ISoCustomerAddressQueryRepository
     {
         public SoCustomerAddressQueryRepository(IConfiguration configuration) : base(configuration)
         {
         }
 
-        public async Task<IReadOnlyList<Address>> GetAllAsync()
+        public async Task<IReadOnlyList<view_SoCustomerAddress>> GetAllAsync()
         {
             try
             {
-                var query = @"SELECT AD.Address1,AD.Address2,AD.AddressID,AD.PostCode,AD.City,AD.Country,AD.CountryCode,SCA.SoCustomerAddressId,SCA.CustomerId,SCA.AddressType,SCA.isBilling,SCA.isShipping from [Address] AD
-                                INNER JOIN SoCustomerAddress SCA ON SCA.AddressId = AD.AddressID";
+                var query = @"SELECT * from view_SoCustomerAddress";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<Address>(query)).ToList();
+                    return (await connection.QueryAsync<view_SoCustomerAddress>(query)).ToList();
                 }
             }
             catch (Exception exp)
@@ -36,7 +35,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<long> Insert(Address address)
+        public async Task<long> Insert(view_SoCustomerAddress address)
         {
             try
             {
@@ -52,11 +51,11 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("Address1", address.Address1);
                             parameters.Add("Address2", address.Address2);
                             parameters.Add("PostCode", address.PostCode);
-                            parameters.Add("City", address.City);
-                            parameters.Add("Country", address.Country);
-                            parameters.Add("CountryCode", address.CountryCode);
+                            parameters.Add("CountryID", address.CountryID);
+                            parameters.Add("StateID", address.StateID);
+                            parameters.Add("CityID", address.CityID);
 
-                            var query = "INSERT INTO [Address](Address1,Address2,PostCode,City,Country,CountryCode) OUTPUT INSERTED.AddressID VALUES (@Address1,@Address2,@PostCode,@City,@Country,@CountryCode)";
+                            var query = "INSERT INTO [Address](Address1,Address2,PostCode,CountryID,StateID,CityID) OUTPUT INSERTED.AddressID VALUES (@Address1,@Address2,@PostCode,@CountryID,@StateID,@CityID)";
 
                             var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
 
@@ -78,7 +77,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<long> EditAddress(Address address)
+        public async Task<long> EditAddress(view_SoCustomerAddress address)
         {
             try
             {
@@ -114,12 +113,12 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("Address1", address.Address1);
                             parameters.Add("Address2", address.Address2);
                             parameters.Add("PostCode", address.PostCode);
-                            parameters.Add("City", address.City);
-                            parameters.Add("Country", address.Country);
-                            parameters.Add("CountryCode", address.CountryCode);
+                            parameters.Add("CountryID", address.CountryID);
+                            parameters.Add("StateID", address.StateID);
+                            parameters.Add("CityID", address.CityID);
 
 
-                            var query = "UPDATE Address SET Address1 = @Address1,Address2 = @Address2,PostCode = @PostCode,City=@City,Country= @Country,CountryCode =@CountryCode WHERE AddressID = @AddressID";
+                            var query = "UPDATE Address SET Address1 = @Address1,Address2 = @Address2,PostCode = @PostCode,CountryID=@CountryID,StateID= @StateID,CityID =@CityID WHERE AddressID = @AddressID";
 
                             var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
 

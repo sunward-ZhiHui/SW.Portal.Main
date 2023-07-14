@@ -426,6 +426,9 @@ namespace SWSoapService
                 result.ReaderQuotas = System.Xml.XmlDictionaryReaderQuotas.Max;
                 result.MaxReceivedMessageSize = int.MaxValue;
                 result.AllowCookies = true;
+                result.Security.Mode = System.ServiceModel.BasicHttpSecurityMode.TransportCredentialOnly;
+                result.Security.Transport.ClientCredentialType = System.ServiceModel.HttpClientCredentialType.Windows;
+                result.Security.Transport.ProxyCredentialType = System.ServiceModel.HttpProxyCredentialType.Windows;
                 return result;
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));

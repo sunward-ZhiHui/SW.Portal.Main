@@ -82,13 +82,11 @@
 
 	  <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.5" />
 
+	  <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
+
 	  <PackageReference Include="Toast.Blazor" Version="1.0.2" />
 
 	  <PackageReference Include="ViewerJsBlazor" Version="1.0.0" />
-
-	  <Reference Include="Devexpress.blazor.v23.1">
-	    <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.Blazor.v23.1.dll</HintPath>
-	  </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AC.SD.Model\AC.SD.Model.csproj" />
@@ -103,4 +101,10 @@
   <ItemGroup>
     <None Include="Pages\HR\Employee.razor" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="DevExpress.Blazor.v23.1">
+      <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.Blazor.v23.1.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

@@ -110,6 +110,7 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="SubSectionDrop"
                             ValueFieldName="SubSectionId"
+                               
                             Enabled="@isEnabled"
                             @bind-Value="@plant.SubSectionID"
                             SelectedItemChanged="@((ViewSubSection plantSelect) => SelectedItemChanged(plantSelect))"
@@ -121,6 +122,7 @@
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
                             FilteringMode="DataGridFilteringMode.Contains"
+                             
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
                             Enabled="@isEnabled"
@@ -130,6 +132,7 @@
                 <DxComboBox Data="@_divisions"
                             NullText="Select Division..."
                             FilteringMode="DataGridFilteringMode.Contains"
+                              
                             TextFieldName="Name"
                             ValueFieldName="DivisionID"
                             Enabled="@isEnabled"
@@ -141,6 +144,7 @@
                 <DxComboBox Data="@_departments"
                             NullText="Select Department..."
                             FilteringMode="DataGridFilteringMode.Contains"
+                              
                             TextFieldName="DepartmentName"
                             ValueFieldName="DepartmentId"
                             Enabled="@isEnabled"
@@ -152,6 +156,7 @@
                 <DxComboBox Data="@_sections"
                             NullText="Select Section..."
                             FilteringMode="DataGridFilteringMode.Contains"
+                               
                             TextFieldName="SectionName"
                             ValueFieldName="SectionId"
                             ReadOnly="true"
@@ -164,6 +169,7 @@
                 <DxComboBox Data="@levelItems"
                             NullText="Select Level Master..."
                             FilteringMode="DataGridFilteringMode.Contains"
+                                
                             TextFieldName="Name"
                             ValueFieldName="LevelID"
                             @bind-Value="@plant.LevelID"
@@ -191,6 +197,7 @@
                 <DxComboBox Data="@_stausItems"
                             NullText="Select Status..."
                             FilteringMode="DataGridFilteringMode.Contains"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             TextFieldName="CodeValue"
                             ValueFieldName="CodeId"
                                 @bind-Text="@Text"
@@ -339,12 +346,11 @@
         if (_designationItems.Count > 0)
         {
             _selectedItems = _designationItems.FirstOrDefault();
-            if (SelectedDataItems != null)
-            {
+            
                 EditEnabled = true;
                 DeleteEnabled = true;
                 StateHasChanged();
-            }
+           
         }
        // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
@@ -495,26 +501,26 @@
     }
     void addEdit()
     {
-        if (SelectedDataItems.Count == 1)
-        {
+        //if (SelectedDataItems.Count == 1)
+        //{
 
-            foreach (object item in SelectedDataItems)
-            {
+        //    foreach (object item in SelectedDataItems)
+        //    {
 
-                if (item is ViewDesignation viewDesignation)
-                {
+        //        if (item is ViewDesignation viewDesignation)
+        //        {
 
-                    _selectlst = _designationItems.FirstOrDefault(f => f.DesignationID == viewDesignation.DesignationID);
+        //            _selectlst = _designationItems.FirstOrDefault(f => f.DesignationID == viewDesignation.DesignationID);
 
 
-                }
-            }
-            Grid.StartEditDataItemAsync(_selectlst);
-        }
-        else
-        {
+        //        }
+        //    }
+        //    Grid.StartEditDataItemAsync(_selectlst);
+        //}
+        //else
+        //{
             Grid.StartEditDataItemAsync(_selectedItems);
-        }
+       // }
 
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
@@ -522,7 +528,7 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+       // UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -560,8 +566,10 @@
     }
         catch (Exception eq)
         {
-            DeleteerrorMessage = eq.Message;
-            PopupVisible = true;
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
 
     await UpdateDataAsync();
@@ -578,12 +586,7 @@
         {
             EditEnabled = true;
         }
-        if (SelectedDataItems != null)
-        {
-
-            DeleteEnabled = true;
-            StateHasChanged();
-        }
+       
     }
      void ResetSubSection()
     {

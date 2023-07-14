@@ -71,16 +71,18 @@
             var ict = (ViewIctmaster)EditFormContext.EditModel;
         }
 
-
+            <DataAnnotationsValidator />
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                <DxComboBox Data="@_plantItems"
+                <DxComboBox  Data="@_plantItems"
                             NullText="Select Company..."
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
                             @bind-Value="@ict.CompanyId"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             ShowValidationIcon="true">
+                        <ValidationMessage For="@(() =>@ict.CompanyId)" />
                 </DxComboBox>
             </DxFormLayoutItem>
 
@@ -158,8 +160,8 @@
     private ViewIctmaster _selectedItems;
     private List<ViewIctmaster> _ictmasterList;
     IReadOnlyList<object> SelectedDataItems { get; set; }
-    bool EditEnabled { get; set; } = true;
-    bool DeleteEnabled { get; set; } = true;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
@@ -196,9 +198,12 @@
         {
 
             _selectedItems = _ictmasterList.FirstOrDefault();
-            EditEnabled = true;
-            DeleteEnabled = true;
-            StateHasChanged();
+          
+                EditEnabled = true;
+                DeleteEnabled = true;
+                StateHasChanged();
+            
+            
         }
        // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
@@ -313,7 +318,7 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+       // UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -339,26 +344,26 @@
     }
     void addEdit()
     {
-        if (SelectedDataItems.Count == 1)
-        {
+        //if (SelectedDataItems.Count == 1)
+        //{
 
-            foreach (object item in SelectedDataItems)
-            {
+        //    foreach (object item in SelectedDataItems)
+        //    {
 
-                if (item is ViewIctmaster viewIctmaster)
-                {
+        //        if (item is ViewIctmaster viewIctmaster)
+        //        {
 
-                    _selectlst = _ictmaster.FirstOrDefault(f => f.IctmasterId == viewIctmaster.IctmasterId);
+        //            _selectlst = _ictmaster.FirstOrDefault(f => f.IctmasterId == viewIctmaster.IctmasterId);
 
 
-                }
-            }
-            Grid.StartEditDataItemAsync(_selectlst);
-        }
-        else
-        {
+        //        }
+        //    }
+        //    Grid.StartEditDataItemAsync(_selectlst);
+        //}
+        //else
+        //{
             Grid.StartEditDataItemAsync(_selectedItems);
-        }
+       // }
     }
     void addDelete()
     {
@@ -381,7 +386,7 @@
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        await UpdateDataAsync();
+                       await UpdateDataAsync();
                         Grid.SetFocusedRowIndex(0);
                     }
 
@@ -390,10 +395,12 @@
         }
         catch (Exception eq)
         {
-            DeleteerrorMessage = eq.Message;
-            PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Company have Site So this Record  Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
         }
-        await UpdateDataAsync();
+      
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
@@ -406,6 +413,7 @@
         {
             EditEnabled = true;
         }
+
     }
     async Task AddZone()
     {

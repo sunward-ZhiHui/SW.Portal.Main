@@ -49,7 +49,7 @@ namespace Infrastructure.Repository.Query
             }
             catch (Exception exp)
             {
-                throw new Exception(exp.Message, exp);
+                throw new Exception(exp.Message, exp.InnerException);
             }
         }
         public async Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByIdAsync(long? Id)

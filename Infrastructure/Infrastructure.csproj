@@ -51,10 +51,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Service\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="DevExpress.Blazor.v23.1">
       <!--<HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.Blazor.v23.1.dll</HintPath>-->
     </Reference>

@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Application.Response;
+using MediatR;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Application.Command.ApplicationMasterChilds
 {
-    public class ApplicationMasterChild
+    public class EditApplicationMasterChildCommand : IRequest<ApplicationMasterChildResponse>
     {
-        [Key]
         public long ApplicationMasterChildId { get; set; }
         public long? ApplicationMasterParentId { get; set; }
         public string? Value { get; set; }
@@ -21,5 +21,8 @@ namespace Core.Entities
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public EditApplicationMasterChildCommand()
+        {
+        }
     }
 }

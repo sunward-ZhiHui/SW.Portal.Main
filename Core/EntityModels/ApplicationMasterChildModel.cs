@@ -9,10 +9,12 @@ namespace Core.EntityModels
 {
     public class ApplicationMasterChildModel
     {
-        [Key]
+        
         public long ID { get; set; }
+        public long Index { get; set; }
         public long ApplicationMasterChildId { get; set; }
         public long? ApplicationMasterParentId { get; set; }
+        [Required(ErrorMessage = "Name is Required")]
         public string? Value { get; set; }
         public string? Label { get; set; }
         public string? Description { get; set; }

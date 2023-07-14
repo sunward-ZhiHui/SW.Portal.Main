@@ -16,6 +16,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByAsync(string Ids);
         Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllAsync(string Ids);
         Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByIdAsync(long? Id);
+        Task<ApplicationMasterChildModel> GetAllByChildIDAsync(long? Id);
         
+
     }
 }

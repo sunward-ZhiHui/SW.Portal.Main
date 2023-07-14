@@ -111,6 +111,8 @@ namespace Infrastructure
             services.AddTransient<INavItemsQueryRepository, NavItemsQueryRepository>();
             services.AddTransient<INavItemsCommandRepository, NavItemsCommandRepository>();
             services.AddTransient<IApplicationMasterDetailCommandRepository, ApplicationMasterDetailCommandRepository>();
+            services.AddTransient<IApplicationMasterParentQueryRepository, ApplicationMasterParentQueryRepository>();
+            services.AddTransient<IApplicationMasterChildCommandRepository, ApplicationMasterChildCommandRepository>();
             return services;
         }
     }

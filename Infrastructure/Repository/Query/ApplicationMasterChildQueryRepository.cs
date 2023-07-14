@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.Entities.Views;
 using Core.EntityModels;
+using IdentityModel.Client;
 
 namespace Infrastructure.Repository.Query
 {
@@ -29,6 +30,21 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ApplicationMasterChildModel> GetAllByChildIDAsync(long? Id)
+        {
+            try
+            {
+                var query = "select * from ApplicationMasterChild where ApplicationMasterChildId =" + Id + "";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<ApplicationMasterChildModel>(query);
                 }
             }
             catch (Exception exp)

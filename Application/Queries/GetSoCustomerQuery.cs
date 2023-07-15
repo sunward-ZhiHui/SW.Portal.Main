@@ -20,4 +20,9 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+
+    public class GetPostSalesOrder : PagedRequest, IRequest<List<PostSalesOrder>>
+    {
+        public string SearchString { get; set; }
+    }
 }

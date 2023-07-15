@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Command\NewFolder1\" />
+    <Compile Remove="Command\NewFolder1\**" />
+    <EmbeddedResource Remove="Command\NewFolder1\**" />
+    <None Remove="Command\NewFolder1\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Interface\" />
     <Folder Include="Model\" />
     <Folder Include="Services\" />

@@ -23,6 +23,7 @@ using Application.Command.SoSalesOrder;
 using Application.Command.SoSalesOrderLine;
 using Application.Command.ApplicationMasterDetails;
 using Application.Command.ApplicationMasterChilds;
+using Application.Command.PostSalesOrder;
 
 namespace Application.Common.Mapper
 {
@@ -140,6 +141,11 @@ namespace Application.Common.Mapper
             CreateMap<SoSalesOrderLine, EditSoSalesOrderLineCommand>().ReverseMap();
             CreateMap<SoSalesOrderLine, DeleteSoSalesOrderLineCommand>().ReverseMap();
             CreateMap<Navitems, EditNavItemsCommand>().ReverseMap();
+
+            CreateMap<PostSalesOrder, PostSalesOrderResponse>().ReverseMap();
+            CreateMap<PostSalesOrder, CreatePostSalesOrderCommand>().ReverseMap();
+            CreateMap<PostSalesOrder, EditPostSalesOrderCommand>().ReverseMap();
+
 
             CreateMap<ApplicationMasterDetail, CreateApplicationMasterDetailCommand>().ReverseMap();
             CreateMap<ApplicationMasterDetail, EditApplicationMasterDetailCommand>().ReverseMap();

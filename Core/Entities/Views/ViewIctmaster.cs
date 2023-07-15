@@ -12,6 +12,7 @@ namespace Core.Entities.Views
         [Key]
         public long IctmasterId { get; set; }
         public int Index { get; set; }
+
         [Required(ErrorMessage = "Please Select Company")]
         public long CompanyId { get; set; }
         public long? ParentIctid { get; set; }

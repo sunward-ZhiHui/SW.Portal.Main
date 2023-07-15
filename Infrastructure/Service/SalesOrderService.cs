@@ -1,4 +1,8 @@
-﻿using Infrastructure.Service.Config;
+﻿using Core.Entities;
+using Core.Entities.Views;
+using Core.Repositories.Query;
+using Infrastructure.Repository.Query.Base;
+using Infrastructure.Service.Config;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -10,16 +14,20 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Service
 {
-    public class SalesOrderService
+    public class SalesOrderService : QueryRepository<PostSalesOrder>, ISalesOrderService
     {
         private readonly IConfiguration _configuration;
 
-        public SalesOrderService(IConfiguration configuration)
+        //public SalesOrderService(IConfiguration configuration)
+        //{
+        //    _configuration = configuration;
+        //}
+        public SalesOrderService(IConfiguration configuration): base(configuration)
         {
             _configuration = configuration;
         }
 
-        public async Task PostSalesOrderAsync(string salesOrderNo)
+        public async Task PostSalesOrderAsync(PostSalesOrder postSalesOrder)
         {
             try
             {

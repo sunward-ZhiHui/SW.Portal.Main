@@ -102,11 +102,10 @@
                     SelectedItemChanged(ict.CompanyId);
                 }
                 @* <DxSpinEdit @bind-Value="@ict.SiteId" Rows="5" />*@
+                 @*   SelectedItemChanged="@((ViewIctmaster plant) => SelectedChanged(plant.IctmasterId))"*@
                 <DxComboBox Data="@_masterCompany"
                             NullText="Select Site..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            SelectedItemChanged="@((ViewIctmaster plant) => SelectedChanged(plant.IctmasterId))"
-                                
+                            FilteringMode="DataGridFilteringMode.Contains"  
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.SiteId"
@@ -119,10 +118,10 @@
                 @{
                     SelectedChanged(ict.SiteId);
                 }
+                  @*  SelectedItemChanged="@((ViewIctmaster plant) => SelectChanged(plant.IctmasterId))"*@
                 <DxComboBox Data="@_masterSite"
                             NullText="Select Zone..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                                
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.ZoneId"
@@ -139,7 +138,6 @@
                 <DxComboBox Data="@_masterZone"
                             NullText="Select Location..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.ParentIctid"
@@ -176,7 +174,7 @@
                 <div > Do you want to delete</div>
 
         </p>
-    </Content>
+    </Content>SelectedItemChanged="@((ViewIctmaster plant) => SelectedChanged(plant.IctmasterId))"
 
         <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
@@ -305,9 +303,9 @@
             newmaster.Name = "";
             newmaster.Description = "";
             newmaster.StatusCodeId = null;
-            _masterCompany = new List<ViewIctmaster>();
-            _masterSite = new List<ViewIctmaster>();
-            _masterZone = new List<ViewIctmaster>();
+            //_masterCompany = new List<ViewIctmaster>();
+            //_masterSite = new List<ViewIctmaster>();
+            //_masterZone = new List<ViewIctmaster>();
             if (Type == "Location")
             {
                 var _ictmasters = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
@@ -478,9 +476,9 @@
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        _masterCompany = new List<ViewIctmaster>();
-        _masterSite = new List<ViewIctmaster>();
-        _masterZone = new List<ViewIctmaster>();
+        //_masterCompany = new List<ViewIctmaster>();
+        //_masterSite = new List<ViewIctmaster>();
+        //_masterZone = new List<ViewIctmaster>();
     }
     void addEdit()
     {

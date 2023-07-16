@@ -106,8 +106,7 @@
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="DivisionDrop"
                             ValueFieldName="DivisionID"
-                            Enabled="@isEnabled"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            Enabled="@isEnabled"                             
                             SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemChanged(plantSelect))"
                             @bind-Value="@department.DivisionId"
                             ShowValidationIcon="true">

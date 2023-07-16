@@ -91,7 +91,6 @@
                             NullText="Select Company..."
                             SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"
                             FilteringMode="DataGridFilteringMode.Contains"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
                             @bind-Value="@ict.CompanyId"
@@ -104,12 +103,12 @@
                 @{
                     SelectedItemChanged(ict.CompanyId);
                 }
-                @* <DxSpinEdit @bind-Value="@ict.SiteId" Rows="5" />*@
+                    @* <DxSpinEdit @bind-Value="@ict.SiteId" Rows="5" /> *@
+                    @* SelectedItemChanged="@((ViewIctmaster plant) => SelecteChanged(plant.IctmasterId))"*@
+               
                 <DxComboBox Data="@_masterCompany"
                             NullText="Select Site..."
-                            SelectedItemChanged="@((ViewIctmaster plant) => SelecteChanged(plant.IctmasterId))"
                             FilteringMode="DataGridFilteringMode.Contains"
-                              
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.SiteId"
@@ -124,8 +123,7 @@
                 }
                 <DxComboBox Data="@_masterSite"
                             NullText="Select Zone..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                               
+                            FilteringMode="DataGridFilteringMode.Contains"  
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.ParentIctid"
@@ -290,8 +288,8 @@
             newmaster.Name = "";
             newmaster.Description = "";
             newmaster.StatusCodeId = null;
-            _masterCompany = new List<ViewIctmaster>();
-            _masterSite = new List<ViewIctmaster>();
+           // _masterCompany = new List<ViewIctmaster>();
+           // _masterSite = new List<ViewIctmaster>();
             if (Type == "Zone")
             {
                 var _ictmasters = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
@@ -448,8 +446,8 @@
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        _masterCompany = new List<ViewIctmaster>();
-        _masterSite = new List<ViewIctmaster>();
+       // _masterCompany = new List<ViewIctmaster>();
+       // _masterSite = new List<ViewIctmaster>();
     }
     void addEdit()
     {

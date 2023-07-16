@@ -109,8 +109,7 @@
                             NullText="Select SubSection..."
                             FilteringMode="DataGridFilteringMode.Contains"
                             TextFieldName="SubSectionDrop"
-                            ValueFieldName="SubSectionId"
-                               
+                            ValueFieldName="SubSectionId"                               
                             Enabled="@isEnabled"
                             @bind-Value="@plant.SubSectionID"
                             SelectedItemChanged="@((ViewSubSection plantSelect) => SelectedItemChanged(plantSelect))"
@@ -143,8 +142,7 @@
             <DxFormLayoutItem Caption="Department" ColSpanMd="6">
                 <DxComboBox Data="@_departments"
                             NullText="Select Department..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                              
+                            FilteringMode="DataGridFilteringMode.Contains"                            
                             TextFieldName="DepartmentName"
                             ValueFieldName="DepartmentId"
                             Enabled="@isEnabled"
@@ -155,8 +153,7 @@
             <DxFormLayoutItem Caption="Section" ColSpanMd="6">
                 <DxComboBox Data="@_sections"
                             NullText="Select Section..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                               
+                            FilteringMode="DataGridFilteringMode.Contains"                              
                             TextFieldName="SectionName"
                             ValueFieldName="SectionId"
                             ReadOnly="true"
@@ -168,8 +165,7 @@
             <DxFormLayoutItem Caption="Level Master" ColSpanMd="6">
                 <DxComboBox Data="@levelItems"
                             NullText="Select Level Master..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                                
+                            FilteringMode="DataGridFilteringMode.Contains"                               
                             TextFieldName="Name"
                             ValueFieldName="LevelID"
                             @bind-Value="@plant.LevelID"
@@ -197,7 +193,6 @@
                 <DxComboBox Data="@_stausItems"
                             NullText="Select Status..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             TextFieldName="CodeValue"
                             ValueFieldName="CodeId"
                                 @bind-Text="@Text"

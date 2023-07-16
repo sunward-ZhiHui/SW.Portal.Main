@@ -13,13 +13,13 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 
 
-<div class="card w-100" style="margin-bottom:10px;">
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                @*<DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />*@
                 <DxMenuItem Text="Post Sales Order" IconCssClass="fa fa-add" Click="@addPostSO" />
                @* <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />*@

@@ -261,7 +261,7 @@
         _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());       
 
         _viewSalesPricingAllowItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(339));
-        _viewSellingMethodItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(262));
+        _viewSellingMethodItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(338));
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");      
         

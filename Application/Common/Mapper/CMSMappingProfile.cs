@@ -26,6 +26,7 @@ using Application.Command.ApplicationMasterChilds;
 using Application.Command.PostSalesOrder;
 using Application.Command.SalesOrderMasterPricings;
 using Application.Command.SalesOrderMasterPricingLine;
+using Application.Command.SalesOrderMasterPricingLineSellingMethods;
 
 namespace Application.Common.Mapper
 {
@@ -164,7 +165,11 @@ namespace Application.Common.Mapper
 
             CreateMap<SalesOrderMasterPricingLine, CreateSalesOrderMasterPricingLineCommand>().ReverseMap();
             CreateMap<SalesOrderMasterPricingLine, EditSalesOrderMasterPricingLineCommand>().ReverseMap();
-            CreateMap<SalesOrderMasterPricingLine, DeleteSalesOrderMasterPricingLineCommand>().ReverseMap();            
+            CreateMap<SalesOrderMasterPricingLine, DeleteSalesOrderMasterPricingLineCommand>().ReverseMap();
+
+            CreateMap<SalesOrderMasterPricingLineSellingMethod, CreateSalesOrderMasterPricingLineSellingMethodCommand>().ReverseMap();
+            CreateMap<SalesOrderMasterPricingLineSellingMethod, EditSalesOrderMasterPricingLineSellingMethodCommand>().ReverseMap();
+            CreateMap<SalesOrderMasterPricingLineSellingMethod, DeleteSalesOrderMasterPricingLineSellingMethodCommand>().ReverseMap();
         }
     }
 }

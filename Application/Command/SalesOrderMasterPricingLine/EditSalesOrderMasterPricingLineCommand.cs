@@ -1,4 +1,5 @@
 ﻿using Application.Response;
+using Core.Entities;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,7 @@ namespace Application.Command.SalesOrderMasterPricingLine
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionId { get; set; }
+        public List<SalesOrderMasterPricingLineSellingMethod> SalesOrderMasterPricingLineSellingMethods { get; set; }
         public EditSalesOrderMasterPricingLineCommand()
         {
         }

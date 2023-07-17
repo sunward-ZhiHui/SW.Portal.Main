@@ -56,9 +56,11 @@ namespace Application.Handlers.CommandHandler
     public class EditSalesOrderMasterPricingLineHandler : IRequestHandler<EditSalesOrderMasterPricingLineCommand, SalesOrderMasterPricingLineResponse>
     {
         private readonly ISalesOrderMasterPricingLineCommandRepository _commandRepository;
-        public EditSalesOrderMasterPricingLineHandler(ISalesOrderMasterPricingLineCommandRepository customerRepository)
+        private readonly ISalesOrderMasterPricingLineSellingMethodCommandRepository _SellingMethodRepository;
+        public EditSalesOrderMasterPricingLineHandler(ISalesOrderMasterPricingLineCommandRepository customerRepository, ISalesOrderMasterPricingLineSellingMethodCommandRepository sellingMethodRepository)
         {
             _commandRepository = customerRepository;
+            _SellingMethodRepository = sellingMethodRepository;
         }
         public async Task<SalesOrderMasterPricingLineResponse> Handle(EditSalesOrderMasterPricingLineCommand request, CancellationToken cancellationToken)
         {
@@ -72,6 +74,27 @@ namespace Application.Handlers.CommandHandler
             try
             {
                 await _commandRepository.UpdateAsync(queryEntity);
+                if (request.SalesOrderMasterPricingLineSellingMethods != null && request.SalesOrderMasterPricingLineSellingMethods.Count > 0)
+                {
+                    request.SalesOrderMasterPricingLineSellingMethods.ForEach(s =>
+                    {
+                        var employeeReportTo = new SalesOrderMasterPricingLineSellingMethod();
+                        employeeReportTo.SalesOrderMasterPricingLineId = request.SalesOrderMasterPricingLineId;
+                        employeeReportTo.TierPrice = s.TierPrice;
+                        employeeReportTo.TierQty = s.TierQty;
+                        employeeReportTo.BounsPrice = s.BounsPrice;
+                        employeeReportTo.BounsFocQty = s.BounsFocQty;
+                        if (s.SalesOrderMasterPricingLineSellingMethodId > 0)
+                        {
+                            employeeReportTo.SalesOrderMasterPricingLineSellingMethodId = s.SalesOrderMasterPricingLineSellingMethodId;
+                            _SellingMethodRepository.UpdateAsync(employeeReportTo);
+                        }
+                        else
+                        {
+                            _SellingMethodRepository.AddAsync(employeeReportTo);
+                        }
+                    });
+                }
             }
             catch (Exception exp)
             {

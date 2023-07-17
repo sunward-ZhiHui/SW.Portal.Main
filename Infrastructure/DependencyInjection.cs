@@ -121,7 +121,7 @@ namespace Infrastructure
             services.AddTransient<ISalesOrderMasterPricingLineSellingMethodQueryRepository, SalesOrderMasterPricingLineSellingMethodQueryRepository>();
             services.AddTransient<ISalesOrderMasterPricingCommandRepository, SalesOrderMasterPricingCommandRepository>();
             services.AddTransient<ISalesOrderMasterPricingLineCommandRepository, SalesOrderMasterPricingLineCommandRepository>();
-
+            services.AddTransient<ISalesOrderMasterPricingLineSellingMethodCommandRepository, SalesOrderMasterPricingLineSellingMethodCommandRepository>();
 
             services.AddTransient<ISalesOrderService, SalesOrderService>();
             return services;

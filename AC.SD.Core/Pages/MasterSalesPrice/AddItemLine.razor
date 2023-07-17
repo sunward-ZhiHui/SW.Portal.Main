@@ -82,10 +82,10 @@
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="SoSalesOrderLineId" Visible="false" />
-            <DxGridDataColumn FieldName="No" Caption="Item No" />           
-            <DxGridDataColumn FieldName="Description" />            
+            <DxGridDataColumn FieldName="No" Caption="Item No" />
+            <DxGridDataColumn FieldName="Description" />
             <DxGridDataColumn FieldName="BaseUnitofMeasure" Caption="Unit of measure" />
-          
+            <DxGridDataColumn FieldName="SellingPrice" Caption="Selling Price" />
             @* <DxGridDataColumn FieldName="AddedDate">
             <CellDisplayTemplate>
             @{
@@ -127,7 +127,7 @@
                                                 Width="90px" />
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
                                                 Caption="Item Serial No"
-                                                Width="180px" />                           
+                                                Width="180px" />
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
                                                 Caption="Description" />
                         </Columns>
@@ -139,6 +139,9 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@BaseUnitofMeasure" Enabled=false />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Selling Price:" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.SellingPrice" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Selling Method" ColSpanMd="6">
                     <DxComboBox Data="@_viewSellingMethodItems"
@@ -258,13 +261,13 @@
     {
 
         PanelVisible = true;
-        _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());       
+        _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
 
         _viewSalesPricingAllowItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(339));
         _viewSellingMethodItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(338));
 
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");      
-        
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
 
         if (SalesOrderMasterPricingId > 0)
         {
@@ -401,6 +404,8 @@
                     SmAllowPriceId = editModel.SmAllowPriceId,
                     NewAllowPrice = editModel.NewAllowPrice,
                     StatusCodeId = 1,
+                    AddedDate = editModel.AddedDate,
+                    AddedByUserId = editModel.AddedByUserId,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
 

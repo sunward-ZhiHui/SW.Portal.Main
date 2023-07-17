@@ -12,6 +12,7 @@ namespace Core.Entities
         [Key]      
         public long SoSalesOrderLineId { get; set; }
         public long? SoSalesOrderId { get; set; }
+        public long? ItemId { get; set; }
         public string ItemSerialNo { get; set; }
         public decimal? Qty { get; set; }
         public decimal? UnitPrice { get; set; }

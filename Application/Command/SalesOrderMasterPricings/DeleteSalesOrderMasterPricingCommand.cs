@@ -16,4 +16,13 @@ namespace Application.Command.SalesOrderMasterPricings
             this.Id = Id;
         }
     }
+    public class DeleteSalesOrderMasterPricingLineCommand : IRequest<String>
+    {
+        public Int64 Id { get; private set; }
+
+        public DeleteSalesOrderMasterPricingLineCommand(Int64 Id)
+        {
+            this.Id = Id;
+        }
+    }
 }

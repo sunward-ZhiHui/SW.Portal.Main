@@ -23,6 +23,7 @@ using Application.Command.SoSalesOrder;
 using Application.Command.SoSalesOrderLine;
 using Application.Command.ApplicationMasterDetails;
 using Application.Command.ApplicationMasterChilds;
+using Application.Command.SalesOrderMasterPricings;
 
 namespace Application.Common.Mapper
 {
@@ -148,6 +149,10 @@ namespace Application.Common.Mapper
             CreateMap<ApplicationMasterChild, CreateApplicationMasterChildCommand>().ReverseMap();
             CreateMap<ApplicationMasterChild, EditApplicationMasterChildCommand>().ReverseMap();
             CreateMap<ApplicationMasterChild, DeleteApplicationMasterChildCommand>().ReverseMap();
+
+            CreateMap<SalesOrderMasterPricing, CreateSalesOrderMasterPricingCommand>().ReverseMap();
+            CreateMap<SalesOrderMasterPricing, EditSalesOrderMasterPricingCommand>().ReverseMap();
+            CreateMap<SalesOrderMasterPricing, DeleteSalesOrderMasterPricingCommand>().ReverseMap();
         }
     }
 }

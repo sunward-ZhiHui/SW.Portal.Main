@@ -113,6 +113,11 @@ namespace Infrastructure
             services.AddTransient<IApplicationMasterDetailCommandRepository, ApplicationMasterDetailCommandRepository>();
             services.AddTransient<IApplicationMasterParentQueryRepository, ApplicationMasterParentQueryRepository>();
             services.AddTransient<IApplicationMasterChildCommandRepository, ApplicationMasterChildCommandRepository>();
+            services.AddTransient<ISalesOrderMasterPricingQueryRepository, SalesOrderMasterPricingQueryRepository>();
+            services.AddTransient<ISalesOrderMasterPricingLineQueryRepository, SalesOrderMasterPricingLineQueryRepository>();
+            services.AddTransient<ISalesOrderMasterPricingLineSellingMethodQueryRepository, SalesOrderMasterPricingLineSellingMethodQueryRepository>();
+            services.AddTransient<ISalesOrderMasterPricingCommandRepository, SalesOrderMasterPricingCommandRepository>();
+            
             return services;
         }
     }

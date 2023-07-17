@@ -37,6 +37,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<View_NavItems>> GetAsyncList()
+        {
+            try
+            {
+                var query = "select  * from NAVItems";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<View_NavItems>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<long> Update(View_NavItems todolist)
         {
             try

@@ -20,7 +20,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<View_NavItems>> Handle(GetAllNavItemsQuery request, CancellationToken cancellationToken)
         {
-            return (List<View_NavItems>)await _queryRepository.GetAllAsync();
+            return (List<View_NavItems>)await _queryRepository.GetAsyncList();
         }
     }
     public class GetAllNavItemsItemSerialNoHandler : IRequestHandler<GetAllNavItemsItemSerialNoQuery, View_NavItems>

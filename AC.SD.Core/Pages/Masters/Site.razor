@@ -80,10 +80,9 @@
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
                             @bind-Value="@ict.CompanyId"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             ShowValidationIcon="true">
-                        <ValidationMessage For="@(() =>@ict.CompanyId)" />
                 </DxComboBox>
+                    <ValidationMessage For="@(() =>@ict.CompanyId)" />
             </DxFormLayoutItem>
 
             <DxFormLayoutItem Caption="Name" ColSpanMd="6">

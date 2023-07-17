@@ -1,0 +1,176 @@
+﻿@using Application.Queries;
+@using DevExtreme.AspNet.Data.ResponseModel;
+@using DevExtreme.AspNet.Data;
+@using Duende.IdentityServer.Models;
+@using MediatR
+@using System.Threading;
+@using System.Text.Json;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@inject NavigationManager NavigationManager
+@page "/masterPricing"
+@inject IJSRuntime jsRuntime
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_salesOrderItems"
+            KeyFieldName="SalesOrderMasterPricingId"
+            EditModelSaving="Grid_EditModelSaving"
+            DataItemDeleting="Grid_DataItemDeleting"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 200px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            RowDoubleClick="OnRowDoubleClick"
+            ShowGroupPanel="true" ShowGroupedColumns="true">
+
+        <Columns>
+            <DxGridDataColumn FieldName="SalesOrderMasterPricingId" Caption="Date" MinWidth="80" Visible="false" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Date" Width="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (View_SalesOrderMasterPricing)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AddedBy" Caption="User" MinWidth="80" />
+            <DxGridDataColumn FieldName="SalesPricingForName" Caption="Sales Pricing For" MinWidth="80" />
+            <DxGridDataColumn FieldName="SignOrderNo" Caption="Sign Order No" MinWidth="80" />
+            <DxGridDataColumn FieldName="OrderDate" Caption="Order Date" MinWidth="80" />
+            <DxGridDataColumn FieldName="CustomerName" Caption="Customer" MinWidth="80" />
+            <DxGridDataColumn FieldName="PrioityDeliveryDate" Caption="Prioity Delivery" Width="180" />
+            <DxGridDataColumn FieldName="Address1" Caption="Delivery Address" Width="180" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SignOrderNo" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+
+@code {
+    private List<View_SalesOrderMasterPricing> _salesOrderItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    private View_SalesOrderMasterPricing _selectedItems;
+    string MasterType = "MasterPrice";
+    IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    bool PanelVisible { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        _salesOrderItems = await Mediator.Send(new GetAllSalesOrderMasterPricingMasterTypeQuery(MasterType));
+        PanelVisible = false;
+        if (_salesOrderItems.Count > 0)
+        {
+            _selectedItems = _salesOrderItems.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SalesOrderMasterPricingId");
+        _selectedItems = _salesOrderItems.FirstOrDefault(f => f.SalesOrderMasterPricingId == (long?)UniqueId);
+
+
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        NavigationManager.NavigateTo("AddSalesOrder");
+    }
+    void addEdit()
+    {
+        NavigationManager.NavigateTo("EditSalesOrder/" + _selectedItems.SessionId + "");
+
+    }
+    void addDelete()
+    {
+        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+
+    }
+    async Task UpdatePlantAsync(ViewPlants editablePlant)
+    {
+
+    }
+    public void ShowDetails(int plantId)
+    {
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+}

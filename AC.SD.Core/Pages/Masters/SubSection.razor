@@ -98,8 +98,7 @@
             <DxFormLayoutItem Caption="Section" ColSpanMd="6">
                 <DxComboBox Data="@_sectionItems"
                             NullText="Select Section..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                               
+                            FilteringMode="DataGridFilteringMode.Contains"                              
                             TextFieldName="SectionDrop"
                             ValueFieldName="SectionId"
                             Enabled  ="@isEnabled"
@@ -137,7 +136,6 @@
                 <DxComboBox Data="@_stausItems"
                             NullText="Select Status..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             ValueFieldName="CodeId"
                             @bind-Text="@Text"
                             TextFieldName="CodeValue"

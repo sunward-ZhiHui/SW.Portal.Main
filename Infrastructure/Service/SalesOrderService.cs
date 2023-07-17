@@ -1,11 +1,13 @@
 ﻿using Core.Entities;
 using Core.Entities.Views;
 using Core.Repositories.Query;
+using Dapper;
 using Infrastructure.Repository.Query.Base;
 using Infrastructure.Service.Config;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Services.Client;
 using System.Linq;
 using System.ServiceModel;
@@ -22,7 +24,7 @@ namespace Infrastructure.Service
         //{
         //    _configuration = configuration;
         //}
-        public SalesOrderService(IConfiguration configuration): base(configuration)
+        public SalesOrderService(IConfiguration configuration) : base(configuration)
         {
             _configuration = configuration;
         }
@@ -31,6 +33,25 @@ namespace Infrastructure.Service
         {
             try
             {
+
+
+                //var query = "SELECT * FROM view_SoSalesOrder  WHERE SoSalesOrderId = @SoSalesOrderId";
+                var soLinequery = "select  * from view_SoSalesOrderLine where SoSalesOrderId =@SoSalesOrderId";
+
+                var soLineparameters = new DynamicParameters();
+                soLineparameters.Add("SoSalesOrderId", postSalesOrder.SoSalesOrderID, DbType.Int64);
+
+                var parameters = new DynamicParameters();
+                parameters.Add("SoSalesOrderId", postSalesOrder.SoSalesOrderID, DbType.Int64);
+                var soOrder = new View_SoSalesOrder();
+                // var soLine = new List<View_SoSalesOrderLine>();
+                using (var connection = CreateConnection())
+                {
+                    // soOrder =  (await connection.QueryFirstOrDefaultAsync<View_SoSalesOrder>(query, parameters));
+                    var soLine = (await connection.QueryAsync<View_SoSalesOrderLine>(soLinequery, soLineparameters));
+                }
+
+
                 string Company = "";
                 var context = new NAVService(_configuration, Company);
                 int EntryNo = 1;
@@ -39,6 +60,7 @@ namespace Infrastructure.Service
                     Entry_No = EntryNo,
                     Entry_Type = "Create Sales",
                     Document_Type = 1,
+                    Customer_No = soOrder.ShipCode,
 
                 };
                 context.Context.AddToSWDWebIntegrationEntry(salesOrder);
@@ -58,7 +80,7 @@ namespace Infrastructure.Service
                 post.ClientCredentials.Windows.ClientCredential.Password = _configuration[Company + ":Password"];
                 post.ClientCredentials.Windows.ClientCredential.Domain = _configuration[Company + ":Domain"];
                 post.ClientCredentials.Windows.AllowedImpersonationLevel =
-                System.Security.Principal.TokenImpersonationLevel.Impersonation;                
+                System.Security.Principal.TokenImpersonationLevel.Impersonation;
                 var result = await post.FnCreateSalesOrderAsync(EntryNo);
 
             }

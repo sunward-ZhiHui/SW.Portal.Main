@@ -10,6 +10,10 @@ body,
     overflow: hidden;
     overscroll-behavior: none;
 }
+.dxbl-loading-panel
+{
+    width:100%;
+}
 #app,
 .demo-header-container,
 .demo-content-container,

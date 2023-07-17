@@ -119,9 +119,9 @@
                                 ListRenderMode="ListRenderMode.Virtual"
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="ItemSerialNo"
-                                ValueFieldName="ItemSerialNo"
+                                ValueFieldName="ItemId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@types.ItemSerialNo" ShowValidationIcon="true"
+                                @bind-Value="@types.ItemId" ShowValidationIcon="true"
                                 SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
@@ -334,7 +334,7 @@
             var createReq = new CreateSoSalesOrderLineCommand
                 {
                     SoSalesOrderId = SoSalesOrderId,
-                    ItemSerialNo = editModel.ItemSerialNo,
+                    ItemId = editModel.ItemId,
                     Qty = editModel.Qty,
                     UnitPrice = editModel.UnitPrice,
                     StatusCodeId = 1,
@@ -367,7 +367,7 @@
                 {
                     SoSalesOrderLineId = editModel.SoSalesOrderLineId,
                     SoSalesOrderId = SoSalesOrderId,
-                    ItemSerialNo = editModel.ItemSerialNo,
+                    ItemId = editModel.ItemId,
                     Qty = editModel.Qty,
                     UnitPrice = editModel.UnitPrice,
                     StatusCodeId = 1,

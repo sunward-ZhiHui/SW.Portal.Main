@@ -9,10 +9,8 @@
 <DxLoadingPanel @bind-Visible="PanelVisible" IsContentBlocked="true" ApplyBackgroundShading="true" IndicatorAreaVisible="false" Text="Fetching Data...">
     <DxGrid Data="@_forumTopicTo"
             PageSize="20" EditMode="GridEditMode.EditForm"
-            PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox" 
             KeyFieldName="ReplyId"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             CssClass="w-100"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"

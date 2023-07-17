@@ -24,6 +24,7 @@ using Application.Command.SoSalesOrderLine;
 using Application.Command.ApplicationMasterDetails;
 using Application.Command.ApplicationMasterChilds;
 using Application.Command.PostSalesOrder;
+using Application.Command.SalesOrderMasterPricings;
 
 namespace Application.Common.Mapper
 {

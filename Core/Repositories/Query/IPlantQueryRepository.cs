@@ -13,5 +13,6 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<ViewPlants>> GetAllAsync();
         Task<ViewPlants> GetByIdAsync(Int64 id);
+        Task<IReadOnlyList<ViewPlants>> GetAllByNavCompanyAsync();
     }
 }

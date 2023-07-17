@@ -60,6 +60,7 @@
 
         <Columns>
             <DxGridDataColumn FieldName="SalesOrderMasterPricingId" Caption="Date" MinWidth="80" Visible="false" />
+            <DxGridDataColumn FieldName="NavCompany" Caption="Company" MinWidth="40" />
             <DxGridDataColumn FieldName="AddedDate" Caption="Date" Width="180">
                 <CellDisplayTemplate>
                     @{
@@ -70,9 +71,23 @@
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="AddedBy" Caption="User" MinWidth="40" />
             <DxGridDataColumn FieldName="SalesPricingForName" Caption="Sales Pricing For" MinWidth="40" />
-            <DxGridDataColumn FieldName="PriceValidaityFrom" Caption="PriceValidaityFrom" MinWidth="80" />
-            <DxGridDataColumn FieldName="PriceValidaityTo" Caption="PriceValidaityTo" MinWidth="80" />
-            <DxGridDataColumn FieldName="ReasonForChangeName" Caption="ReasonForChangeName" MinWidth="80" />
+            <DxGridDataColumn FieldName="PriceValidaityFrom" Caption="Price Validaity From" MinWidth="80" >
+                <CellDisplayTemplate>
+                    @{
+                        var item = (View_SalesOrderMasterPricing)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityFrom)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PriceValidaityTo" Caption="Price Validaity To" MinWidth="80" >
+                <CellDisplayTemplate>
+                    @{
+                        var item = (View_SalesOrderMasterPricing)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityTo)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ReasonForChangeName" Caption="Reason For Change" MinWidth="80" />
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SalesPricingForName" />

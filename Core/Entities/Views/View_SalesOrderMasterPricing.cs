@@ -15,9 +15,9 @@ namespace Core.Entities.Views
         [Required(ErrorMessage = "SalesPricing For is Required")]
         public long? SalesPricingForId { get; set; }
         [Required(ErrorMessage = "Price Validaity From is Required")]
-        public DateTime? PriceValidaityFrom { get; set; }
+        public DateTime PriceValidaityFrom { get; set; }
         [Required(ErrorMessage = "Price Validaity To is Required")]
-        public DateTime? PriceValidaityTo { get; set; }
+        public DateTime PriceValidaityTo { get; set; }
         public long? ReasonForChangeId { get; set; }
         public string MasterType { get; set; }
         public int? StatusCodeId { get; set; }
@@ -34,5 +34,6 @@ namespace Core.Entities.Views
         public string NavCompanyName { get; set; }
         public string ReasonForChangeName { get; set; }
         public string SalesPricingForName { get; set; }
+        public string NavCompany { get; set; }
     }
 }

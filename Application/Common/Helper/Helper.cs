@@ -18,5 +18,10 @@ namespace Application.Common.Helper
             // Define your desired date format here
             return dateTime.ToString("dd-MMM-yyyy");
         }
+        public static string FormatMonthYear(DateTime dateTime)
+        {
+            // Define your desired date format here
+            return dateTime.ToString("MMM-yyyy");
+        }
     }
 }

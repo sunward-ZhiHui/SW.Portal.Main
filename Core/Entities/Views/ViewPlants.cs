@@ -25,7 +25,7 @@ namespace Core.Entities.Views
         public string? NavSoapAddress { get; set; }
 
         public bool IsLinkNav { get; set; }
-
+        public string? NavCompany { get; set; }
         public string? NavCompanyName { get; set; }
         public string? NavUserName { get; set; }
         public string? NavPassword { get; set; }

@@ -13,7 +13,7 @@ namespace Core.Repositories.Query
     public interface ISalesOrderMasterPricingLineQueryRepository : IQueryRepository<View_SalesOrderMasterPricingLine>
     {
         //Custom operation which is not generic
-        Task<IReadOnlyList<View_SalesOrderMasterPricingLine>> GetAllSalesOrderMasterPricingAsync(long? Id);
+        Task<IReadOnlyList<View_SalesOrderMasterPricingLine>> GetAllAsync(long? Id);
         Task<View_SalesOrderMasterPricingLine> GetByIdAsync(long? Id);
     }
 }

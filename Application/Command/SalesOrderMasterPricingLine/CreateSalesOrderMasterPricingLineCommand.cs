@@ -1,13 +1,17 @@
-﻿using System;
+﻿using Application.Response;
+using MediatR;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities.Views
+namespace Application.Command.SalesOrderMasterPricingLine
 {
-    public class View_SalesOrderMasterPricingLine
+    public class CreateSalesOrderMasterPricingLineCommand:  IRequest<SalesOrderMasterPricingLineResponse>
     {
+        [Key]
         public long SalesOrderMasterPricingLineId { get; set; }
         public long? SalesOrderMasterPricingId { get; set; }
         public long? ItemId { get; set; }
@@ -24,13 +28,10 @@ namespace Core.Entities.Views
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionId { get; set; }
-        public string StatusCode { get; set; }
-        public string AddedBy { get; set; }
-        public string ModifiedBy { get; set; }
-        public string SellingMethodName { get; set; }
-        public string SmAllowPriceName { get; set; }
-        public string Description { get; set; }
-        public string BaseUnitofMeasure { get; set; }
-        public string No { get;set; }   
+        public CreateSalesOrderMasterPricingLineCommand()
+        {
+
+        }
     }
 }
+ 

@@ -36,4 +36,33 @@ namespace Application.Handlers.CommandHandler
             return "SalesOrderMaster Pricing has been deleted!";
         }
     }
+
+
+
+    public class DeleteSalesOrderMasterPricingLineHandler : IRequestHandler<DeleteSalesOrderMasterPricingLineCommand, String>
+    {
+        private readonly ISalesOrderMasterPricingLineCommandRepository _commandRepository;
+        public DeleteSalesOrderMasterPricingLineHandler(ISalesOrderMasterPricingLineCommandRepository customerRepository)
+        {
+            _commandRepository = customerRepository;
+        }
+
+        public async Task<string> Handle(DeleteSalesOrderMasterPricingLineCommand request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var data = new SalesOrderMasterPricingLine
+                {
+                    SalesOrderMasterPricingId = request.Id,
+                };
+                await _commandRepository.DeleteAsync(data);
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+
+            return "SalesOrderMaster Pricing has been deleted!";
+        }
+    }
 }

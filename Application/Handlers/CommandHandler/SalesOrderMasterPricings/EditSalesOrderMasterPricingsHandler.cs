@@ -50,4 +50,41 @@ namespace Application.Handlers.CommandHandler
             return response;
         }
     }
+
+
+    public class EditSalesOrderMasterPricingLineHandler : IRequestHandler<EditSalesOrderMasterPricingLineCommand, SalesOrderMasterPricingLineResponse>
+    {
+        private readonly ISalesOrderMasterPricingLineCommandRepository _commandRepository;
+        public EditSalesOrderMasterPricingLineHandler(ISalesOrderMasterPricingLineCommandRepository customerRepository)
+        {
+            _commandRepository = customerRepository;
+        }
+        public async Task<SalesOrderMasterPricingLineResponse> Handle(EditSalesOrderMasterPricingLineCommand request, CancellationToken cancellationToken)
+        {
+            var queryEntity = RoleMapper.Mapper.Map<SalesOrderMasterPricingLine>(request);
+
+            if (queryEntity is null)
+            {
+                throw new ApplicationException("There is a problem in mapper");
+            }
+
+            try
+            {
+                await _commandRepository.UpdateAsync(queryEntity);
+            }
+            catch (Exception exp)
+            {
+                throw new ApplicationException(exp.Message);
+            }
+            var response = new SalesOrderMasterPricingLineResponse
+            {
+                SalesOrderMasterPricingId = queryEntity.SalesOrderMasterPricingId,
+                StatusCodeId = queryEntity.StatusCodeId,
+                ItemId = queryEntity.ItemId,
+                SellingMethodId = queryEntity.SellingMethodId,
+            };
+
+            return response;
+        }
+    }
 }

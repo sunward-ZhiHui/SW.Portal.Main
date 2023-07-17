@@ -197,7 +197,16 @@
         }
         _plants = model;
         PanelVisible = false;
-      
+        if (_plants.Count > 0)
+        {
+            _selectedItems = _plants.FirstOrDefault();
+
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+
+
+        }
         //await jsRuntime.InvokeAsync<string>("hideLoading");
         
     }
@@ -222,7 +231,7 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+       // UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -231,26 +240,26 @@
     }
     void addEdit()
     {
-        if (SelectedDataItems.Count == 1)
-        {
+        //if (SelectedDataItems.Count == 1)
+        //{
 
-            foreach (object item in SelectedDataItems)
-            {
+        //    foreach (object item in SelectedDataItems)
+        //    {
 
-                if (item is ViewPlants viewPlants)
-                {
+        //        if (item is ViewPlants viewPlants)
+        //        {
 
-                    _selectlst = _plants.FirstOrDefault(f => f.PlantID == viewPlants.PlantID);
+        //            _selectlst = _plants.FirstOrDefault(f => f.PlantID == viewPlants.PlantID);
 
 
-                }
-            }
-            Grid.StartEditDataItemAsync(_selectlst);
-        }
-        else
-        {
+        //        }
+        //    }
+        //    Grid.StartEditDataItemAsync(_selectlst);
+        //}
+        //else
+        //{
             Grid.StartEditDataItemAsync(_selectedItems);
-        }
+       // }
 
     }
     void addDelete()
@@ -283,10 +292,12 @@
     }
         catch (Exception eq)
         {
-            DeleteerrorMessage = eq.Message;
-            PopupVisible = true;
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
-    await UpdateDataAsync();
+   // await UpdateDataAsync();
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -389,12 +400,7 @@
            
         }
       
-            if (SelectedDataItems != null)
-            {
-
-                DeleteEnabled = true;
-                StateHasChanged();
-            }
+          
 
         
     }

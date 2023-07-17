@@ -39,4 +39,6 @@ namespace Application.Handlers.QueryHandlers
             return (List<View_SoSalesOrderLine>)await _soSalesOrderLineQueryRepository.GetAllAsync();            
         }
     }
+
+   
 }

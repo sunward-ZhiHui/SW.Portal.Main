@@ -34,6 +34,9 @@
 @using RtfPipe;
 @inject Application.Common.Helper.Helper  dateformathelper
 @using System.Net.Http;
+@using System.Threading.Tasks
+@using System.Threading
+@using System.Timers
 
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 
@@ -1014,7 +1017,8 @@
 
 
 @code {
-
+    private CancellationTokenSource cancellationTokenSource;
+    private const int AutoRefreshInterval = 10000; // 10 seconds
     private Documents _selectlst;
     [Parameter]
     public string ActiveSessionId { get; set; }
@@ -1961,6 +1965,8 @@
     protected override async Task OnInitializedAsync()
     {
         var sss = ActiveSessionId;
+        cancellationTokenSource = new CancellationTokenSource();
+        StartAutoRefresh();
 
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
@@ -2018,6 +2024,42 @@
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
 
     }
+    private async Task StartAutoRefresh()
+    {
+        try
+        {
+            while (true)
+            {
+                await Task.Delay(AutoRefreshInterval, cancellationTokenSource.Token);
+
+                await RefreshGridData();
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            // Task was canceled, no action needed
+        }
+    }
+    private async Task RefreshGridData()
+    {
+        // Perform the logic to refresh your grid data
+        // For example, you can re-fetch the data from the server
+        await LoadGridData();
+        StateHasChanged();
+    }
+    private async Task LoadGridData()
+    {
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+        _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+    }
+    public void Dispose()
+    {
+        cancellationTokenSource?.Cancel();
+        cancellationTokenSource?.Dispose();
+    }
+
     async Task onloadTwoGrid()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");

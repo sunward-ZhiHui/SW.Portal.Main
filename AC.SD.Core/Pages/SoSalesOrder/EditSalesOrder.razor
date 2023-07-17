@@ -84,6 +84,7 @@
                                     FilteringMode="DataGridFilteringMode.Contains"
                                     TextFieldName="CustomerName"
                                     ValueFieldName="SoCustomerId"
+                                    Enabled="false"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true"
                                     SelectedItemChanged="@((SoCustomer soCustomer) => SelectedItemChanged(soCustomer))">
@@ -134,7 +135,7 @@
                                 <SOCustomerAddress _salesOrderItems="@_salesOrderItem"></SOCustomerAddress>
                             </DxFormLayoutTabPage>
                             <DxFormLayoutTabPage Caption="NAV Sales Order">
-                                <NavItemsList />
+                                <PostSO SoSalesOrderId="@SoSalesOrderId" />
                             </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>

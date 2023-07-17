@@ -10,6 +10,7 @@ using Infrastructure.Repository.Command;
 using Infrastructure.Repository.Command.Base;
 using Infrastructure.Repository.Query;
 using Infrastructure.Repository.Query.Base;
+using Infrastructure.Service;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -96,8 +97,10 @@ namespace Infrastructure
             services.AddTransient<ISoCustomerQueryRepository, SoCustomerQueryRepository>();
             services.AddTransient<ISoSalesOrderCommandRepository, SoSalesOrderCommandRepository>();
             services.AddTransient<ISoSalesOrderLineCommandRepository, SoSalesOrderLineCommandRepository>();
+            services.AddTransient<IPostSalesOrderCommandRepository, PostSalesOrderCommandRepository>();
             services.AddTransient<ISoSalesOrderQueryRepository, SoSalesOrderQueryRepository>();
             services.AddTransient<ISoSalesOrderLineQueryRepository, SoSalesOrderLineQueryRepository>();
+            services.AddTransient<IPostSalesOrderQueryRepository, PostSalesOrderQueryRepository>();
             services.AddTransient<IFileStorageService, FileStorageService>();
             services.AddTransient<IApplicationMasterChildQueryRepository, ApplicationMasterChildQueryRepository>();
             services.AddTransient<IAssetCatalogMasterQueryRepository, AssetCatalogMasterQueryRepository>();
@@ -118,6 +121,7 @@ namespace Infrastructure
             services.AddTransient<ISalesOrderMasterPricingLineSellingMethodQueryRepository, SalesOrderMasterPricingLineSellingMethodQueryRepository>();
             services.AddTransient<ISalesOrderMasterPricingCommandRepository, SalesOrderMasterPricingCommandRepository>();
             
+            services.AddTransient<ISalesOrderService, SalesOrderService>();
             return services;
         }
     }

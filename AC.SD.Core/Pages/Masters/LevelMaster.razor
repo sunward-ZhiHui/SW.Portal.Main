@@ -98,7 +98,7 @@
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                 <DxComboBox Data="@_plantItems"
                             NullText="Select Company..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            FilteringMode="DataGridFilteringMode.Contains"                             
                             TextFieldName="PlantCode"
                             ValueFieldName="PlantID"
                             Enabled = "@isEnabled"
@@ -215,7 +215,7 @@
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         // await jsRuntime.InvokeAsync<string>("hideLoading");
-       
+
         PanelVisible = false;
         await UpdateDataAsync();
         if (Type == "Designation")
@@ -225,7 +225,7 @@
     }
     async Task UpdateDataAsync()
     {
-       // await jsRuntime.InvokeAsync<string>("showLoading");
+        // await jsRuntime.InvokeAsync<string>("showLoading");
         PanelVisible = true;
         var model = await Mediator.Send(new GetAllLevelMasterQuery());
         for (int i = 0; i < model.Count; i++)
@@ -250,15 +250,14 @@
         if (_levelItems.Count > 0)
         {
             _selectedItems = _levelItems.FirstOrDefault();
-            if (SelectedDataItems != null)
-            {
+           
                 EditEnabled = true;
                 DeleteEnabled = true;
                 StateHasChanged();
-            }
+            
 
         }
-       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
     }
     void SelectedItemChanged(long? plantID)
@@ -270,7 +269,7 @@
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-         _divisionsItems = new List<ViewDivision>();
+        _divisionsItems = new List<ViewDivision>();
         if (e.IsNew)
         {
             var newData = (ViewLevel)e.EditModel;
@@ -287,10 +286,10 @@
                     newData.CompanyID = _masters.CompanyID;
                     newData.DivisionID =_masters.DivisionID;
                     // newData.DivisionID = _masters.DivisionID;
-                     SelectedItemChanged(_masters.CompanyID);
+                    SelectedItemChanged(_masters.CompanyID);
                 }
             }
-           
+
         }
         else
         {
@@ -357,7 +356,7 @@
         {
             e.CssClass = "alt-item";
         }
-      
+
     }
     async Task ExportToExcel()
     {
@@ -378,7 +377,7 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+       // UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -402,26 +401,26 @@
     }
     void addEdit()
     {
-        if (SelectedDataItems.Count == 1)
-        {
+        //if (SelectedDataItems.Count == 1)
+        //{
 
-            foreach (object item in SelectedDataItems)
-            {
+        //    foreach (object item in SelectedDataItems)
+        //    {
 
-                if (item is ViewLevel viewLevel)
-                {
+        //        if (item is ViewLevel viewLevel)
+        //        {
 
-                    _selectlst = _levelItems.FirstOrDefault(f => f.LevelID == viewLevel.LevelID);
+        //            _selectlst = _levelItems.FirstOrDefault(f => f.LevelID == viewLevel.LevelID);
 
 
-                }
-            }
-            Grid.StartEditDataItemAsync(_selectlst);
-        }
-        else
-        {
+        //        }
+        //    }
+        //    Grid.StartEditDataItemAsync(_selectlst);
+        //}
+        //else
+        //{
             Grid.StartEditDataItemAsync(_selectedItems);
-        }
+       // }
     }
     void addDelete()
     {
@@ -429,26 +428,36 @@
     }
     async Task bulkDelete()
     {
-        if (SelectedDataItems != null)
+        try
         {
-            foreach (object item in SelectedDataItems)
+            if (SelectedDataItems != null)
             {
-
-                if (item is ViewLevel forumlevel)
+                foreach (object item in SelectedDataItems)
                 {
 
-                    //var editableData = (ViewLevel)e.DataItem;
-                    var request = new DeleteLevelMasterCommand(forumlevel.LevelID);
-                    await Mediator.Send(request);
-                    Blukdeletepopup = false;
-                    toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                    await UpdateDataAsync();
-                    Grid.SetFocusedRowIndex(0);
-                }
+                    if (item is ViewLevel forumlevel)
+                    {
 
+                        //var editableData = (ViewLevel)e.DataItem;
+                        var request = new DeleteLevelMasterCommand(forumlevel.LevelID);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
             }
         }
-        await UpdateDataAsync();
+        catch (Exception eq)
+        {
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        // await UpdateDataAsync();
     }
 
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
@@ -462,12 +471,7 @@
         {
             EditEnabled = true;
         }
-        if (SelectedDataItems != null)
-        {
-
-            DeleteEnabled = true;
-            StateHasChanged();
-        }
+        
     }
     void ResetDesignation()
     {

@@ -13,6 +13,7 @@ namespace Core.Repositories.Query
     public interface INavItemsQueryRepository : IQueryRepository<View_NavItems>
     {
         Task<IReadOnlyList<View_NavItems>> GetAllAsync();
+        Task<IReadOnlyList<View_NavItems>> GetAsyncList();
         Task<View_NavItems> GetByItemSerialNoAsync(string ItemSerialNo);
         Task<long> Update(View_NavItems todolist);
         Task<View_NavItems> GetByItemSerialNoExitsAsync(View_NavItems ItemSerialNo);

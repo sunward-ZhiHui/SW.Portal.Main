@@ -88,6 +88,7 @@
                             NullText="Select Company..."
                             FilteringMode="DataGridFilteringMode.Contains"
                             SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                             TextFieldName="Description"
                             ValueFieldName="PlantID"
                             @bind-Value="@ict.CompanyId"
@@ -101,10 +102,10 @@
                     SelectedItemChanged(ict.CompanyId);
                 }
                 @* <DxSpinEdit @bind-Value="@ict.SiteId" Rows="5" />*@
+                 @*   SelectedItemChanged="@((ViewIctmaster plant) => SelectedChanged(plant.IctmasterId))"*@
                 <DxComboBox Data="@_masterCompany"
                             NullText="Select Site..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            SelectedItemChanged="@((ViewIctmaster plant) => SelectedChanged(plant.IctmasterId))"
+                            FilteringMode="DataGridFilteringMode.Contains"  
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.SiteId"
@@ -117,10 +118,10 @@
                 @{
                     SelectedChanged(ict.SiteId);
                 }
+                  @*  SelectedItemChanged="@((ViewIctmaster plant) => SelectChanged(plant.IctmasterId))"*@
                 <DxComboBox Data="@_masterSite"
                             NullText="Select Zone..."
                             FilteringMode="DataGridFilteringMode.Contains"
-                            SelectedItemChanged="@((ViewIctmaster plant) => SelectChanged(plant.IctmasterId))"
                             TextFieldName="Name"
                             ValueFieldName="IctmasterId"
                             @bind-Value="@ict.ZoneId"
@@ -166,14 +167,14 @@
     </TotalSummary>
 </DxGrid>
 </DxLoadingPanel>
-@*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@Blukdeletepopup">
+@*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width SelectedItemChanged="@((ViewIctmaster plant) => SelectChanged(plant.IctmasterId))"350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
         <Content>
         <p>
                 <div > Do you want to delete</div>
 
         </p>
-    </Content>
+    </Content>SelectedItemChanged="@((ViewIctmaster plant) => SelectedChanged(plant.IctmasterId))"
 
         <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
         <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
@@ -225,8 +226,8 @@
     bool isEnabled { get; set; } = true;
     IGrid Grid { get; set; }
     private ViewIctmaster _selectedItems;
-    bool EditEnabled { get; set; } = true;
-    bool DeleteEnabled { get; set; } = true;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
@@ -235,14 +236,14 @@
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-       // await jsRuntime.InvokeAsync<string>("showLoading");
+        // await jsRuntime.InvokeAsync<string>("showLoading");
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         CompanyNamesIndex = _plantItems.ToDictionary(i => i.PlantID, i => i.Description);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-      //  await jsRuntime.InvokeAsync<string>("hideLoading");
+        //  await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
         await UpdateDataAsync();
-       
+
         if (Type == "Location")
         {
             isLocationEnabled = true;
@@ -262,7 +263,7 @@
     async Task UpdateDataAsync()
     {
         PanelVisible = true;
-      //  await jsRuntime.InvokeAsync<string>("showLoading");
+        //  await jsRuntime.InvokeAsync<string>("showLoading");
         var model = await Mediator.Send(new GetAllIctMasterQuery());
         for (int i = 0; i < model.Count; i++)
         {
@@ -284,11 +285,13 @@
         {
 
             _selectedItems = _ictmasterList.FirstOrDefault();
+
             EditEnabled = true;
             DeleteEnabled = true;
             StateHasChanged();
+
         }
-       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
         PanelVisible = false;
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
@@ -300,9 +303,9 @@
             newmaster.Name = "";
             newmaster.Description = "";
             newmaster.StatusCodeId = null;
-            _masterCompany = new List<ViewIctmaster>();
-            _masterSite = new List<ViewIctmaster>();
-            _masterZone = new List<ViewIctmaster>();
+            //_masterCompany = new List<ViewIctmaster>();
+            //_masterSite = new List<ViewIctmaster>();
+            //_masterZone = new List<ViewIctmaster>();
             if (Type == "Location")
             {
                 var _ictmasters = _ictmaster.FirstOrDefault(f => f.IctmasterId == SiteId);
@@ -428,7 +431,7 @@
         {
             e.CssClass = "alt-item";
         }
-       
+
     }
     async Task ExportToExcel()
     {
@@ -458,7 +461,7 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+      //  UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -473,32 +476,32 @@
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-        _masterCompany = new List<ViewIctmaster>();
-        _masterSite = new List<ViewIctmaster>();
-        _masterZone = new List<ViewIctmaster>();
+        //_masterCompany = new List<ViewIctmaster>();
+        //_masterSite = new List<ViewIctmaster>();
+        //_masterZone = new List<ViewIctmaster>();
     }
     void addEdit()
     {
-        if (SelectedDataItems.Count == 1)
-        {
+        //if (SelectedDataItems.Count == 1)
+        //{
 
-            foreach (object item in SelectedDataItems)
-            {
+        //    foreach (object item in SelectedDataItems)
+        //    {
 
-                if (item is ViewIctmaster viewIctmaster)
-                {
+        //        if (item is ViewIctmaster viewIctmaster)
+        //        {
 
-                    _selectlst = _ictmaster.FirstOrDefault(f => f.IctmasterId == viewIctmaster.IctmasterId);
+        //            _selectlst = _ictmaster.FirstOrDefault(f => f.IctmasterId == viewIctmaster.IctmasterId);
 
 
-                }
-            }
-            Grid.StartEditDataItemAsync(_selectlst);
-        }
-        else
-        {
-            Grid.StartEditDataItemAsync(_selectedItems);
-        }
+        //        }
+        //    }
+        //    Grid.StartEditDataItemAsync(_selectlst);
+        //}
+        //else
+        //{
+        Grid.StartEditDataItemAsync(_selectedItems);
+        // }
 
     }
     void addDelete()
@@ -508,25 +511,36 @@
     }
     async Task bulkDelete()
     {
-        if (SelectedDataItems != null)
+        try
         {
-            foreach (object item in SelectedDataItems)
+            if (SelectedDataItems != null)
             {
-
-                if (item is ViewIctmaster forumarea)
+                foreach (object item in SelectedDataItems)
                 {
-                    //var editablePlant = (ViewIctmaster)e.DataItem;
-                    var request = new DeleteIctmasterCommand(forumarea.IctmasterId);
-                    await Mediator.Send(request);
-                    Blukdeletepopup = false;
-                    toastService.ShowToast("Record Delete Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                    await UpdateDataAsync();
-                    Grid.SetFocusedRowIndex(0);
-                }
 
+                    if (item is ViewIctmaster forumarea)
+                    {
+                        //var editablePlant = (ViewIctmaster)e.DataItem;
+                        var request = new DeleteIctmasterCommand(forumarea.IctmasterId);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record Delete Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
             }
         }
-        await UpdateDataAsync();
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Company have Site So this Record  Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+        }
+   
+       // await UpdateDataAsync();
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
@@ -539,6 +553,7 @@
         {
             EditEnabled = true;
         }
+        
     }
     void ResetLocation()
     {

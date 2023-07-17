@@ -98,7 +98,7 @@
             <DxFormLayoutItem Caption="Section" ColSpanMd="6">
                 <DxComboBox Data="@_sectionItems"
                             NullText="Select Section..."
-                            FilteringMode="DataGridFilteringMode.Contains"
+                            FilteringMode="DataGridFilteringMode.Contains"                              
                             TextFieldName="SectionDrop"
                             ValueFieldName="SectionId"
                             Enabled  ="@isEnabled"
@@ -307,12 +307,11 @@
         if (_subsectionItems.Count > 0)
         {
             _selectedItems = _subsectionItems.FirstOrDefault();
-            if (SelectedDataItems != null)
-            {
+          
                 EditEnabled = true;
                 DeleteEnabled = true;
                 StateHasChanged();
-            }
+           
 
         }
        // await jsRuntime.InvokeAsync<string>("hideLoading");
@@ -418,7 +417,7 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+      //  UpdateDataAsync();
     }
     async void ClosePopup()
     {
@@ -428,26 +427,26 @@
     void addEdit()
     {
 
-        if (SelectedDataItems.Count == 1)
-        {
+        //if (SelectedDataItems.Count == 1)
+        //{
 
-            foreach (object item in SelectedDataItems)
-            {
+        //    foreach (object item in SelectedDataItems)
+        //    {
 
-                if (item is ViewSubSection viewSubSection)
-                {
+        //        if (item is ViewSubSection viewSubSection)
+        //        {
 
-                    _selectlst = _subsectionItems.FirstOrDefault(f => f.SubSectionId == viewSubSection.SubSectionId);
+        //            _selectlst = _subsectionItems.FirstOrDefault(f => f.SubSectionId == viewSubSection.SubSectionId);
 
 
-                }
-            }
-            Grid.StartEditDataItemAsync(_selectlst);
-        }
-        else
-        {
+        //        }
+        //    }
+        //    Grid.StartEditDataItemAsync(_selectlst);
+        //}
+        //else
+        //{
             Grid.StartEditDataItemAsync(_selectedItems);
-        }
+       // }
 
     }
     void addDelete()
@@ -480,10 +479,12 @@
         }
         catch (Exception eq)
         {
-            DeleteerrorMessage = eq.Message;
-            PopupVisible = true;
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
-    await UpdateDataAsync();
+  //  await UpdateDataAsync();
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
@@ -496,12 +497,7 @@
         {
             EditEnabled = true;
         }
-        if (SelectedDataItems != null)
-        {
-
-            DeleteEnabled = true;
-            StateHasChanged();
-        }
+      
     }
     void ResetSection()
     {

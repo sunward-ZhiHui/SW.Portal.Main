@@ -14,5 +14,15 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
-   
+    public class GetAllSoOrderBySession : PagedRequest, IRequest<View_SoSalesOrder>
+    {
+        public string SearchString { get; set; }
+        public Guid? SesionId { get; set; }
+        public GetAllSoOrderBySession(Guid? SessionId)
+        {
+            this.SesionId = SessionId;
+        }
+    }
+
+
 }

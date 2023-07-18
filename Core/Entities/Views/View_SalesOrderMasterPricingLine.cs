@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,8 +11,11 @@ namespace Core.Entities.Views
     {
         public long SalesOrderMasterPricingLineId { get; set; }
         public long? SalesOrderMasterPricingId { get; set; }
+        [Required(ErrorMessage = "Item No is Required")]
         public long? ItemId { get; set; }
+        [Required(ErrorMessage = "Selling Method For is Required")]
         public long? SellingMethodId { get; set; }
+        [Required(ErrorMessage = "Selling Price For is Required")]
         public decimal? SellingPrice { get; set; }
         public decimal? SmAllowPriceByPercent { get; set; }
         public decimal? SmAllowPriceBy { get; set; }

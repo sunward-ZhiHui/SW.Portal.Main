@@ -235,36 +235,35 @@
 
     protected override async Task OnInitializedAsync()
     {
-       
-            PanelVisible = true;
-            var navitemslst = await Mediator.Send(new GetAllNavItemsQuery());
-            _AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
 
-            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        PanelVisible = true;
+        var navitemslst = await Mediator.Send(new GetAllNavItemsQuery());
+        _AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
 
-            var soline = await Mediator.Send(new GetSalesOrderLine());
-            _salesOrderLine = soline.Where(x => x.SoSalesOrderId == SoSalesOrderId).ToList();
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
-            if (SoSalesOrderId > 0)
+        _salesOrderLine = await Mediator.Send(new GetSalesOrderLine(SoSalesOrderId));
+
+        if (SoSalesOrderId > 0)
+        {
+            AddEnabled = true;
+
+            if (_salesOrderLine.Count > 0)
             {
-                AddEnabled = true;
 
-                if (_salesOrderLine.Count > 0)
+                _selectedItems = _salesOrderLine.FirstOrDefault();
+
+                if (SelectedDataItems != null)
                 {
+                    EditEnabled = true;
+                    DeleteEnabled = true;
 
-                    _selectedItems = _salesOrderLine.FirstOrDefault();
-
-                    if (SelectedDataItems != null)
-                    {
-                        EditEnabled = true;
-                        DeleteEnabled = true;
-
-                        StateHasChanged();
-                    }
-
-
+                    StateHasChanged();
                 }
+
+
             }
+        }
 
         PanelVisible = false;
     }
@@ -298,8 +297,7 @@
     async Task UpdateDataAsync()
     {
         PanelVisible = true;
-        var models = await Mediator.Send(new GetSalesOrderLine());
-        _salesOrderLine = models.Where(x => x.SoSalesOrderId == SoSalesOrderId).ToList();
+        _salesOrderLine = await Mediator.Send(new GetSalesOrderLine(SoSalesOrderId));
         PanelVisible = false;
         StateHasChanged();
     }

@@ -19,15 +19,16 @@ namespace Infrastructure.Repository.Query
         {
 
         }
-        public async Task<IReadOnlyList<View_SoSalesOrderLine>> GetAllAsync()
+        public async Task<IReadOnlyList<View_SoSalesOrderLine>> GetAllAsync(long? id)
         {
             try
             {
-                var query = "select  * from view_SoSalesOrderLine";
-
+                var query = "select  * from view_SoSalesOrderLine WHERE SoSalesOrderId = @SoSalesOrderId";
+                var parameters = new DynamicParameters();
+                parameters.Add("SoSalesOrderId", id, DbType.Int64);
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<View_SoSalesOrderLine>(query)).ToList();
+                    return (await connection.QueryAsync<View_SoSalesOrderLine>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)

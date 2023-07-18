@@ -35,6 +35,42 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<view_SoCustomerAddress>> GetAllByAddressTypeAsync(string AddressType, long? CustomerId)
+        {
+            try
+            {
+                var query = "SELECT * FROM view_SoCustomerAddress  WHERE AddressType = @AddressType and CustomerId = @CustomerId";
+                var parameters = new DynamicParameters();
+                parameters.Add("AddressType", AddressType);
+                parameters.Add("CustomerId", CustomerId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<view_SoCustomerAddress>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<view_SoCustomerAddress>> GetByCustomerIdAsync(long? CustomerId)
+        {
+            try
+            {
+                var query = "SELECT * FROM view_SoCustomerAddress  WHERE CustomerId = @CustomerId";
+                var parameters = new DynamicParameters();
+                parameters.Add("CustomerId", CustomerId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<view_SoCustomerAddress>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
         public async Task<long> Insert(view_SoCustomerAddress address)
         {
             try

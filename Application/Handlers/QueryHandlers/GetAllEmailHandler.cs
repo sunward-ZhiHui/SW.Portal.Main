@@ -53,6 +53,20 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetEmailTopicDraftHandler : IRequestHandler<GetEmailTopicDraft, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetEmailTopicDraftHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetEmailTopicDraft request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetTopicDraftList(request.UserId);
+
+        }
+    }
     public class GetSubEmailTopicToHandler : IRequestHandler<GetSubEmailTopicTo, List<EmailTopics>>
     {
 

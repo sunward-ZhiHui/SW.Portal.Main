@@ -21,6 +21,13 @@ body,
 .demo-content > div:not(.modal-backdrop) {
     background-color: var(--bs-body-bg);
 }
+.doc_lst_view {
+    border: 1px solid #cbc5c5ee;
+    border-radius: 4px;
+    width: 99%;
+    list-style-type: none;
+    margin-bottom: 5px;
+}
 .twoSection {
     height: 50%;
     border: 1px solid #b2afaf;

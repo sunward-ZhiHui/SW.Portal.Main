@@ -1,0 +1,9 @@
+insert into dbo.ActivityEmailTopic (ActivitymasterID,SessionId,ManufacturingProcessId, CategoryActionId, ActionId,Comment,DocumentSessionId,SubjectName,StatusCodeID,AddedByUserID,AddedDate,ActivityType,ToIds,CcIds) values(1,NEWID(),NULL,NULL,NULL,'Test Content comment',D3BB466B-4B3C-43C5-AA50-8B0AE5D95AC8,'Subject Test',1,1,'2023-07-18 11:53:38.533','Production Activity','1,17','18,20')
+
+insert into dbo.ActivityEmailTopic (ActivitymasterID,SessionId,ManufacturingProcessId, CategoryActionId, ActionId,Comment,DocumentSessionId,SubjectName,StatusCodeID,AddedByUserID,AddedDate,ActivityType,ToIds,CcIds) values(1,NEWID(),NULL,NULL,NULL,'Test Content comment 2',D3BB466B-4B3C-43C5-AA50-8B0AE5D95AC8,'Subject Test 2',1,1,'2023-07-18 11:53:38.533','Production Activity','8,17','32,20')
+
+insert into dbo.ActivityEmailTopic (ActivitymasterID,SessionId,ManufacturingProcessId, CategoryActionId, ActionId,Comment,DocumentSessionId,SubjectName,StatusCodeID,AddedByUserID,AddedDate,ActivityType,ToIds,CcIds) values(2,NEWID(),NULL,NULL,NULL,'Test Content comment 3',94024555-DF23-42C2-A053-EC628DFBAF42,'Subject Test 3',1,1,'2023-07-18 11:53:38.533','Production Activity','8,17','12,20')
+
+insert into dbo.ActivityEmailTopic (ActivitymasterID,SessionId,ManufacturingProcessId, CategoryActionId, ActionId,Comment,DocumentSessionId,SubjectName,StatusCodeID,AddedByUserID,AddedDate,ActivityType,ToIds,CcIds) values(2,NEWID(),NULL,NULL,NULL,'Test Content comment 4',94024555-DF23-42C2-A053-EC628DFBAF42,'Subject Test 4',1,1,'2023-07-18 11:53:38.533','Production Activity','8,17','22,20')
+
+insert into dbo.ActivityEmailTopic (ActivitymasterID,SessionId,ManufacturingProcessId, CategoryActionId, ActionId,Comment,DocumentSessionId,SubjectName,StatusCodeID,AddedByUserID,AddedDate,ActivityType,ToIds,CcIds) values(2,NEWID(),NULL,NULL,NULL,'Test Content comment 5',94024555-DF23-42C2-A053-EC628DFBAF42,'Subject Test 5',1,1,'2023-07-18 11:53:38.533','Production Activity','8,17','2,20')

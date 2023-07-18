@@ -85,7 +85,7 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _emailTopicDraft = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+        _emailTopicDraft = await Mediator.Send(new GetEmailTopicDraft(applicationUser.UserID));
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

@@ -224,6 +224,49 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailTopics>> GetTopicDraftList(long UserId)
+        {
+            try
+            {               
+                var query = @"SELECT TS.SessionId, TS.ID, TS.TopicName,TS.Remarks,
+                                TS.SeqNo,
+                                TS.Status,
+                                TS.Follow,
+                                TS.OnBehalf,
+                                TS.Urgent,
+                                TS.OverDue,
+                                TS.DueDate,
+                                TS.StartDate,
+                                TS.FileData,
+                                TS.SessionId,
+                                E.FirstName,
+                                E.LastName                               
+                            FROM
+                                EmailTopics TS
+                            INNER JOIN
+                                EmailTopicTo TP ON TS.ID = TP.TopicId
+                            INNER JOIN
+                                Employee E ON TS.TopicFrom = E.UserId                          
+                            WHERE
+                                 TS.AddedByUserID = @UserId and TS.OnDraft = 1
+                            ORDER BY
+                                TS.StartDate DESC";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailTopics>> GetSubTopicToList(long TopicId, long UserId)
         {
             try

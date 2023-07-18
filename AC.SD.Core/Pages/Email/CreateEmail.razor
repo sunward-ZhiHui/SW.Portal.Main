@@ -46,13 +46,13 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>                                           
                         <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onRestText" />
-                        <DxMenuItem Text="Draft" IconCssClass="fa fa-save" Click="@((e) => HandleValidSubmit())" />
-                        <DxMenuItem Text="Sent" IconCssClass="fa fa-save" Click="@((e) => HandleValidSubmit())"  />
+                       @* <DxMenuItem Text="Draft" IconCssClass="fa fa-save" Enabled="@IsDraftEnabled"  Click="@((e) => addNew(1))" />
+                        <DxMenuItem Text="Sent" IconCssClass="fa fa-save" Click="@((e) => addNew(0))" />*@
                     </Items>
                 </DxMenu>
             </div>
-         @* <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 218px; z-index: 9999; width:100px;">
-                <button " type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
+            <div class="save_hover" @onclick="@(() => addNew(0))" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 107px; z-index: 9999; width:100px;">
+                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
                     @if (loading)
                     {
                         <span class="spinner-border spinner-border-sm mr-1"></span>
@@ -60,7 +60,20 @@
                     <i class="fa fa-save"></i>
                     Sent
                 </button>
-          </div>*@
+             </div>
+             @if(IsDraftEnabled)
+            {
+                <div class="save_hover" @onclick="@(() => addNew(1))" style="float: left; margin-top: -41px; line-height: 38px; margin-left: -12px; z-index: 9999; width:100px;">
+                    <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
+                        @if (loading)
+                        {
+                            <span class="spinner-border spinner-border-sm mr-1"></span>
+                        }
+                        <i class="fab fa-stack-overflow"></i>
+                        Draft
+                    </button>
+                </div>
+            }
             
         </div>
     </div>
@@ -230,6 +243,23 @@ else
                                             </DxUpload>
                                             <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                                         </div>
+                                        <div>
+                                            @if (ActiveSessionId != null)
+                                            {
+                                                @if (_documentslst != null && _documentslst.Any())
+                                                {
+                                                    <ul class="d-flex flex-column-reverse todo-list">
+                                                        @foreach (var item in _documentslst)
+                                                        {
+                                                            <li class="doc_lst_view">
+                                                                <div class="form-check"> <label class="form-check-label"> File Name : @item.FileName <i class="input-helper"></i></label> </div>
+                                                                <div class="form-check"> <label class="form-check-label"> File Size:  @item.FileSize <i class="input-helper"></i></label> </div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                }
+                                            }
+                                        </div>
                                     </DxFormLayoutGroup>
                                 </DxFormLayout>
                             </DxFormLayoutItem>
@@ -238,22 +268,6 @@ else
                 </div>
             </div>
         </EditForm>
-
-        @if (_documentslst != null && _documentslst.Any())
-        {
-            <ul class="d-flex flex-column-reverse todo-list">
-                @foreach (var item in _documentslst)
-                {
-                    <li class="">
-                        <div class="form-check"> <label class="form-check-label"> File Name : @item.FileName <i class="input-helper"></i></label> </div>
-                        <div class="form-check"> <label class="form-check-label"> File Size:  @item.FileSize <i class="input-helper"></i></label> </div>
-                    </li>
-                }
-            </ul>
-        }
-
-           
-        
     </div>
 }
 
@@ -269,7 +283,7 @@ else
 
 
 @code {
-
+    bool IsDraftEnabled { get; set; } = false;
     [Parameter]
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
     private DxUpload uploadComponent;
@@ -277,6 +291,7 @@ else
     string MyError { get; set; }
     bool ErrorVisible { get; set; } = false;
     bool isFileUpload = false;
+    int draftId = 0;
     private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
     bool AttachmentUploadVisible { get; set; } = false;
     List<string> Follow { get; set; }
@@ -400,6 +415,10 @@ else
         // await JSRuntime.InvokeVoidAsync("submitForm", myForm);
         //await JSRuntime.InvokeVoidAsync("submitForm");
         await JSRuntime.InvokeVoidAsync("myInteropFunctions.submitForm");
+    }
+   private void addNew(int id)
+    {
+        draftId = id;        
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -564,10 +583,7 @@ else
         //_category = topicmodel;        
 
         Data.From = applicationUser.UserName;
-        var docId = "70F019EC011241C9807C39BF2BE79136";
-        Guid docSessionId = Guid.Parse(docId);
-        var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(docSessionId));
-        _documentslst = documentslst;
+        
         if (ActiveSessionId != null)
         {
             var acttopics = await Mediator.Send(new GetActivityEmailTopics());
@@ -579,6 +595,11 @@ else
             if(actItem.Count > 0)
             {
                 isValidateSession = false;
+                //var docId = "70F019EC011241C9807C39BF2BE79136";
+                //Guid docSessionId = Guid.Parse(docId);
+                var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].DocumentSessionId.Value));
+                _documentslst = documentslst;
+
 
                 Data.TopicName = actItem[0].SubjectName;
                 ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
@@ -604,6 +625,10 @@ else
                 isValidateSession = true;
             }
 
+        }
+        else
+        {
+            IsDraftEnabled = true;
         }
 
 
@@ -704,6 +729,13 @@ else
 
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
 
+        if (fileContent.Length == 480)
+        {
+            toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+            loading = false;
+            return;
+        }
 
         //var slsls = participantIds.Distinct().ToList();
         string participantidsString = string.Join(",", participantIds); // convert the array to a comma-separated string
@@ -746,7 +778,7 @@ else
                     CC = ccidsString,
                     ActivityEmailTopicId = ActivityEmailTopicId,
                     isValidateSession = isValidateSession,
-                    OnDraft = 1,
+                    OnDraft = draftId,
                 };
             
 

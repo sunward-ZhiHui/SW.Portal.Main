@@ -16,6 +16,7 @@ namespace Core.Repositories.Query
         Task<List<EmailTopics>> GetUserTopicList(Int64 UserId);
         Task<List<EmailTopics>> GetBySessionTopicList(string SessionId);        
         Task<List<EmailTopics>> GetTopicToList(Int64 UserId);
+        Task<List<EmailTopics>> GetTopicDraftList(Int64 UserId);
         Task<List<EmailTopics>> GetSubTopicToList(Int64 TopicId,long UserId);
         Task<List<EmailTopics>> GetSubTopicCCList(Int64 TopicId, long UserId);
         Task<List<EmailTopics>> GetSubTopicSentList(Int64 TopicId, long UserId);

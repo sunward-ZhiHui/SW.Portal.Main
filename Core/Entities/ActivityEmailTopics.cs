@@ -15,6 +15,7 @@ namespace Core.Entities
         public long ActivityEmailTopicID { get; set; }
         public string SubjectName { get; set; }
         public Guid? SessionId { get; set; }
+        public Guid? DocumentSessionId { get; set; }
         public Guid? EmailTopicSessionId { get; set; }
         public string ActivityType { get; set; }
         public long FromId { get; set; }

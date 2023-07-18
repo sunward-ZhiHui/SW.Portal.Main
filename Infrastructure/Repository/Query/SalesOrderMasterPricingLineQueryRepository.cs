@@ -44,7 +44,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM View_SalesOrderMasterPricingLine WHERE itemid=1 and  SalesOrderMasterPricingId = @Id";
+                var query = "SELECT * FROM View_SalesOrderMasterPricingLine WHERE SalesOrderMasterPricingId = @Id";
                 var parameters = new DynamicParameters();
                 parameters.Add("Id", Id, DbType.Int64);
 

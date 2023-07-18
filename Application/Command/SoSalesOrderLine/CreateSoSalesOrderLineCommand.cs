@@ -22,6 +22,7 @@ namespace Application.Command.SoSalesOrderLine
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public int? StatusCodeId { get; set; }
+        public long? ItemId { get; set; }
 
         public CreateSoSalesOrderLineCommand()
         {

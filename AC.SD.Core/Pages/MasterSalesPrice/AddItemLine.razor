@@ -1,4 +1,5 @@
-﻿@using Application.Command.SoSalesOrderLine;
+﻿@using Application.Command.SalesOrderMasterPricingLine;
+@using Application.Command.SoSalesOrderLine;
 @using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
@@ -56,11 +57,11 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
 
-    <DxGrid @ref="Grid" Data="@_salesOrderLine" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    <DxGrid @ref="Grid" Data="@_addIitemPriceLine" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="SoSalesOrderLineId"
+            KeyFieldName="SalesOrderMasterPricingLineId"
             PageSizeSelectorVisible="true"
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -81,17 +82,14 @@
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="SoSalesOrderLineId" Visible="false" />
-            <DxGridDataColumn FieldName="ItemSerialNo" />
             <DxGridDataColumn FieldName="No" Caption="Item No" />
             <DxGridDataColumn FieldName="Description" />
-            <DxGridDataColumn FieldName="Description2" />
-            <DxGridDataColumn FieldName="Qty" />
             <DxGridDataColumn FieldName="BaseUnitofMeasure" Caption="Unit of measure" />
-            <DxGridDataColumn FieldName="UnitPrice" Caption="Unit price" />
+            <DxGridDataColumn FieldName="SellingPrice" Caption="Selling Price" />
             @* <DxGridDataColumn FieldName="AddedDate">
             <CellDisplayTemplate>
             @{
-            var item = (View_SoSalesOrderLine)context.DataItem;
+            var item = (View_SalesOrderMasterPricingLine)context.DataItem;
             }
             @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
             </CellDisplayTemplate>
@@ -99,59 +97,89 @@
             @*<DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" TextAlignment="GridTextAlignment.Left">
             <CellDisplayTemplate>
             @{
-            var item = (View_SoSalesOrderLine)context.DataItem;
+            var item = (View_SalesOrderMasterPricingLine)context.DataItem;
             }
             <div> @item.AddedBy</div>
             </CellDisplayTemplate>
             </DxGridDataColumn> *@
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SalesOrderMasterPricingLineId" />
+        </TotalSummary>
+         <DetailRowTemplate>       
+            <AddSellingMethods Items="(View_SalesOrderMasterPricingLine)context.DataItem" />
+         </DetailRowTemplate>
         @*  @bind-SelectedDataItems="SelectedDataItems"*@
         <EditFormTemplate Context="EditFormContext">
             @{
-                var types = (View_SoSalesOrderLine)EditFormContext.EditModel;
+                var types = (View_SalesOrderMasterPricingLine)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
 
-                <DxFormLayoutItem Caption="Item SerialNo" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Item No" ColSpanMd="6">
                     <DxComboBox Data="@_AllNavitems"
-                                NullText="Select Item SerialNo..."
+                                NullText="Select Item No..."
                                 ListRenderMode="ListRenderMode.Virtual"
                                 FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="ItemSerialNo"
+                                TextFieldName="No"
                                 ValueFieldName="ItemId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@types.ItemId" ShowValidationIcon="true"
                                 SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
                         <Columns>
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
+                                                Caption="Item No"
+                                                Width="190px" />
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
                                                 Caption="Item Serial No"
-                                                Width="180px" />
-                            <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
-                                                Caption="Item" />
+                                                Width="90px" />
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
                                                 Caption="Description" />
                         </Columns>
                     </DxComboBox>
                 </DxFormLayoutItem>
 
-                <DxFormLayoutItem Caption="Item No:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@No" Enabled=false />
-                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@Description" Enabled=false />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Description2:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@Description2" Enabled=false />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@BaseUnitofMeasure" Enabled=false />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Qty:" ColSpanMd="6">
-                    <DxSpinEdit @bind-Value="@types.Qty" />
+                <DxFormLayoutItem Caption="Selling Price:" ColSpanMd="3">
+                    <DxSpinEdit @bind-Value="@types.SellingPrice" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Unit price:" ColSpanMd="6">
-                    <DxSpinEdit @bind-Value="@types.UnitPrice" />
+                <DxFormLayoutItem Caption="Selling Method" ColSpanMd="3">
+                    <DxComboBox Data="@_viewSellingMethodItems"
+                                NullText="Select Selling Method..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailID"
+                                @bind-Value="@types.SellingMethodId" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.SellingMethodId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Allow Price" ColSpanMd="3">
+                    <DxComboBox Data="@_viewSalesPricingAllowItems"
+                                NullText="Select Sales Pricing For..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailID"
+                                @bind-Value="@types.SmAllowPriceId" ShowValidationIcon="true"
+                                SelectedItemChanged="@((View_ApplicationMasterDetail applicationMasterDetail) => SelectedAllowPriceChanged(applicationMasterDetail))" />
+                    <ValidationMessage For="@(() => types.SmAllowPriceId)" />
+                </DxFormLayoutItem>
+                @if(isAllowNewPrice)
+                {
+                    <DxFormLayoutItem Caption="New Allow Price:" ColSpanMd="3">
+                        <DxSpinEdit @bind-Value="@types.NewAllowPrice" />
+                    </DxFormLayoutItem>
+                }
+               
+                <DxFormLayoutItem Caption="Allow Price By Percent:" ColSpanMd="3">
+                    <DxSpinEdit @bind-Value="@types.SmAllowPriceByPercent" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Allow Price By:" ColSpanMd="3">
+                    <DxSpinEdit @bind-Value="@types.SmAllowPriceBy" />
                 </DxFormLayoutItem>
                 <ValidationSummary />
             </DxFormLayout>
@@ -178,7 +206,7 @@
 
 @code {
     [Parameter]
-    public long? SoSalesOrderId { get; set; }
+    public long? SalesOrderMasterPricingId { get; set; }
 
     private string TextValue { get; set; }
     private string No { get; set; }
@@ -187,14 +215,17 @@
     private string BaseUnitofMeasure { get; set; }
 
     private List<View_NavItems>? _AllNavitems;
+    private List<View_ApplicationMasterDetail> _viewSalesPricingAllowItems;
+    private List<View_ApplicationMasterDetail> _viewSellingMethodItems;
 
     bool PanelVisible { get; set; }
+    bool isAllowNewPrice { get; set; } = false;
     Dictionary<long, string>? UsernameIndex { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
-    private List<View_SoSalesOrderLine>? _salesOrderLine;
+    private List<View_SalesOrderMasterPricingLine>? _addIitemPriceLine;
     IGrid? Grid { get; set; }
-    private View_SoSalesOrderLine _selectedItems;
+    private View_SalesOrderMasterPricingLine _selectedItems;
     //bool EditEnabled { get; set; } = true;
     bool DeleteEnabled { get; set; } = false;
     bool ExportSelectedRowsOnly { get; set; }
@@ -211,60 +242,73 @@
     bool EditEnabled { get; set; } = false;
     bool AddEnabled { get; set; } = false;
     string SelectedGroup = "none";
-    private View_SoSalesOrderLine _selectlst;
+    private View_SalesOrderMasterPricingLine _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
 
+    void SelectedAllowPriceChanged(View_ApplicationMasterDetail applicationMasterDetail)
+    {
+        if(applicationMasterDetail.Value == "New")
+        {
+            isAllowNewPrice = true;
+        }
+        else
+        {
+             isAllowNewPrice = false;
+        }
+
+    }
 
     void SelectedItemChanged(View_NavItems navitems)
     {
         if (navitems != null)
         {
-            No = navitems.No;
+            //No = navitems.No;
             Description = navitems.Description;
-            Description2 = navitems.Description2;
+            //Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
         }
         else
         {
-            No = "";
+            //No = "";
             Description = "";
-            Description2 = "";
+            //Description2 = "";
             BaseUnitofMeasure = "";
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
-       
-            PanelVisible = true;
-            var navitemslst = await Mediator.Send(new GetAllNavItemsQuery());
-            _AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
 
-            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        PanelVisible = true;
+        _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
 
-            var soline = await Mediator.Send(new GetSalesOrderLine());
-            _salesOrderLine = soline.Where(x => x.SoSalesOrderId == SoSalesOrderId).ToList();
+        _viewSalesPricingAllowItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(339));
+        _viewSellingMethodItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(338));
 
-            if (SoSalesOrderId > 0)
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+
+        if (SalesOrderMasterPricingId > 0)
+        {
+            _addIitemPriceLine = await Mediator.Send(new GetAllSalesOrderMasterPricingLineQuery(SalesOrderMasterPricingId.Value));
+            AddEnabled = true;
+
+            if (_addIitemPriceLine.Count > 0)
             {
-                AddEnabled = true;
 
-                if (_salesOrderLine.Count > 0)
+                _selectedItems = _addIitemPriceLine.FirstOrDefault();
+
+                if (SelectedDataItems != null)
                 {
+                    EditEnabled = true;
+                    DeleteEnabled = true;
 
-                    _selectedItems = _salesOrderLine.FirstOrDefault();
-
-                    if (SelectedDataItems != null)
-                    {
-                        EditEnabled = true;
-                        DeleteEnabled = true;
-
-                        StateHasChanged();
-                    }
-
-
+                    StateHasChanged();
                 }
+
+
             }
+        }
 
         PanelVisible = false;
     }
@@ -272,25 +316,25 @@
     {
         if (firstRender)
         {
-            var navitemslst = await Mediator.Send(new GetAllNavItemsQuery());
-            _AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
+            _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
+            //_AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
         }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        var navitems = (View_SoSalesOrderLine)e.EditModel;
+        var navitems = (View_SalesOrderMasterPricingLine)e.EditModel;
         if (e.IsNew)
         {
-            No = "";
+            //No = "";
             Description = "";
-            Description2 = "";
+            //Description2 = "";
             BaseUnitofMeasure = "";
         }
         else
         {
-            No = navitems.No;
+            //No = navitems.No;
             Description = navitems.Description;
-            Description2 = navitems.Description2;
+            //Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
 
         }
@@ -298,8 +342,8 @@
     async Task UpdateDataAsync()
     {
         PanelVisible = true;
-        var models = await Mediator.Send(new GetSalesOrderLine());
-        _salesOrderLine = models.Where(x => x.SoSalesOrderId == SoSalesOrderId).ToList();
+        var models = await Mediator.Send(new GetAllSalesOrderMasterPricingLineQuery(SalesOrderMasterPricingId.Value));
+        _addIitemPriceLine = models.Where(x => x.SalesOrderMasterPricingId == SalesOrderMasterPricingId).ToList();
         PanelVisible = false;
         StateHasChanged();
     }
@@ -325,18 +369,22 @@
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
-        var editModel = (View_SoSalesOrderLine)e.EditModel;
+        var editModel = (View_SalesOrderMasterPricingLine)e.EditModel;
 
         if (e.IsNew)
         {
 
 
-            var createReq = new CreateSoSalesOrderLineCommand
+            var createReq = new CreateSalesOrderMasterPricingLineCommand
                 {
-                    SoSalesOrderId = SoSalesOrderId,
+                    SalesOrderMasterPricingId = SalesOrderMasterPricingId,
                     ItemId = editModel.ItemId,
-                    Qty = editModel.Qty,
-                    UnitPrice = editModel.UnitPrice,
+                    SellingMethodId = editModel.SellingMethodId,
+                    SellingPrice = editModel.SellingPrice,
+                    SmAllowPriceByPercent = editModel.SmAllowPriceByPercent,
+                    SmAllowPriceBy = editModel.SmAllowPriceBy,
+                    SmAllowPriceId = editModel.SmAllowPriceId,
+                    NewAllowPrice = editModel.NewAllowPrice,
                     StatusCodeId = 1,
                     AddedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
@@ -363,14 +411,20 @@
         }
         else
         {
-            var UpdateReq = new EditSoSalesOrderLineCommand
+            var UpdateReq = new EditSalesOrderMasterPricingLineCommand
                 {
-                    SoSalesOrderLineId = editModel.SoSalesOrderLineId,
-                    SoSalesOrderId = SoSalesOrderId,
+                    SalesOrderMasterPricingLineId = editModel.SalesOrderMasterPricingLineId,
+                    SalesOrderMasterPricingId = SalesOrderMasterPricingId,
                     ItemId = editModel.ItemId,
-                    Qty = editModel.Qty,
-                    UnitPrice = editModel.UnitPrice,
+                    SellingMethodId = editModel.SellingMethodId,
+                    SellingPrice = editModel.SellingPrice,
+                    SmAllowPriceByPercent = editModel.SmAllowPriceByPercent,
+                    SmAllowPriceBy = editModel.SmAllowPriceBy,
+                    SmAllowPriceId = editModel.SmAllowPriceId,
+                    NewAllowPrice = editModel.NewAllowPrice,
                     StatusCodeId = 1,
+                    AddedDate = editModel.AddedDate,
+                    AddedByUserId = editModel.AddedByUserId,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
 
@@ -409,14 +463,14 @@
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
 
-        var editModel = (View_SoSalesOrderLine)e.DataItem;
+        var editModel = (View_SalesOrderMasterPricingLine)e.DataItem;
 
         //  string result = string.Empty;
         //  result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
         // Console.WriteLine(result);
         // await UpdateDataAsync();
 
-        var request = new DeleteSoSalesOrderLineCommand(editModel.SoSalesOrderLineId);
+        var request = new DeleteSalesOrderMasterPricingLineCommand(editModel.SalesOrderMasterPricingLineId);
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
@@ -430,7 +484,7 @@
         }
 
     }
-    void Onclick(DataGridSelection<View_SoSalesOrderLine> e)
+    void Onclick(DataGridSelection<View_SalesOrderMasterPricingLine> e)
     {
 
 
@@ -439,8 +493,8 @@
 
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SoSalesOrderLineId");
-        _selectedItems = _salesOrderLine.FirstOrDefault(f => f.SoSalesOrderLineId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SalesOrderMasterPricingLineId");
+        _selectedItems = _addIitemPriceLine.FirstOrDefault(f => f.SalesOrderMasterPricingLineId == (long?)UniqueId);
 
         StateHasChanged();
 
@@ -465,10 +519,10 @@
             foreach (object item in SelectedDataItems)
             {
 
-                if (item is View_SoSalesOrderLine view_SoSalesOrderLine)
+                if (item is View_SalesOrderMasterPricingLine View_SalesOrderMasterPricingLine)
                 {
 
-                    _selectlst = _salesOrderLine.FirstOrDefault(f => f.SoSalesOrderLineId == view_SoSalesOrderLine.SoSalesOrderLineId);
+                    _selectlst = _addIitemPriceLine.FirstOrDefault(f => f.SalesOrderMasterPricingLineId == View_SalesOrderMasterPricingLine.SalesOrderMasterPricingLineId);
 
 
                 }
@@ -497,10 +551,10 @@
                 foreach (object item in SelectedDataItems)
                 {
 
-                    if (item is View_SoSalesOrderLine view_SoSalesOrderLine)
+                    if (item is View_SalesOrderMasterPricingLine View_SalesOrderMasterPricingLine)
                     {
 
-                        var request = new DeleteSoSalesOrderLineCommand(view_SoSalesOrderLine.SoSalesOrderLineId);
+                        var request = new DeleteSalesOrderMasterPricingLineCommand(View_SalesOrderMasterPricingLine.SalesOrderMasterPricingLineId);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);

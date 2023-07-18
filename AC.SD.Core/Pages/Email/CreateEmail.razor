@@ -109,6 +109,7 @@ else
                                       ValueFieldName="UserID"
                                       TextFieldName="FirstName"
                                       TagsChanged="@onToChanged"
+                                      ListRenderMode="ListRenderMode.Virtual"
                                       @bind-Values="Data.ToIds"
                                       CssClass="cw-480">
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
@@ -128,6 +129,7 @@ else
                                 <DxTagBox NullText="Select Cc..."
                                       Data="_participant"
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                      ListRenderMode="ListRenderMode.Virtual"
                                       ValueFieldName="UserID"
                                       TextFieldName="FirstName"
                                       TagsChanged="@onCcChanged"
@@ -149,6 +151,7 @@ else
                                 <DxComboBox Data="@_Allparticipant"
                                         NullText="Select OnBehalf..."
                                         FilteringMode="DataGridFilteringMode.Contains"
+                                        ListRenderMode="ListRenderMode.Virtual"
                                         TextFieldName="FirstName"
                                         ValueFieldName="UserID"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"

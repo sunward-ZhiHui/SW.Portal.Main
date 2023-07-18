@@ -36,6 +36,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ViewPlants>> GetAllByNavCompanyAsync()
+        {
+            try
+            {
+                var query = "select  * from view_Plants where NavCompany is not null";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewPlants>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<ViewPlants> GetByIdAsync(long id)
         {
             try

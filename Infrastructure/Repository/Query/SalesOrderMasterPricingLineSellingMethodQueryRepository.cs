@@ -49,7 +49,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<SalesOrderMasterPricingLineSellingMethod>(query)).ToList();
+                    return (await connection.QueryAsync<SalesOrderMasterPricingLineSellingMethod>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)

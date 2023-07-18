@@ -16,5 +16,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<View_SalesOrderMasterPricing>> GetAllByMasterTypeAsync(string MasterType);
         Task<View_SalesOrderMasterPricing> GetByIdAsync(long? Id);
         Task<View_SalesOrderMasterPricing> GetBySessionIdAsync(Guid? SessionId);
+        Task<View_SalesOrderMasterPricing> GetCheckPriceValidaityDateAsync(SalesOrderMasterPricing view_SalesOrderMasterPricing);
+        Task<long> InsertSalesOrderMasterPricingLineAsync(SalesOrderMasterPricing salesOrderMasterPricing);
+
     }
 }

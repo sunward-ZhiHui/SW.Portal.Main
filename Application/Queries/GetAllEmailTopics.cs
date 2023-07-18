@@ -111,4 +111,12 @@ namespace Application.Queries
             this.ID = ID;
         }
     }
+    public class GetAllCreateEmailDocumentLst : PagedRequest, IRequest<List<Documents>>
+    {
+        public Guid SessionId { get; private set; }
+        public GetAllCreateEmailDocumentLst(Guid sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
 }

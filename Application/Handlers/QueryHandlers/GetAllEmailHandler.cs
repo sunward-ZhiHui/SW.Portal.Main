@@ -252,4 +252,19 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<ActivityEmailTopics>)await _queryRepository.GetListAsync();
         }
     }
+
+    public class GetCreateEmailDocumentsHandler : IRequestHandler<GetAllCreateEmailDocumentLst, List<Documents>>
+    {
+        private readonly IEmailTopicsQueryRepository _createEmailDocumentsQueryRepository;
+
+        public GetCreateEmailDocumentsHandler(IEmailTopicsQueryRepository createEmailDocumentsQueryRepository)
+        {
+
+            _createEmailDocumentsQueryRepository = createEmailDocumentsQueryRepository;
+        }
+        public async Task<List<Documents>> Handle(GetAllCreateEmailDocumentLst request, CancellationToken cancellationToken)
+        {
+            return (List<Documents>)await _createEmailDocumentsQueryRepository.GetCreateEmailDocumentListAsync(request.SessionId);
+        }
+    }
 }

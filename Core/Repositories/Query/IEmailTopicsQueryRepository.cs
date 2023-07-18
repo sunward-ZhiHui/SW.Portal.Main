@@ -29,5 +29,6 @@ namespace Core.Repositories.Query
         Task<EmailTopics> GetTopicListAsync();      
         Task<long> UpdateDueDate(EmailTopics EmailTopics);
         Task<long> UpdateTopicClose(EmailTopics EmailTopics);
+        Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId);
     }
 }

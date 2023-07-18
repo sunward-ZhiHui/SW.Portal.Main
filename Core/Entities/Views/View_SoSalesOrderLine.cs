@@ -29,6 +29,7 @@ namespace Core.Entities.Views
         public string? ModifiedBy { get; set; }
         public string? AddedBy { get; set; }
         public string? NavCompany { get; set; }
+        public string? NavCompanyName { get;set; }
         public string? ShipCode { get; set; }
     }
 }

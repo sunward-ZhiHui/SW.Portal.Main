@@ -21,7 +21,7 @@
             <Items>
                 @*<DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />*@
                 <DxMenuItem Text="Post Sales Order" IconCssClass="fa fa-add" Click="@addPostSO" />
-               @* <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                @* <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />*@
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
             </Items>
@@ -30,18 +30,24 @@
 </div>
 
 
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
-    <div class="text-center">
-        <p>@errorMessage</p>
+<DxPopup @ref="popup" HeaderText="Unexpected Error" ShowCloseButton="true" AllowResize=true  @bind-Visible="@PopupVisible" AllowDrag=true>
+
+
+    <BodyContentTemplate>
+        <p>
+            @errorMessage
+        </p>
         <DxButton Text="OK" Click="@(() => ClosePopup())" />
-    </div>
+    </BodyContentTemplate>
+
+
 </DxPopup>
-<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+@*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
     <div class="text-center">
         <p>@DeleteerrorMessage</p>
         <DxButton Text="OK" Click="@(() => ClosePopup())" />
     </div>
-</DxPopup>
+</DxPopup>*@
 
 <DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
     <BodyTemplate Context="PopupContext">
@@ -80,8 +86,8 @@
 
 
         <Columns>
-           @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
-            <DxGridDataColumn FieldName="PostSalesOrderID" Visible="false" />          
+            @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
+            <DxGridDataColumn FieldName="PostSalesOrderID" Visible="false" />
             <DxGridDataColumn FieldName="SignOrderNo" Caption="Sign Order No" />
             <DxGridDataColumn FieldName="SalesOrderNo" />
             <DxGridDataColumn FieldName="OrderDate">
@@ -91,9 +97,9 @@
                     }
                     @Application.Common.Helper.Helper.FormatDateTime(item.OrderDate)
                 </CellDisplayTemplate>
-            </DxGridDataColumn>         
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="OrderBy" />
-            
+
             @* <DxGridDataColumn FieldName="AddedDate">
             <CellDisplayTemplate>
             @{
@@ -123,14 +129,14 @@
                     <DxTextBox @bind-Text="@items.ItemSerialNo" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Sign Order No:" ColSpanMd="3">
-                    <DxTextBox @bind-Text="@items.SignOrderNo"  />
+                    <DxTextBox @bind-Text="@items.SignOrderNo" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Sales Order No:" ColSpanMd="3">
-                    <DxTextBox @bind-Text="@items.SalesOrderNo"  />
+                    <DxTextBox @bind-Text="@items.SalesOrderNo" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="OrderDate:" ColSpanMd="3">
                     @EditFormContext.GetEditor("OrderDate")
-                </DxFormLayoutItem>               
+                </DxFormLayoutItem>
                 <ValidationSummary />
             </DxFormLayout>
         </EditFormTemplate>
@@ -214,12 +220,12 @@
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");      
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _postSalesOrder = await Mediator.Send(new GetPostSalesOrder());
-        // _postSalesOrder = soline.Where(x => x.PostSalesOrderID == PostSalesOrderID).ToList();       
+        // _postSalesOrder = soline.Where(x => x.PostSalesOrderID == PostSalesOrderID).ToList();
 
         PanelVisible = false;
-    }   
+    }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
 
@@ -227,7 +233,7 @@
     async Task UpdateDataAsync()
     {
         PanelVisible = true;
-        _postSalesOrder = await Mediator.Send(new GetPostSalesOrder());        
+        _postSalesOrder = await Mediator.Send(new GetPostSalesOrder());
         PanelVisible = false;
         StateHasChanged();
     }
@@ -260,14 +266,14 @@
 
 
             var createReq = new CreatePostSalesOrderCommand
-                {                                    
+                {
                     SoSalesOrderID = SoSalesOrderId,
                     ItemSerialNo = editModel.ItemSerialNo,
                     SignOrderNo = editModel.SignOrderNo,
                     SalesOrderNo = editModel.SalesOrderNo,
                     OrderDate = editModel.OrderDate,
                     OrderBy = editModel.OrderBy,
-                    StatusCodeId = 1,                   
+                    StatusCodeId = 1,
                     AddedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedByUserId = applicationUser.UserID,
@@ -375,18 +381,28 @@
         Grid.StartEditNewRowAsync();
 
     }
-    async void addPostSO()
+    async Task addPostSO()
     {
-        var postNAVReq = new PostNAVSalesOrderQuery
+        try
         {
-            SoSalesOrderID = SoSalesOrderId,                
-            StatusCodeId = 1,
-            AddedByUserId = applicationUser.UserID,
-            AddedDate = DateTime.Now,
-            ModifiedByUserId = applicationUser.UserID,
-            ModifiedDate = DateTime.Now,
-        };       
-        var result = await Mediator.Send(postNAVReq);
+            var postNAVReq = new PostNAVSalesOrderQuery
+                {
+                    SoSalesOrderID = SoSalesOrderId,
+                    StatusCodeId = 1,
+                    AddedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedByUserId = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                };
+            var result = await Mediator.Send(postNAVReq);
+        }
+        catch (Exception ex)
+        {
+            PopupVisible = true;
+            errorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+            //toastService.ShowToast(errorMessage, AC.SD.Core.Services.ToastLevel.Error);
+        }
+
     }
     void addEdit()
     {

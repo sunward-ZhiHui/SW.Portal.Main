@@ -19,6 +19,11 @@ namespace Application.Queries
     public class GetSalesOrderLine : PagedRequest, IRequest<List<View_SoSalesOrderLine>>
     {
         public string SearchString { get; set; }
+        public long? Id { get; set; }
+        public GetSalesOrderLine(long? Id)
+        {
+            this.Id = Id;
+        }
     }
 
     public class GetPostSalesOrder : PagedRequest, IRequest<List<PostSalesOrder>>

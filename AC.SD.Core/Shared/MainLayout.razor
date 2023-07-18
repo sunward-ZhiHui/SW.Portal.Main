@@ -108,18 +108,35 @@
             </DxScrollView>
             <div class="info-wrapper">
                 @*<div class="version">Version: @DemoVersion.Version</div>*@
-                <div class="copyright">
-                    <span>Copyright &copy; Sunward Pharma </span>
-                </div>
+                @* <div class="copyright">
+                <span>Copyright &copy; Sunward Pharma </span>
+                </div>*@
             </div>
         </div>
         <div class="main">
             <div class="content" @key="ShouldUseThemeNameKey() ? ThemeName : null">
+
                 <CascadingValue Value="@ScrollToTargetLocked" Name="ScrollToTargetLocked">
                     <CascadingValue Value="@ThemeName" Name="ThemeName">
-                        @Body
+                        <ErrorBoundary @ref="@errorBoundary">
+                            <ChildContent>
+                                @Body
+                            </ChildContent>
+                            <ErrorContent Context="Exception">
+                                <div>
+                                    @Exception.Message<br />
+                                </div>
+
+                                <div>
+                                    @Exception.InnerException<br />
+                                </div>
+
+                            </ErrorContent>
+                        </ErrorBoundary>
+
                     </CascadingValue>
                 </CascadingValue>
+
             </div>
             <div class="content-footer"></div>
         </div>
@@ -191,6 +208,10 @@
     NavigationManager NavigationManager { get; set; }
     [Inject]
     IJSRuntime JSRuntime { get; set; }
+    /// <summary>
+    /// The content to be displayed when there is an error.
+    /// </summary>
+    [Parameter] public RenderFragment<Exception>? ErrorContent { get; set; }
     private bool loading;
     public ApplicationUser applicationUser { get; private set; }
     protected string ThemeName
@@ -205,7 +226,11 @@
             }
         }
     }
-
+    private ErrorBoundary errorBoundary;
+    protected override void OnParametersSet()
+    {
+        errorBoundary?.Recover();
+    }
     protected override async void OnInitialized()
     {
         ThemeName = Themes.ActiveTheme.Name;

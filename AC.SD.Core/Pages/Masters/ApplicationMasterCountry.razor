@@ -1,184 +1,215 @@
-﻿
-@page "/applicationCountrylst"
-@using Microsoft.Extensions.Configuration;
-@using global::Core.Entities
+﻿@page "/applicationCountry"
 @using Application.Command.ApplicationMasterChilds;
-@using Application.Command.ApplicationMasterDetails;
 @using Application.Queries;
+@using DevExpress.Export;
+@using global::Core.EntityModels;
 @using MediatR
 @using global::Core.Entities;
 @inject IMediator Mediator
-@using DevExpress.Export
-@using global::Core.EntityModels;
-@using global::Core.Entities.Views;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IJSRuntime jsRuntime
 @using global::Core.Repositories.Query;
-@inject ILocalStorageService<ApplicationUser> _localStorageService
-@inject IConfiguration Configuration
-@inject NavigationManager NavigationManager
 
-<div class="main-container">
 
-    <div class="content-container row">
 
-        <div class="menu-bar-content-container col-md-6">
-            <div class="content-padding-20">
-                <div class="menu-bar-content-container-heading">
-                    <div class="heading-icon-text">
-                        <div class="mb-cc-text">
-                            <div class="card w-100">
-                                <div class="card-body p-0">
-                                    <DxLoadingPanel @bind-Visible="PanelVisible"
-                                                    IsContentBlocked="true"
-                                                    ApplyBackgroundShading="true"
-                                                    IndicatorAreaVisible="false"
-                                                    Text="Fetching Data...">
 
-                                        <DxGrid @ref="MasterGrid" Data="@_applicationMasterItems"
-                                                EditMode="GridEditMode.EditForm"
-                                                ShowGroupPanel="true"
-                                                ShowGroupedColumns="true"
-                                                ShowSearchBox="true"
-                                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                                PagerNavigationMode="PagerNavigationMode.InputBox"
-                                                KeyFieldName="ApplicationMasterParentId"
-                                                PageSizeSelectorVisible="true"
-                                                PageSizeSelectorAllRowsItemVisible="false"
-                                                PageSizeSelectorItems="@(new int[] { 5,10,20,30,50,100 })"
-                                                PageSize="20"
-                                                style="height: calc(100vh - 180px);"
-                                                CssClass="ch-360"
-                                                AllowSelectRowByClick="true"
-                                                CustomizeElement="Grid_CustomizeElement"
-                                                AutoExpandAllGroupRows="true"
-                                                SelectionMode="GridSelectionMode.Single"
-                                                SelectedDataItemsChanged="@SelectedDataItemsChanged"
-                                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
-                                            <Columns>
-                                                <DxGridSelectionColumn AllowSelectAll="false" Width="60px" />
-                                                <DxGridDataColumn FieldName="ApplicationMasterParentId" Visible="false" />
-                                                <DxGridDataColumn FieldName="ApplicationMasterParentCodeId" Visible="false" />
-                                                <DxGridDataColumn FieldName="ApplicationMasterName" Caption="Master Name" />
-                                                <DxGridDataColumn FieldName="Description" Caption="Description" />
-                                            </Columns>
-                                            <TotalSummary>
-                                                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ApplicationMasterName" />
-                                            </TotalSummary>
-                                        </DxGrid>
 
-                                    </DxLoadingPanel>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    
-
-        <div class="menu-bar-content-container col-md-6">
-            <div class="content-padding-20">
-                <div class="menu-bar-content-container-heading">
-                    <div class="heading-icon-text">
-                        <div class="mb-cc-text">
-                            <div class="card w-100">
-                                <div class="card-body p-0">
-                                    @if (IsCountry == true)
-                                    {
-                                        <ApplicationMasterCountry/>
-                                    }
-                                   else
-                                   {
-                                        <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
-                                            <div class="card-body p-0">
-
-                                                <DxMenu Orientation="Orientation.Horizontal"
-                                                    DisplayMode="MenuDisplayMode.Desktop">
+<div class="cw-480 ch-220">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+            <DxFormLayoutTabPage Caption="Country">
+               <DxMenu Orientation="Orientation.Horizontal"
+                                                        DisplayMode="MenuDisplayMode.Desktop">
                                                     <Items>
                                                         <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                                                         <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                                                         <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                                                         <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
-                                                        <DxMenuItem Text="@DisplayParent" IconCssClass="fa fa-add" Click="@addEditNewChild" Visible="@EditNewChildEnabled" />
                                                     </Items>
                                                 </DxMenu>
-                                            </div>
-                                        </div>
-                                        <DxLoadingPanel @bind-Visible="PanelVisibleMastersDetails"
-                                                    IsContentBlocked="true"
-                                                    ApplyBackgroundShading="true"
-                                                    IndicatorAreaVisible="false"
-                                                    Text="Fetching Data...">
+                                            <DxLoadingPanel @bind-Visible=" PanelVisible"
+                                                                IsContentBlocked="true"
+                                                                ApplyBackgroundShading="true"
+                                                                IndicatorAreaVisible="false"
+                                                                Text="Fetching Data...">
+                    @*SelectedDataItemsChanged="@SelectedMasterDataItemsChanged"*@
+                                                    <DxGrid @ref="Grid" Data="@_applicationMasterDetails"
+                                                            EditMode="GridEditMode.EditForm"
+                                                            ShowGroupPanel="true"
+                                                            ShowGroupedColumns="true"
+                                                            ShowSearchBox="true"
+                                                            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                                            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                                            PagerNavigationMode="PagerNavigationMode.InputBox"
+                                                            KeyFieldName="ApplicationMasterChildId"
+                                                            PageSizeSelectorVisible="true"
+                                                            PageSizeSelectorAllRowsItemVisible="false"
+                                                            PageSizeSelectorItems="@(new int[] { 5,10,20,30,50,100 })"
+                                                            PageSize="20"
+                                                            style="height: calc(100vh - 240px);"
+                                                            CssClass="ch-360"
+                                                            AllowSelectRowByClick="true"
+                                                            EditModelSaving="Grid_EditModelSaving"
+                                                            DataItemDeleting="Grid_DataItemDeleting"
+                                                            CustomizeEditModel="Grid_CustomizeEditModel"
+                                                            CustomizeElement="Grid_CustomizeElement"
+                                                            AutoExpandAllGroupRows="true"
+                            SelectedDataItemsChanged="@SelectedMasterDataItemsChanged"
+                                                            FocusedRowEnabled="true"
+                                                            RowDoubleClick="OnRowDoubleClick"
+                                                            RowClick="OnRowClick"
+                                                            SelectionMode="GridSelectionMode.Multiple"
+                                                            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+                                                        <Columns>
+                                                            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+                                                            <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
+                                                            <DxGridDataColumn FieldName="Value" Caption="Name" />
+                                                            <DxGridDataColumn FieldName="Description" Caption="Description" />
+                                                        </Columns>
+                                                        <EditFormTemplate Context="EditFormContext">
+                                                             @{
+                                                             var plant = (ApplicationMasterChildModel)EditFormContext.EditModel;
+                                                               }
+                                                            <DxFormLayout CssClass="w-100">
+                                                                <DxFormLayoutItem Caption="Name" ColSpanMd="12">
+                                                                    <DxTextBox @bind-Text="@plant.Value" ShowValidationIcon="true" />
+                                                                    <ValidationMessage For="@(() => plant.Value)" />
+                                                                </DxFormLayoutItem>
+                                                                <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                                                                    <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
+                                                                    <ValidationMessage For="@(() => plant.Description)" />
+                                                                </DxFormLayoutItem>
 
-                                            <DxGrid @ref="Grid" Data="@_applicationMasterDetails"
-                                                EditMode="GridEditMode.EditForm"
-                                                ShowGroupPanel="true"
-                                                ShowGroupedColumns="true"
-                                                ShowSearchBox="true"
-                                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                                PagerNavigationMode="PagerNavigationMode.InputBox"
-                                                KeyFieldName="ApplicationMasterChildId"
-                                                PageSizeSelectorVisible="true"
-                                                PageSizeSelectorAllRowsItemVisible="false"
-                                                PageSizeSelectorItems="@(new int[] { 5,10,20,30,50,100 })"
-                                                PageSize="20"
-                                                    style="height: calc(100vh - 240px);"
-                                                CssClass="ch-360"
-                                                AllowSelectRowByClick="true"
-                                                EditModelSaving="Grid_EditModelSaving"
-                                                DataItemDeleting="Grid_DataItemDeleting"
-                                                CustomizeEditModel="Grid_CustomizeEditModel"
-                                                CustomizeElement="Grid_CustomizeElement"
-                                                AutoExpandAllGroupRows="true"
-                                                SelectedDataItemsChanged="@SelectedMasterDataItemsChanged"
-                                                FocusedRowEnabled="true"
-                                                RowDoubleClick="OnRowDoubleClick"
-                                                RowClick="OnRowClick"
-                                                SelectionMode="GridSelectionMode.Multiple"
-                                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
-                                                <Columns>
-                                                    <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-                                                    <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
-                                                    <DxGridDataColumn FieldName="Value" Caption="Name" />
-                                                    <DxGridDataColumn FieldName="Description" Caption="Description" />
-                                                </Columns>
-                                                <EditFormTemplate Context="EditFormContext">
-                                                    @{
-                                                        var plant = (ApplicationMasterChildModel)EditFormContext.EditModel;
-                                                    }
-                                                    <DxFormLayout CssClass="w-100">
-                                                        <DxFormLayoutItem Caption="Name" ColSpanMd="12">
-                                                            <DxTextBox @bind-Text="@plant.Value" ShowValidationIcon="true" />
-                                                            <ValidationMessage For="@(() => plant.Value)" />
-                                                        </DxFormLayoutItem>
-                                                        <DxFormLayoutItem Caption="Description" ColSpanMd="12">
-                                                            <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
-                                                            <ValidationMessage For="@(() => plant.Description)" />
-                                                        </DxFormLayoutItem>
+                                                            </DxFormLayout>
+                                                        </EditFormTemplate>
+                                                        <TotalSummary>
+                                                            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Value" />
+                                                        </TotalSummary>
+                                                    </DxGrid>
 
-                                                    </DxFormLayout>
-                                                </EditFormTemplate>
-                                                <TotalSummary>
-                                                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Value" />
-                                                </TotalSummary>
-                                            </DxGrid>
+                                                </DxLoadingPanel>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="State" Visible="@StateEnabled" Click="StateClick">
+                <DxMenu Orientation="Orientation.Horizontal"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewChild" />
+                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEditChild" Enabled="@EditChildEnabled" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDeleteChild" Enabled="@DeleteChildEnabled" />
+                    </Items>
+                </DxMenu>
+                @*  SelectedDataItemsChanged="SelectedMasterChildDataItemsChanged"*@
+                <DxGrid @ref="GridChild"
+                        Data="_applicationChildItems"
+                        KeyFieldName="ApplicationMasterChildId"
+                        EditModelSaving="Grid_EditModelSavingChild"
+                        DataItemDeleting="Grid_DataItemDeletingChild"
+                        CustomizeEditModel="Grid_CustomizeEditModelChild"
+                        ShowSearchBox="true"
+                        PagerNavigationMode="PagerNavigationMode.InputBox"
+                        PageSizeSelectorVisible="true"
+                        PageSizeSelectorAllRowsItemVisible="true"
+                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                        PageSize="20"
+                        SelectionMode="GridSelectionMode.Multiple"
+                        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                        ValidationEnabled="true"
+                        AutoExpandAllGroupRows="true"
+                        CustomizeElement="Grid_CustomizeElement"
+                        FocusedRowEnabled="true"
+                        RowClick="OnRowChildClick"
+                        SelectedDataItemsChanged="SelectedMasterChildDataItemsChanged"
+                        style="height: calc(50vh - 50px);padding:10px;"
+                        RowDoubleClick="OnRowChildDoubleClick"
+                        AllowSelectRowByClick="true"
+                        CssClass="ch-360">
+                    <Columns>
+                        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+                        <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
+                        <DxGridDataColumn FieldName="Value" Caption="Name" />
+                        <DxGridDataColumn FieldName="Description" Caption="Description" />
+                    </Columns>
+                    <EditFormTemplate Context="EditFormContext">
+                        @{
+                            var childData = (ApplicationMasterChildModel)EditFormContext.EditModel;
+                        }
+                        <DxFormLayout CssClass="w-100">
+                            <DxFormLayoutItem Caption="Name" ColSpanMd="12">
+                                <DxTextBox @bind-Text="@childData.Value" ShowValidationIcon="true" />
+                                <ValidationMessage For="@(() => childData.Value)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                                <DxMemo @bind-Text="@childData.Description" Rows="5" ShowValidationIcon="true" />
+                                <ValidationMessage For="@(() => childData.Description)" />
+                            </DxFormLayoutItem>
 
-                                        </DxLoadingPanel>
-                                    }
-                                           
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                        </DxFormLayout>
+                    </EditFormTemplate>
+                </DxGrid>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="City" Visible = "@CityEnabled"  Click ="CityClick">
+                <DxMenu Orientation="Orientation.Horizontal"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewChildChild" />
+                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEditChildChild" Enabled="@EditChildChildEnabled" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDeleteChildChild" Enabled="@DeleteChildChildEnabled" />
+                    </Items>
+                </DxMenu>
+                <DxGrid @ref="GridChildChild"
+                        Data="_applicationChildChildItems"
+                        KeyFieldName="ApplicationMasterChildId"
+                        EditModelSaving="Grid_EditModelSavingChildChild"
+                        DataItemDeleting="Grid_DataItemDeletingChildChild"
+                        CustomizeEditModel="Grid_CustomizeEditModelChildChild"
+                        ShowSearchBox="true"
+                        PagerNavigationMode="PagerNavigationMode.InputBox"
+                        PageSizeSelectorVisible="true"
+                        PageSizeSelectorAllRowsItemVisible="true"
+                        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                        PageSize="20"
+                        SelectionMode="GridSelectionMode.Multiple"
+                        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                        ValidationEnabled="true"
+                        AutoExpandAllGroupRows="true"
+                        CustomizeElement="Grid_CustomizeElement"
+                        FocusedRowEnabled="true"
+                        RowClick="OnRowChildChildClick"
+                        SelectedDataItemsChanged="SelectedMasterChildChildDataItemsChanged"
+                        style="height: calc(50vh - 50px);padding:10px;"
+                        RowDoubleClick="OnRowChildChildDoubleClick"
+                        AllowSelectRowByClick="true"
+                        CssClass="ch-360">
+                    <Columns>
+                        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+                        <DxGridDataColumn FieldName="ApplicationMasterChildId" Visible="false" />
+                        <DxGridDataColumn FieldName="Value" Caption="Name" />
+                        <DxGridDataColumn FieldName="Description" Caption="Description" />
+                    </Columns>
+                    <EditFormTemplate Context="EditFormContext">
+                        @{
+                            var childChildData = (ApplicationMasterChildModel)EditFormContext.EditModel;
+                        }
+                        <DxFormLayout CssClass="w-100">
+                            <DxFormLayoutItem Caption="Name" ColSpanMd="12">
+                                <DxTextBox @bind-Text="@childChildData.Value" ShowValidationIcon="true" />
+                                <ValidationMessage For="@(() => childChildData.Value)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                                <DxMemo @bind-Text="@childChildData.Description" Rows="5" ShowValidationIcon="true" />
+                                <ValidationMessage For="@(() => childChildData.Description)" />
+                            </DxFormLayoutItem>
+
+                        </DxFormLayout>
+                    </EditFormTemplate>
+                </DxGrid>
+            </DxFormLayoutTabPage>
+           
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
 </div>
+ @*Country Delete PopUp*@
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
          HeaderText="CRT"
@@ -203,10 +234,7 @@
         <DxButton Text="OK" Click="@(() => ClosePopup())" />
     </div>
 </DxPopup>
-
-
-
-
+ @*State Delete Popup*@
 <DxPopup @bind-Visible="@BlukDeleteChildPopup"
          ShowFooter="true"
          HeaderText="CRT"
@@ -231,10 +259,7 @@
         <DxButton Text="OK" Click="@(() => CloseChildPopup())" />
     </div>
 </DxPopup>
-
-
-
-
+@*City Delete PopUp*@
 <DxPopup @bind-Visible="@BlukDeleteChildChildPopup"
          ShowFooter="true"
          HeaderText="CRT"
@@ -260,47 +285,40 @@
     </div>
 </DxPopup>
 @code {
-    public bool IsCountry { get; set; } = false;
-    public int ActiveTabIndex { get; set; } = 0;
-    IGrid? MasterGrid { get; set; }
-    IGrid? Grid { get; set; }
-    IGrid? GridChild { get; set; }
-    IGrid? GridChildChild { get; set; }
-    private List<ApplicationMasterParent> _applicationMasterItems;
-    private List<ApplicationMasterParent> _applicationMasterAllItems;
-    private List<ApplicationMasterChildModel> _applicationMasterDetails { get; set; }
-    private List<ApplicationMasterChildModel> _applicationChildItems { get; set; }
-    private List<ApplicationMasterChildModel> _applicationChildChildItems { get; set; }
-    bool PanelVisible { get; set; }
-    bool PanelVisibleMastersDetails { get; set; }
-    private ApplicationMasterChildModel? _selectedItems;
-    IReadOnlyList<object> SelectedDataItems { get; set; }
-    private ApplicationMasterParent _selectItems;
-    bool AddEnabled { get; set; } = false;
-    bool EditEnabled { get; set; } = false;
-    bool EditNewChildEnabled { get; set; } = false;
-    bool DeleteEnabled { get; set; } = false;
-    bool Blukdeletepopup { get; set; } = false;
+    //Country 
     DxPopup? popup;
-    public string DisplayParent { get; set; }
-    IReadOnlyList<object> SelectedMasterDataItems { get; set; }
+    public int ActiveTabIndex { get; set; } = 0;
+    bool PanelVisible { get; set; }
+    IGrid? Grid { get; set; }
+    bool AddEnabled { get; set; } = true;
+    bool EditEnabled { get; set; } = false;
+    bool StateEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    private List<ApplicationMasterChildModel> _applicationMasterDetails { get; set; }
+    private ApplicationMasterChildModel? _selectedItems;
     public ApplicationUser applicationUser { get; private set; }
+    private ApplicationMasterParent _selectItems;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     bool PopupVisible { get; set; } = false;
     string? DeleteerrorMessage;
-    public string ChildHeaderName { get; set; }
+    bool Blukdeletepopup { get; set; } = false;
+
+    //State
+    IGrid? GridChild { get; set; }
+    private List<ApplicationMasterChildModel> _applicationChildItems { get; set; }
+    bool BlukDeleteChildPopup { get; set; } = false;
+    private ApplicationMasterChildModel? _selectedChildItems;
+    IReadOnlyList<object> SelectedMasterChildDataItems { get; set; }
+    DxPopup? Childpopup;
     bool ChildPopupVisible { get; set; }
     bool ChildPopupClose { get; set; }
     bool EditChildEnabled { get; set; } = false;
     bool DeleteChildEnabled { get; set; } = false;
-    private ApplicationMasterChildModel? _selectedChildItems;
-    IReadOnlyList<object> SelectedMasterChildDataItems { get; set; }
-    bool BlukDeleteChildPopup { get; set; } = false;
-    DxPopup? Childpopup;
-    bool EditNewChildChildEnabled { get; set; } = false;
-    public string DisplayChild { get; set; }
-    public string BaseUrl;
-
-    public string ChildChildHeaderName { get; set; }
+    private List<ApplicationMasterParent> _applicationMasterAllItems;
+    bool EditNewChildEnabled { get; set; } = false;
+    //City
+    bool CityEnabled { get; set; } = false;
+    IGrid? GridChildChild { get; set; }
     bool ChildChildPopupVisible { get; set; }
     bool ChildChildPopupClose { get; set; }
     bool EditChildChildEnabled { get; set; } = false;
@@ -309,86 +327,23 @@
     IReadOnlyList<object> SelectedMasterChildChildDataItems { get; set; }
     bool BlukDeleteChildChildPopup { get; set; } = false;
     DxPopup? ChildChildpopup;
+    private List<ApplicationMasterChildModel> _applicationChildChildItems { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
-        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        PanelVisible = true;
-        _applicationMasterItems = await Mediator.Send(new GetAllApplicationMasterParentQuery());
         _applicationMasterAllItems = await Mediator.Send(new GetAllApplicationMasterParentAllQuery());
+        PanelVisible = true;
+        await UpdateDataAsync();
+
         PanelVisible = false;
-    }
-    async void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
-    {
-        DisplayParent = "";
-        ChildHeaderName = "";
-        SelectedDataItems = SelectedToItems;
-
-
-
-        if (SelectedDataItems != null)
-        {
-            foreach (object item in SelectedDataItems)
-            {
-                if (item is ApplicationMasterParent masterData)
-                {
-                    AddEnabled = true;
-                    _selectItems = masterData;
-                    if (_selectItems.ApplicationMasterParentCodeId == 119)
-                    {
-                        IsCountry = true;
-                       // StateHasChanged();
-                        //NavigationManager.NavigateTo($"applicationCountry");
-                    }
-                    else
-                      {
-                        var nameList = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == masterData.ApplicationMasterParentCodeId)?.ApplicationMasterName;
-                        if (nameList != null)
-                        {
-                            DisplayParent = "Add " + nameList;
-
-                        }
-                        //   StateHasChanged();
-                       
-                      }
-                    
-                   
-                }
-                await UpdateDataAsync();
-            }
-        }
-
-     
-    }
-    async Task UpdateDataAsync()
-    {
-        EditEnabled = false;
-        EditNewChildEnabled = false;
-        DeleteEnabled = false;
-        PanelVisibleMastersDetails = true;
-        _applicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterChildQuery("'" + _selectItems.ApplicationMasterParentCodeId + "'"));
-        for (int i = 0; i < _applicationMasterDetails.Count; i++)
-        {
-            _applicationMasterDetails[i].Index = i + 1;
-        }
-        PanelVisibleMastersDetails = false;
-        if (_applicationMasterDetails.Count > 0)
-        {
-            _selectedItems = _applicationMasterDetails.FirstOrDefault();
-            EditEnabled = true;
-            EditNewChildEnabled = true;
-            DeleteEnabled = true;
-           // Grid.SetFocusedRowIndex(0);
-        }
-        StateHasChanged();
-
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         if (e.IsNew)
         {
             var newplant = (ApplicationMasterChildModel)e.EditModel;
-            newplant.ApplicationMasterParentId = _selectItems.ApplicationMasterParentId;
+            newplant.ApplicationMasterParentId = 119;
             newplant.Description = "";
             newplant.Value = "";
         }
@@ -400,7 +355,7 @@
         {
             var request = new CreateApplicationMasterChildCommand
                 {
-                    ApplicationMasterParentId = _selectItems.ApplicationMasterParentCodeId,
+                   ApplicationMasterParentId = 119,
                     ParentId = editablePlant.ParentId,
                     Description = editablePlant.Description,
                     Value = editablePlant.Value,
@@ -430,6 +385,33 @@
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
     }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is ApplicationMasterChildModel mastersData)
+                    {
+                        var request = new DeleteApplicationMasterChildCommand(mastersData.ApplicationMasterChildId);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+        SelectedDataItems = null;
+    }
     async Task UpdatePlantAsync(ApplicationMasterChildModel editablePlant)
     {
         var request = new EditApplicationMasterChildCommand
@@ -450,83 +432,59 @@
         toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         await UpdateDataAsync();
     }
-    void OnRowClick(GridRowClickEventArgs e)
+    async Task UpdateDataAsync()
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ApplicationMasterChildId");
-        _selectedItems = _applicationMasterDetails.FirstOrDefault(f => f.ApplicationMasterChildId == (long?)UniqueId);
+        EditEnabled = false;
+        DeleteEnabled = false;
+        PanelVisible= true;
+        _applicationMasterDetails = await Mediator.Send(new GetAllApplicationMasterChildQuery("'" + 119 + "'"));
+        for (int i = 0; i < _applicationMasterDetails.Count; i++)
+        {
+            _applicationMasterDetails[i].Index = i + 1;
+        }
+        PanelVisible = false;
+        if (_applicationMasterDetails.Count > 0)
+        {
+            _selectedItems = _applicationMasterDetails.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateEnabled = true;
+            Grid.SetFocusedRowIndex(0);
+        }
         StateHasChanged();
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowClick(e);
         addEdit();
     }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ApplicationMasterChildId");
+        _selectedItems = _applicationMasterDetails.FirstOrDefault(f => f.ApplicationMasterChildId == (long?)UniqueId);
+        StateHasChanged();
+    }
     void addNew()
     {
         Grid.StartEditNewRowAsync();
 
     }
-    async void EulaPopupClosed(PopupClosedEventArgs args)
-    {
-        SelectedMasterDataItems = null;
-        Blukdeletepopup = false;
-        PopupVisible = false;
-        await UpdateDataAsync();
-    }
-    async void ClosePopup()
-    {
-        PopupVisible = false;
-        await UpdateDataAsync();
-    }
-    void SelectedMasterDataItemsChanged(IReadOnlyList<object> SelectedToItems)
-    {
-        SelectedMasterDataItems = SelectedToItems;
-        if (SelectedMasterDataItems.Count > 1)
-        {
-            EditNewChildEnabled = false;
-            EditEnabled = false;
-        }
-        else
-        {
-            EditNewChildEnabled = true;
-            EditEnabled = true;
-        }
-    }
-    void addDelete()
-    {
-        Blukdeletepopup = true;
-    }
     void addEdit()
     {
         Grid.StartEditDataItemAsync(_selectedItems);
     }
-
-    async Task bulkDelete()
+    void addDelete()
     {
-        try
-        {
-            if (SelectedMasterDataItems != null)
-            {
-                foreach (object item in SelectedMasterDataItems)
-                {
-                    if (item is ApplicationMasterChildModel mastersData)
-                    {
-                        var request = new DeleteApplicationMasterChildCommand(mastersData.ApplicationMasterChildId);
-                        await Mediator.Send(request);
-                        Blukdeletepopup = false;
-                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        await UpdateDataAsync();
-                        Grid.SetFocusedRowIndex(0);
-                    }
-                }
-            }
-        }
-        catch (Exception eq)
-        {
-            DeleteerrorMessage = eq.Message;
-            PopupVisible = true;
-        }
-        SelectedMasterDataItems = null;
+        Blukdeletepopup = true;
     }
     async Task ExportToExcel()
     {
@@ -542,20 +500,34 @@
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
     }
-    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    async void ClosePopup()
     {
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    async void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void SelectedMasterDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
         {
-            e.CssClass = "alt-item";
+            EditNewChildEnabled = false;
+            EditEnabled = false;
         }
-
+        else
+        {
+            EditNewChildEnabled = true;
+            EditEnabled = true;
+        }
     }
 
-
-
-
-
-
+    // State
 
 
     void SelectedMasterChildDataItemsChanged(IReadOnlyList<object> SelectedToItems)
@@ -609,25 +581,7 @@
         ChildPopupClose = false;
         await UpdateDataChildAsync();
     }
-    async void addEditNewChild()
-    {
-       // ActiveTabIndex = 1;
-        // _selectedItems.IctmasterId);
-        ChildHeaderName = _selectedItems.Value + " List";
-        var codeId = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == _selectedItems.ApplicationMasterParentId)?.ApplicationMasterParentCodeId;
-        var nameList = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == codeId);
-        EditNewChildChildEnabled = false;
-        DisplayChild = "";
-        if (nameList != null)
-        {
-            EditNewChildChildEnabled = true;
-            DisplayChild = "Add " + nameList.ApplicationMasterName;
-            StateHasChanged();
-        }
-        StateHasChanged();
-        //ChildPopupVisible = true;
-        await UpdateDataChildAsync();
-    }
+
     async Task UpdateDataChildAsync()
     {
         _applicationChildItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(_selectedItems.ApplicationMasterChildId));
@@ -637,6 +591,7 @@
             _selectedChildItems = _applicationChildItems.FirstOrDefault();
             EditChildEnabled = true;
             DeleteChildEnabled = true;
+            CityEnabled = true;
             StateHasChanged();
         }
     }
@@ -663,7 +618,7 @@
         {
             var request = new CreateApplicationMasterChildCommand
                 {
-                    ApplicationMasterParentId = _selectedChildItems.ApplicationMasterParentId,
+                    ApplicationMasterParentId = 120,
                     ParentId = _selectedItems.ApplicationMasterChildId,
                     Description = editablePlant.Description,
                     Value = editablePlant.Value,
@@ -711,7 +666,7 @@
         var request = new DeleteApplicationMasterChildCommand(editablePlant.ApplicationMasterChildId);
         await Mediator.Send(request);
         await UpdateDataChildAsync();
-        GridChildChild.SetFocusedRowIndex(0);
+        // GridChildChild.SetFocusedRowIndex(0);
     }
     void OnRowChildClick(GridRowClickEventArgs e)
     {
@@ -724,12 +679,22 @@
         OnRowChildClick(e);
         addEditChild();
     }
+    async void StateClick()
+    {
+        var codeId = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == _selectedItems.ApplicationMasterParentId)?.ApplicationMasterParentCodeId;
+        var nameList = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == codeId);
 
 
+        if (nameList != null)
+        {
+           
+            StateHasChanged();
+        }
+        StateHasChanged();
+        await UpdateDataChildAsync();
+    }
 
-
-
-
+    // City
     void SelectedMasterChildChildDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
 
@@ -782,14 +747,7 @@
         ChildChildPopupClose = false;
         await UpdateDataChildChildAsync();
     }
-    async void addEditNewChildChild()
-    {
-        ChildChildHeaderName = _selectedChildItems.Value + " List";
-      //  ActiveTabIndex = 2;
-        StateHasChanged();
-       // ChildChildPopupVisible = true;
-        await UpdateDataChildChildAsync();
-    }
+
     async Task UpdateDataChildChildAsync()
     {
         _applicationChildChildItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(_selectedChildItems.ApplicationMasterChildId));
@@ -825,7 +783,7 @@
         {
             var request = new CreateApplicationMasterChildCommand
                 {
-                    ApplicationMasterParentId = _selectedChildChildItems.ApplicationMasterParentId,
+                    ApplicationMasterParentId = 121,
                     ParentId = _selectedChildItems.ApplicationMasterChildId,
                     Description = editablePlant.Description,
                     Value = editablePlant.Value,
@@ -885,5 +843,9 @@
     {
         OnRowChildChildClick(e);
         addEditChildChild();
+    }
+    async void CityClick()
+    {
+       await UpdateDataChildChildAsync();
     }
 }

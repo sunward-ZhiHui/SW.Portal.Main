@@ -6,13 +6,10 @@ using Infrastructure.Repository.Query.Base;
 using Infrastructure.Service.Config;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Services.Client;
 using System.Linq;
 using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Service
 {
@@ -33,56 +30,60 @@ namespace Infrastructure.Service
         {
             try
             {
-
-
-                //var query = "SELECT * FROM view_SoSalesOrder  WHERE SoSalesOrderId = @SoSalesOrderId";
                 var soLinequery = "select  * from view_SoSalesOrderLine where SoSalesOrderId =@SoSalesOrderId";
 
                 var soLineparameters = new DynamicParameters();
                 soLineparameters.Add("SoSalesOrderId", postSalesOrder.SoSalesOrderID, DbType.Int64);
 
-                var parameters = new DynamicParameters();
-                parameters.Add("SoSalesOrderId", postSalesOrder.SoSalesOrderID, DbType.Int64);
-                var soOrder = new View_SoSalesOrder();
-                // var soLine = new List<View_SoSalesOrderLine>();
+                var soLine = new List<View_SoSalesOrderLine>();
                 using (var connection = CreateConnection())
                 {
-                    // soOrder =  (await connection.QueryFirstOrDefaultAsync<View_SoSalesOrder>(query, parameters));
-                    var soLine = (await connection.QueryAsync<View_SoSalesOrderLine>(soLinequery, soLineparameters));
+                    soLine.AddRange((await connection.QueryAsync<View_SoSalesOrderLine>(soLinequery, soLineparameters)));
                 }
-
-
-                string Company = "";
-                var context = new NAVService(_configuration, Company);
-                int EntryNo = 1;
-                var salesOrder = new NAV.SWDWebIntegrationEntry
+                var itemGroupByCountry = soLine.GroupBy(g => g.NavCompany).ToList();
+                foreach (var so in itemGroupByCountry)
                 {
-                    Entry_No = EntryNo,
-                    Entry_Type = "Create Sales",
-                    Document_Type = 1,
-                    Customer_No = soOrder.ShipCode,
+                    Random random = new Random();
+                    int EntryNo = random.Next();
+                    string? Company = so.Key;
+                    var context = new NAVService(_configuration, Company);
+                    //int EntryNo = (int)(sale?.SoSalesOrderId.GetValueOrDefault());
+                    foreach (var sale in so.ToList())
+                    { 
+                       
+                        var salesOrder = new NAV.SWDWebIntegrationEntry
+                        {
+                            Entry_No = EntryNo,
+                            Entry_Type = "Create Sales",
+                            Document_Type = 1,
+                            Customer_No = sale.ShipCode,
+                            Item_No = sale.No,
+                            Unit_of_Measure_Code = sale.BaseUnitofMeasure,
+                            Posting_Date = DateTime.Now,
+                            Quantity = sale.Qty,
+                            
+                        };
+                        context.Context.AddToSWDWebIntegrationEntry(salesOrder);
+                        TaskFactory<DataServiceResponse> taskFactory = new TaskFactory<DataServiceResponse>();
+                        var response = await taskFactory.FromAsync(context.Context.BeginSaveChanges(null, null), iar => context.Context.EndSaveChanges(iar));
 
-                };
-                context.Context.AddToSWDWebIntegrationEntry(salesOrder);
-                TaskFactory<DataServiceResponse> taskFactory = new TaskFactory<DataServiceResponse>();
-                var response = await taskFactory.FromAsync(context.Context.BeginSaveChanges(null, null), iar => context.Context.EndSaveChanges(iar));
 
+                        var post = new SWSoapService.SWDWebIntegration_PortClient();
 
-                var post = new SWSoapService.SWDWebIntegration_PortClient();
+                        post.Endpoint.Address =
+                   new EndpointAddress(new Uri(_configuration[Company + ":SoapUrl"] + "/" + _configuration[Company + ":Company"] + "/Codeunit/SWDWebIntegration"),
+                   new DnsEndpointIdentity(string.Empty));
 
-                post.Endpoint.Address =
-           new EndpointAddress(new Uri(_configuration[Company + ":SoapUrl"] + "/" + _configuration[Company + ":Company"] + "/Codeunit/SWDWebIntegration"),
-           new DnsEndpointIdentity(""));
-
-                post.ClientCredentials.UserName.UserName = _configuration[Company + ":UserName"];
-                post.ClientCredentials.UserName.Password = _configuration[Company + ":Password"];
-                post.ClientCredentials.Windows.ClientCredential.UserName = _configuration[Company + ":UserName"]; ;
-                post.ClientCredentials.Windows.ClientCredential.Password = _configuration[Company + ":Password"];
-                post.ClientCredentials.Windows.ClientCredential.Domain = _configuration[Company + ":Domain"];
-                post.ClientCredentials.Windows.AllowedImpersonationLevel =
-                System.Security.Principal.TokenImpersonationLevel.Impersonation;
-                var result = await post.FnCreateSalesOrderAsync(EntryNo);
-
+                        post.ClientCredentials.UserName.UserName = _configuration[Company + ":UserName"];
+                        post.ClientCredentials.UserName.Password = _configuration[Company + ":Password"];
+                        post.ClientCredentials.Windows.ClientCredential.UserName = _configuration[Company + ":UserName"]; ;
+                        post.ClientCredentials.Windows.ClientCredential.Password = _configuration[Company + ":Password"];
+                        post.ClientCredentials.Windows.ClientCredential.Domain = _configuration[Company + ":Domain"];
+                        post.ClientCredentials.Windows.AllowedImpersonationLevel =
+                        System.Security.Principal.TokenImpersonationLevel.Impersonation;
+                        var result = await post.FnCreateSalesOrderAsync(EntryNo);
+                    }
+                }
             }
             catch (Exception exp)
             {

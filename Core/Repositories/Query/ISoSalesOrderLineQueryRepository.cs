@@ -10,7 +10,7 @@ namespace Core.Repositories.Query
 {
     public interface ISoSalesOrderLineQueryRepository : IQueryRepository<View_SoSalesOrderLine>
     {
-        Task<IReadOnlyList<View_SoSalesOrderLine>> GetAllAsync();
+        Task<IReadOnlyList<View_SoSalesOrderLine>> GetAllAsync(long? id);
         Task<View_SoSalesOrderLine> GetByIdAsync(Int64 id);
     }
    

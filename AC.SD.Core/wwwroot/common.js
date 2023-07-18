@@ -125,6 +125,7 @@ function showSlides(n) {
 }
 
 function ReloadUrl() {
+    
     location.reload();
 }
    

@@ -117,7 +117,7 @@
                     <DxFormLayout CssClass="w-100">
                         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex" RenderMode="TabsRenderMode.OnDemand">
                             <DxFormLayoutTabPage Caption="Item Entry">
-                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><AddItemLine SalesOrderMasterPricingId="@SalesOrderMasterPricingId"></AddItemLine></div>
+                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><AddItemLine SalesOrderMasterPricingId="@SalesOrderMasterPricingId" MasterType="@MasterType"></AddItemLine></div>
                             </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>

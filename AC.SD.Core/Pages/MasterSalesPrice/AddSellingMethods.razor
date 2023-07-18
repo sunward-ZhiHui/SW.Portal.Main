@@ -82,17 +82,17 @@
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="SalesOrderMasterPricingLineId" Visible="false" />
-            @if(sellingMethodsName == 73)
+            @if (sellingMethodsName == "tier")
             {
                 <DxGridDataColumn FieldName="TierQty" />
                 <DxGridDataColumn FieldName="TierPrice" />
             }
             else
             {
-                <DxGridDataColumn FieldName="BounsQty" />                
+                <DxGridDataColumn FieldName="BounsQty" />
                 <DxGridDataColumn FieldName="BounsFocQty" Caption="Bouns Foc Qty" />
             }
-           
+
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         <TotalSummary>
@@ -104,29 +104,33 @@
                 var types = (SalesOrderMasterPricingLineSellingMethod)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
-               
-                @if(sellingMethodsName == 73)
+
+                @if (sellingMethodsName == "tier")
                 {
                     <DxFormLayoutItem Caption="Tier Qty:" ColSpanMd="3">
-                        <DxSpinEdit @bind-Value="@types.TierQty" />
+                        <DxSpinEdit @bind-Value="@types.TierQty" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => types.TierQty)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Tier Price:" ColSpanMd="3">
-                        <DxSpinEdit @bind-Value="@types.TierPrice" />
+                        <DxSpinEdit @bind-Value="@types.TierPrice" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => types.TierPrice)" />
                     </DxFormLayoutItem>
                 }
-                else
+                @if (sellingMethodsName == "bonus")
                 {
                     <DxFormLayoutItem Caption="Bouns Qty:" ColSpanMd="3">
-                        <DxSpinEdit @bind-Value="@types.BounsQty" />
+                        <DxSpinEdit @bind-Value="@types.BounsQty" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => types.BounsQty)" />
                     </DxFormLayoutItem>
-                   @* <DxFormLayoutItem Caption="Bouns Price:" ColSpanMd="3">
-                        <DxSpinEdit @bind-Value="@types.BounsPrice" />
-                    </DxFormLayoutItem>*@
+                    @* <DxFormLayoutItem Caption="Bouns Price:" ColSpanMd="3">
+                <DxSpinEdit @bind-Value="@types.BounsPrice" />
+                </DxFormLayoutItem>*@
                     <DxFormLayoutItem Caption="Bouns Foc Qty:" ColSpanMd="3">
-                        <DxSpinEdit @bind-Value="@types.BounsFocQty" />
+                        <DxSpinEdit @bind-Value="@types.BounsFocQty" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => types.BounsFocQty)" />
                     </DxFormLayoutItem>
                 }
-               
+
                 <ValidationSummary />
             </DxFormLayout>
         </EditFormTemplate>
@@ -183,7 +187,7 @@
     string? DeleteerrorMessage;
     bool MessageVisible { get; set; }
     string styleClass = "";
-    long? sellingMethodsName = 0;
+    string sellingMethodsName = "";
     string MessageHeader = "Error";
     string MessageBody = "";
     private bool loading;
@@ -196,7 +200,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        sellingMethodsName = Items.SellingMethodId;
+        if (Items.SellingMethodName != null)
+        {
+            sellingMethodsName = Items.SellingMethodName.ToLower();
+        }
         PanelVisible = true;
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -204,13 +211,13 @@
 
         if (SalesOrderMasterPricingId > 0)
         {
-            if(Items.SellingMethodId > 0)
+            if (Items.SellingMethodId > 0)
             {
                 AddEnabled = true;
             }
 
             _addIitemPriceLineSellingMethod = await Mediator.Send(new GetAllSOMPricingLineSellingMethodQuery(SalesOrderMasterPricingId.Value));
-           
+
 
             if (_addIitemPriceLineSellingMethod.Count > 0)
             {
@@ -219,6 +226,16 @@
 
                 if (SelectedDataItems != null)
                 {
+                    if (Items.SellingMethodName.ToLower() == "tier")
+                    {
+                        _selectedItems.BounsFocQty = 0;
+                        _selectedItems.BounsQty = 0;
+                    }
+                    if (Items.SellingMethodName.ToLower() == "bonus")
+                    {
+                        _selectedItems.TierQty = 0;
+                        _selectedItems.TierPrice = 0;
+                    }
                     EditEnabled = true;
                     DeleteEnabled = true;
 
@@ -234,6 +251,19 @@
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         var navitems = (SalesOrderMasterPricingLineSellingMethod)e.EditModel;
+        if (e.IsNew)
+        {
+            if (Items.SellingMethodName.ToLower() == "tier")
+            {
+                navitems.BounsFocQty = 0;
+                navitems.BounsQty = 0;
+            }
+            if (Items.SellingMethodName.ToLower() == "bonus")
+            {
+                navitems.TierQty = 0;
+                navitems.TierPrice = 0;
+            }
+        }
     }
     async Task UpdateDataAsync()
     {
@@ -376,7 +406,16 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SalesOrderMasterPricingLineSellingMethodId");
         _selectedItems = _addIitemPriceLineSellingMethod.FirstOrDefault(f => f.SalesOrderMasterPricingLineSellingMethodId == (long?)UniqueId);
-
+        if (Items.SellingMethodName.ToLower() == "tier")
+        {
+            _selectedItems.BounsFocQty = 0;
+            _selectedItems.BounsQty = 0;
+        }
+        if (Items.SellingMethodName.ToLower() == "bonus")
+        {
+            _selectedItems.TierQty = 0;
+            _selectedItems.TierPrice = 0;
+        }
         StateHasChanged();
 
     }

@@ -180,9 +180,9 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _addressItems = await Mediator.Send(new GetSoCustomerAddressQuery());
-        _addressBillingItems = await Mediator.Send(new GetSoCustomerAddressQuery());
-        _addressShippingItems = await Mediator.Send(new GetSoCustomerAddressQuery());
+        _addressItems = await Mediator.Send(new GetSoCustomerAddressByCustomerQuery(_salesOrderItems.SoCustomerId.Value));
+        _addressBillingItems = await Mediator.Send(new GetSoCustomerAddressByTypeQuery("Billing", _salesOrderItems.SoCustomerId.Value));
+        _addressShippingItems = await Mediator.Send(new GetSoCustomerAddressByTypeQuery("Shipping", _salesOrderItems.SoCustomerId.Value));
 
         if(_salesOrderItems.SoCustomerBillingAddressId != null)
         {

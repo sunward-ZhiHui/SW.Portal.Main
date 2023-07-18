@@ -25,7 +25,6 @@ namespace Application.Handlers.QueryHandlers
             return (List<SoCustomer>)await _queryRepository.GetListAsync();
         }
     }
-
     public class GetSalesOrderLineHandler : IRequestHandler<GetSalesOrderLine, List<View_SoSalesOrderLine>>
     {
 
@@ -36,7 +35,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<View_SoSalesOrderLine>> Handle(GetSalesOrderLine request, CancellationToken cancellationToken)
         {
-            return (List<View_SoSalesOrderLine>)await _soSalesOrderLineQueryRepository.GetAllAsync();            
+            return (List<View_SoSalesOrderLine>)await _soSalesOrderLineQueryRepository.GetAllAsync(request.Id);            
         }
     }
 

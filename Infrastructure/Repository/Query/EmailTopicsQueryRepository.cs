@@ -552,6 +552,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("StatusCodeID", EmailTopics.StatusCodeID);
                         parameterss.Add("SessionId", EmailTopics.SessionId);
                         parameterss.Add("FileData", EmailTopics.FileData);
+                        parameterss.Add("OnDraft", EmailTopics.OnDraft);
 
                         parameterss.Add("Follow", EmailTopics.Follow);
                         parameterss.Add("OnBehalf", EmailTopics.OnBehalf);
@@ -739,6 +740,29 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
 
+        }
+
+        public async Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId)
+        {
+            try
+            {
+
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionID", sessionId, DbType.Guid);
+
+                var query = @"select * from Documents where SessionID = @SessionID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Documents>(query, parameters)).ToList();
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
     }
 }

@@ -13,5 +13,6 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<View_SoSalesOrder>> GetAllAsync();
         Task<View_SoSalesOrder> GetByIdAsync(Int64 id);
+        Task<View_SoSalesOrder> GetAllBySessionAsync(Guid? SessionId);
     }
 }

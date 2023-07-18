@@ -72,7 +72,8 @@
                                 <Items>
                                     <DxMenuItem Text="Assign To" class="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" IconCssClass="fa fa-envelope" Click="@(() => OnLeftMenuItemClick("AssignTo"))" />                                    
                                     <DxMenuItem Text="CC" class="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" IconCssClass="popup-image popup-icon-position" Click="@(() => OnLeftMenuItemClick("AssignCC"))" />
-                                    <DxMenuItem Text="Sent" class="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" IconCssClass="fa fa-paper-plane" Click="@(() => OnLeftMenuItemClick("Sent"))" />                                    
+                                    <DxMenuItem Text="Sent" class="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" IconCssClass="fa fa-paper-plane" Click="@(() => OnLeftMenuItemClick("Sent"))" />
+                                    <DxMenuItem Text="Draft" class="@((isLeftMenuvisible == "Draft" ? "tActive": "draft"))" IconCssClass="fab fa-stack-overflow" Click="@(() => OnLeftMenuItemClick("Draft"))" />
                                     @if (ActiveSessionId != null)
                                     {
                                         <DxButton Click="@(() => TOGrid.ClearFilter())">Clear Filter</DxButton>
@@ -123,20 +124,26 @@
                                     AllowSelectRowByClick="true">
                                 <Columns>
                                     <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
-                                        <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
-                                    <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
-                                        <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="180">
+                                   @* <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
+                                    <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
+                                        <DxGridDataColumn FieldName="FirstName" Caption="">
                                         <CellDisplayTemplate>
                                             @{
                                                 var item = (EmailTopics)context.DataItem;
                                             }
-                                            @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+                                            <div style="width:100%">                                                
+                                                <strong>@item.FirstName</strong>
+                                                <div>
+                                                    <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
+                                                    <text>@item.TopicName</text>
+                                                </div>                                                
+                                            </div>
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />                                       
+                                  @*  <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />  *@                                     
                                 </Columns>
                                  <DetailRowTemplate>       
-                                        <SubViewEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
+                                    <SubViewEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
                                 </DetailRowTemplate>
                                 <TotalSummary>
                                     <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
@@ -160,17 +167,23 @@
                                     RowClick="OnEmailToRowClick"                                    
                                     AllowSelectRowByClick="true">
                                     <Columns>
-                                        <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
-                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
-                                        <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="160">
+                                      @*  <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
+                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
+                                        <DxGridDataColumn FieldName="FirstName">
                                             <CellDisplayTemplate>
                                                 @{
                                                     var item = (EmailTopics)context.DataItem;
                                                 }
-                                                @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+                                                <div style="width:100%">
+                                                    <strong>@item.FirstName</strong>
+                                                    <div>
+                                                        <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
+                                                        <text>@item.TopicName</text>
+                                                    </div>
+                                                </div>
                                             </CellDisplayTemplate>
                                         </DxGridDataColumn>
-                                        <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />
+                                        @*<DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />*@
                                     </Columns>
                                     <DetailRowTemplate>
                                         <SubViewEmailCC Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
@@ -197,17 +210,23 @@
                                     RowClick="OnEmailToRowClick"                                    
                                     AllowSelectRowByClick="true">
                                     <Columns>
-                                        <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
-                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
-                                        <DxGridDataColumn FieldName="StartDate" Caption="Sent" Width="180">
+                                       @* <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
+                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
+                                        <DxGridDataColumn FieldName="FirstName">
                                             <CellDisplayTemplate>
                                                 @{
                                                     var item = (EmailTopics)context.DataItem;
                                                 }
-                                                @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+                                                <div style="width:100%">
+                                                    <strong>@item.FirstName</strong>
+                                                    <div>
+                                                        <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
+                                                        <text>@item.TopicName</text>
+                                                    </div>
+                                                </div>
                                             </CellDisplayTemplate>
                                         </DxGridDataColumn>
-                                        <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />
+                                       @* <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />*@
                                     </Columns>  
                                      <DetailRowTemplate>
                                         <SubViewEmailSent Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
@@ -215,7 +234,11 @@
                                     <TotalSummary>
                                         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
                                     </TotalSummary>
-                                </DxGrid>   
+                                </DxGrid>
+                            }
+                            else if(isLeftMenuvisible == "Draft")
+                            {
+                                <DraftPage></DraftPage>
                             }
 
                             
@@ -406,12 +429,12 @@
                                                                 }
                                                                 
                                                                 <div class="mailbox-read-time pull-right">
-                                                                    <div class="" style="margin-right: 77px; margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
-                                                                    <div class="btn-group" style="float: right; margin-top: -25px;">
+                                                                    <div class="" style="margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
+                                                                   @* <div class="btn-group" style="float: right; margin-top: -25px;">
                                                                         <button type="button" @onclick="@(() => onreply(item.ID))" style="border: 1px solid #eeebeb; padding: 8px; border-radius: 5px;" class="">
                                                                             <i class="fa fa-reply"></i> Reply
                                                                         </button>
-                                                                    </div>
+                                                                    </div>*@
                                                                 </div>
                                                             </h5>
                                                         </div>                                                                                                            
@@ -466,13 +489,16 @@
                                                                 
                                                             </div>
                                                         </div>
-                                                    </div>*@
-                                                </div>                                           
-
+                                                    </div>*@                                                    
+                                                </div>
+                                                
                                                 @if (item.ReplyConversation.Count() > 0)
                                                 {
                                                     <div class="uk-card-footer">
-                                                        <div>
+                                                        <div>   
+                                                            <button type="button" @onclick="@(() => onreply(item.ID))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: left; margin-right: 10px; padding-right: 10px; padding-left: 10px;" class="">
+                                                                <i class="fa fa-reply"></i> Reply
+                                                            </button>
                                                             <p style="color: #5151b3;" class="handline" @onclick="@(() => ToggleItemVisibility(item.ID))">@item.ReplyConversation.Count() replies </p>
                                                             @if (@item.ReplyConversation != null && @item.ReplyConversation.Any())
                                                             {
@@ -528,6 +554,9 @@
                                                                             {
                                                                                 <div class="uk-card-footer">
                                                                                     <div>
+                                                                                        <button type="button" @onclick="@(() => onreply(item.ID))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: left; margin-right: 10px; padding-right: 10px; padding-left: 10px;" class="">
+                                                                                            <i class="fa fa-reply"></i> Reply
+                                                                                        </button>
                                                                                         <p style="color: #5151b3;" class="handline" @onclick="@(() => ToggleItemVisibility(items.ID))">@items.ReplyConversation.Count() replies </p>
                                                                                         @if (@items.ReplyConversation != null && @items.ReplyConversation.Any())
                                                                                         {
@@ -588,7 +617,18 @@
                                                             }
                                                         </div>
                                                     </div>
-                                                }                                               
+                                                }
+                                                else
+                                                {
+                                                    <div class="uk-card-footer">
+                                                        <div>
+                                                            <button type="button" @onclick="@(() => onreply(item.ID))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: left; margin-right: 10px; padding-right: 10px; padding-left: 10px;" class="">
+                                                                <i class="fa fa-reply"></i> Reply
+                                                            </button>
+                                                            <p style="color: #5151b3;" class="handline" >0 replies </p>
+                                                        </div>
+                                                    </div>
+                                                }
                                             </div>
                                         }
                                     }
@@ -661,10 +701,11 @@
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
                                                                             <DxTagBox NullText="Select Assign To..."
-                                                                                      Data="@_assigntoItems"
+                                                                          Data="@_allparticipant"
                                                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                                                                       ValueFieldName="UserID"
                                                                                       TextFieldName="FirstName"
+                                                                                      ListRenderMode="ListRenderMode.Virtual"
                                                                                       @bind-Values="@Data.AssigntoIds"
                                                                                       CssClass="cw-480">
                                                                                 <DxListEditorColumn FieldName="@nameof(EmailAssignToList.CompanyName)"
@@ -685,6 +726,7 @@
                                                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                                                                       ValueFieldName="UserID"
                                                                                       TextFieldName="FirstName"
+                                                                                       ListRenderMode="ListRenderMode.Virtual"
                                                                                       @bind-Values="@Data.AssignccIds"
                                                                                       CssClass="cw-480">
                                                                                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
@@ -1173,11 +1215,11 @@
     private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
     IEnumerable<UploadFileInfo> Filess { get; set; }
 
-     void OnRowClick(GridRowClickEventArgs e)
+    void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentId");
         _selectlst = _topicDocList.FirstOrDefault(f => f.DocumentId == (long?)UniqueId);
-       
+
     }
     private async Task ScrollToElement()
     {
@@ -1805,14 +1847,14 @@
             _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));          
             //await JSRuntime.InvokeAsync<string>("hideLoading");
 
-            
-        if (_topicDocList.Count > 0)
-        {
-            _selectlst = _topicDocList.FirstOrDefault();
-            //EditEnabled = true;
-            //DeleteEnabled = true;
-            StateHasChanged();
-        }
+
+            if (_topicDocList.Count > 0)
+            {
+                _selectlst = _topicDocList.FirstOrDefault();
+                //EditEnabled = true;
+                //DeleteEnabled = true;
+                StateHasChanged();
+            }
         }
 
     }
@@ -2026,19 +2068,19 @@
     }
     private async Task StartAutoRefresh()
     {
-        try
-        {
-            while (true)
-            {
-                await Task.Delay(AutoRefreshInterval, cancellationTokenSource.Token);
+        //try
+        //{
+        //    while (true)
+        //    {
+        //        await Task.Delay(AutoRefreshInterval, cancellationTokenSource.Token);
 
-                await RefreshGridData();
-            }
-        }
-        catch (TaskCanceledException)
-        {
-            // Task was canceled, no action needed
-        }
+        //        await RefreshGridData();
+        //    }
+        //}
+        //catch (TaskCanceledException)
+        //{
+        //    // Task was canceled, no action needed
+        //}
     }
     private async Task RefreshGridData()
     {
@@ -2186,6 +2228,13 @@
             loading = false;
             return;
         }    
+
+        if(Data.Name.Trim() == null)
+        {
+            toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+            loading = false;
+            return;
+        }
 
         string assignCCidsString = string.Join(",", _assigntoItems.Select(s => s.UserID).ToList());
         string assignccidsString = null;

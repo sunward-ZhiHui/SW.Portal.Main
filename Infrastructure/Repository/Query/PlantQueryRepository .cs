@@ -40,7 +40,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from view_Plants where NavCompany is not null";
+                var query = "select  * from view_Plants where NavCompanyName is not null";
 
                 using (var connection = CreateConnection())
                 {

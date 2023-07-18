@@ -104,6 +104,12 @@
             </DxGridDataColumn> *@
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SalesOrderMasterPricingLineId" />
+        </TotalSummary>
+         <DetailRowTemplate>       
+            <AddSellingMethods Items="(View_SalesOrderMasterPricingLine)context.DataItem" />
+         </DetailRowTemplate>
         @*  @bind-SelectedDataItems="SelectedDataItems"*@
         <EditFormTemplate Context="EditFormContext">
             @{
@@ -124,10 +130,10 @@
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                                 Caption="Item No"
-                                                Width="90px" />
+                                                Width="190px" />
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
                                                 Caption="Item Serial No"
-                                                Width="180px" />
+                                                Width="90px" />
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
                                                 Caption="Description" />
                         </Columns>
@@ -140,10 +146,10 @@
                 <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@BaseUnitofMeasure" Enabled=false />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Selling Price:" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Selling Price:" ColSpanMd="3">
                     <DxSpinEdit @bind-Value="@types.SellingPrice" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Selling Method" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Selling Method" ColSpanMd="3">
                     <DxComboBox Data="@_viewSellingMethodItems"
                                 NullText="Select Selling Method..."
                                 FilteringMode="DataGridFilteringMode.Contains"
@@ -152,7 +158,7 @@
                                 @bind-Value="@types.SellingMethodId" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.SellingMethodId)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Allow Price" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Allow Price" ColSpanMd="3">
                     <DxComboBox Data="@_viewSalesPricingAllowItems"
                                 NullText="Select Sales Pricing For..."
                                 FilteringMode="DataGridFilteringMode.Contains"
@@ -162,13 +168,17 @@
                                 SelectedItemChanged="@((View_ApplicationMasterDetail applicationMasterDetail) => SelectedAllowPriceChanged(applicationMasterDetail))" />
                     <ValidationMessage For="@(() => types.SmAllowPriceId)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="New Allow Price:" ColSpanMd="6">
-                    <DxSpinEdit @bind-Value="@types.NewAllowPrice" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Allow Price By Percent:" ColSpanMd="6">
+                @if(isAllowNewPrice)
+                {
+                    <DxFormLayoutItem Caption="New Allow Price:" ColSpanMd="3">
+                        <DxSpinEdit @bind-Value="@types.NewAllowPrice" />
+                    </DxFormLayoutItem>
+                }
+               
+                <DxFormLayoutItem Caption="Allow Price By Percent:" ColSpanMd="3">
                     <DxSpinEdit @bind-Value="@types.SmAllowPriceByPercent" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Allow Price By:" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Allow Price By:" ColSpanMd="3">
                     <DxSpinEdit @bind-Value="@types.SmAllowPriceBy" />
                 </DxFormLayoutItem>
                 <ValidationSummary />
@@ -209,6 +219,7 @@
     private List<View_ApplicationMasterDetail> _viewSellingMethodItems;
 
     bool PanelVisible { get; set; }
+    bool isAllowNewPrice { get; set; } = false;
     Dictionary<long, string>? UsernameIndex { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
@@ -229,13 +240,21 @@
     private bool loading;
     bool Blukdeletepopup { get; set; } = false;
     bool EditEnabled { get; set; } = false;
-    bool AddEnabled { get; set; } = true;
+    bool AddEnabled { get; set; } = false;
     string SelectedGroup = "none";
     private View_SalesOrderMasterPricingLine _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
 
     void SelectedAllowPriceChanged(View_ApplicationMasterDetail applicationMasterDetail)
     {
+        if(applicationMasterDetail.Value == "New")
+        {
+            isAllowNewPrice = true;
+        }
+        else
+        {
+             isAllowNewPrice = false;
+        }
 
     }
 

@@ -21,5 +21,6 @@ namespace Application.Response
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionId { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

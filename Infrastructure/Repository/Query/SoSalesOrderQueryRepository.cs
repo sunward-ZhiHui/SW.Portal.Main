@@ -53,6 +53,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<View_SoSalesOrder> GetAllBySessionAsync(Guid? SessionId)
+        {
+            try
+            {
+                var query = "SELECT * FROM view_SoSalesOrder  WHERE SessionId = @SessionId";
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<View_SoSalesOrder>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
     }
 }

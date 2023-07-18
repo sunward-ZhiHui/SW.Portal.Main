@@ -1,4 +1,5 @@
 ﻿using Application.Command.Departments;
+using Application.Command.SalesOrderMasterPricingLine;
 using Application.Command.SalesOrderMasterPricings;
 using Application.Commands;
 using Application.Common.Mapper;

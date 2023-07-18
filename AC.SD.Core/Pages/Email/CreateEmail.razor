@@ -1,6 +1,7 @@
 ﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
+@using System.Text;
 @using global::Core.Repositories.Query;
 @using DevExpress.Blazor.ComboBox;
 @using DevExpress.Export;
@@ -20,6 +21,7 @@
 @inject HttpClient httpClient;
 @inject AC.SD.Core.Services.ToastService toastService
 @using System.IO;
+@using System.ComponentModel;
 @page "/CreateEmail"
 @page "/CreateEmail/{ActiveSessionId}"
 <style>
@@ -44,21 +46,22 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>                                           
                         <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onRestText" />
-                        @*<DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@HandleValidSubmit" />
-                        <DxMenuItem Text="Submit" Click="@SubmitForm"/>  *@                     
+                        <DxMenuItem Text="Draft" IconCssClass="fa fa-save" Click="@((e) => HandleValidSubmit())" />
+                        <DxMenuItem Text="Sent" IconCssClass="fa fa-save" Click="@((e) => HandleValidSubmit())"  />
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
-                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
+         @* <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 218px; z-index: 9999; width:100px;">
+                <button " type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
                     @if (loading)
                     {
                         <span class="spinner-border spinner-border-sm mr-1"></span>
                     }
                     <i class="fa fa-save"></i>
-                    Save
+                    Sent
                 </button>
-            </div>
+          </div>*@
+            
         </div>
     </div>
 </div>
@@ -206,7 +209,8 @@ else
                                 <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="8">
-                                <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                                <DxRichEdit @ref="msgrichEdit"  CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                                  
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="4">
                                 <DxFormLayout CssClass="w-100 ">
@@ -234,6 +238,22 @@ else
                 </div>
             </div>
         </EditForm>
+
+        @if (_documentslst != null && _documentslst.Any())
+        {
+            <ul class="d-flex flex-column-reverse todo-list">
+                @foreach (var item in _documentslst)
+                {
+                    <li class="">
+                        <div class="form-check"> <label class="form-check-label"> File Name : @item.FileName <i class="input-helper"></i></label> </div>
+                        <div class="form-check"> <label class="form-check-label"> File Size:  @item.FileSize <i class="input-helper"></i></label> </div>
+                    </li>
+                }
+            </ul>
+        }
+
+           
+        
     </div>
 }
 
@@ -310,6 +330,8 @@ else
 
     IReadOnlyList<object>? SelectedToDataItems { get; set; }
     IReadOnlyList<object>? SelectedCCDataItems { get; set; }
+
+    private List<Documents>? _documentslst;
     void onToChanged(IEnumerable<string> newTags)
     {
         sToIds = newTags.ToList();
@@ -390,7 +412,7 @@ else
             ");
         }
     }
-    void OnCustomizeToolbar(IToolbar toolbar)
+    async  void OnCustomizeToolbar(IToolbar toolbar)
     {
 
         toolbar.Groups.Clear();
@@ -405,6 +427,18 @@ else
 
         IBarGroup undoRedoGroup = toolbar.Groups[0];
         undoRedoGroup.Items.Add(0,RichEditBarItemNames.FullScreen);
+
+        if (ActiveSessionId != null)
+        {
+            var acttopics = await Mediator.Send(new GetActivityEmailTopics());
+
+            //string sessionIdString = ActiveSessionId;
+            Guid activeSessionId = Guid.Parse(ActiveSessionId);
+            var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+
+
+
+        }
     }
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
@@ -530,8 +564,10 @@ else
         //_category = topicmodel;        
 
         Data.From = applicationUser.UserName;
-
-
+        var docId = "70F019EC011241C9807C39BF2BE79136";
+        Guid docSessionId = Guid.Parse(docId);
+        var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(docSessionId));
+        _documentslst = documentslst;
         if (ActiveSessionId != null)
         {
             var acttopics = await Mediator.Send(new GetActivityEmailTopics());
@@ -691,8 +727,8 @@ else
 
 
             var createReq = new CreateEmailTopics
-                {                    
-                    TopicName = Data.TopicName,                    
+                {
+                    TopicName = Data.TopicName,
                     StartDate = DateTime.Now,
                     OnBehalf = Data.OnBehalf,
                     Follow = Data.Follow,
@@ -703,15 +739,16 @@ else
                     StatusCodeID = 1,
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
-                   // SessionId = Guid.NewGuid(),
-                   SessionId = _sessionId,
+                    // SessionId = Guid.NewGuid(),
+                    SessionId = _sessionId,
                     Participants = participantidsString,
                     To = toidsString,
                     CC = ccidsString,
                     ActivityEmailTopicId = ActivityEmailTopicId,
-                    isValidateSession = isValidateSession
-
+                    isValidateSession = isValidateSession,
+                    OnDraft = 1,
                 };
+            
 
 
             try
@@ -723,10 +760,20 @@ else
                     uploadComponent.UploadAllFiles();
                     await Task.Delay(2000); // Delay for 2 seconds
 
-                 //   onShowPopupMessage("success", "Topic have been saved successully");
+                    //   onShowPopupMessage("success", "Topic have been saved successully");
                     ActivityEmailTopicId = 0;
                     toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
-                    await JSRuntime.InvokeAsync<string>("ReloadUrl");
+                    if (ActiveSessionId != null)
+                    {
+                        NavigationManager.NavigateTo($"CreateEmail");
+                    }
+                    else
+                    {
+                         await JSRuntime.InvokeAsync<string>("ReloadUrl");
+                    }
+                  
+                   
+                   
                     onRestText();
                     await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
@@ -766,7 +813,7 @@ else
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
             {
                 ExportSelectedRowsOnly = true,
-                
+
                 CustomizeCell = OnCustomizeCell
             });
     }
@@ -784,7 +831,11 @@ else
         {
             e.CssClass = "alt-item";
         }
-       
+
+    }
+    void  onDraft()
+    {
+        
     }
 }
 

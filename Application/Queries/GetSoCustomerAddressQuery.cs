@@ -14,13 +14,21 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
-    public class GetSoCustomerAddressByTypeQuery : view_SoCustomerAddress, IRequest<List<Address>>
+    public class GetSoCustomerAddressByTypeQuery : view_SoCustomerAddress, IRequest<List<view_SoCustomerAddress>>
     {
         public string AddressType { get; set; }
         public long? CustomerId { get; set; }
         public GetSoCustomerAddressByTypeQuery(string AddressType, long CustomerId)
         {
             this.AddressType = AddressType;
+            this.CustomerId = CustomerId;
+        }
+    }
+    public class GetSoCustomerAddressByCustomerQuery : view_SoCustomerAddress, IRequest<List<view_SoCustomerAddress>>
+    {
+        public long? CustomerId { get; set; }
+        public GetSoCustomerAddressByCustomerQuery( long CustomerId)
+        {
             this.CustomerId = CustomerId;
         }
     }

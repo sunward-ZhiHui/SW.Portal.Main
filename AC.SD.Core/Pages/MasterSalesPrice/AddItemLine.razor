@@ -1,0 +1,594 @@
+﻿@using Application.Command.SalesOrderMasterPricingLine;
+@using Application.Command.SoSalesOrderLine;
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@errorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
+    </BodyTemplate>
+</DxPopup>
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" Data="@_addIitemPriceLine" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="SalesOrderMasterPricingLineId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 336px);"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+
+
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="SoSalesOrderLineId" Visible="false" />
+            <DxGridDataColumn FieldName="No" Caption="Item No" />
+            <DxGridDataColumn FieldName="Description" />
+            <DxGridDataColumn FieldName="BaseUnitofMeasure" Caption="Unit of measure" />
+            <DxGridDataColumn FieldName="SellingPrice" Caption="Selling Price" />
+            <DxGridDataColumn FieldName="SellingMethodName" Caption="Selling Method" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SalesOrderMasterPricingLineId" />
+        </TotalSummary>
+        <DetailRowTemplate>
+            <AddSellingMethods Items="(View_SalesOrderMasterPricingLine)context.DataItem" />
+        </DetailRowTemplate>
+        @*  @bind-SelectedDataItems="SelectedDataItems"*@
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (View_SalesOrderMasterPricingLine)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+
+                <DxFormLayoutItem Caption="Item No" ColSpanMd="6">
+                    <DxComboBox Data="@_AllNavitems"
+                                NullText="Select Item No..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="No"
+                                ValueFieldName="ItemId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@types.ItemId" ShowValidationIcon="true"
+                                SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
+                                                Caption="Item No"
+                                                Width="190px" />
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
+                                                Caption="Item Serial No"
+                                                Width="90px" />
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
+                                                Caption="Description" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.ItemId)" />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@Description" Enabled=false />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@BaseUnitofMeasure" Enabled=false />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Selling Price:" ColSpanMd="3">
+                    <DxSpinEdit @bind-Value="@types.SellingPrice" />
+                    <ValidationMessage For="@(() => types.SellingPrice)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Selling Method" ColSpanMd="3">
+                    <DxComboBox Data="@_viewSellingMethodItems"
+                                NullText="Select Selling Method..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailID"
+                                @bind-Value="@types.SellingMethodId" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.SellingMethodId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="SM Allow Price" ColSpanMd="3" Visible="@SMAddEnabled">
+                    <DxComboBox Data="@_viewSalesPricingAllowItems"
+                                NullText="Select Sales Pricing For..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailID"
+                                @bind-Value="@types.SmAllowPriceId" ShowValidationIcon="true"
+                                SelectedItemChanged="@((View_ApplicationMasterDetail applicationMasterDetail) => SelectedAllowPriceChanged(applicationMasterDetail))" />
+                    <ValidationMessage For="@(() => types.SmAllowPriceId)" />
+                </DxFormLayoutItem>
+                @if (isAllowNewPrice)
+                {
+                    <DxFormLayoutItem Caption="New Allow Price:" ColSpanMd="3" Visible="@SMAddEnabled">
+                        
+                        <DxSpinEdit @bind-Value="@types.NewAllowPrice" />
+                    </DxFormLayoutItem>
+                }
+                else
+                {
+                    <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="@SMAddEnabled">
+                       
+                    </DxFormLayoutItem>
+                }
+
+                <DxFormLayoutItem Caption="Allow Price By Percent:" ColSpanMd="3">
+                    <DxSpinEdit @bind-Value="@types.SmAllowPriceByPercent" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Allow Price By $:" ColSpanMd="3">
+                    <DxSpinEdit @bind-Value="@types.SmAllowPriceBy" />
+                </DxFormLayoutItem>
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    [Parameter]
+    public long? SalesOrderMasterPricingId { get; set; }
+    [Parameter]
+    public string MasterType { get; set; }
+    private string TextValue { get; set; }
+    private string No { get; set; }
+    private string Description { get; set; }
+    private string Description2 { get; set; }
+    private string BaseUnitofMeasure { get; set; }
+
+    private List<View_NavItems>? _AllNavitems;
+    private List<View_ApplicationMasterDetail> _viewSalesPricingAllowItems;
+    private List<View_ApplicationMasterDetail> _viewSellingMethodItems;
+
+    bool PanelVisible { get; set; }
+    bool isAllowNewPrice { get; set; } = false;
+    Dictionary<long, string>? UsernameIndex { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private string gridHeight = "calc(100vh - 230px - 143px)";
+    private List<View_SalesOrderMasterPricingLine>? _addIitemPriceLine;
+    IGrid? Grid { get; set; }
+    private View_SalesOrderMasterPricingLine _selectedItems;
+    //bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = false;
+    bool ExportSelectedRowsOnly { get; set; }
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? errorMessage;
+    string? DeleteerrorMessage;
+    bool MessageVisible { get; set; }
+    string styleClass = "";
+    string MessageHeader = "Error";
+    string MessageBody = "";
+    private bool loading;
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
+    bool SMAddEnabled { get; set; } = false;
+    string SelectedGroup = "none";
+    private View_SalesOrderMasterPricingLine _selectlst;
+    public ApplicationUser? applicationUser { get; private set; }
+
+    void SelectedAllowPriceChanged(View_ApplicationMasterDetail applicationMasterDetail)
+    {
+        if (applicationMasterDetail.Value == "New")
+        {
+            isAllowNewPrice = true;
+        }
+        else
+        {
+            isAllowNewPrice = false;
+        }
+
+    }
+
+    void SelectedItemChanged(View_NavItems navitems)
+    {
+        if (navitems != null)
+        {
+            //No = navitems.No;
+            Description = navitems.Description;
+            //Description2 = navitems.Description2;
+            BaseUnitofMeasure = navitems.BaseUnitofMeasure;
+        }
+        else
+        {
+            //No = "";
+            Description = "";
+            //Description2 = "";
+            BaseUnitofMeasure = "";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        PanelVisible = true;
+        _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
+
+        _viewSalesPricingAllowItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(339));
+        _viewSellingMethodItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(338));
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+
+        if (SalesOrderMasterPricingId > 0)
+        {
+            if (MasterType == "SpecificItemMasterPrice")
+            {
+                SMAddEnabled = true;
+            }
+            _addIitemPriceLine = await Mediator.Send(new GetAllSalesOrderMasterPricingLineQuery(SalesOrderMasterPricingId.Value));
+            AddEnabled = true;
+
+            if (_addIitemPriceLine.Count > 0)
+            {
+
+                _selectedItems = _addIitemPriceLine.FirstOrDefault();
+
+                if (SelectedDataItems != null)
+                {
+                    EditEnabled = true;
+                    DeleteEnabled = true;
+
+                    StateHasChanged();
+                }
+
+
+            }
+        }
+
+        PanelVisible = false;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
+            //_AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
+        }
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (View_SalesOrderMasterPricingLine)e.EditModel;
+        if (e.IsNew)
+        {
+            //No = "";
+            Description = "";
+            //Description2 = "";
+            BaseUnitofMeasure = "";
+        }
+        else
+        {
+            //No = navitems.No;
+            Description = navitems.Description;
+            //Description2 = navitems.Description2;
+            BaseUnitofMeasure = navitems.BaseUnitofMeasure;
+
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        var models = await Mediator.Send(new GetAllSalesOrderMasterPricingLineQuery(SalesOrderMasterPricingId.Value));
+        _addIitemPriceLine = models.Where(x => x.SalesOrderMasterPricingId == SalesOrderMasterPricingId).ToList();
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+
+                CustomizeCell = OnCustomizeCell
+            });
+
+    }
+
+
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editModel = (View_SalesOrderMasterPricingLine)e.EditModel;
+
+        if (e.IsNew)
+        {
+
+
+            var createReq = new CreateSalesOrderMasterPricingLineCommand
+                {
+                    SalesOrderMasterPricingId = SalesOrderMasterPricingId,
+                    ItemId = editModel.ItemId,
+                    SellingMethodId = editModel.SellingMethodId,
+                    SellingPrice = editModel.SellingPrice,
+                    SmAllowPriceByPercent = editModel.SmAllowPriceByPercent,
+                    SmAllowPriceBy = editModel.SmAllowPriceBy,
+                    SmAllowPriceId = editModel.SmAllowPriceId,
+                    NewAllowPrice = editModel.NewAllowPrice,
+                    StatusCodeId = 1,
+                    AddedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedByUserId = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+
+                errorMessage = eq.Message;
+                PopupVisible = true;
+
+            }
+
+            await UpdateDataAsync();
+
+
+        }
+        else
+        {
+            var UpdateReq = new EditSalesOrderMasterPricingLineCommand
+                {
+                    SalesOrderMasterPricingLineId = editModel.SalesOrderMasterPricingLineId,
+                    SalesOrderMasterPricingId = SalesOrderMasterPricingId,
+                    ItemId = editModel.ItemId,
+                    SellingMethodId = editModel.SellingMethodId,
+                    SellingPrice = editModel.SellingPrice,
+                    SmAllowPriceByPercent = editModel.SmAllowPriceByPercent,
+                    SmAllowPriceBy = editModel.SmAllowPriceBy,
+                    SmAllowPriceId = editModel.SmAllowPriceId,
+                    NewAllowPrice = editModel.NewAllowPrice,
+                    StatusCodeId = 1,
+                    AddedDate = editModel.AddedDate,
+                    AddedByUserId = editModel.AddedByUserId,
+                    ModifiedByUserId = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+
+                };
+
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+
+    }
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
+    }
+    async void ClosePopup()
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
+    }
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+
+        var editModel = (View_SalesOrderMasterPricingLine)e.DataItem;
+
+        //  string result = string.Empty;
+        //  result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
+        // Console.WriteLine(result);
+        // await UpdateDataAsync();
+
+        var request = new DeleteSalesOrderMasterPricingLineCommand(editModel.SalesOrderMasterPricingLineId);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void Onclick(DataGridSelection<View_SalesOrderMasterPricingLine> e)
+    {
+
+
+
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SalesOrderMasterPricingLineId");
+        _selectedItems = _addIitemPriceLine.FirstOrDefault(f => f.SalesOrderMasterPricingLineId == (long?)UniqueId);
+
+        StateHasChanged();
+
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+
+
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is View_SalesOrderMasterPricingLine View_SalesOrderMasterPricingLine)
+                {
+
+                    _selectlst = _addIitemPriceLine.FirstOrDefault(f => f.SalesOrderMasterPricingLineId == View_SalesOrderMasterPricingLine.SalesOrderMasterPricingLineId);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
+
+        //Grid.SelectDataItems(SelectedDataItems);
+
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is View_SalesOrderMasterPricingLine View_SalesOrderMasterPricingLine)
+                    {
+
+                        var request = new DeleteSalesOrderMasterPricingLineCommand(View_SalesOrderMasterPricingLine.SalesOrderMasterPricingLineId);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+            DeleteEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+
+            DeleteEnabled = true;
+        }
+
+    }
+}

@@ -12,7 +12,9 @@ namespace Core.Repositories.Query
     public interface ISoCustomerAddressQueryRepository : IQueryRepository<view_SoCustomerAddress>
     {
         Task<IReadOnlyList<view_SoCustomerAddress>> GetAllAsync();
+        Task<IReadOnlyList<view_SoCustomerAddress>> GetAllByAddressTypeAsync(string AddressType, long? CustomerId);
         Task<Address> GetByIdAsync(Int64 AddressID);
+        Task<IReadOnlyList<view_SoCustomerAddress>> GetByCustomerIdAsync(long? CustomerId);
         Task<SoCustomerAddress> GetByCustomerAddressIdAsync(Int64 SoCustomerAddressId);
         Task<long> Insert(view_SoCustomerAddress address);
         Task<long> EditAddress(view_SoCustomerAddress address);

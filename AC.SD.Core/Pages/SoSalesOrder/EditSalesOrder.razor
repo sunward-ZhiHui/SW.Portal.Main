@@ -287,24 +287,24 @@
 
         if (SessionIds != null)
         {
-            var sorders = await Mediator.Send(new GetAllSoOrder());
-            _salesOrderItem = sorders.Where(x => x.SessionId == SessionIds).FirstOrDefault();
-
-            SoSalesOrderId = _salesOrderItem.SoSalesOrderId;
-            Data.SoSalesOrderId = _salesOrderItem.SoSalesOrderId;
-            Data.UserName = _salesOrderItem.AddedBy;
-            Data.Date = _salesOrderItem.AddedDate;
-            Data.ShipCode = _salesOrderItem.ShipCode;
-            Data.AssignToRep = _salesOrderItem.AssignToRep;
-            Data.Address1 = _salesOrderItem.Address1;
-            Data.SoCustomerId = _salesOrderItem.SoCustomerId;
-            Data.Remark = _salesOrderItem.Remark;
-            Data.DocumentDate = _salesOrderItem.DocumentDate;
-            Data.OrderDate = _salesOrderItem.OrderDate;
-            Data.PrioityDeliveryDate = _salesOrderItem.PrioityDeliveryDate;
-            Data.SignOrderNo = _salesOrderItem.SignOrderNo;
-            Data.SessionId = _salesOrderItem.SessionId;
-
+            _salesOrderItem = await Mediator.Send(new GetAllSoOrderBySession(SessionIds));
+            if (_salesOrderItem != null)
+            {
+                SoSalesOrderId = _salesOrderItem.SoSalesOrderId;
+                Data.SoSalesOrderId = _salesOrderItem.SoSalesOrderId;
+                Data.UserName = _salesOrderItem.AddedBy;
+                Data.Date = _salesOrderItem.AddedDate;
+                Data.ShipCode = _salesOrderItem.ShipCode;
+                Data.AssignToRep = _salesOrderItem.AssignToRep;
+                Data.Address1 = _salesOrderItem.Address1;
+                Data.SoCustomerId = _salesOrderItem.SoCustomerId;
+                Data.Remark = _salesOrderItem.Remark;
+                Data.DocumentDate = _salesOrderItem.DocumentDate;
+                Data.OrderDate = _salesOrderItem.OrderDate;
+                Data.PrioityDeliveryDate = _salesOrderItem.PrioityDeliveryDate;
+                Data.SignOrderNo = _salesOrderItem.SignOrderNo;
+                Data.SessionId = _salesOrderItem.SessionId;
+            }
         }
 
 

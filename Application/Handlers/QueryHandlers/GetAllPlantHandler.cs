@@ -22,5 +22,18 @@ namespace CMS.Application.Handlers.QueryHandlers
         {
             return (List<ViewPlants>)await _plantQueryRepository.GetAllAsync();
         }
+        
+    }
+    public class GetAllPlantByNavCompanyHandler : IRequestHandler<GetAllPlantByNavCompanyQuery, List<ViewPlants>>
+    {
+        private readonly IPlantQueryRepository _plantQueryRepository;
+        public GetAllPlantByNavCompanyHandler(IPlantQueryRepository plantQueryRepository)
+        {
+            _plantQueryRepository = plantQueryRepository;
+        }
+        public async Task<List<ViewPlants>> Handle(GetAllPlantByNavCompanyQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewPlants>)await _plantQueryRepository.GetAllByNavCompanyAsync();
+        }
     }
 }

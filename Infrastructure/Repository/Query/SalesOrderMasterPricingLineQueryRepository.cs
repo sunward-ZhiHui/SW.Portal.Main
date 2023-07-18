@@ -38,7 +38,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<View_SalesOrderMasterPricingLine>> GetAllSalesOrderMasterPricingAsync(long? Id)
+        public async Task<IReadOnlyList<View_SalesOrderMasterPricingLine>> GetAllAsync(long? Id)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<View_SalesOrderMasterPricingLine>(query)).ToList();
+                    return (await connection.QueryAsync<View_SalesOrderMasterPricingLine>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)

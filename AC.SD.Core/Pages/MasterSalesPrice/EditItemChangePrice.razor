@@ -94,11 +94,11 @@
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem Caption="Price Validaity From" ColSpanMd="6">
-                        <DxDateEdit NullText="Select Price Validaity From..." @bind-Date="@Data.PriceValidaityFrom" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" />
+                        <DxDateEdit NullText="Select Price Validaity From..." @bind-Date="@Data.PriceValidaityFrom" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" Enabled="false" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => Data.PriceValidaityFrom)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Price Validaity To" ColSpanMd="6">
-                        <DxDateEdit NullText="Select Price Validaity To..." @bind-Date="@Data.PriceValidaityTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" />
+                        <DxDateEdit NullText="Select Price Validaity To..." @bind-Date="@Data.PriceValidaityTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" Enabled="false" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => Data.PriceValidaityTo)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Reason For Change" ColSpanMd="6">
@@ -117,7 +117,7 @@
                     <DxFormLayout CssClass="w-100">
                         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex" RenderMode="TabsRenderMode.OnDemand">
                             <DxFormLayoutTabPage Caption="Item Entry">
-                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"></div>
+                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><AddItemLine SalesOrderMasterPricingId="@SalesOrderMasterPricingId" MasterType="@MasterType"></AddItemLine></div>
                             </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>

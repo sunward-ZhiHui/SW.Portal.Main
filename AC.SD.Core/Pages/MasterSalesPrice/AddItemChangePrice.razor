@@ -66,7 +66,7 @@
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
                                     FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="PlantCode"
+                                    TextFieldName="NavCompany"
                                     ValueFieldName="PlantID"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
@@ -76,7 +76,7 @@
                                                     Width="180px" />
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
                                                     Caption="Description" />
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
                                                     Caption="Nav Company" />
                             </Columns>
                         </DxComboBox>
@@ -93,11 +93,11 @@
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem Caption="Price Validaity From" ColSpanMd="6">
-                        <DxDateEdit NullText="Select Price Validaity From..." @bind-Date="@Data.PriceValidaityFrom" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" />
+                        <DxDateEdit Date="@Date" DateExpression="@(() => Date)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
                         <ValidationMessage For="@(() => Data.PriceValidaityFrom)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Price Validaity To" ColSpanMd="6">
-                        <DxDateEdit NullText="Select Price Validaity To..." @bind-Date="@Data.PriceValidaityTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" />
+                        <DxDateEdit NullText="Select Price Validaity To..." @bind-Date="@Data.PriceValidaityTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinPriceValidaityFrom" MaxDate="MaxPriceValidaityTo" />
                         <ValidationMessage For="@(() => Data.PriceValidaityTo)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Reason For Change" ColSpanMd="6">
@@ -117,7 +117,7 @@
                     <DxFormLayout CssClass="w-100">
                         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex" RenderMode="TabsRenderMode.OnDemand">
                             <DxFormLayoutTabPage Caption="Item Entry">
-                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"></div>
+                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><AddItemLine SalesOrderMasterPricingId="@SalesOrderMasterPricingId"></AddItemLine></div>
                             </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
@@ -132,6 +132,7 @@
 @code {
     public long? SalesOrderMasterPricingId { get; set; }
     private bool loading;
+    DateTime Date = DateTime.Today;
     string MasterType = "SpecificItemMasterPrice";
     private string MyID = "myid";
     long? EmployeeIds { get; set; }
@@ -145,17 +146,26 @@
     View_SalesOrderMasterPricing Data = new View_SalesOrderMasterPricing();
     View_SalesOrderMasterPricing _salesOrderItem = new View_SalesOrderMasterPricing();
     public ApplicationUser applicationUser { get; private set; }
-
+    DateTime MinPriceValidaityFrom;
+    DateTime MaxPriceValidaityTo;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _viewSalesPricingForItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(336));
         _viewReasonForChangeItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(337));
-        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
         Data.AddedDate = DateTime.Now;
         Data.AddedBy = applicationUser.UserName;
+        OnDateChanged(DateTime.Now);
     }
-
+    void OnDateChanged(DateTime newValue)
+    {
+        Date = newValue;
+        Data.PriceValidaityFrom = Date;
+        MinPriceValidaityFrom = newValue.AddMonths(-1);
+        MaxPriceValidaityTo = MinPriceValidaityFrom.AddMonths(12);
+        Data.PriceValidaityTo = MaxPriceValidaityTo;
+    }
     void backUrl()
     {
         NavigationManager.NavigateTo("SpecificItemChangePricing");
@@ -180,6 +190,14 @@
         else
         {
             var editModel = new SalesOrderMasterPricing();
+            if (Data.PriceValidaityTo != null)
+            {
+                Data.PriceValidaityTo = new DateTime(Data.PriceValidaityTo.Year, Data.PriceValidaityTo.Month, DateTime.DaysInMonth(Data.PriceValidaityTo.Year, Data.PriceValidaityTo.Month));
+            }
+            if (Data.PriceValidaityFrom != null)
+            {
+                Data.PriceValidaityFrom = new DateTime(Data.PriceValidaityFrom.Year, Data.PriceValidaityFrom.Month, 1);
+            }
             var createReq = new CreateSalesOrderMasterPricingCommand
                 {
                     CompanyId = Data.CompanyId,
@@ -198,12 +216,22 @@
                 };
 
             var result = await Mediator.Send(createReq);
-            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            SalesOrderMasterPricingId = result.SalesOrderMasterPricingId;
-            ActiveSubTabIndex = 0;
-            NavigationManager.NavigateTo("EditItemChangePrice/" + createReq.SessionId + "");
-            loading = false;
-            StateHasChanged();
+            if (result.SalesOrderMasterPricingId > 0)
+            {
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                SalesOrderMasterPricingId = result.SalesOrderMasterPricingId;
+                ActiveSubTabIndex = 0;
+                NavigationManager.NavigateTo("EditItemChangePrice/" + createReq.SessionId + "");
+                loading = false;
+                StateHasChanged();
+            }
+            else
+            {
+                toastService.ShowToast(result.ErrorMessage, AC.SD.Core.Services.ToastLevel.Error);
+                ActiveSubTabIndex = 0;
+                loading = false;
+                StateHasChanged();
+            }
         }
     }
 }

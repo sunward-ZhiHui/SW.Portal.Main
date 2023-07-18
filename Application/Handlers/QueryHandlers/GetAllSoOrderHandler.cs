@@ -23,4 +23,17 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<View_SoSalesOrder>)await _queryRepository.GetAllAsync();
         }
     }
+
+    public class GetAllSoOrderBySessionHandler : IRequestHandler<GetAllSoOrderBySession, View_SoSalesOrder>
+    {
+        private readonly ISoSalesOrderQueryRepository _queryRepository;
+        public GetAllSoOrderBySessionHandler(ISoSalesOrderQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<View_SoSalesOrder> Handle(GetAllSoOrderBySession request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetAllBySessionAsync(request.SesionId);
+        }
+    }
 }

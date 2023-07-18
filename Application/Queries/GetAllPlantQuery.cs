@@ -14,5 +14,8 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
-
+    public class GetAllPlantByNavCompanyQuery : PagedRequest, IRequest<List<ViewPlants>>
+    {
+        public string SearchString { get; set; }
+    }
 }

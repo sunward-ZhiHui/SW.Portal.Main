@@ -1,4 +1,5 @@
-﻿@using Application.Queries;
+﻿@using Application.Command.SalesOrderMasterPricings;
+@using Application.Queries;
 @using DevExtreme.AspNet.Data.ResponseModel;
 @using DevExtreme.AspNet.Data;
 @using Duende.IdentityServer.Models;
@@ -11,9 +12,9 @@
 @using DevExpress.Export
 @using Application.Response;
 @inject NavigationManager NavigationManager
-@page "/masterPricing"
+@page "/MasterPricing"
 @inject IJSRuntime jsRuntime
-
+@inject AC.SD.Core.Services.ToastService toastService
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -59,6 +60,7 @@
 
         <Columns>
             <DxGridDataColumn FieldName="SalesOrderMasterPricingId" Caption="Date" MinWidth="80" Visible="false" />
+            <DxGridDataColumn FieldName="NavCompany" Caption="Company" MinWidth="40" />
             <DxGridDataColumn FieldName="AddedDate" Caption="Date" Width="180">
                 <CellDisplayTemplate>
                     @{
@@ -67,16 +69,28 @@
                     @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="AddedBy" Caption="User" MinWidth="80" />
-            <DxGridDataColumn FieldName="SalesPricingForName" Caption="Sales Pricing For" MinWidth="80" />
-            <DxGridDataColumn FieldName="SignOrderNo" Caption="Sign Order No" MinWidth="80" />
-            <DxGridDataColumn FieldName="OrderDate" Caption="Order Date" MinWidth="80" />
-            <DxGridDataColumn FieldName="CustomerName" Caption="Customer" MinWidth="80" />
-            <DxGridDataColumn FieldName="PrioityDeliveryDate" Caption="Prioity Delivery" Width="180" />
-            <DxGridDataColumn FieldName="Address1" Caption="Delivery Address" Width="180" />
+            <DxGridDataColumn FieldName="AddedBy" Caption="User" MinWidth="40" />
+            <DxGridDataColumn FieldName="SalesPricingForName" Caption="Sales Pricing For" MinWidth="40" />
+            <DxGridDataColumn FieldName="PriceValidaityFrom" Caption="Price Validaity From" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (View_SalesOrderMasterPricing)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityFrom)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="PriceValidaityTo" Caption="Price Validaity To" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (View_SalesOrderMasterPricing)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityTo)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+          @*  <DxGridDataColumn FieldName="ReasonForChangeName" Caption="Reason For Change" MinWidth="80" />*@
         </Columns>
         <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SignOrderNo" />
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SalesPricingForName" />
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
@@ -92,6 +106,10 @@
     bool PanelVisible { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
         PanelVisible = true;
         _salesOrderItems = await Mediator.Send(new GetAllSalesOrderMasterPricingMasterTypeQuery(MasterType));
         PanelVisible = false;
@@ -102,14 +120,11 @@
             DeleteEnabled = true;
             StateHasChanged();
         }
-
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SalesOrderMasterPricingId");
         _selectedItems = _salesOrderItems.FirstOrDefault(f => f.SalesOrderMasterPricingId == (long?)UniqueId);
-
-
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
@@ -118,17 +133,19 @@
     }
     void addNew()
     {
-        NavigationManager.NavigateTo("AddSalesOrder");
+        NavigationManager.NavigateTo("AddMasterPricing");
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("EditSalesOrder/" + _selectedItems.SessionId + "");
-
+        NavigationManager.NavigateTo("EditMasterPricing/" + _selectedItems.SessionId + "");
     }
-    void addDelete()
+    async Task addDelete()
     {
-        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
-
+        var request = new DeleteSalesOrderMasterPricingCommand(_selectedItems.SalesOrderMasterPricingId);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+        toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

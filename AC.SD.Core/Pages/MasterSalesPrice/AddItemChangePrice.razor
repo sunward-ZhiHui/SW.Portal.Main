@@ -93,11 +93,11 @@
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem Caption="Price Validaity From" ColSpanMd="6">
-                        <DxDateEdit NullText="Select Price Validaity From..." @bind-Date="@Data.PriceValidaityFrom" Format="MMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMM yyyy" CssClass="cw-320" ShowValidationIcon="true" />
+                        <DxDateEdit Date="@Date" DateExpression="@(() => Date)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
                         <ValidationMessage For="@(() => Data.PriceValidaityFrom)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Price Validaity To" ColSpanMd="6">
-                        <DxDateEdit NullText="Select Price Validaity To..." @bind-Date="@Data.PriceValidaityTo" Format="MMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" MinDate="@MinPriceValidaityFrom" ScrollPickerFormat="MMM yyyy" CssClass="cw-320" ShowValidationIcon="true" />
+                        <DxDateEdit NullText="Select Price Validaity To..." @bind-Date="@Data.PriceValidaityTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinPriceValidaityFrom" MaxDate="MaxPriceValidaityTo" />
                         <ValidationMessage For="@(() => Data.PriceValidaityTo)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Reason For Change" ColSpanMd="6">
@@ -117,7 +117,7 @@
                     <DxFormLayout CssClass="w-100">
                         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex" RenderMode="TabsRenderMode.OnDemand">
                             <DxFormLayoutTabPage Caption="Item Entry">
-                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"></div>
+                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><AddItemLine SalesOrderMasterPricingId="@SalesOrderMasterPricingId"></AddItemLine></div>
                             </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
@@ -132,6 +132,7 @@
 @code {
     public long? SalesOrderMasterPricingId { get; set; }
     private bool loading;
+    DateTime Date = DateTime.Today;
     string MasterType = "SpecificItemMasterPrice";
     private string MyID = "myid";
     long? EmployeeIds { get; set; }
@@ -146,6 +147,7 @@
     View_SalesOrderMasterPricing _salesOrderItem = new View_SalesOrderMasterPricing();
     public ApplicationUser applicationUser { get; private set; }
     DateTime MinPriceValidaityFrom;
+    DateTime MaxPriceValidaityTo;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -154,11 +156,16 @@
         _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
         Data.AddedDate = DateTime.Now;
         Data.AddedBy = applicationUser.UserName;
-        Data.PriceValidaityFrom = DateTime.Now;
-        Data.PriceValidaityTo = DateTime.Now;
-        MinPriceValidaityFrom = DateTime.Now.AddMonths(-1);
+        OnDateChanged(DateTime.Now);
     }
-
+    void OnDateChanged(DateTime newValue)
+    {
+        Date = newValue;
+        Data.PriceValidaityFrom = Date;
+        MinPriceValidaityFrom = newValue.AddMonths(-1);
+        MaxPriceValidaityTo = MinPriceValidaityFrom.AddMonths(12);
+        Data.PriceValidaityTo = MaxPriceValidaityTo;
+    }
     void backUrl()
     {
         NavigationManager.NavigateTo("SpecificItemChangePricing");

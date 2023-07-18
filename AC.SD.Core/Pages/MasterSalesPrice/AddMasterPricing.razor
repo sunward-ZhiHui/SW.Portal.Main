@@ -16,8 +16,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
-@page "/EditItemChangePrice"
-@page "/EditItemChangePrice/{SessionIds:guid}"
+@page "/AddMasterPricing"
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -67,17 +66,17 @@
                                     NullText="Select Company..."
                                     ListRenderMode="ListRenderMode.Virtual"
                                     FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="PlantCode"
+                                    TextFieldName="NavCompany"
                                     ValueFieldName="PlantID"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                    @bind-Value="@Data.CompanyId" ShowValidationIcon="true">    
+                                    @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                     Caption="Customer Name"
                                                     Width="180px" />
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
                                                     Caption="Description" />
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
                                                     Caption="Nav Company" />
                             </Columns>
                         </DxComboBox>
@@ -94,21 +93,22 @@
                     </DxFormLayoutItem>
 
                     <DxFormLayoutItem Caption="Price Validaity From" ColSpanMd="6">
-                        <DxDateEdit NullText="Select Price Validaity From..." @bind-Date="@Data.PriceValidaityFrom" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" Enabled="false" ShowValidationIcon="true" />
+                        <DxDateEdit Date="@Date" DateExpression="@(() => Date)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
                         <ValidationMessage For="@(() => Data.PriceValidaityFrom)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Price Validaity To" ColSpanMd="6">
-                        <DxDateEdit NullText="Select Price Validaity To..." @bind-Date="@Data.PriceValidaityTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" Enabled="false" ShowValidationIcon="true" />
+                        <DxDateEdit NullText="Select Price Validaity To..." @bind-Date="@Data.PriceValidaityTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinPriceValidaityFrom" MaxDate="MaxPriceValidaityTo" />
                         <ValidationMessage For="@(() => Data.PriceValidaityTo)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Reason For Change" ColSpanMd="6">
-                        <DxComboBox Data="@_viewReasonForChangeItems"
-                                    NullText="Select Reason For Change..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="Value"
-                                    ValueFieldName="ApplicationMasterDetailID"
-                                    @bind-Value="@Data.ReasonForChangeId" ShowValidationIcon="true" />
-                    </DxFormLayoutItem>
+                    @*<DxFormLayoutItem Caption="Reason For Change" ColSpanMd="6">
+                    <DxComboBox Data="@_viewReasonForChangeItems"
+                    NullText="Select Reason For Change..."
+                    FilteringMode="DataGridFilteringMode.Contains"
+                    TextFieldName="Value"
+                    ValueFieldName="ApplicationMasterDetailID"
+                    @bind-Value="@Data.ReasonForChangeId" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => Data.ReasonForChangeId)" />
+                    </DxFormLayoutItem>*@
                 </DxFormLayout>
             </EditForm>
 
@@ -131,11 +131,9 @@
 </div>
 @code {
     public long? SalesOrderMasterPricingId { get; set; }
-
-    [Parameter]
-    public Guid? SessionIds { get; set; }
     private bool loading;
-    string MasterType = "SpecificItemMasterPrice";
+    DateTime Date = DateTime.Today;
+    string MasterType = "MasterPrice";
     private string MyID = "myid";
     long? EmployeeIds { get; set; }
     bool EditEnabledTab { get; set; } = false;
@@ -148,45 +146,35 @@
     View_SalesOrderMasterPricing Data = new View_SalesOrderMasterPricing();
     View_SalesOrderMasterPricing _salesOrderItem = new View_SalesOrderMasterPricing();
     public ApplicationUser applicationUser { get; private set; }
-
+    DateTime MinPriceValidaityFrom;
+    DateTime MaxPriceValidaityTo;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _viewSalesPricingForItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(336));
-        _viewReasonForChangeItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(337));
-        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        //_viewReasonForChangeItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(337));
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
         Data.AddedDate = DateTime.Now;
         Data.AddedBy = applicationUser.UserName;
-        if (SessionIds != null)
-        {
-            var sorders = await Mediator.Send(new GetAllSalesOrderMasterPricingBySessionQuery(SessionIds));
-            if (sorders != null)
-            {
-                SalesOrderMasterPricingId = sorders.SalesOrderMasterPricingId;
-                Data.SalesOrderMasterPricingId = sorders.SalesOrderMasterPricingId;
-                Data.AddedBy = sorders.AddedBy;
-                Data.AddedDate = sorders.AddedDate;
-                Data.CompanyId = sorders.CompanyId;
-                Data.SalesPricingForId = sorders.SalesPricingForId;
-                Data.PriceValidaityFrom = sorders.PriceValidaityFrom;
-                Data.PriceValidaityTo = sorders.PriceValidaityTo;
-                Data.ReasonForChangeId = sorders.ReasonForChangeId;
-                Data.MasterType = sorders.MasterType;
-                Data.SessionId = sorders.SessionId;
-            }
-        }
-       
+        OnDateChanged(DateTime.Now);
     }
-
+    void OnDateChanged(DateTime newValue)
+    {
+        Date = newValue;
+        Data.PriceValidaityFrom = Date;
+        MinPriceValidaityFrom = newValue.AddMonths(-1);
+        MaxPriceValidaityTo = MinPriceValidaityFrom.AddMonths(12);
+        Data.PriceValidaityTo = MaxPriceValidaityTo;
+    }
     void backUrl()
     {
-        NavigationManager.NavigateTo("SpecificItemChangePricing");
+        NavigationManager.NavigateTo("MasterPricing");
     }
     void ResetForm()
     {
         SalesOrderMasterPricingId = -1;
         ActiveSubTabIndex = 0;
-        NavigationManager.NavigateTo("AddItemChangePrice");
+        NavigationManager.NavigateTo("AddMasterPricing");
     }
     void onsubmitClick()
     {
@@ -197,35 +185,19 @@
         loading = true;
         if (Data.SalesOrderMasterPricingId > 0)
         {
-            var editModel = new SalesOrderMasterPricing();
-            var createReq = new EditSalesOrderMasterPricingCommand
-                {
-
-                    SalesOrderMasterPricingId = Data.SalesOrderMasterPricingId,
-                    CompanyId = Data.CompanyId,
-                    PriceValidaityFrom = Data.PriceValidaityFrom,
-                    PriceValidaityTo = Data.PriceValidaityTo,
-                    MasterType = MasterType,
-                    ReasonForChangeId = Data.ReasonForChangeId,
-                    SalesPricingForId = Data.SalesPricingForId,
-                    AddedByUserId = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    ModifiedByUserId = applicationUser.UserID,
-                    ModifiedDate = DateTime.Now,
-                    SessionId = Data.SessionId,
-                    StatusCodeId = 1
-
-                };
-
-            await Mediator.Send(createReq);
-
-
-            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             loading = false;
         }
         else
         {
             var editModel = new SalesOrderMasterPricing();
+            if (Data.PriceValidaityTo != null)
+            {
+                Data.PriceValidaityTo = new DateTime(Data.PriceValidaityTo.Year, Data.PriceValidaityTo.Month, DateTime.DaysInMonth(Data.PriceValidaityTo.Year, Data.PriceValidaityTo.Month));
+            }
+            if (Data.PriceValidaityFrom != null)
+            {
+                Data.PriceValidaityFrom = new DateTime(Data.PriceValidaityFrom.Year, Data.PriceValidaityFrom.Month, 1);
+            }
             var createReq = new CreateSalesOrderMasterPricingCommand
                 {
                     CompanyId = Data.CompanyId,
@@ -244,12 +216,22 @@
                 };
 
             var result = await Mediator.Send(createReq);
-            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            SalesOrderMasterPricingId = result.SalesOrderMasterPricingId;
-            ActiveSubTabIndex = 0;
-            NavigationManager.NavigateTo("EditItemChangePrice/" + createReq.SessionId + "");
-            loading = false;
-            StateHasChanged();
+            if (result.SalesOrderMasterPricingId > 0)
+            {
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                SalesOrderMasterPricingId = result.SalesOrderMasterPricingId;
+                ActiveSubTabIndex = 0;
+                NavigationManager.NavigateTo("EditMasterPricing/" + createReq.SessionId + "");
+                loading = false;
+                StateHasChanged();
+            }
+            else
+            {
+                toastService.ShowToast(result.ErrorMessage, AC.SD.Core.Services.ToastLevel.Error);
+                ActiveSubTabIndex = 0;
+                loading = false;
+                StateHasChanged();
+            }
         }
     }
 }

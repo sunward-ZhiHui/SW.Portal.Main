@@ -70,7 +70,7 @@
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                    @bind-Value="@Data.CompanyId" ShowValidationIcon="true">    
+                                    @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                     Caption="Customer Name"
@@ -101,13 +101,13 @@
                         <DxDateEdit NullText="Select Price Validaity To..." @bind-Date="@Data.PriceValidaityTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" Enabled="false" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => Data.PriceValidaityTo)" />
                     </DxFormLayoutItem>
-                   @* <DxFormLayoutItem Caption="Reason For Change" ColSpanMd="6">
-                        <DxComboBox Data="@_viewReasonForChangeItems"
-                                    NullText="Select Reason For Change..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="Value"
-                                    ValueFieldName="ApplicationMasterDetailID"
-                                    @bind-Value="@Data.ReasonForChangeId" ShowValidationIcon="true" />
+                    @* <DxFormLayoutItem Caption="Reason For Change" ColSpanMd="6">
+                    <DxComboBox Data="@_viewReasonForChangeItems"
+                    NullText="Select Reason For Change..."
+                    FilteringMode="DataGridFilteringMode.Contains"
+                    TextFieldName="Value"
+                    ValueFieldName="ApplicationMasterDetailID"
+                    @bind-Value="@Data.ReasonForChangeId" ShowValidationIcon="true" />
                     </DxFormLayoutItem>*@
                 </DxFormLayout>
             </EditForm>
@@ -117,7 +117,7 @@
                     <DxFormLayout CssClass="w-100">
                         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex" RenderMode="TabsRenderMode.OnDemand">
                             <DxFormLayoutTabPage Caption="Item Entry">
-                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><AddItemLine SalesOrderMasterPricingId="@SalesOrderMasterPricingId" MasterType="@MasterType"></AddItemLine></div>
+                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><AddItemLine SalesOrderMasterPricingId="@SalesOrderMasterPricingId" MasterType="@MasterType" _salesOrdersData="_salesOrders"></AddItemLine></div>
                             </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
@@ -134,6 +134,7 @@
 
     [Parameter]
     public Guid? SessionIds { get; set; }
+    public View_SalesOrderMasterPricing _salesOrders;
     private bool loading;
     string MasterType = "MasterPrice";
     private string MyID = "myid";
@@ -162,6 +163,7 @@
             var sorders = await Mediator.Send(new GetAllSalesOrderMasterPricingBySessionQuery(SessionIds));
             if (sorders != null)
             {
+                _salesOrders = sorders;
                 SalesOrderMasterPricingId = sorders.SalesOrderMasterPricingId;
                 Data.SalesOrderMasterPricingId = sorders.SalesOrderMasterPricingId;
                 Data.AddedBy = sorders.AddedBy;
@@ -175,7 +177,7 @@
                 Data.SessionId = sorders.SessionId;
             }
         }
-       
+
     }
 
     void backUrl()

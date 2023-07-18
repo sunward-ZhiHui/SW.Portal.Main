@@ -15,5 +15,6 @@ namespace Core.Repositories.Query
         //Custom operation which is not generic
         Task<IReadOnlyList<View_SalesOrderMasterPricingLine>> GetAllAsync(long? Id);
         Task<View_SalesOrderMasterPricingLine> GetByIdAsync(long? Id);
+        Task<IReadOnlyList<View_SalesOrderMasterPricingLineByItem>> GetSalesOrderMasterPricingLineByItemAsync(long? CompanyId, DateTime? PriceValidaityFrom, DateTime? PriceValidaityTo, long? ItemId);
     }
 }

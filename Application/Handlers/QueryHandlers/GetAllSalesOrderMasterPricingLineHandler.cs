@@ -24,5 +24,17 @@ namespace Application.Handlers.QueryHandlers
             return (List<View_SalesOrderMasterPricingLine>)await _salesOrderMasterPricingLineQueryRepository.GetAllAsync(request.SalesOrderMasterPricingId);
         }
     }
+    public class GetAllSalesOrderMasterPricingLineByItemHandler : IRequestHandler<GetAllSalesOrderMasterPricingLineByItemQuery, List<View_SalesOrderMasterPricingLineByItem>>
+    {
 
+        private readonly ISalesOrderMasterPricingLineQueryRepository _salesOrderMasterPricingLineQueryRepository;
+        public GetAllSalesOrderMasterPricingLineByItemHandler(ISalesOrderMasterPricingLineQueryRepository salesOrderMasterPricingLineQueryRepository)
+        {
+            _salesOrderMasterPricingLineQueryRepository = salesOrderMasterPricingLineQueryRepository;
+        }
+        public async Task<List<View_SalesOrderMasterPricingLineByItem>> Handle(GetAllSalesOrderMasterPricingLineByItemQuery request, CancellationToken cancellationToken)
+        {
+            return (List<View_SalesOrderMasterPricingLineByItem>)await _salesOrderMasterPricingLineQueryRepository.GetSalesOrderMasterPricingLineByItemAsync(request.CompanyId, request.PriceValidaityFrom, request.PriceValidaityTo, request.ItemId);
+        }
+    }
 }

@@ -10,15 +10,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.EntityModel;
 using Core.Entities.Views;
+using Core.Entities;
 
 namespace Infrastructure.Repository.Query
 {
     public class SalesOrderMasterPricingLineQueryRepository : QueryRepository<View_SalesOrderMasterPricingLine>, ISalesOrderMasterPricingLineQueryRepository
     {
-        public SalesOrderMasterPricingLineQueryRepository(IConfiguration configuration)
+        private readonly ISalesOrderMasterPricingLineSellingMethodQueryRepository _salesOrderMasterPricingLineSellingMethodQueryRepository;
+        public SalesOrderMasterPricingLineQueryRepository(IConfiguration configuration, ISalesOrderMasterPricingLineSellingMethodQueryRepository salesOrderMasterPricingLineSellingMethodQueryRepository)
             : base(configuration)
         {
-
+            _salesOrderMasterPricingLineSellingMethodQueryRepository = salesOrderMasterPricingLineSellingMethodQueryRepository;
         }
         public async Task<View_SalesOrderMasterPricingLine> GetByIdAsync(long? Id)
         {
@@ -42,7 +44,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM View_SalesOrderMasterPricingLine WHERE SalesOrderMasterPricingId = @Id";
+                var query = "SELECT * FROM View_SalesOrderMasterPricingLine WHERE itemid=1 and  SalesOrderMasterPricingId = @Id";
                 var parameters = new DynamicParameters();
                 parameters.Add("Id", Id, DbType.Int64);
 
@@ -56,6 +58,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        public async Task<IReadOnlyList<View_SalesOrderMasterPricingLineByItem>> GetSalesOrderMasterPricingLineByItemAsync(long? CompanyId, DateTime? PriceValidaityFrom, DateTime? PriceValidaityTo, long? ItemId)
+        {
+            try
+            {
+                var view_SalesOrderMasterPricingLineByItems = new List<View_SalesOrderMasterPricingLineByItem>();
+                var parameters = new DynamicParameters();
+                var query = "SELECT * FROM View_SalesOrderMasterPricingLineByItem WHERE  MasterType='MasterPrice'and CompanyId = @CompanyId and PriceValidaityFrom>=@PriceValidaityFrom and PriceValidaityTo<=@PriceValidaityTo";
+                parameters.Add("CompanyId", CompanyId, DbType.Int64);
+                parameters.Add("PriceValidaityFrom", PriceValidaityFrom, DbType.Date);
+                parameters.Add("PriceValidaityTo", PriceValidaityTo, DbType.Date);
+                if (ItemId != null)
+                {
+                    query = "SELECT * FROM View_SalesOrderMasterPricingLineByItem WHERE ItemId=@ItemId and MasterType='MasterPrice'and CompanyId = @CompanyId and PriceValidaityFrom>=@PriceValidaityFrom and PriceValidaityTo<=@PriceValidaityTo";
+                    parameters.Add("ItemId", ItemId, DbType.Int64);
+                }
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<View_SalesOrderMasterPricingLineByItem>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

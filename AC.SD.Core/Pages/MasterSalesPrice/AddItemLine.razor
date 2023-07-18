@@ -158,14 +158,14 @@
                 @if (isAllowNewPrice)
                 {
                     <DxFormLayoutItem Caption="New Allow Price:" ColSpanMd="3" Visible="@SMAddEnabled">
-                        
+
                         <DxSpinEdit @bind-Value="@types.NewAllowPrice" />
                     </DxFormLayoutItem>
                 }
                 else
                 {
                     <DxFormLayoutItem Caption="" ColSpanMd="3" Visible="@SMAddEnabled">
-                       
+
                     </DxFormLayoutItem>
                 }
 
@@ -203,6 +203,8 @@
     public long? SalesOrderMasterPricingId { get; set; }
     [Parameter]
     public string MasterType { get; set; }
+    [Parameter]
+    public View_SalesOrderMasterPricing _salesOrdersData { get; set; }
     private string TextValue { get; set; }
     private string No { get; set; }
     private string Description { get; set; }
@@ -253,8 +255,14 @@
         }
 
     }
-
-    void SelectedItemChanged(View_NavItems navitems)
+    async Task loadDropDownData(long? ItemId)
+    {
+        if (_salesOrdersData != null && MasterType == "SpecificItemMasterPrice")
+        {
+            //var listItems = await Mediator.Send(new GetAllSalesOrderMasterPricingLineByItemQuery(_salesOrdersData.CompanyId, _salesOrdersData.PriceValidaityFrom, _salesOrdersData.PriceValidaityTo, ItemId));
+        }
+    }
+    async Task SelectedItemChanged(View_NavItems navitems)
     {
         if (navitems != null)
         {
@@ -262,6 +270,7 @@
             Description = navitems.Description;
             //Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
+            loadDropDownData(navitems.ItemId);
         }
         else
         {
@@ -271,7 +280,6 @@
             BaseUnitofMeasure = "";
         }
     }
-
     protected override async Task OnInitializedAsync()
     {
 
@@ -291,7 +299,7 @@
                 SMAddEnabled = true;
             }
             _addIitemPriceLine = await Mediator.Send(new GetAllSalesOrderMasterPricingLineQuery(SalesOrderMasterPricingId.Value));
-            AddEnabled = true;
+            // AddEnabled = true;
 
             if (_addIitemPriceLine.Count > 0)
             {
@@ -320,7 +328,7 @@
             //_AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
         }
     }
-    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         var navitems = (View_SalesOrderMasterPricingLine)e.EditModel;
         if (e.IsNew)
@@ -336,7 +344,7 @@
             Description = navitems.Description;
             //Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
-
+            await loadDropDownData(navitems.ItemId);
         }
     }
     async Task UpdateDataAsync()

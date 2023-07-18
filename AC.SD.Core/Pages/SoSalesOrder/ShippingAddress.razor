@@ -85,8 +85,15 @@
             <DxGridDataColumn FieldName="CountryName" Caption="Country" />
             <DxGridDataColumn FieldName="StateName" Caption="State" />
             <DxGridDataColumn FieldName="CityName" Caption="City" />
-            <DxGridDataColumn FieldName="PostCode" />
-
+            <DxGridDataColumn FieldName="PostCode">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (view_SoCustomerAddress)context.DataItem;
+                        var postCode = item.PostCode > 0 ? item.PostCode.ToString() : "";
+                    }
+                    @postCode
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="isShipping" Caption="Is Default Address" />
 
             <DxGridCommandColumn Width="160px" Visible="false" />

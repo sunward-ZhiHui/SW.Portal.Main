@@ -82,11 +82,18 @@
             <DxGridDataColumn FieldName="AddressID" Visible="false" />
             <DxGridDataColumn FieldName="Address1" />
             <DxGridDataColumn FieldName="Address2" />
-             <DxGridDataColumn FieldName="CountryName" Caption="Country" />
-              <DxGridDataColumn FieldName="StateName" Caption="State" />
-            <DxGridDataColumn FieldName="CityName" Caption="City" />           
-            <DxGridDataColumn FieldName="PostCode" />
-          
+            <DxGridDataColumn FieldName="CountryName" Caption="Country" />
+            <DxGridDataColumn FieldName="StateName" Caption="State" />
+            <DxGridDataColumn FieldName="CityName" Caption="City" />
+            <DxGridDataColumn FieldName="PostCode">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (view_SoCustomerAddress)context.DataItem;
+                        var postCode = item.PostCode > 0 ? item.PostCode.ToString() : "";
+                    }
+                    @postCode
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="isBilling" Caption="Is Default Address" />
 
             <DxGridCommandColumn Width="160px" Visible="false" />
@@ -102,57 +109,57 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Country" ColSpanMd="6">
                     <DxComboBox Data="@_countryListItems"
-                            NullText="Select Country..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Value"
-                            ValueFieldName="ApplicationMasterChildId"
-                            Enabled = "@isEnabled"                            
-                            @bind-Value="@dataItems.CountryID"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedCountryItemChanged(applicationMasterChildModel))"
-                            ShowValidationIcon="true">
-                </DxComboBox>
-                <ValidationMessage For="@(() => dataItems.CountryID)" />
-            </DxFormLayoutItem>
+                                NullText="Select Country..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                Enabled="@isEnabled"
+                                @bind-Value="@dataItems.CountryID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedCountryItemChanged(applicationMasterChildModel))"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => dataItems.CountryID)" />
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Address2:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@dataItems.Address2" />
-                </DxFormLayoutItem>  
-                 <DxFormLayoutItem Caption="State" ColSpanMd="6">
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="State" ColSpanMd="6">
                     <DxComboBox Data="@_stateListItems"
-                            NullText="Select State..."
-                            Enabled="@isEnabled"
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Value"
-                            ValueFieldName="ApplicationMasterChildId"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            @bind-Value="@dataItems.StateID"
-                            SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedStateItemChanged(applicationMasterChildModel))">
-                </DxComboBox>
-                <ValidationMessage For="@(() => dataItems.StateID)" />
-            </DxFormLayoutItem>
-                
+                                NullText="Select State..."
+                                Enabled="@isEnabled"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@dataItems.StateID"
+                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedStateItemChanged(applicationMasterChildModel))">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => dataItems.StateID)" />
+                </DxFormLayoutItem>
+
                 @*<DxFormLayoutItem Caption="Country:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@dataItems.CountryID" />
+                <DxTextBox @bind-Text="@dataItems.CountryID" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="State:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@dataItems.StateID" />
+                <DxTextBox @bind-Text="@dataItems.StateID" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="City:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@dataItems.CityID" />
-                </DxFormLayoutItem> *@              
+                <DxTextBox @bind-Text="@dataItems.CityID" />
+                </DxFormLayoutItem> *@
                 <DxFormLayoutItem Caption="PostCode:" ColSpanMd="6">
                     @EditFormContext.GetEditor("PostCode")
-                </DxFormLayoutItem>           
-              
+                </DxFormLayoutItem>
+
                 <DxFormLayoutItem Caption="City" ColSpanMd="6">
                     <DxComboBox Data="@_cityListItems"
-                            NullText="Select City..."
-                            Enabled="@isEnabled"
-                            FilteringMode="DataGridFilteringMode.Contains"
-                            TextFieldName="Value"
-                            ValueFieldName="ApplicationMasterChildId"
-                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                            @bind-Value="@dataItems.CityID">
+                                NullText="Select City..."
+                                Enabled="@isEnabled"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@dataItems.CityID">
                     </DxComboBox>
                     <ValidationMessage For="@(() => dataItems.CityID)" />
                 </DxFormLayoutItem>
@@ -212,7 +219,7 @@
     private view_SoCustomerAddress _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
 
-    bool isEnabled { get; set; } = true;    
+    bool isEnabled { get; set; } = true;
 
     private List<ApplicationMasterChildModel> _countryListItems;
     private List<ApplicationMasterChildModel> _stateListItems;
@@ -249,21 +256,21 @@
         {
             StateChange(-1);
         }
-    }     
+    }
     async void StateChange(long? ApplicationMasterChildID)
     {
         if (ApplicationMasterChildID != null)
         {
             _cityListItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
         }
-       
+
     }
 
 
 
     protected override async Task OnInitializedAsync()
     {
-        PanelVisible = true;      
+        PanelVisible = true;
 
         _countryListItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("119"));
         //_stateListItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("120"));
@@ -365,7 +372,7 @@
                     Address1 = editModel.Address1,
                     Address2 = editModel.Address2,
                     AddressType = editModel.AddressType,
-                    PostCode = editModel.PostCode,                  
+                    PostCode = editModel.PostCode,
                     CustomerId = editModel.CustomerId,
                     CountryID = editModel.CountryID,
                     StateID = editModel.StateID,

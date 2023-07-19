@@ -16,9 +16,9 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
-                <DxMenuItem Text="View ScreenShot" IconCssClass="fa fa-eye" Click="@((e) => onViewScreenShot())" Enabled ="@ScreenShortEnabled" />
-                <DxMenuItem Text="View Document" IconCssClass="fa fa-file" Click="@((e) => onDocView())" Enabled ="@DocEnabled"/>
-                <DxMenuItem Text="Filter" IconCssClass="fa fa-filter" Click="@((e) => onFilter())" Enabled = "@Filter"/>
+                <DxMenuItem Text="View ScreenShot" IconCssClass="fa fa-eye" Click="@((e) => onViewScreenShot())" Enabled="@ScreenShortEnabled" />
+                <DxMenuItem Text="View Document" IconCssClass="fa fa-file" Click="@((e) => onDocView())" Enabled="@DocEnabled" />
+                <DxMenuItem Text="Filter" IconCssClass="fa fa-filter" Click="@((e) => onFilter())" />
             </Items>
         </DxMenu>
     </div>
@@ -67,18 +67,18 @@
                 Text="Fetching Data...">
 
 
-  <DxGrid @ref="Grid" Data="@_productionAppLine"  ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"       
-        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20" CustomizeElement="Grid_CustomizeElement" style="height: calc(100vh - 250px);"
-        CssClass="w-100" AutoExpandAllGroupRows="true"
-        SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages" RowClick="OnRowClick" FocusedRowEnabled = "true">
-     <Columns>
-            <DxGridSelectionColumn  Width="60px" />
-            <DxGridDataColumn FieldName="Name"  MinWidth="150" />
+    <DxGrid @ref="Grid" Data="@_productionAppLine" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20" CustomizeElement="Grid_CustomizeElement" style="height: calc(100vh - 250px);"
+            CssClass="w-100" AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages" RowClick="OnRowClick" FocusedRowEnabled="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" />
+            <DxGridDataColumn FieldName="Name" MinWidth="150" />
             <DxGridDataColumn FieldName="DisciplineType" MinWidth="250" />
             <DxGridDataColumn FieldName="Grouping" MinWidth="150" />
             <DxGridDataColumn FieldName="Category" Width="180" />
@@ -128,7 +128,7 @@
         {
             _selectedItems = _productionAppLine.FirstOrDefault();
 
-            ScreenShortEnabled =true;
+            ScreenShortEnabled = true;
             DocEnabled = true;
             StateHasChanged();
 
@@ -184,9 +184,24 @@
         await jsRuntime.InvokeVoidAsync("open", url, "_blank");
     }
 
-   async void onDocView()
+    async void onDocView()
     {
-     var model = await Mediator.Send(new GetAllDocumentList(_selectedItems.SessionID));
+        var model = await Mediator.Send(new GetAllDocumentList(_selectedItems.SessionID));
+        if (model != null && model.Count > 0)
+        {
+            var filepath = model[0].FilePath;
+            var list = model[0].ContentType.Split(',').ToList();
+            if (list[0].ToLower() == "image")
+            {
+                var url = "https://portal.sunwardpharma.com:2025/" + filepath;
+                await OpenUrlInNewTab(url);
+            }
+            else
+            {
+                var urls = "https://docs.google.com/gview?url=https://portal.sunwardpharma.com:2025/" + filepath;
+                await OpenUrlInNewTab(urls);
+            }
+        }
     }
     async void onFilter()
     {

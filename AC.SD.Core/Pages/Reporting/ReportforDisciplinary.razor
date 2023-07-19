@@ -1,0 +1,197 @@
+﻿@page "/reportforDisciplinary"
+@inject IJSRuntime jsRuntime
+@using Application.Queries;
+@using DevExpress.Export;
+@using Microsoft.Extensions.Configuration;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@inject IConfiguration Configuration
+@using MediatR
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="View ScreenShot" IconCssClass="fa fa-eye" Click="@((e) => onViewScreenShot())" />
+                <DxMenuItem Text="View Document" IconCssClass="fa fa-file" Click="@((e) => onDocView())"/>
+                <DxMenuItem Text="Filter" IconCssClass="fa fa-filter" Click="@((e) => onFilter())"/>
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+@*  @bind-Value="@Data.CompanyId" ShowValidationIcon="true"*@
+ <EditForm Model = "@Data"  Context="EditFormContext">
+      <DxFormLayout CssClass="w-100">
+           <DxFormLayoutGroup ColSpanMd="12" Caption="Filter" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                       <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="NavCompany"
+                                    ValueFieldName="PlantID"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
+                                  
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                    Caption="Customer Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                    Caption="Description" />
+                              
+                            </Columns>
+                        </DxComboBox>
+                        
+            </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="From Date" ColSpanMd="6">
+                        <DxDateEdit Date="@DateRange" DateExpression="@(() => DateRange)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))"  Format="yyyy-MM-dd"  CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
+                        
+                </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="To Date" ColSpanMd="6">
+                        <DxDateEdit NullText="Select To Date..." @bind-Date="@Data.Date" Format="yyyy-MM-dd"   CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinDateFrom"  />
+                       
+                    </DxFormLayoutItem>
+           </DxFormLayoutGroup>
+       </DxFormLayout>
+ </EditForm>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+
+
+  <DxGrid @ref="Grid" Data="@_productionAppLine"  ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"       
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20" CustomizeElement="Grid_CustomizeElement" style="height: calc(100vh - 250px);"
+        CssClass="w-100" AutoExpandAllGroupRows="true"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+     <Columns>
+            <DxGridSelectionColumn  Width="60px" />
+            <DxGridDataColumn FieldName="Name"  MinWidth="150" />
+            <DxGridDataColumn FieldName="DisciplineType" MinWidth="250" />
+            <DxGridDataColumn FieldName="Grouping"  MinWidth="150" />
+            <DxGridDataColumn FieldName="Category" Width="180" />
+        <DxGridDataColumn FieldName="Action" MinWidth="200" />
+         <DxGridDataColumn FieldName="Comment" MinWidth="200" />
+          <DxGridDataColumn FieldName="Result" MinWidth="200" />
+           <DxGridDataColumn FieldName="Info" MinWidth="200" />
+            <DxGridDataColumn FieldName="Status" MinWidth="200" />
+             <DxGridDataColumn FieldName="ReadBy" MinWidth="200" />
+               <DxGridDataColumn FieldName="ModifyBy" MinWidth="200" />
+    </Columns>
+   
+    </DxGrid>
+</DxLoadingPanel>
+
+
+@code {
+    bool PanelVisible { get; set; }
+    IGrid Grid { get; set; }
+    private List<view_ProductionActivityAppLineReport> _productionAppLine;
+    view_ProductionActivityAppLineReport Data = new view_ProductionActivityAppLineReport();
+    // private view_ProductionActivityAppLineReport Data;
+    private List<ViewPlants>? _plantItems;
+    DateTime MinDateFrom;
+    DateTime MaxDateTo;
+    DateTime DateRange = DateTime.Today;
+    private string? FileUrl;
+    private string? BaseUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        PanelVisible = true;
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        var model = await Mediator.Send(new GetAllProductionActivityAppLineReport());
+        _productionAppLine = model;
+        PanelVisible = false;
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        //var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProductionEntryID");
+        //_selectedItems = _productionEntry.FirstOrDefault(f => f.ProductionEntryID == (long?)UniqueId);
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task ExportToExcel()
+
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+
+                CustomizeCell = OnCustomizeCell
+            });
+
+
+    }
+
+
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+
+
+
+    }
+    void OnDateChanged(DateTime newValue)
+    {
+        DateRange = newValue;
+        Data.Date = DateRange;
+        MinDateFrom = newValue.AddDays(-1);
+        Data.Date = MaxDateTo;
+    }
+
+    private async Task OpenUrlInNewTab(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("open", url, "_blank");
+    }
+
+    void onDocView()
+    {
+
+    }
+    async void onFilter()
+    {
+        var FromDate = DateRange;
+        var CompanyId = Data.CompanyId;
+        var ToDate = Data.Date;
+        var model = await Mediator.Send(new GetAllProductionActivityAppLineFilterReport(CompanyId,FromDate,ToDate));
+   }
+    void onViewScreenShot()
+    {
+       
+        // image1 = LiveUrl + _selectedItems.RoomStatus ;
+        //image2 = LiveUrl + _selectedItems.RoomStatus1;
+        //PopupVisible = true;
+    }
+    // public async Task onDocDownload(long Id)
+    //{
+    //    var lst =  _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
+
+
+    //    var url = FileUrl + lst.FilePath;
+    //    await OpenUrlInNewTab(url);
+    //}
+}

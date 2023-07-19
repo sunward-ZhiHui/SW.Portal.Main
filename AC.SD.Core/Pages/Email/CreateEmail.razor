@@ -416,7 +416,7 @@ else
         //await JSRuntime.InvokeVoidAsync("submitForm");
         await JSRuntime.InvokeVoidAsync("myInteropFunctions.submitForm");
     }
-   private void addNew(int id)
+    private void addNew(int id)
     {
         draftId = id;        
     }
@@ -583,7 +583,7 @@ else
         //_category = topicmodel;        
 
         Data.From = applicationUser.UserName;
-        
+
         if (ActiveSessionId != null)
         {
             var acttopics = await Mediator.Send(new GetActivityEmailTopics());
@@ -597,9 +597,11 @@ else
                 isValidateSession = false;
                 //var docId = "70F019EC011241C9807C39BF2BE79136";
                 //Guid docSessionId = Guid.Parse(docId);
-                var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].DocumentSessionId.Value));
-                _documentslst = documentslst;
-
+                if(actItem[0].DocumentSessionId != null)
+                {
+                    var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].DocumentSessionId.Value));
+                    _documentslst = documentslst;
+                }
 
                 Data.TopicName = actItem[0].SubjectName;
                 ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;

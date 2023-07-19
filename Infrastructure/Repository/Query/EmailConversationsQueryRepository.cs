@@ -90,6 +90,30 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }        
+         public async Task<List<ViewEmployee>> GetAllConvAssignToListAsync(long convId)
+        {
+            try
+            {
+                var query = @"select E.* from EmailConversationAssignTo ECAT
+                            INNER JOIN Employee E ON E.UserID = ECAT.UserId
+                            where ECAT.ConversationId = @convId
+                                            UNION
+                                            select E.* from EmailConversationAssignCC ECAC 
+                            INNER JOIN Employee E ON E.UserID = ECAC.UserId
+                            where ECAC.ConversationId = @convId";              
+
+                var parameters = new DynamicParameters();
+                parameters.Add("convId", convId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
         public async Task<List<EmailAssignToList>> GetAllAssignToListAsync(long topicId)
         {
@@ -231,7 +255,7 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData FROM EmailConversations FC                                
+                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId FROM EmailConversations FC                                
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
                                 WHERE FC.TopicId = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate ASC";

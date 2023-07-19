@@ -73,7 +73,7 @@
                                     <DxMenuItem Text="Assign To" class="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" IconCssClass="fa fa-envelope" Click="@(() => OnLeftMenuItemClick("AssignTo"))" />                                    
                                     <DxMenuItem Text="CC" class="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" IconCssClass="popup-image popup-icon-position" Click="@(() => OnLeftMenuItemClick("AssignCC"))" />
                                     <DxMenuItem Text="Sent" class="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" IconCssClass="fa fa-paper-plane" Click="@(() => OnLeftMenuItemClick("Sent"))" />
-                                    <DxMenuItem Text="Draft" class="@((isLeftMenuvisible == "Draft" ? "tActive": "draft"))" IconCssClass="fab fa-stack-overflow" Click="@(() => OnLeftMenuItemClick("Draft"))" />
+                                    @*<DxMenuItem Text="Draft" class="@((isLeftMenuvisible == "Draft" ? "tActive": "draft"))" IconCssClass="fab fa-stack-overflow" Click="@(() => OnLeftMenuItemClick("Draft"))" />*@
                                     @if (ActiveSessionId != null)
                                     {
                                         <DxButton Click="@(() => TOGrid.ClearFilter())">Clear Filter</DxButton>
@@ -235,11 +235,7 @@
                                         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
                                     </TotalSummary>
                                 </DxGrid>
-                            }
-                            else if(isLeftMenuvisible == "Draft")
-                            {
-                                <DraftPage></DraftPage>
-                            }
+                            }                            
 
                             
                         </div>
@@ -2133,6 +2129,10 @@
         if (id > 0)
         {
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
+
+            var plist = await Mediator.Send(new GetAllConvAssToListQuery(_replyComment[0].ID));
+            _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+
             WindowVisible = true;
             Data.Name = _replyComment[0].Name;
             IsReadOnly = false;

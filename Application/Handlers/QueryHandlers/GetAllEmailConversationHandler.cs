@@ -246,6 +246,19 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailAssignToList>)await _conversationQueryRepository.GetAllAssignToListAsync(request.TopicId);
         }
     }
+    
+    public class GetAllConvAssToListHandler : IRequestHandler<GetAllConvAssToListQuery, List<ViewEmployee>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+        public GetAllConvAssToListHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<ViewEmployee>> Handle(GetAllConvAssToListQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewEmployee>)await _conversationQueryRepository.GetAllConvAssignToListAsync(request.EmployeeID);
+        }
+    }
     public class GetEmailTopicToListHandler : IRequestHandler<GetEmailTopicToList, List<EmailTopicTo>>
     {
         private readonly IEmailConversationsQueryRepository _conversationQueryRepository;

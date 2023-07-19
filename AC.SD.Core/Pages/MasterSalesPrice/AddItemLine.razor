@@ -290,16 +290,17 @@
         _viewSellingMethodItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(338));
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-
+        AddEnabled = false;
 
         if (SalesOrderMasterPricingId > 0)
         {
             if (MasterType == "SpecificItemMasterPrice")
             {
                 SMAddEnabled = true;
+                AddEnabled = true;
             }
             _addIitemPriceLine = await Mediator.Send(new GetAllSalesOrderMasterPricingLineQuery(SalesOrderMasterPricingId.Value));
-            // AddEnabled = true;
+
 
             if (_addIitemPriceLine.Count > 0)
             {

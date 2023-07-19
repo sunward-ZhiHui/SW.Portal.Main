@@ -16,13 +16,13 @@ namespace Application.Queries
     {
         public long? CompanyId { get; set; }
         public DateTime FromDate { get; set; }
-        public DateTime ToDate { get;  set; }
-        public GetAllProductionActivityAppLineFilterReport(long? CompanyId,DateTime FromDate, DateTime ToDate)
+        public DateTime ToDate { get; set; }
+        public GetAllProductionActivityAppLineFilterReport(long? CompanyId, DateTime FromDate, DateTime ToDate)
         {
             this.CompanyId = CompanyId;
-            this.Date = FromDate;
-           this.Date = ToDate;
+            this.FromDate = FromDate;
+            this.ToDate = ToDate;
         }
     }
-    
+
 }

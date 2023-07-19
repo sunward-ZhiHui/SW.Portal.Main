@@ -13,6 +13,7 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<view_ProductionActivityAppLineReport>> GetAllAsync();
         Task<IReadOnlyList<view_ProductionActivityAppLineReport>> GetAllFilterAsync(long? CompanyId , DateTime? FromDate , DateTime? ToDate);
+        Task<List<Documents>> GetDocumentListAsync(Guid sessionId);
     }
 }
 

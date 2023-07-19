@@ -1,4 +1,5 @@
-﻿using Core.Entities.Views;
+﻿using Core.Entities;
+using Core.Entities.Views;
 using Core.Repositories.Query;
 using Dapper;
 using Infrastructure.Repository.Query.Base;
@@ -58,26 +59,50 @@ namespace Infrastructure.Repository.Query
                 
             }
         }
+
+        public async  Task<List<Documents>> GetDocumentListAsync(Guid sessionId)
+        {
+            try
+            {
+
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", sessionId, DbType.Guid);
+
+                var query = "select * from Documents where SessionId = @SessionId AND IsLatest = 1 AND FilePath is not null";
+             
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Documents>(query, parameters)).ToList();
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+    }
         //public async Task<IReadOnlyList<view_ProductionActivityAppLineReport>> GetAllFilterAsync()
         //{
         //    try
         //    {
 
-            //        var query = "select * from view_ProductionActivityAppLineReport where Companyid= @Companyid and (Date>=@FromDate and Date<=@ToDate)";
-            //        var parameters = new DynamicParameters();
-            //        parameters.Add("CompanyId", CompanyId, DbType.Int64);
-            //        parameters.Add("FromDate", FromDate, DbType.Date);
-            //        parameters.Add("ToDate", ToDate, DbType.Date);
-            //        using (var connection = CreateConnection())
-            //        {
-            //            return (await connection.QueryAsync<view_ProductionActivityAppLineReport>(query, parameters)).ToList();
-            //        }
-            //    }
-            //    catch (Exception exp)
-            //    {
-            //        throw new Exception(exp.Message, exp);
-            //    }
-            //}
-    }
+        //        var query = "select * from view_ProductionActivityAppLineReport where Companyid= @Companyid and (Date>=@FromDate and Date<=@ToDate)";
+        //        var parameters = new DynamicParameters();
+        //        parameters.Add("CompanyId", CompanyId, DbType.Int64);
+        //        parameters.Add("FromDate", FromDate, DbType.Date);
+        //        parameters.Add("ToDate", ToDate, DbType.Date);
+        //        using (var connection = CreateConnection())
+        //        {
+        //            return (await connection.QueryAsync<view_ProductionActivityAppLineReport>(query, parameters)).ToList();
+        //        }
+        //    }
+        //    catch (Exception exp)
+        //    {
+        //        throw new Exception(exp.Message, exp);
+        //    }
+        //}
+    
 }
 

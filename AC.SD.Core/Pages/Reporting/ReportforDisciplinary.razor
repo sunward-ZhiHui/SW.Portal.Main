@@ -16,9 +16,9 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
-                <DxMenuItem Text="View ScreenShot" IconCssClass="fa fa-eye" Click="@((e) => onViewScreenShot())" />
-                <DxMenuItem Text="View Document" IconCssClass="fa fa-file" Click="@((e) => onDocView())"/>
-                <DxMenuItem Text="Filter" IconCssClass="fa fa-filter" Click="@((e) => onFilter())"/>
+                <DxMenuItem Text="View ScreenShot" IconCssClass="fa fa-eye" Click="@((e) => onViewScreenShot())" Enabled ="@ScreenShortEnabled" />
+                <DxMenuItem Text="View Document" IconCssClass="fa fa-file" Click="@((e) => onDocView())" Enabled ="@DocEnabled"/>
+                <DxMenuItem Text="Filter" IconCssClass="fa fa-filter" Click="@((e) => onFilter())" Enabled = "@Filter"/>
             </Items>
         </DxMenu>
     </div>
@@ -75,7 +75,7 @@
         PageSize="20" CustomizeElement="Grid_CustomizeElement" style="height: calc(100vh - 250px);"
         CssClass="w-100" AutoExpandAllGroupRows="true"
         SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages" RowClick="OnRowClick" FocusedRowEnabled = "true">
      <Columns>
             <DxGridSelectionColumn  Width="60px" />
             <DxGridDataColumn FieldName="Name"  MinWidth="150" />
@@ -96,11 +96,14 @@
 
 
 @code {
+    bool Filter { get; set; } = false;
+    bool ScreenShortEnabled { get; set; } = false;
+    bool DocEnabled { get; set; } = false;
     bool PanelVisible { get; set; }
     IGrid Grid { get; set; }
     private List<view_ProductionActivityAppLineReport> _productionAppLine;
     view_ProductionActivityAppLineReport Data = new view_ProductionActivityAppLineReport();
-    // private view_ProductionActivityAppLineReport Data;
+    private view_ProductionActivityAppLineReport _selectedItems;
     private List<ViewPlants>? _plantItems;
     DateTime MinDateFrom;
     DateTime MaxDateTo;
@@ -116,13 +119,23 @@
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         var model = await Mediator.Send(new GetAllProductionActivityAppLineReport());
         _productionAppLine = model;
+
+        if (_productionAppLine.Count > 0)
+        {
+            _selectedItems = _productionAppLine.FirstOrDefault();
+
+            ScreenShortEnabled =true;
+            DocEnabled = true;
+            StateHasChanged();
+
+        }
         PanelVisible = false;
 
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
-        //var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProductionEntryID");
-        //_selectedItems = _productionEntry.FirstOrDefault(f => f.ProductionEntryID == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ProductionActivityAppLineID");
+        _selectedItems = _productionAppLine.FirstOrDefault(f => f.ProductionActivityAppLineID == (long?)UniqueId);
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -161,6 +174,7 @@
         Data.Date = DateRange;
         MinDateFrom = newValue.AddDays(-1);
         Data.Date = MaxDateTo;
+        Filter = true;
     }
 
     private async Task OpenUrlInNewTab(string url)
@@ -168,9 +182,9 @@
         await jsRuntime.InvokeVoidAsync("open", url, "_blank");
     }
 
-    void onDocView()
+   async void onDocView()
     {
-
+     var model = await Mediator.Send(new GetAllDocumentList(_selectedItems.SessionID));
     }
     async void onFilter()
     {

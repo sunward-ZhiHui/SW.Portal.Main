@@ -1,4 +1,5 @@
 ﻿using Application.Queries;
+using Core.Entities;
 using Core.Entities.Views;
 using Core.Repositories.Query;
 using MediatR;
@@ -32,6 +33,20 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<view_ProductionActivityAppLineReport>> Handle(GetAllProductionActivityAppLineFilterReport request, CancellationToken cancellationToken)
         {
             return (List<view_ProductionActivityAppLineReport>)await _queryRepository.GetAllFilterAsync(request.CompanyId,request.FromDate, request.ToDate);
+        }
+    }
+    public class GetAllDocumentListHandler : IRequestHandler<GetAllDocumentList, List<Documents>>
+    {
+        private readonly IProductionActivityAppLineReportQueryRepository _rolepermissionQueryRepository;
+
+        public GetAllDocumentListHandler(IProductionActivityAppLineReportQueryRepository rolepermissionQueryRepository)
+        {
+
+            _rolepermissionQueryRepository = rolepermissionQueryRepository;
+        }
+        public async Task<List<Documents>> Handle(GetAllDocumentList request, CancellationToken cancellationToken)
+        {
+            return (List<Documents>)await _rolepermissionQueryRepository.GetDocumentListAsync(request.sessionId);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Application.Queries.Base;
+using Core.Entities;
 using Core.Entities.Views;
 using MediatR;
 using System;
@@ -24,5 +25,13 @@ namespace Application.Queries
            this.Date = ToDate;
         }
     }
-    
+    public class GetAllDocumentList : PagedRequest, IRequest<List<Documents>>
+    {
+        public Guid sessionId { get; private set; }
+        public GetAllDocumentList(Guid sessionId)
+        {
+            this.sessionId = sessionId;
+        }
+    }
+
 }

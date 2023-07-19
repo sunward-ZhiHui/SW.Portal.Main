@@ -80,8 +80,8 @@
                         <div class="mb-cc-text">
                             <div class="card w-100">
                                 <div class="card-body p-0">
-                                    <DxTabs @bind-ActiveTabIndex="@ActiveTabIndex">
-                                        <DxTabPage Text="@DisplayMainParent" >
+                                    <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
+                                        <DxTabPage Text="@DisplayMainParent">
                                             <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
                                                 <div class="card-body p-0">
                                                     <DxMenu Orientation="Orientation.Horizontal"
@@ -91,8 +91,8 @@
                                                             <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                                                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                                                             <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
-                                                            @*                                                            <DxMenuItem Text="@DisplayParent" IconCssClass="fa fa-add" Click="@addEditNewChild" Visible="@EditNewChildEnabled" />
-                                                            *@
+                                                            <DxMenuItem Text="@DisplayParent" IconCssClass="fa fa-add" Click="@addEditNewChild" Visible="@EditNewChildEnabled" />
+
                                                         </Items>
                                                     </DxMenu>
                                                 </div>
@@ -116,7 +116,7 @@
                                                         PageSizeSelectorAllRowsItemVisible="false"
                                                         PageSizeSelectorItems="@(new int[] { 5,10,20,30,50,100 })"
                                                         PageSize="20"
-                                                        style="height: calc(100vh - 240px);"
+                                                        style="height: calc(100vh - 300px);"
                                                         CssClass="ch-360"
                                                         AllowSelectRowByClick="true"
                                                         EditModelSaving="Grid_EditModelSaving"
@@ -159,7 +159,7 @@
 
                                             </DxLoadingPanel>
                                         </DxTabPage>
-                                        <DxTabPage Text="@DisplayParent" >
+                                        <DxTabPage Text="@DisplayParent" Enabled="@childTabEnabled">
                                             <div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
                                                 <div class="card-body p-0">
                                                     <DxMenu Orientation="Orientation.Horizontal"
@@ -168,12 +168,13 @@
                                                             <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewChild" />
                                                             <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEditChild" Enabled="@EditChildEnabled" />
                                                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDeleteChild" Enabled="@DeleteChildEnabled" />
-                                                            @*                                                            <DxMenuItem Text="@DisplayChild" IconCssClass="fa fa-add" Click="@addEditNewChildChild" Visible="@EditNewChildChildEnabled" />
-                                                            *@
+                                                            <DxMenuItem Text="@DisplayChild" IconCssClass="fa fa-add" Click="@addEditNewChildChild" Visible="@EditNewChildChildEnabled" />
+
                                                         </Items>
                                                     </DxMenu>
                                                 </div>
                                             </div>
+                                            <span style="text-align: center;padding: 5px;font-weight: bold;font-size: 15px;">@ChildHeaderName</span>
                                             <DxGrid @ref="GridChild"
                                                     Data="_applicationChildItems"
                                                     KeyFieldName="ApplicationMasterChildId"
@@ -194,7 +195,7 @@
                                                     FocusedRowEnabled="true"
                                                     RowClick="OnRowChildClick"
                                                     SelectedDataItemsChanged="SelectedMasterChildDataItemsChanged"
-                                                    style="height: calc(50vh - 50px);padding:10px;"
+                                                    style="height: calc(100vh - 300px);"
                                                     RowDoubleClick="OnRowChildDoubleClick"
                                                     AllowSelectRowByClick="true"
                                                     CssClass="ch-360">
@@ -222,7 +223,7 @@
                                                 </EditFormTemplate>
                                             </DxGrid>
                                         </DxTabPage>
-                                        <DxTabPage Text="@DisplayChild" >
+                                        <DxTabPage Text="@DisplayChild" Enabled="@childChildTabEnabled">
                                             <div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
                                                 <div class="card-body p-0">
                                                     <DxMenu Orientation="Orientation.Horizontal"
@@ -235,6 +236,7 @@
                                                     </DxMenu>
                                                 </div>
                                             </div>
+                                            <span style="text-align: center;padding: 5px;font-weight: bold;font-size: 15px;">@ChildChildHeaderName</span>
                                             <DxGrid @ref="GridChildChild"
                                                     Data="_applicationChildChildItems"
                                                     KeyFieldName="ApplicationMasterChildId"
@@ -255,7 +257,7 @@
                                                     FocusedRowEnabled="true"
                                                     RowClick="OnRowChildChildClick"
                                                     SelectedDataItemsChanged="SelectedMasterChildChildDataItemsChanged"
-                                                    style="height: calc(50vh - 50px);padding:10px;"
+                                                    style="height: calc(100vh - 300px);"
                                                     RowDoubleClick="OnRowChildChildDoubleClick"
                                                     AllowSelectRowByClick="true"
                                                     CssClass="ch-360">
@@ -413,6 +415,8 @@
     bool EditNewChildEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
+    bool childTabEnabled { get; set; } = false;
+    bool childChildTabEnabled { get; set; } = false;
     DxPopup? popup;
     public string DisplayMainParent { get; set; }
     public string DisplayParent { get; set; }
@@ -431,8 +435,8 @@
     DxPopup? Childpopup;
     bool EditNewChildChildEnabled { get; set; } = false;
     public string DisplayChild { get; set; }
-
-
+    public long? ParentChildId { get; set; }
+    public long? ParentChildChildId { get; set; }
     public string ChildChildHeaderName { get; set; }
     bool ChildChildPopupVisible { get; set; }
     bool ChildChildPopupClose { get; set; }
@@ -450,12 +454,33 @@
         _applicationMasterAllItems = await Mediator.Send(new GetAllApplicationMasterParentAllQuery());
         PanelVisible = false;
     }
+    async Task OnTabClick(TabClickEventArgs e)
+    {
+        if (e.TabIndex == 0)
+        {
+            childTabEnabled = false;
+            childChildTabEnabled = false;
+            await UpdateDataAsync();
+        }
+        if (e.TabIndex == 1)
+        {
+            childChildTabEnabled = false;
+        }
+    }
     async void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         DisplayParent = "";
         ChildHeaderName = "";
         SelectedDataItems = SelectedToItems;
         ActiveTabIndex = 0;
+        EditChildEnabled = false;
+        DeleteChildEnabled = false;
+        EditChildChildEnabled = false;
+        DeleteChildEnabled = false;
+        childTabEnabled = false;
+        childChildTabEnabled = false;
+        _applicationChildItems = new List<ApplicationMasterChildModel>();
+        _applicationChildChildItems = new List<ApplicationMasterChildModel>();
         if (SelectedDataItems != null)
         {
             isParentFlag = true;
@@ -469,6 +494,7 @@
                     var nameListChild = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == nameList.ApplicationMasterParentCodeId);
                     if (nameList != null)
                     {
+                        ParentChildId = nameList.ApplicationMasterParentCodeId;
                         DisplayMainParent = _selectItems?.ApplicationMasterName;
                         DisplayParent = nameList?.ApplicationMasterName;
                         DisplayChild = nameListChild?.ApplicationMasterName;
@@ -493,7 +519,7 @@
         if (_applicationMasterDetails.Count > 0)
         {
             _selectedItems = _applicationMasterDetails.FirstOrDefault();
-            addEditNewChild();
+            // addEditNewChild();
             EditEnabled = true;
             EditNewChildEnabled = true;
             DeleteEnabled = true;
@@ -573,7 +599,7 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ApplicationMasterChildId");
         _selectedItems = _applicationMasterDetails.FirstOrDefault(f => f.ApplicationMasterChildId == (long?)UniqueId);
-        addEditNewChild();
+
         StateHasChanged();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
@@ -746,6 +772,9 @@
             }
             StateHasChanged();
             ChildPopupVisible = true;
+            childTabEnabled = true;
+            childChildTabEnabled = false;
+            ActiveTabIndex = 1;
             await UpdateDataChildAsync();
         }
     }
@@ -756,11 +785,15 @@
         if (_applicationChildItems.Count > 0)
         {
             _selectedChildItems = _applicationChildItems.FirstOrDefault();
-            addEditNewChildChild();
             EditChildEnabled = true;
             DeleteChildEnabled = true;
-            StateHasChanged();
+
         }
+        else
+        {
+            _selectedChildItems = null;
+        }
+        StateHasChanged();
     }
     void addNewChild()
     {
@@ -785,7 +818,7 @@
         {
             var request = new CreateApplicationMasterChildCommand
                 {
-                    ApplicationMasterParentId = _selectedChildItems.ApplicationMasterParentId,
+                    ApplicationMasterParentId = ParentChildId,
                     ParentId = _selectedItems.ApplicationMasterChildId,
                     Description = editablePlant.Description,
                     Value = editablePlant.Value,
@@ -839,7 +872,6 @@
     {
         var UniqueIds = e.Grid.GetRowValue(e.VisibleIndex, "ApplicationMasterChildId");
         _selectedChildItems = _applicationChildItems.FirstOrDefault(f => f.ApplicationMasterChildId == (long?)UniqueIds);
-        addEditNewChildChild();
         StateHasChanged();
     }
     void OnRowChildDoubleClick(GridRowClickEventArgs e)
@@ -908,8 +940,12 @@
     async void addEditNewChildChild()
     {
         ChildChildHeaderName = _selectedChildItems.Value + " List";
+        var nameList = _applicationMasterAllItems.FirstOrDefault(x => x.ParentId == _selectedChildItems.ApplicationMasterParentId);
+        ParentChildChildId = nameList.ApplicationMasterParentCodeId;
         StateHasChanged();
         ChildChildPopupVisible = true;
+        childChildTabEnabled = true;
+        ActiveTabIndex = 2;
         await UpdateDataChildChildAsync();
     }
     async Task UpdateDataChildChildAsync()
@@ -921,8 +957,12 @@
             _selectedChildChildItems = _applicationChildChildItems.FirstOrDefault();
             EditChildChildEnabled = true;
             DeleteChildChildEnabled = true;
-            StateHasChanged();
         }
+        else
+        {
+            _selectedChildChildItems = new ApplicationMasterChildModel();
+        }
+        StateHasChanged();
     }
     void addNewChildChild()
     {
@@ -947,7 +987,7 @@
         {
             var request = new CreateApplicationMasterChildCommand
                 {
-                    ApplicationMasterParentId = _selectedChildChildItems.ApplicationMasterParentId,
+                    ApplicationMasterParentId = ParentChildChildId,
                     ParentId = _selectedChildItems.ApplicationMasterChildId,
                     Description = editablePlant.Description,
                     Value = editablePlant.Value,

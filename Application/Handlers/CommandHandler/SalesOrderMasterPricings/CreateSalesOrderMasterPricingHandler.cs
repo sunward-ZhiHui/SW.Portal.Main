@@ -40,7 +40,10 @@ namespace Application.Handlers.CommandHandler.SalesOrderMasterPricings
             {
                 salesOrderMasterPricingId = (long)await _commandRepository.AddAsync(queryEntity);
                 queryEntity.SalesOrderMasterPricingId = salesOrderMasterPricingId;
-                await _queryRepository.InsertSalesOrderMasterPricingLineAsync(queryEntity);
+                if (queryEntity.MasterType == "MasterPrice")
+                {
+                    await _queryRepository.InsertSalesOrderMasterPricingLineAsync(queryEntity);
+                }
             }
             else
             {

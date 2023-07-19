@@ -24,47 +24,47 @@
     </div>
 </div>
 @*  @bind-Value="@Data.CompanyId" ShowValidationIcon="true"*@
- <EditForm Model = "@Data"  Context="EditFormContext">
-      <DxFormLayout CssClass="w-100">
-           <DxFormLayoutGroup ColSpanMd="12" Caption="Filter" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+<EditForm Model="@Data" Context="EditFormContext">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutGroup ColSpanMd="12" Caption="Filter" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                       <DxComboBox Data="@_plantItems"
-                                    NullText="Select Company..."
-                                    ListRenderMode="ListRenderMode.Virtual"
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="NavCompany"
-                                    ValueFieldName="PlantID"
-                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                    @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
-                                  
-                            <Columns>
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
-                                                    Caption="Customer Name"
-                                                    Width="180px" />
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
-                                                    Caption="Description" />
-                              
-                            </Columns>
-                        </DxComboBox>
-                        
+                <DxComboBox Data="@_plantItems"
+                            NullText="Select Company..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="PlantCode"
+                            ValueFieldName="PlantID"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                            @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
+
+                    <Columns>
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                            Caption="Name"
+                                            Width="180px" />
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                            Caption="Description" />
+                        <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
+                                            Caption="Nav Company" />
+                    </Columns>
+                </DxComboBox>
+
             </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="From Date" ColSpanMd="6">
-                        <DxDateEdit Date="@DateRange" DateExpression="@(() => DateRange)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))"  Format="yyyy-MM-dd"  CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
-                        
-                </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="To Date" ColSpanMd="6">
-                        <DxDateEdit NullText="Select To Date..." @bind-Date="@Data.Date" Format="yyyy-MM-dd"   CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinDateFrom"  />
-                       
-                    </DxFormLayoutItem>
-           </DxFormLayoutGroup>
-       </DxFormLayout>
- </EditForm>
+            <DxFormLayoutItem Caption="From Date" ColSpanMd="6">
+                <DxDateEdit Date="@DateRange" DateExpression="@(() => DateRange)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="To Date" ColSpanMd="6">
+                <DxDateEdit NullText="Select To Date..." @bind-Date="@Data.Date" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinDateFrom" />
+
+            </DxFormLayoutItem>
+        </DxFormLayoutGroup>
+    </DxFormLayout>
+</EditForm>
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
-                Text="Fetching Data..."
-               >
+                Text="Fetching Data...">
 
 
   <DxGrid @ref="Grid" Data="@_productionAppLine"  ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
@@ -80,17 +80,17 @@
             <DxGridSelectionColumn  Width="60px" />
             <DxGridDataColumn FieldName="Name"  MinWidth="150" />
             <DxGridDataColumn FieldName="DisciplineType" MinWidth="250" />
-            <DxGridDataColumn FieldName="Grouping"  MinWidth="150" />
+            <DxGridDataColumn FieldName="Grouping" MinWidth="150" />
             <DxGridDataColumn FieldName="Category" Width="180" />
-        <DxGridDataColumn FieldName="Action" MinWidth="200" />
-         <DxGridDataColumn FieldName="Comment" MinWidth="200" />
-          <DxGridDataColumn FieldName="Result" MinWidth="200" />
-           <DxGridDataColumn FieldName="Info" MinWidth="200" />
+            <DxGridDataColumn FieldName="Action" MinWidth="200" />
+            <DxGridDataColumn FieldName="Comment" MinWidth="200" />
+            <DxGridDataColumn FieldName="Result" MinWidth="200" />
+            <DxGridDataColumn FieldName="Info" MinWidth="200" />
             <DxGridDataColumn FieldName="Status" MinWidth="200" />
-             <DxGridDataColumn FieldName="ReadBy" MinWidth="200" />
-               <DxGridDataColumn FieldName="ModifyBy" MinWidth="200" />
-    </Columns>
-   
+            <DxGridDataColumn FieldName="ReadBy" MinWidth="200" />
+            <DxGridDataColumn FieldName="ModifyBy" MinWidth="200" />
+        </Columns>
+
     </DxGrid>
 </DxLoadingPanel>
 
@@ -113,6 +113,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Data.Date = DateTime.Today;
+        var now = DateTime.Now;
+        DateRange = new DateTime(now.Year, now.Month, 1);
+        MinDateFrom = DateRange;
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         PanelVisible = true;
@@ -171,10 +175,8 @@
     void OnDateChanged(DateTime newValue)
     {
         DateRange = newValue;
+        MinDateFrom = newValue;
         Data.Date = DateRange;
-        MinDateFrom = newValue.AddDays(-1);
-        Data.Date = MaxDateTo;
-        Filter = true;
     }
 
     private async Task OpenUrlInNewTab(string url)
@@ -191,11 +193,12 @@
         var FromDate = DateRange;
         var CompanyId = Data.CompanyId;
         var ToDate = Data.Date;
-        var model = await Mediator.Send(new GetAllProductionActivityAppLineFilterReport(CompanyId,FromDate,ToDate));
-   }
+        _productionAppLine = await Mediator.Send(new GetAllProductionActivityAppLineFilterReport(CompanyId, FromDate, ToDate));
+        StateHasChanged();
+    }
     void onViewScreenShot()
     {
-       
+
         // image1 = LiveUrl + _selectedItems.RoomStatus ;
         //image2 = LiveUrl + _selectedItems.RoomStatus1;
         //PopupVisible = true;

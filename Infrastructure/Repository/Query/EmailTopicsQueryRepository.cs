@@ -163,6 +163,100 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailTopics>> GetByIdTopicToList(long TopicId)
+        {
+            try
+            {              
+
+                var query = @"SELECT TS.SessionId, TS.ID, TS.TopicName,TS.Remarks,
+                                TS.SeqNo,
+                                TS.Status,
+                                TS.Follow,
+                                TS.OnBehalf,
+                                TS.Urgent,
+                                TS.OverDue,
+                                TS.DueDate,
+                                TS.StartDate,
+                                TS.FileData,
+                                TS.SessionId,
+                                E.FirstName,
+                                E.LastName,
+                                TP.UserId
+                               
+                            FROM
+                                EmailTopics TS
+                            INNER JOIN
+                                EmailTopicTo TP ON TS.ID = TP.TopicId
+                            INNER JOIN
+                                Employee E ON TS.TopicFrom = E.UserId
+                          
+                            WHERE
+                                TS.ID = @TopicId
+                            ORDER BY
+                                TS.StartDate DESC";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<EmailTopics>> GetByIdTopicCCList(long TopicId)
+        {
+            try
+            {
+                var query = @"SELECT TS.SessionId, TS.ID, TS.TopicName,TS.Remarks,
+                                TS.SeqNo,
+                                TS.Status,
+                                TS.Follow,
+                                TS.OnBehalf,
+                                TS.Urgent,
+                                TS.OverDue,
+                                TS.DueDate,
+                                TS.StartDate,
+                                TS.FileData,
+                                TS.SessionId,
+                                E.FirstName,
+                                E.LastName,
+                                TP.UserId
+                               
+                            FROM
+                                EmailTopics TS
+                            INNER JOIN
+                                EmailTopicCC TP ON TS.ID = TP.TopicId
+                            INNER JOIN
+                                Employee E ON TS.TopicFrom = E.UserId
+                          
+                            WHERE
+                                TS.ID = @TopicId
+                            ORDER BY
+                                TS.StartDate DESC";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailTopics>> GetTopicToList(long UserId)
         {
             try
@@ -205,9 +299,34 @@ namespace Infrastructure.Repository.Query
                                         TopicId
                                 ) FN ON TS.ID = FN.TopicId
                             WHERE
-                                TP.UserId = @UserId
+                                TP.UserId = @UserId and TS.OnDraft = 0
                             ORDER BY
                                 TS.StartDate DESC";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<EmailTopics>> GetTopicCCList(long UserId)
+        {
+            try
+            {
+                var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM EmailTopics TS 
+                                INNER JOIN EmailTopicCC TP ON TS.ID = TP.TopicId
+                                INNER JOIN Employee E ON TS.TopicFrom = E.UserId                                    
+                                WHERE TP.UserId = @UserId and TS.OnDraft = 0 order by TS.StartDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId);
@@ -242,9 +361,7 @@ namespace Infrastructure.Repository.Query
                                 E.FirstName,
                                 E.LastName                               
                             FROM
-                                EmailTopics TS
-                            INNER JOIN
-                                EmailTopicTo TP ON TS.ID = TP.TopicId
+                                EmailTopics TS                            
                             INNER JOIN
                                 Employee E ON TS.TopicFrom = E.UserId                          
                             WHERE
@@ -311,7 +428,7 @@ namespace Infrastructure.Repository.Query
                                     ReplyId
                             ) FN ON EC.ID = FN.ReplyId
                             WHERE
-                                TS.id = @TopicId AND EC.ReplyId = 0
+                                TS.id = @TopicId and TS.OnDraft = 0 AND EC.ReplyId = 0
                             ORDER BY
                                 TS.StartDate DESC";
 
@@ -375,7 +492,7 @@ namespace Infrastructure.Repository.Query
                                     ReplyId
                             ) FN ON EC.ID = FN.ReplyId
                             WHERE
-                                TS.id = @TopicId AND EC.ReplyId = 0
+                                TS.id = @TopicId and TS.OnDraft = 0 AND EC.ReplyId = 0
                             ORDER BY
                                 TS.StartDate DESC";
 
@@ -438,7 +555,7 @@ namespace Infrastructure.Repository.Query
                                     ReplyId
                             ) FN ON EC.ID = FN.ReplyId
                             WHERE
-                                TS.id = @TopicId AND EC.ReplyId = 0 AND TS.TopicFrom = @UserId
+                                TS.id = @TopicId and TS.OnDraft = 0 AND EC.ReplyId = 0 AND TS.TopicFrom = @UserId
                             ORDER BY
                                 TS.StartDate DESC";
 
@@ -458,37 +575,14 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailTopics>> GetTopicCCList(long UserId)
-        {
-            try
-            {
-                var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM EmailTopics TS 
-                                INNER JOIN EmailTopicCC TP ON TS.ID = TP.TopicId
-                                INNER JOIN Employee E ON TS.TopicFrom = E.UserId                                    
-                                WHERE TP.UserId = @UserId order by TS.StartDate DESC";
-
-                var parameters = new DynamicParameters();
-                parameters.Add("UserId", UserId);
-
-                using (var connection = CreateConnection())
-                {
-                    connection.Open();
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
-                    return res;
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
+     
         public async Task<List<EmailTopics>> GetTopicSentList(long UserId)
         {
             try
             {
                 var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM EmailTopics TS                                
                                 INNER JOIN Employee E ON TS.TopicFrom = E.UserId                                    
-                                WHERE TS.TopicFrom = @UserId order by TS.StartDate DESC";
+                                WHERE TS.TopicFrom = @UserId and TS.OnDraft = 0 order by TS.StartDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId);
@@ -570,8 +664,64 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-        }
+        }        
+        public long EmailTopicUpdate(EmailTopics EmailTopics)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
 
+                    try
+                    {
+                        var parameterss = new DynamicParameters();
+                        parameterss.Add("ID", EmailTopics.ID);
+                        parameterss.Add("TicketNo", EmailTopics.TicketNo);
+                        parameterss.Add("TopicName", EmailTopics.TopicName);
+                        parameterss.Add("TypeId", EmailTopics.TypeId);
+                        parameterss.Add("CategoryId", EmailTopics.CategoryId);
+                        parameterss.Add("StartDate", EmailTopics.StartDate);
+                        parameterss.Add("Description", EmailTopics.Description);
+                        //parameterss.Add("EndDate", EmailTopics.EndDate);
+                        //parameterss.Add("DueDate", EmailTopics.DueDate);
+                        parameterss.Add("AddedByUserID", EmailTopics.AddedByUserID);
+                        parameterss.Add("AddedDate", EmailTopics.AddedDate);
+                        parameterss.Add("StatusCodeID", EmailTopics.StatusCodeID);
+                        parameterss.Add("SessionId", EmailTopics.SessionId);
+                        parameterss.Add("FileData", EmailTopics.FileData);
+                        parameterss.Add("OnDraft", EmailTopics.OnDraft);
+
+                        parameterss.Add("Follow", EmailTopics.Follow);
+                        parameterss.Add("OnBehalf", EmailTopics.OnBehalf);
+                        parameterss.Add("Urgent", EmailTopics.Urgent);
+                        parameterss.Add("OverDue", EmailTopics.OverDue);
+                        parameterss.Add("DueDate", EmailTopics.DueDate);
+
+
+                        parameterss.Add("To", EmailTopics.To);
+                        parameterss.Add("CC", EmailTopics.CC);
+                        parameterss.Add("Participants", EmailTopics.Participants);
+
+                        parameterss.Add("isValidateSession", EmailTopics.isValidateSession);
+                        parameterss.Add("ActivityEmailTopicId", EmailTopics.ActivityEmailTopicId);
+
+                        connection.Open();
+
+                        var result = connection.QueryFirstOrDefault<long>("sp_Update_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
+                        return result;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public long Insert(EmailTopics EmailTopics)
         {
             try

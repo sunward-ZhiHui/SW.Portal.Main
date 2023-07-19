@@ -22,6 +22,7 @@ namespace Core.Entities
         public string ToIds { get; set; }
         public string CcIds { get; set; }       
         public string Tags { get; set; }
+        public string Comment { get; set; }
 
     }
 }

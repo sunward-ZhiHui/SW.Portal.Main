@@ -9,6 +9,10 @@
     .dxbl-grid-header-row {
         display: none;
     }
+
+    .dxbl-grid-detail-cell {
+        padding: 5px !important;
+    }
 </style>
 <DxLoadingPanel @bind-Visible="PanelVisible" IsContentBlocked="true" ApplyBackgroundShading="true" IndicatorAreaVisible="false" Text="Fetching Data...">
     <DxGrid Data="@_forumTopicTo"

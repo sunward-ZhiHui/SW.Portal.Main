@@ -22,8 +22,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @using System.IO;
 @using System.ComponentModel;
-@page "/CreateEmail"
-@page "/CreateEmail/{ActiveSessionId}"
+@page "/EditEmailDraft/{ActiveSessionId}"
 <style>
     .txtEditorMsg {
         height: calc(100vh - 477px);
@@ -45,7 +44,8 @@
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>                                           
-                        <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onRestText" />
+                        @*<DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onRestText" />*@
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                        @* <DxMenuItem Text="Draft" IconCssClass="fa fa-save" Enabled="@IsDraftEnabled"  Click="@((e) => addNew(1))" />
                         <DxMenuItem Text="Sent" IconCssClass="fa fa-save" Click="@((e) => addNew(0))" />*@
                     </Items>
@@ -60,20 +60,18 @@
                     <i class="fa fa-save"></i>
                     Sent
                 </button>
-             </div>
-             @if(IsDraftEnabled)
-            {
-                <div class="save_hover" @onclick="@(() => addNew(1))" style="float: left; margin-top: -41px; line-height: 38px; margin-left: -12px; z-index: 9999; width:100px;">
-                    <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
-                        @if (loading)
-                        {
-                            <span class="spinner-border spinner-border-sm mr-1"></span>
-                        }
-                        <i class="fab fa-stack-overflow"></i>
-                        Draft
-                    </button>
-                </div>
-            }
+             </div>            
+            <div class="save_hover" @onclick="@(() => addNew(1))" style="float: left; margin-top: -41px; line-height: 38px; margin-left: -12px; z-index: 9999; width:100px;">
+                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    <i class="fab fa-stack-overflow"></i>
+                    Draft
+                </button>
+            </div>
+            
             
         </div>
     </div>
@@ -222,7 +220,7 @@ else
                                 <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="8">
-                                <DxRichEdit DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Data.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                                <DxRichEdit DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" DocumentContent="@Data.FileData" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
                                   
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="4">
@@ -243,23 +241,7 @@ else
                                             </DxUpload>
                                             <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                                         </div>
-                                        <div style="width:100%;">
-                                            @if (ActiveSessionId != null)
-                                            {
-                                                @if (_documentslst != null && _documentslst.Any())
-                                                {
-                                                    <ul class="d-flex flex-column-reverse todo-list">
-                                                        @foreach (var item in _documentslst)
-                                                        {
-                                                            <li class="doc_lst_view">
-                                                                <div class="form-check"> <label class="form-check-label"> File Name : @item.FileName <i class="input-helper"></i></label> </div>
-                                                                <div class="form-check"> <label class="form-check-label"> File Size:  @item.FileSize <i class="input-helper"></i></label> </div>
-                                                            </li>
-                                                        }
-                                                    </ul>
-                                                }
-                                            }
-                                        </div>
+                                      
                                     </DxFormLayoutGroup>
                                 </DxFormLayout>
                             </DxFormLayoutItem>
@@ -268,6 +250,25 @@ else
                 </div>
             </div>
         </EditForm>
+        <div style="width:100%">
+            @if (ActiveSessionId != null)
+            {
+                @if (_documentslst != null && _documentslst.Any())
+                {
+                    <ul class="d-flex flex-column-reverse todo-list">
+                        @foreach (var item in _documentslst)
+                        {
+                            <li class="doc_lst_view">
+                                <div class="form-check"> <label class="form-check-label"> File Name : @item.FileName <i class="input-helper"></i></label> </div>
+                                <div class="form-check"> <label class="form-check-label"> File Size:  @item.FileSize <i class="input-helper"></i></label> </div>
+                                <button class="btnDelete fas fa-trash" @onclick="@(() => onDelete(item.DocumentId))"> Delete</button>
+                                <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> Downlode</button>
+                            </li>
+                        }
+                    </ul>
+                }
+            }
+        </div>
     </div>
 }
 
@@ -283,6 +284,7 @@ else
 
 
 @code {
+    private string? FileUrl;
     bool IsDraftEnabled { get; set; } = false;
     [Parameter]
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
@@ -374,6 +376,10 @@ else
     {
         _sessionId = Guid.NewGuid();
     }
+    void backUrl()
+    {
+        NavigationManager.NavigateTo("EmailDrafts");
+    }
     private async Task isUploadSuccess()
     {
         //uploadComponent.RemoveAllFiles();
@@ -447,17 +453,12 @@ else
         IBarGroup undoRedoGroup = toolbar.Groups[0];
         undoRedoGroup.Items.Add(0,RichEditBarItemNames.FullScreen);
 
-        if (ActiveSessionId != null)
-        {
-            var acttopics = await Mediator.Send(new GetActivityEmailTopics());
-
-            //string sessionIdString = ActiveSessionId;
-            Guid activeSessionId = Guid.Parse(ActiveSessionId);
-            var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+        //if (ActiveSessionId != null)
+        //{
+        //    var actItem = await Mediator.Send(new GetListBySession(ActiveSessionId));
 
 
-
-        }
+        //}
     }
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
@@ -526,7 +527,7 @@ else
         selectedToIds.Clear();
         SelectedCCIds.Clear();
         Data.From = applicationUser.UserName;
-        onloadSession();
+        //onloadSession();
         Follow = new List<string>
         {
              "Follow Up","No Follow Up"
@@ -552,13 +553,14 @@ else
     }
 
 
-    protected override async Task OnInitializedAsync() {
-
+    protected override async Task OnInitializedAsync()
+    {
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         AppUserId = applicationUser.UserID;
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
 
-        onloadSession();
+        //onloadSession();
         Follow = new List<string>
         {
              "Follow Up","No Follow Up"
@@ -586,53 +588,53 @@ else
 
         if (ActiveSessionId != null)
         {
-            var acttopics = await Mediator.Send(new GetActivityEmailTopics());
-
-            //string sessionIdString = ActiveSessionId;
-            Guid activeSessionId = Guid.Parse(ActiveSessionId);
-            var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+            var draftItem = await Mediator.Send(new GetListBySession(ActiveSessionId));
+            var actItem = draftItem.Where(c => c.OnDraft == 1).ToList();
 
             if(actItem.Count > 0)
             {
                 isValidateSession = false;
                 //var docId = "70F019EC011241C9807C39BF2BE79136";
                 //Guid docSessionId = Guid.Parse(docId);
-                if(actItem[0].DocumentSessionId != null)
+                if(actItem[0].SessionId != null)
                 {
-                    var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].DocumentSessionId.Value));
+                    var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].SessionId.Value));
                     _documentslst = documentslst;
                 }
 
-                Data.TopicName = actItem[0].SubjectName;
+                var filteredToList = await Mediator.Send(new GetByIdEmailTopicTo(actItem[0].ID));
+                var filteredCCList = await Mediator.Send(new GetByIdEmailTopicCC(actItem[0].ID));
 
-                byte[] array1 = { 123, 92, 114, 116, 102, 49, 92, 100, 101, 102, 102, 48, 123, 92, 102, 111, 110, 116, 116, 98, 108, 123, 92, 102, 48, 32, 67, 97, 108, 105, 98, 114, 105, 59, 125, 125, 123, 92, 99, 111, 108, 111, 114, 116, 98, 108, 32, 59, 92, 114, 101, 100, 48, 92, 103, 114, 101, 101, 110, 48, 92, 98, 108, 117, 101, 50, 53, 53, 32, 59, 125, 123, 92, 42, 92, 100, 101, 102, 99, 104, 112, 32, 92, 102, 115, 50, 50, 125, 123, 92, 115, 116, 121, 108, 101, 115, 104, 101, 101, 116, 32, 123, 92, 113, 108, 92, 102, 115, 50, 50, 32, 78, 111, 114, 109, 97, 108, 59, 125, 123, 92, 42, 92, 99, 115, 49, 92, 102, 115, 50, 50, 32, 68, 101, 102, 97, 117, 108, 116, 32, 80, 97, 114, 97, 103, 114, 97, 112, 104, 32, 70, 111, 110, 116, 59, 125, 123, 92, 42, 92, 99, 115, 50, 92, 117, 108, 92, 102, 115, 50, 50, 92, 99, 102, 49, 32, 72, 121, 112, 101, 114, 108, 105, 110, 107, 59, 125, 123, 92, 42, 92, 116, 115, 51, 92, 116, 115, 114, 111, 119, 100, 92, 102, 115, 50, 50, 92, 113, 108, 92, 116, 115, 118, 101, 114, 116, 97, 108, 116, 92, 99, 108, 116, 120, 108, 114, 116, 98, 32, 78, 111, 114, 109, 97, 108, 32, 84, 97, 98, 108, 101, 59, 125, 125, 123, 92, 42, 92, 108, 105, 115, 116, 111, 118, 101, 114, 114, 105, 100, 101, 116, 97, 98, 108, 101, 125, 123, 92, 105, 110, 102, 111, 125, 92, 110, 111, 117, 105, 99, 111, 109, 112, 97, 116, 92, 115, 112, 108, 121, 116, 119, 110, 105, 110, 101, 92, 104, 116, 109, 97, 117, 116, 115, 112, 92, 101, 120, 112, 115, 104, 114, 116, 110, 92, 115, 112, 108, 116, 112, 103, 112, 97, 114, 92, 100, 101, 102, 116, 97, 98, 55, 50, 48, 92, 115, 101, 99, 116, 100, 92, 109, 97, 114, 103, 108, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 114, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 116, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 98, 115, 120, 110, 49, 52, 52, 48, 92, 104, 101, 97, 100, 101, 114, 121, 55, 50, 48, 92, 102, 111, 111, 116, 101, 114, 121, 55, 50, 48, 92, 112, 103, 119, 115, 120, 110, 49, 50, 50, 52, 48, 92, 112, 103, 104, 115, 120, 110, 49, 53, 56, 52, 48, 92, 99, 111, 108, 115, 49, 92, 99, 111, 108, 115, 120, 55, 50, 48, 92, 112, 97, 114, 100, 92, 112, 108, 97, 105, 110, 92, 113, 108, 123, 92, 102, 115, 50, 50, 92, 99, 102, 48, 32 };
+                Data.TopicName = actItem[0].TopicName;
+                Data.OnBehalf = actItem[0].OnBehalf;
+                Data.Urgent = actItem[0].Urgent;
+                Data.OverDue = actItem[0].OverDue;
+                Data.Follow = actItem[0].Follow;
+                Data.SessionId = actItem[0].SessionId;
+                Data.ID = actItem[0].ID;
+                Data.AddedByUserID = actItem[0].AddedByUserID;
+                Data.AddedDate = actItem[0].AddedDate;
+                Data.StartDate = actItem[0].StartDate;
+                Data.DueDate = actItem[0].DueDate;
+                Data.FileData = actItem[0].FileData;
+                _sessionId = actItem[0].SessionId;
+                // ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
 
-
-                byte[] array2 = Encoding.UTF8.GetBytes(actItem[0].Comment);
-
-                byte[] array3 = array1.Concat(array2).ToArray();
-
-                byte[] array4 = { 125, 92, 102, 115, 50, 50, 92, 99, 102, 48, 92, 112, 97, 114, 125 };
-                byte[] array5 = array3.Concat(array4).ToArray();
-
-
-                Data.FileData = array5;
-                ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
-                List<long?> ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
-                var filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
+                //List<long?> ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
+                //var filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
 
                 //Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
                 IEnumerable<string> Totags = filteredToList.Select(s => s.FirstName).ToList();
 
-                List<long?> CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
-                var filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
+                //List<long?> CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
+                //var filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
 
                 //Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
                 IEnumerable<string> CCtags = filteredCCList.Select(s => s.FirstName).ToList();            
 
-                Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
+                Data.ToIds = filteredToList.Select(s => s.UserId.Value).ToList();
                 sToIds = Totags.ToList();
-                Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
+                Data.CCIds = filteredCCList.Select(s => s.UserId.Value).ToList();
                 sCCIds = CCtags.ToList();
             }
             else
@@ -759,22 +761,9 @@ else
 
         DateTime? nullableDateTime = DateTime.Now;
 
-        var ex = _topics.Where(x => x.TicketNo == Data.TicketNo && x.TopicName == Data.TopicName);
-        if (ex.Any())
-        {
-
-            //addNew();
-            //onShowPopupMessage("Error", "The Subject Name Already exists.");
-            toastService.ShowToast("The Subject Name Already exists.", AC.SD.Core.Services.ToastLevel.Error);
-            await JSRuntime.InvokeAsync<string>("hideLoading");
-
-        }
-        else
-        {
-
-
-            var createReq = new CreateEmailTopics
+        var createReq = new EditEmailTopics
                 {
+                    ID = Data.ID,
                     TopicName = Data.TopicName,
                     StartDate = DateTime.Now,
                     OnBehalf = Data.OnBehalf,
@@ -795,48 +784,45 @@ else
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
                 };
-            
+        try
+        {
+            //_sessionId = createReq.SessionId;
+            var result = await Mediator.Send(createReq);
+            if (result != null)
+            {                    
+                uploadComponent.UploadAllFiles();
+                await Task.Delay(2000); // Delay for 2 seconds
 
-
-            try
-            {
-                //_sessionId = createReq.SessionId;
-                var result = await Mediator.Send(createReq);
-                if (result != null)
-                {                    
-                    uploadComponent.UploadAllFiles();
-                    await Task.Delay(2000); // Delay for 2 seconds
-
-                    //   onShowPopupMessage("success", "Topic have been saved successully");
-                    ActivityEmailTopicId = 0;
-                    toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
-                    if (ActiveSessionId != null)
-                    {
-                        NavigationManager.NavigateTo($"CreateEmail");
-                    }
-                    else
-                    {
-                         await JSRuntime.InvokeAsync<string>("ReloadUrl");
-                    }
-                  
-                   
-                   
-                    onRestText();
-                    await JSRuntime.InvokeAsync<string>("hideLoading");
+                //   onShowPopupMessage("success", "Topic have been saved successully");
+                ActivityEmailTopicId = 0;
+                toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+                if (ActiveSessionId != null)
+                {
+                    NavigationManager.NavigateTo($"CreateEmail");
                 }
                 else
                 {
-                    onShowPopupMessage("Error", result.ToString());
-                    await JSRuntime.InvokeAsync<string>("hideLoading");
+                    await JSRuntime.InvokeAsync<string>("ReloadUrl");
                 }
-            }
-            catch (Exception eq)
-            {
-                onShowPopupMessage("Error", eq.Message);
+
+
+
+                onRestText();
                 await JSRuntime.InvokeAsync<string>("hideLoading");
             }
-
+            else
+            {
+                onShowPopupMessage("Error", result.ToString());
+                await JSRuntime.InvokeAsync<string>("hideLoading");
+            }
         }
+        catch (Exception eq)
+        {
+            onShowPopupMessage("Error", eq.Message);
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+        }
+
+
     }
     private async void onShowPopupMessage(string headerText, string bodyText)
     {
@@ -880,10 +866,27 @@ else
         }
 
     }
-    void  onDraft()
+    private async Task onDelete(long Id)
     {
-        
+        var req = new DeleteDocumentFileQuery(Id);
+        var ans = Mediator.Send(req);
+
+
     }
-}
+    private async Task OpenUrlInNewTab(string url)
+    {
+        await JSRuntime.InvokeVoidAsync("open", url, "_blank");
+    }
+    public async Task onDocDownload(long Id)
+    {
+        var lst = _documentslst.FirstOrDefault(a => a.DocumentId == Id);
+
+
+        var url = FileUrl + lst.FilePath;
+        await OpenUrlInNewTab(url);
+
+    }
+  }
+
 
 

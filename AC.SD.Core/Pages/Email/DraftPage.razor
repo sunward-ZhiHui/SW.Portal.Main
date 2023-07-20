@@ -32,10 +32,22 @@
 @using System.Net.Http;
 @page "/EmailDrafts"
 
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />                
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxGrid @ref="TOGrid"
         Data="_emailTopicDraft"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-        KeyFieldName="ID"
+        KeyFieldName="SessionId"
         CustomizeElement="Grid_CustomizeElement"
         PagerNavigationMode="PagerNavigationMode.InputBox"
         PageSizeSelectorVisible="true"
@@ -45,25 +57,20 @@
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 220px);"
-        RowClick="OnEmailToRowClick"
+        RowClick="OnEmailToRowClick"        
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
     <Columns>
         <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
-        @* <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
-        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
-        <DxGridDataColumn FieldName="FirstName" Caption="">
+        <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
+        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
+        <DxGridDataColumn FieldName="StartDate" Caption="Received Date">
             <CellDisplayTemplate>
                 @{
                     var item = (EmailTopics)context.DataItem;
                 }
-                <div style="width:100%">
-                    <strong>@item.FirstName</strong>
-                    <div>
-                        <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
-                        <text>@item.TopicName</text>
-                    </div>
-                </div>
+                
+                @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
             </CellDisplayTemplate>
         </DxGridDataColumn>   
     </Columns>
@@ -79,7 +86,7 @@
     private List<EmailTopics>? _emailTopicDraft;
     public ApplicationUser applicationUser { get; private set; }
     string SelectedGroup = "none";
-   
+    bool EditEnabled { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -96,10 +103,24 @@
     }
     async Task OnEmailToRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        EditEnabled = true;
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SessionId");
         SelectedGroup = UniqueId.ToString();
-        
-
+        addEdit();
         StateHasChanged();
     }
+    void addNew()
+    {
+        NavigationManager.NavigateTo("CreateEmail");
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnEmailToRowClick(e);
+        addEdit();
+    }
+    void addEdit()
+    {
+        NavigationManager.NavigateTo("EditEmailDraft/" + SelectedGroup + "");
+    }
+  
 }

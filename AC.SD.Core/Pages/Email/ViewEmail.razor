@@ -808,7 +808,7 @@
                                 <div class="card-body p-0">
                                     <DxMenu CollapseItemsToHamburgerMenu="true"
                                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
+                                        DisplayMode="MenuDisplayMode.Mobile">
                                         <Items>
                                             <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="@((e) => onPreview(_selectlst.DocumentId))"  />
                                             <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="@((e) => onDocDownload(_selectlst.DocumentId))" />
@@ -2119,10 +2119,15 @@
     }
     private async Task onWindowVisible()
     {
+         var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
+        _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        Data.AssigntoIds = Enumerable.Empty<long>();
         WindowVisible = true;        
         Data.AssignccIds = null;
         string selector = ".dxwinheight";
         ElementHeight = await JSRuntime.InvokeAsync<int>("getElementHeight", selector);
+
+
     }
     private async Task onreply(long id)
     {

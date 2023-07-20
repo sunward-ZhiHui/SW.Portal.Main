@@ -35,5 +35,7 @@ namespace Core.Repositories.Query
         Task<long> UpdateDueDate(EmailTopics EmailTopics);
         Task<long> UpdateTopicClose(EmailTopics EmailTopics);
         Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId);
+       
+        Task<long> Delete(long id);
     }
 }

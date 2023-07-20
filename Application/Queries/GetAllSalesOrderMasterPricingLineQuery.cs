@@ -28,7 +28,7 @@ namespace Application.Queries
             this.CompanyId = CompanyId;
             this.PriceValidaityFrom = PriceValidaityFrom;
             this.PriceValidaityTo = PriceValidaityTo;
-            this.ItemId = CompanyId;
+            this.ItemId = ItemId;
         }
     }
 

@@ -18,6 +18,7 @@ namespace Application.Command.SalesOrderMasterPricingLineSellingMethods
         public decimal? BounsPrice { get; set; }
         public decimal? BounsQty { get; set; }
         public decimal? BounsFocQty { get; set; }
+        public string? TierQtyType { get; set; }
         public EditSalesOrderMasterPricingLineSellingMethodCommand()
         {
 

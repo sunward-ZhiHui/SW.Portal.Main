@@ -1,0 +1,74 @@
+﻿@using Application.Command.SalesOrderMasterPricingLineSellingMethods;
+@using Application.Command.SalesOrderMasterPricingLine;
+@using Application.Command.SoSalesOrderLine;
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="SMGrid" Data="@_addIitemPriceLineSellingMethods" CssClass="ch-360">
+        <Columns>
+            <DxGridDataColumn FieldName="SalesOrderMasterPricingLineId" Visible="false" />
+            @if (sellingMethodsName == "tier")
+            {
+                <DxGridDataColumn FieldName="TierQty">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (SalesOrderMasterPricingLineSellingMethod)context.DataItem;
+                        }
+                        @(item.TierQtyType + item.TierQty)
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="TierPrice" />
+            }
+            else
+            {
+                <DxGridDataColumn FieldName="BounsQty" />
+                <DxGridDataColumn FieldName="BounsFocQty" Caption="Bouns Foc Qty" />
+            }
+
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SalesOrderMasterPricingLineSellingMethodId" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+
+
+@code {
+    bool PanelVisible { get; set; }
+    [Parameter]
+    public View_SalesOrderMasterPricingLineByItem? Items { get; set; }
+    public List<SalesOrderMasterPricingLineSellingMethod>? _addIitemPriceLineSellingMethods { get; set; }
+    IGrid? SMGrid { get; set; }
+    string sellingMethodsName { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        if (Items.SellingMethodName != null)
+        {
+            PanelVisible = true;
+            sellingMethodsName = Items.SellingMethodName.ToLower();
+            _addIitemPriceLineSellingMethods = Items.SalesOrderMasterPricingLineSellingMethods;
+            PanelVisible = false;
+            StateHasChanged();
+        }
+    }
+
+}

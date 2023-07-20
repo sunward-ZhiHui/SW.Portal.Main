@@ -64,18 +64,24 @@ namespace Infrastructure.Repository.Query
             {
                 var view_SalesOrderMasterPricingLineByItems = new List<View_SalesOrderMasterPricingLineByItem>();
                 var parameters = new DynamicParameters();
-                var query = "SELECT * FROM View_SalesOrderMasterPricingLineByItem WHERE  MasterType='MasterPrice'and CompanyId = @CompanyId and PriceValidaityFrom>=@PriceValidaityFrom and PriceValidaityTo<=@PriceValidaityTo";
+                var query = "SELECT * FROM View_SalesOrderMasterPricingLineByItem WHERE ItemId=@ItemId and MasterType='MasterPrice' and CompanyId = @CompanyId and PriceValidaityFrom>=@PriceValidaityFrom and PriceValidaityTo<=@PriceValidaityTo";
                 parameters.Add("CompanyId", CompanyId, DbType.Int64);
                 parameters.Add("PriceValidaityFrom", PriceValidaityFrom, DbType.Date);
                 parameters.Add("PriceValidaityTo", PriceValidaityTo, DbType.Date);
-                if (ItemId != null)
-                {
-                    query = "SELECT * FROM View_SalesOrderMasterPricingLineByItem WHERE ItemId=@ItemId and MasterType='MasterPrice'and CompanyId = @CompanyId and PriceValidaityFrom>=@PriceValidaityFrom and PriceValidaityTo<=@PriceValidaityTo";
-                    parameters.Add("ItemId", ItemId, DbType.Int64);
-                }
+                parameters.Add("ItemId", ItemId, DbType.Int64);
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<View_SalesOrderMasterPricingLineByItem>(query, parameters)).ToList();
+                    var results = await _salesOrderMasterPricingLineSellingMethodQueryRepository.GetAllAsync();
+                    var result = (await connection.QueryAsync<View_SalesOrderMasterPricingLineByItem>(query, parameters)).ToList();
+                    if (result.Count > 0)
+                    {
+                        result.ForEach(s =>
+                        {
+                            s.SalesOrderMasterPricingLineSellingMethods = results.Where(w => w.SalesOrderMasterPricingLineId == s.SalesOrderMasterPricingLineId).ToList();
+                            view_SalesOrderMasterPricingLineByItems.Add(s);
+                        });
+                    }
+                    return view_SalesOrderMasterPricingLineByItems;
                 }
             }
             catch (Exception exp)

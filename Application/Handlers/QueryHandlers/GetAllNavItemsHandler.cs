@@ -23,6 +23,18 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<View_NavItems>)await _queryRepository.GetAsyncList();
         }
     }
+    public class GetAllNavItemsByCompanyHandler : IRequestHandler<GetAllNavItemsByCompanyQuery, List<View_NavItems>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetAllNavItemsByCompanyHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<View_NavItems>> Handle(GetAllNavItemsByCompanyQuery request, CancellationToken cancellationToken)
+        {
+            return (List<View_NavItems>)await _queryRepository.GetByCompanyAsyncList(request.CompanyId);
+        }
+    }
     public class GetAllNavItemsItemSerialNoHandler : IRequestHandler<GetAllNavItemsItemSerialNoQuery, View_NavItems>
     {
         private readonly INavItemsQueryRepository _queryRepository;

@@ -21,6 +21,22 @@ namespace Infrastructure.Repository.Query
         {
 
         }
+        public async Task<IReadOnlyList<SalesOrderMasterPricingLineSellingMethod>> GetAllAsync()
+        {
+            try
+            {
+                var query = "SELECT * FROM SalesOrderMasterPricingLineSellingMethod";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<SalesOrderMasterPricingLineSellingMethod>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<SalesOrderMasterPricingLineSellingMethod> GetByIdAsync(long? Id)
         {
             try

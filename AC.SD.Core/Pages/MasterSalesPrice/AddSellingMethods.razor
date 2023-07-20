@@ -84,7 +84,14 @@
             <DxGridDataColumn FieldName="SalesOrderMasterPricingLineId" Visible="false" />
             @if (sellingMethodsName == "tier")
             {
-                <DxGridDataColumn FieldName="TierQty" />
+                <DxGridDataColumn FieldName="TierQty">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (SalesOrderMasterPricingLineSellingMethod)context.DataItem;
+                        }
+                        @(item.TierQtyType + item.TierQty)
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
                 <DxGridDataColumn FieldName="TierPrice" />
             }
             else
@@ -108,6 +115,7 @@
                 @if (sellingMethodsName == "tier")
                 {
                     <DxFormLayoutItem Caption="Tier Qty:" ColSpanMd="3">
+                        <DxComboBox Data="@TierQtyTypeList" @bind-Value="@types.TierQtyType" ShowValidationIcon="true" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" style="margin-bottom:10px;"></DxComboBox>
                         <DxSpinEdit @bind-Value="@types.TierQty" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => types.TierQty)" />
                     </DxFormLayoutItem>
@@ -166,7 +174,7 @@
     private string Description { get; set; }
     private string Description2 { get; set; }
     private string BaseUnitofMeasure { get; set; }
-
+    List<string> TierQtyTypeList = new List<string>() { "≥", ">" };
     private List<View_NavItems>? _AllNavitems;
     private List<View_ApplicationMasterDetail> _viewSalesPricingAllowItems;
     private List<View_ApplicationMasterDetail> _viewSellingMethodItems;
@@ -306,6 +314,7 @@
                     TierPrice = editModel.TierPrice,
                     TierQty = editModel.TierQty,
                     BounsQty = editModel.BounsQty,
+                    TierQtyType = editModel.TierQtyType,
                     BounsPrice = editModel.BounsPrice,
                     BounsFocQty = editModel.BounsFocQty,
                 };
@@ -336,6 +345,7 @@
                     TierPrice = editModel.TierPrice,
                     TierQty = editModel.TierQty,
                     BounsQty = editModel.BounsQty,
+                    TierQtyType = editModel.TierQtyType,
                     BounsPrice = editModel.BounsPrice,
                     BounsFocQty = editModel.BounsFocQty
 

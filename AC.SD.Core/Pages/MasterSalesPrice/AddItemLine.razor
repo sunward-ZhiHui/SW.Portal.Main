@@ -103,7 +103,9 @@
             <DxFormLayout CssClass="w-100">
 
                 <DxFormLayoutItem Caption="Item No" ColSpanMd="6">
-                    <DxComboBox Data="@_AllNavitems"
+                    @if (MasterType == "SpecificItemMasterPrice")
+                    {
+                        <DxComboBox Data="@_AllNavitems"
                                 NullText="Select Item No..."
                                 ListRenderMode="ListRenderMode.Virtual"
                                 FilteringMode="DataGridFilteringMode.Contains"
@@ -112,17 +114,47 @@
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@types.ItemId" ShowValidationIcon="true"
                                 SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
-                        <Columns>
-                            <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                                 Caption="Item No"
                                                 Width="190px" />
-                            <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
+                                <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
                                                 Caption="Item Serial No"
                                                 Width="90px" />
-                            <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
+                                <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
                                                 Caption="Description" />
-                        </Columns>
-                    </DxComboBox>
+                            </Columns>
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container")
+                                            Tooltip="Master Pricing Information"
+                                            Click="@(_ => OnButtonClick())" />
+                            </Buttons>
+                        </DxComboBox>
+                    }
+                    else
+                    {
+                        <DxComboBox Data="@_AllNavitems"
+                                NullText="Select Item No..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="No"
+                                ValueFieldName="ItemId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@types.ItemId" ShowValidationIcon="true"
+                                SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
+                                                Caption="Item No"
+                                                Width="190px" />
+                                <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
+                                                Caption="Item Serial No"
+                                                Width="90px" />
+                                <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
+                                                Caption="Description" />
+                            </Columns>
+
+                        </DxComboBox>
+                    }
                     <ValidationMessage For="@(() => types.ItemId)" />
                 </DxFormLayoutItem>
 
@@ -178,10 +210,59 @@
                 <ValidationSummary />
             </DxFormLayout>
         </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="No" />
+        </TotalSummary>
 
     </DxGrid>
 </DxLoadingPanel>
+<DxFlyout @bind-IsOpen=IsOpen
+          PositionTarget=@($"#flyout-overview-target-container")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body">
+            <DxGrid Data="@View_SalesOrderMasterPricingLineByItems" CssClass="ch-360" style="height: calc(100vh - 400px);">
+                <Columns>
+                    <DxGridDataColumn FieldName="PriceValidaityFrom" MinWidth="100">
+                        <CellDisplayTemplate>
+                            @{
+                                var item = (View_SalesOrderMasterPricingLineByItem)context.DataItem;
+                            }
+                            @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityFrom)
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="PriceValidaityTo" MinWidth="100">
+                        <CellDisplayTemplate>
+                            @{
+                                var item = (View_SalesOrderMasterPricingLineByItem)context.DataItem;
+                            }
+                            @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityTo)
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="SellingMethodName" MinWidth="100" />
+                    <DxGridDataColumn FieldName="SellingPrice" MinWidth="100" />
+                </Columns>
+                <DetailRowTemplate>
+                    <AddSellingMethodsViewOnly Items="(View_SalesOrderMasterPricingLineByItem)context.DataItem" />
+                </DetailRowTemplate>
+            </DxGrid>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
 
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
          HeaderText="CRT"
@@ -199,22 +280,24 @@
 </DxPopup>
 
 @code {
-    [Parameter]
+    // [Parameter]
     public long? SalesOrderMasterPricingId { get; set; }
-    [Parameter]
+    // [Parameter]
     public string MasterType { get; set; }
-    [Parameter]
+    // [Parameter]
+    bool IsOpen { get; set; } = false;
     public View_SalesOrderMasterPricing _salesOrdersData { get; set; }
+    public long? SalesOrderMasterPricingLineId { get; set; }
     private string TextValue { get; set; }
     private string No { get; set; }
     private string Description { get; set; }
     private string Description2 { get; set; }
     private string BaseUnitofMeasure { get; set; }
-
+    public List<View_SalesOrderMasterPricingLineByItem> View_SalesOrderMasterPricingLineByItems { get; set; }
     private List<View_NavItems>? _AllNavitems;
     private List<View_ApplicationMasterDetail> _viewSalesPricingAllowItems;
     private List<View_ApplicationMasterDetail> _viewSellingMethodItems;
-
+    string DisplayByMasterType { get; set; }
     bool PanelVisible { get; set; }
     bool isAllowNewPrice { get; set; } = false;
     Dictionary<long, string>? UsernameIndex { get; set; }
@@ -255,11 +338,19 @@
         }
 
     }
+    void OnButtonClick()
+    {
+        IsOpen = true;
+    }
     async Task loadDropDownData(long? ItemId)
     {
+        DisplayByMasterType = "display:none;";
         if (_salesOrdersData != null && MasterType == "SpecificItemMasterPrice")
         {
-            //var listItems = await Mediator.Send(new GetAllSalesOrderMasterPricingLineByItemQuery(_salesOrdersData.CompanyId, _salesOrdersData.PriceValidaityFrom, _salesOrdersData.PriceValidaityTo, ItemId));
+            DisplayByMasterType = "";
+            //SalesOrderMasterPricingLineId = _selectedItems.SalesOrderMasterPricingLineId;
+            View_SalesOrderMasterPricingLineByItems = await Mediator.Send(new GetAllSalesOrderMasterPricingLineByItemQuery(_salesOrdersData.CompanyId, _salesOrdersData.PriceValidaityFrom, _salesOrdersData.PriceValidaityTo, ItemId));
+            StateHasChanged();
         }
     }
     async Task SelectedItemChanged(View_NavItems navitems)
@@ -283,52 +374,52 @@
     protected override async Task OnInitializedAsync()
     {
 
-        PanelVisible = true;
-        _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
 
         _viewSalesPricingAllowItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(339));
         _viewSellingMethodItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(338));
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+    public async Task loadData(View_SalesOrderMasterPricing data)
+    {
+        _salesOrdersData = data;
+        MasterType = _salesOrdersData.MasterType;
+        SalesOrderMasterPricingId = _salesOrdersData.SalesOrderMasterPricingId;
+        PanelVisible = true;
+
         AddEnabled = false;
 
         if (SalesOrderMasterPricingId > 0)
         {
+            _AllNavitems = await Mediator.Send(new GetAllNavItemsByCompanyQuery(_salesOrdersData.CompanyId));
             if (MasterType == "SpecificItemMasterPrice")
             {
                 SMAddEnabled = true;
                 AddEnabled = true;
             }
             _addIitemPriceLine = await Mediator.Send(new GetAllSalesOrderMasterPricingLineQuery(SalesOrderMasterPricingId.Value));
-
-
             if (_addIitemPriceLine.Count > 0)
             {
-
                 _selectedItems = _addIitemPriceLine.FirstOrDefault();
-
                 if (SelectedDataItems != null)
                 {
                     EditEnabled = true;
                     DeleteEnabled = true;
-
-                    StateHasChanged();
                 }
-
-
+                StateHasChanged();
             }
         }
-
         PanelVisible = false;
+        StateHasChanged();
     }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
-            //_AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
-        }
-    }
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    // if (firstRender)
+    // {
+    //    _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
+    //_AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
+    // }
+    //}
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         var navitems = (View_SalesOrderMasterPricingLine)e.EditModel;

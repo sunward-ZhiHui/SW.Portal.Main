@@ -250,7 +250,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailConversations>> GetDiscussionListAsync(long TopicId)
+        public async Task<List<EmailConversations>> GetDiscussionListAsync(long TopicId,long UserId)
         {
             try
             {
@@ -282,13 +282,14 @@ namespace Infrastructure.Repository.Query
                                         FC.ReplyId,
                                         FC.SessionId,FC.FileData
                                     FROM
-                                        EmailConversations FC
+                                        EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                     WHERE
-                                        FC.TopicId = @TopicId AND FC.ReplyId = @ReplyId";
+                                        FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId";
 
                             var parameterss = new DynamicParameters();
                             parameterss.Add("TopicId", TopicId, DbType.Int64);
+                            parameterss.Add("UserId", UserId, DbType.Int64);
                             parameterss.Add("ReplyId", topic.ID, DbType.Int64);
                         var subQueryResults = connection.Query<EmailConversations>(subQuery, parameterss).ToList();                     
 
@@ -705,7 +706,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<long> Insert(EmailConversations forumConversations)
+		public async Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId)
+		{
+			try
+			{
+				var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY FCT.ID DESC), FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignCC FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+				var parameters = new DynamicParameters();
+				parameters.Add("ConversationId", ConversationId);
+
+				using (var connection = CreateConnection())
+				{
+					connection.Open();
+					var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
+					return res;
+				}
+			}
+			catch (Exception exp)
+			{
+				throw new Exception(exp.Message, exp);
+			}
+		}
+		public async Task<long> Insert(EmailConversations forumConversations)
         {
             try
             {

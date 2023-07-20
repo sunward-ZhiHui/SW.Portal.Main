@@ -132,7 +132,12 @@
                                                 var item = (EmailTopics)context.DataItem;
                                             }
                                             <div style="width:100%">                                                
-                                                <strong>@item.FirstName</strong>
+                                                <strong>@item.FirstName 
+                                                    @if(item.Urgent.Value)
+                                                    {
+                                                            <span class="urgent_icon"><i class="fa fa-certificate" aria-hidden="true"></i></span>
+                                                    }                                                    
+                                                    </strong>
                                                 <div>
                                                     <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
                                                     <text>@item.TopicName</text>
@@ -281,13 +286,23 @@
                                 @foreach (var item in _headTopic)
                                 {
                                     <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
-                                        <div class="uk-card-header" style="height: auto; border-bottom: none;">
+                                        <div class="uk-card-header topicheadbg" style="height: auto; border-bottom: none;">
                                             <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
                                                 <div class="uk-card-header" style="border-bottom: none;">
                                                     <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
 
                                                         <div class="mailbox-read-info">
                                                             <h3>@item.TopicName</h3>
+                                                            @if (_headTopic_Tag != null && _headTopic_Tag.Any())
+                                                            {
+                                                                @foreach (var Tagitem in _headTopic_Tag)
+                                                                {
+                                                                    <span class="tag handline tagbg">@Tagitem.ManufacturingProcess</span>
+                                                                    <span class="tag handline tagbg">@Tagitem.CategoryAction</span>
+                                                                    <span class="tag handline tagbg">@Tagitem.ActionName</span>
+                                                                }
+                                                            }
+                                                            
                                                            @* <h5>
                                                                 From: @item.FirstName
                                                                 <br>
@@ -504,7 +519,7 @@
                                                                     {
                                                                         <div class="lstcoversationrply">
                                                                             <div class="mailbox-read-info" style="border-bottom:1px solid #f4f4f4">
-                                                                                <h3>@items.Name</h3>
+                                                                                @*<h3>@items.Name</h3>*@
                                                                                 <h5>                                                                                   
                                                                                     From: @items.UserName
                                                                                     <br>
@@ -808,7 +823,7 @@
                                 <div class="card-body p-0">
                                     <DxMenu CollapseItemsToHamburgerMenu="true"
                                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Mobile">
+                                        DisplayMode="MenuDisplayMode.Desktop">
                                         <Items>
                                             <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="@((e) => onPreview(_selectlst.DocumentId))"  />
                                             <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="@((e) => onDocDownload(_selectlst.DocumentId))" />
@@ -875,8 +890,7 @@
                         }
                         else
                         {          
-                            <ParticipantList Tid="@Tid"></ParticipantList>
-                           
+                            <ParticipantList Tid="@Tid"></ParticipantList>                           
                         }
                     </div>
                 </div>
@@ -1172,6 +1186,7 @@
     public List<EmailConversations> _discussionFullList;
     public List<EmailConversations> _replyComment;
     private List<EmailTopics>? _headTopic;
+    private List<ActivityEmailTopics>? _headTopic_Tag;
     string FilterString { get; set; }
     private List<EmailParticipant>? _participant;
     EmailParticipant _participantLst { get; set; }
@@ -1859,7 +1874,7 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
         RTopicId = 0;
         Tid = long.Parse(@SelectedGroup);
-        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup)));
+        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
         _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup))); 
@@ -1885,6 +1900,8 @@
         if(long.Parse(@SelectedGroup) != 0)
         {
             _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));
+            _headTopic_Tag = await Mediator.Send(new GetByActivityEmailSession(_headTopic[0].SessionId.Value));
+
 
             isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
@@ -1936,29 +1953,33 @@
     private async Task LoadDataPosts()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
-        if(long.Parse(@SelectedGroup) > 0)
+        if(@SelectedGroup != "none")
         {
-            Tid = long.Parse(@SelectedGroup);
-            _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup)));
-            _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
-
-            _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup)));
-            var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
-            if (topicToList != null)
+            if (long.Parse(@SelectedGroup) > 0)
             {
-                Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
+                Tid = long.Parse(@SelectedGroup);
+                _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
+                _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
+
+                _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup)));
+                var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
+                if (topicToList != null)
+                {
+                    Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
+                }
+
+
+                isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+
+                isEnabled = true;
+                isEllipsis = true;
+                isCommand = true;
+                _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
+
             }
 
-
-            isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
-
-            isEnabled = true;
-            isEllipsis = true;
-            isCommand = true;
-            _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));   
-
-        }        
-
+        }
+       
         await JSRuntime.InvokeAsync<string>("hideLoading");
 
     }
@@ -2135,8 +2156,14 @@
         {
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
 
-            var plist = await Mediator.Send(new GetAllConvAssToListQuery(_replyComment[0].ID));
-            _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+            _allparticipant = await Mediator.Send(new GetAllConvAssToListQuery(_replyComment[0].ID));
+            //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+
+            var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
+            Data.AssigntoIds = convlistTo.Select(s => s.UserId).ToList();
+
+            var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+            Data.AssignccIds = convlistCC.Select(s => s.UserId).ToList();
 
             WindowVisible = true;
             Data.Name = _replyComment[0].Name;

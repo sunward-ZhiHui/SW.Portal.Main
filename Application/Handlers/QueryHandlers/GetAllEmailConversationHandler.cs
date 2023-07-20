@@ -41,7 +41,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailConversations>> Handle(GetEmailDiscussionList request, CancellationToken cancellationToken)
         {
-            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDiscussionListAsync(request.TopicId);           
+            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDiscussionListAsync(request.TopicId,request.UserId);           
         }
     }
     //Get Conversation list
@@ -283,4 +283,16 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailConversationAssignTo>)await _conversationQueryRepository.GetConversationAssignToList(request.ConversationId);
         }
     }
+	public class GetEmailConversationAssignCCHandler : IRequestHandler<GetEmailConversationAssignCC, List<EmailConversationAssignTo>>
+	{
+		private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+		public GetEmailConversationAssignCCHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+		{
+			_conversationQueryRepository = conversationQueryRepository;
+		}
+		public async Task<List<EmailConversationAssignTo>> Handle(GetEmailConversationAssignCC request, CancellationToken cancellationToken)
+		{
+			return (List<EmailConversationAssignTo>)await _conversationQueryRepository.GetConversationAssignCCList(request.ConversationId);
+		}
+	}
 }

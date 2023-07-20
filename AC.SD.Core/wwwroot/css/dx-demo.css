@@ -19,12 +19,24 @@ body,
     text-align:center;
     color:red;
 }
+.urgent_icon
+{
+    float:right;
+    color:red;
+}
 #app,
 .demo-header-container,
 .demo-content-container,
 .demo-content-container > .demo-content,
 .demo-content > div:not(.modal-backdrop) {
     background-color: var(--bs-body-bg);
+}
+.topicheadbg {
+    background-color: var(--bs-secondary);
+}
+.tagbg {
+    background-color: var( --bs-gray-dark) !important;
+    color:white !important;
 }
 .doc_lst_view {
     border: 1px solid #cbc5c5ee;

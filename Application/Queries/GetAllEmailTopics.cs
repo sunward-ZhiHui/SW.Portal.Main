@@ -14,6 +14,14 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetByActivityEmailSession : PagedRequest, IRequest<List<ActivityEmailTopics>>
+    {
+        public Guid EmailTopicSessionId { get; private set; }
+        public GetByActivityEmailSession(Guid EmailSessionId)
+        {
+            this.EmailTopicSessionId = EmailSessionId;
+        }
+    }
     public class GetUserEmailTopics : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }

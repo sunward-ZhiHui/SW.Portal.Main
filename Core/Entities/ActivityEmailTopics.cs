@@ -23,6 +23,12 @@ namespace Core.Entities
         public string CcIds { get; set; }       
         public string Tags { get; set; }
         public string Comment { get; set; }
+        [NotMapped]
+        public string ManufacturingProcess { get; set; }
+        [NotMapped]
+        public string CategoryAction { get; set; }
+        [NotMapped]
+        public string ActionName { get; set;}
 
     }
 }

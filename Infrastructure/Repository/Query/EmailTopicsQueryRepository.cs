@@ -268,7 +268,7 @@ namespace Infrastructure.Repository.Query
 
 
 
-                var query = @"SELECT TS.SessionId, TS.ID, TS.TopicName,TS.Remarks,
+                var query = @"SELECT DISTINCT TS.SessionId, TS.ID, TS.TopicName,TS.Remarks,
                                 TS.SeqNo,
                                 TS.Status,
                                 TS.Follow,
@@ -285,7 +285,9 @@ namespace Infrastructure.Repository.Query
                             FROM
                                 EmailTopics TS
                             INNER JOIN
-                                EmailTopicTo TP ON TS.ID = TP.TopicId
+                                EmailConversations EC ON EC.TopicId = TS.ID
+                            INNER JOIN
+                                EmailConversationAssignTo TP ON EC.ID = TP.ConversationId
                             INNER JOIN
                                 Employee E ON TS.TopicFrom = E.UserId
                             LEFT JOIN
@@ -299,7 +301,7 @@ namespace Infrastructure.Repository.Query
                                         TopicId
                                 ) FN ON TS.ID = FN.TopicId
                             WHERE
-                                TP.UserId = @UserId and TS.OnDraft = 0
+                                (TP.UserId = @UserId) and TS.OnDraft = 0 and EC.ReplyId = 0
                             ORDER BY
                                 TS.StartDate DESC";
 
@@ -323,10 +325,42 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM EmailTopics TS 
-                                INNER JOIN EmailTopicCC TP ON TS.ID = TP.TopicId
-                                INNER JOIN Employee E ON TS.TopicFrom = E.UserId                                    
-                                WHERE TP.UserId = @UserId and TS.OnDraft = 0 order by TS.StartDate DESC";
+                var query = @"SELECT DISTINCT TS.SessionId, TS.ID, TS.TopicName,TS.Remarks,
+                                TS.SeqNo,
+                                TS.Status,
+                                TS.Follow,
+                                TS.OnBehalf,
+                                TS.Urgent,
+                                TS.OverDue,
+                                TS.DueDate,
+                                TS.StartDate,
+                                TS.FileData,
+                                TS.SessionId,
+                                E.FirstName,
+                                E.LastName,
+                                COALESCE(FN.NotificationCount, 0) AS NotificationCount
+                            FROM
+                                EmailTopics TS
+                            INNER JOIN
+                                EmailConversations EC ON EC.TopicId = TS.ID
+                            INNER JOIN
+                                EmailConversationAssignCC TP ON EC.ID = TP.ConversationId
+                            INNER JOIN
+                                Employee E ON TS.TopicFrom = E.UserId
+                            LEFT JOIN
+                                (
+                                    SELECT
+                                        TopicId,
+                                        COUNT(*) AS NotificationCount
+                                    FROM
+                                       EmailNotifications WHERE UserId = @UserId
+                                    GROUP BY
+                                        TopicId
+                                ) FN ON TS.ID = FN.TopicId
+                            WHERE
+                                (TP.UserId = @UserId) and TS.OnDraft = 0 and EC.ReplyId = 0
+                            ORDER BY
+                                TS.StartDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId);
@@ -414,7 +448,7 @@ namespace Infrastructure.Repository.Query
                          INNER JOIN
                                 EmailConversations EC ON TS.ID = EC.TopicId
                             INNER JOIN
-                                EmailTopicTo TP ON TS.ID = TP.TopicId AND TP.UserId = @UserId
+                                EmailConversationAssignTo TP ON EC.ID = TP.ConversationId AND (TP.UserId = @UserId)
                             INNER JOIN
                                 Employee E ON EC.AddedByUserID = E.UserId
                              LEFT JOIN
@@ -428,7 +462,7 @@ namespace Infrastructure.Repository.Query
                                     ReplyId
                             ) FN ON EC.ID = FN.ReplyId
                             WHERE
-                                TS.id = @TopicId and TS.OnDraft = 0 AND EC.ReplyId = 0
+                                TS.ID = @TopicId and TS.OnDraft = 0 AND EC.ReplyId = 0
                             ORDER BY
                                 TS.StartDate DESC";
 
@@ -477,8 +511,8 @@ namespace Infrastructure.Repository.Query
                                 EmailTopics TS
                          INNER JOIN
                                 EmailConversations EC ON TS.ID = EC.TopicId
-                            INNER JOIN
-                                EmailTopicCC TP ON TS.ID = TP.TopicId AND TP.UserId = @UserId
+                           INNER JOIN
+                                EmailConversationAssignCC TP ON EC.ID = TP.ConversationId AND (TP.UserId = @UserId OR TP.AddedByUserID = @UserId)
                             INNER JOIN
                                 Employee E ON EC.AddedByUserID = E.UserId
                              LEFT JOIN
@@ -555,7 +589,7 @@ namespace Infrastructure.Repository.Query
                                     ReplyId
                             ) FN ON EC.ID = FN.ReplyId
                             WHERE
-                                TS.id = @TopicId and TS.OnDraft = 0 AND EC.ReplyId = 0 AND TS.TopicFrom = @UserId
+                                TS.id = @TopicId and TS.OnDraft = 0 AND EC.ReplyId = 0 AND TS.TopicFrom = @UserId and EC.AddedByUserID = @UserId
                             ORDER BY
                                 TS.StartDate DESC";
 
@@ -934,7 +968,33 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        
+        public async Task<List<ActivityEmailTopics>> GetByActivityEmailSessionList(Guid sessionId)
+        {
+            try
+            {
 
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionID", sessionId, DbType.Guid);
+
+                var query = @"SELECT AMC.Value as ManufacturingProcess,CAI.Value as CategoryAction,AI.Value as ActionName from ActivityEmailTopics AET 					
+							LEFT JOIN ApplicationMasterChild AMC ON AMC.ApplicationMasterChildID = AET.ManufacturingProcessId
+							LEFT JOIN ApplicationMasterChild CAI ON CAI.ApplicationMasterChildID = AET.CategoryActionId
+							LEFT JOIN ApplicationMasterChild AI ON AI.ApplicationMasterChildID = AET.ActionId
+                            WHERE AET.EmailTopicSessionId = @SessionID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ActivityEmailTopics>(query, parameters)).ToList();
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId)
         {
             try

@@ -48,9 +48,11 @@ namespace Application.Queries
     public class GetEmailDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long TopicId { get; private set; }
-        public GetEmailDiscussionList(long TopicId)
+        public long UserId { get; private set; }
+        public GetEmailDiscussionList(long TopicId,long UserId)
         {
             this.TopicId = TopicId;
+            this.UserId = UserId;
         }
     }    
     public class GetEmailConversationList : PagedRequest, IRequest<List<EmailConversations>>
@@ -111,5 +113,14 @@ namespace Application.Queries
             this.ConversationId = Id;
         }
     }
+
+	public class GetEmailConversationAssignCC : PagedRequest, IRequest<List<EmailConversationAssignTo>>
+	{
+		public long ConversationId { get; set; }
+		public GetEmailConversationAssignCC(long Id)
+		{
+			this.ConversationId = Id;
+		}
+	}
 
 }

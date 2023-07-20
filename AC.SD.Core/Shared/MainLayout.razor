@@ -123,6 +123,7 @@
                                 @Body
                             </ChildContent>
                             <ErrorContent Context="Exception">
+                                <AC.SD.Core.Pages._500 ErrorMsg="@errorMsg"></AC.SD.Core.Pages._500>
                                 <div class="error_msg">
                                     @Exception.Message<br />
                                 </div>
@@ -130,7 +131,6 @@
                                 <div class="error_msg">
                                     @Exception.InnerException?.Message<br />
                                 </div>
-
                             </ErrorContent>
                         </ErrorBoundary>
 
@@ -189,6 +189,7 @@
 <BlazoredToasts Position="Blazored.Toast.Configuration.ToastPosition.TopRight" Timeout="10" SuccessClass="success-toast-override" SuccessIcon=""/>
 *@
 @code {
+    string errorMsg = "";
     static readonly int DateTimeNowYear = DateTime.Now.Year;
     UpdatePassword updatePassword = new UpdatePassword();
     string _themeName;
@@ -211,7 +212,8 @@
     /// <summary>
     /// The content to be displayed when there is an error.
     /// </summary>
-    [Parameter] public RenderFragment<Exception>? ErrorContent { get; set; }
+    [Parameter] 
+    public RenderFragment<Exception>? ErrorContent { get; set; }
     private bool loading;
     public ApplicationUser applicationUser { get; private set; }
     protected string ThemeName

@@ -16,6 +16,7 @@ namespace Core.Entities
         public decimal? TierQty { get; set; }
         [Required(ErrorMessage = "Tier Price is Required")]
         public decimal? TierPrice { get; set; }
+        public string? TierQtyType { get; set; }
         public decimal? BounsPrice { get; set; }
         [Required(ErrorMessage = "Bonus Qty Required")]
         public decimal? BounsQty { get; set; }

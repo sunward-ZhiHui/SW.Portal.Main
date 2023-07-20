@@ -17,5 +17,7 @@ namespace Core.Repositories.Query
         Task<View_NavItems> GetByItemSerialNoAsync(string ItemSerialNo);
         Task<long> Update(View_NavItems todolist);
         Task<View_NavItems> GetByItemSerialNoExitsAsync(View_NavItems ItemSerialNo);
+
+        Task<IReadOnlyList<View_NavItems>> GetByCompanyAsyncList(long? CompanyId);
     }
 }

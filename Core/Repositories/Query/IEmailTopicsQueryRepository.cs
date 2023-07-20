@@ -36,5 +36,7 @@ namespace Core.Repositories.Query
         Task<long> UpdateTopicClose(EmailTopics EmailTopics);        
         Task<List<ActivityEmailTopics>> GetByActivityEmailSessionList(Guid sessionId);
         Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId);
+       
+        Task<long> Delete(long id);
     }
 }

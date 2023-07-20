@@ -13,19 +13,19 @@
     <div class="">
         <div class="row d-flex justify-content-center">
             <div class="col-md-12">
-                <div class="card px-3">
+                <div class="card px-10">
                     <div class="card-body">
 
-                        <EditForm id="@MyID" @ref="myForm" Model="@Data" OnValidSubmit="@HandleValidSubmit"                           
+                      <EditForm id="@MyID" @ref="myForm" Model="@Data" OnValidSubmit="@HandleValidSubmit"                           
                               Context="EditFormContext">
                         <DataAnnotationsValidator />      
                          <div class="card-body">
                             <div class="row">
                                 <div class="col-md-12">
                                      <DxFormLayout>
-                                            <DxFormLayoutItem Caption="" ColSpanMd="11">
-                                                <DxTextBox @bind-Text="@Data.ToDoName" ShowValidationIcon="true" NullText="What do you need to do today?" />
-                                                <ValidationMessage For="@(() => Data.ToDoName)" />
+                                            <DxFormLayoutItem ColSpanMd="10">
+                                                <DxRichEdit DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Data.ToDoName" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+
                                             </DxFormLayoutItem>
                                             <DxFormLayoutItem ColSpanMd="1">
                                                 <DxButton CssClass="w-100"
@@ -40,7 +40,7 @@
                         </EditForm>
                         
                         @*<div class="add-items d-flex"> <input type="text" class="form-control todo-list-input" placeholder="What do you need to do today?"> <button class="add btn btn-primary font-weight-bold todo-list-add-btn">Add</button> </div>*@
-                        <div class="list-wrapper">
+                      @*  <div class="list-wrapper">
 
                             @if (_topicToDolist != null && _topicToDolist.Any())
                             {
@@ -54,7 +54,22 @@
                                 </ul>
                             }
                            
-                        </div>
+                        </div>*@
+                        <div class="uk-card-body">
+                            <p class="uk-text-success">
+                               
+                            </p>
+                           @if (_topicToDolist != null && _topicToDolist.Any())
+                           {
+                                @foreach (var item in _topicToDolist)
+                                {
+                                    <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.ToDoName" />
+                                    <i class="remove mdi mdi-close-circle-outline" @onclick="@(() => onDelete(item.ID))"></i>
+                        
+                                   
+                                }
+                            }
+                            </div>
                     </div>
                 </div>
             </div>
@@ -63,6 +78,8 @@
 </div>
 
 @code{
+    DxRichEdit richEdit { get; set; }
+    DxRichEdit msgrichEdit { get; set; }
     [Parameter]
     public long Tid { get; set; }
     private EditForm myForm;
@@ -72,11 +89,21 @@
     public ApplicationUser? applicationUser { get; private set; }
     async Task HandleValidSubmit()
     {
+
+        byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+
+        if (fileContent.Length == 480)
+        {
+            toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+            return;
+        }
+
         await JSRuntime.InvokeAsync<string>("showLoading");
         var request = new CreateTopicTodoListQuery
                         {
 
-                            ToDoName = Data.ToDoName,
+                         ToDoName = fileContent,
                             AddedDate = DateTime.Now,
                             SessionId = Guid.NewGuid(),
                             Iscompleted = false,
@@ -87,7 +114,7 @@
 
         var result = Mediator.Send(request); 
         await JSRuntime.InvokeAsync<string>("hideLoading");
-        onRestText();
+       /// onRestText();
         await UpdateDataAsync();
         toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
 
@@ -127,5 +154,23 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _topicToDolist = await Mediator.Send(new GetAllTopicToDoList(applicationUser.UserID));
         await jsRuntime.InvokeAsync<string>("hideLoading");        
-    }    
- }
+    }  
+    async void OnCustomizeToolbar(IToolbar toolbar)
+    {
+
+        toolbar.Groups.Clear();
+
+        // Inserts the File group at the first position in the group collection
+        //toolbar.Groups.Add(0, RichEditToolbarGroupNames.File);
+        toolbar.Groups.Add(0, RichEditToolbarGroupNames.Undo);
+        toolbar.Groups.Add(1, RichEditToolbarGroupNames.Font);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Table);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Picture);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
+
+        IBarGroup undoRedoGroup = toolbar.Groups[0];
+        undoRedoGroup.Items.Add(0, RichEditBarItemNames.FullScreen);
+
+      
+    }
+}

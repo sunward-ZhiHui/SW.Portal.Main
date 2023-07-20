@@ -14,6 +14,15 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetAllNavItemsByCompanyQuery : PagedRequest, IRequest<List<View_NavItems>>
+    {
+        public string SearchString { get; set; }
+        public long? CompanyId { get; set; }
+        public GetAllNavItemsByCompanyQuery(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
 
     public class GetAllNavItemsItemSerialNoQuery : PagedRequest, IRequest<View_NavItems>
     {

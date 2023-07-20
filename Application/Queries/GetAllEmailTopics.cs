@@ -151,5 +151,15 @@ namespace Application.Queries
         {
             this.SessionId = sessionId;
         }
+
+    }
+     public class DeleteDocumentFileQuery : Documents, IRequest<long>
+    {
+        public long ID { get; set; }
+
+        public DeleteDocumentFileQuery(long Id)
+        {
+            this.ID = Id;
+        }
     }
 }

@@ -14,6 +14,8 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Application.Queries;
 using Microsoft.AspNetCore.Http;
 using DevExpress.Data.Filtering.Helpers;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata;
 
 namespace Infrastructure.Repository.Query
 {
@@ -1017,5 +1019,49 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public  async Task<long> Delete(long id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentID", id);
+
+
+                            var query = "DELETE  FROM Documents WHERE DocumentID = @DocumentID";
+
+                          
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+
     }
+    
 }

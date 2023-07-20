@@ -347,4 +347,22 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<Documents>)await _createEmailDocumentsQueryRepository.GetCreateEmailDocumentListAsync(request.SessionId);
         }
     }
+   
+    public class DeleteDraftFileHandler : IRequestHandler <DeleteDocumentFileQuery , long>
+    {
+        private readonly IEmailTopicsQueryRepository _draftFileListQueryRepository;
+
+        public DeleteDraftFileHandler(IEmailTopicsQueryRepository draftFileListQueryRepository, IQueryRepository<Documents> queryRepository)
+        {
+            _draftFileListQueryRepository = draftFileListQueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteDocumentFileQuery request, CancellationToken cancellationToken)
+        {
+            var req = await _draftFileListQueryRepository.Delete(request.ID);
+            return req;
+
+
+        }
+    }
 }

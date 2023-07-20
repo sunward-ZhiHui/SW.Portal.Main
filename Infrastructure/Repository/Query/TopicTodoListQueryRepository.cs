@@ -53,7 +53,7 @@ namespace Infrastructure.Repository.Query
                         try
                         {
                             var parameters = new DynamicParameters();
-                            parameters.Add("ToDoName", todolist.ToDoName, DbType.String);
+                            parameters.Add("ToDoName", todolist.ToDoName);
                             parameters.Add("TopicId", todolist.TopicId);
                             parameters.Add("SessionId", todolist.SessionId);
                             parameters.Add("AddedByUserID", todolist.AddedByUserID);

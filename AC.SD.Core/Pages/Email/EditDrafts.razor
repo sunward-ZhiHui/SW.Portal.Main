@@ -870,7 +870,7 @@ else
     {
         var req = new DeleteDocumentFileQuery(Id);
         var ans = Mediator.Send(req);
-
+        await JSRuntime.InvokeAsync<string>("ReloadUrl");
 
     }
     private async Task OpenUrlInNewTab(string url)
@@ -886,6 +886,7 @@ else
         await OpenUrlInNewTab(url);
 
     }
+
   }
 
 

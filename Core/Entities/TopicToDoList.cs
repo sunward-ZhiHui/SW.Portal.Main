@@ -13,7 +13,7 @@ namespace Core.Entities
         [Key]
         public long ID { get; set; }
         public long TopicId { get; set; }
-        [Required(ErrorMessage = "Please Enter Todo Name.")]
+       
         public byte[] ToDoName { get; set; }
         public bool Iscompleted { get; set; }
     }

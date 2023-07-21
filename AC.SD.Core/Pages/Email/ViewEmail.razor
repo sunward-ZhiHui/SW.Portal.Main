@@ -1781,7 +1781,7 @@
 
         var response = await Mediator.Send(request);
 
-         Trigger file download
+       //  Trigger file download
          await JSRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.FileData, response.ContentType,"");
     }
     public async Task onDocDelete(long Id)

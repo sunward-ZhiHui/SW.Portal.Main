@@ -3,6 +3,7 @@
 @using Application.Queries;
 @using DevExpress.Export;
 @using Microsoft.Extensions.Configuration;
+@using System.Text;
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
@@ -47,7 +48,7 @@
                                             Caption="Nav Company" />
                     </Columns>
                 </DxComboBox>
-
+                @* <ValidationMessage For="@(() => Data.CompanyId)" />*@
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="From Date" ColSpanMd="6">
                 <DxDateEdit Date="@DateRange" DateExpression="@(() => DateRange)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
@@ -75,6 +76,7 @@
             PageSize="20" CustomizeElement="Grid_CustomizeElement" style="height: calc(100vh - 250px);"
             CssClass="w-100" AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
+            AllowSelectRowByClick="true"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages" RowClick="OnRowClick" FocusedRowEnabled="true">
         <Columns>
             <DxGridSelectionColumn Width="60px" />
@@ -93,6 +95,19 @@
 
     </DxGrid>
 </DxLoadingPanel>
+<DxPopup @bind-Visible="@PopupVisible"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Width="600px">
+    <BodyContentTemplate>
+        <img src="@imageDataURL" width="500" height="345">
+        @*  <img v-if="@imageDataURL" :src="@imageDataURL" alt="Pasted Image" width="100%" height="345"/>*@
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 
 
 @code {
@@ -110,6 +125,8 @@
     DateTime DateRange = DateTime.Today;
     private string? FileUrl;
     private string? BaseUrl;
+    public string imageDataURL;
+    bool PopupVisible { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -192,19 +209,27 @@
     async void onDocView()
     {
         var model = await Mediator.Send(new GetAllDocumentList(_selectedItems.SessionID));
-        if (model != null && model.Count > 0)
+        if (model != null && model.Count > 0 && model[0].FilePath != null)
         {
             var filepath = model[0].FilePath;
             var list = model[0].ContentType.Split(',').ToList();
-            if (list[0].ToLower() == "image")
+            if (model[0].ContentType == "application/pdf")
             {
                 var url = "https://portal.sunwardpharma.com:2025/" + filepath;
                 await OpenUrlInNewTab(url);
             }
             else
             {
-                var urls = "https://docs.google.com/gview?url=https://portal.sunwardpharma.com:2025/" + filepath;
-                await OpenUrlInNewTab(urls);
+                if (list[0].ToLower() == "image")
+                {
+                    var url = "https://portal.sunwardpharma.com:2025/" + filepath;
+                    await OpenUrlInNewTab(url);
+                }
+                else
+                {
+                    var urls = "https://docs.google.com/gview?url=https://portal.sunwardpharma.com:2025/" + filepath;
+                    await OpenUrlInNewTab(urls);
+                }
             }
         }
     }
@@ -216,19 +241,24 @@
         _productionAppLine = await Mediator.Send(new GetAllProductionActivityAppLineFilterReport(CompanyId, FromDate, ToDate));
         StateHasChanged();
     }
-    void onViewScreenShot()
+    async void ClosePopup()
     {
-
-        // image1 = LiveUrl + _selectedItems.RoomStatus ;
-        //image2 = LiveUrl + _selectedItems.RoomStatus1;
-        //PopupVisible = true;
+        PopupVisible = false;
     }
-    // public async Task onDocDownload(long Id)
-    //{
-    //    var lst =  _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
+    async Task onViewScreenShot()
+    {
+        var data = await Mediator.Send(new GetAllDocumentByCommentInagesList(_selectedItems.ProductionActivityAppLineID));
 
+        if (data != null)
+        {
+            if (data.CommentImage.Length > 0 && !string.IsNullOrEmpty(data.CommentImageType))
+            {
+                string base64String = Convert.ToBase64String(data.CommentImage, 0, data.CommentImage.Length);
+                imageDataURL = data.CommentImageType + ',' + base64String;
+                PopupVisible = true;
+            }
+        }
 
-    //    var url = FileUrl + lst.FilePath;
-    //    await OpenUrlInNewTab(url);
-    //}
+    }
+
 }

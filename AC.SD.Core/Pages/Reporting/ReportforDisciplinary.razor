@@ -176,7 +176,12 @@
     {
         DateRange = newValue;
         MinDateFrom = newValue;
-        Data.Date = DateRange;
+
+        if (DateRange > Data.Date)
+        {
+            Data.Date = DateRange;
+        }
+
     }
 
     private async Task OpenUrlInNewTab(string url)

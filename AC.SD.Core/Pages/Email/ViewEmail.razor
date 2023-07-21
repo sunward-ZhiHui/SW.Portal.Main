@@ -825,8 +825,8 @@
                                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                         DisplayMode="MenuDisplayMode.Desktop">
                                         <Items>
-                                            <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="@((e) => onPreview(_selectlst.DocumentId))"  />
-                                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="@((e) => onDocDownload(_selectlst.DocumentId))" />
+                                            <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="@((e) => onPreview(_selectlst.DocumentId))" Enabled=@PreviewEnabled />
+                                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="@((e) => onDocDownload(_selectlst.DocumentId))" Enabled=@docEnabled />
                                            
                                         </Items>
                                     </DxMenu>
@@ -1069,6 +1069,8 @@
 
 
 @code {
+    bool PreviewEnabled { get; set; } = false;
+    bool docEnabled { get; set; } = false;
     private CancellationTokenSource cancellationTokenSource;
     private const int AutoRefreshInterval = 10000; // 10 seconds
     private Documents _selectlst;
@@ -1337,6 +1339,8 @@
         // Set the document URL
         string documentUrl = filePath;
         await JSRuntime.InvokeVoidAsync("openViewer", "viewerContainer", documentUrl);
+
+
     }
     private async Task isUploadSuccess()
     {
@@ -1864,7 +1868,14 @@
                 _selectlst = _topicDocList.FirstOrDefault();
                 //EditEnabled = true;
                 //DeleteEnabled = true;
+                PreviewEnabled=true;
+                docEnabled = true;
                 StateHasChanged();
+            }
+            else
+            {
+                PreviewEnabled=false;
+                docEnabled = false;
             }
         }
 
@@ -2082,6 +2093,7 @@
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
 
+        
     }
     private async Task StartAutoRefresh()
     {

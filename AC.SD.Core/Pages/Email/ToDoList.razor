@@ -64,7 +64,7 @@
                                 @foreach (var item in _topicToDolist)
                                 {
                                     <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.ToDoName" />
-                                    <i class="remove mdi mdi-close-circle-outline" @onclick="@(() => onDelete(item.ID))"></i>
+                                    <i class="remove mdi mdi-close-circle-outline" style="float:right;font-size:17px;" @onclick="@(() => onDelete(item.ID))"></i>
                         
                                    
                                 }

@@ -565,6 +565,8 @@ else
         };
 
         Data.Follow = Follow[1];
+        Data.Urgent = false;
+        Data.OverDue = false;
 
         var topics = await Mediator.Send(new GetAllEmailTopics());
         _topics = topics;

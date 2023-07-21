@@ -23,7 +23,7 @@
 @using System.IO;
 @using System.ComponentModel;
 @page "/EditEmailDraft/{ActiveSessionId}"
-<style>
+<style scoped>
     .txtEditorMsg {
         height: calc(100vh - 477px);
     }
@@ -34,6 +34,13 @@
 
     .dxuc-upload-icon {
         display: none; /* or any other style to disable or hide the icon */
+    }
+
+    .btnDelete {
+        color: red;
+        border: none;
+        background: none;
+        font-size: 14px;
     }
 </style>
 <div class="card w-100 tooltips" style="margin-bottom:10px;">
@@ -259,10 +266,17 @@ else
                         @foreach (var item in _documentslst)
                         {
                             <li class="doc_lst_view">
-                                <div class="form-check"> <label class="form-check-label"> File Name : @item.FileName <i class="input-helper"></i></label> </div>
-                                <div class="form-check"> <label class="form-check-label"> File Size:  @item.FileSize <i class="input-helper"></i></label> </div>
-                                <button class="btnDelete fas fa-trash" @onclick="@(() => onDelete(item.DocumentId))"> Delete</button>
-                                <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> Downlode</button>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <span style="font-weight: 600; font-size: 14px;">@item.FileName</span>
+                                        @{
+                                            string formattedFileSize = FormatFileSize(item.FileSize.Value);
+                                        }
+                                        <span style="font-size: 11px;">  @formattedFileSize</span>
+                                        <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> </button>
+                                        <button class="btnDelete fas fa-trash" @onclick="@(() => onDelete(item.DocumentId))"> </button>
+                                    </label>
+                                </div>
                             </li>
                         }
                     </ul>
@@ -325,7 +339,14 @@ else
     private List<ViewEmployee>? _Toparticipant;
     private List<ViewEmployee>? _CCparticipant;
     IEnumerable<ForumTypes>? _OnBehalf;
+    public static string FormatFileSize(long bytes)
+    {
+        var unit = 1024;
+        if (bytes < unit) { return $"{bytes} B"; }
 
+        var exp = (int)(Math.Log(bytes) / Math.Log(unit));
+        return $"{bytes / Math.Pow(unit, exp):F2} {("KMGTPE")[exp - 1]}B";
+    }
     private List<ApplicationUser> _applicationUsers;  
 
     List<long> participantIds = new List<long>();
@@ -567,6 +588,8 @@ else
         };
 
         Data.Follow = Follow[1];
+        Data.Urgent = false;
+        Data.OverDue = false;
 
         var topics = await Mediator.Send(new GetAllEmailTopics());
         _topics = topics;

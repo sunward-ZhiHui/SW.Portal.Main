@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Core.Entities.Views
     public class view_ProductionActivityAppLineReport
     {
         public DateTime Date { get; set; }
+        //[Required(ErrorMessage = "Please Select Company.")]
         public long CompanyId { get; set; }
         public string DisciplineType { get; set; }
         public string Grouping { get; set; }
@@ -24,8 +26,10 @@ namespace Core.Entities.Views
         public string Info { get; set; }
         public long ProductionActivityAppLineID { get; set; }
         public Guid SessionID { get; set; }
-        
-       
+        public string CommentImageType { get; set; }
+        public byte[] CommentImage { get; set; }
+
+
 
     }
 }

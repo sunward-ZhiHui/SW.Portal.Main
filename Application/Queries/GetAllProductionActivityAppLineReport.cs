@@ -25,6 +25,14 @@ namespace Application.Queries
             this.ToDate = ToDate;
         }
     }
+    public class GetAllDocumentByCommentInagesList : PagedRequest, IRequest<view_ProductionActivityAppLineReport>
+    {
+        public long? ProductionActivityAppLineID { get; set; }
+        public GetAllDocumentByCommentInagesList(long? ProductionActivityAppLineID)
+        {
+            this.ProductionActivityAppLineID = ProductionActivityAppLineID;
+        }
+    }
     public class GetAllDocumentList : PagedRequest, IRequest<List<Documents>>
     {
         public Guid sessionId { get; private set; }

@@ -37,7 +37,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<view_ProductionActivityAppLineReport> GetDocumentListByCommentImageAsync(long? ProductionActivityAppLineID)
+        {
+            try
+            {
 
+                var query = "select * from ProductionActivityAppLine where ProductionActivityAppLineID= @ProductionActivityAppLineID";
+                var parameters = new DynamicParameters();
+                parameters.Add("ProductionActivityAppLineID", ProductionActivityAppLineID);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<view_ProductionActivityAppLineReport>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+
+            }
+        }
         public async Task<IReadOnlyList<view_ProductionActivityAppLineReport>> GetAllFilterAsync(long? CompanyId, DateTime? FromDate, DateTime? ToDate)
         {
             try

@@ -49,4 +49,18 @@ namespace Application.Handlers.QueryHandlers
             return (List<Documents>)await _rolepermissionQueryRepository.GetDocumentListAsync(request.sessionId);
         }
     }
+    public class GetAllDocumentListByCommantImageHandler : IRequestHandler<GetAllDocumentByCommentInagesList, view_ProductionActivityAppLineReport>
+    {
+        private readonly IProductionActivityAppLineReportQueryRepository _rolepermissionQueryRepository;
+
+        public GetAllDocumentListByCommantImageHandler(IProductionActivityAppLineReportQueryRepository rolepermissionQueryRepository)
+        {
+
+            _rolepermissionQueryRepository = rolepermissionQueryRepository;
+        }
+        public async Task<view_ProductionActivityAppLineReport> Handle(GetAllDocumentByCommentInagesList request, CancellationToken cancellationToken)
+        {
+            return await _rolepermissionQueryRepository.GetDocumentListByCommentImageAsync(request.ProductionActivityAppLineID);
+        }
+    }
 }

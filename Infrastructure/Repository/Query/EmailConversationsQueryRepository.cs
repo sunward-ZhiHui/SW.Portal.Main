@@ -115,6 +115,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
+        public async Task<List<ViewEmployee>> GetAllPListAsync(long topicId)
+        {
+            try
+            {
+                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailTopicParticipant FT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
+                                INNER JOIN Employee E ON E.UserID = FT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FT.TopicId = @TopicId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicID", topicId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailAssignToList>> GetAllAssignToListAsync(long topicId)
         {
             try

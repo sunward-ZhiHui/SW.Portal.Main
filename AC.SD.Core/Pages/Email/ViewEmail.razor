@@ -68,8 +68,9 @@
                         <div class="card-body p-0">
                             <DxMenu CollapseItemsToHamburgerMenu="true"
                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                    DisplayMode="MenuDisplayMode.Desktop">
+                                    DisplayMode="MenuDisplayMode.Auto">
                                 <Items>
+                                    <DxMenuItem Text="All" class="@((isLeftMenuvisible == "All" ? "tActive": "tall"))" IconCssClass="fa fa-list-alt" Click="@(() => OnLeftMenuItemClick("All"))" />
                                     <DxMenuItem Text="Assign To" class="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" IconCssClass="fa fa-envelope" Click="@(() => OnLeftMenuItemClick("AssignTo"))" />                                    
                                     <DxMenuItem Text="CC" class="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" IconCssClass="popup-image popup-icon-position" Click="@(() => OnLeftMenuItemClick("AssignCC"))" />
                                     <DxMenuItem Text="Sent" class="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" IconCssClass="fa fa-paper-plane" Click="@(() => OnLeftMenuItemClick("Sent"))" />
@@ -104,7 +105,11 @@
                                 }
                             }*@
 
-                        @if (isLeftMenuvisible == "AssignTo")
+                        @if(isLeftMenuvisible == "All")
+                        {
+                                <AllEmail ATopicId="onViewEmailAllClick"></AllEmail>
+                        }
+                        else if (isLeftMenuvisible == "AssignTo")
                         {
                             <DxGrid @ref="TOGrid"
                                     Data="_forumTopicTo"                                    
@@ -1534,6 +1539,12 @@
         }
 
     }   
+    private async void onViewEmailAllClick(string ATopicId)
+    {
+        SelectedGroup = ATopicId;
+        await LoadData();
+        StateHasChanged();
+    }
     private async void onSubViewEmailClick(string RId)
     {
         SelectedReplyId = RId;
@@ -1781,8 +1792,8 @@
 
         var response = await Mediator.Send(request);
 
-       //  Trigger file download
-         await JSRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.FileData, response.ContentType,"");
+        //  Trigger file download
+        await JSRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.FileData, response.ContentType,"");
     }
     public async Task onDocDelete(long Id)
     {
@@ -1990,7 +2001,7 @@
             }
 
         }
-       
+
         await JSRuntime.InvokeAsync<string>("hideLoading");
 
     }
@@ -2093,7 +2104,7 @@
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
 
-        
+
     }
     private async Task StartAutoRefresh()
     {
@@ -2152,7 +2163,7 @@
     }
     private async Task onWindowVisible()
     {
-         var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
+        var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
         _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
         Data.AssigntoIds = Enumerable.Empty<long>();
         WindowVisible = true;        
@@ -2176,6 +2187,11 @@
 
             var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
             Data.AssignccIds = convlistCC.Select(s => s.UserId).ToList();
+
+
+            _allparticipant = await Mediator.Send(new GetByEmailTopicIDPList(_replyComment[0].TopicID));
+            
+            
 
             WindowVisible = true;
             Data.Name = _replyComment[0].Name;

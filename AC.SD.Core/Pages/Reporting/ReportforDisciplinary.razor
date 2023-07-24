@@ -9,6 +9,7 @@
 @inject IMediator Mediator
 @inject IConfiguration Configuration
 @using MediatR
+@inject AC.SD.Core.Services.ToastService toastService
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -249,7 +250,7 @@
     {
         var data = await Mediator.Send(new GetAllDocumentByCommentInagesList(_selectedItems.ProductionActivityAppLineID));
 
-        if (data != null)
+        if (data != null && data.CommentImage != null && data.CommentImageType != null)
         {
             if (data.CommentImage.Length > 0 && !string.IsNullOrEmpty(data.CommentImageType))
             {
@@ -257,6 +258,14 @@
                 imageDataURL = data.CommentImageType + ',' + base64String;
                 PopupVisible = true;
             }
+            else
+            {
+                toastService.ShowToast("No Screenshot Available", AC.SD.Core.Services.ToastLevel.Info);
+            }
+        }
+        else
+        {
+            toastService.ShowToast("No Screenshot Available", AC.SD.Core.Services.ToastLevel.Info);
         }
 
     }

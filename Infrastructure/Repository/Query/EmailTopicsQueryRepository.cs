@@ -259,6 +259,63 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailTopics>> GetTopicAllList(long UserId)
+        {
+            try
+            {               
+                var query = @"SELECT DISTINCT TS.SessionId, TS.ID, TS.TopicName,TS.Remarks,
+                                TS.SeqNo,
+                                TS.Status,
+                                TS.Follow,
+                                TS.OnBehalf,
+                                TS.Urgent,
+                                TS.OverDue,
+                                TS.DueDate,
+                                TS.StartDate,
+                                TS.FileData,
+                                TS.SessionId,
+                                E.FirstName,
+                                E.LastName,
+                                COALESCE(FN.NotificationCount, 0) AS NotificationCount
+                            FROM
+                                EmailTopics TS
+                            INNER JOIN
+                                EmailConversations EC ON EC.TopicId = TS.ID 
+                            INNER JOIN
+                                EmailTopicParticipant TP ON EC.TopicID = TP.TopicId and TP.UserId = @UserId
+                            INNER JOIN
+                                Employee E ON TS.TopicFrom = E.UserId
+                            LEFT JOIN
+                                (
+                                    SELECT
+                                        TopicId,
+                                        COUNT(*) AS NotificationCount
+                                    FROM
+                                       EmailNotifications WHERE UserId = @UserId
+                                    GROUP BY
+                                        TopicId
+                                ) FN ON TS.ID = FN.TopicId
+                            WHERE
+                                (TP.UserId = @UserId) and TS.OnDraft = 0 and EC.ReplyId = 0
+                            ORDER BY
+                                TS.StartDate DESC";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<List<EmailTopics>> GetTopicToList(long UserId)
         {
             try

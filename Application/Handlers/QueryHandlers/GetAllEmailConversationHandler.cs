@@ -246,7 +246,31 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailAssignToList>)await _conversationQueryRepository.GetAllAssignToListAsync(request.TopicId);
         }
     }
-    
+    public class GetByEmailTopicPListHandler : IRequestHandler<GetByEmailTopicIDPList, List<ViewEmployee>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+        public GetByEmailTopicPListHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<ViewEmployee>> Handle(GetByEmailTopicIDPList request, CancellationToken cancellationToken)
+        {
+            return (List<ViewEmployee>)await _conversationQueryRepository.GetAllPListAsync(request.TopicId);
+        }
+    }
+    public class GetConvasationTopicIDHandler : IRequestHandler<GetByConvasationTopicIDPList, List<ViewEmployee>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+        public GetConvasationTopicIDHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<ViewEmployee>> Handle(GetByConvasationTopicIDPList request, CancellationToken cancellationToken)
+        {
+            return (List<ViewEmployee>)await _conversationQueryRepository.GetAllConvTopicPListAsync(request.ConvasationId, request.TopicId);
+        }
+    }
+
     public class GetAllConvAssToListHandler : IRequestHandler<GetAllConvAssToListQuery, List<ViewEmployee>>
     {
         private readonly IEmailConversationsQueryRepository _conversationQueryRepository;

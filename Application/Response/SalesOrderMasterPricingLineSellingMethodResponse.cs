@@ -10,7 +10,8 @@ namespace Application.Response
     {
         public long SalesOrderMasterPricingLineSellingMethodId { get; set; }
         public long? SalesOrderMasterPricingLineId { get; set; }
-        public decimal? TierQty { get; set; }
+        public decimal? TierFromQty { get; set; }
+        public decimal? TierToQty { get; set; }
         public decimal? TierPrice { get; set; }
         public decimal? BounsPrice { get; set; }
         public decimal? BounsQty { get; set; }

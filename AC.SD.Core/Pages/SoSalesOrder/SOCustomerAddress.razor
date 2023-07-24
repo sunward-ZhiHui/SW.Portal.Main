@@ -179,56 +179,55 @@
 
     protected override async Task OnInitializedAsync()
     {
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _addressItems = await Mediator.Send(new GetSoCustomerAddressByCustomerQuery(_salesOrderItems.SoCustomerId.Value));
-        _addressBillingItems = await Mediator.Send(new GetSoCustomerAddressByTypeQuery("Billing", _salesOrderItems.SoCustomerId.Value));
-        _addressShippingItems = await Mediator.Send(new GetSoCustomerAddressByTypeQuery("Shipping", _salesOrderItems.SoCustomerId.Value));
-
-        if(_salesOrderItems.SoCustomerBillingAddressId != null)
+        if (_salesOrderItems.SoCustomerId > 0)
         {
-            var _soBillingCusterAddresss = _addressItems.Where(x => x.AddressType == "Billing" && x.SoCustomerAddressId == _salesOrderItems.SoCustomerBillingAddressId).FirstOrDefault();
-            if (_soBillingCusterAddresss != null)
+            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+            _addressItems = await Mediator.Send(new GetSoCustomerAddressByCustomerQuery(_salesOrderItems.SoCustomerId.Value));
+            _addressBillingItems = await Mediator.Send(new GetSoCustomerAddressByTypeQuery("Billing", _salesOrderItems.SoCustomerId.Value));
+            _addressShippingItems = await Mediator.Send(new GetSoCustomerAddressByTypeQuery("Shipping", _salesOrderItems.SoCustomerId.Value));
+
+            if (_salesOrderItems.SoCustomerBillingAddressId != null)
             {
-                _soBillingCusterAddress = _soBillingCusterAddresss;
+                var _soBillingCusterAddresss = _addressItems.Where(x => x.AddressType == "Billing" && x.SoCustomerAddressId == _salesOrderItems.SoCustomerBillingAddressId).FirstOrDefault();
+                if (_soBillingCusterAddresss != null)
+                {
+                    _soBillingCusterAddress = _soBillingCusterAddresss;
+                }
             }
-        }
-        else
-        {
-            var _soBillingCusterAddresss = _addressItems.Where(x => x.AddressType == "Billing" && x.CustomerId == _salesOrderItems.SoCustomerId && x.isBilling == true).FirstOrDefault();
-            if (_soBillingCusterAddresss != null)
+            else
             {
-                _soBillingCusterAddress = _soBillingCusterAddresss;
+                var _soBillingCusterAddresss = _addressItems.Where(x => x.AddressType == "Billing" && x.CustomerId == _salesOrderItems.SoCustomerId && x.isBilling == true).FirstOrDefault();
+                if (_soBillingCusterAddresss != null)
+                {
+                    _soBillingCusterAddress = _soBillingCusterAddresss;
+                }
+
             }
 
-        }
 
-
-        if (_salesOrderItems.SoCustomerShipingAddressId != null)
-        {
-            var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.SoCustomerAddressId == _salesOrderItems.SoCustomerShipingAddressId).FirstOrDefault();
-            if (_soShippingCusterAddresss != null)
+            if (_salesOrderItems.SoCustomerShipingAddressId != null)
             {
-                _soShippingCusterAddress = _soShippingCusterAddresss;
+                var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.SoCustomerAddressId == _salesOrderItems.SoCustomerShipingAddressId).FirstOrDefault();
+                if (_soShippingCusterAddresss != null)
+                {
+                    _soShippingCusterAddress = _soShippingCusterAddresss;
+                }
             }
-        }
-        else
-        {
-            var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.CustomerId == _salesOrderItems.SoCustomerId && x.isShipping == true).FirstOrDefault();
-            if (_soShippingCusterAddresss != null)
+            else
             {
-                _soShippingCusterAddress = _soShippingCusterAddresss;
+                var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.CustomerId == _salesOrderItems.SoCustomerId && x.isShipping == true).FirstOrDefault();
+                if (_soShippingCusterAddresss != null)
+                {
+                    _soShippingCusterAddress = _soShippingCusterAddresss;
+                }
             }
-        }
 
-        
-
-        
             _soAllBillingCusterAddress = _addressBillingItems.Where(x => x.AddressType == "Billing" && x.CustomerId == _salesOrderItems.SoCustomerId).ToList();
 
             _soAllShippingCusterAddress = _addressShippingItems.Where(x => x.AddressType == "Shipping" && x.CustomerId == _salesOrderItems.SoCustomerId).ToList();
-        
 
-        
+        }
+
 
     }
     async Task SelectedItemShipChanged(view_SoCustomerAddress address1)

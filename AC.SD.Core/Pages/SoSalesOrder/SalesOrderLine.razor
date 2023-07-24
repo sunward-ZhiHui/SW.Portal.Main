@@ -5,6 +5,7 @@
 @using MediatR
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
+@using global::Core.EntityModels;
 @inject IMediator Mediator
 @using DevExpress.Export
 @using global::Core.Repositories.Query;
@@ -110,9 +111,19 @@
         <EditFormTemplate Context="EditFormContext">
             @{
                 var types = (View_SoSalesOrderLine)EditFormContext.EditModel;
+
             }
             <DxFormLayout CssClass="w-100">
-
+                <DxFormLayoutItem Caption="Selling Method" ColSpanMd="6">
+                    <DxComboBox Data="@_viewSellingMethodItems"
+                                NullText="Select Selling Method..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailID"
+                                SelectedItemChanged="@((View_ApplicationMasterDetail navitems) => SelectedItemMethodChangesChanged(navitems))"
+                                @bind-Value="@types.SellingMethodId" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.SellingMethodId)" />
+                </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Item SerialNo" ColSpanMd="6">
                     <DxComboBox Data="@_AllNavitems"
                                 NullText="Select Item SerialNo..."
@@ -132,6 +143,11 @@
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
                                                 Caption="Description" />
                         </Columns>
+                        <Buttons>
+                            <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container")
+                                            Tooltip="Master Pricing Information"
+                                            Click="@(_ => OnButtonClick())" />
+                        </Buttons>
                     </DxComboBox>
                 </DxFormLayoutItem>
 
@@ -148,10 +164,10 @@
                     <DxTextBox @bind-Text="@BaseUnitofMeasure" Enabled=false />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Qty:" ColSpanMd="6">
-                    <DxSpinEdit @bind-Value="@types.Qty" />
+                    <DxSpinEdit Value="@SalesQty" ValueExpression="@(() => SalesQty)" ValueChanged="@((Decimal newValue) => OnValueChanged(newValue))" ShowSpinButtons="false" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Unit price:" ColSpanMd="6">
-                    <DxSpinEdit @bind-Value="@types.UnitPrice" />
+                    <DxSpinEdit @bind-Value="@UnitPrice" ShowSpinButtons="false" Enabled="false" />
                 </DxFormLayoutItem>
                 <ValidationSummary />
             </DxFormLayout>
@@ -175,19 +191,79 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
     </FooterContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=IsOpen
+          PositionTarget=@($"#flyout-overview-target-container")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body">
+            <DxGrid Data="@View_SalesOrderMasterPricingLineByItems" CssClass="ch-360" style="height: calc(100vh - 400px);">
+                <Columns>
+                    <DxGridDataColumn FieldName="MasterType" Caption="Price Type" MinWidth="100">
+                        <CellDisplayTemplate>
+                            @{
+                                var item = (View_SalesOrderMasterPricingLineByItem)context.DataItem;
+                                var PriceType = (item.MasterType == "MasterPrice") ? "Master Price" : "Specific Item Price";
+                            }
+                            @PriceType
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="PriceValidaityFrom" MinWidth="100">
+                        <CellDisplayTemplate>
+                            @{
+                                var item = (View_SalesOrderMasterPricingLineByItem)context.DataItem;
+                            }
+                            @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityFrom)
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="PriceValidaityTo" MinWidth="100">
+                        <CellDisplayTemplate>
+                            @{
+                                var item = (View_SalesOrderMasterPricingLineByItem)context.DataItem;
+                            }
+                            @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityTo)
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                    <DxGridDataColumn FieldName="SellingMethodName" MinWidth="100" />
+                    <DxGridDataColumn FieldName="SellingPrice" MinWidth="100" />
+                </Columns>
+                <DetailRowTemplate>
+                    <AddSellingMethodsViewOnlys Items="(View_SalesOrderMasterPricingLineByItem)context.DataItem" />
+                </DetailRowTemplate>
+            </DxGrid>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
 
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
     [Parameter]
     public long? SoSalesOrderId { get; set; }
-
+    decimal SalesQty;
+    decimal? UnitPrice;
+    string PricingType;
+    bool IsOpen { get; set; } = false;
+    public List<View_SalesOrderMasterPricingLineByItem> View_SalesOrderMasterPricingLineByItems { get; set; }
+    public SalesOrderMasterPricingFromSalesModel salesOrderMasterPricingFromSalesModel { get; set; }
+    public View_SoSalesOrder SoSalesOrderItems { get; set; }
     private string TextValue { get; set; }
     private string No { get; set; }
     private string Description { get; set; }
     private string Description2 { get; set; }
     private string BaseUnitofMeasure { get; set; }
-
+    private List<View_ApplicationMasterDetail> _viewSellingMethodItems;
     private List<View_NavItems>? _AllNavitems;
-
     bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
@@ -213,9 +289,9 @@
     string SelectedGroup = "none";
     private View_SoSalesOrderLine _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
-
-
-    void SelectedItemChanged(View_NavItems navitems)
+    long? SellingMethodId { get; set; }
+    long? ItemId { get; set; }
+    async Task SelectedItemChanged(View_NavItems navitems)
     {
         if (navitems != null)
         {
@@ -223,6 +299,8 @@
             Description = navitems.Description;
             Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
+            ItemId = navitems.ItemId;
+            await loadNavItemsChangedData();
         }
         else
         {
@@ -232,50 +310,94 @@
             BaseUnitofMeasure = "";
         }
     }
-
+    async Task OnValueChanged(decimal? Qty)
+    {
+        UnitPrice = 0;
+        PricingType = "";
+        if (Qty > 0)
+        {
+            var result = await Mediator.Send(new GetAllSalesOrderMasterPricingLineByItemByQtyQuery(SoSalesOrderItems.CompanyId, SoSalesOrderItems.OrderDate, SellingMethodId, ItemId, Qty));
+            if (result != null)
+            {
+                PricingType = result.MasterType;
+                if (result.SalesOrderMasterPricingLineSellingMethodId > 0)
+                {
+                    UnitPrice = result.TierPrice;
+                }
+                else
+                {
+                    UnitPrice = result.SellingPrice;
+                }
+            }
+            else
+            {
+                UnitPrice = 0;
+                PricingType = "";
+            }
+        }
+    }
+    async Task SelectedItemMethodChangesChanged(View_ApplicationMasterDetail masterDetail)
+    {
+        SellingMethodId = masterDetail.ApplicationMasterDetailID;
+        await loadNavItemsChangedData();
+    }
+    async Task loadNavItemsChangedData()
+    {
+        PricingType = "";
+        UnitPrice = null;
+        if (ItemId > 0 && SellingMethodId > 0)
+        {
+            View_SalesOrderMasterPricingLineByItems = await Mediator.Send(new GetAllSalesOrderMasterPricingLineByItemByMethodQuery(SoSalesOrderItems.CompanyId, SoSalesOrderItems.OrderDate, SellingMethodId, ItemId));
+            StateHasChanged();
+        }
+        else
+        {
+            View_SalesOrderMasterPricingLineByItems = new List<View_SalesOrderMasterPricingLineByItem>();
+        }
+    }
+    void OnButtonClick()
+    {
+        IsOpen = true;
+    }
     protected override async Task OnInitializedAsync()
     {
-
-        PanelVisible = true;
-        var navitemslst = await Mediator.Send(new GetAllNavItemsQuery());
-        _AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
-
+        _viewSellingMethodItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(338));
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-
-        _salesOrderLine = await Mediator.Send(new GetSalesOrderLine(SoSalesOrderId));
-
+        if (SoSalesOrderId > 0)
+        {
+            var items = await Mediator.Send(new GetAllSoOrderByID(SoSalesOrderId));
+            await loadData(items);
+        }
+    }
+    public async Task loadData(View_SoSalesOrder _salesOrderItem)
+    {
+        SoSalesOrderId = _salesOrderItem.SoSalesOrderId;
+        SoSalesOrderItems = _salesOrderItem;
         if (SoSalesOrderId > 0)
         {
             AddEnabled = true;
-
+            if (SoSalesOrderItems.CompanyId > 0)
+            {
+                _AllNavitems = await Mediator.Send(new GetAllNavItemsByCompanyByItemSerialNoQuery(SoSalesOrderItems.CompanyId));
+            }
+            _salesOrderLine = await Mediator.Send(new GetSalesOrderLine(SoSalesOrderId));
             if (_salesOrderLine.Count > 0)
             {
-
+                PanelVisible = true;
                 _selectedItems = _salesOrderLine.FirstOrDefault();
 
                 if (SelectedDataItems != null)
                 {
                     EditEnabled = true;
                     DeleteEnabled = true;
-
                     StateHasChanged();
                 }
-
-
             }
         }
-
         PanelVisible = false;
+        StateHasChanged();
     }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var navitemslst = await Mediator.Send(new GetAllNavItemsQuery());
-            _AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
-        }
-    }
-    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         var navitems = (View_SoSalesOrderLine)e.EditModel;
         if (e.IsNew)
@@ -284,6 +406,8 @@
             Description = "";
             Description2 = "";
             BaseUnitofMeasure = "";
+            SalesQty = 0;
+            UnitPrice = null;
         }
         else
         {
@@ -291,7 +415,11 @@
             Description = navitems.Description;
             Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
-
+            SellingMethodId = navitems.SellingMethodId;
+            ItemId = navitems.ItemId;
+            UnitPrice = navitems.UnitPrice;
+            SalesQty = navitems.Qty > 0 ? navitems.Qty.Value : 0;
+            await loadNavItemsChangedData();
         }
     }
     async Task UpdateDataAsync()
@@ -333,13 +461,17 @@
                 {
                     SoSalesOrderId = SoSalesOrderId,
                     ItemId = editModel.ItemId,
+                    SellingMethodId = editModel.SellingMethodId,
                     Qty = editModel.Qty,
-                    UnitPrice = editModel.UnitPrice,
+                    UnitPrice = UnitPrice,
                     StatusCodeId = 1,
                     AddedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
+                    IsManual = editModel.IsManual,
+                    ManualPrice = editModel.ManualPrice,
+                    PricingType = PricingType,
                 };
 
             try
@@ -366,11 +498,15 @@
                     SoSalesOrderLineId = editModel.SoSalesOrderLineId,
                     SoSalesOrderId = SoSalesOrderId,
                     ItemId = editModel.ItemId,
+                    SellingMethodId = editModel.SellingMethodId,
                     Qty = editModel.Qty,
-                    UnitPrice = editModel.UnitPrice,
+                    UnitPrice = UnitPrice,
                     StatusCodeId = 1,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
+                    IsManual = editModel.IsManual,
+                    ManualPrice = editModel.ManualPrice,
+                    PricingType = PricingType,
 
                 };
 

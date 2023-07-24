@@ -2179,7 +2179,7 @@
         {
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
 
-            _allparticipant = await Mediator.Send(new GetAllConvAssToListQuery(_replyComment[0].ID));
+            //_allparticipant = await Mediator.Send(new GetAllConvAssToListQuery(_replyComment[0].ID));
             //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
             var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
@@ -2188,9 +2188,8 @@
             var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
             Data.AssignccIds = convlistCC.Select(s => s.UserId).ToList();
 
-
-            _allparticipant = await Mediator.Send(new GetByEmailTopicIDPList(_replyComment[0].TopicID));
-            
+            var gettid = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
+            _allparticipant = await Mediator.Send(new GetByConvasationTopicIDPList(id,gettid[0].TopicID));           
             
 
             WindowVisible = true;

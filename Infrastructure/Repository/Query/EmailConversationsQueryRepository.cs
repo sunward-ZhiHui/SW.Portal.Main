@@ -116,6 +116,48 @@ namespace Infrastructure.Repository.Query
             }
         }
         
+        public async Task<List<ViewEmployee>> GetAllConvTopicPListAsync(long ConversationId, long topicId)
+        {
+            try
+            {
+                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailTopicParticipant FT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
+                                INNER JOIN Employee E ON E.UserID = FT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FT.TopicId = @TopicId
+
+                                UNION
+
+								SELECT FCT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName from EmailConversationAssignTo FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FCT.ConversationId = @ConversationId
+ 
+                                UNION
+
+								SELECT FCT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName from EmailConversationAssignCC FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FCT.ConversationId = @ConversationId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicID", topicId);
+                parameters.Add("ConversationId", ConversationId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<ViewEmployee>> GetAllPListAsync(long topicId)
         {
             try

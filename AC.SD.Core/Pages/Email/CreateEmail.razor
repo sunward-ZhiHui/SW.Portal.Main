@@ -243,7 +243,35 @@ else
                                             </DxUpload>
                                             <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                                         </div>
-                                       
+                                        <div style="width:100%;">
+                                            @if (ActiveSessionId != null)
+                                            {
+                                                @if (_documentslst != null && _documentslst.Any())
+                                                {
+                                                    <ul class="d-flex flex-column-reverse todo-list">
+                                                        @foreach (var item in _documentslst)
+                                                        {
+
+                                                            <li class="doc_lst_view">
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label">
+                                                                        <span style="font-weight: 600; font-size: 14px;">@item.FileName</span>
+                                                                        @{
+                                                                            string formattedFileSize = FormatFileSize(item.FileSize.Value);
+                                                                        }
+                                                                        <span style="font-size: 11px;">  @formattedFileSize</span>
+
+                                                                        @* <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> </button>*@
+
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+
+                                                }
+                                            }
+                                        </div>
                                     </DxFormLayoutGroup>
                                 </DxFormLayout>
                             </DxFormLayoutItem>
@@ -252,35 +280,7 @@ else
                 </div>
             </div>
         </EditForm>
-        <div style="width:100%;">
-            @if (ActiveSessionId != null)
-            {
-                @if (_documentslst != null && _documentslst.Any())
-                {
-                    <ul class="d-flex flex-column-reverse todo-list">
-                        @foreach (var item in _documentslst)
-                        {
-
-                            <li class="doc_lst_view">
-                                <div class="form-check">
-                                    <label class="form-check-label">
-                                        <span style="font-weight: 600; font-size: 14px;">@item.FileName</span>
-                                        @{
-                                            string formattedFileSize = FormatFileSize(item.FileSize.Value);
-                                        }
-                                        <span style="font-size: 11px;">  @formattedFileSize</span>
-
-                                        <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> </button>
-
-                                    </label>
-                                </div>
-                            </li>
-                        }
-                    </ul>
-
-                }
-            }
-        </div>
+       
     </div>
 }
 
@@ -909,19 +909,19 @@ else
         }
 
     }
-    private async Task OpenUrlInNewTab(string url)
-    {
-        await JSRuntime.InvokeVoidAsync("open", url, "_blank");
-    }
-    public async Task onDocDownload(long Id)
-    {
-        var lst = _documentslst.FirstOrDefault(a => a.DocumentId == Id);
+    //private async Task OpenUrlInNewTab(string url)
+    //{
+    //    await JSRuntime.InvokeVoidAsync("open", url, "_blank");
+    //}
+    //public async Task onDocDownload(long Id)
+    //{
+    //    var lst = _documentslst.FirstOrDefault(a => a.DocumentId == Id);
 
 
-        var url = FileUrl + lst.FilePath;
-        await OpenUrlInNewTab(url);
+    //    var url = FileUrl + lst.FilePath;
+    //    await OpenUrlInNewTab(url);
 
-    }
+    //}
 
 }
 

@@ -16,7 +16,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem IconCssClass="fa fa-eye" Text="View" Click="@onPreview" />
+                <DxMenuItem IconCssClass="fa fa-eye" Text="View" Click="@onPreview" Enabled=@ViewEnabled />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />             
             </Items>
         </DxMenu>
@@ -107,6 +107,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool ViewEnabled { get; set; } = false;
     bool PanelVisible { get; set; }
     IGrid Grid { get; set; }
     private List<ViewProductionEntry> _productionEntry;
@@ -123,6 +124,14 @@
         PanelVisible = false;
         // await jsRuntime.InvokeAsync<string>("hideLoading");
         // await UpdateDataAsync();
+
+          if (_productionEntry.Count > 0)
+         {
+         _selectedItems = _productionEntry.FirstOrDefault();
+
+           ViewEnabled = true;
+
+         } 
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
@@ -139,7 +148,7 @@
     }
     void onPreview()
     {
-       
+      
          image1 = LiveUrl + _selectedItems.RoomStatus ;
         image2 = LiveUrl + _selectedItems.RoomStatus1;
         PopupVisible = true;

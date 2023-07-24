@@ -89,6 +89,24 @@ namespace Application.Queries
             this.TopicId = topicId;
         }
     }
+    public class GetByEmailTopicIDPList : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+        public long TopicId { get; set; }
+        public GetByEmailTopicIDPList(long topicId)
+        {
+            this.TopicId = topicId;
+        }
+    }
+    public class GetByConvasationTopicIDPList : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+        public long TopicId { get; set; }
+        public long ConvasationId { get; set; }
+        public GetByConvasationTopicIDPList(long convId,long topicId)
+        {
+            this.TopicId = topicId;
+            this.ConvasationId = convId;
+        }
+    }
     public class GetAllConvAssToListQuery : PagedRequest, IRequest<List<ViewEmployee>>
     {
         public long EmployeeID { get; set; }

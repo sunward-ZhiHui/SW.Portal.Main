@@ -46,6 +46,14 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class GetEmailTopicAll : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long UserId { get; private set; }
+        public GetEmailTopicAll(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
     public class GetEmailTopicCC : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }

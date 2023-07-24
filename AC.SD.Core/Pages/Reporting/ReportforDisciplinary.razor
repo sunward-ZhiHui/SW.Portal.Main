@@ -70,6 +70,7 @@
 
 
     <DxGrid @ref="Grid" Data="@_productionAppLine" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            @bind-SelectedDataItems="@SelectedDataItems"
             PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             PageSizeSelectorAllRowsItemVisible="true"
@@ -112,6 +113,7 @@
 
 
 @code {
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     bool Filter { get; set; } = false;
     bool ScreenShortEnabled { get; set; } = false;
     bool DocEnabled { get; set; } = false;
@@ -170,13 +172,27 @@
     async Task ExportToExcel()
 
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
+        if (SelectedDataItems != null)
+        {
 
-                CustomizeCell = OnCustomizeCell
-            });
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
 
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
 
     }
 

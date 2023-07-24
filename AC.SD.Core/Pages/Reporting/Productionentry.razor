@@ -30,7 +30,8 @@
                 Text="Fetching Data..."
                >
 
-    <DxGrid @ref="Grid" Data="@_productionEntry" KeyFieldName="ProductionEntryID" 
+    <DxGrid @ref="Grid" Data="@_productionEntry" KeyFieldName="ProductionEntryID"
+            @bind-SelectedDataItems="@SelectedDataItems"
         EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
@@ -107,6 +108,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     bool ViewEnabled { get; set; } = false;
     bool PanelVisible { get; set; }
     IGrid Grid { get; set; }
@@ -160,13 +162,27 @@
     async Task ExportToExcel()
 
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
+        if (SelectedDataItems != null)
+        {
 
-                CustomizeCell = OnCustomizeCell
-            });
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
 
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
 
     }
 

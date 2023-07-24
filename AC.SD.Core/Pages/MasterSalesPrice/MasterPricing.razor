@@ -35,6 +35,7 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            @bind-SelectedDataItems="@SelectedDataItems"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="_salesOrderItems"
             KeyFieldName="SalesOrderMasterPricingId"
@@ -59,6 +60,7 @@
             ShowGroupPanel="true" ShowGroupedColumns="true">
 
         <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="SalesOrderMasterPricingId" Caption="Date" MinWidth="80" Visible="false" />
             <DxGridDataColumn FieldName="NavCompany" Caption="Company" MinWidth="40" />
             <DxGridDataColumn FieldName="AddedDate" Caption="Date" Width="180">
@@ -96,6 +98,7 @@
 </DxLoadingPanel>
 
 @code {
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     private List<View_SalesOrderMasterPricing> _salesOrderItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
@@ -178,11 +181,28 @@
     }
     async Task ExportToExcel()
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
-                CustomizeCell = OnCustomizeCell
-            });
+
+        if (SelectedDataItems != null)
+        {
+
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {

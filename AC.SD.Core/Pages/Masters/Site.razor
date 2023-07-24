@@ -288,12 +288,27 @@
     }
     async Task ExportToExcel()
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
+        if (SelectedDataItems != null)
+        {
 
-                CustomizeCell = OnCustomizeCell
-            });
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

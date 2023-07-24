@@ -25,4 +25,5 @@ namespace Application.Queries
             this.SessionId = SessionId;
         }
     }
+    
 }

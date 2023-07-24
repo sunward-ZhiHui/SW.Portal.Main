@@ -12,10 +12,14 @@ namespace Core.Entities
     {
         [Key]
         public long SoSalesOrderId { get; set; }
+        [Required(ErrorMessage = "Document Date is Required")]
         public DateTime? DocumentDate { get; set; }
         public string SignOrderNo { get; set; }
+        [Required(ErrorMessage = "Order Date is Required")]
         public DateTime? OrderDate { get; set; }
+        [Required(ErrorMessage = "Customer is Required")]
         public long? SoCustomerId { get; set; }
+        [Required(ErrorMessage = "Priority Delivery is Required")]
         public DateTime? PrioityDeliveryDate { get; set; }
         public string Remark { get; set; }
         public long? AddedByUserId { get; set; }
@@ -25,15 +29,17 @@ namespace Core.Entities
         public int? StatusCodeId { get; set; }
         public Guid? SessionId { get; set; }
         public long? SoCustomerBillingAddressId { get; set; }
+        [Required(ErrorMessage = "Company is Required")]
+        public long? CompanyId { get; set; }
         public long? SoCustomerShipingAddressId { get; set; }
         [NotMapped]
         public string? UserName { get; set; }
         [NotMapped]
-        public string? ShipCode { get; set;}
+        public string? ShipCode { get; set; }
         [NotMapped]
-        public string? AssignToRep { get; set;}
+        public string? AssignToRep { get; set; }
         [NotMapped]
-        public string? Address1 { get; set;}
+        public string? Address1 { get; set; }
         [NotMapped]
         public DateTime? Date { get; set; }
     }

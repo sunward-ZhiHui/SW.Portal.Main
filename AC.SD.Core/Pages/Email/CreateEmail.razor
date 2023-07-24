@@ -164,7 +164,7 @@ else
                                             Caption="Nick Name" />
                                 </DxTagBox>
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
+                            <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="12">
                                 <DxComboBox Data="@_Allparticipant"
                                         NullText="Select OnBehalf..."
                                         FilteringMode="DataGridFilteringMode.Contains"
@@ -188,6 +188,16 @@ else
                                         </DxComboBox>
                             </DxFormLayoutItem>
 
+
+                            <DxFormLayoutItem Caption="Follow" ColSpanMd="3">
+                                <DxComboBox Data="@Follow"
+                                        NullText="Select Follow..."
+                                        @bind-Value="@Data.Follow"
+                                        CssClass="cw-480">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Data.Follow)" />
+                            </DxFormLayoutItem>
+
                             <DxFormLayoutItem Caption="" ColSpanMd="1">
                                 <DxCheckBox CssClass="w-100"
                                         @bind-Checked="@Data.Urgent"
@@ -197,7 +207,7 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
-                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="1">
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
                                         @bind-Checked="@Data.OverDue"
                                         Alignment="default"
@@ -206,14 +216,6 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
-                            <DxFormLayoutItem Caption="Follow" ColSpanMd="2">
-                                <DxComboBox Data="@Follow"
-                                        NullText="Select Follow..."
-                                        @bind-Value="@Data.Follow"
-                                        CssClass="cw-480">
-                                </DxComboBox>
-                                <ValidationMessage For="@(() => Data.Follow)" />
-                            </DxFormLayoutItem>
 
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />

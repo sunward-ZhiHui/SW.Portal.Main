@@ -28,7 +28,8 @@
 
 
   <DxGrid @ref="Grid" Data="@_consumptionEntry"  ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"       
+        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+            @bind-SelectedDataItems="@SelectedDataItems"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -37,7 +38,7 @@
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
      <Columns>
-
+            
             <DxGridDataColumn FieldName="ProdOrderNo" FixedPosition="GridColumnFixedPosition.Left" MinWidth="150" />
             <DxGridDataColumn FieldName="Description" MinWidth="250" />
             <DxGridDataColumn FieldName="SubLotNo" FixedPosition="GridColumnFixedPosition.Left" MinWidth="150" />
@@ -51,7 +52,7 @@
 </DxLoadingPanel>
 
 @code{
-
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     bool PanelVisible { get; set; }
    private List<ViewConsumptionEntry> _consumptionEntry;
     IGrid Grid { get; set; }
@@ -78,13 +79,27 @@
     async Task ExportToExcel()
 
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
+        if (SelectedDataItems != null)
+        {
 
-                CustomizeCell = OnCustomizeCell
-            });
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
 
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
 
     }
 

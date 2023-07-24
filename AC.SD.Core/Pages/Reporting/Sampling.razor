@@ -30,6 +30,7 @@
 
 <DxGrid @ref="Grid" Data="@_samplingItems" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
         PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+            @bind-SelectedDataItems="@SelectedDataItems"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -41,6 +42,7 @@
         SelectionMode="GridSelectionMode.Multiple"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
     <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
         <DxGridDataColumn FieldName="ScanDocument" />
         <DxGridDataColumn FieldName="TicketNo" />
         <DxGridDataColumn FieldName="SublotNo" />
@@ -55,6 +57,7 @@
 </DxGrid>
 </DxLoadingPanel>
 @code {
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     bool PanelVisible { get; set; }
     private List<AppSampling> _samplingItems;
     IGrid Grid { get; set; }
@@ -80,13 +83,27 @@
     async Task ExportToExcel()
 
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
+        if (SelectedDataItems != null)
+        {
 
-                CustomizeCell = OnCustomizeCell
-            });
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
 
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
 
     }
 

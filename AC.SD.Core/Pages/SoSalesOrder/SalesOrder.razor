@@ -34,6 +34,7 @@
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            @bind-SelectedDataItems="@SelectedDataItems"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="_salesOrderItems"
             KeyFieldName="SoSalesOrderId"
@@ -83,6 +84,7 @@
 </DxLoadingPanel>
 
 @code {
+    IReadOnlyList<object> SelectedDataItems { get; set; }
     private List<View_SoSalesOrder> _salesOrderItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
@@ -168,11 +170,27 @@
     }
     async Task ExportToExcel()
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = true,
-                CustomizeCell = OnCustomizeCell
-            });
+        if (SelectedDataItems != null)
+        {
+
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
     }
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {

@@ -62,6 +62,7 @@
             RowClick="OnRowClick"
             AllowSelectRowByClick="true">
         <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="ItemId" MinWidth="80" Visible="false" />
             <DxGridDataColumn FieldName="PlantCode" Caption="Company" Width="30%" />
             <DxGridDataColumn FieldName="No" Width="30%" />
@@ -270,11 +271,27 @@
     }
     async Task ExportXlsx_Click()
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-            {
-                ExportSelectedRowsOnly = ExportSelectedRowsOnly,
-                CustomizeCell = OnCustomizeCell
-            });
+        if (SelectedDataItems != null)
+        {
+
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
     }
     async Task ExportXls_Click()
     {

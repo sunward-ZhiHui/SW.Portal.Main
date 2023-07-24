@@ -44,14 +44,15 @@
                 <DxMenu CollapseItemsToHamburgerMenu="true"
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
-                    <Items>                                           
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@((e) => onBack())" Enabled = "@BackEnabled" />
                         <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onRestText" />
                        @* <DxMenuItem Text="Draft" IconCssClass="fa fa-save" Enabled="@IsDraftEnabled"  Click="@((e) => addNew(1))" />
                         <DxMenuItem Text="Sent" IconCssClass="fa fa-save" Click="@((e) => addNew(0))" />*@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover" @onclick="@(() => addNew(0))" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 107px; z-index: 9999; width:100px;">
+            <div class="save_hover" @onclick="@(() => addNew(0))" style="float: left; margin-top: -41px; line-height: 38px; margin-left:200px; z-index: 9999; width:100px;">
                 <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
                     @if (loading)
                     {
@@ -321,7 +322,10 @@ else
     DxRichEdit msgrichEdit { get; set; }
     IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     bool IsOpen { get; set; } = false;
-     private string? FileUrl;
+    private string? FileUrl;
+    private string? ProductActivityBaseUrl;
+    bool BackEnabled { get; set; } = false;
+
 
     bool ShowCheckboxes { get; set; } = true;
     string FormSubmitResult = "";
@@ -332,6 +336,7 @@ else
     EmailTopics? Data { get; set; } = new EmailTopics();
     IEnumerable<EmailTopics>? _topics;
     private List<ViewEmployee>? _participant;
+    private List<ActivityEmailTopics>? activityEmailTopics;
     private List<ViewEmployee>? _Allparticipant;
     long? AppUserId;
     private List<ViewEmployee>? _Toparticipant;
@@ -473,7 +478,7 @@ else
         if (ActiveSessionId != null)
         {
             var acttopics = await Mediator.Send(new GetActivityEmailTopics());
-
+            activityEmailTopics = acttopics;
             //string sessionIdString = ActiveSessionId;
             Guid activeSessionId = Guid.Parse(ActiveSessionId);
             var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
@@ -578,6 +583,7 @@ else
     protected override async Task OnInitializedAsync() {
 
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         AppUserId = applicationUser.UserID;
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
@@ -612,6 +618,8 @@ else
 
         if (ActiveSessionId != null)
         {
+
+            BackEnabled = true;
             var acttopics = await Mediator.Send(new GetActivityEmailTopics());
 
             //string sessionIdString = ActiveSessionId;
@@ -672,6 +680,7 @@ else
         }
         else
         {
+            BackEnabled = false;
             IsDraftEnabled = true;
         }
 
@@ -824,7 +833,7 @@ else
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
                 };
-            
+
 
 
             try
@@ -845,11 +854,11 @@ else
                     }
                     else
                     {
-                         await JSRuntime.InvokeAsync<string>("ReloadUrl");
+                        await JSRuntime.InvokeAsync<string>("ReloadUrl");
                     }
-                  
-                   
-                   
+
+
+
                     onRestText();
                     await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
@@ -909,6 +918,19 @@ else
         }
 
     }
+
+  async void onBack()
+    {
+        Guid activeSessionId = Guid.Parse(ActiveSessionId);
+        var actItem = activityEmailTopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+
+        var url = ProductActivityBaseUrl + actItem[0].BackURL;
+        NavigationManager.NavigateTo(url);
+
+    }
+
+
+
     //private async Task OpenUrlInNewTab(string url)
     //{
     //    await JSRuntime.InvokeVoidAsync("open", url, "_blank");

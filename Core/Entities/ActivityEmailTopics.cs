@@ -29,6 +29,7 @@ namespace Core.Entities
         public string CategoryAction { get; set; }
         [NotMapped]
         public string ActionName { get; set;}
+        public string BackURL { get; set; }
 
     }
 }

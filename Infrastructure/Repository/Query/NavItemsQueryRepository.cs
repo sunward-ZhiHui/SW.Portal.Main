@@ -179,5 +179,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<NavItemBatchNo>> GetNavItemBatchNoByItemIdAsync(long? ItemId)
+        {
+            try
+            {
+                var query = "select  * from NavItemBatchNo where  ItemId=" + ItemId;
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<NavItemBatchNo>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

@@ -19,10 +19,13 @@ body,
     text-align:center;
     color:red;
 }
-.urgent_icon
+.follow_with
 {
-    float:right;
-    color:red;
+    width:80%;
+}
+.urgent_icon {
+    float: right;
+    color: red;
 }
 #app,
 .demo-header-container,

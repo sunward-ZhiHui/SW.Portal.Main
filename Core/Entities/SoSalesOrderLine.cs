@@ -9,10 +9,11 @@ namespace Core.Entities
 {
     public class SoSalesOrderLine
     {
-        [Key]      
+        [Key]
         public long SoSalesOrderLineId { get; set; }
         public long? SoSalesOrderId { get; set; }
         public long? ItemId { get; set; }
+        public long? SellingMethodId { get; set; }
         public string ItemSerialNo { get; set; }
         public decimal? Qty { get; set; }
         public decimal? UnitPrice { get; set; }
@@ -21,5 +22,9 @@ namespace Core.Entities
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public int? StatusCodeId { get; set; }
+        public decimal? ManualPrice { get; set; }
+        public decimal? OrderBounsQty { get; set; }
+        public string PricingType { get; set; }
+        public bool? IsManual { get; set; }
     }
 }

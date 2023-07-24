@@ -39,7 +39,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM view_SoSalesOrder  WHERE SoSalesOrderId = @SoSalesOrderId";
+                var query = "SELECT * FROM SoSalesOrder  WHERE SoSalesOrderId = @SoSalesOrderId";
                 var parameters = new DynamicParameters();
                 parameters.Add("SoSalesOrderId", id, DbType.Int64);
 

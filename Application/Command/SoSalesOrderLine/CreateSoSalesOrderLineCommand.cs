@@ -23,7 +23,11 @@ namespace Application.Command.SoSalesOrderLine
         public DateTime? ModifiedDate { get; set; }
         public int? StatusCodeId { get; set; }
         public long? ItemId { get; set; }
-
+        public long? SellingMethodId { get; set; }
+        public decimal? ManualPrice { get; set; }
+        public decimal? OrderBounsQty { get; set; }
+        public string PricingType { get; set; }
+        public bool? IsManual { get; set; }
         public CreateSoSalesOrderLineCommand()
         {
 

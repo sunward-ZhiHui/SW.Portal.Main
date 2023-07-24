@@ -225,6 +225,7 @@
 
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             loading = false;
+            StateHasChanged();
         }
         else
         {

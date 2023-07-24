@@ -165,7 +165,7 @@
                     <DxTextBox @bind-Text="@BaseUnitofMeasure" Enabled=false />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Selling Price:" ColSpanMd="3">
-                    <DxSpinEdit @bind-Value="@types.SellingPrice" />
+                    <DxSpinEdit @bind-Value="@types.SellingPrice" ShowSpinButtons="false" />
                     <ValidationMessage For="@(() => types.SellingPrice)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Selling Method" ColSpanMd="3">
@@ -191,7 +191,7 @@
                 {
                     <DxFormLayoutItem Caption="New Allow Price:" ColSpanMd="3" Visible="@SMAddEnabled">
 
-                        <DxSpinEdit @bind-Value="@types.NewAllowPrice" />
+                        <DxSpinEdit ShowSpinButtons="false" @bind-Value="@types.NewAllowPrice" />
                     </DxFormLayoutItem>
                 }
                 else
@@ -202,10 +202,10 @@
                 }
 
                 <DxFormLayoutItem Caption="Allow Price By Percent:" ColSpanMd="3">
-                    <DxSpinEdit @bind-Value="@types.SmAllowPriceByPercent" />
+                    <DxSpinEdit @bind-Value="@types.SmAllowPriceByPercent" ShowSpinButtons="false" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Allow Price By $:" ColSpanMd="3">
-                    <DxSpinEdit @bind-Value="@types.SmAllowPriceBy" />
+                    <DxSpinEdit @bind-Value="@types.SmAllowPriceBy" ShowSpinButtons="false" />
                 </DxFormLayoutItem>
                 <ValidationSummary />
             </DxFormLayout>
@@ -412,14 +412,6 @@
         PanelVisible = false;
         StateHasChanged();
     }
-    //protected override async Task OnAfterRenderAsync(bool firstRender)
-    //{
-    // if (firstRender)
-    // {
-    //    _AllNavitems = await Mediator.Send(new GetAllNavItemsQuery());
-    //_AllNavitems = navitemslst.Where(c => c.ItemSerialNo != null).ToList();
-    // }
-    //}
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         var navitems = (View_SalesOrderMasterPricingLine)e.EditModel;

@@ -76,6 +76,24 @@ namespace Infrastructure.Repository.Query
         //    }
         //}
 
+        
+         async  Task<IReadOnlyList<ViewIctmaster>> IIctmasterQueryRepository.GetBySiteAsync(int MasterType)
+        {
+            try
+            {
+                var query = "select  * from view_Ictmaster where MasterType = @MasterType";
+                var parameters = new DynamicParameters();
+                parameters.Add("MasterType", MasterType);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewIctmaster>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         async  Task <IReadOnlyList<ViewIctmaster>> IIctmasterQueryRepository.GetAllAsync()
         {
             try

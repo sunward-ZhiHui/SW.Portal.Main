@@ -14,6 +14,15 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetByIctMasterSiteQuery : PagedRequest, IRequest<List<ViewIctmaster>>
+    {
+        public int MasterType { get; private set; }
+
+        public GetByIctMasterSiteQuery(int MasterType)
+        {
+            this.MasterType = MasterType;
+        }
+    }
     public class GetAllMasterTypeQuery : IRequest<List<CodeMaster>>
     {
         public string MasterType { get; private set; }

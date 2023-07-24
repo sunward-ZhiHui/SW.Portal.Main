@@ -1,0 +1,312 @@
+﻿@using Application.Command.FmGlobals;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.EntityModels;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using System.ComponentModel.DataAnnotations;
+@inject IJSRuntime JSRuntime;
+@using System.Reflection;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@page "/AddFmGlobal"
+<div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />                        
+                    </Items>
+                </DxMenu>
+            </div>
+            <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
+                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    <i class="fa fa-save"></i>
+                    Save
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="">
+    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
+        <div class="cw-480" style="margin-top:10px;">
+            <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">                
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />
+                    <DxFormLayoutItem Caption="User Name" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.AddedBy" ShowValidationIcon="true" Enabled=false />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Date" ColSpanMd="6">
+                        <DxDateEdit NullText="Date" @bind-Date="@Data.AddedDate" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="PlantCode"
+                                    ValueFieldName="PlantID"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                    Caption="Customer Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                    Caption="Nav Company" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.CompanyId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Expected Shipment Date" ColSpanMd="6">
+                        <DxDateEdit NullText="Select a Date" @bind-Date="@Data.ExpectedShipmentDate" />
+                        <ValidationMessage For="@(() => Data.ExpectedShipmentDate)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="PO No" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.Pono" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>                    
+
+                    <DxFormLayoutItem Caption="Location From" ColSpanMd="6">
+                        <DxComboBox Data="@_AllICTMaster"
+                                    NullText="Select Location From..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="IctmasterId"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@Data.LocationFromId" ShowValidationIcon="true"
+                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedItemChanged(viewIctmaster))">
+                          @*  <Columns>
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
+                                                    Caption="Customer Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.ShipCode)"
+                                                    Caption="Ship Code" />
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.AssignToRep)"
+                                                    Caption="AssignTo Rep" />
+                            </Columns>*@
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.LocationFromId)" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Location To " ColSpanMd="6">
+                        <DxComboBox Data="@_AllICTMaster"
+                                    NullText="Select Location To..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="IctmasterId"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@Data.LocationToId" ShowValidationIcon="true"
+                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedItemChanged(viewIctmaster))">
+                            @*<Columns>
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
+                                                    Caption="Customer Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.ShipCode)"
+                                                    Caption="Ship Code" />
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.AssignToRep)"
+                                                    Caption="AssignTo Rep" />
+                            </Columns>*@
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.LocationToId)" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                        <DxComboBox Data="@_statusListItems"
+                                    NullText="Select Status..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Value"
+                                    ValueFieldName="ApplicationMasterChildId"                                    
+                                    @bind-Value="@Data.FmglobalStausId"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedStatusItemChanged(applicationMasterChildModel))"
+                                    ShowValidationIcon="true">
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.FmglobalStausId)" />
+                    </DxFormLayoutItem>
+
+                </DxFormLayout>
+            </EditForm>
+
+            <div class="row align-items-end" style="border-top: 1px solid #d5d4d4; margin-top:10px;">
+                <div class="cw-480 ch-220" style="margin-top:10px;">
+                    <DxFormLayout CssClass="w-100">
+                        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex" RenderMode="TabsRenderMode.OnDemand">
+                            <DxFormLayoutTabPage Caption="Sales Order Line">
+                                <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><FmGlobalLine @ref=RefFmGlobalLine FmglobalId=@FmglobalId></FmGlobalLine></div>                               
+                            </DxFormLayoutTabPage>
+                            <DxFormLayoutTabPage Caption="Address">
+                                <FmGlobalLine></FmGlobalLine>
+                            </DxFormLayoutTabPage>
+                            <DxFormLayoutTabPage Caption="NAV Sales Order">
+                                <FmGlobalLineItem />
+                            </DxFormLayoutTabPage>
+                        </DxFormLayoutTabPages>
+                    </DxFormLayout>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<DxPopup @bind-Visible="@MessageVisible"
+         HeaderText="@MessageHeader"
+         BodyText="@MessageBody" />
+
+
+@code {
+    public long? FmglobalId { get; set; }
+    FmGlobalLine? RefFmGlobalLine { get; set; }
+    [Parameter]
+    public Guid? SessionIds { get; set; }
+    private bool loading;
+    private string MyID = "myid";
+    long? EmployeeIds { get; set; }
+    bool EditEnabledTab { get; set; } = false;
+    int ActiveTabIndex { get; set; } = 0;
+    int ActiveSubTabIndex { get; set; } = 0;
+
+
+    private List<ViewIctmaster>? _AllICTMaster;
+    private List<ViewPlants>? _plantItems;
+    private List<ApplicationMasterChildModel> _statusListItems;
+
+    ViewFmglobal Data = new ViewFmglobal();
+
+    public ApplicationUser applicationUser { get; private set; }
+    bool MessageVisible { get; set; }
+    string MessageHeader = "";
+    string MessageBody = "";
+
+    void SelectedItemChanged(ViewIctmaster viewIctmaster)
+    {
+       
+    }
+    async void SelectedStatusItemChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+      
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _statusListItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("119"));
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _AllICTMaster = await Mediator.Send(new GetByIctMasterSiteQuery(570));
+        Data.ExpectedShipmentDate = DateTime.Now;     
+        Data.AddedDate = DateTime.Now;
+        Data.AddedBy = applicationUser.UserName;
+    }
+
+    void backUrl()
+    {
+        NavigationManager.NavigateTo("FmGlobal");
+    }
+    void ResetForm()
+    {
+
+        FmglobalId = -1;
+        ActiveSubTabIndex = 0;
+        NavigationManager.NavigateTo("AddFmGlobal");
+    }
+
+    void onsubmitClick()
+    {
+        ActiveSubTabIndex = 0;
+    }
+    async Task HandleValidSubmit()
+    {
+        loading = true;
+        if (Data.FmglobalId > 0)
+        {
+            var editModel = new Fmglobal();
+            var createReq = new EditFmGlobalCommand
+                {
+                    CompanyId = Data.CompanyId,
+                    FmglobalId = Data.FmglobalId,
+                    Pono = Data.Pono,
+                    ExpectedShipmentDate = Data.ExpectedShipmentDate,                    
+                    LocationFromId = Data.LocationFromId,
+                    LocationToId = Data.LocationToId,                  
+                    
+                    AddedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedByUserId = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                    SessionId = Data.SessionId,
+                    StatusCodeId = 1
+
+                };
+
+            await Mediator.Send(createReq);
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            loading = false;
+            StateHasChanged();
+        }
+        else
+        {
+            var editModel = new Fmglobal();
+            var createReq = new CreateFmGlobalCommand
+                {
+                    CompanyId = Data.CompanyId,                    
+                    Pono = Data.Pono,
+                    ExpectedShipmentDate = Data.ExpectedShipmentDate,                 
+                    LocationFromId = Data.LocationFromId,
+                    LocationToId = Data.LocationToId,
+
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+                    StatusCodeId = 1
+
+                };
+
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            FmglobalId = result.FmglobalId;
+            ActiveSubTabIndex = 0;
+            loading = false;
+            NavigationManager.NavigateTo("EditFmGlobal/" + createReq.SessionId + "");
+            StateHasChanged();
+        }
+    }
+
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        StateHasChanged();
+    }
+    void HandleInvalidSubmit()
+    {
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+}

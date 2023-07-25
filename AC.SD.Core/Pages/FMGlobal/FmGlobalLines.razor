@@ -25,6 +25,7 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 <DxMenuItem Text="Item Entry" IconCssClass="fa fa-file-excel" Click="@AddItemEntry" />
+                <DxMenuItem Text="Print" IconCssClass="fa fa-print" Click="@onprint" />
             </Items>
         </DxMenu>
     </div>
@@ -230,6 +231,12 @@
         }
         PanelVisible = false;
         StateHasChanged();
+    }
+    void onprint()
+    {
+        string url = "print/" + _selectedItems.SessionId;
+        NavigationManager.NavigateTo(url, forceLoad: true);
+        //NavigationManager.NavigateTo("print/" + _selectedItems.SessionId + "");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

@@ -2,14 +2,48 @@
 @inject IJSRuntime JSRuntime;
 @inject IMediator Mediator
 @using Application.Queries;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
 @using MediatR
+@using Microsoft.AspNetCore
+@using System.Drawing;
+@using System.Drawing.Imaging;
+@using QRCoder;
+@using System.IO;
 @page "/print"
-
 @using DevExpress.Blazor
+
+<style>
+    /* Center align the text */
+    .center-text {
+        text-align: center;
+    }
+    /* Clear the floats to prevent layout issues */
+    .clear-floats::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    /* Add any other styling you need */
+    img.mb-5 {
+        /* Add any specific styles for the image with the class "mb-5" here */
+    }
+    .tborder
+    {
+        border: 1px solid #9c9c9cee;
+    }
+    .noborder
+    {
+        border-bottom: 1px solid #9c9c9cee;
+    }
+</style>
 
 
 <div style="width:100%">
-    <h3>Title</h3>
+    <h3 style="float:left">@Title</h3>
+    <div class="center-text clear-floats">
+       
+    </div>
     <table style="width:100%">
         <tr>
             <td>
@@ -18,12 +52,15 @@
             <td class="tborder">
                 @batchno
             </td>
+            <td rowspan="10">
+                <img alt="" style="float:right;" src="@QRByte" width="200" class="mb-5" />
+            </td>
         </tr>
         <tr>
             <td>
                 Pack Size
             </td>
-            <td class="tborder">
+            <td class="noborder">
                 @packsize
             </td>
         </tr>
@@ -31,7 +68,7 @@
             <td>
                 Mfg Date
             </td>
-            <td class="tborder">
+            <td class="noborder">
                 @mfgDate
             </td>
         </tr>
@@ -39,7 +76,7 @@
             <td>
                 Exp Date
             </td>
-            <td class="tborder">
+            <td class="noborder">
                 @expDate
             </td>
         </tr>
@@ -48,14 +85,27 @@
                 Pallet No
             </td>
             <td class="tborder">
-                @palletNo
+                <table style="width:100%">
+                    <tr>
+                        <td class="tborder" style="text-align: center;">
+                            @palletNo
+                        </td>
+                        <td style="text-align: center;">
+                            of
+                        </td>
+                        <td class="tborder" style="text-align: center;">
+                            @palletNo1
+                        </td>
+                    </tr>
+                </table>               
+                
             </td>
         </tr>
         <tr>
             <td>
                 No.of Carton
             </td>
-            <td class="tborder">
+            <td class="noborder">
                 @nocarton
             </td>
         </tr>
@@ -63,7 +113,7 @@
             <td>
                 No.of Units per Carton
             </td>
-            <td class="tborder">
+            <td class="noborder">
                 @nounitsperCarton
             </td>
         </tr>
@@ -71,7 +121,7 @@
             <td>
                 No.of Loose Carton
             </td>
-            <td class="tborder">
+            <td class="noborder">
                 @noloosecarton
             </td>
         </tr>
@@ -79,7 +129,7 @@
             <td>
                 No.of Units in Loose Carton
             </td>
-            <td class="tborder">
+            <td class="noborder">
                 @nounitsloosecarton
             </td>
         </tr>
@@ -87,37 +137,79 @@
             <td>
                 Quantity
             </td>
-            <td class="tborder">
+            <td class="noborder">
                 @quantity
             </td>
         </tr>
     </table>
 </div>
 
+<div style="text-align:center;">
+    <button @onclick="@(() => PrintButtonClick())">Print</button>
+</div>
 
-
-<button @onclick="@(() => PrintButtonClick())"></button>
 
 
 @code {
-
+    private string? Title { get; set; }
     private string? batchno { get; set; }
     private string? packsize { get; set; }
     private string? mfgDate { get; set; }
     private string? expDate { get; set; }
     private string? palletNo { get; set; }
+    private string? palletNo1 { get; set; }    
     private string? nocarton { get; set; }
     private string? nounitsperCarton { get; set; }
     private string? noloosecarton { get; set; }
     private string? nounitsloosecarton { get; set; }
     private string? quantity { get; set; }
 
+    public string QRCodeText { get; set; }
+    public string QRByte = "";
+
+    private List<View_ApplicationMasterDetail> _statusListItems;
+
     protected override async Task OnInitializedAsync()
     {
-       
+        _statusListItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(345));
+
+        Title = _statusListItems[0].ApplicationMasterName;
+        batchno = _statusListItems[0].ApplicationMasterName;
+        packsize = _statusListItems[0].ApplicationMasterName;
+        mfgDate = _statusListItems[0].ApplicationMasterName;
+        expDate = _statusListItems[0].ApplicationMasterName;
+
+        palletNo = _statusListItems[0].AddedByUserId.ToString();
+        palletNo1 = _statusListItems[0].ApplicationMasterCodeID.ToString();
+
+        nocarton = _statusListItems[0].ApplicationMasterName;
+        nounitsperCarton = _statusListItems[0].ApplicationMasterName;
+        noloosecarton = _statusListItems[0].ApplicationMasterName;
+        nounitsloosecarton = _statusListItems[0].ApplicationMasterName;
+        quantity = _statusListItems[0].ApplicationMasterName;
+
+        QRCodeText = "123~345~23424";
+        GenerateQRCode();
+
+
+
     }
     async void PrintButtonClick()
     {
         await JSRuntime.InvokeAsync<string>("window.print");
+    }
+    public void GenerateQRCode()
+    {
+        if (!string.IsNullOrEmpty(QRCodeText))
+        {
+            using MemoryStream ms = new();
+            QRCodeGenerator qrCodeGenerate = new();
+            QRCodeData qrCodeData = qrCodeGenerate.CreateQrCode(QRCodeText, QRCodeGenerator.ECCLevel.Q);
+            QRCode qrCode = new(qrCodeData);
+            using Bitmap qrBitMap = qrCode.GetGraphic(20);
+            qrBitMap.Save(ms, ImageFormat.Png);
+            string base64 = Convert.ToBase64String(ms.ToArray());
+            QRByte = string.Format("data:image/png;base64,{0}", base64);
+        }
     }
 }

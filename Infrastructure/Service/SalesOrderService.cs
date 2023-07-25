@@ -5,6 +5,7 @@ using Dapper;
 using Infrastructure.Repository.Query.Base;
 using Infrastructure.Service.Config;
 using Microsoft.Extensions.Configuration;
+using NAV;
 using System;
 using System.Data;
 using System.Data.Services.Client;
@@ -25,7 +26,29 @@ namespace Infrastructure.Service
         {
             _configuration = configuration;
         }
+        public async Task SyncBatchAsync(string company)
+        {
+            try
+            {
+                int pageSize = 1000;
+                int page = 0;
+                while (true)
+                {
+                    var context = new NAVService(_configuration, company);
+                    var nquery = context.Context.ItemBatchInfo.Skip(page * pageSize).Take(pageSize);
+                    DataServiceQuery<NAV.ItemBatchInfo> query = (DataServiceQuery<NAV.ItemBatchInfo>)nquery;
 
+                    TaskFactory<IEnumerable<NAV.ItemBatchInfo>> taskFactory = new TaskFactory<IEnumerable<NAV.ItemBatchInfo>>();
+                    IEnumerable<NAV.ItemBatchInfo> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                    var prodCodes = result.ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
         public async Task PostSalesOrderAsync(PostSalesOrder postSalesOrder)
         {
             try

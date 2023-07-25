@@ -13,7 +13,6 @@ namespace Core.Entities.Views
         public long FmglobalLineItemId { get; set; }
         [Required(ErrorMessage = "Item is Required")]
         public long? ItemId { get; set; }
-        [Required(ErrorMessage = "Batch Info is Required")]
         public long? BatchInfoId { get; set; }
         [Required(ErrorMessage = "Carton Packing is Required")]
         public long? CartonPackingId { get; set; }
@@ -36,5 +35,13 @@ namespace Core.Entities.Views
         public string Uom { get; set; }
         public string BatchNo { get; set; }
         public string BatchSize { get; set; }
+        public string LocationCode { get; set; }
+        public string LotNo { get; set; }
+        public DateTime? ManufacturingDate { get; set; }
+        public long? ItemBatchInfoId { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+        public string PalletNo { get; set; }
+        public string TempPalletNo { get; set; }
+        public decimal? NavQuantity { get; set; }
     }
 }

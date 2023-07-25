@@ -60,4 +60,14 @@ namespace Application.Queries
             this.Id = Id;
         }
     }
+    public class GetAllFmGlobalLineItemBySessionQuery : PagedRequest, IRequest<ViewFmglobalLineItem>
+    {
+        public string SearchString { get; set; }
+        public Guid? SessionId { get; set; }
+        public GetAllFmGlobalLineItemBySessionQuery(Guid? SessionId)
+        {
+            this.SessionId = SessionId;
+        }
+    }
+
 }

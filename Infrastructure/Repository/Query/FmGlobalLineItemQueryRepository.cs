@@ -28,7 +28,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("FmglobalLineId", id, DbType.Int64);
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ViewFmglobalLineItem>(query,parameters)).ToList();
+                    return (await connection.QueryAsync<ViewFmglobalLineItem>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -43,6 +43,24 @@ namespace Infrastructure.Repository.Query
                 var query = "SELECT * FROM FmglobalLineItem  WHERE FmglobalLineItemId = @FmglobalLineItemId";
                 var parameters = new DynamicParameters();
                 parameters.Add("FmglobalLineItemId", id, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<ViewFmglobalLineItem>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ViewFmglobalLineItem> GetBySessionIdAsync(Guid? SessionId)
+        {
+            try
+            {
+                var query = "SELECT * FROM FmglobalLineItem  WHERE SessionId = @SessionId";
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
 
                 using (var connection = CreateConnection())
                 {

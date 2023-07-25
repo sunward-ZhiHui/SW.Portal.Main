@@ -33,6 +33,7 @@ namespace Core.Entities.Views
         public string ItemNo { get; set; }
         public string ItemDescription { get; set; }
         public string Uom { get; set; }
+        public string PackSize { get; set; }
         public string BatchNo { get; set; }
         public string BatchSize { get; set; }
         public string LocationCode { get; set; }

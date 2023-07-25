@@ -11,6 +11,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.Entities.Views;
 using IdentityModel.Client;
+using Application.Common.Helper;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.IO;
 
 namespace Infrastructure.Repository.Query
 {
@@ -20,6 +24,14 @@ namespace Infrastructure.Repository.Query
             : base(configuration)
         {
 
+        }
+        public async Task<byte[]> GetByteFromUrl(string url)
+        {
+            var webClient = new WebClient();
+            {
+                byte[] bytesData = await webClient.DownloadDataTaskAsync(new Uri(url));
+                return bytesData;
+            }
         }
         public async Task<Documents> GetBySessionIdAsync(Guid? SessionId)
         {
@@ -69,7 +81,7 @@ namespace Infrastructure.Repository.Query
                         try
                         {
                             var parameters = new DynamicParameters();
-                            parameters.Add("DocumentID", DocumentId);                          
+                            parameters.Add("DocumentID", DocumentId);
 
                             var query = "DELETE  FROM Documents WHERE DocumentID = @DocumentId";
 

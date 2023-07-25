@@ -26,5 +26,13 @@ namespace Application.Queries
             this.DocumentId = DocumentId;
         }
     }
+    public class GetDocumentsBytesDataQuery : PagedRequest, IRequest<byte[]>
+    {
+        public string? Url { get; set; }
+        public GetDocumentsBytesDataQuery(string? Url)
+        {
+            this.Url = Url;
+        }
+    }
 
 }

@@ -72,4 +72,16 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<View_NavItems>) await _queryRepository.GetByItemSerialNoNotNullAsync();
         }
     }
+    public class GetAllNavItemBatchNoByItemIdHandler : IRequestHandler<GetAllNavItemBatchNoByItemIdQuery, List<NavItemBatchNo>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetAllNavItemBatchNoByItemIdHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<NavItemBatchNo>> Handle(GetAllNavItemBatchNoByItemIdQuery request, CancellationToken cancellationToken)
+        {
+            return (List<NavItemBatchNo>)await _queryRepository.GetNavItemBatchNoByItemIdAsync(request.ItemId);
+        }
+    }
 }

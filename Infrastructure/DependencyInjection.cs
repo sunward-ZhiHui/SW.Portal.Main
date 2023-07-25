@@ -123,8 +123,13 @@ namespace Infrastructure
             services.AddTransient<ISalesOrderMasterPricingLineCommandRepository, SalesOrderMasterPricingLineCommandRepository>();
             services.AddTransient<ISalesOrderMasterPricingLineSellingMethodCommandRepository, SalesOrderMasterPricingLineSellingMethodCommandRepository>();
             services.AddTransient<IProductionActivityAppLineReportQueryRepository, ProductionActivityAppLineReportQueryRepository>();
-
+            services.AddTransient<IFmGlobalQueryRepository, FmGlobalQueryRepository>();
+            services.AddTransient<IFmGlobalLineQueryRepository, FmGlobalLineQueryRepository>();
+            services.AddTransient<IFmGlobalLineItemQueryRepository, FmGlobalLineItemQueryRepository>();
             services.AddTransient<ISalesOrderService, SalesOrderService>();
+            services.AddTransient<IFmGlobalCommandRepository, FmGlobalCommandRepository>();
+            services.AddTransient<IFmGlobalLineCommandRepository, FmGlobalLineCommandRepository>();
+            services.AddTransient<IFmGlobalLineItemCommandRepository, FmGlobalLineItemCommandRepository>();
             return services;
         }
     }

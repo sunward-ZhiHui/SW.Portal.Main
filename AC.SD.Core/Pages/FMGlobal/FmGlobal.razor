@@ -1,0 +1,191 @@
+﻿@using Application.Queries;
+@using DevExtreme.AspNet.Data.ResponseModel;
+@using DevExtreme.AspNet.Data;
+@using Duende.IdentityServer.Models;
+@using MediatR
+@using System.Threading;
+@using System.Text.Json;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@inject NavigationManager NavigationManager
+@page "/FmGlobal"
+@inject IJSRuntime jsRuntime
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                @*  <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />*@
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_fmglobalDatas"
+            KeyFieldName="FmglobalId"
+            EditModelSaving="Grid_EditModelSaving"
+            DataItemDeleting="Grid_DataItemDeleting"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 200px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            RowDoubleClick="OnRowDoubleClick"
+            ShowGroupPanel="true" ShowGroupedColumns="true">
+
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="FmglobalId" Caption="FmglobalId" MinWidth="80" Visible="false" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Date" Width="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ViewFmglobal)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AddedBy" Caption="User" MinWidth="80" />
+            <DxGridDataColumn FieldName="NavCompany" MinWidth="80" />
+
+            <DxGridDataColumn FieldName="ExpectedShipmentDate" Caption="Expected Shipment Date" Width="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ViewFmglobal)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.ExpectedShipmentDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+
+            <DxGridDataColumn FieldName="Pono" Caption="PO No" MinWidth="80" />
+            <DxGridDataColumn FieldName="LocationFrom" MinWidth="80" />
+            <DxGridDataColumn FieldName="LocationTo" MinWidth="80" />          
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FmglobalId" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+
+@code {
+    private List<ViewFmglobal> _fmglobalDatas;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    private ViewFmglobal _selectedItems;
+    IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    bool PanelVisible { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        _fmglobalDatas = await Mediator.Send(new GetAllFmGlobalQuery());
+        PanelVisible = false;
+        if (_fmglobalDatas.Count > 0)
+        {
+            _selectedItems = _fmglobalDatas.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FmglobalId");
+        _selectedItems = _fmglobalDatas.FirstOrDefault(f => f.FmglobalId == (long?)UniqueId);
+
+
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        NavigationManager.NavigateTo("AddFmGlobal");
+    }
+    void addEdit()
+    {
+        NavigationManager.NavigateTo("EditFmGlobal/" + _selectedItems.SessionId + "");
+
+    }
+    void addDelete()
+    {
+        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+
+    }
+    async Task UpdateDataAsync()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+
+        _fmglobalDatas = await Mediator.Send(new GetAllFmGlobalQuery());
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+
+    }
+    async Task UpdatePlantAsync(ViewPlants editablePlant)
+    {
+
+    }
+    public void ShowDetails(int plantId)
+    {
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }   
+}

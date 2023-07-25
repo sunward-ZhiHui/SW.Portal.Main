@@ -46,4 +46,13 @@ namespace Application.Queries
             this.ItemSerialNo = ItemSerialNo;
         }
     }
+    public class GetAllNavItemBatchNoByItemIdQuery : PagedRequest, IRequest<List<NavItemBatchNo>>
+    {
+        public string SearchString { get; set; }
+        public long? ItemId { get; set; }
+        public GetAllNavItemBatchNoByItemIdQuery(long? ItemId)
+        {
+            this.ItemId = ItemId;
+        }
+    }
 }

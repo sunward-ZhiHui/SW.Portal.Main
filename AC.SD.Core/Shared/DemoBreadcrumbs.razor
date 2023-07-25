@@ -41,17 +41,17 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         if (applicationUser == null)
         {
-                NavManager.NavigateTo($"Login",forceLoad:true);
+            NavManager.NavigateTo($"Login",forceLoad:true);
         }      
         else
         {
             _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
-       
+
         }
-                BreadcrumbsGenerate();
-                NavigationManager.LocationChanged += OnLocationChanged;
+        BreadcrumbsGenerate();
+        NavigationManager.LocationChanged += OnLocationChanged;
         //UpdateItems(NavigationManager.Uri)dashboard;
-            
+
     }
 
     void BreadcrumbsGenerate()
@@ -78,8 +78,16 @@
                     Items.Add(new(list1.Title, ""));
 
                 }
+                //else
+                //{
+                   
+                //    var list5 = UrlList[0];
+                //    Items.Add(new(list5, ""));
+
+                //}
             }
         }
+       
     }
     void OnLocationChanged(object sender, LocationChangedEventArgs args)
     {

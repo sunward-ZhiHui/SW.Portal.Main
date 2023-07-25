@@ -44,6 +44,7 @@ namespace Application.Command.FmGlobals
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionId { get; set; }
         public long? CompanyId { get; set; }
+        public string TempPalletNo { get; set; }
 
         public EditFmGlobalLineCommand()
         {
@@ -65,6 +66,7 @@ namespace Application.Command.FmGlobals
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionId { get; set; }
+        public long? ItemBatchInfoId { get; set; }
         public EditFmGlobalLineItemCommand()
         {
 

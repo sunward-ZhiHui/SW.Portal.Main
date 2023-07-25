@@ -179,15 +179,15 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<NavItemBatchNo>> GetNavItemBatchNoByItemIdAsync(long? ItemId)
+        public async Task<IReadOnlyList<ItemBatchInfo>> GetNavItemBatchNoByItemIdAsync(long? ItemId)
         {
             try
             {
-                var query = "select  * from NavItemBatchNo where  ItemId=" + ItemId;
+                var query = "select  * from ItemBatchInfo where  ItemId=" + ItemId;
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<NavItemBatchNo>(query)).ToList();
+                    return (await connection.QueryAsync<ItemBatchInfo>(query)).ToList();
                 }
             }
             catch (Exception exp)

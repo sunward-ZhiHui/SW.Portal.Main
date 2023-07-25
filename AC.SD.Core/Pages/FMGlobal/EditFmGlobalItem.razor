@@ -219,23 +219,27 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        Data.ExpectedShipmentDate = DateTime.Now;
+        Data.AddedDate = DateTime.Now;
+        Data.AddedBy = applicationUser.UserName;
+        _statusListItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(345));
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        _AllICTMaster = await Mediator.Send(new GetByIctMasterSiteQuery(570));
         if (SessionIds != null && SessionLineIds != null)
         {
             ActiveSubTabIndex = 1;
             StateHasChanged();
             _fmglobalItem = await Mediator.Send(new GetAllFmGlobalBySessionQuery(SessionIds));
             viewFmglobalLine = await Mediator.Send(new GetAllFmGlobalLineBySessionQuery(SessionLineIds));
+            await loadData();
             await refFmGlobalLineItems.loadData(viewFmglobalLine, _fmglobalItem.CompanyId);
+
         }
         else
         {
-            _statusListItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(345));
-            _plantItems = await Mediator.Send(new GetAllPlantQuery());
-            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-            _AllICTMaster = await Mediator.Send(new GetByIctMasterSiteQuery(570));
-            Data.ExpectedShipmentDate = DateTime.Now;
-            Data.AddedDate = DateTime.Now;
-            Data.AddedBy = applicationUser.UserName;
+           
+
             await loadData();
         }
     }

@@ -85,6 +85,7 @@
             <DxGridDataColumn FieldName="FmglobalLineId" Visible="false" />
             <DxGridDataColumn FieldName="PalletEntryName" Caption="Pallet Entry" />
             <DxGridDataColumn FieldName="PalletNo" />
+            <DxGridDataColumn FieldName="TempPalletNo" />
             <DxGridDataColumn FieldName="AddedDate">
                 <CellDisplayTemplate>
                     @{
@@ -122,6 +123,9 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Pallet No:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@types.PalletNo" Enabled=false />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Temp Pallet No" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@types.TempPalletNo" ShowValidationIcon="true" />
                 </DxFormLayoutItem>
                 <ValidationSummary />
             </DxFormLayout>
@@ -278,6 +282,7 @@
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
                     SessionId = Guid.NewGuid(),
+                    TempPalletNo=editModel.TempPalletNo,
                     CompanyId = fmGlobalItems.CompanyId,
                 };
 
@@ -315,6 +320,7 @@
                     PalletNo = editModel.PalletNo,
                     PalletNoYear = editModel.PalletNoYear,
                     CompanyId = fmGlobalItems.CompanyId,
+                    TempPalletNo = editModel.TempPalletNo,
                 };
 
             var ans = await Mediator.Send(UpdateReq);

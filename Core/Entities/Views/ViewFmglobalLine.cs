@@ -24,5 +24,6 @@ namespace Core.Entities.Views
         public string AddedBy { get; set; }
         public string ModifiedBy { get; set; }
         public string PalletEntryName { get; set; }
+        public string TempPalletNo { get; set; }
     }
 }

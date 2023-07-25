@@ -1,0 +1,123 @@
+﻿@inject AC.SD.Core.Services.ToastService toastService
+@inject IJSRuntime JSRuntime;
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@page "/print"
+
+@using DevExpress.Blazor
+
+
+<div style="width:100%">
+    <h3>Title</h3>
+    <table style="width:100%">
+        <tr>
+            <td>
+                Batch No
+            </td>
+            <td class="tborder">
+                @batchno
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Pack Size
+            </td>
+            <td class="tborder">
+                @packsize
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Mfg Date
+            </td>
+            <td class="tborder">
+                @mfgDate
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Exp Date
+            </td>
+            <td class="tborder">
+                @expDate
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Pallet No
+            </td>
+            <td class="tborder">
+                @palletNo
+            </td>
+        </tr>
+        <tr>
+            <td>
+                No.of Carton
+            </td>
+            <td class="tborder">
+                @nocarton
+            </td>
+        </tr>
+        <tr>
+            <td>
+                No.of Units per Carton
+            </td>
+            <td class="tborder">
+                @nounitsperCarton
+            </td>
+        </tr>
+        <tr>
+            <td>
+                No.of Loose Carton
+            </td>
+            <td class="tborder">
+                @noloosecarton
+            </td>
+        </tr>
+        <tr>
+            <td>
+                No.of Units in Loose Carton
+            </td>
+            <td class="tborder">
+                @nounitsloosecarton
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Quantity
+            </td>
+            <td class="tborder">
+                @quantity
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+
+<button @onclick="@(() => PrintButtonClick())"></button>
+
+
+@code {
+
+    private string? batchno { get; set; }
+    private string? packsize { get; set; }
+    private string? mfgDate { get; set; }
+    private string? expDate { get; set; }
+    private string? palletNo { get; set; }
+    private string? nocarton { get; set; }
+    private string? nounitsperCarton { get; set; }
+    private string? noloosecarton { get; set; }
+    private string? nounitsloosecarton { get; set; }
+    private string? quantity { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+       
+    }
+    async void PrintButtonClick()
+    {
+        await JSRuntime.InvokeAsync<string>("window.print");
+    }
+}

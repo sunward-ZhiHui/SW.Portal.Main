@@ -15,6 +15,28 @@ namespace Application.Queries
         public string SearchString { get; set; }
     }
 
+    public class GetAllNavItemsItemSerialNoNotNullQuery : PagedRequest, IRequest<List<View_NavItems>>
+    {
+        public string SearchString { get; set; }
+    }
+    public class GetAllNavItemsByCompanyQuery : PagedRequest, IRequest<List<View_NavItems>>
+    {
+        public string SearchString { get; set; }
+        public long? CompanyId { get; set; }
+        public GetAllNavItemsByCompanyQuery(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
+    public class GetAllNavItemsByCompanyByItemSerialNoQuery : PagedRequest, IRequest<List<View_NavItems>>
+    {
+        public string SearchString { get; set; }
+        public long? CompanyId { get; set; }
+        public GetAllNavItemsByCompanyByItemSerialNoQuery(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
     public class GetAllNavItemsItemSerialNoQuery : PagedRequest, IRequest<View_NavItems>
     {
         public string SearchString { get; set; }
@@ -22,6 +44,15 @@ namespace Application.Queries
         public GetAllNavItemsItemSerialNoQuery(string ItemSerialNo)
         {
             this.ItemSerialNo = ItemSerialNo;
+        }
+    }
+    public class GetAllNavItemBatchNoByItemIdQuery : PagedRequest, IRequest<List<NavItemBatchNo>>
+    {
+        public string SearchString { get; set; }
+        public long? ItemId { get; set; }
+        public GetAllNavItemBatchNoByItemIdQuery(long? ItemId)
+        {
+            this.ItemId = ItemId;
         }
     }
 }

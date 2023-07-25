@@ -5,30 +5,44 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using MediatR
 @inject IMediator Mediator
+<style scoped>
+    .dxbl-grid-header-row {
+        display: none;
+    }
 
+    .dxbl-grid-detail-cell {
+        padding: 5px !important;
+    }
+</style>
 <DxLoadingPanel @bind-Visible="PanelVisible" IsContentBlocked="true" ApplyBackgroundShading="true" IndicatorAreaVisible="false" Text="Fetching Data...">
     <DxGrid Data="@_forumTopicTo"
             PageSize="20" EditMode="GridEditMode.EditForm"
             PagerNavigationMode="PagerNavigationMode.InputBox"          
             KeyFieldName="ReplyId"
-            CssClass="w-100" style="height: calc(100vh - 467px);"
+            CssClass="w-100" 
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             RowClick="OnEmailToRowClick"
             AutoExpandAllGroupRows="true"
             AllowSelectRowByClick="true">
         <Columns>
-            <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="100" />
-            <DxGridDataColumn FieldName="TopicName" Caption="From" MinWidth="250" />
-            <DxGridDataColumn FieldName="StartDate" Caption="Received" Width="180">
+           @* <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="100" />
+            <DxGridDataColumn FieldName="TopicName" Caption="From" MinWidth="250" />*@
+            <DxGridDataColumn FieldName="FirstName" Caption="">
                 <CellDisplayTemplate>
                     @{
                         var item = (EmailTopics)context.DataItem;
                     }
-                    @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+                    <div style="width:100%">
+                        <strong>@item.FirstName</strong>
+                        <div>
+                            <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
+                            <text>@item.TopicName</text>
+                        </div>
+                    </div>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />
+            @*<DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />*@
         </Columns>
 
     </DxGrid>

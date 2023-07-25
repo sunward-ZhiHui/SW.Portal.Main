@@ -36,4 +36,16 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _queryRepository.GetAllBySessionAsync(request.SesionId);
         }
     }
+    public class GetAllSoOrderByIDHandler : IRequestHandler<GetAllSoOrderByID, View_SoSalesOrder>
+    {
+        private readonly ISoSalesOrderQueryRepository _queryRepository;
+        public GetAllSoOrderByIDHandler(ISoSalesOrderQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<View_SoSalesOrder> Handle(GetAllSoOrderByID request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetByIdAsync(request.Id.Value);
+        }
+    }
 }

@@ -1,0 +1,519 @@
+﻿@using Application.Command.FmGlobals;
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@errorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
+    </BodyTemplate>
+</DxPopup>
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" Data="@_fmGlobalLineItems" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="FmglobalLineItemId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 336px);"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+
+
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="FmglobalLineItemId" Visible="false" />
+            <DxGridDataColumn FieldName="ItemNo" />
+            <DxGridDataColumn FieldName="Uom" />
+            <DxGridDataColumn FieldName="BatchNo" />
+            <DxGridDataColumn FieldName="CartonPackingName" Caption="Carton Packing" />
+            <DxGridDataColumn FieldName="NoOfCarton" />
+            <DxGridDataColumn FieldName="NoOfUnitsPerCarton" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (ViewFmglobalLineItem)EditFormContext.EditModel;
+
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Item" ColSpanMd="6">
+                    <DxComboBox Data="@_AllNavitems"
+                                NullText="Select Item..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="No"
+                                ValueFieldName="ItemId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@types.ItemId" ShowValidationIcon="true"
+                                SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
+                                                Caption="Item No"
+                                                Width="190px" />
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
+                                                Caption="Description"
+                                                Width="90px" />
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.BaseUnitofMeasure)"
+                                                Caption="Uom" />
+                        </Columns>
+
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.ItemId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@BaseUnitofMeasure" Enabled=false />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Batch Info" ColSpanMd="6">
+                    <DxComboBox Data="@navItemBatchNoItems"
+                                NullText="Select Batch Info..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="BatchSize"
+                                ValueFieldName="NavItemBatchNoId"
+                                @bind-Value="@types.BatchInfoId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.CartonPackingId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Carton Packing" ColSpanMd="6">
+                    <DxComboBox Data="@_viewCartonPackingItems"
+                                NullText="Select Carton Packing..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterDetailID"
+                                @bind-Value="@types.CartonPackingId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.CartonPackingId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="No Of Carton" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.NoOfCarton" ShowSpinButtons="false"></DxSpinEdit>
+                    <ValidationMessage For="@(() => types.NoOfCarton)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="No Of Units Per Carton" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.NoOfUnitsPerCarton" ShowSpinButtons="false"></DxSpinEdit>
+                    <ValidationMessage For="@(() => types.NoOfUnitsPerCarton)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    [Parameter]
+    public long? FmglobalLineId { get; set; }
+    bool IsOpen { get; set; } = false;
+    private string BaseUnitofMeasure { get; set; }
+
+    public ViewFmglobalLine SoSalesOrderItems { get; set; }
+
+    private List<View_ApplicationMasterDetail> _viewCartonPackingItems;
+    private List<View_NavItems>? _AllNavitems;
+    public List<NavItemBatchNo>? navItemBatchNoItems;
+    bool PanelVisible { get; set; }
+    Dictionary<long, string>? UsernameIndex { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private string gridHeight = "calc(100vh - 230px - 143px)";
+    private List<ViewFmglobalLineItem>? _fmGlobalLineItems;
+    IGrid? Grid { get; set; }
+    private ViewFmglobalLineItem _selectedItems;
+    //bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = false;
+    bool ExportSelectedRowsOnly { get; set; }
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? errorMessage;
+    string? DeleteerrorMessage;
+    bool MessageVisible { get; set; }
+    string styleClass = "";
+    string MessageHeader = "Error";
+    string MessageBody = "";
+    private bool loading;
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
+    string SelectedGroup = "none";
+    private ViewFmglobalLineItem _selectlst;
+    public ApplicationUser? applicationUser { get; private set; }
+    long? PalletEntryId { get; set; }
+    long? ItemId { get; set; }
+    long? CompanyId { get; set; }
+    async Task SelectedItemChanged(View_NavItems navitems)
+    {
+        if (navitems != null)
+        {
+            BaseUnitofMeasure = navitems.BaseUnitofMeasure;
+            await loadNatchInfo(navitems.ItemId);
+        }
+        else
+        {
+            BaseUnitofMeasure = "";
+        }
+    }
+    async Task loadNatchInfo(long? ItemId)
+    {
+        navItemBatchNoItems = await Mediator.Send(new GetAllNavItemBatchNoByItemIdQuery(ItemId));
+
+    }
+    async Task SelectedItemMethodChangesChanged(View_ApplicationMasterDetail masterDetail)
+    {
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        _viewCartonPackingItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(344));
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+    public async Task loadData(ViewFmglobalLine _fmglobalItem, long? CompanyIds)
+    {
+        FmglobalLineId = _fmglobalItem.FmglobalLineId;
+        SoSalesOrderItems = _fmglobalItem;
+        if (FmglobalLineId > 0)
+        {
+            CompanyId = CompanyIds;
+            AddEnabled = true;
+            if (CompanyIds > 0)
+            {
+                _AllNavitems = await Mediator.Send(new GetAllNavItemsByCompanyQuery(CompanyIds));
+            }
+            await UpdateDataAsync();
+        }
+        StateHasChanged();
+    }
+    async Task UpdateDataAsync()
+    {
+        _fmGlobalLineItems = await Mediator.Send(new GetAllFmGlobalLineItemQuery(FmglobalLineId));
+        if (_fmGlobalLineItems.Count > 0)
+        {
+            PanelVisible = true;
+            _selectedItems = _fmGlobalLineItems.FirstOrDefault();
+
+            if (SelectedDataItems != null)
+            {
+                EditEnabled = true;
+                DeleteEnabled = true;
+                StateHasChanged();
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (ViewFmglobalLineItem)e.EditModel;
+        if (e.IsNew)
+        {
+            BaseUnitofMeasure = "";
+        }
+        else
+        {
+            BaseUnitofMeasure = navitems.Uom;
+            await loadNatchInfo(navitems.ItemId);
+        }
+    }
+
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+
+                CustomizeCell = OnCustomizeCell
+            });
+
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editModel = (ViewFmglobalLineItem)e.EditModel;
+
+        if (e.IsNew)
+        {
+
+
+            var createReq = new CreateGlobalLineItemCommand
+                {
+                    FmglobalLineId = FmglobalLineId,
+                    ItemId = editModel.ItemId,
+                    NoOfCarton = editModel.NoOfCarton,
+                    NoOfUnitsPerCarton = editModel.NoOfUnitsPerCarton,
+                    CartonPackingId = editModel.CartonPackingId,
+                    StatusCodeId = 1,
+                    BatchInfoId = editModel.BatchInfoId,
+                    AddedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedByUserId = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+                };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+
+                errorMessage = eq.Message;
+                PopupVisible = true;
+
+            }
+
+            await UpdateDataAsync();
+
+
+        }
+        else
+        {
+            var UpdateReq = new EditFmGlobalLineItemCommand
+                {
+                    FmglobalLineId = editModel.FmglobalLineId,
+                    ItemId = editModel.ItemId,
+                    NoOfCarton = editModel.NoOfCarton,
+                    NoOfUnitsPerCarton = editModel.NoOfUnitsPerCarton,
+                    CartonPackingId = editModel.CartonPackingId,
+                    StatusCodeId = editModel.StatusCodeId,
+                    BatchInfoId = editModel.BatchInfoId,
+                    ModifiedByUserId = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                };
+
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+
+    }
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
+    }
+    async void ClosePopup()
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    async void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+
+        var editModel = (ViewFmglobalLineItem)e.DataItem;
+        var request = new DeleteFmGlobalLineItemCommand(editModel.FmglobalLineItemId);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void Onclick(DataGridSelection<ViewFmglobalLineItem> e)
+    {
+
+
+
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FmglobalLineItemId");
+        _selectedItems = _fmGlobalLineItems.FirstOrDefault(f => f.FmglobalLineItemId == (long?)UniqueId);
+
+        StateHasChanged();
+
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+
+
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is ViewFmglobalLineItem ViewFmglobalLineItem)
+                {
+
+                    _selectlst = _fmGlobalLineItems.FirstOrDefault(f => f.FmglobalLineItemId == ViewFmglobalLineItem.FmglobalLineItemId);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is ViewFmglobalLineItem ViewFmglobalLineItem)
+                    {
+
+                        var request = new DeleteFmGlobalLineItemCommand(ViewFmglobalLineItem.FmglobalLineItemId);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+            DeleteEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+
+            DeleteEnabled = true;
+        }
+
+    }
+}

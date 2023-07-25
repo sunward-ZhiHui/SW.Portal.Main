@@ -14,6 +14,14 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetByActivityEmailSession : PagedRequest, IRequest<List<ActivityEmailTopics>>
+    {
+        public Guid EmailTopicSessionId { get; private set; }
+        public GetByActivityEmailSession(Guid EmailSessionId)
+        {
+            this.EmailTopicSessionId = EmailSessionId;
+        }
+    }
     public class GetUserEmailTopics : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }
@@ -34,6 +42,46 @@ namespace Application.Queries
     {
         public long UserId { get; private set; }
         public GetEmailTopicTo(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
+    public class GetEmailTopicAll : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long UserId { get; private set; }
+        public GetEmailTopicAll(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
+    public class GetEmailTopicCC : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long UserId { get; private set; }
+        public GetEmailTopicCC(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
+    public class GetByIdEmailTopicTo : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long ID { get; private set; }
+        public GetByIdEmailTopicTo(long topicId)
+        {
+            this.ID = topicId;
+        }
+    }
+    public class GetByIdEmailTopicCC : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long ID { get; private set; }
+        public GetByIdEmailTopicCC(long topicId)
+        {
+            this.ID = topicId;
+        }
+    }
+    public class GetEmailTopicDraft : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long UserId { get; private set; }
+        public GetEmailTopicDraft(long UserId)
         {
             this.UserId = UserId;
         }
@@ -68,14 +116,7 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
-    public class GetEmailTopicCC : PagedRequest, IRequest<List<EmailTopics>>
-    {
-        public long UserId { get; private set; }
-        public GetEmailTopicCC(long UserId)
-        {
-            this.UserId = UserId;
-        }
-    }
+   
     public class GetSentTopic : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }
@@ -109,6 +150,24 @@ namespace Application.Queries
         public GetByIdEmailTopics(long ID)
         {
             this.ID = ID;
+        }
+    }
+    public class GetAllCreateEmailDocumentLst : PagedRequest, IRequest<List<Documents>>
+    {
+        public Guid SessionId { get; private set; }
+        public GetAllCreateEmailDocumentLst(Guid sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+
+    }
+     public class DeleteDocumentFileQuery : Documents, IRequest<long>
+    {
+        public long ID { get; set; }
+
+        public DeleteDocumentFileQuery(long Id)
+        {
+            this.ID = Id;
         }
     }
 }

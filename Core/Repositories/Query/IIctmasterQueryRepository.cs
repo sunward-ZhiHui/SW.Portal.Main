@@ -14,6 +14,7 @@ namespace Core.Repositories.Query
         //Custom operation which is not generic
         Task<IReadOnlyList<CodeMaster>> GetCodeMasterByStatus(string name);
         Task<IReadOnlyList<ViewIctmaster>> GetAllAsync();
+        Task<IReadOnlyList<ViewIctmaster>> GetBySiteAsync(int MasterType);
         Task<ViewIctmaster> GetByIdAsync(Int64 id);
     }
     

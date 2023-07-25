@@ -48,9 +48,11 @@ namespace Application.Queries
     public class GetEmailDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long TopicId { get; private set; }
-        public GetEmailDiscussionList(long TopicId)
+        public long UserId { get; private set; }
+        public GetEmailDiscussionList(long TopicId,long UserId)
         {
             this.TopicId = TopicId;
+            this.UserId = UserId;
         }
     }    
     public class GetEmailConversationList : PagedRequest, IRequest<List<EmailConversations>>
@@ -87,6 +89,32 @@ namespace Application.Queries
             this.TopicId = topicId;
         }
     }
+    public class GetByEmailTopicIDPList : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+        public long TopicId { get; set; }
+        public GetByEmailTopicIDPList(long topicId)
+        {
+            this.TopicId = topicId;
+        }
+    }
+    public class GetByConvasationTopicIDPList : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+        public long TopicId { get; set; }
+        public long ConvasationId { get; set; }
+        public GetByConvasationTopicIDPList(long convId,long topicId)
+        {
+            this.TopicId = topicId;
+            this.ConvasationId = convId;
+        }
+    }
+    public class GetAllConvAssToListQuery : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+        public long EmployeeID { get; set; }
+        public GetAllConvAssToListQuery(long conversationId)
+        {
+            this.EmployeeID = conversationId;
+        }
+    }
     public class GetEmailTopicToList : PagedRequest, IRequest<List<EmailTopicTo>>
     {
         public long TopicId { get; set; }
@@ -103,5 +131,14 @@ namespace Application.Queries
             this.ConversationId = Id;
         }
     }
+
+	public class GetEmailConversationAssignCC : PagedRequest, IRequest<List<EmailConversationAssignTo>>
+	{
+		public long ConversationId { get; set; }
+		public GetEmailConversationAssignCC(long Id)
+		{
+			this.ConversationId = Id;
+		}
+	}
 
 }

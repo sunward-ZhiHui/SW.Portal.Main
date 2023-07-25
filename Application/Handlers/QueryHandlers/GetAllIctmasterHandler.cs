@@ -26,6 +26,21 @@ namespace Application.Handlers.QueryHandlers
             return (List<ViewIctmaster>)await _ictmasterQueryRepository.GetAllAsync();
         }
     }
+    public class GetByIctMasterSiteQueryHandler : IRequestHandler<GetByIctMasterSiteQuery, List<ViewIctmaster>>
+    {
+        private readonly IIctmasterQueryRepository _ictmasterQueryRepository;
+        private readonly IQueryRepository<Ictmaster> _queryRepository;
+        public GetByIctMasterSiteQueryHandler(IIctmasterQueryRepository plantQueryRepository, IQueryRepository<Ictmaster> queryRepository)
+        {
+            _ictmasterQueryRepository = plantQueryRepository;
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ViewIctmaster>> Handle(GetByIctMasterSiteQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewIctmaster>)await _ictmasterQueryRepository.GetBySiteAsync(request.MasterType);
+        }
+    }
+    
     public class GetAllCodeMasterHandler : IRequestHandler<GetAllMasterTypeQuery, List<CodeMaster>>
     {
         private readonly IIctmasterQueryRepository _roleQueryRepository;

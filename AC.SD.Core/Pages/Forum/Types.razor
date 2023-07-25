@@ -206,10 +206,10 @@
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-       // await jsRuntime.InvokeAsync<string>("showLoading");
+        // await jsRuntime.InvokeAsync<string>("showLoading");
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         var models = await Mediator.Send(new GetAllForumTypesUsers());
-      //  var model = await Mediator.Send(new GetAllForumTypes());
+        //  var model = await Mediator.Send(new GetAllForumTypes());
         // _types = model;
 
         //for (int i = 0; i < models.Count; i++)
@@ -219,15 +219,15 @@
 
         _types = models;
         PanelVisible = false;
-       // await jsRuntime.InvokeAsync<string>("hideLoading");
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
         //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
     } 
     async Task UpdateDataAsync()
     {
         PanelVisible = true;
         //await jsRuntime.InvokeAsync<string>("showLoading");
-      //  var model = await Mediator.Send(new GetAllForumTypes());
-         var models = await Mediator.Send(new GetAllForumTypesUsers());
+        //  var model = await Mediator.Send(new GetAllForumTypes());
+        var models = await Mediator.Send(new GetAllForumTypesUsers());
 
         //for (int i = 0; i < models.Count; i++)
         //{
@@ -242,19 +242,34 @@
             _selectedItems = _types.FirstOrDefault();
             StateHasChanged();
         }
-      //  await jsRuntime.InvokeAsync<string>("hideLoading");
+        //  await jsRuntime.InvokeAsync<string>("hideLoading");
         //  toastService.ShowToast("I'm a SUCCESS message", AC.SD.Core.Services.ToastLevel.Success);
         // _types = model;
     }
     async Task ExportToExcel() 
-
     {
-        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-        {
-           ExportSelectedRowsOnly = true,
 
-          CustomizeCell = OnCustomizeCell
-        });
+        if(SelectedDataItems != null)
+        {
+
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
 
 
     }

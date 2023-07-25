@@ -1,0 +1,126 @@
+﻿@using Application.Commands;
+@using Application.Common.Helper;
+@using Application.Queries;
+@using Application.Response;
+@using Microsoft.AspNetCore.Http;
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using MediatR
+@inject IMediator Mediator
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor.Internal
+@using System.Collections.Generic
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using System.Globalization
+@using System;
+@using Application.Command.Document;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime;
+@inject HttpClient httpClient;
+@using System.IO;
+@using Microsoft.JSInterop;
+@using DevExpress.DocumentView;
+@inject NavigationManager NavigationManager
+@using System.Web;
+@inject IToastService ToastService
+@inject AC.SD.Core.Services.ToastService toastService
+@using System.Text;
+@using RtfPipe;
+@inject Application.Common.Helper.Helper dateformathelper
+@using System.Net.Http;
+@page "/EmailDrafts"
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />                
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxGrid @ref="TOGrid"
+        Data="_emailTopicDraft"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        KeyFieldName="SessionId"
+        CustomizeElement="Grid_CustomizeElement"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="w-100" style="height: calc(100vh - 220px);"
+        RowClick="OnEmailToRowClick"        
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        AllowSelectRowByClick="true">
+    <Columns>
+        <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
+        <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
+        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
+        <DxGridDataColumn FieldName="StartDate" Caption="Received Date">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailTopics)context.DataItem;
+                }
+                
+                @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+            </CellDisplayTemplate>
+        </DxGridDataColumn>   
+    </Columns>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
+    </TotalSummary>
+</DxGrid>
+
+
+
+@code{
+    IGrid TOGrid { get; set; }
+    private List<EmailTopics>? _emailTopicDraft;
+    public ApplicationUser applicationUser { get; private set; }
+    string SelectedGroup = "none";
+    bool EditEnabled { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _emailTopicDraft = await Mediator.Send(new GetEmailTopicDraft(applicationUser.UserID));
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }        
+    }
+    async Task OnEmailToRowClick(GridRowClickEventArgs e)
+    {
+        EditEnabled = true;
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SessionId");
+        SelectedGroup = UniqueId.ToString();
+        addEdit();
+        StateHasChanged();
+    }
+    void addNew()
+    {
+        NavigationManager.NavigateTo("CreateEmail");
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnEmailToRowClick(e);
+        addEdit();
+    }
+    void addEdit()
+    {
+        NavigationManager.NavigateTo("EditEmailDraft/" + SelectedGroup + "");
+    }
+  
+}

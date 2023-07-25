@@ -90,6 +90,96 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }        
+         public async Task<List<ViewEmployee>> GetAllConvAssignToListAsync(long convId)
+        {
+            try
+            {
+                var query = @"select E.* from EmailConversationAssignTo ECAT
+                            INNER JOIN Employee E ON E.UserID = ECAT.UserId
+                            where ECAT.ConversationId = @convId
+                                            UNION
+                                            select E.* from EmailConversationAssignCC ECAC 
+                            INNER JOIN Employee E ON E.UserID = ECAC.UserId
+                            where ECAC.ConversationId = @convId";              
+
+                var parameters = new DynamicParameters();
+                parameters.Add("convId", convId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
+        public async Task<List<ViewEmployee>> GetAllConvTopicPListAsync(long ConversationId, long topicId)
+        {
+            try
+            {
+                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailTopicParticipant FT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
+                                INNER JOIN Employee E ON E.UserID = FT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FT.TopicId = @TopicId
+
+                                UNION
+
+								SELECT FCT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName from EmailConversationAssignTo FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FCT.ConversationId = @ConversationId
+ 
+                                UNION
+
+								SELECT FCT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName from EmailConversationAssignCC FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FCT.ConversationId = @ConversationId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicID", topicId);
+                parameters.Add("ConversationId", ConversationId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<ViewEmployee>> GetAllPListAsync(long topicId)
+        {
+            try
+            {
+                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailTopicParticipant FT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
+                                INNER JOIN Employee E ON E.UserID = FT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FT.TopicId = @TopicId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicID", topicId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
         public async Task<List<EmailAssignToList>> GetAllAssignToListAsync(long topicId)
         {
@@ -226,12 +316,12 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailConversations>> GetDiscussionListAsync(long TopicId)
+        public async Task<List<EmailConversations>> GetDiscussionListAsync(long TopicId,long UserId)
         {
             try
             {
 
-                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData FROM EmailConversations FC                                
+                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId FROM EmailConversations FC                                
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
                                 WHERE FC.TopicId = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate ASC";
@@ -258,13 +348,14 @@ namespace Infrastructure.Repository.Query
                                         FC.ReplyId,
                                         FC.SessionId,FC.FileData
                                     FROM
-                                        EmailConversations FC
+                                        EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                     WHERE
-                                        FC.TopicId = @TopicId AND FC.ReplyId = @ReplyId";
+                                        FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId";
 
                             var parameterss = new DynamicParameters();
                             parameterss.Add("TopicId", TopicId, DbType.Int64);
+                            parameterss.Add("UserId", UserId, DbType.Int64);
                             parameterss.Add("ReplyId", topic.ID, DbType.Int64);
                         var subQueryResults = connection.Query<EmailConversations>(subQuery, parameterss).ToList();                     
 
@@ -681,7 +772,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<long> Insert(EmailConversations forumConversations)
+		public async Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId)
+		{
+			try
+			{
+				var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY FCT.ID DESC), FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignCC FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+				var parameters = new DynamicParameters();
+				parameters.Add("ConversationId", ConversationId);
+
+				using (var connection = CreateConnection())
+				{
+					connection.Open();
+					var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
+					return res;
+				}
+			}
+			catch (Exception exp)
+			{
+				throw new Exception(exp.Message, exp);
+			}
+		}
+		public async Task<long> Insert(EmailConversations forumConversations)
         {
             try
             {

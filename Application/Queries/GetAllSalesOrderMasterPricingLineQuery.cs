@@ -17,4 +17,19 @@ namespace Application.Queries
             this.SalesOrderMasterPricingId = id;
         }
     }
+    public class GetAllSalesOrderMasterPricingLineByItemQuery : View_SalesOrderMasterPricingLineByItem, IRequest<List<View_SalesOrderMasterPricingLineByItem>>
+    {
+        public long? CompanyId { get; set; }
+        public DateTime? PriceValidaityFrom { get; set; }
+        public DateTime? PriceValidaityTo { get; set; }
+        public long? ItemId { get; set; }
+        public GetAllSalesOrderMasterPricingLineByItemQuery(long? CompanyId, DateTime? PriceValidaityFrom, DateTime? PriceValidaityTo, long? ItemId)
+        {
+            this.CompanyId = CompanyId;
+            this.PriceValidaityFrom = PriceValidaityFrom;
+            this.PriceValidaityTo = PriceValidaityTo;
+            this.ItemId = ItemId;
+        }
+    }
+
 }

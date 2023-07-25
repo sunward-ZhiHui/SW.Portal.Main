@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,6 +25,9 @@ namespace Core.Entities.Views
         public string Description { get; set; }
         public string Description2 { get; set; }
         public string BaseUnitofMeasure { get; set; }
+        [Required(ErrorMessage = "Selling Method For is Required")]
+        public long? SellingMethodId { get; set; }
+        [Required(ErrorMessage = "Item is Required")]
         public long? ItemId { get; set; }
         public string? StatusCode { get; set; }
         public string? ModifiedBy { get; set; }
@@ -31,5 +35,8 @@ namespace Core.Entities.Views
         public string? NavCompany { get; set; }
         public string? NavCompanyName { get;set; }
         public string? ShipCode { get; set; }
+        public bool? IsManual { get; set; }
+        public decimal? ManualPrice { get; set; }
+        public string? PricingType { get; set; }
     }
 }

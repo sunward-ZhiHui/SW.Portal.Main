@@ -23,6 +23,31 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<View_NavItems>)await _queryRepository.GetAsyncList();
         }
     }
+    public class GetAllNavItemsByCompanyHandler : IRequestHandler<GetAllNavItemsByCompanyQuery, List<View_NavItems>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetAllNavItemsByCompanyHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<View_NavItems>> Handle(GetAllNavItemsByCompanyQuery request, CancellationToken cancellationToken)
+        {
+            return (List<View_NavItems>)await _queryRepository.GetByCompanyAsyncList(request.CompanyId);
+        }
+    }
+    public class GetAllNavItemsByCompanyBySerialNoHandler : IRequestHandler<GetAllNavItemsByCompanyByItemSerialNoQuery, List<View_NavItems>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetAllNavItemsByCompanyBySerialNoHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<View_NavItems>> Handle(GetAllNavItemsByCompanyByItemSerialNoQuery request, CancellationToken cancellationToken)
+        {
+            return (List<View_NavItems>)await _queryRepository.GetByCompanyBySerailNoAsyncList(request.CompanyId);
+        }
+    }
+    
     public class GetAllNavItemsItemSerialNoHandler : IRequestHandler<GetAllNavItemsItemSerialNoQuery, View_NavItems>
     {
         private readonly INavItemsQueryRepository _queryRepository;
@@ -33,6 +58,30 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<View_NavItems> Handle(GetAllNavItemsItemSerialNoQuery request, CancellationToken cancellationToken)
         {
             return await _queryRepository.GetByItemSerialNoAsync(request.ItemSerialNo);
+        }
+    }
+    public class GetAllNavItemsItemSerialNoNotNullHandler : IRequestHandler<GetAllNavItemsItemSerialNoNotNullQuery, List<View_NavItems>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetAllNavItemsItemSerialNoNotNullHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<View_NavItems>> Handle(GetAllNavItemsItemSerialNoNotNullQuery request, CancellationToken cancellationToken)
+        {
+            return (List<View_NavItems>) await _queryRepository.GetByItemSerialNoNotNullAsync();
+        }
+    }
+    public class GetAllNavItemBatchNoByItemIdHandler : IRequestHandler<GetAllNavItemBatchNoByItemIdQuery, List<NavItemBatchNo>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetAllNavItemBatchNoByItemIdHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<NavItemBatchNo>> Handle(GetAllNavItemBatchNoByItemIdQuery request, CancellationToken cancellationToken)
+        {
+            return (List<NavItemBatchNo>)await _queryRepository.GetNavItemBatchNoByItemIdAsync(request.ItemId);
         }
     }
 }

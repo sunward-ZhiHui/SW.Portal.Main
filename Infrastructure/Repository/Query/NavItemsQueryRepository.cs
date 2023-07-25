@@ -53,6 +53,55 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<View_NavItems>> GetByItemSerialNoNotNullAsync()
+        {
+            try
+            {
+                var query = "select  * from NAVItems where ItemSerialNo is not null ";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<View_NavItems>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<View_NavItems>> GetByCompanyBySerailNoAsyncList(long? CompanyId)
+        {
+            try
+            {
+                var query = "select  * from NAVItems where ItemSerialNo is not null and CompanyId=" + CompanyId;
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<View_NavItems>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<View_NavItems>> GetByCompanyAsyncList(long? CompanyId)
+        {
+            try
+            {
+                var query = "select  * from NAVItems where CompanyId=" + CompanyId;
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<View_NavItems>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<long> Update(View_NavItems todolist)
         {
             try
@@ -123,6 +172,22 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryFirstOrDefaultAsync<View_NavItems>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<NavItemBatchNo>> GetNavItemBatchNoByItemIdAsync(long? ItemId)
+        {
+            try
+            {
+                var query = "select  * from NavItemBatchNo where  ItemId=" + ItemId;
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<NavItemBatchNo>(query)).ToList();
                 }
             }
             catch (Exception exp)

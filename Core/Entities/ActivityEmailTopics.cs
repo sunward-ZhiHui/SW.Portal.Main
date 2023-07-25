@@ -15,12 +15,21 @@ namespace Core.Entities
         public long ActivityEmailTopicID { get; set; }
         public string SubjectName { get; set; }
         public Guid? SessionId { get; set; }
+        public Guid? DocumentSessionId { get; set; }
         public Guid? EmailTopicSessionId { get; set; }
         public string ActivityType { get; set; }
         public long FromId { get; set; }
         public string ToIds { get; set; }
         public string CcIds { get; set; }       
         public string Tags { get; set; }
+        public string Comment { get; set; }
+        [NotMapped]
+        public string ManufacturingProcess { get; set; }
+        [NotMapped]
+        public string CategoryAction { get; set; }
+        [NotMapped]
+        public string ActionName { get; set;}
+        public string BackURL { get; set; }
 
     }
 }

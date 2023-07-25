@@ -81,7 +81,8 @@ namespace Application.Handlers.CommandHandler
                         var employeeReportTo = new SalesOrderMasterPricingLineSellingMethod();
                         employeeReportTo.SalesOrderMasterPricingLineId = request.SalesOrderMasterPricingLineId;
                         employeeReportTo.TierPrice = s.TierPrice;
-                        employeeReportTo.TierQty = s.TierQty;
+                        employeeReportTo.TierFromQty = s.TierFromQty;
+                        employeeReportTo.TierToQty = s.TierToQty;
                         employeeReportTo.BounsPrice = s.BounsPrice;
                         employeeReportTo.BounsFocQty = s.BounsFocQty;
                         if (s.SalesOrderMasterPricingLineSellingMethodId > 0)

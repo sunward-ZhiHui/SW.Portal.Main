@@ -42,6 +42,7 @@ namespace Application.Command.FmGlobals
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionId { get; set; }
+        public long? CompanyId { get; set; }
         public CreateFmGlobalLineCommand()
         {
 

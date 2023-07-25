@@ -1,4 +1,4 @@
-﻿@*@using Application.Command.FmglobalLineItem;
+﻿@using Application.Command.FmGlobals;
 @using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
@@ -61,7 +61,7 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="FmglobalLineId"
+            KeyFieldName="FmglobalLineItemId"
             PageSizeSelectorVisible="true"
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -81,24 +81,13 @@
 
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-            <DxGridDataColumn FieldName="FmglobalLineId" Visible="false" />
-            <DxGridDataColumn FieldName="PalletNo" />
-            <DxGridDataColumn FieldName="AddedDate">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (ViewFmglobalLineItem)context.DataItem;
-                    }
-                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" TextAlignment="GridTextAlignment.Left">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (ViewFmglobalLineItem)context.DataItem;
-                    }
-                    <div> @item.AddedBy</div>
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="FmglobalLineItemId" Visible="false" />
+            <DxGridDataColumn FieldName="ItemNo" />
+            <DxGridDataColumn FieldName="Uom" />
+            <DxGridDataColumn FieldName="BatchNo" />
+            <DxGridDataColumn FieldName="CartonPackingName" Caption="Carton Packing" />
+            <DxGridDataColumn FieldName="NoOfCarton" />
+            <DxGridDataColumn FieldName="NoOfUnitsPerCarton" />
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
 
@@ -108,20 +97,65 @@
 
             }
             <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Pallet Entry" ColSpanMd="6">
-                    <DxComboBox Data="@_viewSellingMethodItems"
-                                NullText="Select Pallet Entry..."
+                <DxFormLayoutItem Caption="Item" ColSpanMd="6">
+                    <DxComboBox Data="@_AllNavitems"
+                                NullText="Select Item..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="No"
+                                ValueFieldName="ItemId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@types.ItemId" ShowValidationIcon="true"
+                                SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
+                                                Caption="Item No"
+                                                Width="190px" />
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
+                                                Caption="Description"
+                                                Width="90px" />
+                            <DxListEditorColumn FieldName="@nameof(View_NavItems.BaseUnitofMeasure)"
+                                                Caption="Uom" />
+                        </Columns>
+
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.ItemId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@BaseUnitofMeasure" Enabled=false />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Batch Info" ColSpanMd="6">
+                    <DxComboBox Data="@navItemBatchNoItems"
+                                NullText="Select Batch Info..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="BatchSize"
+                                ValueFieldName="NavItemBatchNoId"
+                                @bind-Value="@types.BatchInfoId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.CartonPackingId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Carton Packing" ColSpanMd="6">
+                    <DxComboBox Data="@_viewCartonPackingItems"
+                                NullText="Select Carton Packing..."
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterDetailID"
-                                SelectedItemChanged="@((View_ApplicationMasterDetail navitems) => SelectedItemMethodChangesChanged(navitems))"
-                                @bind-Value="@types.PalletEntryId" ShowValidationIcon="true" />
-                    <ValidationMessage For="@(() => types.PalletEntryId)" />
+                                @bind-Value="@types.CartonPackingId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.CartonPackingId)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Pallet No:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@types.PalletNoYear" Enabled=false />
+                <DxFormLayoutItem Caption="No Of Carton" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.NoOfCarton" ShowSpinButtons="false"></DxSpinEdit>
+                    <ValidationMessage For="@(() => types.NoOfCarton)" />
                 </DxFormLayoutItem>
-                <ValidationSummary />
+                <DxFormLayoutItem Caption="No Of Units Per Carton" ColSpanMd="6">
+                    <DxSpinEdit @bind-Value="@types.NoOfUnitsPerCarton" ShowSpinButtons="false"></DxSpinEdit>
+                    <ValidationMessage For="@(() => types.NoOfUnitsPerCarton)" />
+                </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
 
@@ -146,14 +180,15 @@
 
 @code {
     [Parameter]
-    public long? FmglobalId { get; set; }
+    public long? FmglobalLineId { get; set; }
     bool IsOpen { get; set; } = false;
+    private string BaseUnitofMeasure { get; set; }
 
+    public ViewFmglobalLine SoSalesOrderItems { get; set; }
 
-    public ViewFmglobal SoSalesOrderItems { get; set; }
-
-    private List<View_ApplicationMasterDetail> _viewSellingMethodItems;
+    private List<View_ApplicationMasterDetail> _viewCartonPackingItems;
     private List<View_NavItems>? _AllNavitems;
+    public List<NavItemBatchNo>? navItemBatchNoItems;
     bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
@@ -181,68 +216,61 @@
     public ApplicationUser? applicationUser { get; private set; }
     long? PalletEntryId { get; set; }
     long? ItemId { get; set; }
+    long? CompanyId { get; set; }
     async Task SelectedItemChanged(View_NavItems navitems)
     {
         if (navitems != null)
         {
-
-            await loadNavItemsChangedData();
+            BaseUnitofMeasure = navitems.BaseUnitofMeasure;
+            await loadNatchInfo(navitems.ItemId);
         }
         else
         {
-
+            BaseUnitofMeasure = "";
         }
     }
-    async Task OnValueChanged(decimal? Qty)
+    async Task loadNatchInfo(long? ItemId)
     {
+        navItemBatchNoItems = await Mediator.Send(new GetAllNavItemBatchNoByItemIdQuery(ItemId));
 
     }
     async Task SelectedItemMethodChangesChanged(View_ApplicationMasterDetail masterDetail)
     {
-        PalletEntryId = masterDetail.ApplicationMasterDetailID;
-        await loadNavItemsChangedData();
-    }
-    async Task loadNavItemsChangedData()
-    {
-
-    }
-    void OnButtonClick()
-    {
-        IsOpen = true;
     }
     protected override async Task OnInitializedAsync()
     {
-        _viewSellingMethodItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(338));
+        _viewCartonPackingItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(344));
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        if (FmglobalId > 0)
-        {
-            var items = await Mediator.Send(new GetAllFmGlobalByID(FmglobalId));
-            await loadData(items);
-        }
     }
-    public async Task loadData(ViewFmglobal _fmglobalItem)
+    public async Task loadData(ViewFmglobalLine _fmglobalItem, long? CompanyIds)
     {
-        FmglobalId = _fmglobalItem.FmglobalId;
+        FmglobalLineId = _fmglobalItem.FmglobalLineId;
         SoSalesOrderItems = _fmglobalItem;
-        if (FmglobalId > 0)
+        if (FmglobalLineId > 0)
         {
+            CompanyId = CompanyIds;
             AddEnabled = true;
-            if (SoSalesOrderItems.CompanyId > 0)
+            if (CompanyIds > 0)
             {
-                _AllNavitems = await Mediator.Send(new GetAllNavItemsByCompanyByItemSerialNoQuery(SoSalesOrderItems.CompanyId));
+                _AllNavitems = await Mediator.Send(new GetAllNavItemsByCompanyQuery(CompanyIds));
             }
-            _fmGlobalLineItems = await Mediator.Send(new GetFmGlobalLine(FmglobalId));
-            if (_fmGlobalLineItems.Count > 0)
-            {
-                PanelVisible = true;
-                _selectedItems = _fmGlobalLineItems.FirstOrDefault();
+            await UpdateDataAsync();
+        }
+        StateHasChanged();
+    }
+    async Task UpdateDataAsync()
+    {
+        _fmGlobalLineItems = await Mediator.Send(new GetAllFmGlobalLineItemQuery(FmglobalLineId));
+        if (_fmGlobalLineItems.Count > 0)
+        {
+            PanelVisible = true;
+            _selectedItems = _fmGlobalLineItems.FirstOrDefault();
 
-                if (SelectedDataItems != null)
-                {
-                    EditEnabled = true;
-                    DeleteEnabled = true;
-                    StateHasChanged();
-                }
+            if (SelectedDataItems != null)
+            {
+                EditEnabled = true;
+                DeleteEnabled = true;
+                StateHasChanged();
             }
         }
         PanelVisible = false;
@@ -253,31 +281,15 @@
         var navitems = (ViewFmglobalLineItem)e.EditModel;
         if (e.IsNew)
         {
-            //No = "";
-            //Description = "";
-            //Description2 = "";
-            //BaseUnitofMeasure = "";
-
+            BaseUnitofMeasure = "";
         }
         else
         {
-            //FmglobalLineId = navitems.FmglobalLineId;
-            //FmglobalId = navitems.FmglobalId;
-            //PalletEntryId = navitems.PalletEntryId;
-            //PalletNoYear = navitems.PalletNoYear;
-            //PalletNoAuto = navitems.PalletNoAuto;
-            //PalletNo = navitems.PalletNo;
-
-            await loadNavItemsChangedData();
+            BaseUnitofMeasure = navitems.Uom;
+            await loadNatchInfo(navitems.ItemId);
         }
     }
-    async Task UpdateDataAsync()
-    {
-        PanelVisible = true;
-        _fmGlobalLineItems = await Mediator.Send(new GetFmGlobalLine(FmglobalId));
-        PanelVisible = false;
-        StateHasChanged();
-    }
+
     async Task ExportToExcel()
     {
         await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
@@ -288,8 +300,6 @@
             });
 
     }
-
-
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
@@ -306,15 +316,20 @@
         {
 
 
-            var createReq = new CreateFmGlobalLineCommand
+            var createReq = new CreateGlobalLineItemCommand
                 {
-                    FmglobalId = FmglobalId,
-                    PalletEntryId = editModel.PalletEntryId,
+                    FmglobalLineId = FmglobalLineId,
+                    ItemId = editModel.ItemId,
+                    NoOfCarton = editModel.NoOfCarton,
+                    NoOfUnitsPerCarton = editModel.NoOfUnitsPerCarton,
+                    CartonPackingId = editModel.CartonPackingId,
                     StatusCodeId = 1,
+                    BatchInfoId = editModel.BatchInfoId,
                     AddedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
                 };
 
             try
@@ -336,15 +351,17 @@
         }
         else
         {
-            var UpdateReq = new EditFmGlobalLineCommand
+            var UpdateReq = new EditFmGlobalLineItemCommand
                 {
                     FmglobalLineId = editModel.FmglobalLineId,
-                    FmglobalId = FmglobalId,
-                    PalletEntryId = editModel.PalletEntryId,
-                    StatusCodeId = 1,
+                    ItemId = editModel.ItemId,
+                    NoOfCarton = editModel.NoOfCarton,
+                    NoOfUnitsPerCarton = editModel.NoOfUnitsPerCarton,
+                    CartonPackingId = editModel.CartonPackingId,
+                    StatusCodeId = editModel.StatusCodeId,
+                    BatchInfoId = editModel.BatchInfoId,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
-
                 };
 
             var ans = await Mediator.Send(UpdateReq);
@@ -370,24 +387,18 @@
         PopupVisible = false;
         await UpdateDataAsync();
     }
-    void EulaPopupClosed(PopupClosedEventArgs args)
+    async void EulaPopupClosed(PopupClosedEventArgs args)
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+        await UpdateDataAsync();
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
 
         var editModel = (ViewFmglobalLineItem)e.DataItem;
-
-        //  string result = string.Empty;
-        //  result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
-        // Console.WriteLine(result);
-        // await UpdateDataAsync();
-
-        var request = new DeleteFmGlobalLineCommand(editModel.FmglobalLineId);
+        var request = new DeleteFmGlobalLineItemCommand(editModel.FmglobalLineItemId);
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
@@ -410,8 +421,8 @@
 
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FmglobalLineId");
-        _selectedItems = _fmGlobalLineItems.FirstOrDefault(f => f.FmglobalLineId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FmglobalLineItemId");
+        _selectedItems = _fmGlobalLineItems.FirstOrDefault(f => f.FmglobalLineItemId == (long?)UniqueId);
 
         StateHasChanged();
 
@@ -439,7 +450,7 @@
                 if (item is ViewFmglobalLineItem ViewFmglobalLineItem)
                 {
 
-                    _selectlst = _fmGlobalLineItems.FirstOrDefault(f => f.FmglobalLineId == ViewFmglobalLineItem.FmglobalLineId);
+                    _selectlst = _fmGlobalLineItems.FirstOrDefault(f => f.FmglobalLineItemId == ViewFmglobalLineItem.FmglobalLineItemId);
 
 
                 }
@@ -450,9 +461,6 @@
         {
             Grid.StartEditDataItemAsync(_selectedItems);
         }
-
-        //Grid.SelectDataItems(SelectedDataItems);
-
 
     }
     void addDelete()
@@ -471,7 +479,7 @@
                     if (item is ViewFmglobalLineItem ViewFmglobalLineItem)
                     {
 
-                        var request = new DeleteFmGlobalCommand(ViewFmglobalLineItem.FmglobalLineId);
+                        var request = new DeleteFmGlobalLineItemCommand(ViewFmglobalLineItem.FmglobalLineItemId);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -509,4 +517,3 @@
 
     }
 }
-*@

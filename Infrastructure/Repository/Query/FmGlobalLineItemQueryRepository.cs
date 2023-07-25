@@ -23,12 +23,12 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from ViewFmglobalLineItem WHERE FmglobalLineId = @FmglobalLineId";
+                var query = "select  * from view_FMGlobalLineItem WHERE FmglobalLineId = @FmglobalLineId";
                 var parameters = new DynamicParameters();
-                parameters.Add("FmglobalId", id, DbType.Int64);
+                parameters.Add("FmglobalLineId", id, DbType.Int64);
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ViewFmglobalLineItem>(query)).ToList();
+                    return (await connection.QueryAsync<ViewFmglobalLineItem>(query,parameters)).ToList();
                 }
             }
             catch (Exception exp)

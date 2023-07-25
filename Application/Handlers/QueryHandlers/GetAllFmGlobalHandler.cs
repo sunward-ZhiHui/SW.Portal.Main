@@ -23,6 +23,18 @@ namespace Application.Handlers.QueryHandlers
             return (List<ViewFmglobal>)await _queryRepository.GetAllAsync();
         }
     }
+    public class GetAllFmGlobalByIdHandler : IRequestHandler<GetAllFmGlobalByIdQuery, ViewFmglobal>
+    {
+        private readonly IFmGlobalQueryRepository _queryRepository;
+        public GetAllFmGlobalByIdHandler(IFmGlobalQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<ViewFmglobal> Handle(GetAllFmGlobalByIdQuery request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetByIdAsync(request.Id.Value);
+        }
+    }
     public class GetAllFmGlobalBySessionHandler : IRequestHandler<GetAllFmGlobalBySessionQuery, ViewFmglobal>
     {
         private readonly IFmGlobalQueryRepository _queryRepository;
@@ -47,6 +59,18 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<ViewFmglobalLine>> Handle(GetAllFmGlobalLineQuery request, CancellationToken cancellationToken)
         {
             return (List<ViewFmglobalLine>)await _queryRepository.GetAllAsync(request.Id.Value);
+        }
+    }
+    public class GetAllFmGlobalLineBySessionHandler : IRequestHandler<GetAllFmGlobalLineBySessionQuery, ViewFmglobalLine>
+    {
+        private readonly IFmGlobalLineQueryRepository _queryRepository;
+        public GetAllFmGlobalLineBySessionHandler(IFmGlobalLineQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<ViewFmglobalLine> Handle(GetAllFmGlobalLineBySessionQuery request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetBySessionIdAsync(request.SessionId);
         }
     }
     //FmglobalLineItem

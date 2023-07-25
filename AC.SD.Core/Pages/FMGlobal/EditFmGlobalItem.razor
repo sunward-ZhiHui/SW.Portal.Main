@@ -15,8 +15,9 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
-@page "/EditFmGlobal"
-@page "/EditFmGlobal/{SessionIds:guid}"
+@page "/EditFmGlobalItem"
+@page "/EditFmGlobalItem/{SessionIds:guid}"
+@page "/EditFmGlobalItem/{SessionIds:guid}/{SessionLineIds:guid}"
 
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
@@ -156,9 +157,8 @@
                             <DxFormLayoutTabPage Caption="Pallet Entry">
                                 <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><FmGlobalLines @ref=RefFmGlobalLine FmglobalId=@FmglobalId></FmGlobalLines></div>
                             </DxFormLayoutTabPage>
-                            <DxFormLayoutTabPage Caption="Pallet Item Entry" Enabled="true">
-                                
-                                <FmGlobalLineItems></FmGlobalLineItems>
+                            <DxFormLayoutTabPage Caption="Pallet Item Entry">
+                                <FmGlobalLineItems @ref="refFmGlobalLineItems"></FmGlobalLineItems>
                             </DxFormLayoutTabPage>
 
                         </DxFormLayoutTabPages>
@@ -178,14 +178,17 @@
 @code {
     public long? FmglobalId { get; set; }
     FmGlobalLines? RefFmGlobalLine { get; set; }
+    FmGlobalLineItems? refFmGlobalLineItems { get; set; }
     [Parameter]
     public Guid? SessionIds { get; set; }
+    [Parameter]
+    public Guid? SessionLineIds { get; set; }
     private bool loading;
     private string MyID = "myid";
     long? EmployeeIds { get; set; }
     bool EditEnabledTab { get; set; } = false;
     public int ActiveSubTabIndex { get; set; } = 0;
-
+    ViewFmglobalLine viewFmglobalLine = new ViewFmglobalLine();
     ViewFmglobal _fmglobalItem = new ViewFmglobal();
 
     private List<ViewIctmaster>? _AllICTMaster;
@@ -207,24 +210,37 @@
     {
 
     }
-    void OnTabClick(TabClickEventArgs e)
+    public void OnTabClick(TabClickEventArgs e)
     {
         if (e.TabIndex == 0)
         {
-
+            NavigationManager.NavigateTo("EditFmGlobal/" + SessionIds + "");
         }
     }
     protected override async Task OnInitializedAsync()
     {
-
-        _statusListItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(345));
-        _plantItems = await Mediator.Send(new GetAllPlantQuery());
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _AllICTMaster = await Mediator.Send(new GetByIctMasterSiteQuery(570));
-        Data.ExpectedShipmentDate = DateTime.Now;
-        Data.AddedDate = DateTime.Now;
-        Data.AddedBy = applicationUser.UserName;
-
+        if (SessionIds != null && SessionLineIds != null)
+        {
+            ActiveSubTabIndex = 1;
+            StateHasChanged();
+            _fmglobalItem = await Mediator.Send(new GetAllFmGlobalBySessionQuery(SessionIds));
+            viewFmglobalLine = await Mediator.Send(new GetAllFmGlobalLineBySessionQuery(SessionLineIds));
+            await refFmGlobalLineItems.loadData(viewFmglobalLine, _fmglobalItem.CompanyId);
+        }
+        else
+        {
+            _statusListItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(345));
+            _plantItems = await Mediator.Send(new GetAllPlantQuery());
+            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+            _AllICTMaster = await Mediator.Send(new GetByIctMasterSiteQuery(570));
+            Data.ExpectedShipmentDate = DateTime.Now;
+            Data.AddedDate = DateTime.Now;
+            Data.AddedBy = applicationUser.UserName;
+            await loadData();
+        }
+    }
+    public async Task loadData()
+    {
         if (SessionIds != null)
         {
             _fmglobalItem = await Mediator.Send(new GetAllFmGlobalBySessionQuery(SessionIds));
@@ -245,7 +261,6 @@
             }
         }
     }
-
     void backUrl()
     {
         NavigationManager.NavigateTo("FmGlobal");

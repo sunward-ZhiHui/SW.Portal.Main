@@ -23,7 +23,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from ViewFmglobal";
+                var query = "select  * from View_Fmglobal";
 
                 using (var connection = CreateConnection())
                 {
@@ -39,7 +39,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM Fmglobal  WHERE FmglobalId = @FmglobalId";
+                var query = "SELECT * FROM View_Fmglobal  WHERE FmglobalId = @FmglobalId";
                 var parameters = new DynamicParameters();
                 parameters.Add("FmglobalId", id, DbType.Int64);
 
@@ -57,7 +57,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM ViewFmglobal  WHERE SessionId = @SessionId";
+                var query = "SELECT * FROM View_Fmglobal  WHERE SessionId = @SessionId";
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
 

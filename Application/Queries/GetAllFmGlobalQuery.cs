@@ -13,6 +13,16 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetAllFmGlobalByIdQuery : PagedRequest, IRequest<ViewFmglobal>
+    {
+        public string SearchString { get; set; }
+        public long? Id { get; set; }
+        public GetAllFmGlobalByIdQuery(long? Id)
+        {
+            this.Id = Id;
+        }
+    }
+    
     public class GetAllFmGlobalBySessionQuery : PagedRequest, IRequest<ViewFmglobal>
     {
         public string SearchString { get; set; }
@@ -31,6 +41,16 @@ namespace Application.Queries
             this.Id = Id;
         }
     }
+    public class GetAllFmGlobalLineBySessionQuery : PagedRequest, IRequest<ViewFmglobalLine>
+    {
+        public string SearchString { get; set; }
+        public Guid? SessionId { get; set; }
+        public GetAllFmGlobalLineBySessionQuery(Guid? SessionId)
+        {
+            this.SessionId = SessionId;
+        }
+    }
+    
     public class GetAllFmGlobalLineItemQuery : PagedRequest, IRequest<List<ViewFmglobalLineItem>>
     {
         public string SearchString { get; set; }

@@ -52,14 +52,18 @@ namespace Application.Handlers.CommandHandler.FmGlobals
         public async Task<FmglobalLineResponse> Handle(CreateFmGlobalLineCommand request, CancellationToken cancellationToken)
         {
             var queryEntity = RoleMapper.Mapper.Map<FmglobalLine>(request);
-            queryEntity.PalletNoYear = DateTime.Now.ToString("yyyy");
-            var result = await _fmGlobalLineQueryRepository.GetByPalletNoAsync(queryEntity.PalletNoYear);
-            int PalletNo = 1;
-            if(result != null)
+            if (request.PalletEntryId is null)
             {
-                PalletNo = (int)(result.PalletNoAuto + 1);
+                queryEntity.PalletNoYear = DateTime.Now.ToString("yyyy");
+                var result = await _fmGlobalLineQueryRepository.GetByPalletNoAsync(queryEntity.PalletNoYear,request.CompanyId);
+                int PalletNo = 1;
+                if (result != null)
+                {
+                    PalletNo = (int)(result.PalletNoAuto + 1);
+                }
+                queryEntity.PalletNoAuto = PalletNo;
+                queryEntity.PalletNo = queryEntity.PalletNoYear + "/" + System.String.Format("{0:D6}", PalletNo);
             }
-            queryEntity.PalletNo = queryEntity.PalletNoYear + "/" + System.String.Format("{0:D6}", PalletNo);
             if (queryEntity is null)
             {
                 throw new ApplicationException("There is a problem in mapper");

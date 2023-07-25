@@ -12,6 +12,8 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<ViewFmglobalLine>> GetAllAsync(Int64 id);
         Task<ViewFmglobalLine> GetByIdAsync(Int64 id);
-        Task<ViewFmglobalLine> GetByPalletNoAsync(string PalletNoYear);
+        Task<ViewFmglobalLine> GetByPalletNoAsync(string PalletNoYear,long? CompanyId);
+
+        Task<ViewFmglobalLine> GetBySessionIdAsync(Guid? SessionId);
     }
 }

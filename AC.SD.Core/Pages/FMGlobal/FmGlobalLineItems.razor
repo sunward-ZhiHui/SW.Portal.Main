@@ -114,7 +114,7 @@
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
                                                 Caption="Description"
                                                 Width="130px">
-                                                </DxListEditorColumn>
+                            </DxListEditorColumn>
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.BaseUnitofMeasure)"
                                                 Caption="Uom" Width="40px" />
                         </Columns>
@@ -141,10 +141,12 @@
                             <DxListEditorColumn FieldName="@nameof(ItemBatchInfo.BatchNo)"
                                                 Caption="Batch No"
                                                 Width="90px" />
-                          @*  <DxListEditorColumn FieldName="@nameof(ItemBatchInfo.ExpiryDate)"
+                            <DxListEditorColumn FieldName="@nameof(ItemBatchInfo.ExpiryDate)"
                                                 Caption="Expiry Date" />
                             <DxListEditorColumn FieldName="@nameof(ItemBatchInfo.ManufacturingDate)"
-                                                Caption="Manufacturing Date" />*@
+                                                Caption="Manufacturing Date" />
+                            <DxListEditorColumn FieldName="@nameof(ItemBatchInfo.NavQuantity)"
+                                                Caption="Quantity" />
                         </Columns>
                     </DxComboBox>
                     <ValidationMessage For="@(() => types.CartonPackingId)" />

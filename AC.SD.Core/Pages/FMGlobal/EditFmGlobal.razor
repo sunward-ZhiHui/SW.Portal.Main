@@ -63,12 +63,11 @@
                                     FilteringMode="DataGridFilteringMode.Contains"
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
-                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@Data.CompanyId" ShowValidationIcon="true"
                                     SelectedItemChanged="@((ViewPlants viewPlantsmaster) => SelectedItemPlantChanged(viewPlantsmaster.PlantID))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
-                                                    Caption="Customer Name"
+                                                    Caption="Company Name"
                                                     Width="180px" />
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
                                                     Caption="Description" />

@@ -138,7 +138,7 @@
                                             }
                                             <div style="width:100%">                                                
                                                 <strong>@item.FirstName 
-                                                    @if(item.Urgent.Value)
+                                                    @if(item.Urgent.GetValueOrDefault(false))
                                                     {
                                                             <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
                                                     }                                                    
@@ -894,8 +894,8 @@
                           
                         }
                         else
-                        {          
-                            <ParticipantList Tid="@Tid"></ParticipantList>                           
+                        {         @* @ref=RefTopicAddPList*@
+                            <ParticipantList   Tid="@Tid"></ParticipantList>                           
                         }
                     </div>
                 </div>
@@ -1134,6 +1134,9 @@
     UploadFileInfo FirstFile { get; set; }
     public string MyHeight { get; set; } = "200px";
     string width = "800px", height = "800px";
+  //  ParticipantList? RefTopicAddPList { get; set; } = new();
+    [Parameter]
+    public EventCallback<string> Participent { get; set; }
     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args) {
         // (width, height) = ($"{args.Size.Width}px", $"{args.Size.Height}px");
         (width) = ($"{args.Size.Width}px");
@@ -1778,8 +1781,8 @@
     {
         _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup))); 
         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
-      
-       
+
+
 
         //var url = FileUrl + lst.FilePath;
         //await OpenUrlInNewTab(url);
@@ -1867,6 +1870,7 @@
         }
     }
     private List<string> data;
+
     private async Task loadTopicDocList()
     {
         if(long.Parse(@SelectedGroup) > 0)
@@ -1893,6 +1897,7 @@
         }
 
     }
+
     private async Task LoadData()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
@@ -1924,7 +1929,7 @@
         if(long.Parse(@SelectedGroup) != 0)
         {
             _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));
-            _headTopic_Tag = await Mediator.Send(new GetByActivityEmailSession(_headTopic[0].SessionId.Value));
+            _headTopic_Tag = await Mediator.Send(new GetByActivityEmailSession(_headTopic[0].SessionId.GetValueOrDefault()));
 
 
             isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
@@ -1933,6 +1938,7 @@
             isEllipsis = true;
             isCommand = true;
             _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
+
 
             IsConHistory = true;            
         }
@@ -2192,7 +2198,7 @@
 
             var gettid = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
             _allparticipant = await Mediator.Send(new GetByConvasationTopicIDPList(id,gettid[0].TopicID));           
-            
+
 
             WindowVisible = true;
             Data.Name = _replyComment[0].Name;
@@ -2222,7 +2228,7 @@
     {
         isLeftMenuvisible = text;
     }
-    async Task OnMenuItemClick(string text)
+   public async Task OnMenuItemClick(string text)
     {
         isMenuvisible = text;
 
@@ -2256,6 +2262,8 @@
             isComponentVisible = false;
             isEllipsis = false;
             isCommand = false;
+         //  await RefTopicAddPList.ParticipentList(Tid);
+            //await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
         }
         else
         {
@@ -2380,5 +2388,7 @@
     void HandleInvalidSubmit()
     {
 
-    }  
+    } 
+    
+   
 }

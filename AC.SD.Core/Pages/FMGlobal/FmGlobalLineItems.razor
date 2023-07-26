@@ -82,7 +82,7 @@
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="FmglobalLineItemId" Visible="false" />
-            <DxGridDataColumn FieldName="ItemNo" />
+            <DxGridDataColumn FieldName="ItemDescription" Caption="Description" />
             <DxGridDataColumn FieldName="Uom" />
             <DxGridDataColumn FieldName="BatchNo" />
             <DxGridDataColumn FieldName="CartonPackingName" Caption="Carton Packing" />
@@ -102,7 +102,7 @@
                                 NullText="Select Item..."
                                 ListRenderMode="ListRenderMode.Virtual"
                                 FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="No"
+                                TextFieldName="Description"
                                 ValueFieldName="ItemId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@types.ItemId" ShowValidationIcon="true"
@@ -114,7 +114,7 @@
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
                                                 Caption="Description"
                                                 Width="130px">
-                            </DxListEditorColumn>
+                                                </DxListEditorColumn>
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.BaseUnitofMeasure)"
                                                 Caption="Uom" Width="40px" />
                         </Columns>

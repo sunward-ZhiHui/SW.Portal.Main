@@ -151,7 +151,15 @@
     </FooterContentTemplate>
 </DxPopup>
 
+<DxPopup @bind-Visible="@PrintPopupVisible" ShowFooter="true" HeaderText="Print" Width="100%" Height="100%">
+    <BodyContentTemplate>
+        <FMGlobalPrint printSessionId="@printSessionId" />
+    </BodyContentTemplate>
+</DxPopup>
+
 @code {
+    bool PrintPopupVisible { get; set; }
+    public Guid printSessionId { get; set; }
     [Parameter]
     public long? FmglobalId { get; set; }
     bool IsOpen { get; set; } = false;
@@ -234,9 +242,14 @@
     }
     void onprint()
     {
-        string url = "print/" + _selectedItems.SessionId;
-        NavigationManager.NavigateTo(url, forceLoad: true);
-        //NavigationManager.NavigateTo("print/" + _selectedItems.SessionId + "");
+        if (_selectedItems !=null)
+        {
+            printSessionId = _selectedItems.SessionId.Value;
+            PrintPopupVisible = true;
+        }
+       
+       // string url = "print/" + _selectedItems.SessionId;
+       // NavigationManager.NavigateTo(url, forceLoad: true);       
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

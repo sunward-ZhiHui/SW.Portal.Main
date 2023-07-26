@@ -30,8 +30,7 @@ public class Program
                     .AddJsonFile("ConnectionStrings.json", false, false)
                     .Build()
             )
-            .ConfigureServices(ConfigureServices)
-
+            .ConfigureServices(ConfigureServices)            
             .UseStaticWebAssets();
         
 
@@ -46,7 +45,7 @@ public class Program
             services.AddSingleton<DemoConfiguration>();
             services.AddScoped<DemoThemeService>();
             services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();
-        
+            services.AddDevExpressServerSideBlazorReportViewer();
         }
     }
 }

@@ -16,6 +16,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ViewIctmaster>> GetAllAsync();
         Task<IReadOnlyList<ViewIctmaster>> GetBySiteAsync(int MasterType);
         Task<ViewIctmaster> GetByIdAsync(Int64 id);
+        Task<IReadOnlyList<ViewIctmaster>> GetLocationByCompanyAsync(int MasterType,long? CompanyId);
+        
     }
     
 }

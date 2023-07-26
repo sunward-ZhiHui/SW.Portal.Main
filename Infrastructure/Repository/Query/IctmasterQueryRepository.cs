@@ -21,9 +21,9 @@ namespace Infrastructure.Repository.Query
 
         }
 
-      
 
-        public  async Task<ViewIctmaster> GetByIdAsync(long id)
+
+        public async Task<ViewIctmaster> GetByIdAsync(long id)
         {
             try
             {
@@ -44,20 +44,20 @@ namespace Infrastructure.Repository.Query
 
         public async Task<IReadOnlyList<CodeMaster>> GetCodeMasterByStatus(string name)
         {
-           
-                try
+
+            try
+            {
+                var query = "SELECT * FROM Codemaster WHERE CodeType =" + "'" + name + "'";
+                using (var connection = CreateConnection())
                 {
-                    var query = "SELECT * FROM Codemaster WHERE CodeType =" + "'" + name + "'";
-                    using (var connection = CreateConnection())
-                    {
-                        return (await connection.QueryAsync<CodeMaster>(query)).ToList();
-                    }
+                    return (await connection.QueryAsync<CodeMaster>(query)).ToList();
                 }
-                catch (Exception exp)
-                {
-                    throw new Exception(exp.Message, exp);
-                }
-            
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
         }
 
         //public async Task<IReadOnlyList<Ictmaster>> GetIctmasterByMasterType(int mastertype)
@@ -76,8 +76,8 @@ namespace Infrastructure.Repository.Query
         //    }
         //}
 
-        
-         async  Task<IReadOnlyList<ViewIctmaster>> IIctmasterQueryRepository.GetBySiteAsync(int MasterType)
+
+        async Task<IReadOnlyList<ViewIctmaster>> IIctmasterQueryRepository.GetBySiteAsync(int MasterType)
         {
             try
             {
@@ -94,7 +94,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        async  Task <IReadOnlyList<ViewIctmaster>> IIctmasterQueryRepository.GetAllAsync()
+        async Task<IReadOnlyList<ViewIctmaster>> IIctmasterQueryRepository.GetLocationByCompanyAsync(int MasterType, long? CompanyId)
+        {
+            try
+            {
+                var query = "select  * from view_Ictmaster where  CompanyId=@CompanyId and MasterType = @MasterType";
+                var parameters = new DynamicParameters();
+                parameters.Add("MasterType", MasterType);
+                parameters.Add("CompanyId", CompanyId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewIctmaster>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        async Task<IReadOnlyList<ViewIctmaster>> IIctmasterQueryRepository.GetAllAsync()
         {
             try
             {
@@ -111,5 +130,5 @@ namespace Infrastructure.Repository.Query
             }
         }
     }
-   
+
 }

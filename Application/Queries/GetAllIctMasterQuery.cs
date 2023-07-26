@@ -23,6 +23,17 @@ namespace Application.Queries
             this.MasterType = MasterType;
         }
     }
+    public class GetIctMasterLocationByCompanyQuery : PagedRequest, IRequest<List<ViewIctmaster>>
+    {
+        public int MasterType { get; private set; }
+        public long? CompanyId { get; private set; }
+
+        public GetIctMasterLocationByCompanyQuery(int MasterType, long? CompanyId)
+        {
+            this.MasterType = MasterType;
+            this.CompanyId = CompanyId;
+        }
+    }
     public class GetAllMasterTypeQuery : IRequest<List<CodeMaster>>
     {
         public string MasterType { get; private set; }

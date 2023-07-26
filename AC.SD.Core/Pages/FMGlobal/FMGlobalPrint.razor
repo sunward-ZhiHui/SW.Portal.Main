@@ -10,12 +10,16 @@
 @using System.Drawing.Imaging;
 @using QRCoder;
 @using System.IO;
-@page "/print/{SessionIds:guid}"
+@*@page "/print/{SessionIds:guid}"*@
 @using DevExpress.Blazor
-<style>
+<style scoped>
+    .btnSubmitForm
+    {
+        display:none;
+    }
     #customers {
-        font-family: Arial, Helvetica, sans-serif;
-        border-collapse: collapse;
+       /* font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -73,9 +77,8 @@
         </td>
     </tr>
 </table>
-        <div style="width:100%">
-          @*  <h3 style="float:left">@item.PalletNo</h3>*@
-            <div class="center-text clear-floats"></div>
+              
+          
     <table style="width:100%" id="customers">
                 <tr>
                     <th>Batch No</th>
@@ -97,7 +100,7 @@
                         @item.BatchNo
                     </td>
                     <td>
-                        @item.BatchSize
+                        @item.PackSize
                     </td>
                     <td>
                         @Application.Common.Helper.Helper.FormatDate(item.ManufacturingDate.Value)                        
@@ -124,7 +127,7 @@
             }
         }
             </table>
-        </div>
+  
    
 
 
@@ -136,6 +139,8 @@
 
 
 @code {
+    [Parameter]
+    public Guid printSessionId { get; set; }
     private string? Title { get; set; }
     private string? batchno { get; set; }
     private string? packsize { get; set; }
@@ -160,7 +165,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _ListItems = await Mediator.Send(new GetAllFmGlobalLineBySessionQuery(SessionIds));
+        //var lst = printSessionId;
+        _ListItems = await Mediator.Send(new GetAllFmGlobalLineBySessionQuery(printSessionId));
         palletNo = _ListItems.PalletNo;
         QRCodeText = _ListItems.PalletNo + "~" + _ListItems.PalletNoYear + "~" + _ListItems.FmglobalLineId;       
         _lineitemsLst = await Mediator.Send(new GetAllFmGlobalLineItemQuery(_ListItems.FmglobalLineId));

@@ -16,7 +16,7 @@ namespace Application.Handlers.QueryHandlers
     {
         private readonly IIctmasterQueryRepository _ictmasterQueryRepository;
         private readonly IQueryRepository<Ictmaster> _queryRepository;
-        public GetAllIctmasterHandler(IIctmasterQueryRepository plantQueryRepository, IQueryRepository<Ictmaster>  queryRepository)
+        public GetAllIctmasterHandler(IIctmasterQueryRepository plantQueryRepository, IQueryRepository<Ictmaster> queryRepository)
         {
             _ictmasterQueryRepository = plantQueryRepository;
             _queryRepository = queryRepository;
@@ -40,7 +40,18 @@ namespace Application.Handlers.QueryHandlers
             return (List<ViewIctmaster>)await _ictmasterQueryRepository.GetBySiteAsync(request.MasterType);
         }
     }
-    
+    public class GetIctMasterLocationByCompanyQueryHandler : IRequestHandler<GetIctMasterLocationByCompanyQuery, List<ViewIctmaster>>
+    {
+        private readonly IIctmasterQueryRepository _ictmasterQueryRepository;
+        public GetIctMasterLocationByCompanyQueryHandler(IIctmasterQueryRepository plantQueryRepository)
+        {
+            _ictmasterQueryRepository = plantQueryRepository;
+        }
+        public async Task<List<ViewIctmaster>> Handle(GetIctMasterLocationByCompanyQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewIctmaster>)await _ictmasterQueryRepository.GetLocationByCompanyAsync(request.MasterType, request.CompanyId);
+        }
+    }
     public class GetAllCodeMasterHandler : IRequestHandler<GetAllMasterTypeQuery, List<CodeMaster>>
     {
         private readonly IIctmasterQueryRepository _roleQueryRepository;

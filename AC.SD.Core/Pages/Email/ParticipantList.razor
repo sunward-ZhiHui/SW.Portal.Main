@@ -92,6 +92,7 @@
 
 @code{ 
     IGrid Grid { get; set; }
+    
     DxPopup? popup;
     bool DelPopupVisible = false;
     bool isAllPlistVisible = false;
@@ -109,6 +110,20 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _participant = await Mediator.Send(new GetEmailParticipantsList(Tid));
     }
+    //public async Task loadParticipentList( long id)
+    //{
+       
+    //       _participant = await Mediator.Send(new GetEmailParticipantsList(id));
+        
+    //}
+    //public async Task ParticipentList(long Tid)
+    //{
+    
+    //     var parlst = await Mediator.Send(new GetEmailParticipantsList(Tid));
+    //    StateHasChanged();
+      
+      
+    //}
     public async Task onDeletePlist(long Id)
     {
         _participantLst = _participant.FirstOrDefault(a => a.ID == Id);

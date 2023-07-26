@@ -51,6 +51,7 @@ namespace AC.SD.Core
             services.AddBlazoredToast();
             services.AddDocumentMetadata(ConfigureMetadata);
             services.AddSingleton<DemoConfiguration>();
+            services.AddDevExpressServerSideBlazorReportViewer();
             //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             //        .AddCookie(options =>
             //        {

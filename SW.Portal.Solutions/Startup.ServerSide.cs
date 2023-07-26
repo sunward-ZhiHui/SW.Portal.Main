@@ -17,6 +17,7 @@ using Infrastructure;
 using Application;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Blazored.Toast;
+using AC.ShippingDocument.Reporting;
 
 namespace SW.Portal.Solutions.ServerSide {
 
@@ -31,7 +32,7 @@ namespace SW.Portal.Solutions.ServerSide {
 #endif
             services.AddServerSideBlazor().AddCircuitOptions(x => x.DetailedErrors = detailedErrors);
             services.AddBlazoredToast();
-
+            services.AddDevExpressServerSideBlazorReportViewer();
 
             var optionsBuilder = services.AddOptions();
             optionsBuilder.AddOptions<DemoModel>("AC.SD.Core");
@@ -47,6 +48,7 @@ namespace SW.Portal.Solutions.ServerSide {
             //services.AddInfrastructureServices(Configuration);
             services.AddInfrastructure(Configuration);
             services.AddApplication();
+
             //services.AddScoped<IContosoRetailDataProvider, ContosoRetailDataProvider>();
             //services.AddScoped<IRentInfoDataProvider, RentInfoDataProvider>();
 
@@ -107,9 +109,9 @@ namespace SW.Portal.Solutions.ServerSide {
                     ["DataSourcesFolder"] = Path.Combine(System.AppContext.BaseDirectory, "DataSources")
                 });
             }));
-
+         
             base.Configure(builder);
-            //ReportingHostingStartup.Configure(builder);
+            ReportingHostingStartup.Configure(builder);
         }
     }
 }

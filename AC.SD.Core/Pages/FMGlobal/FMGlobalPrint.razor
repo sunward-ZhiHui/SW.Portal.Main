@@ -2,122 +2,192 @@
 @inject IJSRuntime JSRuntime;
 @inject IMediator Mediator
 @using Application.Queries;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
 @using MediatR
-@page "/print"
-
+@using Microsoft.AspNetCore
+@using System.Drawing;
+@using System.Drawing.Imaging;
+@using QRCoder;
+@using System.IO;
+@*@page "/print/{SessionIds:guid}"*@
 @using DevExpress.Blazor
+<style scoped>
+    .btnSubmitForm
+    {
+        display:none;
+    }
+    #customers {
+       /* font-family: Arial, Helvetica, sans-serif;
+        border-collapse: collapse;*/
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #ddd;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #04AA6D;
+            color: white;
+        }
+</style>
+<style>
+    /* Center align the text */
+    .center-text {
+        text-align: center;
+    }
+    /* Clear the floats to prevent layout issues */
+    .clear-floats::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+    /* Add any other styling you need */
+    img.mb-5 {
+        /* Add any specific styles for the image with the class "mb-5" here */
+    }
+    .tborder
+    {
+        border: 1px solid #9c9c9cee;
+    }
+    .noborder
+    {
+        border-bottom: 1px solid #9c9c9cee;
+    }
+</style>
+            
+<table style="width:100%">
+    <tr>   
+        <td><h3 style="float:left">@palletNo</h3></td>
+        <td>                       
+            <img alt="" style="float:right;" src="@QRByte" width="100" class="mb-5" />
+        </td>
+    </tr>
+</table>
+              
+          
+    <table style="width:100%" id="customers">
+                <tr>
+                    <th>Batch No</th>
+                    <th> Pack Size</th>
+                    <th>Mfg Date</th>
+                    <th>Exp Date</th>
+                    <th> No.of Carton</th>
+                    <th>No.of Units per Carton</th>
+                    <th> No.of Loose Carton</th>
+                    <th>No.of Units in Loose Carton</th>
+                    <th> Quantity</th>
+                </tr>
+        @if (_lineitemsLst != null && _lineitemsLst.Any())
+        {
+            @foreach (var item in _lineitemsLst)
+            {
+                <tr>                    
+                    <td>
+                        @item.BatchNo
+                    </td>
+                    <td>
+                        @item.PackSize
+                    </td>
+                    <td>
+                        @Application.Common.Helper.Helper.FormatDate(item.ManufacturingDate.Value)                        
+                    </td>
+                    <td>
+                        @Application.Common.Helper.Helper.FormatDate(item.ExpiryDate.Value)                     
+                    </td>
+                    <td>
+                        @item.NoOfCarton
+                    </td>
+                    <td>
+                        @item.NoOfUnitsPerCarton
+                    </td>
+                    <td>
+                        @noloosecarton
+                    </td>
+                    <td>
+                        @nounitsloosecarton
+                    </td>
+                    <td>
+                        @item.NavQuantity
+                    </td>
+                </tr>
+            }
+        }
+            </table>
+  
+   
 
 
-<div style="width:100%">
-    <h3>Title</h3>
-    <table style="width:100%">
-        <tr>
-            <td>
-                Batch No
-            </td>
-            <td class="tborder">
-                @batchno
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Pack Size
-            </td>
-            <td class="tborder">
-                @packsize
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Mfg Date
-            </td>
-            <td class="tborder">
-                @mfgDate
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Exp Date
-            </td>
-            <td class="tborder">
-                @expDate
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Pallet No
-            </td>
-            <td class="tborder">
-                @palletNo
-            </td>
-        </tr>
-        <tr>
-            <td>
-                No.of Carton
-            </td>
-            <td class="tborder">
-                @nocarton
-            </td>
-        </tr>
-        <tr>
-            <td>
-                No.of Units per Carton
-            </td>
-            <td class="tborder">
-                @nounitsperCarton
-            </td>
-        </tr>
-        <tr>
-            <td>
-                No.of Loose Carton
-            </td>
-            <td class="tborder">
-                @noloosecarton
-            </td>
-        </tr>
-        <tr>
-            <td>
-                No.of Units in Loose Carton
-            </td>
-            <td class="tborder">
-                @nounitsloosecarton
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Quantity
-            </td>
-            <td class="tborder">
-                @quantity
-            </td>
-        </tr>
-    </table>
+
+<div style="text-align:center;">
+    <button @onclick="@(() => PrintButtonClick())">Print</button>
 </div>
 
 
 
-<button @onclick="@(() => PrintButtonClick())"></button>
-
-
 @code {
-
+    [Parameter]
+    public Guid printSessionId { get; set; }
+    private string? Title { get; set; }
     private string? batchno { get; set; }
     private string? packsize { get; set; }
     private string? mfgDate { get; set; }
     private string? expDate { get; set; }
     private string? palletNo { get; set; }
+    private string? palletNo1 { get; set; }    
     private string? nocarton { get; set; }
     private string? nounitsperCarton { get; set; }
     private string? noloosecarton { get; set; }
     private string? nounitsloosecarton { get; set; }
     private string? quantity { get; set; }
 
+    public string QRCodeText { get; set; }
+    public string QRByte = "";
+
+    [Parameter]
+    public Guid? SessionIds { get; set; }
+
+    private ViewFmglobalLine _ListItems;
+    public List<ViewFmglobalLineItem> _lineitemsLst;
+
     protected override async Task OnInitializedAsync()
     {
-       
+        //var lst = printSessionId;
+        _ListItems = await Mediator.Send(new GetAllFmGlobalLineBySessionQuery(printSessionId));
+        palletNo = _ListItems.PalletNo;
+        QRCodeText = _ListItems.PalletNo + "~" + _ListItems.PalletNoYear + "~" + _ListItems.FmglobalLineId;       
+        _lineitemsLst = await Mediator.Send(new GetAllFmGlobalLineItemQuery(_ListItems.FmglobalLineId));
+        GenerateQRCode();
     }
-    async void PrintButtonClick()
+    async Task PrintButtonClick()
     {
-        await JSRuntime.InvokeAsync<string>("window.print");
+        await JSRuntime.InvokeAsync<string>("window.print"); 
+    }
+    public void GenerateQRCode()
+    {  
+        if (!string.IsNullOrEmpty(QRCodeText))
+        {
+            using MemoryStream ms = new();
+            QRCodeGenerator qrCodeGenerate = new();
+            QRCodeData qrCodeData = qrCodeGenerate.CreateQrCode(QRCodeText, QRCodeGenerator.ECCLevel.Q);
+            QRCode qrCode = new(qrCodeData);
+            using Bitmap qrBitMap = qrCode.GetGraphic(20);
+            qrBitMap.Save(ms, ImageFormat.Png);
+            string base64 = Convert.ToBase64String(ms.ToArray());
+            QRByte = string.Format("data:image/png;base64,{0}", base64);
+        }  
     }
 }

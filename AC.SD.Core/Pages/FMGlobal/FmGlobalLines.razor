@@ -25,6 +25,7 @@
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
                 <DxMenuItem Text="Item Entry" IconCssClass="fa fa-file-excel" Click="@AddItemEntry" />
+                <DxMenuItem Text="Print" IconCssClass="fa fa-print" Click="@onprint" />
             </Items>
         </DxMenu>
     </div>
@@ -85,6 +86,7 @@
             <DxGridDataColumn FieldName="FmglobalLineId" Visible="false" />
             <DxGridDataColumn FieldName="PalletEntryName" Caption="Pallet Entry" />
             <DxGridDataColumn FieldName="PalletNo" />
+            <DxGridDataColumn FieldName="TempPalletNo" />
             <DxGridDataColumn FieldName="AddedDate">
                 <CellDisplayTemplate>
                     @{
@@ -123,6 +125,9 @@
                 <DxFormLayoutItem Caption="Pallet No:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@types.PalletNo" Enabled=false />
                 </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Temp Pallet No" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@types.TempPalletNo" ShowValidationIcon="true" />
+                </DxFormLayoutItem>
                 <ValidationSummary />
             </DxFormLayout>
         </EditFormTemplate>
@@ -146,7 +151,15 @@
     </FooterContentTemplate>
 </DxPopup>
 
+<DxPopup @bind-Visible="@PrintPopupVisible" ShowFooter="true" HeaderText="Print" Width="100%" Height="100%">
+    <BodyContentTemplate>
+        <FMGlobalPrint printSessionId="@printSessionId" />
+    </BodyContentTemplate>
+</DxPopup>
+
 @code {
+    bool PrintPopupVisible { get; set; }
+    public Guid printSessionId { get; set; }
     [Parameter]
     public long? FmglobalId { get; set; }
     bool IsOpen { get; set; } = false;
@@ -227,6 +240,17 @@
         PanelVisible = false;
         StateHasChanged();
     }
+    void onprint()
+    {
+        if (_selectedItems !=null)
+        {
+            printSessionId = _selectedItems.SessionId.Value;
+            PrintPopupVisible = true;
+        }
+       
+       // string url = "print/" + _selectedItems.SessionId;
+       // NavigationManager.NavigateTo(url, forceLoad: true);       
+    }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         var navitems = (ViewFmglobalLine)e.EditModel;
@@ -278,6 +302,7 @@
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
                     SessionId = Guid.NewGuid(),
+                    TempPalletNo=editModel.TempPalletNo,
                     CompanyId = fmGlobalItems.CompanyId,
                 };
 
@@ -315,6 +340,7 @@
                     PalletNo = editModel.PalletNo,
                     PalletNoYear = editModel.PalletNoYear,
                     CompanyId = fmGlobalItems.CompanyId,
+                    TempPalletNo = editModel.TempPalletNo,
                 };
 
             var ans = await Mediator.Send(UpdateReq);

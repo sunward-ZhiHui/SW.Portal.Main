@@ -14,7 +14,7 @@ namespace Core.Entities.Views
         public long? CompanyId { get; set; }
         [Required(ErrorMessage = "Shipment Date is Required")]
         public DateTime? ExpectedShipmentDate { get; set; }
-        [Required(ErrorMessage = "PO No is Required")]
+        
         public string Pono { get; set; }
         [Required(ErrorMessage = "Location To is Required")]
         public long? LocationToId { get; set; }

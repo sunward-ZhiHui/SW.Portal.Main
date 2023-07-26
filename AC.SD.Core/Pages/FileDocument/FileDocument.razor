@@ -1,0 +1,28 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.EntityModels;
+@page "/Documents"
+@page "/Documents/{SessionId:guid}"
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration;
+@code {
+    private Documents _documentsData;
+    [Parameter]
+    public Guid? SessionId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (SessionId != null)
+        {
+            _documentsData = await Mediator.Send(new GetAllDocumentsQuery(SessionId));
+            if (_documentsData != null && _documentsData.FilePath != null)
+            {
+                string url = Configuration["DocumentsUrl:ServerUrl"] + _documentsData.FilePath;
+                var DoumentBytes = await Mediator.Send(new GetDocumentsBytesDataQuery(url));
+            }
+        }
+    }
+}

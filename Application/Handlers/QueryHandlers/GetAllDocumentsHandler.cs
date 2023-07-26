@@ -23,4 +23,16 @@ namespace Application.Handlers.QueryHandlers
             return await _queryRepository.GetBySessionIdAsync(request.SessionId.Value);
         }
     }
+    public class GetAllDocumentsBytesHandler : IRequestHandler<GetDocumentsBytesDataQuery, byte[]>
+    {
+        private readonly IDocumentsQueryRepository _queryRepository;
+        public GetAllDocumentsBytesHandler(IDocumentsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<byte[]> Handle(GetDocumentsBytesDataQuery request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetByteFromUrl(request.Url);
+        }
+    }
 }

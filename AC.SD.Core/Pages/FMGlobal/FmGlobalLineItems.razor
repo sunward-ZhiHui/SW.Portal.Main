@@ -110,12 +110,13 @@
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
                                                 Caption="Item No"
-                                                Width="190px" />
+                                                Width="90px" />
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
                                                 Caption="Description"
-                                                Width="90px" />
+                                                Width="130px">
+                            </DxListEditorColumn>
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.BaseUnitofMeasure)"
-                                                Caption="Uom" />
+                                                Caption="Uom" Width="40px" />
                         </Columns>
 
                     </DxComboBox>
@@ -128,11 +129,25 @@
                     <DxComboBox Data="@navItemBatchNoItems"
                                 NullText="Select Batch Info..."
                                 FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="BatchSize"
-                                ValueFieldName="NavItemBatchNoId"
-                                @bind-Value="@types.BatchInfoId"
+                                TextFieldName="BatchNo"
+                                ValueFieldName="ItemBatchId"
+                                @bind-Value="@types.ItemBatchInfoId"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ItemBatchInfo.LocationCode)"
+                                                Caption="Location Code"
+                                                Width="190px" />
+                            <DxListEditorColumn FieldName="@nameof(ItemBatchInfo.BatchNo)"
+                                                Caption="Batch No"
+                                                Width="90px" />
+                            <DxListEditorColumn FieldName="@nameof(ItemBatchInfo.ExpiryDate)"
+                                                Caption="Expiry Date" />
+                            <DxListEditorColumn FieldName="@nameof(ItemBatchInfo.ManufacturingDate)"
+                                                Caption="Manufacturing Date" />
+                            <DxListEditorColumn FieldName="@nameof(ItemBatchInfo.NavQuantity)"
+                                                Caption="Quantity" />
+                        </Columns>
                     </DxComboBox>
                     <ValidationMessage For="@(() => types.CartonPackingId)" />
                 </DxFormLayoutItem>
@@ -188,7 +203,7 @@
 
     private List<View_ApplicationMasterDetail> _viewCartonPackingItems;
     private List<View_NavItems>? _AllNavitems;
-    public List<NavItemBatchNo>? navItemBatchNoItems;
+    public List<ItemBatchInfo>? navItemBatchNoItems;
     bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
@@ -324,12 +339,12 @@
                     NoOfUnitsPerCarton = editModel.NoOfUnitsPerCarton,
                     CartonPackingId = editModel.CartonPackingId,
                     StatusCodeId = 1,
-                    BatchInfoId = editModel.BatchInfoId,
                     AddedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
                     SessionId = Guid.NewGuid(),
+                    ItemBatchInfoId = editModel.ItemBatchInfoId
                 };
 
             try
@@ -359,9 +374,9 @@
                     NoOfUnitsPerCarton = editModel.NoOfUnitsPerCarton,
                     CartonPackingId = editModel.CartonPackingId,
                     StatusCodeId = editModel.StatusCodeId,
-                    BatchInfoId = editModel.BatchInfoId,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
+                    ItemBatchInfoId = editModel.ItemBatchInfoId
                 };
 
             var ans = await Mediator.Send(UpdateReq);

@@ -895,7 +895,7 @@
                         }
                         else
                         {         @* @ref=RefTopicAddPList*@
-                            <ParticipantList @ref=RefTopicAddPList Tid="@Tid"></ParticipantList>
+                            <ParticipantList  Tid="@Tid"></ParticipantList>
                         }
                     </div>
                 </div>
@@ -1134,7 +1134,7 @@
     UploadFileInfo FirstFile { get; set; }
     public string MyHeight { get; set; } = "200px";
     string width = "800px", height = "800px";
-    ParticipantList? RefTopicAddPList { get; set; } = new();
+   // ParticipantList? RefTopicAddPList { get; set; } = new();
 
     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args) {
         // (width, height) = ($"{args.Size.Width}px", $"{args.Size.Height}px");
@@ -2262,7 +2262,7 @@
             isCommand = false;
            
          //  await RefTopicAddPList.ParticipentList(Tid);
-             RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
+          //   RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
         }
         else
         {

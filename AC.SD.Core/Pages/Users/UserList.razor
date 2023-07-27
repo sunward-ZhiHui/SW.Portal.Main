@@ -21,12 +21,30 @@
             <Items>
                 <DxMenuItem Text="Reset Password" IconCssClass="fa fa-key" Click="@ShowPopup" Enabled="@ResetEnabled"  />
                 <DxMenuItem Text="Unlock" IconCssClass="fa fa-unlock" Click="@((e) => UnSetLock(_selectedItems.UserID))" Enabled="@UnlockEnabled"  />
-              
-                <DxMenuItem Text="Active" Click="@((e) => Active(_selectedItems.UserID))"  Enabled="@StatusActive"/>
-                <DxMenuItem Text="InActive" Click="@((e) => InActive(_selectedItems.UserID))" Enabled="@StatusInActive" />
                   
+                    <DxMenu Visible="@StatusActive">
+                        <Items>
+                            <DxMenuItem Text="Active" IconCssClass="fa fa-key" Click="@((e) => Active(_selectedItems.UserID))" style="float: left; margin-bottom: -41px;  margin-left:300px; z-index: 9999; width:100px;" />
+                        </Items>
+                    </DxMenu>
+                 
+                    <DxMenu Visible="@StatusInActive">
+                        <Items>
+                            <DxMenuItem Text="InActive" IconCssClass="fa fa-key" Click="@((e) => InActive(_selectedItems.UserID))" style="float: left; margin-bottom: -41px;  margin-left:300px; z-index: 9999; width:100px;" />
+                        </Items>
+                    </DxMenu>
+
+               
+               
             </Items>
         </DxMenu>
+
+        @*  <div class="save_hover" @onclick="@((e) => InActive(_selectedItems.UserID))" style="float: left;line-height: 37px; margin-top: -41px; line-height: 37px; margin-left:300px; z-index: 9999; width:100px;">
+        <button Visible="@StatusInActive" class="btnSubmitForm" style="Visibility:@StatusInActive;">
+            InActive
+          
+        </button>
+    </div>*@
     </div>
 </div>
 

@@ -318,7 +318,64 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<ApplicationUser> ActiveUser(string LoginID)
+        {
+            try
+            {
+                var User = await GetByUsers(LoginID);
+                if (User != null)
+                {
+                    var userId = User.UserID;
+                    var query = "UPDATE ApplicationUser set   StatusCodeID= 1 where UserID = @UserID";
+                    var parameters = new DynamicParameters();
+                    parameters.Add("UserID", userId);
+                   
+                    using (var connection = CreateConnection())
+                    {
+                        var user = await connection.ExecuteAsync(query, parameters);
+                        return User;
+                    }
+                }
+                else
+                {
+                    ApplicationUser ApplicationUser = new ApplicationUser();
+                    return ApplicationUser;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ApplicationUser> InActiveUser(string LoginID)
+        {
+            try
+            {
+                var User = await GetByUsers(LoginID);
+                if (User != null)
+                {
+                    var userId = User.UserID;
+                    var query = "UPDATE ApplicationUser set   StatusCodeID= 0  where UserID = @UserID";
+                    var parameters = new DynamicParameters();
+                    parameters.Add("UserID", userId);
 
+                    using (var connection = CreateConnection())
+                    {
+                        var user = await connection.ExecuteAsync(query, parameters);
+                        return User;
+                    }
+                }
+                else
+                {
+                    ApplicationUser ApplicationUser = new ApplicationUser();
+                    return ApplicationUser;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task Initialize()
         {
             User = await _localStorageService.GetItem<ApplicationUser>("user");

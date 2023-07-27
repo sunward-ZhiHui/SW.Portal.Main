@@ -7,7 +7,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IJSRuntime JSRuntime;
-
+@using AC.SD.Core.Pages.Email;
 <button @onclick="onAddPlist" class="btn btn-excel" style="margin-bottom: 7px; float: right; margin-right: 15px;">
     Add Participant
 </button>
@@ -110,19 +110,23 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _participant = await Mediator.Send(new GetEmailParticipantsList(Tid));
     }
-    public async Task loadParticipentList()
+    public async Task loadParticipentList( long id)
     {
-        long id = 59;
-        _participant = await Mediator.Send(new GetEmailParticipantsList(id));        
+       
+        _participant = await Mediator.Send(new GetEmailParticipantsList(id));
+        
     }
-    //public async Task ParticipentList(long Tid)
-    //{
-    
-    //     var parlst = await Mediator.Send(new GetEmailParticipantsList(Tid));
-    //    StateHasChanged();
+    public async Task ParticipentList(long Tid)
+    {
+        if (_allparticipant.Count > 0)
+    {
+            var parlst = await Mediator.Send(new GetEmailParticipantsList(Tid));
+            StateHasChanged();
+
+    }
+        
       
-      
-    //}
+    }
     public async Task onDeletePlist(long Id)
     {
         _participantLst = _participant.FirstOrDefault(a => a.ID == Id);

@@ -895,7 +895,7 @@
                         }
                         else
                         {         @* @ref=RefTopicAddPList*@
-                            <ParticipantList   Tid="@Tid"></ParticipantList>                           
+                            <ParticipantList @ref=RefTopicAddPList Tid="@Tid"></ParticipantList>
                         }
                     </div>
                 </div>
@@ -1134,9 +1134,8 @@
     UploadFileInfo FirstFile { get; set; }
     public string MyHeight { get; set; } = "200px";
     string width = "800px", height = "800px";
-  //  ParticipantList? RefTopicAddPList { get; set; } = new();
-    [Parameter]
-    public EventCallback<string> Participent { get; set; }
+    ParticipantList? RefTopicAddPList { get; set; } = new();
+
     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args) {
         // (width, height) = ($"{args.Size.Width}px", $"{args.Size.Height}px");
         (width) = ($"{args.Size.Width}px");
@@ -2065,7 +2064,6 @@
         AppUserId = applicationUser.UserID;
         await JSRuntime.InvokeAsync<string>("showLoading");
 
-
         filterrowname = "";
         if (ActiveSessionId != null)
         {
@@ -2262,8 +2260,9 @@
             isComponentVisible = false;
             isEllipsis = false;
             isCommand = false;
+           
          //  await RefTopicAddPList.ParticipentList(Tid);
-            //await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
+             RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
         }
         else
         {

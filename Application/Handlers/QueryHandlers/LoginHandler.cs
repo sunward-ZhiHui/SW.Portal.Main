@@ -114,5 +114,38 @@ namespace CMS.Application.Handlers.QueryHandlers
 
 
     }
+    public class ActiveHandler : IRequestHandler<ActiveRequest, ApplicationUser>
+    {
+        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
 
+        public ActiveHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService)
+        {
+            _applicationUserQueryRepository = applicationUserQueryRepository;
+        }
+
+        public async Task<ApplicationUser> Handle(ActiveRequest request, CancellationToken cancellationToken)
+        {
+            var newEntity = await _applicationUserQueryRepository.ActiveUser(request.LoginID);
+            return newEntity;
+        }
+
+
+    }
+    public class InActiveHandler : IRequestHandler<InActiveRequest, ApplicationUser>
+    {
+        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
+
+        public InActiveHandler(IApplicationUserQueryRepository applicationUserQueryRepository, ILocalStorageService<ApplicationUser> localStorageService)
+        {
+            _applicationUserQueryRepository = applicationUserQueryRepository;
+        }
+
+        public async Task<ApplicationUser> Handle(InActiveRequest request, CancellationToken cancellationToken)
+        {
+            var newEntity = await _applicationUserQueryRepository.InActiveUser(request.LoginID);
+            return newEntity;
+        }
+
+
+    }
 }

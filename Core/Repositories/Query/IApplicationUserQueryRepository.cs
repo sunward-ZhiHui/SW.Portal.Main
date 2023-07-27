@@ -21,7 +21,8 @@ namespace Core.Repositories.Query
         Task<ApplicationUser> UpdatePasswordUser(long UserID, string NewPassword, string OldPassword, string LoginID);
         Task<ApplicationUser> ForGotPasswordUser(string LoginID, string NewPassword);
         Task<ApplicationUser> UnLockedPassword(string LoginID, string NewPassword);
-        
+        Task<ApplicationUser> ActiveUser(string LoginID);
+        Task<ApplicationUser> InActiveUser(string LoginID);
 
     }
     public interface IApplicationUserRoleQueryRepository : IQueryRepository<ApplicationUserRole>

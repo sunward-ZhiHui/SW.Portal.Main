@@ -826,7 +826,8 @@
                         {
                             <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
                                 <div class="card-body p-0">
-                                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                                   
+                                     @* <DxMenu CollapseItemsToHamburgerMenu="true" 
                                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                         DisplayMode="MenuDisplayMode.Desktop">
                                         <Items>
@@ -834,7 +835,19 @@
                                             <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="@((e) => onDocDownload(_selectlst.DocumentId))" Enabled=@docEnabled />
                                            
                                         </Items>
-                                    </DxMenu>
+                                        </DxMenu>*@
+                                   
+                                        <DxMenu CollapseItemsToHamburgerMenu="true" 
+                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                        DisplayMode="MenuDisplayMode.Desktop">
+                                        <Items>
+                                            <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="@((e) => onPreview(_selectlst.DocumentId))" Enabled=@IsValidUser />
+                                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="@((e) => onDocDownload(_selectlst.DocumentId))" Enabled=@IsValidUser />
+                                           
+                                        </Items>
+                                        </DxMenu>
+                                 
+
                                 </div>
                             </div>
                             <DxGrid @ref="Grid" Data="@_topicDocList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
@@ -895,7 +908,7 @@
                         }
                         else
                         {         @* @ref=RefTopicAddPList*@
-                            <ParticipantList  Tid="@Tid"></ParticipantList>
+                            <ParticipantList IsValidUser="@IsValidUser" Tid="@Tid"></ParticipantList>
                         }
                     </div>
                 </div>
@@ -1135,6 +1148,7 @@
     public string MyHeight { get; set; } = "200px";
     string width = "800px", height = "800px";
     ParticipantList? RefTopicAddPList { get; set; } = new();
+    public bool IsValidUser { get; set; } = false;
     [Parameter]
     public EventCallback<string> Participent { get; set; }
     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args) {
@@ -1885,14 +1899,16 @@
                 _selectlst = _topicDocList.FirstOrDefault();
                 //EditEnabled = true;
                 //DeleteEnabled = true;
-                PreviewEnabled=true;
-                docEnabled = true;
+                //PreviewEnabled=true;
+                //docEnabled = true;
+                IsValidUser = true;
                 StateHasChanged();
             }
             else
             {
-                PreviewEnabled=false;
-                docEnabled = false;
+                IsValidUser = true;
+                //PreviewEnabled=false;
+                //docEnabled = false;
             }
         }
 
@@ -1911,7 +1927,15 @@
         _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
         var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
 
-        var ck_validuser = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
+        var ck_validuser = await Mediator.Send(new GetEmailValidUserList(long.Parse(@SelectedGroup), applicationUser.UserID));
+        if(ck_validuser.Count > 0)
+        {
+            IsValidUser = true;
+        }
+        else
+        {
+            IsValidUser = false;
+        }
 
         if (topicToList != null)
         {

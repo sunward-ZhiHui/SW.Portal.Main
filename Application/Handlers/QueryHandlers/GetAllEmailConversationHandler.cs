@@ -44,6 +44,21 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDiscussionListAsync(request.TopicId,request.UserId);           
         }
     }
+    
+    public class GetEmailValidUserListHandler : IRequestHandler<GetEmailValidUserList, List<EmailConversations>>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetEmailValidUserListHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<List<EmailConversations>> Handle(GetEmailValidUserList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetValidUserListAsync(request.TopicId, request.UserId);
+        }
+    }
     //Get Conversation list
     public class GetEmailConversationListHandler : IRequestHandler<GetEmailConversationList, List<EmailConversations>>
     {

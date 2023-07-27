@@ -895,7 +895,7 @@
                         }
                         else
                         {         @* @ref=RefTopicAddPList*@
-                            <ParticipantList   Tid="@Tid"></ParticipantList>                           
+                            <ParticipantList @ref=RefTopicAddPList Tid="@Tid"></ParticipantList>                           
                         }
                     </div>
                 </div>
@@ -1134,7 +1134,8 @@
     UploadFileInfo FirstFile { get; set; }
     public string MyHeight { get; set; } = "200px";
     string width = "800px", height = "800px";
-  //  ParticipantList? RefTopicAddPList { get; set; } = new();
+    //ParticipantList? RefTopicAddPList { get; set; }
+    ParticipantList RefTopicAddPList = new ParticipantList();
     [Parameter]
     public EventCallback<string> Participent { get; set; }
     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args) {
@@ -1910,6 +1911,9 @@
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
         _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
         var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
+
+        var ck_validuser = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
+
         if (topicToList != null)
         {
             Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
@@ -2228,7 +2232,7 @@
     {
         isLeftMenuvisible = text;
     }
-   public async Task OnMenuItemClick(string text)
+   async Task OnMenuItemClick(string text)
     {
         isMenuvisible = text;
 
@@ -2261,9 +2265,8 @@
             isAddParticipant = true;
             isComponentVisible = false;
             isEllipsis = false;
-            isCommand = false;
-         //  await RefTopicAddPList.ParticipentList(Tid);
-            //await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
+            isCommand = false;          
+            //await RefTopicAddPList.loadParticipentList();
         }
         else
         {

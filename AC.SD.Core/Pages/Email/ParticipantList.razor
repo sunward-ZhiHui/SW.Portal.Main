@@ -90,9 +90,9 @@
     </BodyTemplate>
 </DxPopup>
 
-@code{ 
+@code{
     IGrid Grid { get; set; }
-    
+
     DxPopup? popup;
     bool DelPopupVisible = false;
     bool isAllPlistVisible = false;
@@ -110,12 +110,11 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _participant = await Mediator.Send(new GetEmailParticipantsList(Tid));
     }
-    //public async Task loadParticipentList( long id)
-    //{
-       
-    //       _participant = await Mediator.Send(new GetEmailParticipantsList(id));
-        
-    //}
+    public async Task loadParticipentList()
+    {
+        long id = 59;
+        _participant = await Mediator.Send(new GetEmailParticipantsList(id));        
+    }
     //public async Task ParticipentList(long Tid)
     //{
     

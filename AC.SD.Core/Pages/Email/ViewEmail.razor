@@ -825,29 +825,19 @@
                         else if (isMenuvisible == "Files")
                         {
                             <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
-                                <div class="card-body p-0">
-                                   
-                                     @* <DxMenu CollapseItemsToHamburgerMenu="true" 
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                        <Items>
-                                            <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="@((e) => onPreview(_selectlst.DocumentId))" Enabled=@PreviewEnabled />
-                                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="@((e) => onDocDownload(_selectlst.DocumentId))" Enabled=@docEnabled />
-                                           
-                                        </Items>
-                                        </DxMenu>*@
-                                   
-                                        <DxMenu CollapseItemsToHamburgerMenu="true" 
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                        <Items>
-                                            <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="@((e) => onPreview(_selectlst.DocumentId))" Enabled=@IsValidUser />
-                                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="@((e) => onDocDownload(_selectlst.DocumentId))" Enabled=@IsValidUser />
-                                           
-                                        </Items>
-                                        </DxMenu>
-                                 
-
+                                <div class="card-body p-0">                                   
+                                    <DxMenu CollapseItemsToHamburgerMenu="true" 
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                    <Items>
+                                        @if(IsValidUser)
+                                        {
+                                            <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="((e) => onPreview(_selectlst.DocumentId))" Enabled=PreviewEnabled />
+                                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectlst.DocumentId))" Enabled=docEnabled />
+                                        }                                       
+                                        
+                                    </Items>
+                                    </DxMenu>
                                 </div>
                             </div>
                             <DxGrid @ref="Grid" Data="@_topicDocList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
@@ -907,8 +897,8 @@
                           
                         }
                         else
-                        {         @* @ref=RefTopicAddPList*@
-                            <ParticipantList IsValidUser="@IsValidUser" Tid="@Tid"></ParticipantList>
+                        {         
+                            <ParticipantList @ref=RefTopicAddPList IsValidUser="@IsValidUser" Tid="@Tid"></ParticipantList>
                         }
                     </div>
                 </div>
@@ -1147,8 +1137,8 @@
     UploadFileInfo FirstFile { get; set; }
     public string MyHeight { get; set; } = "200px";
     string width = "800px", height = "800px";
-    ParticipantList? RefTopicAddPList { get; set; } = new();
-    public bool IsValidUser { get; set; } = false;
+    private ParticipantList? RefTopicAddPList { get; set; }
+    private bool IsValidUser { get; set; } = false;
     [Parameter]
     public EventCallback<string> Participent { get; set; }
     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args) {
@@ -1899,16 +1889,16 @@
                 _selectlst = _topicDocList.FirstOrDefault();
                 //EditEnabled = true;
                 //DeleteEnabled = true;
-                //PreviewEnabled=true;
-                //docEnabled = true;
+                PreviewEnabled=true;
+                docEnabled = true;
                 IsValidUser = true;
                 StateHasChanged();
             }
             else
             {
                 IsValidUser = true;
-                //PreviewEnabled=false;
-                //docEnabled = false;
+                PreviewEnabled=false;
+                docEnabled = false;
             }
         }
 
@@ -1946,6 +1936,13 @@
 
 
         OnMenuItemClick(isMenuvisible);
+
+
+        if (isMenuvisible == "AddParticipants")
+        {
+            await LoadPlist_Data();
+        }
+
         // Generate index IDs for each row
         //var indexedDiscussionList = _discussionList.Select((item, index) => new
         //{
@@ -2287,9 +2284,7 @@
             isAddParticipant = true;
             isComponentVisible = false;
             isEllipsis = false;
-            isCommand = false;
-         //  await RefTopicAddPList.ParticipentList(Tid);
-            //await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
+            isCommand = false;        
         }
         else
         {
@@ -2299,6 +2294,10 @@
             isCommand = false;
         }
     }  
+    async Task LoadPlist_Data()
+    {
+        await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
+    }
     private async Task HandleValidSubmit()
     {
         loading = true;        

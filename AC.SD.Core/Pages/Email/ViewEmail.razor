@@ -1134,7 +1134,7 @@
     UploadFileInfo FirstFile { get; set; }
     public string MyHeight { get; set; } = "200px";
     string width = "800px", height = "800px";
-  //  ParticipantList? RefTopicAddPList { get; set; } = new();
+    ParticipantList? RefTopicAddPList { get; set; } = new();
     [Parameter]
     public EventCallback<string> Participent { get; set; }
     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args) {

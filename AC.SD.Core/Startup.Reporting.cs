@@ -1,8 +1,13 @@
 
 using AC.SD.Core;
+using AC.SD.Core.ReportProvider;
+using DevExpress.DataAccess.Web;
+using DevExpress.DataAccess.Wizard.Services;
+using DevExpress.XtraReports.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Reporting.Core.Services;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -51,7 +56,7 @@ namespace AC.ShippingDocument.Reporting
                 //{
                 //    configurator.DesignAnalyzerOptions.EnableErrorCodeLinks = true;
                 //});
-               // DevExpress.DataAccess.DefaultConnectionStringProvider.AssignConnectionStrings(() => app.ApplicationServices.GetService<ReportingCustomConfigurationProvider>().GetGlobalConnectionStrings());
+                DevExpress.DataAccess.DefaultConnectionStringProvider.AssignConnectionStrings(() => app.ApplicationServices.GetService<ReportingCustomConfigurationProvider>().GetGlobalConnectionStrings());
                 var env = app.ApplicationServices.GetService<IWebHostEnvironment>();
                // if (cleaner == null)
                  //   cleaner = new Timer(state => Clean((string)state), env.ContentRootPath, TimeSpan.Zero, TimeSpan.FromSeconds(30));
@@ -64,14 +69,18 @@ namespace AC.ShippingDocument.Reporting
     {
         public static void Configure(IWebHostBuilder builder)
         {
+
             builder.ConfigureServices((webHostBuilderContext, services) =>
             {
                // var configurationProvider = new ReportingCustomConfigurationProvider(webHostBuilderContext.HostingEnvironment, webHostBuilderContext.Configuration);
                 services.AddTransient<IStartupFilter, StartupFilter>();
                 services.AddSession();
                 services.AddDevExpressServerSideBlazorReportViewer();
+                services.AddScoped<IReportProvider, ReportByNameService>();
+                //services.AddScoped<IConnectionProviderFactory, ReportDataConnectionProviderFactory>();
+                //services.AddScoped<IConnectionProviderService, ReportDataConnectionProviderService>();
                 // services.AddDevExpressBlazorReporting();
-                // services.AddSingleton<ReportingCustomConfigurationProvider, ReportingCustomConfigurationProvider>();
+                 services.AddSingleton<ReportingCustomConfigurationProvider, ReportingCustomConfigurationProvider>();
                 //services.ConfigureReportingServices((builder) =>
                 //{
                 //    builder.UseAsyncEngine();
@@ -90,8 +99,8 @@ namespace AC.ShippingDocument.Reporting
                 });
                
                 services.AddTransient<DevExpress.DataAccess.Wizard.Services.ICustomQueryValidator, DevExpress.DataAccess.Wizard.Services.CustomQueryValidator>();
-               // services.AddSingleton<IDemoReportSource, DemoReportSource>();
-                //services.AddScoped<ReportStorageWebExtension, DemoReportStorageWebExtension>();
+                //services.AddSingleton<IDemoReportSource, DemoReportSource>();
+               // services.AddScoped<ReportStorageWebExtension, DemoReportStorageWebExtension>();
                // services.AddScoped(serviceProvider => (IReportProviderAsync)serviceProvider.GetRequiredService<ReportStorageWebExtension>());
                 services.AddControllers(options => options.EnableEndpointRouting = false);
                 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

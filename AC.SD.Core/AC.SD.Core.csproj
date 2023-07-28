@@ -41,7 +41,6 @@
     <Compile Remove="Services\RentInfoDataService.AreaRentInfo.cs" />
     <Compile Remove="Services\RentInfoDataService.cs" />
     <Compile Remove="Services\ReportFactory.cs" />
-    <Compile Remove="Services\ReportingCustomConfigurationProvider.cs" />
     <Compile Remove="Services\StockQuoteService.cs" />
     <Compile Remove="Services\WeatherForecastService.cs" />
     <Compile Remove="Services\WeatherForecastService.Editable.cs" />
@@ -115,6 +114,11 @@
     <Reference Include="DevExpress.XtraReports.v23.1.Extensions">
       <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.XtraReports.v23.1.Extensions.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Reports\PrintPalletItemEntry.repx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

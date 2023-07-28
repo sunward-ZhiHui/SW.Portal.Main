@@ -360,7 +360,7 @@ namespace Infrastructure.Repository.Query
                                         TopicId
                                 ) FN ON TS.ID = FN.TopicId
                             WHERE
-                                (TP.UserId = @UserId) and TS.OnDraft = 0 and EC.ReplyId = 0
+                                (TP.UserId = @UserId) and TS.OnDraft = 0 /*and EC.ReplyId = 0*/
                             ORDER BY
                                 TS.StartDate DESC";
 
@@ -417,7 +417,7 @@ namespace Infrastructure.Repository.Query
                                         TopicId
                                 ) FN ON TS.ID = FN.TopicId
                             WHERE
-                                (TP.UserId = @UserId) and TS.OnDraft = 0 and EC.ReplyId = 0
+                                (TP.UserId = @UserId) and TS.OnDraft = 0 /*and EC.ReplyId = 0*/
                             ORDER BY
                                 TS.StartDate DESC";
 
@@ -507,7 +507,7 @@ namespace Infrastructure.Repository.Query
                          INNER JOIN
                                 EmailConversations EC ON TS.ID = EC.TopicId
                             INNER JOIN
-                                EmailConversationAssignTo TP ON EC.ID = TP.ConversationId AND (TP.UserId = @UserId)
+                                EmailConversationAssignTo TP ON EC.ID = TP.ConversationId AND (TP.UserId = @UserId or TP.AddedByUserID = @UserId)
                             INNER JOIN
                                 Employee E ON EC.AddedByUserID = E.UserId
                              LEFT JOIN

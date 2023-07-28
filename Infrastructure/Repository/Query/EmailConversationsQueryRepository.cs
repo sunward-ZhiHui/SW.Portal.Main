@@ -315,6 +315,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
+        public async Task<List<EmailConversations>> GetValidUserListAsync(long TopicId, long UserId)
+        {
+            try
+            {
+                var query = @"SELECT DISTINCT AddedByUserID from EmailConversations where TopicID = @TopicId and AddedByUserID =@UserId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
+
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async Task<List<EmailConversations>> GetDiscussionListAsync(long TopicId,long UserId)
         {

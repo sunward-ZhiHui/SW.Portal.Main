@@ -411,11 +411,11 @@
                                         {
                                             @if (item.ReplyId > 0)
                                             {
-                                                <div class="lstcoversationrply">
+                                                @*<div class="lstcoversationrply">
                                                     <i class="fa fa-reply-all" aria-hidden="true"></i>
                                                     <div>@item.ReplyMessage</div>
                                                     <div style="float:right;margin-top: -13px;">@item.ReplyUserName , @item.ReplyDateTime</div>
-                                                </div>
+                                                </div>*@
                                             }
 
                                             <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="margin-right: 10px;">
@@ -825,15 +825,18 @@
                         else if (isMenuvisible == "Files")
                         {
                             <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
-                                <div class="card-body p-0">
-                                    <DxMenu CollapseItemsToHamburgerMenu="true"
-                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                        DisplayMode="MenuDisplayMode.Desktop">
-                                        <Items>
-                                            <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="@((e) => onPreview(_selectlst.DocumentId))" Enabled=@PreviewEnabled />
-                                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="@((e) => onDocDownload(_selectlst.DocumentId))" Enabled=@docEnabled />
-                                           
-                                        </Items>
+                                <div class="card-body p-0">                                   
+                                    <DxMenu CollapseItemsToHamburgerMenu="true" 
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                    <Items>
+                                        @if(IsValidUser)
+                                        {
+                                            <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="((e) => onPreview(_selectlst.DocumentId))" Enabled=PreviewEnabled />
+                                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectlst.DocumentId))" Enabled=docEnabled />
+                                        }                                       
+                                        
+                                    </Items>
                                     </DxMenu>
                                 </div>
                             </div>
@@ -894,8 +897,8 @@
                           
                         }
                         else
-                        {         @* @ref=RefTopicAddPList*@
-                            <ParticipantList   Tid="@Tid"></ParticipantList>                           
+                        {         
+                            <ParticipantList @ref=RefTopicAddPList IsValidUser="@IsValidUser" Tid="@Tid"></ParticipantList>
                         }
                     </div>
                 </div>
@@ -1134,7 +1137,8 @@
     UploadFileInfo FirstFile { get; set; }
     public string MyHeight { get; set; } = "200px";
     string width = "800px", height = "800px";
-  //  ParticipantList? RefTopicAddPList { get; set; } = new();
+    private ParticipantList? RefTopicAddPList { get; set; }
+    private bool IsValidUser { get; set; } = false;
     [Parameter]
     public EventCallback<string> Participent { get; set; }
     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args) {
@@ -1887,10 +1891,12 @@
                 //DeleteEnabled = true;
                 PreviewEnabled=true;
                 docEnabled = true;
+                IsValidUser = true;
                 StateHasChanged();
             }
             else
             {
+                IsValidUser = true;
                 PreviewEnabled=false;
                 docEnabled = false;
             }
@@ -1910,6 +1916,17 @@
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
         _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
         var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
+
+        var ck_validuser = await Mediator.Send(new GetEmailValidUserList(long.Parse(@SelectedGroup), applicationUser.UserID));
+        if(ck_validuser.Count > 0)
+        {
+            IsValidUser = true;
+        }
+        else
+        {
+            IsValidUser = false;
+        }
+
         if (topicToList != null)
         {
             Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
@@ -1919,6 +1936,13 @@
 
 
         OnMenuItemClick(isMenuvisible);
+
+
+        if (isMenuvisible == "AddParticipants")
+        {
+            await LoadPlist_Data();
+        }
+
         // Generate index IDs for each row
         //var indexedDiscussionList = _discussionList.Select((item, index) => new
         //{
@@ -2064,7 +2088,6 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         AppUserId = applicationUser.UserID;
         await JSRuntime.InvokeAsync<string>("showLoading");
-
 
         filterrowname = "";
         if (ActiveSessionId != null)
@@ -2228,7 +2251,7 @@
     {
         isLeftMenuvisible = text;
     }
-   public async Task OnMenuItemClick(string text)
+   async Task OnMenuItemClick(string text)
     {
         isMenuvisible = text;
 
@@ -2261,9 +2284,7 @@
             isAddParticipant = true;
             isComponentVisible = false;
             isEllipsis = false;
-            isCommand = false;
-         //  await RefTopicAddPList.ParticipentList(Tid);
-            //await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
+            isCommand = false;        
         }
         else
         {
@@ -2273,6 +2294,10 @@
             isCommand = false;
         }
     }  
+    async Task LoadPlist_Data()
+    {
+        await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
+    }
     private async Task HandleValidSubmit()
     {
         loading = true;        

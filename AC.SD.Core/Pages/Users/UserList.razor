@@ -21,8 +21,30 @@
             <Items>
                 <DxMenuItem Text="Reset Password" IconCssClass="fa fa-key" Click="@ShowPopup" Enabled="@ResetEnabled"  />
                 <DxMenuItem Text="Unlock" IconCssClass="fa fa-unlock" Click="@((e) => UnSetLock(_selectedItems.UserID))" Enabled="@UnlockEnabled"  />
+                  
+                    <DxMenu Visible="@StatusActive">
+                        <Items>
+                            <DxMenuItem Text="Active" IconCssClass="fa fa-key" Click="@((e) => Active(_selectedItems.UserID))" style="float: left; margin-bottom: -41px;  margin-left:300px; z-index: 9999; width:100px;" />
+                        </Items>
+                    </DxMenu>
+                 
+                    <DxMenu Visible="@StatusInActive">
+                        <Items>
+                            <DxMenuItem Text="InActive" IconCssClass="fa fa-key" Click="@((e) => InActive(_selectedItems.UserID))" style="float: left; margin-bottom: -41px;  margin-left:300px; z-index: 9999; width:100px;" />
+                        </Items>
+                    </DxMenu>
+
+               
+               
             </Items>
         </DxMenu>
+
+        @*  <div class="save_hover" @onclick="@((e) => InActive(_selectedItems.UserID))" style="float: left;line-height: 37px; margin-top: -41px; line-height: 37px; margin-left:300px; z-index: 9999; width:100px;">
+        <button Visible="@StatusInActive" class="btnSubmitForm" style="Visibility:@StatusInActive;">
+            InActive
+          
+        </button>
+    </div>*@
     </div>
 </div>
 
@@ -135,18 +157,20 @@
          BodyText="@MessageBody" />
 @code {
 
-        bool PanelVisible { get; set; }
-        GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }
-        IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
-        bool PopupVisible { get; set; } = false;
-        DxPopup? popup;
-        bool MessageVisible { get; set; } 
-        string MessageHeader = "";
-        string MessageBody = "";
+    bool PanelVisible { get; set; }
+    GridSelectAllCheckboxMode CurrentSelectAllCheckboxMode { get; set; }
+    IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
+    bool PopupVisible { get; set; } = false;
+    DxPopup? popup;
+    bool MessageVisible { get; set; } 
+    string MessageHeader = "";
+    string MessageBody = "";
     private List<ViewEmployee> _employeeItems;
     private ViewEmployee _selectedItems;
     bool ResetEnabled { get; set; } = false;
     bool UnlockEnabled { get; set; } = false;
+    bool StatusActive { get; set; } = false;
+    bool StatusInActive { get; set; } = false;
     IGrid Grid { get; set; }
     private List<ApplicationPermission> applicationPermissions;
     List<string> permissionids = new List<string>();
@@ -159,7 +183,7 @@
 
         PanelVisible = true;
         // ApplicationPermission Hide and Show using Check menulist
-        var models = await Mediator.Send(new GetApplicationPermissionQuery(7));
+        var models = await Mediator.Send(new GetApplicationPermissionQuery(1));
         applicationPermissions = models;
 
         foreach (var permissionlst in applicationPermissions)
@@ -203,7 +227,13 @@
 
         var model = await Mediator.Send(new GetAllEmployeeListQuery());
         _employeeItems = model;
-
+        if(_employeeItems.Count >0)
+        {
+            _selectedItems = _employeeItems.FirstOrDefault();
+            ResetEnabled = true;
+            UnlockEnabled = true;
+            StateHasChanged();
+        }
 
         PanelVisible = false;
         //await jsRuntime.InvokeAsync<string>("hideLoading");
@@ -295,8 +325,18 @@
 
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UserID");
         _selectedItems = _employeeItems.FirstOrDefault(f => f.UserID == (long?)UniqueId);
-       
-            if (_selectedItems.Locked == true && permissionids.Any((f) => f == "Unlock"))
+        if(_selectedItems.UserStatus == 1)
+        {
+            StatusInActive = true;
+            StatusActive = false;
+        }
+        else 
+        {
+            StatusActive = true;
+            StatusInActive = false;
+        }
+
+        if (_selectedItems.Locked == true && permissionids.Any((f) => f == "Unlock"))
             {
                 UnlockEnabled = true;
             }
@@ -322,6 +362,35 @@
     {
         PopupVisible = false;
         UpdateDataAsync();
+    }
+
+    private async void Active(long? UserID)
+    {
+        var users = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
+        if (users != null)
+        {
+            var request = new ActiveRequest
+                {
+                    LoginID = users.LoginID,
+                    
+                };
+            var response = await Mediator.Send(request);
+            toastService.ShowToast("Account Active Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+    }
+    private async void InActive(long? UserID)
+    {
+        var users = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
+        if (users != null)
+        {
+            var request = new InActiveRequest
+                {
+                    LoginID = users.LoginID,
+
+                };
+            var response = await Mediator.Send(request);
+            toastService.ShowToast("Account InActive Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
     }
     //private void EditPerson(ViewEmployee context)
     //{

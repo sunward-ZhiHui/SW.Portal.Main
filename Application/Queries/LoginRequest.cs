@@ -28,5 +28,14 @@ namespace Application.Queries
         public string LoginID { get; set; }
         public string NewPassword { get; set; }
     }
+    public class ActiveRequest : IRequest<ApplicationUser>
+    {
+        public string LoginID { get; set; }
+       
+    }
+    public class InActiveRequest : IRequest<ApplicationUser>
+    {
+        public string LoginID { get; set; }
 
+    }
 }

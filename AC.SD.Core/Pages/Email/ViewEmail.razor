@@ -1557,6 +1557,7 @@
         SelectedReplyId = RId;
         var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
         RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
         await Task.Delay(1000); // Example asynchronous operation
         await LoadReplyData();
         StateHasChanged();

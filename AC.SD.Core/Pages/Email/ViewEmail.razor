@@ -1931,10 +1931,10 @@
 
         OnMenuItemClick(isMenuvisible);
 
-        _headTopic = await Mediator.Send(new GetByIdEmailTopics(RTopicId));
+      //  _headTopic = await Mediator.Send(new GetByIdEmailTopics(RTopicId));
 
 
-        isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+       // isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
         isEnabled = true;
         isEllipsis = true;

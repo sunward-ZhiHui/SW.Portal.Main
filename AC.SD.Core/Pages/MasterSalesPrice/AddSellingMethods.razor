@@ -84,19 +84,26 @@
             <DxGridDataColumn FieldName="SalesOrderMasterPricingLineId" Visible="false" />
             @if (sellingMethodsName == "tier")
             {
-                <DxGridDataColumn FieldName="TierFromQty" Caption="Tier Qty">
+                <DxGridDataColumn FieldName="TierFromQty" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" Caption="Tier Qty">
                     <CellDisplayTemplate>
                         @{
                             var item = (SalesOrderMasterPricingLineSellingMethod)context.DataItem;
                         }
-                        @(item.TierFromQty + (item.TierToQty > 0 ? ("-" + item.TierToQty) : ""))
+                        @(item.TierFromQty + (item.TierToQty > 0 ? ("-" + item.TierToQty) : " - No Limit Qty"))
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn FieldName="TierPrice" />
             }
             else
             {
-                <DxGridDataColumn FieldName="BounsQty" />
+                <DxGridDataColumn FieldName="BounsQty" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" >
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (SalesOrderMasterPricingLineSellingMethod)context.DataItem;
+                        }
+                        @(item.BounsQty + (item.BounsToQty > 0 ? ("-" + item.BounsToQty) : " - No Limit Qty"))
+                    </CellDisplayTemplate>
+                    </DxGridDataColumn>
                 <DxGridDataColumn FieldName="BounsFocQty" Caption="Bouns Foc Qty" />
             }
 
@@ -114,14 +121,14 @@
 
                 @if (sellingMethodsName == "tier")
                 {
-                    <DxFormLayoutItem Caption="Tier From Qty:" ColSpanMd="3">
+                    <DxFormLayoutItem Caption="Tier Qty:" ColSpanMd="3">
                         <DxSpinEdit @bind-Value="@types.TierFromQty" ShowSpinButtons="false" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => types.TierFromQty)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Tier To Qty:" ColSpanMd="3">
-                        <DxSpinEdit @bind-Value="@types.TierToQty" ShowSpinButtons="false" ShowValidationIcon="true" />
-                        <ValidationMessage For="@(() => types.TierToQty)" />
-                    </DxFormLayoutItem>
+                    @* <DxFormLayoutItem Caption="Tier To Qty:" ColSpanMd="3">
+                <DxSpinEdit @bind-Value="@types.TierToQty" ShowSpinButtons="false" ShowValidationIcon="true" />
+                <ValidationMessage For="@(() => types.TierToQty)" />
+                </DxFormLayoutItem>*@
                     <DxFormLayoutItem Caption="Tier Price:" ColSpanMd="3">
                         <DxSpinEdit @bind-Value="@types.TierPrice" ShowSpinButtons="false" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => types.TierPrice)" />
@@ -215,50 +222,10 @@
         {
             sellingMethodsName = Items.SellingMethodName.ToLower();
         }
-        PanelVisible = true;
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         SalesOrderMasterPricingId = Items.SalesOrderMasterPricingLineId;
-
-        if (SalesOrderMasterPricingId > 0)
-        {
-            if (Items.SellingMethodId > 0)
-            {
-                AddEnabled = true;
-            }
-
-            _addIitemPriceLineSellingMethod = await Mediator.Send(new GetAllSOMPricingLineSellingMethodQuery(SalesOrderMasterPricingId.Value));
-
-
-            if (_addIitemPriceLineSellingMethod.Count > 0)
-            {
-
-                _selectedItems = _addIitemPriceLineSellingMethod.FirstOrDefault();
-
-                if (SelectedDataItems != null)
-                {
-                    if (Items.SellingMethodName.ToLower() == "tier")
-                    {
-                        _selectedItems.BounsFocQty = 0;
-                        _selectedItems.BounsQty = 0;
-                    }
-                    if (Items.SellingMethodName.ToLower() == "bonus")
-                    {
-                        _selectedItems.TierFromQty = 0;
-                        _selectedItems.TierToQty = 0;
-                        _selectedItems.TierPrice = 0;
-                    }
-                    EditEnabled = true;
-                    DeleteEnabled = true;
-
-                    StateHasChanged();
-                }
-
-
-            }
-        }
-
-        PanelVisible = false;
+        await UpdateDataAsync();
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -281,7 +248,38 @@
     async Task UpdateDataAsync()
     {
         PanelVisible = true;
-        _addIitemPriceLineSellingMethod = await Mediator.Send(new GetAllSOMPricingLineSellingMethodQuery(SalesOrderMasterPricingId.Value));
+        if (SalesOrderMasterPricingId > 0)
+        {
+            if (Items.SellingMethodId > 0)
+            {
+                AddEnabled = true;
+            }
+            _addIitemPriceLineSellingMethod = await Mediator.Send(new GetAllSOMPricingLineSellingMethodQuery(SalesOrderMasterPricingId.Value, sellingMethodsName));
+
+            if (_addIitemPriceLineSellingMethod.Count > 0)
+            {
+                _selectedItems = _addIitemPriceLineSellingMethod.FirstOrDefault();
+
+                if (SelectedDataItems != null)
+                {
+                    if (Items.SellingMethodName.ToLower() == "tier")
+                    {
+                        _selectedItems.BounsFocQty = 0;
+                        _selectedItems.BounsQty = 0;
+                    }
+                    if (Items.SellingMethodName.ToLower() == "bonus")
+                    {
+                        _selectedItems.TierFromQty = 0;
+                        _selectedItems.TierToQty = 0;
+                        _selectedItems.TierPrice = 0;
+                    }
+                    EditEnabled = true;
+                    DeleteEnabled = true;
+
+                    StateHasChanged();
+                }
+            }
+        }
         PanelVisible = false;
         StateHasChanged();
     }

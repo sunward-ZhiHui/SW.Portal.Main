@@ -45,6 +45,5 @@ namespace Core.Entities.Views
         public string ReasonForChangeName { get; set; }
         public string SalesPricingForName { get; set; }
         public string NavCompany { get; set; }
-        public List<SalesOrderMasterPricingLineSellingMethod> SalesOrderMasterPricingLineSellingMethods { get; set; }
     }
 }

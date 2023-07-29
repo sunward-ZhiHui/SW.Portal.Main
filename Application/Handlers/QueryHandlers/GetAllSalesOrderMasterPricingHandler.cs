@@ -59,7 +59,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<SalesOrderMasterPricingFromSalesModel> Handle(GetAllSalesOrderMasterPricingLineByItemByQtyQuery request, CancellationToken cancellationToken)
         {
-            return await _salesOrderMasterPricingLineQueryRepository.GetPricingTypeForSellingMethod(request.CompanyId, request.FromDate, request.SellingMethodId, request.ItemId, request.Qty);
+            return await _salesOrderMasterPricingLineQueryRepository.GetPricingTypeForSellingMethod(request.CompanyId, request.FromDate, request.SellingMethodId, request.ItemId, request.Qty, request.SellingMethod);
         }
     }
 }

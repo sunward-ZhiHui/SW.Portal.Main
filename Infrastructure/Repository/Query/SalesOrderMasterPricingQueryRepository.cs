@@ -12,16 +12,15 @@ using Core.Entities;
 using Core.EntityModels;
 using Microsoft.Extensions.Configuration;
 using Dapper;
+using System.Text.RegularExpressions;
 
 namespace Infrastructure.Repository.Query
 {
     public class SalesOrderMasterPricingQueryRepository : QueryRepository<View_SalesOrderMasterPricing>, ISalesOrderMasterPricingQueryRepository
     {
-        private readonly ISalesOrderMasterPricingLineSellingMethodQueryRepository _salesOrderMasterPricingLineSellingMethodQueryRepository;
-        public SalesOrderMasterPricingQueryRepository(IConfiguration configuration, ISalesOrderMasterPricingLineSellingMethodQueryRepository salesOrderMasterPricingLineSellingMethodQueryRepository)
+        public SalesOrderMasterPricingQueryRepository(IConfiguration configuration)
             : base(configuration)
         {
-            _salesOrderMasterPricingLineSellingMethodQueryRepository = salesOrderMasterPricingLineSellingMethodQueryRepository;
         }
         public async Task<IReadOnlyList<View_SalesOrderMasterPricing>> GetAllByMasterTypeAsync(string MasterType)
         {
@@ -136,143 +135,73 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("ItemId", ItemId, DbType.Int64);
                 using (var connection = CreateConnection())
                 {
-                    var results = await _salesOrderMasterPricingLineSellingMethodQueryRepository.GetAllAsync();
-                    var result = (await connection.QueryAsync<View_SalesOrderMasterPricingLineByItem>(query, parameters)).ToList();
-                    if (result.Count > 0)
+                    return (await connection.QueryAsync<View_SalesOrderMasterPricingLineByItem>(query, parameters)).ToList();
+
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingTypeForSellingMethod(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId, decimal? Qty, string SellingMethod)
+        {
+            SalesOrderMasterPricingFromSalesModel salesOrderMasterPricingFromSalesModel = new SalesOrderMasterPricingFromSalesModel();
+            if (SellingMethod.ToLower() == "tier")
+            {
+                var result = await GetPricingTierDuartionCompare(CompanyId, DateFrom, SellingMethodId, ItemId, Qty, "SpecificItemMasterPrice");
+                if (result != null)
+                {
+                    salesOrderMasterPricingFromSalesModel = result;
+                }
+                else
+                {
+                    var resultMaster = await GetPricingTierDuartionCompare(CompanyId, DateFrom, SellingMethodId, ItemId, Qty, "MasterPrice");
+                    if (resultMaster != null)
                     {
-                        result.ForEach(s =>
+                        salesOrderMasterPricingFromSalesModel = resultMaster;
+                    }
+                    else
+                    {
+                        var ItemSellingPrice = await GetPricingNoTierOrBonus(CompanyId, DateFrom, SellingMethodId, ItemId, "SpecificItemMasterPrice");
+                        if (ItemSellingPrice != null)
                         {
-                            s.SalesOrderMasterPricingLineSellingMethods = results.Where(w => w.SalesOrderMasterPricingLineId == s.SalesOrderMasterPricingLineId).ToList();
-                            view_SalesOrderMasterPricingLineByItems.Add(s);
-                        });
+                            salesOrderMasterPricingFromSalesModel = ItemSellingPrice;
+                        }
+                        else
+                        {
+                            salesOrderMasterPricingFromSalesModel = await GetPricingNoTierOrBonus(CompanyId, DateFrom, SellingMethodId, ItemId, "MasterPrice");
+                        }
                     }
-                    return view_SalesOrderMasterPricingLineByItems;
                 }
             }
-            catch (Exception exp)
+            else
             {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingTypeForSellingMethod(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId, decimal? Qty)
-        {
-            SalesOrderMasterPricingFromSalesModel salesOrderMasterPricingFromSalesModel = new SalesOrderMasterPricingFromSalesModel();
-            try
-            {
-                var query = @"SELECT 
-                    t1.SalesOrderMasterPricingLineSellingMethodID,
-                    t1.TierFromQty,
-                    t1.TierToQty,
-                    t1.TierPrice,
-                    t1.BounsQty,
-                    t1.BounsFocQty,
-                    t1.SalesOrderMasterPricingLineID,
-                    t2.ItemID,
-                    t2.SellingMethodID,
-                    t2.SellingPrice,
-                    t3.CompanyID,
-                    t3.PriceValidaityFrom,
-                    t3.PriceValidaityTo,
-                    t4.Value as SellingMethod,
-                    t3.MasterType
-                    FROM 
-                    SalesOrderMasterPricingLineSellingMethod t1 
-                    JOIN SalesOrderMasterPricingLine t2 ON t2.SalesOrderMasterPricingLineID=t1.SalesOrderMasterPricingLineID
-                    JOIN SalesOrderMasterPricing t3 ON t3.SalesOrderMasterPricingID=t2.SalesOrderMasterPricingID
-                    JOIN ApplicationMasterDetail t4 ON t4.ApplicationMasterDetailID=t2.SellingMethodID
-                    WHERE t3.CompanyID=@CompanyId AND t3.MasterType='SpecificItemMasterPrice' 
-                    AND t2.ItemID=@ItemId AND t2.SellingMethodId=@SellingMethodId 
-                    AND @Date between t3.PriceValidaityFrom and t3.PriceValidaityTo
-                    AND @Qty between t1.TierFromQty and t1.TierToQty
-                    order by t1.TierFromQty asc";
-
-                var parameters = new DynamicParameters();
-                parameters.Add("CompanyId", CompanyId);
-                parameters.Add("Date", DateFrom, DbType.Date);
-                parameters.Add("ItemId", ItemId, DbType.Int64);
-                parameters.Add("SellingMethodId", SellingMethodId, DbType.Int64);
-                parameters.Add("Qty", Qty, DbType.Decimal);
-                using (var connection = CreateConnection())
+                var resultMaster = await GetPricingBonusDuartionCompare(CompanyId, DateFrom, SellingMethodId, ItemId, Qty, "MasterPrice");
+                if (resultMaster != null)
                 {
-                    var result = await connection.QueryFirstOrDefaultAsync<SalesOrderMasterPricingFromSalesModel>(query, parameters);
-                    if (result != null)
+                    salesOrderMasterPricingFromSalesModel = resultMaster;
+                }
+                else
+                {
+                    var ItemSellingPrice = await GetPricingNoTierOrBonus(CompanyId, DateFrom, SellingMethodId, ItemId, "SpecificItemMasterPrice");
+                    if (ItemSellingPrice != null)
                     {
-                        salesOrderMasterPricingFromSalesModel = result;
+                        salesOrderMasterPricingFromSalesModel = ItemSellingPrice;
                     }
                     else
                     {
-                        salesOrderMasterPricingFromSalesModel = await GetPricingTypeForSellingForMasterPriceNoLimitToQtyMethodSpecific(CompanyId, DateFrom, SellingMethodId, ItemId, Qty);
+                        salesOrderMasterPricingFromSalesModel = await GetPricingNoTierOrBonus(CompanyId, DateFrom, SellingMethodId, ItemId, "MasterPrice");
                     }
                 }
-                return salesOrderMasterPricingFromSalesModel;
             }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
+            return salesOrderMasterPricingFromSalesModel;
         }
-        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingTypeForSellingForMasterPriceNoLimitToQtyMethodSpecific(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId, decimal? Qty)
+        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingNoTierOrBonus(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId, string MasterType)
         {
-            try
-            {
-                SalesOrderMasterPricingFromSalesModel salesOrderMasterPricingFromSalesModel = new SalesOrderMasterPricingFromSalesModel();
-                var query = @"SELECT 
-                    t1.SalesOrderMasterPricingLineSellingMethodID,
-                    t1.TierFromQty,
-                    t1.TierToQty,
-                    t1.TierPrice,
-                    t1.BounsQty,
-                    t1.BounsFocQty,
-                    t1.SalesOrderMasterPricingLineID,
-                    t2.ItemID,
-                    t2.SellingMethodID,
-                    t2.SellingPrice,
-                    t3.CompanyID,
-                    t3.PriceValidaityFrom,
-                    t3.PriceValidaityTo,
-                    t4.Value as SellingMethod,
-                    t3.MasterType
-                    FROM 
-                    SalesOrderMasterPricingLineSellingMethod t1 
-                    JOIN SalesOrderMasterPricingLine t2 ON t2.SalesOrderMasterPricingLineID=t1.SalesOrderMasterPricingLineID
-                    JOIN SalesOrderMasterPricing t3 ON t3.SalesOrderMasterPricingID=t2.SalesOrderMasterPricingID
-                    JOIN ApplicationMasterDetail t4 ON t4.ApplicationMasterDetailID=t2.SellingMethodID
-                    WHERE t3.CompanyID=@CompanyId AND t3.MasterType='SpecificItemMasterPrice' 
-                    AND t2.ItemID=@ItemId AND t2.SellingMethodId=@SellingMethodId 
-                    AND @Date between t3.PriceValidaityFrom and t3.PriceValidaityTo
-                    AND @Qty >= TierFromQty and TierToQty is null
-                    order by t1.TierFromQty asc";
 
-                var parameters = new DynamicParameters();
-                parameters.Add("CompanyId", CompanyId);
-                parameters.Add("Date", DateFrom, DbType.Date);
-                parameters.Add("ItemId", ItemId, DbType.Int64);
-                parameters.Add("SellingMethodId", SellingMethodId, DbType.Int64);
-                parameters.Add("Qty", Qty, DbType.Decimal);
-                using (var connection = CreateConnection())
-                {
-                    var result = await connection.QueryFirstOrDefaultAsync<SalesOrderMasterPricingFromSalesModel>(query, parameters);
-                    if (result != null)
-                    {
-                        salesOrderMasterPricingFromSalesModel = result;
-                    }
-                    else
-                    {
-                        salesOrderMasterPricingFromSalesModel = await GetPricingTypeForSellingForNoSpecific(CompanyId, DateFrom, SellingMethodId, ItemId,Qty);
-                    }
-                    return salesOrderMasterPricingFromSalesModel;
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingTypeForSellingForNoSpecific(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId, decimal? Qty)
-        {
             try
             {
-                SalesOrderMasterPricingFromSalesModel salesOrderMasterPricingFromSalesModel = new SalesOrderMasterPricingFromSalesModel();
                 var query = @"SELECT 
                     t1.SalesOrderMasterPricingLineID,
                     t1.ItemID,
@@ -287,69 +216,58 @@ namespace Infrastructure.Repository.Query
                     SalesOrderMasterPricingLine t1 
                     JOIN SalesOrderMasterPricing t2 ON t2.SalesOrderMasterPricingID=t1.SalesOrderMasterPricingID
                     JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t1.SellingMethodID
-                    WHERE t2.CompanyID=@CompanyId AND t2.MasterType='SpecificItemMasterPrice' 
+                    WHERE t2.CompanyID=@CompanyId AND t2.MasterType=@MasterType 
                     AND t1.ItemID=@ItemId AND t1.SellingMethodId=@SellingMethodId 
                     AND @Date between t2.PriceValidaityFrom and t2.PriceValidaityTo
                     order by t1.SellingPrice asc";
 
                 var parameters = new DynamicParameters();
+                parameters.Add("MasterType", MasterType);
                 parameters.Add("CompanyId", CompanyId);
                 parameters.Add("Date", DateFrom, DbType.Date);
                 parameters.Add("ItemId", ItemId, DbType.Int64);
                 parameters.Add("SellingMethodId", SellingMethodId, DbType.Int64);
                 using (var connection = CreateConnection())
                 {
-                    var result= await connection.QueryFirstOrDefaultAsync<SalesOrderMasterPricingFromSalesModel>(query, parameters);
-                    if(result != null)
-                    {
-                        salesOrderMasterPricingFromSalesModel = result;
-                    }
-                    else
-                    {
-                        salesOrderMasterPricingFromSalesModel = await GetPricingTypeForSellingMethodSMasterPrice(CompanyId, DateFrom, SellingMethodId, ItemId,Qty);
-                    }
-                    return salesOrderMasterPricingFromSalesModel;
+                    return await connection.QueryFirstOrDefaultAsync<SalesOrderMasterPricingFromSalesModel>(query, parameters);
                 }
+
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingTypeForSellingMethodSMasterPrice(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId, decimal? Qty)
+
+        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingTierDuartionCompare(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId, decimal? Qty, string MasterType)
         {
-            SalesOrderMasterPricingFromSalesModel salesOrderMasterPricingFromSalesModel = new SalesOrderMasterPricingFromSalesModel();
             try
             {
-                var query = @"SELECT 
-                    t1.SalesOrderMasterPricingLineSellingMethodID,
-                    t1.TierFromQty,
-                    t1.TierToQty,
-                    t1.TierPrice,
-                    t1.BounsQty,
-                    t1.BounsFocQty,
-                    t1.SalesOrderMasterPricingLineID,
-                    t2.ItemID,
-                    t2.SellingMethodID,
-                    t2.SellingPrice,
-                    t3.CompanyID,
-                    t3.PriceValidaityFrom,
-                    t3.PriceValidaityTo,
-                    t4.Value as SellingMethod,
-                    t3.MasterType
-                    FROM 
-                    SalesOrderMasterPricingLineSellingMethod t1 
-                    JOIN SalesOrderMasterPricingLine t2 ON t2.SalesOrderMasterPricingLineID=t1.SalesOrderMasterPricingLineID
-                    JOIN SalesOrderMasterPricing t3 ON t3.SalesOrderMasterPricingID=t2.SalesOrderMasterPricingID
-                    JOIN ApplicationMasterDetail t4 ON t4.ApplicationMasterDetailID=t2.SellingMethodID
-                    WHERE t3.CompanyID=@CompanyId AND t3.MasterType='MasterPrice' 
-                    AND t2.ItemID=@ItemId AND t2.SellingMethodId=@SellingMethodId 
-                    AND @Date between t3.PriceValidaityFrom and t3.PriceValidaityTo
-                    AND @Qty between t1.TierFromQty and t1.TierToQty
-                    order by t1.TierFromQty asc";
 
+                var query = "SELECT TT.* FROM(SELECT t1.SalesOrderMasterPricingLineID,t1.TierFromQty AS TierNewFromQty,MIN(t5.TierFromQty) - 1 AS TierNewToQty," +
+                    "MAX(t1.SalesOrderMasterPricingLineSellingMethodID) as SalesOrderMasterPricingLineSellingMethodID," +
+                    "MAX(t1.TierFromQty) as TierFromQty,MAX(t1.TierToQty) as TierToQty," +
+                    "MAX(t1.TierPrice) as TierPrice,MAX(t1.BounsQty) as BounsQty," +
+                    "MAX(t1.BounsFocQty) as BounsFocQty,MAX(t2.ItemID) as ItemID," +
+                    "MAX(t2.SellingMethodID) as SellingMethodID," +
+                    "MAX(t2.SellingPrice) as SellingPrice," +
+                    "MAX(t3.CompanyID) as CompanyID," +
+                    "MAX(t3.PriceValidaityFrom) as PriceValidaityFrom," +
+                    "MAX(t3.PriceValidaityTo) as PriceValidaityTo,MAX(t4.Value) as SellingMethod," +
+                    "MAX(t3.MasterType) as MasterType FROM SalesOrderMasterPricingLineSellingMethod t1 " +
+                    "JOIN SalesOrderMasterPricingLine t2 ON t2.SalesOrderMasterPricingLineID = t1.SalesOrderMasterPricingLineID " +
+                    "JOIN SalesOrderMasterPricing t3 ON t3.SalesOrderMasterPricingID = t2.SalesOrderMasterPricingID " +
+                    "JOIN ApplicationMasterDetail t4 ON t4.ApplicationMasterDetailID = t2.SellingMethodID " +
+                    "LEFT JOIN SalesOrderMasterPricingLineSellingMethod t5 ON t5.TierFromQty > t1.TierFromQty AND t1.SalesOrderMasterPricingLineID = t5.SalesOrderMasterPricingLineID " +
+                    "WHERE t3.CompanyID = @CompanyId " +
+                    "AND t3.MasterType =@MasterType " +
+                    "AND t2.ItemID = @ItemID " +
+                    "AND t2.SellingMethodId = @SellingMethodId " +
+                    "AND @Date between t3.PriceValidaityFrom and t3.PriceValidaityTo " +
+                    "GROUP BY t1.TierFromQty, t1.SalesOrderMasterPricingLineID) TT WHERE @Qty between TT.TierFromQty and TT.TierNewToQty ORDER BY TT.SalesOrderMasterPricingLineID, TT.TierFromQty";
                 var parameters = new DynamicParameters();
                 parameters.Add("CompanyId", CompanyId);
+                parameters.Add("MasterType", MasterType);
                 parameters.Add("Date", DateFrom, DbType.Date);
                 parameters.Add("ItemId", ItemId, DbType.Int64);
                 parameters.Add("SellingMethodId", SellingMethodId, DbType.Int64);
@@ -359,54 +277,95 @@ namespace Infrastructure.Repository.Query
                     var result = await connection.QueryFirstOrDefaultAsync<SalesOrderMasterPricingFromSalesModel>(query, parameters);
                     if (result != null)
                     {
-                        salesOrderMasterPricingFromSalesModel = result;
+                        return result;
                     }
                     else
                     {
-                        salesOrderMasterPricingFromSalesModel = await GetPricingTypeForSellingForMasterPriceNoLimitToQtyMethodMasterPrice(CompanyId, DateFrom, SellingMethodId, ItemId, Qty);
+                        return await GetPricingTierToQtyIsNull(CompanyId, DateFrom, SellingMethodId, ItemId, Qty, MasterType);
                     }
                 }
-                return salesOrderMasterPricingFromSalesModel;
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingTypeForSellingForMasterPriceNoLimitToQtyMethodMasterPrice(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId, decimal? Qty)
+        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingTierToQtyIsNull(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId, decimal? Qty, string MasterType)
         {
             try
             {
                 SalesOrderMasterPricingFromSalesModel salesOrderMasterPricingFromSalesModel = new SalesOrderMasterPricingFromSalesModel();
-                var query = @"SELECT 
-                    t1.SalesOrderMasterPricingLineSellingMethodID,
-                    t1.TierFromQty,
-                    t1.TierToQty,
-                    t1.TierPrice,
-                    t1.BounsQty,
-                    t1.BounsFocQty,
-                    t1.SalesOrderMasterPricingLineID,
-                    t2.ItemID,
-                    t2.SellingMethodID,
-                    t2.SellingPrice,
-                    t3.CompanyID,
-                    t3.PriceValidaityFrom,
-                    t3.PriceValidaityTo,
-                    t4.Value as SellingMethod,
-                    t3.MasterType
-                    FROM 
-                    SalesOrderMasterPricingLineSellingMethod t1 
-                    JOIN SalesOrderMasterPricingLine t2 ON t2.SalesOrderMasterPricingLineID=t1.SalesOrderMasterPricingLineID
-                    JOIN SalesOrderMasterPricing t3 ON t3.SalesOrderMasterPricingID=t2.SalesOrderMasterPricingID
-                    JOIN ApplicationMasterDetail t4 ON t4.ApplicationMasterDetailID=t2.SellingMethodID
-                    WHERE t3.CompanyID=@CompanyId AND t3.MasterType='MasterPrice' 
-                    AND t2.ItemID=@ItemId AND t2.SellingMethodId=@SellingMethodId 
-                    AND @Date between t3.PriceValidaityFrom and t3.PriceValidaityTo
-                    AND @Qty >= TierFromQty and TierToQty is null
-                    order by t1.TierFromQty asc";
 
+                var query = "SELECT TT.* FROM(SELECT t1.SalesOrderMasterPricingLineID,t1.TierFromQty AS TierNewFromQty,MIN(t5.TierFromQty) - 1 AS TierNewToQty," +
+                    "MAX(t1.SalesOrderMasterPricingLineSellingMethodID) as SalesOrderMasterPricingLineSellingMethodID," +
+                    "MAX(t1.TierFromQty) as TierFromQty,MAX(t1.TierToQty) as TierToQty," +
+                    "MAX(t1.TierPrice) as TierPrice,MAX(t1.BounsQty) as BounsQty," +
+                    "MAX(t1.BounsFocQty) as BounsFocQty,MAX(t2.ItemID) as ItemID," +
+                    "MAX(t2.SellingMethodID) as SellingMethodID," +
+                    "MAX(t2.SellingPrice) as SellingPrice," +
+                    "MAX(t3.CompanyID) as CompanyID," +
+                    "MAX(t3.PriceValidaityFrom) as PriceValidaityFrom," +
+                    "MAX(t3.PriceValidaityTo) as PriceValidaityTo,MAX(t4.Value) as SellingMethod," +
+                    "MAX(t3.MasterType) as MasterType FROM SalesOrderMasterPricingLineSellingMethod t1 " +
+                    "JOIN SalesOrderMasterPricingLine t2 ON t2.SalesOrderMasterPricingLineID = t1.SalesOrderMasterPricingLineID " +
+                    "JOIN SalesOrderMasterPricing t3 ON t3.SalesOrderMasterPricingID = t2.SalesOrderMasterPricingID " +
+                    "JOIN ApplicationMasterDetail t4 ON t4.ApplicationMasterDetailID = t2.SellingMethodID " +
+                    "LEFT JOIN SalesOrderMasterPricingLineSellingMethod t5 ON t5.TierFromQty > t1.TierFromQty AND t1.SalesOrderMasterPricingLineID = t5.SalesOrderMasterPricingLineID " +
+                    "WHERE t3.CompanyID = @CompanyId " +
+                    "AND t3.MasterType =@MasterType " +
+                    "AND t2.ItemID = @ItemID " +
+                    "AND t2.SellingMethodId = @SellingMethodId " +
+                    "AND @Date between t3.PriceValidaityFrom and t3.PriceValidaityTo " +
+                    "GROUP BY t1.TierFromQty, t1.SalesOrderMasterPricingLineID) TT WHERE @Qty>=TT.TierNewFromQty AND TT.TierNewToQty is null  ORDER BY TT.SalesOrderMasterPricingLineID, TT.TierFromQty";
                 var parameters = new DynamicParameters();
                 parameters.Add("CompanyId", CompanyId);
+                parameters.Add("MasterType", MasterType);
+                parameters.Add("Date", DateFrom, DbType.Date);
+                parameters.Add("ItemId", ItemId, DbType.Int64);
+                parameters.Add("SellingMethodId", SellingMethodId, DbType.Int64);
+                parameters.Add("Qty", Qty, DbType.Decimal);
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<SalesOrderMasterPricingFromSalesModel>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+
+
+        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingBonusDuartionCompare(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId, decimal? Qty, string MasterType)
+        {
+            try
+            {
+
+                var query = "SELECT TT.* FROM(SELECT t1.SalesOrderMasterPricingLineID,t1.BounsQty,MIN(t5.BounsQty) - 1 AS BounsToQty," +
+                    "MAX(t1.SalesOrderMasterPricingLineSellingMethodID) as SalesOrderMasterPricingLineSellingMethodID," +
+                     "MAX(t1.TierFromQty) as TierFromQty,MAX(t1.TierToQty) as TierToQty," +
+                    "MAX(t1.TierPrice) as TierPrice," +
+                    "MAX(t1.BounsFocQty) as BounsFocQty,MAX(t2.ItemID) as ItemID," +
+                    "MAX(t2.SellingMethodID) as SellingMethodID," +
+                    "MAX(t2.SellingPrice) as SellingPrice," +
+                    "MAX(t3.CompanyID) as CompanyID," +
+                    "MAX(t3.PriceValidaityFrom) as PriceValidaityFrom," +
+                    "MAX(t3.PriceValidaityTo) as PriceValidaityTo,MAX(t4.Value) as SellingMethod," +
+                    "MAX(t3.MasterType) as MasterType FROM SalesOrderMasterPricingLineSellingMethod t1 " +
+                    "JOIN SalesOrderMasterPricingLine t2 ON t2.SalesOrderMasterPricingLineID = t1.SalesOrderMasterPricingLineID " +
+                    "JOIN SalesOrderMasterPricing t3 ON t3.SalesOrderMasterPricingID = t2.SalesOrderMasterPricingID " +
+                    "JOIN ApplicationMasterDetail t4 ON t4.ApplicationMasterDetailID = t2.SellingMethodID " +
+                    "LEFT JOIN SalesOrderMasterPricingLineSellingMethod t5 ON t5.BounsQty > t1.BounsQty AND t1.SalesOrderMasterPricingLineID = t5.SalesOrderMasterPricingLineID " +
+                    "WHERE t3.CompanyID = @CompanyId " +
+                    "AND t3.MasterType =@MasterType " +
+                    "AND t2.ItemID = @ItemID " +
+                    "AND t2.SellingMethodId = @SellingMethodId " +
+                    "AND @Date between t3.PriceValidaityFrom and t3.PriceValidaityTo " +
+                    "GROUP BY t1.BounsQty, t1.SalesOrderMasterPricingLineID) TT WHERE @Qty between TT.BounsQty and TT.BounsToQty ORDER BY TT.SalesOrderMasterPricingLineID, TT.BounsQty";
+                var parameters = new DynamicParameters();
+                parameters.Add("CompanyId", CompanyId);
+                parameters.Add("MasterType", MasterType);
                 parameters.Add("Date", DateFrom, DbType.Date);
                 parameters.Add("ItemId", ItemId, DbType.Int64);
                 parameters.Add("SellingMethodId", SellingMethodId, DbType.Int64);
@@ -416,13 +375,12 @@ namespace Infrastructure.Repository.Query
                     var result = await connection.QueryFirstOrDefaultAsync<SalesOrderMasterPricingFromSalesModel>(query, parameters);
                     if (result != null)
                     {
-                        salesOrderMasterPricingFromSalesModel = result;
+                        return result;
                     }
                     else
                     {
-                        salesOrderMasterPricingFromSalesModel = await GetPricingTypeForSellingForMasterPriceNoPricingTierMasterPrice(CompanyId, DateFrom, SellingMethodId, ItemId, Qty);
+                        return await GetPricingBonusToQtyIsNull(CompanyId, DateFrom, SellingMethodId, ItemId, Qty, MasterType);
                     }
-                    return salesOrderMasterPricingFromSalesModel;
                 }
             }
             catch (Exception exp)
@@ -430,35 +388,40 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingTypeForSellingForMasterPriceNoPricingTierMasterPrice(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId,decimal? Qty)
+        public async Task<SalesOrderMasterPricingFromSalesModel> GetPricingBonusToQtyIsNull(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId, decimal? Qty, string MasterType)
         {
             try
             {
                 SalesOrderMasterPricingFromSalesModel salesOrderMasterPricingFromSalesModel = new SalesOrderMasterPricingFromSalesModel();
-                var query = @"SELECT 
-                    t1.SalesOrderMasterPricingLineID,
-                    t1.ItemID,
-                    t1.SellingMethodID,
-                    t1.SellingPrice,
-                    t2.CompanyID,
-                    t2.PriceValidaityFrom,
-                    t2.PriceValidaityTo,
-                    t3.Value as SellingMethod,
-                    t2.MasterType
-                    FROM 
-                    SalesOrderMasterPricingLine t1 
-                    JOIN SalesOrderMasterPricing t2 ON t2.SalesOrderMasterPricingID=t1.SalesOrderMasterPricingID
-                    JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t1.SellingMethodID
-                    WHERE t2.CompanyID=@CompanyId AND t2.MasterType='MasterPrice' 
-                    AND t1.ItemID=@ItemId AND t1.SellingMethodId=@SellingMethodId 
-                    AND @Date between t2.PriceValidaityFrom and t2.PriceValidaityTo
-                    order by t1.SellingPrice asc";
 
+                var query = "SELECT TT.* FROM(SELECT t1.SalesOrderMasterPricingLineID,t1.BounsQty,MIN(t5.BounsQty) - 1 AS BounsToQty," +
+                    "MAX(t1.SalesOrderMasterPricingLineSellingMethodID) as SalesOrderMasterPricingLineSellingMethodID," +
+                    "MAX(t1.TierFromQty) as TierFromQty,MAX(t1.TierToQty) as TierToQty," +
+                    "MAX(t1.TierPrice) as TierPrice," +
+                    "MAX(t1.BounsFocQty) as BounsFocQty,MAX(t2.ItemID) as ItemID," +
+                    "MAX(t2.SellingMethodID) as SellingMethodID," +
+                    "MAX(t2.SellingPrice) as SellingPrice," +
+                    "MAX(t3.CompanyID) as CompanyID," +
+                    "MAX(t3.PriceValidaityFrom) as PriceValidaityFrom," +
+                    "MAX(t3.PriceValidaityTo) as PriceValidaityTo,MAX(t4.Value) as SellingMethod," +
+                    "MAX(t3.MasterType) as MasterType FROM SalesOrderMasterPricingLineSellingMethod t1 " +
+                    "JOIN SalesOrderMasterPricingLine t2 ON t2.SalesOrderMasterPricingLineID = t1.SalesOrderMasterPricingLineID " +
+                    "JOIN SalesOrderMasterPricing t3 ON t3.SalesOrderMasterPricingID = t2.SalesOrderMasterPricingID " +
+                    "JOIN ApplicationMasterDetail t4 ON t4.ApplicationMasterDetailID = t2.SellingMethodID " +
+                    "LEFT JOIN SalesOrderMasterPricingLineSellingMethod t5 ON t5.BounsQty > t1.BounsQty AND t1.SalesOrderMasterPricingLineID = t5.SalesOrderMasterPricingLineID " +
+                    "WHERE t3.CompanyID = @CompanyId " +
+                    "AND t3.MasterType =@MasterType " +
+                    "AND t2.ItemID = @ItemID " +
+                    "AND t2.SellingMethodId = @SellingMethodId " +
+                    "AND @Date between t3.PriceValidaityFrom and t3.PriceValidaityTo " +
+                    "GROUP BY t1.BounsQty, t1.SalesOrderMasterPricingLineID) TT WHERE @Qty>=TT.BounsQty AND TT.BounsToQty is null  ORDER BY TT.SalesOrderMasterPricingLineID, TT.BounsQty";
                 var parameters = new DynamicParameters();
                 parameters.Add("CompanyId", CompanyId);
+                parameters.Add("MasterType", MasterType);
                 parameters.Add("Date", DateFrom, DbType.Date);
                 parameters.Add("ItemId", ItemId, DbType.Int64);
                 parameters.Add("SellingMethodId", SellingMethodId, DbType.Int64);
+                parameters.Add("Qty", Qty, DbType.Decimal);
                 using (var connection = CreateConnection())
                 {
                     return await connection.QueryFirstOrDefaultAsync<SalesOrderMasterPricingFromSalesModel>(query, parameters);

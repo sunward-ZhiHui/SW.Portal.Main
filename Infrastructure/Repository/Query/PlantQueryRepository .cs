@@ -20,6 +20,22 @@ namespace Infrastructure.Repository.Query
         {
 
         }
+        public IReadOnlyList<ViewPlants> GetPlantsAll()
+        {
+            try
+            {
+                var query = "select  * from view_Plants where PlantID=1";
+
+                using (var connection = CreateConnection())
+                {
+                    return  connection.Query<ViewPlants>(query).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<ViewPlants>> GetAllAsync()
         {
             try

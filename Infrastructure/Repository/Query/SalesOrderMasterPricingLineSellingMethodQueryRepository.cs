@@ -55,18 +55,52 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<SalesOrderMasterPricingLineSellingMethod>> GetAllSalesOrderMasterPricingLineAsync(long? Id)
+        public async Task<IReadOnlyList<SalesOrderMasterPricingLineSellingMethod>> GetAllSalesOrderMasterPricingLineAsync(long? Id, string SellingMethodName)
         {
             try
             {
-                var query = "SELECT * FROM SalesOrderMasterPricingLineSellingMethod WHERE SalesOrderMasterPricingLineId = @Id";
-                var parameters = new DynamicParameters();
-                parameters.Add("Id", Id, DbType.Int64);
-
-                using (var connection = CreateConnection())
+                List<SalesOrderMasterPricingLineSellingMethod> salesOrderMasterPricingLineSellingMethods = new List<SalesOrderMasterPricingLineSellingMethod>();
+                var query = "SELECT * FROM SalesOrderMasterPricingLineSellingMethod WHERE SalesOrderMasterPricingLineID = @Id";
+                if (SellingMethodName != null)
                 {
-                    return (await connection.QueryAsync<SalesOrderMasterPricingLineSellingMethod>(query, parameters)).ToList();
+                    if (SellingMethodName == "tier")
+                    {
+                        query = "SELECT MAX(t1.SalesOrderMasterPricingLineSellingMethodID) as SalesOrderMasterPricingLineSellingMethodID," +
+                            "t1.SalesOrderMasterPricingLineID, " +
+                            "t1.TierFromQty, " +
+                            "MIN(t2.TierFromQty)-1 AS TierToQty, " +
+                            "MAX(t1.TierPrice) AS TierPrice FROM SalesOrderMasterPricingLineSellingMethod t1 " +
+                            "LEFT JOIN SalesOrderMasterPricingLineSellingMethod t2 ON t2.TierFromQty > t1.TierFromQty " +
+                            "AND t1.SalesOrderMasterPricingLineID = t2.SalesOrderMasterPricingLineID  " +
+                            "LEFT JOIN SalesOrderMasterPricingLineSellingMethod t3 ON t2.BounsQty > t1.BounsQty " +
+                            "AND t1.SalesOrderMasterPricingLineID = t2.SalesOrderMasterPricingLineID " +
+                            "WHERE t1.SalesOrderMasterPricingLineID=@ID GROUP BY t1.TierFromQty,t1.SalesOrderMasterPricingLineID " +
+                            "ORDER BY t1.SalesOrderMasterPricingLineID, t1.TierFromQty";
+                    }
+                    if (SellingMethodName == "bonus")
+                    {
+                        query = "SELECT MAX(t1.SalesOrderMasterPricingLineSellingMethodID) as SalesOrderMasterPricingLineSellingMethodID," +
+                            "t1.SalesOrderMasterPricingLineID, " +
+                            "t1.BounsQty, " +
+                            "MIN(t2.BounsQty)-1 AS BounsToQty, " +
+                            "MAX(t1.BounsFocQty) AS BounsFocQty, " +
+                            "MAX(t1.BounsPrice) AS BounsPrice FROM SalesOrderMasterPricingLineSellingMethod t1 " +
+                            "LEFT JOIN SalesOrderMasterPricingLineSellingMethod t2 ON t2.BounsQty > t1.BounsQty " +
+                            "AND t1.SalesOrderMasterPricingLineID = t2.SalesOrderMasterPricingLineID  " +
+                            "LEFT JOIN SalesOrderMasterPricingLineSellingMethod t3 ON t2.BounsQty > t1.BounsQty " +
+                            "AND t1.SalesOrderMasterPricingLineID = t2.SalesOrderMasterPricingLineID " +
+                            "WHERE t1.SalesOrderMasterPricingLineID=@ID GROUP BY t1.BounsQty,t1.SalesOrderMasterPricingLineID " +
+                            "ORDER BY t1.SalesOrderMasterPricingLineID, t1.BounsQty";
+                    }
+                    var parameters = new DynamicParameters();
+                    parameters.Add("Id", Id, DbType.Int64);
+
+                    using (var connection = CreateConnection())
+                    {
+                        salesOrderMasterPricingLineSellingMethods = (await connection.QueryAsync<SalesOrderMasterPricingLineSellingMethod>(query, parameters)).ToList();
+                    }
                 }
+                return salesOrderMasterPricingLineSellingMethods;
             }
             catch (Exception exp)
             {

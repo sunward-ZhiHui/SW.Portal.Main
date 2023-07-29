@@ -1,4 +1,6 @@
-﻿@using Application.Commands;
+﻿
+@page "/masterSearch"
+@using Application.Commands;
 @using Application.Common.Helper;
 @using Application.Queries;
 @using Application.Response;
@@ -12,8 +14,6 @@
 @using DevExpress.Blazor.Internal
 @using System.Collections.Generic
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@page "/ViewEmail"
-@page "/ViewEmail/{ActiveSessionId}"
 @using DevExpress.Blazor.RichEdit
 @using DevExpress.Blazor.Office
 @using System.Globalization
@@ -38,230 +38,63 @@
 @using System.Threading
 @using System.Timers
 
-<link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 
-<div class="">
-    <div class="main-container">
-        <!--  -->
-        <!-- Main Content -->
-        <!--  -->
-        <div class="content-container row">
-            <!-- Side Bar -->
-            @* <div class="side-menu-bar">
 
-            <div class="side-menu-bar-top">
-            <div class="side-menu-bar-text circle">RN</div>
-            <div class="side-menu-bar-text circle">IPIR</div>
-            <div class="side-menu-bar-text circle">PA</div>
-            <div class="side-menu-bar-text circle">CS</div>
-            <div class="side-menu-bar-text circle">GL</div>
-            </div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+<DxGrid @ref="TOGrid"
+        Data="_forumTopicTo"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        KeyFieldName="ID"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        style="height: calc(100vh - 160px);"
+        CssClass="ch-360"
+        FocusedRowEnabled="true"
+        AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement" RowClick="OnEmailToRowClick"
+        AutoExpandAllGroupRows="true"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+    <Columns>
+        <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
+        <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
+        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
+        <DxGridDataColumn FieldName="StartDate" Caption="Received Date">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailTopics)context.DataItem;
+                }
 
-            </div>*@
-            <!-- Mini Menu Bar -->
-            <div class="mini-menu-bar col-md-3" style="overflow-x: hidden;">
-                <div class="mini-menu-bar-top">
-                    @*<div class="mini-menu-bar-heading">
-                        <div class="files-title">General Information</div>
-                    </div> *@
-                    <div class="card w-100" style="margin-bottom:10px; margin-top:10px;">
-                        <div class="card-body p-0">
-                            <DxMenu CollapseItemsToHamburgerMenu="true"
-                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                    DisplayMode="MenuDisplayMode.Auto">
-                                <Items>
-                                    <DxMenuItem Text="All" class="@((isLeftMenuvisible == "All" ? "tActive": "tall"))" IconCssClass="fa fa-list-alt" Click="@(() => OnLeftMenuItemClick("All"))" />
-                                    <DxMenuItem Text="Assign To" class="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" IconCssClass="fa fa-envelope" Click="@(() => OnLeftMenuItemClick("AssignTo"))" />                                    
-                                    <DxMenuItem Text="CC" class="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" IconCssClass="popup-image popup-icon-position" Click="@(() => OnLeftMenuItemClick("AssignCC"))" />
-                                    <DxMenuItem Text="Sent" class="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" IconCssClass="fa fa-paper-plane" Click="@(() => OnLeftMenuItemClick("Sent"))" />
-                                    @*<DxMenuItem Text="Draft" class="@((isLeftMenuvisible == "Draft" ? "tActive": "draft"))" IconCssClass="fab fa-stack-overflow" Click="@(() => OnLeftMenuItemClick("Draft"))" />*@
-                                    @if (ActiveSessionId != null)
-                                    {
-                                        <DxButton Click="@(() => TOGrid.ClearFilter())">Clear Filter</DxButton>
-                                    }
-                                    </Items>
-                            </DxMenu>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="views-accordion">
-                            @*@if (_forumTopicTo != null && _forumTopicTo.Any())
-                            {
-                                @foreach (var item in _forumTopicTo)
-                                {
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <article class="media">                                        
-                                                <div class="media-body">
-                                                    <div class="content">
-                                                        <p class="h5">@item.FirstName <small>@item.LastName</small> <small class="float-right text-muted">@Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</small></p>
-                                                        <p>@item.TopicName</p>
-                                                    </div>                                         
-                                                </div>
-                                            </article>
-                                        </div>
-                                    </div>
-                                }
-                            }*@
-
-                        @if(isLeftMenuvisible == "All")
-                        {
-                                <AllEmail ATopicId="onViewEmailAllClick"></AllEmail>
-                        }
-                        else if (isLeftMenuvisible == "AssignTo")
-                        {
-                            <DxGrid @ref="TOGrid"
-                                    Data="_forumTopicTo"
-                                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                                    KeyFieldName="ID"                                
-                                    CustomizeElement="Grid_CustomizeElement"
-                                    PagerNavigationMode="PagerNavigationMode.InputBox"
-                                    PageSizeSelectorVisible="true"
-                                    PageSizeSelectorAllRowsItemVisible="true"
-                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                    PageSize="20"                                                                  
-                                    ValidationEnabled="true"
-                                    AutoExpandAllGroupRows="true"
-                                    CssClass="w-100" style="height: calc(100vh - 220px);"
-                                    RowClick="OnEmailToRowClick"
-                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                    AllowSelectRowByClick="true">
-                                <Columns>
-                                    <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
-                                   @* <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
-                                    <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
-                                        <DxGridDataColumn FieldName="FirstName" Caption="">
-                                        <CellDisplayTemplate>
-                                            @{
-                                                var item = (EmailTopics)context.DataItem;
-                                            }
-                                            <div style="width:100%">                                                
-                                                <strong>@item.FirstName 
-                                                    @if(item.Urgent.GetValueOrDefault(false))
-                                                    {
-                                                            <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
-                                                    }                                                    
-                                                    </strong>
-                                                <div>
-                                                    <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
-                                                    <text>@item.TopicName</text>
-                                                </div>                                                
-                                            </div>
-                                        </CellDisplayTemplate>
-                                    </DxGridDataColumn>
-                                  @*  <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />  *@                                     
-                                </Columns>
-                                 <DetailRowTemplate>       
-                                    <SubViewEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
-                                </DetailRowTemplate>
-                                <TotalSummary>
-                                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
-                                </TotalSummary>
-                                </DxGrid>
-                            }
-                            else if (isLeftMenuvisible == "AssignCC")
-                            {
-                                <DxGrid @ref="CCGrid"
-                                    Data="_forumTopicCC"
-                                    KeyFieldName="ID"
-                                    CustomizeElement="Grid_CustomizeElement"
-                                    PagerNavigationMode="PagerNavigationMode.InputBox"
-                                    PageSizeSelectorVisible="true"
-                                    PageSizeSelectorAllRowsItemVisible="true"
-                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                    PageSize="20"
-                                    ValidationEnabled="true"
-                                    AutoExpandAllGroupRows="true"
-                                    CssClass="ch-360 " style="height: calc(100vh - 220px);"
-                                    RowClick="OnEmailToRowClick"                                    
-                                    AllowSelectRowByClick="true">
-                                    <Columns>
-                                      @*  <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
-                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
-                                        <DxGridDataColumn FieldName="FirstName">
-                                            <CellDisplayTemplate>
-                                                @{
-                                                    var item = (EmailTopics)context.DataItem;
-                                                }
-                                                <div style="width:100%">
-                                                    <strong>@item.FirstName</strong>
-                                                    <div>
-                                                        <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
-                                                        <text>@item.TopicName</text>
-                                                    </div>
-                                                </div>
-                                            </CellDisplayTemplate>
-                                        </DxGridDataColumn>
-                                        @*<DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />*@
-                                    </Columns>
-                                    <DetailRowTemplate>
-                                        <SubViewEmailCC Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
-                                    </DetailRowTemplate>                                   
-                                    <TotalSummary>
-                                        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
-                                    </TotalSummary>
-                                </DxGrid>
-                            }
-                            else if(isLeftMenuvisible == "Sent")
-                            {
-                             <DxGrid @ref="SentGrid"
-                                    Data="_forumTopicSent"
-                                    KeyFieldName="ID"
-                                    CustomizeElement="Grid_CustomizeElement"
-                                    PagerNavigationMode="PagerNavigationMode.InputBox"
-                                    PageSizeSelectorVisible="true"
-                                    PageSizeSelectorAllRowsItemVisible="true"
-                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                    PageSize="20"
-                                    ValidationEnabled="true"
-                                    AutoExpandAllGroupRows="true"
-                                    CssClass="ch-360 " style="height: calc(100vh - 220px);"
-                                    RowClick="OnEmailToRowClick"                                    
-                                    AllowSelectRowByClick="true">
-                                    <Columns>
-                                       @* <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
-                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
-                                        <DxGridDataColumn FieldName="FirstName">
-                                            <CellDisplayTemplate>
-                                                @{
-                                                    var item = (EmailTopics)context.DataItem;
-                                                }
-                                                <div style="width:100%">
-                                                    <strong>@item.FirstName</strong>
-                                                    <div>
-                                                        <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
-                                                        <text>@item.TopicName</text>
-                                                    </div>
-                                                </div>
-                                            </CellDisplayTemplate>
-                                        </DxGridDataColumn>
-                                       @* <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />*@
-                                    </Columns>  
-                                     <DetailRowTemplate>
-                                        <SubViewEmailSent Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
-                                    </DetailRowTemplate> 
-                                    <TotalSummary>
-                                        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
-                                    </TotalSummary>
-                                </DxGrid>
-                            }                            
-
-                            
-                        </div>
-                    </div>
-                </div>
-                @*<div class="mini-menu-bar-down">
-                <div class="add-cloud-storage-btn">
-                <div class="cloud-storage-btn">
-                <div class="add-btn-text">Add cloud storage</div>
-                </div>
-                </div>
-                </div>*@
-            </div>
-            <!-- Menu Bar Content -->
-            <div class="menu-bar-content-container col-md-9">
-                <div class="content-padding-20">
+                @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)
+            </CellDisplayTemplate>
+        </DxGridDataColumn>   
+    </Columns>
+        <DetailRowTemplate>
+            <SubViewEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
+        </DetailRowTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
+    </TotalSummary>
+</DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@CCVisible"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Width="2000px">
+ @*<BodyContentTemplate>*@
+       
+                
+            
                     <div class="menu-bar-content-container-heading">
                         <div class="heading-icon-text">                          
                             <div class="mb-cc-text">
@@ -308,28 +141,7 @@
                                                                 }
                                                             }
                                                             
-                                                           @* <h5>
-                                                                From: @item.FirstName
-                                                                <br>
-                                                                To:                                                                
-                                                                @if (item.TopicToList != null && item.TopicToList.Any())
-                                                                {
-                                                                    @foreach (var items in item.TopicToList)
-                                                                    {
-                                                                        <span>@items.FirstName ,</span>
-                                                                    }
-                                                                }
-                                                                <br>
-                                                                CC:
-                                                                @if (item.TopicCCList != null && item.TopicCCList.Any())
-                                                                {
-                                                                    @foreach (var items in item.TopicCCList)
-                                                                    {
-                                                                        <span>@items.FirstName ,</span>
-                                                                    }
-                                                                }                                                               
-                                                                <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@item.StartDate)</span>
-                                                            </h5>*@
+                                                         
                                                         </div>                                                         
 
                                                        @* <div class="uk-card-title uk-first-column" style="margin-right:10px; float: left; margin-top: 4px; margin-left: 10px;">@item.TicketNo - @item.TopicName</div>
@@ -475,37 +287,7 @@
                                                         </div>
                                                     }
 
-                                                   @* <div class="uk-card-footer">
-                                                        <div>
-                                                            <div class="accordion-item">
-                                                                <div class="accordion-title" @onclick="@(() => ToggleDocItemVisibility(item.ID))"> Attachment </div>                                                               
-                                                               
-                                                                   @if (DocitemVisibility.ContainsKey(item.ID) && DocitemVisibility[item.ID])
-                                                                    {
-                                                                        @foreach (var attachment in item.documents)
-                                                                        {
-                                                                            <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
-                                                                        }
-                                                                            string firststring = "#overviewDemoSelectButton_";
-                                                                            Guid? secondstring = item.SessionId;
-                                                                            string extt = firststring + secondstring;
-                                                                        
-                                                                        <div id="overviewDemoSelectButton_@item.SessionId" class="tag fa fa-plus-square"></div>
-                                                                            <DxUpload @ref="MyUpload" Name="files"
-                                                                              AcceptedFileTypes=@AcceptedFileTypes
-                                                                              Visible="@UploadVisible"
-                                                                              ExternalSelectButtonCssSelector="@extt"
-                                                                              UploadUrl="@GetDocUploadUrl(@item.SessionId)"
-                                                                              Id="@extt"
-                                                                              SelectedFilesChanged="@SelectedFilesChanged1"
-                                                                              CssClass="w-100"
-                                                                              FileUploaded="@HandleUploadSuccess">
-                                                                            </DxUpload>
-                                                                    }
-                                                                
-                                                            </div>
-                                                        </div>
-                                                    </div>*@                                                    
+                                                                                    
                                                 </div>
                                                 
                                                 @if (item.ReplyConversation.Count() > 0)
@@ -546,14 +328,7 @@
                                                                                         }
                                                                                     }
                                                                                     <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</span>
-                                                                                   @* <div class="mailbox-read-time pull-right">
-                                                                                        <div class="" style="margin-right: 77px; margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
-                                                                                        <div class="btn-group" style="float: right; margin-top: -25px;">
-                                                                                            <button type="button" @onclick="@(() => onunderreply(items.ID))" style="border: 1px solid #eeebeb; padding: 8px; border-radius: 5px;" class="">
-                                                                                                <i class="fa fa-reply"></i> Reply
-                                                                                            </button>
-                                                                                        </div>
-                                                                                    </div>*@
+                                                                                 
                                                                                 </h5>
                                                                             </div>                                                                           
                                                                             <div>
@@ -692,21 +467,13 @@
                                                                 </div>
                                                             }
                                                         }
-                                                        @*       DocumentContentChanged="OnmsgContentChanged"
-                                                Selection="@richSelection" SelectionChanged="OnSelectionChanged"
-                                                *@
+                                                     
                                                         @if (isCommand)
                                                         {
                                                             @if (isCommandTopicClosed)
                                                             {
                                                                 <div class="boxreplay">
-                                                                   @* @if (_headTopic != null && _headTopic.Any())
-                                                                    {
-                                                                        @foreach (var item in _headTopic)
-                                                                        {
-                                                                            <h3>@item.TopicName</h3>
-                                                                        }
-                                                                    }*@
+                                                                   
 
                                                                     <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
                                                                         @* <DataAnnotationsValidator />*@
@@ -813,12 +580,7 @@
                                 else
                                 {
 
-                                   @* <DxButton RenderStyle="ButtonRenderStyle.Secondary"
-                                      Text="New Conversation"
-                                      Click="@(() => isComponentVisible = true)"
-                                      IconCssClass="btn-icon-undo"
-                                              style="color:white; width:200px;"
-                                      CssClass="me-1 btn-success open-button" />*@
+                                  
                                 }
                             </div>
                         }
@@ -878,16 +640,7 @@
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
 
-                                    @*<DxGridDataColumn FieldName="FileSize" />*@
-                                   @* <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
-                                        <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview((long)context.Value)"></button></CellDisplayTemplate>
-                                    </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="DocumentId" Caption="Download" AllowSort="false" Width="90px" FixedPosition="GridColumnFixedPosition.Right"  MinWidth="45" TextAlignment="GridTextAlignment.Center">
-                                        <CellDisplayTemplate><button class="dxbl-btn fa fa-cloud-download" @onclick="() => onDocDownload((long)context.Value)"></button></CellDisplayTemplate>
-                                    </DxGridDataColumn>*@
-                                   @* <DxGridDataColumn FieldName="DocumentId" Caption="Delete" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
-                                        <CellDisplayTemplate><button class="btnDelete fas fa-trash" @onclick="() => onDocDelete((long)context.Value)"></button></CellDisplayTemplate>
-                                    </DxGridDataColumn>*@
+                                 
                                 </Columns>
                             </DxGrid>
                         }
@@ -901,11 +654,16 @@
                             <ParticipantList @ref=RefTopicAddPList IsValidUser="@IsValidUser" Tid="@Tid"></ParticipantList>
                         }
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                
+           
+  
+ @*</BodyContentTemplate>*@
+  @*  <FooterContentTemplate Context="Context">*@
+
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseCCPopup())" />
+  @*  </FooterContentTemplate>*@
+</DxPopup>
+
 
 <DxFlyout @bind-IsOpen="@IsOpenFlyout"
           PositionTarget="#showFlyout"
@@ -997,14 +755,7 @@
                 </div>
             </EditForm>
 
-           @* <label>Remarks</label>
-            <DxMemo @bind-Text="ClosedMsg"
-                    CssClass="cw-480"
-                    Rows="5"/>
-            <br />
-            <DxButton RenderStyleMode="@ButtonRenderStyleMode.Outline"
-                      Text="Submit" style="width: 100px !important; float: right;"
-                      CssClass="w-100" />*@
+        
         </div>
     </BodyTemplate>
 </DxPopup>
@@ -1043,40 +794,25 @@
     </BodyTemplate>
 </DxPopup>
 
-@*<DxPopup @bind-Visible="@isFileUpload" HeaderText="Attachments">
-    <BodyTemplate Context="PopupContext">
-        <div style="padding: 15px;">
-            <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Selected File</button>
-            <div class="">              
-                <DxUpload @ref="uploadComponent" Name="files"                          
-                          Visible="@UploadVisible"                        
-                          AcceptedFileTypes=@AcceptedFileTypes
-                          UploadMode="@UploadMode.OnButtonClick"                        
-                          UploadUrl="@GetUploadUrl()"
-                          AllowMultiFileUpload="false"
-                          ExternalSelectButtonCssSelector="#overviewDemoSelectButton"                         
-                          SelectedFilesChanged="@SelectedFilesChanged"
-                          FileUploaded="@isUploadSuccess"
-                          FileUploadError="@OnUploadError">
-                </DxUpload> 
-                <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>               
-            </div>
-        </div>
-    </BodyTemplate>
-</DxPopup>*@
+
 <style>
     .dxuc-upload-icon {
         display: none; /* or any other style to disable or hide the icon */
     }
 </style>
-@*
-<button class="btn btn-primary" @onclick="ShowToast">Show Toast</button>
 
-<button class="btn btn-primary" @onclick="@(()=>ToastService.ShowSuccess("welcome to ass"))">Show Toast</button>
-*@
-
-
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="100%" Height="100%" @bind-Visible="@PreviewDocPopup">
+    <BodyContentTemplate>
+        <div class="richeditorHeight">
+            <DxRichEdit @ref="@richEdit" DocumentFormat="@MyDocumentFormat" DocumentContent="@documentContent" ViewType="ViewType.Simple" BarMode="BarMode.Toolbar" CssClass="w-100" DocumentContentChanged="OnDocumentContentChanged"></DxRichEdit>
+        </div>
+     
+    </BodyContentTemplate>    
+</DxPopup>
 @code {
+    bool PanelVisible { get; set; }
+    bool CCVisible { get; set; } = false;
+    bool PopupVisible { get; set; } = false;
     bool PreviewEnabled { get; set; } = false;
     bool docEnabled { get; set; } = false;
     private CancellationTokenSource cancellationTokenSource;
@@ -1141,6 +877,15 @@
     private bool IsValidUser { get; set; } = false;
     [Parameter]
     public EventCallback<string> Participent { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+        PanelVisible = false;
+
+    } 
     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args) {
         // (width, height) = ($"{args.Size.Width}px", $"{args.Size.Height}px");
         (width) = ($"{args.Size.Width}px");
@@ -1168,7 +913,7 @@
     string ClosedMsg { get; set; }
     DateTime? DateTimeValue { get; set; }
     DxPopup? popup;
-    bool PopupVisible { get; set; } = false;
+
     bool DocPopupVisible { get; set; } = false;
     bool PreviewDocPopup { get; set; } = false;
     private Dictionary<int, bool> itemVisibility = new Dictionary<int, bool>();
@@ -1557,7 +1302,6 @@
         SelectedReplyId = RId;
         var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
         RTopicId = conversationList[0].TopicID;
-        SelectedGroup = conversationList[0].TopicID.ToString();
         await Task.Delay(1000); // Example asynchronous operation
         await LoadReplyData();
         StateHasChanged();
@@ -1622,32 +1366,13 @@
             onShowPopupMessage("Error", "Document format not supported.");
         }
 
-        //var base_url = BaseUrl;
-        //var file_url = FileUrl;
-
-        //var filePath1 = BaseUrl + _documents.FilePath;
-        //string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
-        // documentContent = await File.ReadAllBytesAsync(response.FilePath);
-
-        //string filePathpdf = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.pdf";
-
-        //await JSRuntime.InvokeVoidAsync("pdfInterop.renderPDF", "pdfInterop", filePathpdf);
-
-
-
-
-        //await Task.Delay(10);       
-        //await JSRuntime.InvokeVoidAsync("displayOfficeDocument", OfficeContainerRef, filePath);
-
+       
 
     }   
 
     void OnCustomizeToolbar(IToolbar toolbar)
     {
-        //// Returns the first group
-        //IBarGroup firstGroup = toolbar.Groups[0];
-        //// Returns the Table group
-        //IBarGroup tableGroup = toolbar.Groups[RichEditToolbarGroupNames.Table];
+       
 
         toolbar.Groups.Clear();
 
@@ -1691,36 +1416,12 @@
         {
             msgContent = content;
 
-            //var createReq = new CreateEmailCoversation
-            //    {
-
-            //        TopicID = (long.Parse(@SelectedGroup)),
-            //        Message = Data.Message != null ? Data.Message : "Attachments",
-            //        FileData = content,
-            //        ParticipantId = applicationUser.UserID,
-            //        ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
-            //        StatusCodeID = 1,
-            //        AddedByUserID = applicationUser.UserID,
-            //        AddedDate = DateTime.Now,
-            //        SessionId = Guid.NewGuid()
-            //    };
-            //var result = await Mediator.Send(createReq);
-
-            //if (result == 1)
-            //{               
-            //    await LoadData();
-            //    onRestText();
-            //    closeReply();
-            //}
-            //else
-            //{
-
-            //}
+          
 
 
 
 
-            //await File.WriteAllBytesAsync("C:\\Users\\Public\\annual-report.rtf", documentContent);
+           
         }
         catch (OperationCanceledException e)
         {
@@ -1739,7 +1440,7 @@
 
         var response = await Mediator.Send(request);
 
-        // string filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
+       
         string filePath = response.FilePath;
         //string filePath = response.ServerFilePath;
         var urlss = FileUrl + _documents.FilePath;
@@ -1789,9 +1490,8 @@
 
 
 
-        //var url = FileUrl + lst.FilePath;
-        //await OpenUrlInNewTab(url);
-        //NavigationManager.NavigateTo(url, forceLoad: true);
+       
+      
 
         var request = new DownloadFileRequest
             {
@@ -1846,6 +1546,10 @@
         loading = false;
         StateHasChanged();
     }
+    async void  CloseCCPopup()
+    {
+        CCVisible = false;
+    }
     async void ClosePopup()
     {
         PopupVisible = false;
@@ -1876,35 +1580,6 @@
     }
     private List<string> data;
 
-    private async Task loadSubTopicDocList()
-    {
-        var conId = SelectedReplyId;
-
-        if (long.Parse(@SelectedGroup) > 0)
-        {
-            //await JSRuntime.InvokeAsync<string>("showLoading");
-            _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));
-            //await JSRuntime.InvokeAsync<string>("hideLoading");
-
-
-            if (_topicDocList.Count > 0)
-            {
-                _selectlst = _topicDocList.FirstOrDefault();
-                //EditEnabled = true;
-                //DeleteEnabled = true;
-                PreviewEnabled = true;
-                docEnabled = true;
-                IsValidUser = true;
-                StateHasChanged();
-            }
-            else
-            {
-                IsValidUser = true;
-                PreviewEnabled = false;
-                docEnabled = false;
-            }
-        }
-    }
     private async Task loadTopicDocList()
     {
         if(long.Parse(@SelectedGroup) > 0)
@@ -1936,6 +1611,7 @@
 
     private async Task LoadData()
     {
+        CCVisible = true;
         await JSRuntime.InvokeAsync<string>("showLoading");
         RTopicId = 0;
         Tid = long.Parse(@SelectedGroup);
@@ -2003,7 +1679,8 @@
     }
     private async Task LoadReplyData()
     {
-        await JSRuntime.InvokeAsync<string>("showLoading");
+        CCVisible = true;
+        // await JSRuntime.InvokeAsync<string>("showLoading");
         //var rTopicId =@RTopicId;
         //Tid = long.Parse(@SelectedReplyId);
         Tid = RTopicId;
@@ -2031,7 +1708,7 @@
 
 
         IsConHistory = false;
-        await JSRuntime.InvokeAsync<string>("hideLoading");
+        //await JSRuntime.InvokeAsync<string>("hideLoading");
 
     }
     private async Task LoadDataPosts()
@@ -2105,68 +1782,68 @@
         await LoadData();
         StateHasChanged();
     }
-    protected override async Task OnInitializedAsync()
-    {
-        var sss = ActiveSessionId;
-        cancellationTokenSource = new CancellationTokenSource();
-        StartAutoRefresh();
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    var sss = ActiveSessionId;
+    //    cancellationTokenSource = new CancellationTokenSource();
+    //    StartAutoRefresh();
 
-        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+    //    BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+    //    FileUrl = Configuration["DocumentsUrl:FileUrl"];
 
-        onloadSession();
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        AppUserId = applicationUser.UserID;
-        await JSRuntime.InvokeAsync<string>("showLoading");
+    //    onloadSession();
+    //    applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    //    AppUserId = applicationUser.UserID;
+    //    await JSRuntime.InvokeAsync<string>("showLoading");
 
-        filterrowname = "";
-        if (ActiveSessionId != null)
-        {
-            var lsts = await Mediator.Send(new GetListBySession(ActiveSessionId));
-            if(lsts.Count > 0)
-            {
-                SelectedGroup = lsts[0].ID.ToString();
-                RTopicId = 0;
-                filterrowname = ActiveSessionId;
+    //    filterrowname = "";
+    //    if (ActiveSessionId != null)
+    //    {
+    //        var lsts = await Mediator.Send(new GetListBySession(ActiveSessionId));
+    //        if(lsts.Count > 0)
+    //        {
+    //            SelectedGroup = lsts[0].ID.ToString();
+    //            RTopicId = 0;
+    //            filterrowname = ActiveSessionId;
 
-                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-                _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-                _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
-                _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+    //            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+    //            _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+    //            _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+    //            _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
 
-                await LoadData();
+    //            await LoadData();
 
-            }
-            else
-            {
-                RTopicId = 0;
-                SelectedGroup = "0";
-                await LoadData();
+    //        }
+    //        else
+    //        {
+    //            RTopicId = 0;
+    //            SelectedGroup = "0";
+    //            await LoadData();
 
-                //if (long.Parse(@SelectedGroup) > 0)
-                //{
-                //    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-                //    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-                //    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
-                //    _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
-                //}
+    //            //if (long.Parse(@SelectedGroup) > 0)
+    //            //{
+    //            //    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+    //            //    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+    //            //    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+    //            //    _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+    //            //}
 
-            }
+    //        }
 
-        }
-        else
-        {
-            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-            _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-            _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
-            _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
-        }
+    //    }
+    //    else
+    //    {
+    //        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+    //        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+    //        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+    //        _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+    //    }
 
-        await JSRuntime.InvokeAsync<string>("hideLoading");
-        //_discussionList = await Mediator.Send(new GetDiscussionList(38));
+    //    await JSRuntime.InvokeAsync<string>("hideLoading");
+    //    //_discussionList = await Mediator.Send(new GetDiscussionList(38));
 
 
-    }
+    //}
     private async Task StartAutoRefresh()
     {
         //try
@@ -2307,15 +1984,7 @@
             isComponentVisible = false;
             isEllipsis = false;
             isCommand = false;
-
-            if (RTopicId == 0)
-            {                
-                await loadTopicDocList();
-            }
-            else
-            {
-                await loadSubTopicDocList();
-            }            
+            await loadTopicDocList();
         }
         else if (text == "AddParticipants")
         {
@@ -2447,11 +2116,10 @@
     {
         Data.Message = null;
     }
-
     void HandleInvalidSubmit()
     {
 
-    } 
-    
-   
+    }
+
+
 }

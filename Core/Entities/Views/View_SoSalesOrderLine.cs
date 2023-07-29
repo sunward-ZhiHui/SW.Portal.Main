@@ -38,5 +38,7 @@ namespace Core.Entities.Views
         public bool? IsManual { get; set; }
         public decimal? ManualPrice { get; set; }
         public string? PricingType { get; set; }
+        public string? SellingMethod { get; set; }
+        public decimal? OrderBounsQty { get; set; }
     }
 }

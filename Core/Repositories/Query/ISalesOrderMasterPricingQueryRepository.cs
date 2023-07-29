@@ -19,7 +19,7 @@ namespace Core.Repositories.Query
         Task<View_SalesOrderMasterPricing> GetCheckPriceValidaityDateAsync(SalesOrderMasterPricing view_SalesOrderMasterPricing);
         Task<long> InsertSalesOrderMasterPricingLineAsync(SalesOrderMasterPricing salesOrderMasterPricing);
         Task<IReadOnlyList<View_SalesOrderMasterPricingLineByItem>> GetSalesOrderLineByItemAsync(long? CompanyId, DateTime? FromDate, long? SellingMethodId, long? ItemId);
-        Task<SalesOrderMasterPricingFromSalesModel> GetPricingTypeForSellingMethod(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId,decimal? Qty);
+        Task<SalesOrderMasterPricingFromSalesModel> GetPricingTypeForSellingMethod(long? CompanyId, DateTime? DateFrom, long? SellingMethodId, long? ItemId,decimal? Qty, string SellingMethod);
 
     }
 }

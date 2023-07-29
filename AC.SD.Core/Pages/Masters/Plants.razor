@@ -84,13 +84,14 @@
             var plant = (ViewPlants)EditFormContext.EditModel;
         }
         <DxFormLayout CssClass="w-100">
+               
             <DxFormLayoutItem Caption="PlantCode" ColSpanMd="6">
                 <DxTextBox @bind-Text="@plant.PlantCode" ShowValidationIcon="true" />
                 <ValidationMessage For="@(() => plant.PlantCode)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description" ColSpanMd="6">
                 <DxMemo @bind-Text="@plant.Description" Rows="5" ShowValidationIcon="true" />
-                <ValidationMessage For="@(() => plant.PlantCode)" />
+                    <ValidationMessage For="@(() => plant.Description)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                 <DxComboBox Data="@_stausItems"

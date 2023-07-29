@@ -11,6 +11,7 @@ namespace Core.Repositories.Query
 {
     public interface IPlantQueryRepository : IQueryRepository<ViewPlants>
     {
+        IReadOnlyList<ViewPlants> GetPlantsAll();
         Task<IReadOnlyList<ViewPlants>> GetAllAsync();
         Task<ViewPlants> GetByIdAsync(Int64 id);
         Task<IReadOnlyList<ViewPlants>> GetAllByNavCompanyAsync();

@@ -227,22 +227,16 @@
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <div class="custom-flyout-body">
-            <DxGrid Data="@View_SalesOrderMasterPricingLineByItems" CssClass="ch-360" style="height: calc(100vh - 400px);">
+            <DxGrid @ref="PricingGrid" Data="@View_SalesOrderMasterPricingLineByItems" CssClass="ch-360" style="height: calc(100vh - 400px);">
                 <Columns>
-                    <DxGridDataColumn FieldName="PriceValidaityFrom" MinWidth="100">
+                    <DxGridDataColumn FieldName="PriceValidaityFrom" Caption="Price Duration" MinWidth="100">
                         <CellDisplayTemplate>
                             @{
                                 var item = (View_SalesOrderMasterPricingLineByItem)context.DataItem;
+                                var fromToYear = @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityFrom) + " To " + @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityTo);
                             }
-                            @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityFrom)
-                        </CellDisplayTemplate>
-                    </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PriceValidaityTo" MinWidth="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (View_SalesOrderMasterPricingLineByItem)context.DataItem;
-                            }
-                            @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityTo)
+                            @fromToYear
+
                         </CellDisplayTemplate>
                     </DxGridDataColumn>
                     <DxGridDataColumn FieldName="SellingMethodName" MinWidth="100" />
@@ -285,6 +279,8 @@
     // [Parameter]
     public string MasterType { get; set; }
     // [Parameter]
+    IGrid PricingGrid { get; set; }
+
     bool IsOpen { get; set; } = false;
     public View_SalesOrderMasterPricing _salesOrdersData { get; set; }
     public long? SalesOrderMasterPricingLineId { get; set; }
@@ -350,6 +346,7 @@
             DisplayByMasterType = "";
             //SalesOrderMasterPricingLineId = _selectedItems.SalesOrderMasterPricingLineId;
             View_SalesOrderMasterPricingLineByItems = await Mediator.Send(new GetAllSalesOrderMasterPricingLineByItemQuery(_salesOrdersData.CompanyId, _salesOrdersData.PriceValidaityFrom, _salesOrdersData.PriceValidaityTo, ItemId));
+           // PricingGrid.ExpandAllGroupRows();
             StateHasChanged();
         }
     }

@@ -1788,6 +1788,35 @@
     }
     private List<string> data;
 
+    private async Task loadSubTopicDocList()
+    {
+        var conId = SelectedReplyId;
+
+        if (long.Parse(@SelectedGroup) > 0)
+        {
+            //await JSRuntime.InvokeAsync<string>("showLoading");
+            _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));
+            //await JSRuntime.InvokeAsync<string>("hideLoading");
+
+
+            if (_topicDocList.Count > 0)
+            {
+                _selectlst = _topicDocList.FirstOrDefault();
+                //EditEnabled = true;
+                //DeleteEnabled = true;
+                PreviewEnabled = true;
+                docEnabled = true;
+                IsValidUser = true;
+                StateHasChanged();
+            }
+            else
+            {
+                IsValidUser = true;
+                PreviewEnabled = false;
+                docEnabled = false;
+            }
+        }
+    }
     private async Task loadTopicDocList()
     {
         if(long.Parse(@SelectedGroup) > 0)
@@ -2190,7 +2219,15 @@
             isComponentVisible = false;
             isEllipsis = false;
             isCommand = false;
-            await loadTopicDocList();
+
+            if (RTopicId == 0)
+            {                
+                await loadTopicDocList();
+            }
+            else
+            {
+                await loadSubTopicDocList();
+            }            
         }
         else if (text == "AddParticipants")
         {

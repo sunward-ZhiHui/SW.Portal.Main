@@ -1,0 +1,98 @@
+﻿
+@page "/sentEmail"
+@using Application.Queries;
+@using global::Core.Entities;
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using MediatR
+@inject IMediator Mediator
+
+<DxGrid @ref="SentGrid"
+        Data="_forumTopicSent"
+        KeyFieldName="ID"
+        CustomizeElement="Grid_CustomizeElement"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360 " style="height: calc(100vh - 220px);"
+        RowClick="OnEmailToRowClick"
+        AllowSelectRowByClick="true">
+    <Columns>
+        @* <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
+        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
+        <DxGridDataColumn FieldName="FirstName">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailTopics)context.DataItem;
+                }
+                <div style="width:100%">
+                    <strong>@item.FirstName</strong>
+                    <div>
+                        <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
+                        <text>@item.TopicName</text>
+                    </div>
+                </div>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        @* <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />*@
+    </Columns>
+    <DetailRowTemplate>
+        <SubViewEmailSent Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
+    </DetailRowTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
+    </TotalSummary>
+</DxGrid>
+@code {
+
+    private List<EmailTopics>? _forumTopicSent;
+    IGrid SentGrid { get; set; }
+    public ApplicationUser applicationUser { get; private set; }
+    string SelectedGroup = "none";
+    public long RTopicId = 0;
+    string SelectedReplyId = "none";
+    public string filterrowname { get; set; }
+
+    [Parameter]
+    public Action<string> sentTopicId { get; set; }
+    [Parameter]
+    public Action<string> SubViewSentTopicId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+
+    }
+    async Task OnEmailToRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        SelectedGroup = UniqueId.ToString();
+        sentTopicId?.Invoke(SelectedGroup);
+        //await LoadData();
+        StateHasChanged();
+    }
+
+
+    private async void onSubViewEmailClick(string RId)
+    {
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SubViewSentTopicId?.Invoke(SelectedReplyId);
+        await Task.Delay(1000); // Example asynchronous operation
+                                //await LoadReplyData();
+        StateHasChanged();
+    }
+}

@@ -21,14 +21,17 @@ namespace Core.Repositories.Query
         Task<long> Update(EmailConversations company);
         Task<long> Delete(EmailConversations company);
         Task<IReadOnlyList<ViewEmployee>> GetAllParticipantAsync(long topicId);
+        Task<IReadOnlyList<ViewEmployee>> GetAddConversationPListAsync(long ConversationId);        
         long DeleteParticipant(TopicParticipant topicParticipant);
         Task<EmailConversations> GetByIdAsync(Int64 id);        
         Task<List<EmailConversations>> GetFullDiscussionListAsync(Int64 TopicId);
         Task<List<EmailConversations>> GetDiscussionListAsync(Int64 TopicId,Int64 UserId);
         Task<List<EmailConversations>> GetValidUserListAsync(Int64 TopicId, Int64 UserId);        
-        Task<List<EmailConversations>> GetConversationListAsync(Int64 Id);        
+        Task<List<EmailConversations>> GetConversationListAsync(Int64 Id);
+        Task<List<EmailConversations>> GetTopConversationListAsync(Int64 TopicId);
         Task<List<EmailConversations>> GetReplyDiscussionListAsync(Int64 TopicId,long UserId);
         Task<List<Documents>> GetTopicDocListAsync(long TopicId);
+        Task<List<Documents>> GetSubTopicDocListAsync(long TopicId);
         Task<List<EmailAssignToList>> GetAllAssignToListAsync(long TopicId);
         Task<List<ViewEmployee>> GetAllPListAsync(long TopicId);
         Task<List<ViewEmployee>> GetAllConvTopicPListAsync(long ConversationId, long TopicId);

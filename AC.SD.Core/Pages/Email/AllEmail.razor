@@ -11,7 +11,7 @@
 @inject IJSRuntime JSRuntime;
 @page "/AllEmail"
 
-<DxGrid @ref="AllEmailGrid"
+<DxGrid @ref="AllEmailGrid" SearchText="@GridSearchText"
         Data="_emailTopicAll"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="ID"
@@ -23,7 +23,7 @@
         PageSize="20"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 220px);"
+        CssClass="w-100" style="height: calc(100vh - 269px);"
         RowClick="OnEmailToRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
@@ -53,9 +53,9 @@
         </DxGridDataColumn>
         @*  <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />  *@
     </Columns>
-   @* <DetailRowTemplate>
-        <SubViewEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
-    </DetailRowTemplate>*@
+    <DetailRowTemplate>
+        <SubViewAllEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
+    </DetailRowTemplate>
     <TotalSummary>
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
     </TotalSummary>
@@ -71,6 +71,10 @@
     public ApplicationUser applicationUser { get; private set; }
     [Parameter]
     public Action<string> ATopicId { get; set; }
+    [Parameter]
+    public string? GridSearchText { get; set; }
+    [Parameter]
+    public Action<string> SubViewAllTopicId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,8 +102,10 @@
         SelectedReplyId = RId;
         var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
         RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
+        SubViewAllTopicId?.Invoke(SelectedReplyId);
         await Task.Delay(1000); // Example asynchronous operation
-        //await LoadReplyData();
+                                //await LoadReplyData();
         StateHasChanged();
     }
 }

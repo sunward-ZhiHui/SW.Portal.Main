@@ -65,6 +65,13 @@
                         <div class="files-title">General Information</div>
                     </div> *@
                     <div class="card w-100" style="margin-bottom:10px; margin-top:10px;">
+                        <div class="d-flex py-2">
+                            <DxTextBox @bind-Text="SearchText" style="width: 100%;    margin-left: 5px;" />
+                            <DxButton Text="Apply" Click="() => GridSearchText = SearchText" CssClass="mx-2" />
+                           @* <DxTextBox @bind-Text="GridSearchText" style="width: 100%;    margin-left: 5px;" />
+                            <DxButton Text="Apply" Click="ApplySearch" CssClass="mx-2" />*@
+
+                        </div>
                         <div class="card-body p-0">
                             <DxMenu CollapseItemsToHamburgerMenu="true"
                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
@@ -106,17 +113,16 @@
                             }*@
 
                         @if(isLeftMenuvisible == "All")
-                        {
-                                <AllEmail ATopicId="onViewEmailAllClick"></AllEmail>
+                        {                                
+                            <AllEmail GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId ="onSubViewEmailAllClick"></AllEmail>
                         }
                         else if (isLeftMenuvisible == "AssignTo")
-                        {
-                           
-                               <AssignToEmail ToTopicId="onViewEmailToClick " SubViewToTopicId ="onSubViewEmailToClick"></AssignToEmail>
+                        {                           
+                               <AssignToEmail GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick " SubViewToTopicId ="onSubViewEmailToClick"></AssignToEmail>
                             }
                             else if (isLeftMenuvisible == "AssignCC")
                             {
-                                <CCEmail  CCTopicId="onViewEmailCCClick"  SubViewCCTopicId="onSubViewEmailCCClick"></CCEmail>
+                                <CCEmail GridSearchText="@GridSearchText" CCTopicId="onViewEmailCCClick" SubViewCCTopicId="onSubViewEmailCCClick"></CCEmail>
                             }
                             else if(isLeftMenuvisible == "Sent")
                             {
@@ -773,8 +779,8 @@
                           
                         }
                         else
-                        {         
-                            <ParticipantList @ref=RefTopicAddPList IsValidUser="@IsValidUser" Tid="@Tid"></ParticipantList>
+                        {
+                            <ParticipantList @ref=RefTopicAddPList IsValidUser="@IsValidUser" Tid="@Tid" Cid="@Cid"></ParticipantList>
                         }
                     </div>
                 </div>
@@ -953,6 +959,8 @@
 
 
 @code {
+    string? SearchText { get; set; }
+    string? GridSearchText { get; set; }
     bool PreviewEnabled { get; set; } = false;
     bool docEnabled { get; set; } = false;
     private CancellationTokenSource cancellationTokenSource;
@@ -978,6 +986,8 @@
     private int ElementHeight { get; set; }
     [Parameter]
     public long Tid { get; set; }
+    [Parameter]
+    public long Cid { get; set; }
     public long RTopicId = 0;
     bool IsOpen { get; set; } = false;
     bool IsOpenFlyout { get; set; } = false;
@@ -1121,6 +1131,11 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentId");
         _selectlst = _topicDocList.FirstOrDefault(f => f.DocumentId == (long?)UniqueId);
 
+    }
+    void ApplySearch()
+    {       
+        //var assignToEmailComponent = new AssignToEmail();
+        //assignToEmailComponent.ApplySearch(GridSearchText);
     }
     private async Task ScrollToElement()
     {
@@ -1420,50 +1435,71 @@
         {
             await LoadData();
         }
-
     } 
-     private async void onSubViewEmailSentClick(string SubViewSentTopicId)
+    private async void onSubViewEmailSentClick(string RId)
     {
-        SelectedReplyId = SubViewSentTopicId;
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
+        await Task.Delay(1000); // Example asynchronous operation
         await LoadReplyData();
         StateHasChanged();
     }
-      private async void onSubViewEmailCCClick(string SubViewCCTopicId)
+    private async void onSubViewEmailCCClick(string RId)
     {
-        SelectedReplyId = SubViewCCTopicId;
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
+        await Task.Delay(1000); // Example asynchronous operation
         await LoadReplyData();
-        StateHasChanged();
+        StateHasChanged(); 
     }
-    private async void onSubViewEmailToClick(string SubViewToTopicId)
+    private async void onSubViewEmailToClick(string RId)
     {
-        SelectedReplyId = SubViewToTopicId;
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
+        await Task.Delay(1000); // Example asynchronous operation
         await LoadReplyData();
-        StateHasChanged();
+        StateHasChanged();       
     }
+     private async void onSubViewEmailAllClick(string RId)
+    {
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
+        await Task.Delay(1000); // Example asynchronous operation
+        await LoadReplyData();
+        StateHasChanged();       
+    }    
     private async void onViewEmailToClick(string ToTopicId)
     {
         SelectedGroup = ToTopicId;
         await LoadData();
         StateHasChanged();
-    }  
+    } 
+    private async void onViewEmailAllClick(string ATopicId)
+    {
+        SelectedGroup = ATopicId;
+        await LoadData();
+        StateHasChanged();
+    }    
     private async void onViewEmailCCClick(string CCTopicId)
     {
         SelectedGroup = CCTopicId;
         await LoadData();
         StateHasChanged();
     }
-      private async void onViewEmailSentClick(string sentTopicId)
+    private async void onViewEmailSentClick(string sentTopicId)
     {
         SelectedGroup = sentTopicId;
         await LoadData();
         StateHasChanged();
-    }
-    private async void onViewEmailAllClick(string ATopicId)
-    {
-        SelectedGroup = ATopicId;
-        await LoadData();
-        StateHasChanged();
-    }
+    }   
     private async void onSubViewEmailClick(string RId)
     {
         SelectedReplyId = RId;
@@ -1795,7 +1831,7 @@
         if (long.Parse(@SelectedGroup) > 0)
         {
             //await JSRuntime.InvokeAsync<string>("showLoading");
-            _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));
+            _topicDocList = await Mediator.Send(new GetSubEmailTopicDocList(long.Parse(@SelectedReplyId)));
             //await JSRuntime.InvokeAsync<string>("hideLoading");
 
 
@@ -1851,6 +1887,9 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
         RTopicId = 0;
         Tid = long.Parse(@SelectedGroup);
+        var getconid = await Mediator.Send(new GetTopConversationList(Tid));
+        Cid = getconid[0].ID;
+        SelectedReplyId = getconid[0].ID.ToString();
         _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
@@ -1917,7 +1956,7 @@
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
         //var rTopicId =@RTopicId;
-        //Tid = long.Parse(@SelectedReplyId);
+        Cid = long.Parse(@SelectedReplyId);
         Tid = RTopicId;
         _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
@@ -1931,10 +1970,16 @@
 
         OnMenuItemClick(isMenuvisible);
 
-      //  _headTopic = await Mediator.Send(new GetByIdEmailTopics(RTopicId));
+
+        if (isMenuvisible == "AddParticipants")
+        {
+            await LoadPlist_Data();
+        }
+
+        _headTopic = await Mediator.Send(new GetByIdEmailTopics(RTopicId));
 
 
-       // isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+        isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
         isEnabled = true;
         isEllipsis = true;
@@ -1954,6 +1999,8 @@
             if (long.Parse(@SelectedGroup) > 0)
             {
                 Tid = long.Parse(@SelectedGroup);
+                 var getconid = await Mediator.Send(new GetTopConversationList(Tid));
+                 Cid = getconid[0].ID;               
                 _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
                 _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
@@ -1982,7 +2029,7 @@
     private async Task LoadReplyDataPosts()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
-        //Tid = long.Parse(@SelectedReplyId);
+        Cid = long.Parse(@SelectedReplyId);
         Tid = RTopicId;
         _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
@@ -2246,7 +2293,11 @@
     }  
     async Task LoadPlist_Data()
     {
-        await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
+        if(Cid > 0)
+        {
+            await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedReplyId));
+        }
+        
     }
     private async Task HandleValidSubmit()
     {

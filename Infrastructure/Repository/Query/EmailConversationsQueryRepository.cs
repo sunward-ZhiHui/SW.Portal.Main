@@ -21,6 +21,7 @@ using DevExpress.Data.Filtering.Helpers;
 using Azure.Core;
 using System.Threading;
 using DevExpress.Xpo.DB.Helpers;
+using System.Reflection.Metadata;
 
 namespace Infrastructure.Repository.Query
 {
@@ -74,6 +75,24 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<IReadOnlyList<ViewEmployee>> GetAddConversationPListAsync(long ConversationId)
+        {
+            try
+            {
+                var query = @"select  * from View_Employee where (StatusName!='Resign' or StatusName is null) and UserID NOT IN (SELECT AU.UserID FROM EmailConversationParticipant TP INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID WHERE TP.ConversationId = @ConversationId)";
+                var parameters = new DynamicParameters();
+                parameters.Add("ConversationId", ConversationId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).Distinct().ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<IReadOnlyList<ViewEmployee>> GetAllParticipantAsync(long topicId)
         {
             try
@@ -120,12 +139,12 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailTopicParticipant FT
+                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
 								INNER JOIN Plant p on p.PlantID = E.PlantID
 								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
-                                WHERE FT.TopicId = @TopicId
+                                WHERE FT.ConversationId = @ConversationId
 
                                 UNION
 
@@ -143,7 +162,15 @@ namespace Infrastructure.Repository.Query
                                 INNER JOIN Employee E ON E.UserID = FCT.UserId
 								INNER JOIN Plant p on p.PlantID = E.PlantID
 								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
-                                WHERE FCT.ConversationId = @ConversationId";
+                                WHERE FCT.ConversationId = @ConversationId
+
+                                UNION
+                                SELECT FT.ParticipantId as UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversations FT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FT.ParticipantId
+                                INNER JOIN Employee E ON E.UserID = FT.ParticipantId
+                                INNER JOIN Plant p on p.PlantID = E.PlantID
+                                INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FT.ID = @ConversationId";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicID", topicId);
@@ -345,14 +372,35 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId FROM EmailConversations FC                                
+                //      var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId FROM EmailConversations FC                                
+                //                      INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                //                      INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
+                //                      WHERE FC.TopicId = @TopicId /*AND FC.ReplyId = 0*/
+                //                          AND (FC.ParticipantId = @UserId
+                //OR EXISTS(SELECT * FROM EmailConversationAssignTo AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId)
+                //OR EXISTS(SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId))
+                //                          ORDER BY FC.AddedDate ASC";
+
+                var query = @"SELECT  FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId 
+                                FROM EmailConversations FC          
+                                Cross Apply(Select DISTINCT ReplyId = CASE WHEN ECC.ReplyId>0 THEN ECC.ReplyId ELSE ECC.ID END
+                                            From EmailConversations ECC
+                                            WHERE  (ECC.ParticipantId = @UserId
+		                                            OR EXISTS(SELECT * FROM EmailConversationAssignTo AST WHERE AST.ConversationId = ECC.ID AND AST.UserId = @UserId)
+		                                            OR EXISTS(SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = ECC.ID AND AST.UserId = @UserId)
+                                                    OR EXISTS(SELECT * FROM EmailConversationParticipant ECP WHERE ECP.ConversationId = ECC.ID AND ECP.UserId = @UserId)
+		                                           ) AND ECC.TopicID=@TopicId   /*AND ECC.ReplyId>0*/
+			
+		                                   )K
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
-                                WHERE FC.TopicId = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate ASC";
+                                INNER JOIN Employee EMP ON EMP.UserID = AU.UserID    
+                                WHERE  K.ReplyId=FC.ID AND FC.ReplyId=0
+                                ORDER BY FC.AddedDate ASC";
 
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId, DbType.Int64);
+                parameters.Add("UserId", UserId, DbType.Int64);
 
                 using (var connection = CreateConnection())
                 {
@@ -375,7 +423,10 @@ namespace Infrastructure.Repository.Query
                                         EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                     WHERE
-                                        FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId";
+                                        FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId
+										AND (FC.ParticipantId = @UserId
+										OR EXISTS(SELECT * FROM EmailConversationAssignTo AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId)
+										OR EXISTS(SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId))";
 
                             var parameterss = new DynamicParameters();
                             parameterss.Add("TopicId", TopicId, DbType.Int64);
@@ -535,6 +586,31 @@ namespace Infrastructure.Repository.Query
                 {
                     connection.Open();
                     var res = connection.Query<EmailConversations>(query, parameters).ToList();                  
+
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<EmailConversations>> GetTopConversationListAsync(long TopicId)
+        {
+            try
+            {
+
+                var query = @"SELECT TOP 1 * FROM EmailConversations
+                            WHERE ReplyId = 0 AND TopicID = @TopicId
+                            ORDER BY ID ASC";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
 
                     return res;
                 }
@@ -740,6 +816,38 @@ namespace Infrastructure.Repository.Query
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<Documents>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<Documents>> GetSubTopicDocListAsync(long ConversationId)
+        {
+            try
+            {
+
+                var query = @"SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate from EmailConversations FC 
+                                INNER JOIN Documents D on D.SessionID = FC.SessionId
+								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID
+								LEFT JOIN Employee EMP ON EMP.UserID = D.ModifiedByUserID
+                                where FC.ID = @ConversationId
+                                    UNION
+                                SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate from EmailConversations FC 
+                                INNER JOIN Documents D on D.SessionID = FC.SessionId
+								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID
+								LEFT JOIN Employee EMP ON EMP.UserID = D.ModifiedByUserID
+                                where FC.ReplyId = @ConversationId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("ConversationId", ConversationId, DbType.Int64);
 
                 using (var connection = CreateConnection())
                 {

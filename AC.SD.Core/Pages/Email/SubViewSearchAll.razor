@@ -6,33 +6,32 @@
 @using MediatR
 @inject IMediator Mediator
 
-<style scoped>   
+<style scoped>
     .subviewEmail .dxbl-grid-header-row {
         display: none;
     }
 
-    .dxbl-grid-detail-cell
-    {
-        padding:5px !important;
+    .dxbl-grid-detail-cell {
+        padding: 5px !important;
     }
 </style>
 <DxLoadingPanel @bind-Visible="PanelVisible" IsContentBlocked="true" ApplyBackgroundShading="true" IndicatorAreaVisible="false" Text="Fetching Data...">
-    <DxGrid Data="@_forumTopicTo" 
+    <DxGrid Data="@_forumTopicTo"
             PageSize="20" EditMode="GridEditMode.EditForm"
-            PagerNavigationMode="PagerNavigationMode.InputBox" 
-            KeyFieldName="ReplyId"             
-            CssClass="w-100 subviewEmail" 
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="ReplyId"
+            CssClass="w-100 subviewEmail"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            RowClick="OnEmailToRowClick"
+            RowClick="OnEmailAllRowClick"
             AutoExpandAllGroupRows="true"
             AllowSelectRowByClick="true">
-        <Columns>           
+        <Columns>
             <DxGridDataColumn FieldName="FirstName" Caption="">
                 <CellDisplayTemplate>
                     @{
                         var item = (EmailTopics)context.DataItem;
-                    }                    
+                    }
                     <div style="width:100%">
                         <strong>@item.FirstName</strong>
                         <div>
@@ -51,6 +50,8 @@
 
 
 @code {
+    [Parameter]
+    public string? MSearchText { get; set; }
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
     [Parameter]
@@ -59,25 +60,27 @@
     public ApplicationUser applicationUser { get; private set; }
     string SelectedId = "none";
     [Parameter]
-    public Action<string> RId { get; set; }        
+    public Action<string> RId { get; set; }
+    [Parameter]
+    public Action<string> SubViewAllTopicId { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        PanelVisible = true;      
+        PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _forumTopicTo = await Mediator.Send(new GetSubEmailTopicTo(Items.ID, applicationUser.UserID));
         PanelVisible = false;
     }
 
-    async Task OnEmailToRowClick(GridRowClickEventArgs e)
+    async Task OnEmailAllRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ReplyId");
         SelectedId = UniqueId.ToString();
 
         //long rId = (long.Parse(@SelectedId));
-        RId?.Invoke(SelectedId);       
+        RId?.Invoke(SelectedId);
 
         //await LoadData();
-       // functionService.onSubViewEmailClick(rid);
+        // functionService.onSubViewEmailClick(rid);
         StateHasChanged();
     }
 }

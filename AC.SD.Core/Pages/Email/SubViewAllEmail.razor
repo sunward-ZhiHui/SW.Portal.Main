@@ -7,9 +7,8 @@
 @inject IMediator Mediator
 
 <style scoped>
-    .dxbl-grid-header-row
-    {
-        display:none;
+    .subviewEmail .dxbl-grid-header-row {
+        display: none;
     }
 
     .dxbl-grid-detail-cell
@@ -22,7 +21,7 @@
             PageSize="20" EditMode="GridEditMode.EditForm"
             PagerNavigationMode="PagerNavigationMode.InputBox" 
             KeyFieldName="ReplyId"   
-            CssClass="w-100" 
+            CssClass="w-100 subviewEmail"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             RowClick="OnEmailAllRowClick"

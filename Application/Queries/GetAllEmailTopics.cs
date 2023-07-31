@@ -54,6 +54,16 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class GetEmailMasterSearchAll : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long UserId { get; private set; }
+        public string? MasterSearch { get; private set; }
+        public GetEmailMasterSearchAll(long UserId, string masterSearch)
+        {
+            this.UserId = UserId;
+            MasterSearch = masterSearch;
+        }
+    }
     public class GetEmailTopicCC : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }
@@ -94,6 +104,18 @@ namespace Application.Queries
         {
             this.TopicId = ID;
             this.UserId = UserId;
+        }
+    }
+    public class GetSubEmailSearchAll : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long TopicId { get; private set; }
+        public long UserId { get; private set; }
+        public string SearchTxt { get; private set; }
+        public GetSubEmailSearchAll(long ID, long UserId,string SearchTxt)
+        {
+            this.TopicId = ID;
+            this.UserId = UserId;
+            this.SearchTxt = SearchTxt;
         }
     }
     public class GetSubEmailTopicAll : PagedRequest, IRequest<List<EmailTopics>>

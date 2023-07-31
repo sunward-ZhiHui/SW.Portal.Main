@@ -9,12 +9,12 @@
 @inject IJSRuntime JSRuntime;
 @using AC.SD.Core.Pages.Email;
 
-@*@if(IsValidUser)
-{*@
+@if(IsValidUser)
+{
     <button @onclick="onAddPlist" class="btn btn-excel" style="margin-bottom: 7px; float: right; margin-right: 15px;">
         Add Participant
     </button>
-@*}*@
+}
 
 <div class="">
     <DxGrid @ref="Grid" Data="_participant"

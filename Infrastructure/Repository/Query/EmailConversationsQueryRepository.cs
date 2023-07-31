@@ -409,8 +409,8 @@ namespace Infrastructure.Repository.Query
 
                     foreach (var topic in res)
                     {
-                       
-                            var subQuery = @"SELECT
+
+                        var subQuery = @"SELECT
                                         FC.Name,
                                         FC.ID,
                                         FC.AddedDate,
@@ -423,10 +423,10 @@ namespace Infrastructure.Repository.Query
                                         EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                     WHERE
-                                        FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId
-										AND (FC.ParticipantId = @UserId
-										OR EXISTS(SELECT * FROM EmailConversationAssignTo AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId)
-										OR EXISTS(SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId))";
+                                        FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId";
+										//AND (FC.ParticipantId = @UserId
+										//OR EXISTS(SELECT * FROM EmailConversationAssignTo AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId)
+										//OR EXISTS(SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId))";
 
                             var parameterss = new DynamicParameters();
                             parameterss.Add("TopicId", TopicId, DbType.Int64);

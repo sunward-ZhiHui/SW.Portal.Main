@@ -16,7 +16,7 @@
                                 @*<div class="flex-shrink-0">
                                     
                                 <div class="flex-grow-1 ps-3">*@
-                    <DxTabs ScrollMode="TabsScrollMode.NavButtons">
+        <DxTabs ScrollMode="TabsScrollMode.NavButtons" @bind-ActiveTabIndex="@ActiveTabIndex">
 
             <DxTabPage Text="Home">
                 <div class="p-2">
@@ -25,12 +25,12 @@
             </DxTabPage>
             <DxTabPage Text="pages">
                 <div class="p-2">
-                    The Home tab's content
+                    The pages tab's content
                 </div>
             </DxTabPage>
             <DxTabPage Text="employees">
                 <div class="p-2">
-                    The Home tab's content
+                    The employees tab's content
                 </div>
             </DxTabPage>
             <DxTabPage Text="Home">
@@ -184,7 +184,7 @@
     [Parameter]
     public TabsScrollMode ScrollMode { get; set; }
     private List<ForumTypes>? _types;
-
+    public int ActiveTabIndex { get; set; } = 1;
     public ApplicationUser? applicationUser { get; private set; }
     
     protected override async Task OnInitializedAsync()

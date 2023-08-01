@@ -21,5 +21,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<View_NavItems>> GetByCompanyAsyncList(long? CompanyId);
         Task<IReadOnlyList<View_NavItems>> GetByItemSerialNoNotNullAsync();
         Task<IReadOnlyList<ItemBatchInfo>> GetNavItemBatchNoByItemIdAsync(long? ItemId);
+        Task<IReadOnlyList<NavProductionInformation>> GetNavProductionInformation(long? ItemId);
+        Task<IReadOnlyList<View_NavCrossReference>> GetNavCrossReference(long? ItemId);
     }
 }

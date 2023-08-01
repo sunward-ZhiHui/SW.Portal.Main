@@ -84,7 +84,7 @@
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="FmglobalLineId" Visible="false" />
-            <DxGridDataColumn FieldName="PalletEntryName" Caption="Pallet Entry" />
+            @* <DxGridDataColumn FieldName="PalletEntryName" Caption="Pallet Entry" />*@
             <DxGridDataColumn FieldName="PalletNo" />
             <DxGridDataColumn FieldName="TempPalletNo" />
             <DxGridDataColumn FieldName="AddedDate">
@@ -113,17 +113,17 @@
             }
             <DxFormLayout CssClass="w-100">
                 <DxFormLayoutItem Caption="Pallet Entry" ColSpanMd="6">
-                    <DxComboBox Data="@_viewPalletEntryItems"
+                    <DxComboBox Data="@_viewPalletNoEntryItems"
                                 NullText="Select Pallet Entry..."
                                 FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="Value"
-                                ValueFieldName="ApplicationMasterDetailID"
-                                SelectedItemChanged="@((View_ApplicationMasterDetail navitems) => SelectedItemMethodChangesChanged(navitems))"
-                                @bind-Value="@types.PalletEntryId" ShowValidationIcon="true" />
-                    <ValidationMessage For="@(() => types.PalletEntryId)" />
+                                TextFieldName="PalletNo"
+                                ValueFieldName="FmglobalLineId"
+                                SelectedItemChanged="@((ViewFmglobalLine navitems) => SelectedItemMethodChangesChanged(navitems.FmglobalLineId))"
+                                @bind-Value="@types.PalletEntryNoId" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.PalletEntryNoId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Pallet No:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@types.PalletNo" Enabled=false />
+                    <DxTextBox @bind-Text="@palletNo" Enabled=false />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Temp Pallet No" ColSpanMd="6">
                     <DxTextBox @bind-Text="@types.TempPalletNo" ShowValidationIcon="true" />
@@ -192,17 +192,27 @@
     public ApplicationUser? applicationUser { get; private set; }
     long? PalletEntryId { get; set; }
     long? ItemId { get; set; }
-
+    string palletNo { get; set; }
+    private List<ViewFmglobalLine> _viewPalletNoEntryItems;
     async Task SelectedItemChanged(View_NavItems navitems)
     {
 
     }
-    async Task SelectedItemMethodChangesChanged(View_ApplicationMasterDetail masterDetail)
+    void SelectedItemMethodChangesChanged(long? ItemsId)
     {
+        if (ItemsId > 0)
+        {
+            var masterDetail = _viewPalletNoEntryItems.FirstOrDefault(f => f.FmglobalLineId == ItemsId);
+            if (masterDetail != null)
+            {
+                palletNo = masterDetail.PalletNo + "|" + fmGlobalItems.LocationFrom;
+            }
+        }
     }
     protected override async Task OnInitializedAsync()
     {
         _viewPalletEntryItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(343));
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         if (FmglobalId > 0)
         {
@@ -238,30 +248,35 @@
             }
         }
         PanelVisible = false;
+        _viewPalletNoEntryItems = await Mediator.Send(new GetAllFmGlobalLineByPalletEntryNoQuery(fmGlobalItems.CompanyId));
+        _viewPalletNoEntryItems = _viewPalletNoEntryItems.Where(w => w.FmglobalId != fmGlobalItems.FmglobalId).ToList();
         StateHasChanged();
     }
     void onprint()
     {
-        if (_selectedItems !=null)
+        if (_selectedItems != null)
         {
             printSessionId = _selectedItems.SessionId.Value;
             PrintPopupVisible = true;
         }
-       
-       // string url = "print/" + _selectedItems.SessionId;
-       // NavigationManager.NavigateTo(url, forceLoad: true);       
+
+        // string url = "print/" + _selectedItems.SessionId;
+        // NavigationManager.NavigateTo(url, forceLoad: true);
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         var navitems = (ViewFmglobalLine)e.EditModel;
         if (e.IsNew)
         {
-
+            palletNo = "";
         }
         else
         {
-
-
+            palletNo = navitems.PalletNo;
+            if (navitems.PalletEntryNoId > 0)
+            {
+                SelectedItemMethodChangesChanged(navitems.PalletEntryNoId);
+            }
         }
     }
 
@@ -295,15 +310,17 @@
                 {
                     FmglobalId = FmglobalId,
                     PalletEntryId = editModel.PalletEntryId,
-                    PalletNo = _viewPalletEntryItems.FirstOrDefault(f => f.ApplicationMasterDetailID == editModel.PalletEntryId)?.Value,
+                    PalletNo = palletNo,
+                    // PalletNo = _viewPalletEntryItems.FirstOrDefault(f => f.ApplicationMasterDetailID == editModel.PalletEntryId)?.Value,
                     StatusCodeId = 1,
                     AddedByUserId = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
                     SessionId = Guid.NewGuid(),
-                    TempPalletNo=editModel.TempPalletNo,
+                    TempPalletNo = editModel.TempPalletNo,
                     CompanyId = fmGlobalItems.CompanyId,
+                    PalletEntryNoId = editModel.PalletEntryNoId,
                 };
 
             try
@@ -337,10 +354,11 @@
                     AddedDate = DateTime.Now,
                     SessionId = editModel.SessionId,
                     PalletNoAuto = editModel.PalletNoAuto,
-                    PalletNo = editModel.PalletNo,
+                    PalletNo = editModel.PalletEntryNoId > 0 ? (editModel.FmglobalLineId + "_" + palletNo) : palletNo,
                     PalletNoYear = editModel.PalletNoYear,
                     CompanyId = fmGlobalItems.CompanyId,
                     TempPalletNo = editModel.TempPalletNo,
+                    PalletEntryNoId = editModel.PalletEntryNoId,
                 };
 
             var ans = await Mediator.Send(UpdateReq);

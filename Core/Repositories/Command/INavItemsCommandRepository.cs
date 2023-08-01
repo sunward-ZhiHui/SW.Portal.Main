@@ -12,4 +12,12 @@ namespace Core.Repositories.Command
     {
 
     }
+    public interface INavProductionInformationCommandRepository : ICommandRepository<NavProductionInformation>
+    {
+
+    }
+    public interface INavCrossReferenceCommandRepository : ICommandRepository<NavCrossReference>
+    {
+
+    }
 }

@@ -23,6 +23,7 @@ namespace Application.Response
         public string StateCode { get; set; }
         public string PostCode { get; set; }
         public string Channel { get; set; }
+        public string Type { get; set; }
 
     }
 }

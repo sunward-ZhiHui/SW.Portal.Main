@@ -22,7 +22,7 @@ namespace Application.Queries
             this.Id = Id;
         }
     }
-    
+
     public class GetAllFmGlobalBySessionQuery : PagedRequest, IRequest<ViewFmglobal>
     {
         public string SearchString { get; set; }
@@ -50,7 +50,15 @@ namespace Application.Queries
             this.SessionId = SessionId;
         }
     }
-    
+    public class GetAllFmGlobalLineByPalletEntryNoQuery : PagedRequest, IRequest<List<ViewFmglobalLine>>
+    {
+        public string SearchString { get; set; }
+        public long? CompanyId { get; set; }
+        public GetAllFmGlobalLineByPalletEntryNoQuery(long? CompanyId)
+        {
+            this.CompanyId = CompanyId;
+        }
+    }
     public class GetAllFmGlobalLineItemQuery : PagedRequest, IRequest<List<ViewFmglobalLineItem>>
     {
         public string SearchString { get; set; }
@@ -68,6 +76,40 @@ namespace Application.Queries
         {
             this.SessionId = SessionId;
         }
+    }
+    public class GetFmGlobalAddressQuery : View_FMGlobalAddess, IRequest<List<View_FMGlobalAddess>>
+    {
+        public string SearchString { get; set; }
+        public long? Id { get; set; }
+        public string BillingType { get; set; }
+        public GetFmGlobalAddressQuery(long? Id, string billingType)
+        {
+            this.Id = Id;
+            BillingType = billingType;
+        }
+    }
+    public class CreateFmGlobalAddress : View_FMGlobalAddess, IRequest<long>
+    {
+        public string SearchString { get; set; }
+    }
+    public class EditFmGlobalAddress : View_FMGlobalAddess, IRequest<long>
+    {
+        public string SearchString { get; set; }
+    }
+    public class DeleteFmGlobalAddress : IRequest<String>
+    {
+        public long AddressID { get; private set; }
+        public long FMGlobalID { get; private set; }
+
+        public DeleteFmGlobalAddress(long AddressID, long FMGlobalID)
+        {
+            this.AddressID = AddressID;
+            this.FMGlobalID = FMGlobalID;
+        }
+    }
+    public class GetPalletMovementListingQuery : PagedRequest, IRequest<List<ViewFmglobalLineItem>>
+    {
+        public string SearchString { get; set; }
     }
 
 }

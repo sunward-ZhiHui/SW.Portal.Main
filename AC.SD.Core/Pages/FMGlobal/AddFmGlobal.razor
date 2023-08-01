@@ -55,7 +55,7 @@
                         <DxDateEdit NullText="Date" @bind-Date="@Data.AddedDate" />
                     </DxFormLayoutItem>
                     @* AllowUserInput="true"
-                                    @oninput="@OnPlantInput"*@
+                    @oninput="@OnPlantInput"*@
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                         <DxComboBox Data="@PlantsData"
                                     NullText="Select Company..."
@@ -65,7 +65,6 @@
                                     ValueFieldName="PlantID"
                                     SelectedItemChanged="@((ViewPlants viewPlantsmaster) => SelectedItemPlantChanged(viewPlantsmaster.PlantID))"
                                     @bind-Value="@Data.CompanyId"
-                                   
                                     ShowValidationIcon="true">
                             <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                 Caption="Company Name"
@@ -85,7 +84,7 @@
                         <DxTextBox @bind-Text="@Data.Pono" ShowValidationIcon="true" />
                         <ValidationMessage For="@(() => Data.Pono)" />
                     </DxFormLayoutItem>
-                   
+
                     <DxFormLayoutItem Caption="Location From" ColSpanMd="6">
                         <DxComboBox Data="@_AllICTMasterFrom"
                                     NullText="Select Location From..."
@@ -95,8 +94,7 @@
                                     ValueFieldName="IctmasterId"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@Data.LocationFromId" ShowValidationIcon="true"
-                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedItemChanged(viewIctmaster))"
-                                    >
+                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedItemChanged(viewIctmaster))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewIctmaster.Name)"
                                                     Caption="Location" />
@@ -120,8 +118,7 @@
                                     ValueFieldName="IctmasterId"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@Data.LocationToId" ShowValidationIcon="true"
-                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedItemChanged(viewIctmaster))"
-                                    >
+                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedItemChanged(viewIctmaster))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewIctmaster.Name)"
                                                     Caption="Location" />
@@ -135,7 +132,26 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.LocationToId)" />
                     </DxFormLayoutItem>
-
+                    <DxFormLayoutItem Caption="FM Customer" ColSpanMd="6">
+                        <DxComboBox Data="@_AllSoCustomer"
+                                    NullText="Select Customer..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="CustomerName"
+                                    ValueFieldName="SoCustomerId"
+                                    @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
+                                                    Caption="Customer Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.ShipCode)"
+                                                    Caption="Ship Code" />
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.AssignToRep)"
+                                                    Caption="AssignTo Rep" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.SoCustomerId)" />
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                         <DxComboBox Data="@_statusListItems"
                                     NullText="Select Status..."
@@ -163,6 +179,9 @@
                             <DxFormLayoutTabPage Caption="Pallet Item Entry" Enabled="true">
                                 <FmGlobalLineItems></FmGlobalLineItems>
                             </DxFormLayoutTabPage>
+                           <DxFormLayoutTabPage Caption="Address">
+                                <FMGlobalAddress _salesOrderItems="@Data"></FMGlobalAddress>
+                            </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
                 </div>
@@ -188,7 +207,7 @@
     bool EditEnabledTab { get; set; } = false;
     int ActiveTabIndex { get; set; } = 0;
     int ActiveSubTabIndex { get; set; } = 0;
-
+    private List<SoCustomer>? _AllSoCustomer;
     IEnumerable<ViewPlants> PlantsData { get; set; }
     private List<ViewIctmaster>? _AllICTMasterFrom;
     private List<ViewIctmaster>? _AllICTMasterTo;
@@ -210,6 +229,7 @@
     }
     async Task SelectedItemPlantChanged(long? companyId)
     {
+       
         _AllICTMasterFromAll = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, companyId));
         _AllICTMasterFrom = _AllICTMasterFromAll;
         _AllICTMasterToAll = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, companyId));
@@ -223,6 +243,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("FM Global"));
         _statusListItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(345));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         PlantsData = _plantItems;
@@ -230,6 +251,8 @@
         Data.ExpectedShipmentDate = DateTime.Now;
         Data.AddedDate = DateTime.Now;
         Data.AddedBy = applicationUser.UserName;
+        var StatusId = _statusListItems.FirstOrDefault(a => a.Value.ToLower() == "open")?.ApplicationMasterDetailID;
+        Data.FmglobalStausId = StatusId;
     }
     void OnPlantInput(ChangeEventArgs e)
     {
@@ -267,7 +290,6 @@
         loading = true;
         if (Data.FmglobalId > 0)
         {
-            var editModel = new Fmglobal();
             var createReq = new EditFmGlobalCommand
                 {
                     CompanyId = Data.CompanyId,
@@ -282,7 +304,8 @@
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
                     SessionId = Data.SessionId,
-                    StatusCodeId = 1
+                    StatusCodeId = 1,
+                    SoCustomerId = Data.SoCustomerId,
 
                 };
 
@@ -293,7 +316,6 @@
         }
         else
         {
-            var editModel = new Fmglobal();
             var createReq = new CreateFmGlobalCommand
                 {
                     CompanyId = Data.CompanyId,
@@ -307,7 +329,8 @@
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
                     SessionId = Guid.NewGuid(),
-                    StatusCodeId = 1
+                    StatusCodeId = 1,
+                    SoCustomerId = Data.SoCustomerId,
 
                 };
 

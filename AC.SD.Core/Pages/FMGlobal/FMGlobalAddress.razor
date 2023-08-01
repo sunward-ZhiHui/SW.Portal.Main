@@ -1,0 +1,182 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@using Application.Command.FmGlobals;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IMediator Mediator
+<div>
+    <div class="row" style="text-align:center; margin-top: 10px;">
+        <div class="col-md-6">
+            <span>SHIPPING ADDRESS</span>
+            <div>
+                <div>
+                    <DxCheckBox CssClass="w-100" Checked="@ShippingChecked" CheckedChanged="@((bool value) => ShippingCheckedChanged(value))">
+                        Override Address
+                    </DxCheckBox>
+                </div>
+
+                <div style=" margin-top: 10px; margin-bottom: 10px;">
+                    <DxComboBox Data="@_soAllShippingCusterAddress"
+                                NullText="Select Shipping Address..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Address1"
+                                Enabled="@ShippingEnabled"
+                                ValueFieldName="SoCustomerAddressId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                SelectedItemChanged="@((view_SoCustomerAddress shipaddress) => SelectedItemShipChanged(shipaddress))"
+                                @bind-Value="@_salesOrderItems.SoCustomerShipingAddressId" ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(view_SoCustomerAddress.Address1)"
+                                                Caption="Address1"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(view_SoCustomerAddress.Address2)"
+                                                Caption="Address2" />
+                            <DxListEditorColumn FieldName="@nameof(view_SoCustomerAddress.CountryName)"
+                                                Caption="Country" />
+                            <DxListEditorColumn FieldName="@nameof(view_SoCustomerAddress.StateName)"
+                                                Caption="State" />
+                            <DxListEditorColumn FieldName="@nameof(view_SoCustomerAddress.CityName)"
+                                                Caption="City" />
+                        </Columns>
+                    </DxComboBox>
+                </div>
+
+
+                <div class="card">
+                    <div class="card-body">
+                        <article class="media">
+                            <div class="media-body">
+                                <div class="content">
+                                    <DxFormLayout CssClass="w-100">
+                                        <DxFormLayoutItem Caption="Address1 :" ColSpanMd="12">
+                                            <DxTextBox @bind-Text="@_soShippingCusterAddress.Address1" Enabled=false />
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Address2:" ColSpanMd="12">
+                                            <DxTextBox @bind-Text="@_soShippingCusterAddress.Address2" Enabled=false />
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Country:" ColSpanMd="12">
+                                            <DxTextBox @bind-Text="@_soShippingCusterAddress.CountryName" Enabled=false />
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="State:" ColSpanMd="12">
+                                            <DxTextBox @bind-Text="@_soShippingCusterAddress.StateName" Enabled=false />
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="City:" ColSpanMd="12">
+                                            <DxTextBox @bind-Text="@_soShippingCusterAddress.CityName" Enabled=false />
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Post Code:" ColSpanMd="12">
+                                            <DxSpinEdit @bind-Value="@_soShippingCusterAddress.PostCode" Enabled=false />
+                                        </DxFormLayoutItem>
+                                    </DxFormLayout>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public ViewFmglobal _salesOrderItems { get; set; }
+    bool ShippingChecked { get; set; } = false;
+    private List<view_SoCustomerAddress> _addressItems;
+    private List<view_SoCustomerAddress> _addressShippingItems;
+    bool ShippingEnabled { get; set; } = false;
+    public ApplicationUser applicationUser { get; private set; }
+    long? ShippingAddressID;
+    view_SoCustomerAddress _soShippingCusterAddress = new view_SoCustomerAddress();
+
+    private List<view_SoCustomerAddress> _soAllShippingCusterAddress;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_salesOrderItems.SoCustomerId > 0)
+        {
+            applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+            _addressItems = await Mediator.Send(new GetSoCustomerAddressByCustomerQuery(_salesOrderItems.SoCustomerId.Value));
+            _addressShippingItems = await Mediator.Send(new GetSoCustomerAddressByTypeQuery("Shipping", _salesOrderItems.SoCustomerId.Value));
+
+
+
+            if (_salesOrderItems.SoCustomerShipingAddressId != null)
+            {
+                var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.SoCustomerAddressId == _salesOrderItems.SoCustomerShipingAddressId).FirstOrDefault();
+                if (_soShippingCusterAddresss != null)
+                {
+                    _soShippingCusterAddress = _soShippingCusterAddresss;
+                }
+            }
+            else
+            {
+                var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.CustomerId == _salesOrderItems.SoCustomerId && x.isShipping == true).FirstOrDefault();
+                if (_soShippingCusterAddresss != null)
+                {
+                    _soShippingCusterAddress = _soShippingCusterAddresss;
+                }
+            }
+
+
+            _soAllShippingCusterAddress = _addressShippingItems.Where(x => x.AddressType == "Shipping" && x.CustomerId == _salesOrderItems.SoCustomerId).ToList();
+
+        }
+
+
+    }
+    async Task SelectedItemShipChanged(view_SoCustomerAddress address1)
+    {
+        if (address1 != null)
+        {
+            _soShippingCusterAddress.Address1 = address1.Address1;
+            _soShippingCusterAddress.Address2 = address1.Address2;
+            _soShippingCusterAddress.CountryName = address1.CountryName;
+            _soShippingCusterAddress.StateName = address1.StateName;
+            _soShippingCusterAddress.CityName = address1.CityName;
+            _soShippingCusterAddress.PostCode = address1.PostCode;
+            _salesOrderItems.SoCustomerShipingAddressId = address1.SoCustomerAddressId;
+        }
+        else
+        {
+            _soShippingCusterAddress = new view_SoCustomerAddress();
+        }
+        await updateAddress();
+    }
+
+    async Task updateAddress()
+    {
+        var createReq = new EditFmGlobalCommand
+            {
+                CompanyId = _salesOrderItems.CompanyId,
+                FmglobalId = _salesOrderItems.FmglobalId.Value,
+                Pono = _salesOrderItems.Pono,
+                ExpectedShipmentDate = _salesOrderItems.ExpectedShipmentDate,
+                LocationFromId = _salesOrderItems.LocationFromId,
+                LocationToId = _salesOrderItems.LocationToId,
+                FmglobalStausId = _salesOrderItems.FmglobalStausId,
+                AddedByUserId = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ModifiedByUserId = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                SessionId = _salesOrderItems.SessionId,
+                SoCustomerId = _salesOrderItems.SoCustomerId,
+                SoCustomerShipingAddressId = _salesOrderItems.SoCustomerShipingAddressId,
+                StatusCodeId = 1
+
+            };
+        await Mediator.Send(createReq);
+        toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+    }
+    void ShippingCheckedChanged(bool value)
+    {
+        ShippingChecked = value;
+        ShippingEnabled = value;
+    }
+
+}

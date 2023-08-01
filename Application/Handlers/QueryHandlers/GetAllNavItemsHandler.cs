@@ -47,7 +47,7 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<View_NavItems>)await _queryRepository.GetByCompanyBySerailNoAsyncList(request.CompanyId);
         }
     }
-    
+
     public class GetAllNavItemsItemSerialNoHandler : IRequestHandler<GetAllNavItemsItemSerialNoQuery, View_NavItems>
     {
         private readonly INavItemsQueryRepository _queryRepository;
@@ -69,7 +69,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<View_NavItems>> Handle(GetAllNavItemsItemSerialNoNotNullQuery request, CancellationToken cancellationToken)
         {
-            return (List<View_NavItems>) await _queryRepository.GetByItemSerialNoNotNullAsync();
+            return (List<View_NavItems>)await _queryRepository.GetByItemSerialNoNotNullAsync();
         }
     }
     public class GetAllNavItemBatchNoByItemIdHandler : IRequestHandler<GetAllNavItemBatchNoByItemIdQuery, List<ItemBatchInfo>>
@@ -82,6 +82,30 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<ItemBatchInfo>> Handle(GetAllNavItemBatchNoByItemIdQuery request, CancellationToken cancellationToken)
         {
             return (List<ItemBatchInfo>)await _queryRepository.GetNavItemBatchNoByItemIdAsync(request.ItemId);
+        }
+    }
+    public class GetAllNavProductionInformationHandler : IRequestHandler<GetNavProductionInformationQuery, List<NavProductionInformation>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetAllNavProductionInformationHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<NavProductionInformation>> Handle(GetNavProductionInformationQuery request, CancellationToken cancellationToken)
+        {
+            return (List<NavProductionInformation>)await _queryRepository.GetNavProductionInformation(request.ItemId);
+        }
+    }
+    public class GetAllNavCrossReferenceHandler : IRequestHandler<GetNavCrossReferenceQuery, List<View_NavCrossReference>>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetAllNavCrossReferenceHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<View_NavCrossReference>> Handle(GetNavCrossReferenceQuery request, CancellationToken cancellationToken)
+        {
+            return (List<View_NavCrossReference>)await _queryRepository.GetNavCrossReference(request.ItemId);
         }
     }
 }

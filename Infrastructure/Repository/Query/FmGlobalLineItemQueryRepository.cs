@@ -36,6 +36,39 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ViewFmglobalLineItem>> GetPalletMovementListingdAsync()
+        {
+            try
+            {
+                var query = "select  * from view_FMGlobalLineItem";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewFmglobalLineItem>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
+        public async Task<IReadOnlyList<ViewFmglobalLineItem>> GetAllByIdAsync(Int64 id)
+        {
+            try
+            {
+                var query = "select  * from FMGlobalLineItem WHERE FmglobalLineId = @FmglobalLineId";
+                var parameters = new DynamicParameters();
+                parameters.Add("FmglobalLineId", id, DbType.Int64);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewFmglobalLineItem>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<ViewFmglobalLineItem> GetByIdAsync(long id)
         {
             try

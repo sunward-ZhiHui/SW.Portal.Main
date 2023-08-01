@@ -36,6 +36,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ViewFmglobalLine>> GetFmGlobalLineByPalletEntryNoAsync(long? CompanyId)
+        {
+            try
+            {
+                var query = "select  t1.* from FMGlobalLine t1 JOIN FMGlobal t2 ON t1.FmglobalId=t2.FmglobalId WHERE t2.CompanyID=" + CompanyId;
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewFmglobalLine>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<ViewFmglobalLine> GetByIdAsync(long id)
         {
             try

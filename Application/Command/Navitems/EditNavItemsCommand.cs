@@ -66,4 +66,70 @@ namespace Application.Commands
         {
         }
     }
+
+    public class CreateNavProductionInformationCommand : IRequest<NavProductionInformationResponse>
+    {
+        public long NavProductionInformationId { get; set; }
+        public long? ItemId { get; set; }
+        public int? NoOfBUOMInOneCarton { get; set; }
+        public CreateNavProductionInformationCommand()
+        {
+        }
+    }
+    public class EditNavProductionInformationCommand : IRequest<NavProductionInformationResponse>
+    {
+        public long NavProductionInformationId { get; set; }
+        public long? ItemId { get; set; }
+        public int? NoOfBUOMInOneCarton { get; set; }
+        public EditNavProductionInformationCommand()
+        {
+        }
+    }
+    public class CreateNavCrossReferenceCommand : IRequest<NavCrossReferenceResponse>
+    {
+        public long NavCrossReferenceId { get; set; }
+        public long? ItemId { get; set; }
+        public string? TypeOfCompany { get; set; }
+        public long? CompanyId { get; set; }
+        public long? NavVendorId { get; set; }
+        public long? NavCustomerId { get; set; }
+        public string? CrossReferenceNo { get; set; }
+        public long? SoCustomerId { get; set; }
+        public CreateNavCrossReferenceCommand()
+        {
+        }
+    }
+    public class EditNavCrossReferenceCommand : IRequest<NavCrossReferenceResponse>
+    {
+        public long NavCrossReferenceId { get; set; }
+        public long? ItemId { get; set; }
+        public string? TypeOfCompany { get; set; }
+        public long? CompanyId { get; set; }
+        public long? NavVendorId { get; set; }
+        public long? NavCustomerId { get; set; }
+        public string? CrossReferenceNo { get; set; }
+        public long? SoCustomerId { get; set; }
+        public EditNavCrossReferenceCommand()
+        {
+        }
+    }
+    public class DeleteNavItemsCommand : IRequest<String>
+    {
+        public Int64 Id { get; private set; }
+
+        public DeleteNavItemsCommand(Int64 Id)
+        {
+            this.Id = Id;
+        }
+    }
+    public class DeleteNavCrossReference : IRequest<String>
+    {
+        public Int64 Id { get; private set; }
+
+        public DeleteNavCrossReference(Int64 Id)
+        {
+            this.Id = Id;
+        }
+    }
+    
 }

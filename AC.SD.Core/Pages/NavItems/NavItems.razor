@@ -20,147 +20,173 @@
 
 </style>
 @page "/NavItems"
-<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
-    <div class="card-body p-0">
-        <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
-            <Items>
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
-            </Items>
-        </DxMenu>
+
+<div id="NavHeader" style="@navHeaderItems">
+    <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                    <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
+                    <DxMenuItem Text="Add Item Line" IconCssClass="fa fa-file-excel" Enabled="@EditEnabled" Click="@AddItemLine" />
+                </Items>
+            </DxMenu>
+        </div>
     </div>
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                Data="_navItems"
+                ShowGroupPanel="true" ShowGroupedColumns="true"
+                KeyFieldName="ItemId"
+                EditModelSaving="Grid_EditModelSaving"
+                CustomizeEditModel="Grid_CustomizeEditModel"
+                CustomizeElement="Grid_CustomizeElement"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                AutoExpandAllGroupRows="true"
+                CssClass="ch-360"
+                style="height: calc(100vh - 270px);"
+                FocusedRowEnabled="true"
+                RowDoubleClick="OnRowDoubleClick"
+                SelectedDataItemsChanged="@SelectedDataItemsChanged"
+                RowClick="OnRowClick"
+                AllowSelectRowByClick="true">
+            <Columns>
+                <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+                <DxGridDataColumn FieldName="ItemId" MinWidth="80" Visible="false" />
+                <DxGridDataColumn FieldName="PlantCode" Caption="Company" Width="30%" />
+                <DxGridDataColumn FieldName="No" Width="30%" />
+                <DxGridDataColumn FieldName="Description" Width="50%" />
+                <DxGridDataColumn FieldName="Description2" Width="50%" />
+                <DxGridDataColumn FieldName="PackSizeName" Caption="Pack Size" Width="50%" />
+                <DxGridDataColumn FieldName="SupplyToName" Caption="Supply To" Width="50%" />
+                <DxGridDataColumn FieldName="UomName" Caption="Uom" Width="50%" />
+                <DxGridDataColumn FieldName="ItemSerialNo" Caption="ItemSerialNo" Width="50%" />
+            </Columns>
+            <EditFormTemplate Context="EditFormContext">
+                @{
+                    var plant = (View_NavItems)EditFormContext.EditModel;
+                }
+                <DxFormLayout CssClass="w-100">
+                    <DxFormLayoutItem Caption="User Name" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.AddedBy" ShowValidationIcon="true" Enabled=false />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Date" ColSpanMd="6">
+                        <DxDateEdit NullText="Date" @bind-Date="@plant.AddedDate" Enabled=false />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="PlantCode"
+                                    ValueFieldName="PlantID"
+                                    @bind-Value="@plant.CompanyId"
+                                    ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                    Caption="Company Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                    Caption="Nav Company" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => plant.CompanyId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="No" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.No" ShowValidationIcon="true" Enabled="false" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.Description" ShowValidationIcon="true" Enabled="false" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description2" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.Description2" ShowValidationIcon="true" Enabled="false" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Pack Size" ColSpanMd="6">
+                        <DxComboBox Data="@_view_ApplicationMasterDetailsPackSize"
+                                    NullText="Select Pack Size..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Value"
+                                    ValueFieldName="ApplicationMasterDetailID"
+                                    @bind-Value="@plant.PackSizeId" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Supply To" ColSpanMd="6">
+                        <DxComboBox Data="@_view_ApplicationMasterDetailsSupplyTo"
+                                    NullText="Select Supply To..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Value"
+                                    ValueFieldName="ApplicationMasterDetailID"
+                                    @bind-Value="@plant.SupplyToId" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="UOM" ColSpanMd="6">
+                        <DxComboBox Data="@_view_ApplicationMasterDetailsUom"
+                                    NullText="Select Uom..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Value"
+                                    ValueFieldName="ApplicationMasterDetailID"
+                                    @bind-Value="@plant.UomId" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="ItemSerialNo" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.ItemSerialNo" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.ItemSerialNo)" />
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditFormTemplate>
+            <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="No" />
+            </TotalSummary>
+        </DxGrid>
+    </DxLoadingPanel>
 </div>
-<DxLoadingPanel @bind-Visible="PanelVisible"
-                IsContentBlocked="true"
-                ApplyBackgroundShading="true"
-                IndicatorAreaVisible="false"
-                Text="Fetching Data...">
-    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            Data="_navItems"
-            ShowGroupPanel="true" ShowGroupedColumns="true"
-            KeyFieldName="ItemId"
-            EditModelSaving="Grid_EditModelSaving"
-            CustomizeEditModel="Grid_CustomizeEditModel"
-            CustomizeElement="Grid_CustomizeElement"
-            ShowSearchBox="true"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            PageSize="20"
-            SelectionMode="GridSelectionMode.Multiple"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            AutoExpandAllGroupRows="true"
-            CssClass="ch-360"
-            style="height: calc(100vh - 270px);"
-            FocusedRowEnabled="true"
-            RowDoubleClick="OnRowDoubleClick"
-            SelectedDataItemsChanged="@SelectedDataItemsChanged"
-            RowClick="OnRowClick"
-            AllowSelectRowByClick="true">
-        <Columns>
-            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-            <DxGridDataColumn FieldName="ItemId" MinWidth="80" Visible="false" />
-            <DxGridDataColumn FieldName="PlantCode" Caption="Company" Width="30%" />
-            <DxGridDataColumn FieldName="No" Width="30%" />
-            <DxGridDataColumn FieldName="Description" Width="50%" />
-            <DxGridDataColumn FieldName="Description2" Width="50%" />
-            <DxGridDataColumn FieldName="PackSizeName" Caption="Pack Size" Width="50%" />
-            <DxGridDataColumn FieldName="SupplyToName" Caption="Supply To" Width="50%" />
-            <DxGridDataColumn FieldName="UomName" Caption="Uom" Width="50%" />
-            <DxGridDataColumn FieldName="ItemSerialNo" Caption="ItemSerialNo" Width="50%" />
-        </Columns>
-        <EditFormTemplate Context="EditFormContext">
-            @{
-                var plant = (View_NavItems)EditFormContext.EditModel;
-            }
-            <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="User Name" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@plant.AddedBy" ShowValidationIcon="true" Enabled=false />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Date" ColSpanMd="6">
-                    <DxDateEdit NullText="Date" @bind-Date="@plant.AddedDate" Enabled=false />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                    <DxComboBox Data="@_plantItems"
-                                NullText="Select Company..."
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="PlantCode"
-                                ValueFieldName="PlantID"
-                                @bind-Value="@plant.CompanyId"
-                                ShowValidationIcon="true">
-                        <Columns>
-                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
-                                                Caption="Company Name"
-                                                Width="180px" />
-                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
-                                                Caption="Description" />
-                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
-                                                Caption="Nav Company" />
-                        </Columns>
-                    </DxComboBox>
-                    <ValidationMessage For="@(() => plant.CompanyId)" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="No" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@plant.No" ShowValidationIcon="true" Enabled="false" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@plant.Description" ShowValidationIcon="true" Enabled="false" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Description2" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@plant.Description2" ShowValidationIcon="true" Enabled="false" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Pack Size" ColSpanMd="6">
-                    <DxComboBox Data="@_view_ApplicationMasterDetailsPackSize"
-                                NullText="Select Pack Size..."
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="Value"
-                                ValueFieldName="ApplicationMasterDetailID"
-                                @bind-Value="@plant.PackSizeId" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Supply To" ColSpanMd="6">
-                    <DxComboBox Data="@_view_ApplicationMasterDetailsSupplyTo"
-                                NullText="Select Supply To..."
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="Value"
-                                ValueFieldName="ApplicationMasterDetailID"
-                                @bind-Value="@plant.SupplyToId" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="UOM" ColSpanMd="6">
-                    <DxComboBox Data="@_view_ApplicationMasterDetailsUom"
-                                NullText="Select Uom..."
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="Value"
-                                ValueFieldName="ApplicationMasterDetailID"
-                                @bind-Value="@plant.UomId" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="ItemSerialNo" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@plant.ItemSerialNo" ShowValidationIcon="true" />
-                    <ValidationMessage For="@(() => plant.ItemSerialNo)" />
-                </DxFormLayoutItem>
-            </DxFormLayout>
-        </EditFormTemplate>
-        <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="No" />
-        </TotalSummary>
-    </DxGrid>
-</DxLoadingPanel>
+
+
+<div id="NavLineItems" style="@navLineItems">
+    <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@BackEdit" />
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+    <NavItemsLine @ref="refNavItemsLine"></NavItemsLine>
+</div>
+
 @code {
+    private NavItemsLine? refNavItemsLine;
     private List<View_NavItems> _navItems;
     private List<ViewPlants>? _plantItems;
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     bool PanelVisible { get; set; }
     bool EditEnabled { get; set; } = true;
+    string navHeaderItems = "";
+    string navLineItems = "display:none;";
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private View_NavItems? _selectedItems;
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsUom;
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsPackSize;
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsSupplyTo;
     public ApplicationUser applicationUser { get; private set; }
+    private bool HideNavHeaderLabel { get; set; } = true;
+    private bool HideNavHeaderLineLabel { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
@@ -183,6 +209,17 @@
             EditEnabled = true;
             StateHasChanged();
         }
+    }
+    public async Task AddItemLine()
+    {
+        navLineItems = "";
+        navHeaderItems = "display:none;";
+        await refNavItemsLine.loadData(_selectedItems.ItemId);
+    }
+    void BackEdit()
+    {
+        navHeaderItems = "";
+        navLineItems = "display:none;";
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
@@ -258,6 +295,7 @@
 
         Grid.StartEditDataItemAsync(_selectedItems);
     }
+
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ItemId");

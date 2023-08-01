@@ -94,6 +94,7 @@ namespace Application.Commands
         public long? NavVendorId { get; set; }
         public long? NavCustomerId { get; set; }
         public string? CrossReferenceNo { get; set; }
+        public long? SoCustomerId { get; set; }
         public CreateNavCrossReferenceCommand()
         {
         }
@@ -107,6 +108,7 @@ namespace Application.Commands
         public long? NavVendorId { get; set; }
         public long? NavCustomerId { get; set; }
         public string? CrossReferenceNo { get; set; }
+        public long? SoCustomerId { get; set; }
         public EditNavCrossReferenceCommand()
         {
         }

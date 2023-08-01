@@ -17,5 +17,6 @@ namespace Core.Entities
         public long? NavVendorId { get; set; }
         public long? NavCustomerId { get; set; }
         public string? CrossReferenceNo { get; set; }
+        public long? SoCustomerId { get; set; }
     }
 }

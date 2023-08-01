@@ -22,9 +22,11 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
-                <DxMenuItem Text="Add Address" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewCustomer" Enabled ="@AddNewCustomer"/>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNewCustomer" Enabled="@AddNewCustomer" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Add Address" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+
+
             </Items>
         </DxMenu>
     </div>
@@ -52,7 +54,7 @@
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages" EditModelSaving="@OnEditModelSaving"
-            TextWrapEnabled="false" >
+            TextWrapEnabled="false">
         <Columns>
             <DxGridDataColumn FieldName="SoCustomerId" Visible=false />
             <DxGridDataColumn FieldName="ShipCode" FixedPosition="GridColumnFixedPosition.Left" MinWidth="170" />
@@ -64,50 +66,53 @@
             <DxGridDataColumn FieldName="StateCode" MinWidth="170" />
             <DxGridDataColumn FieldName="PostCode" MinWidth="170" />
             <DxGridDataColumn FieldName="Channel" MinWidth="170" />
-             <DxGridDataColumn FieldName="Type" MinWidth="170" />
+            <DxGridDataColumn FieldName="Type" GroupIndex="0" MinWidth="170" />
             @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@
         </Columns>
-          <EditFormTemplate Context="EditFormContext">
-        @{
-            var customers = (SoCustomer)EditFormContext.EditModel;
-        }
-        <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="ShipCode:" >
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var customers = (SoCustomer)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="ShipCode:">
                     <DxTextBox @bind-Text="@customers.ShipCode" />
                     <ValidationMessage For="@(() => customers.ShipCode)" />
-            </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Customer Name:" >
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Customer Name:">
                     <DxTextBox @bind-Text="@customers.CustomerName" />
-            </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="AssignToRep :" >
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="AssignToRep :">
                     <DxTextBox @bind-Text="@customers.AssignToRep" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="City :" >
+                <DxFormLayoutItem Caption="City :">
                     <DxTextBox @bind-Text="@customers.City" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="StateCode :">
                     <DxTextBox @bind-Text="@customers.StateCode" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="PostCode :" >
+                <DxFormLayoutItem Caption="PostCode :">
                     <DxTextBox @bind-Text="@customers.PostCode" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Type :" >
+                <DxFormLayoutItem Caption="Type :">
                     <DxComboBox Data="@TypeList" @bind-Value="@customers.Type" ShowValidationIcon="true" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Channel :" >
+                <DxFormLayoutItem Caption="Channel :">
                     <DxTextBox @bind-Text="@customers.Channel" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Address1 :" >
+                <DxFormLayoutItem Caption="Address1 :">
                     <DxTextBox @bind-Text="@customers.Address1" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Address2 :" >
+                <DxFormLayoutItem Caption="Address2 :">
                     <DxTextBox @bind-Text="@customers.Address2" />
                 </DxFormLayoutItem>
-              
-             
-            <ValidationSummary />
-        </DxFormLayout>
-    </EditFormTemplate>
+
+
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ShipCode" />
+        </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
 @code {
@@ -117,7 +122,7 @@
     bool AddEnabled { get; set; } = false;
     private SoCustomer _selectedItems;
     bool EditEnabled { get; set; } = false;
-  
+
     private SoCustomer _selectlst;
     bool AddNewCustomer { get; set; } = false;
     List<string> TypeList = new List<string>() { "So Customer", "FM Global", "Nav Vendor", "Nav Customer" };
@@ -129,14 +134,14 @@
     }
     async Task UpdateDataAsync()
     {
-          PanelVisible = true;
+        PanelVisible = true;
         _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
 
         if (_AllSoCustomer.Count > 0)
         {
             _selectedItems = _AllSoCustomer.FirstOrDefault();
             AddEnabled = true;
-            EditEnabled  = true;
+            EditEnabled = true;
             AddNewCustomer = true;
             StateHasChanged();
         }
@@ -199,9 +204,9 @@
     }
     void addEdit()
     {
-            Grid.StartEditDataItemAsync(_selectedItems);
+        Grid.StartEditDataItemAsync(_selectedItems);
     }
-  
+
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
@@ -209,43 +214,9 @@
 
         if (e.IsNew)
         {
-           
+
             var createReq = new CreateSoCustomerCommand
-                    {
-                   CustomerName = editModel.CustomerName,
-                    ShipCode = editModel.ShipCode,
-                    Type = editModel.Type,
-                        AssignToRep=editModel.AssignToRep,
-                            Address1 = editModel.Address1,
-                            Address2 =editModel.Address2,
-                            City = editModel.City,
-                            PostCode = editModel.PostCode,
-                            StateCode = editModel.StateCode,
-                            Channel = editModel.Channel
-
-                       // StatusCodeID = 1,
-                       // AddedByUserID = applicationUser.UserID,
-                       // AddedDate = DateTime.Now,
-                      //  SessionId = Guid.NewGuid()
-                    };
-
-             
-                    var result = await Mediator.Send(createReq);
-                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                    //  onShowPopupMessage("Success", "Record save Successfully");
-               
- 
-
-                await UpdateDataAsync();
-        }
-
-           
-        else
-        {
-           
-                var UpdateReq = new EditSoCustomerCommand
-                    {
-                        SoCustomerId = editModel.SoCustomerId,
+                {
                     CustomerName = editModel.CustomerName,
                     ShipCode = editModel.ShipCode,
                     Type = editModel.Type,
@@ -256,20 +227,54 @@
                     PostCode = editModel.PostCode,
                     StateCode = editModel.StateCode,
                     Channel = editModel.Channel
-                       // AddedByUserID = editModel.AddedByUserID,
-                        //StatusCodeID = editModel.StatusCodeID,
-                        //ModifiedByUserID = applicationUser.UserID,
-                        ////   ModifiedDate = DateTime.Now,
-                        //AddedDate = editModel.AddedDate,
-                        //SessionId = editModel.SessionId,
 
-                    };
+                    // StatusCodeID = 1,
+                    // AddedByUserID = applicationUser.UserID,
+                    // AddedDate = DateTime.Now,
+                    //  SessionId = Guid.NewGuid()
+                };
 
-                var ans = await Mediator.Send(UpdateReq);
-                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                await UpdateDataAsync();
 
-           
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            //  onShowPopupMessage("Success", "Record save Successfully");
+
+
+
+            await UpdateDataAsync();
+        }
+
+
+        else
+        {
+
+            var UpdateReq = new EditSoCustomerCommand
+                {
+                    SoCustomerId = editModel.SoCustomerId,
+                    CustomerName = editModel.CustomerName,
+                    ShipCode = editModel.ShipCode,
+                    Type = editModel.Type,
+                    AssignToRep = editModel.AssignToRep,
+                    Address1 = editModel.Address1,
+                    Address2 = editModel.Address2,
+                    City = editModel.City,
+                    PostCode = editModel.PostCode,
+                    StateCode = editModel.StateCode,
+                    Channel = editModel.Channel
+                    // AddedByUserID = editModel.AddedByUserID,
+                    //StatusCodeID = editModel.StatusCodeID,
+                    //ModifiedByUserID = applicationUser.UserID,
+                    ////   ModifiedDate = DateTime.Now,
+                    //AddedDate = editModel.AddedDate,
+                    //SessionId = editModel.SessionId,
+
+                };
+
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+
 
         }
     }

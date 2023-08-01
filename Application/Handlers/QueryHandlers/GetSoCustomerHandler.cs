@@ -15,14 +15,27 @@ namespace Application.Handlers.QueryHandlers
     public class GetSoCustomerHandler : IRequestHandler<GetSoCustomerQuery, List<SoCustomer>>
     {
         
-        private readonly IQueryRepository<SoCustomer> _queryRepository;
-        public GetSoCustomerHandler(IQueryRepository<SoCustomer> queryRepository)
+        private readonly ISoCustomerQueryRepository _queryRepository;
+        public GetSoCustomerHandler(ISoCustomerQueryRepository queryRepository)
         {
             _queryRepository = queryRepository;
         }
         public async Task<List<SoCustomer>> Handle(GetSoCustomerQuery request, CancellationToken cancellationToken)
         {           
             return (List<SoCustomer>)await _queryRepository.GetListAsync();
+        }
+    }
+    public class GetSoCustomerByTypeHandler : IRequestHandler<GetSoCustomerByTypeQuery, List<SoCustomer>>
+    {
+
+        private readonly ISoCustomerQueryRepository _queryRepository;
+        public GetSoCustomerByTypeHandler(ISoCustomerQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<SoCustomer>> Handle(GetSoCustomerByTypeQuery request, CancellationToken cancellationToken)
+        {
+            return (List<SoCustomer>)await _queryRepository.GetListByTypeAsync(request.Type);
         }
     }
     public class GetSalesOrderLineHandler : IRequestHandler<GetSalesOrderLine, List<View_SoSalesOrderLine>>

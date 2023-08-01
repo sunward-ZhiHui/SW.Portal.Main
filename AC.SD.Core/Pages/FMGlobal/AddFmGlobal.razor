@@ -229,7 +229,7 @@
     }
     async Task SelectedItemPlantChanged(long? companyId)
     {
-        _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
+       
         _AllICTMasterFromAll = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, companyId));
         _AllICTMasterFrom = _AllICTMasterFromAll;
         _AllICTMasterToAll = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, companyId));
@@ -243,6 +243,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("FM Global"));
         _statusListItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(345));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         PlantsData = _plantItems;

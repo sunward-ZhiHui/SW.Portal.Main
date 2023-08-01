@@ -66,11 +66,8 @@
                     </div> *@
                     <div class="card w-100" style="margin-bottom:10px; margin-top:10px;">
                         <div class="d-flex py-2">
-                            <DxTextBox @bind-Text="SearchText" style="width: 100%;    margin-left: 5px;" />
-                            <DxButton Text="Apply" Click="() => GridSearchText = SearchText" CssClass="mx-2" />
-                           @* <DxTextBox @bind-Text="GridSearchText" style="width: 100%;    margin-left: 5px;" />
-                            <DxButton Text="Apply" Click="ApplySearch" CssClass="mx-2" />*@
-
+                           @* <DxTextBox @bind-Text="SearchText" style="width: 100%;    margin-left: 5px;" />
+                            <DxButton Text="Apply" Click="() => GridSearchText = SearchText" CssClass="mx-2" />*@
                         </div>
                         <div class="card-body p-0">
                             <DxTabs ScrollMode="TabsScrollMode.NavButtons" @bind-ActiveTabIndex="@ActiveTabIndex">
@@ -2363,7 +2360,14 @@
         {
             assignccidsString = string.Join(",", Data.AssignccIds);
         }
-        
+
+
+
+
+        List<long> concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
+                    concatList.Add(applicationUser.UserID);
+        concatList = concatList.Distinct().ToList();
+        string participantidsString = string.Join(",", concatList);
 
         var createReq = new CreateEmailCoversation
             {
@@ -2375,6 +2379,7 @@
                 FileData = fileContent,
                 AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
                 AssignccIdss = assignccidsString,
+                PlistIdss = participantidsString,
                 AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,

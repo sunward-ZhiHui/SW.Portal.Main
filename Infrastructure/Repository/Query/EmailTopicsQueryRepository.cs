@@ -281,6 +281,10 @@ namespace Infrastructure.Repository.Query
                                 EmailTopics TS
                             INNER JOIN
                                 EmailConversations EC ON EC.TopicId = TS.ID
+							LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = EC.SessionId
+							LEFT JOIN ApplicationMasterChild AMC ON AMC.ApplicationMasterChildID = AET.ManufacturingProcessId
+							LEFT JOIN ApplicationMasterChild CAI ON CAI.ApplicationMasterChildID = AET.CategoryActionId
+							LEFT JOIN ApplicationMasterChild AI ON AI.ApplicationMasterChildID = AET.ActionId
                             CROSS APPLY(SELECT DISTINCT ReplyId = CASE WHEN ECC.ReplyId >0 THEN ECC.ReplyId ELSE ECC.ID END
 							            FROM EmailConversations ECC 
 										WHERE --ECC.TopicID=@TopicId 
@@ -308,7 +312,7 @@ namespace Infrastructure.Repository.Query
                                 ) FN ON TS.ID = FN.TopicId
                             WHERE
                                 TS.OnDraft = 0 and EC.ID=K.ReplyId  /*and EC.ReplyId = 0*/
-                                AND (E.FirstName LIKE '%' + @searchtxt + '%' OR TS.TopicName LIKE '%' + @searchtxt + '%' OR TS.Remarks LIKE '%' + @searchtxt + '%' OR TS.Follow LIKE '%' + @searchtxt + '%')
+                                AND (E.FirstName LIKE '%' + @searchtxt + '%' OR TS.TopicName LIKE '%' + @searchtxt + '%' OR TS.Remarks LIKE '%' + @searchtxt + '%' OR TS.Follow LIKE '%' + @searchtxt + '%' OR AMC.Value LIKE '%' + @searchtxt + '%' OR CAI.Value LIKE '%' + @searchtxt + '%' OR AI.Value LIKE '%' + @searchtxt + '%')
                             ORDER BY
                                 TS.StartDate DESC";
 

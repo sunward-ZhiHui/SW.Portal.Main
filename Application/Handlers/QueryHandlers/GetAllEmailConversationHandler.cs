@@ -165,6 +165,8 @@ namespace Application.Handlers.QueryHandlers
 
             var conversationAssignTo = new EmailConversationAssignTo();
             conversationAssignTo.ConversationId = req;
+            conversationAssignTo.ReplyId = request.ReplyId;
+            conversationAssignTo.PlistIdss = request.PlistIdss;
             conversationAssignTo.TopicId = request.TopicID;            
             conversationAssignTo.StatusCodeID = request.StatusCodeID;
             conversationAssignTo.AddedByUserID = request.AddedByUserID;

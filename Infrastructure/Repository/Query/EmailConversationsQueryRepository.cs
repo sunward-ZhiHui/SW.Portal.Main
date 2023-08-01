@@ -1071,6 +1071,7 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();                            
                             parameters.Add("ConversationId", conversationAssignTo.ConversationId);
+                            parameters.Add("ReplyId", conversationAssignTo.ReplyId);
                             parameters.Add("TopicId", conversationAssignTo.TopicId);
                             parameters.Add("StatusCodeID", conversationAssignTo.StatusCodeID);
                             parameters.Add("AddedByUserID", conversationAssignTo.AddedByUserID);
@@ -1078,6 +1079,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", conversationAssignTo.AddedDate);
                             parameters.Add("AssigntoIds", conversationAssignTo.AssigntoIds);
                             parameters.Add("AssignccIds", conversationAssignTo.AssignccIds);
+                            parameters.Add("PlistIdss", conversationAssignTo.PlistIdss);
                             parameters.Add("Option", "INSERT");
                         
                             //var query = "INSERT INTO EmailConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";

@@ -12,7 +12,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 
-<DxGrid @ref="CCGrid"
+<DxGrid @ref="CCGrid" SearchText="@GridSearchText"
         Data="_forumTopicCC"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
@@ -23,7 +23,7 @@
         PageSize="20"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360 " style="height: calc(100vh - 220px);"
+        CssClass="ch-360 " style="height: calc(100vh - 269px);"
         RowClick="OnEmailToRowClick"
         AllowSelectRowByClick="true">
     <Columns>
@@ -53,6 +53,8 @@
     </TotalSummary>
 </DxGrid>
 @code {
+    [Parameter]
+    public string? GridSearchText { get; set; }
     IGrid CCGrid { get; set; }
     private List<EmailTopics>? _forumTopicCC;
     public ApplicationUser applicationUser { get; private set; }
@@ -63,7 +65,7 @@
     [Parameter]
     public Action<string> CCTopicId { get; set; }
     [Parameter]
-    public Action<string> SubViewCCTopicId { get; set; }
+    public Action<string> SubViewCCTopicId { get; set; }   
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");

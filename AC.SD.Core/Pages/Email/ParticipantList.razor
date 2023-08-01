@@ -25,7 +25,7 @@
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             PageSize="20"
-            style="height:calc(100vh - 290px);min-height:400px !important"
+            style="height:calc(100vh - 400px);min-height:350px !important"
             CssClass="ch-360"
             SelectionMode="GridSelectionMode.Multiple"
             AllowSelectRowByClick="true">
@@ -110,18 +110,20 @@
     [Parameter]
     public long Tid { get; set; }
     [Parameter]
+    public long Cid { get; set; }
+    [Parameter]
     public bool IsValidUser { get; set; } = false;
     private List<EmailParticipant>? _participant;
     protected override async Task OnInitializedAsync()
     {
         IsValidUser = IsValidUser;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _participant = await Mediator.Send(new GetEmailParticipantsList(Tid));
+        _participant = await Mediator.Send(new GetConversationParticipantsList(Cid));
     }
-    public async Task loadParticipentList( long id)
+    public async Task loadParticipentList(long id)
     {  
         IsValidUser = IsValidUser;
-        _participant = await Mediator.Send(new GetEmailParticipantsList(id));
+        _participant = await Mediator.Send(new GetConversationParticipantsList(id));
     }   
     public async Task onDeletePlist(long Id)
     {
@@ -177,6 +179,7 @@
         var createReq = new CreateEmailTopicParticipant
             {
                 PList = participantidsString,
+                ConversationId = Cid,
                 TopicId = Tid,
                 UserId = applicationUser.UserID,
                 StatusCodeID = 1,
@@ -192,7 +195,7 @@
     }
     private async Task LoadGetPList()
     {
-        _participant = await Mediator.Send(new GetEmailParticipantsList(Tid));
+        _participant = await Mediator.Send(new GetConversationParticipantsList(Cid));
         SelectedDataItems = null;
         participantIds.Clear();
     }
@@ -210,7 +213,7 @@
     }
     private async Task LoadAllParticipantList()
     {
-        var plist = await Mediator.Send(new GetAllEmailParticipantListQuery(Tid));
+        var plist = await Mediator.Send(new GetAddConversationPListQuery(Cid));
         _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
         isAllPlistVisible = true;

@@ -28,6 +28,7 @@ using Application.Command.SalesOrderMasterPricings;
 using Application.Command.SalesOrderMasterPricingLine;
 using Application.Command.SalesOrderMasterPricingLineSellingMethods;
 using Application.Command.FmGlobals;
+using Application.Command.SoCustomer;
 
 namespace Application.Common.Mapper
 {
@@ -183,6 +184,10 @@ namespace Application.Common.Mapper
             CreateMap<FmglobalLineItem, CreateGlobalLineItemCommand>().ReverseMap();
             CreateMap<FmglobalLineItem, EditFmGlobalLineItemCommand>().ReverseMap();
             CreateMap<FmglobalLineItem, DeleteFmGlobalLineItemCommand>().ReverseMap();
+
+
+            CreateMap<SoCustomer, CreateSoCustomerCommand>().ReverseMap();
+            CreateMap<SoCustomer, EditSoCustomerCommand>().ReverseMap();
 
             CreateMap<NavProductionInformation, CreateNavProductionInformationCommand>().ReverseMap();
             CreateMap<NavProductionInformation, EditNavProductionInformationCommand>().ReverseMap();

@@ -1,17 +1,14 @@
-﻿using Core.Entities;
-using Core.Entities.Base;
+﻿using Application.Response;
 using MediatR;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Response
+namespace Application.Command.SoCustomer
 {
-    public class SoCustomerResponse : BaseEntity
+    public class CreateSoCustomerCommand : IRequest<SoCustomerResponse>
     {
         public long SoCustomerId { get; set; }
         public string ShipCode { get; set; }
@@ -24,6 +21,11 @@ namespace Application.Response
         public string PostCode { get; set; }
         public string Channel { get; set; }
         public string Type { get; set; }
+        
+        public CreateSoCustomerCommand()
+        {
 
+        }
     }
+    
 }

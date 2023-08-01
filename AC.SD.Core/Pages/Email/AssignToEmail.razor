@@ -6,10 +6,11 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using MediatR
 @inject IMediator Mediator
+@using System.Linq
 
 
 
-<DxGrid @ref="TOGrid"
+<DxGrid @ref="TOGrid" SearchText="@GridSearchText" 
         Data="_forumTopicTo"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="ID"
@@ -21,14 +22,14 @@
         PageSize="20"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 220px);"
+        CssClass="w-100" style="height: calc(100vh - 269px);"
         RowClick="OnEmailToRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
     <Columns>
         <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
         @* <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
-        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
+        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@        
         <DxGridDataColumn FieldName="FirstName" Caption="">
             <CellDisplayTemplate>
                 @{
@@ -70,6 +71,9 @@
     public string filterrowname { get; set; }
 
     [Parameter]
+    public string? GridSearchText { get; set; }
+
+    [Parameter]
     public Action<string> ToTopicId { get; set; }
     [Parameter]
     public Action<string> SubViewToTopicId { get; set; }
@@ -85,8 +89,8 @@
             e.CssClass = "alt-item";
             e.CssClass += "non-selectable-row";
         }
-       
-    }
+
+    }   
     async Task OnEmailToRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
@@ -102,6 +106,7 @@
         SelectedReplyId = RId;
         var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
         RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
         SubViewToTopicId?.Invoke(SelectedReplyId);
         await Task.Delay(1000); // Example asynchronous operation
                                 //await LoadReplyData();

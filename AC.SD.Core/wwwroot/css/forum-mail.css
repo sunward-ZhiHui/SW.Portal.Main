@@ -319,6 +319,7 @@ main {
     margin-right: 10px;
 }
 .closebtn {
+    display:none;
     cursor: pointer;
     position: relative;
     float: right;

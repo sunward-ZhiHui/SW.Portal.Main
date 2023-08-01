@@ -7,7 +7,7 @@
 @using MediatR
 @inject IMediator Mediator
 
-<DxGrid @ref="SentGrid"
+<DxGrid @ref="SentGrid" SearchText="@GridSearchText"
         Data="_forumTopicSent"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
@@ -18,7 +18,7 @@
         PageSize="20"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="ch-360 " style="height: calc(100vh - 220px);"
+        CssClass="ch-360 " style="height: calc(100vh - 269px);"
         RowClick="OnEmailToRowClick"
         AllowSelectRowByClick="true">
     <Columns>
@@ -61,6 +61,8 @@
     public Action<string> sentTopicId { get; set; }
     [Parameter]
     public Action<string> SubViewSentTopicId { get; set; }
+    [Parameter]
+    public string? GridSearchText { get; set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");

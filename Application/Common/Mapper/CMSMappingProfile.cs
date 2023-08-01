@@ -183,6 +183,12 @@ namespace Application.Common.Mapper
             CreateMap<FmglobalLineItem, CreateGlobalLineItemCommand>().ReverseMap();
             CreateMap<FmglobalLineItem, EditFmGlobalLineItemCommand>().ReverseMap();
             CreateMap<FmglobalLineItem, DeleteFmGlobalLineItemCommand>().ReverseMap();
+
+            CreateMap<NavProductionInformation, CreateNavProductionInformationCommand>().ReverseMap();
+            CreateMap<NavProductionInformation, EditNavProductionInformationCommand>().ReverseMap();
+            CreateMap<NavCrossReference, CreateNavCrossReferenceCommand>().ReverseMap();
+            CreateMap<NavCrossReference, EditNavCrossReferenceCommand>().ReverseMap();
+            CreateMap<NavCrossReference, DeleteNavCrossReference>().ReverseMap();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Core.Entities.Views;
+﻿using Core.Entities;
+using Core.Entities.Views;
 using Core.Repositories.Query.Base;
 using System;
 using System.Collections.Generic;
@@ -13,5 +14,10 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ViewFmglobal>> GetAllAsync();
         Task<ViewFmglobal> GetByIdAsync(Int64 id);
         Task<ViewFmglobal> GetBySessionIdAsync(Guid? SessionId);
+        Task<IReadOnlyList<View_FMGlobalAddess>> GetFmGlobalAddressdAsync(long? id, string billingType);
+        Task<long> InsertFmAddress(View_FMGlobalAddess address);
+        Task<long> InsertFmGlobalAddress(FMGlobalAddess fmGlobalAddress);
+        Task<long> EditAddress(View_FMGlobalAddess address);
+        Task<long> DeleteAddressAsync(long? AddressID, long? FMGlobalID);
     }
 }

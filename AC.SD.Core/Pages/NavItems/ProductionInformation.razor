@@ -1,0 +1,121 @@
+﻿@using Application.Command.Employees;
+@using Application.Command.SoSalesOrder;
+@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@using System.ComponentModel.DataAnnotations;
+@inject IJSRuntime JSRuntime;
+@using System.Reflection;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+
+<div class="cw-880">
+    <EditForm Model="@Datas" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit"
+              Context="EditFormContext"
+              class="w-800">
+        <div style="height: calc(100vh - 250px);padding:10px; width: calc(300vh - 0px);/* overflow: auto; */border: 1px solid #d5d4d4; border-top: none;">
+            <DataAnnotationsValidator />
+            <div class="row">
+                <div class="col-md-2" style="padding-bottom: 12px">
+                    <label for="identifier">
+                        No Of BUOM In One Carton:
+                    </label>
+                    <DxSpinEdit @bind-Value="@Datas.NoOfBUOMInOneCarton" ShowValidationIcon="true" ShowSpinButtons="false" />
+                    <ValidationMessage For="@(() => Datas.NoOfBUOMInOneCarton)" />
+                </div>
+            </div>
+            <div class="col-md-12">
+                <DxButton SubmitFormOnClick="true" Text="Save" RenderStyle="ButtonRenderStyle.Primary" />
+            </div>
+        </div>
+
+    </EditForm>
+</div>
+
+
+@code {
+    [Parameter]
+    public long? ItemId { get; set; }
+    private bool loading;
+    List<NavProductionInformation> _navProductionInformation;
+    private string MyID = "myid";
+    NavProductionInformation Datas = new NavProductionInformation();
+    public ApplicationUser applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        if (ItemId > 0)
+        {
+            await loadData(ItemId);
+        }
+    }
+    public async Task loadData(long? itemId)
+    {
+        ItemId = itemId;
+        _navProductionInformation = await Mediator.Send(new GetNavProductionInformationQuery(ItemId));
+        if (_navProductionInformation.Count > 0)
+        {
+            Datas.NavProductionInformationId = _navProductionInformation[0].NavProductionInformationId;
+            Datas.NoOfBUOMInOneCarton = _navProductionInformation[0].NoOfBUOMInOneCarton;
+            StateHasChanged();
+        }
+    }
+    void backUrl()
+    {
+    }
+    void ResetForm()
+    {
+
+    }
+    void onsubmitClick()
+    {
+    }
+    async Task HandleValidSubmit()
+    {
+        loading = true;
+
+        if (Datas.NavProductionInformationId > 0)
+        {
+            var createReq = new EditNavProductionInformationCommand
+                {
+                    NavProductionInformationId = Datas.NavProductionInformationId,
+                    ItemId = ItemId,
+                    NoOfBUOMInOneCarton = Datas.NoOfBUOMInOneCarton,
+                };
+            await Mediator.Send(createReq);
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            loading = false;
+            StateHasChanged();
+        }
+        else
+        {
+            var createReq = new CreateNavProductionInformationCommand
+                {
+                    ItemId = ItemId,
+                    NoOfBUOMInOneCarton = Datas.NoOfBUOMInOneCarton,
+                };
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            ItemId = result.ItemId;
+            loading = false;
+            StateHasChanged();
+        }
+    }
+    void HandleInvalidSubmit()
+    {
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+}

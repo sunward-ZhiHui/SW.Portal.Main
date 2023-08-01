@@ -195,5 +195,37 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<View_NavCrossReference>> GetNavCrossReference(long? ItemId)
+        {
+            try
+            {
+                var query = "select  * from View_NavCrossReference where  ItemId=" + ItemId;
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<View_NavCrossReference>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<NavProductionInformation>> GetNavProductionInformation(long? ItemId)
+        {
+            try
+            {
+                var query = "select  * from NavProductionInformation where  ItemId=" + ItemId;
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<NavProductionInformation>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

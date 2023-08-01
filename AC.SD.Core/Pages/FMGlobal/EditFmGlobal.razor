@@ -133,7 +133,26 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.LocationToId)" />
                     </DxFormLayoutItem>
-
+                    <DxFormLayoutItem Caption="FM Customer" ColSpanMd="6">
+                        <DxComboBox Data="@_AllSoCustomer"
+                                    NullText="Select Customer..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="CustomerName"
+                                    ValueFieldName="SoCustomerId"
+                                    @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
+                                                    Caption="Customer Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.ShipCode)"
+                                                    Caption="Ship Code" />
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.AssignToRep)"
+                                                    Caption="AssignTo Rep" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.SoCustomerId)" />
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                         <DxComboBox Data="@_statusListItems"
                                     NullText="Select Status..."
@@ -162,7 +181,9 @@
 
                                 <FmGlobalLineItems></FmGlobalLineItems>
                             </DxFormLayoutTabPage>
-
+                            <DxFormLayoutTabPage Caption="Address">
+                                <FMGlobalAddress _salesOrderItems="@_fmglobalItem"></FMGlobalAddress>
+                            </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
                 </div>
@@ -200,7 +221,7 @@
     bool MessageVisible { get; set; }
     string MessageHeader = "";
     string MessageBody = "";
-
+    private List<SoCustomer>? _AllSoCustomer;
     void SelectedItemChanged(ViewIctmaster viewIctmaster)
     {
 
@@ -224,7 +245,7 @@
     }
     protected override async Task OnInitializedAsync()
     {
-
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
         _statusListItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(345));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -246,7 +267,17 @@
                 Data.Pono = _fmglobalItem.Pono;
                 Data.LocationFromId = _fmglobalItem.LocationFromId;
                 Data.LocationToId = _fmglobalItem.LocationToId;
-                Data.FmglobalStausId = _fmglobalItem.FmglobalStausId;
+                Data.SoCustomerId=_fmglobalItem.SoCustomerId;
+                Data.SoCustomerShipingAddressId = _fmglobalItem.SoCustomerShipingAddressId;
+                if (_fmglobalItem.FmglobalId > 0)
+                {
+                    Data.FmglobalStausId = _fmglobalItem.FmglobalStausId;
+                }
+                else
+                {
+                    var StatusId = _statusListItems.FirstOrDefault(a => a.Value.ToLower() == "open")?.ApplicationMasterDetailID;
+                    Data.FmglobalStausId = StatusId;
+                }
                 Data.SessionId = _fmglobalItem.SessionId;
                 await SelectedItemPlantChanged(_fmglobalItem.CompanyId);
                 await RefFmGlobalLine.loadData(_fmglobalItem);
@@ -290,7 +321,9 @@
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
                     SessionId = Data.SessionId,
-                    StatusCodeId = 1
+                    StatusCodeId = 1,
+                    SoCustomerId = Data.SoCustomerId,
+                    SoCustomerShipingAddressId = Data.SoCustomerShipingAddressId,
 
                 };
 
@@ -315,7 +348,9 @@
                     AddedDate = DateTime.Now,
                     ModifiedDate = DateTime.Now,
                     SessionId = Guid.NewGuid(),
-                    StatusCodeId = 1
+                    StatusCodeId = 1,
+                    SoCustomerId = Data.SoCustomerId,
+                    SoCustomerShipingAddressId = Data.SoCustomerShipingAddressId,
 
                 };
 

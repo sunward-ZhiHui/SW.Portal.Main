@@ -11,7 +11,9 @@ namespace Core.Repositories.Query
     public interface IFmGlobalLineItemQueryRepository : IQueryRepository<ViewFmglobalLineItem>
     {
         Task<IReadOnlyList<ViewFmglobalLineItem>> GetAllAsync(Int64 id);
+        Task<IReadOnlyList<ViewFmglobalLineItem>> GetAllByIdAsync(Int64 id);
         Task<ViewFmglobalLineItem> GetByIdAsync(Int64 id);
+        Task<IReadOnlyList<ViewFmglobalLineItem>> GetPalletMovementListingdAsync();
 
         Task<ViewFmglobalLineItem> GetBySessionIdAsync(Guid? SessionId);
     }

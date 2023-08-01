@@ -55,5 +55,23 @@ namespace Application.Queries
             this.ItemId = ItemId;
         }
     }
+    public class GetNavProductionInformationQuery : PagedRequest, IRequest<List<NavProductionInformation>>
+    {
+        public string SearchString { get; set; }
+        public long? ItemId { get; set; }
+        public GetNavProductionInformationQuery(long? ItemId)
+        {
+            this.ItemId = ItemId;
+        }
+    }
+    public class GetNavCrossReferenceQuery : PagedRequest, IRequest<List<View_NavCrossReference>>
+    {
+        public string SearchString { get; set; }
+        public long? ItemId { get; set; }
+        public GetNavCrossReferenceQuery(long? ItemId)
+        {
+            this.ItemId = ItemId;
+        }
+    }
 
 }

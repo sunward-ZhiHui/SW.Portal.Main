@@ -15,4 +15,20 @@ namespace Infrastructure.Repository.Command
 
         }
     }
+    public class NavProductionInformationCommandRepository : CommandRepository<NavProductionInformation>, INavProductionInformationCommandRepository
+    {
+        public NavProductionInformationCommandRepository(IConfiguration configuration)
+            : base(configuration)
+        {
+
+        }
+    }
+    public class NavCrossReferenceCommandRepository : CommandRepository<NavCrossReference>, INavCrossReferenceCommandRepository
+    {
+        public NavCrossReferenceCommandRepository(IConfiguration configuration)
+            : base(configuration)
+        {
+
+        }
+    }
 }

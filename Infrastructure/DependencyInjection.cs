@@ -130,6 +130,9 @@ namespace Infrastructure
             services.AddTransient<IFmGlobalCommandRepository, FmGlobalCommandRepository>();
             services.AddTransient<IFmGlobalLineCommandRepository, FmGlobalLineCommandRepository>();
             services.AddTransient<IFmGlobalLineItemCommandRepository, FmGlobalLineItemCommandRepository>();
+
+            services.AddTransient<INavProductionInformationCommandRepository, NavProductionInformationCommandRepository>();
+            services.AddTransient<INavCrossReferenceCommandRepository, NavCrossReferenceCommandRepository>();
             return services;
         }
     }

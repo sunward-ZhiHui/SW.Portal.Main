@@ -79,6 +79,25 @@
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="NavCrossReferenceId" Visible="false" />
+            <DxGridDataColumn FieldName="TypeOfCompany" Caption="Type Of Company" />
+            <DxGridDataColumn FieldName="CustomerName" Caption="Name">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (View_NavCrossReference)context.DataItem;
+                        var Names = item.TypeOfCompany == "Inter Company" ?item.PlantDescription: item.CustomerName;
+                    }
+                    @Names
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ShipCode" Caption="Code">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (View_NavCrossReference)context.DataItem;
+                        var Codes = item.TypeOfCompany == "Inter Company" ? item.PlantCode : item.ShipCode;
+                    }
+                    @Codes
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="CrossReferenceNo" Caption="Cross Reference No" />
 
             <DxGridCommandColumn Width="160px" Visible="false" />
@@ -91,7 +110,53 @@
                 var types = (View_NavCrossReference)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Cross ReferenceNo:" ColSpanMd="3">
+
+                <DxFormLayoutItem Caption="Type Of Company">
+                    <DxComboBox Data="@TypeList" @bind-Value="@types.TypeOfCompany" SelectedItemChanged="@((string soCustomer) => SelectedItemChanged(soCustomer))" ShowValidationIcon="true" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Company" ColSpanMd="6" Visible="isCompany">
+                    <DxComboBox Data="@_plantItems"
+                                NullText="Select Company..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="PlantCode"
+                                ValueFieldName="PlantID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@types.CompanyId" ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                Caption="Customer Name"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                Caption="Description" />
+                            <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                Caption="Nav Company" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.CompanyId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Customer Name" ColSpanMd="6" Visible="isSoCompany">
+                    <DxComboBox Data="@_AllSoCustomer"
+                                NullText="Select Customer..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="CustomerName"
+                                ValueFieldName="SoCustomerId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@types.SoCustomerId" ShowValidationIcon="true">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
+                                                Caption="Customer Name"
+                                                Width="180px" />
+                            <DxListEditorColumn FieldName="@nameof(SoCustomer.ShipCode)"
+                                                Caption="Ship Code" />
+                            <DxListEditorColumn FieldName="@nameof(SoCustomer.AssignToRep)"
+                                                Caption="AssignTo Rep" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.SoCustomerId)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Cross ReferenceNo" ColSpanMd="6">
                     <DxTextBox @bind-Text="@types.CrossReferenceNo" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.CrossReferenceNo)" />
                 </DxFormLayoutItem>
@@ -121,15 +186,19 @@
 @code {
     [Parameter]
     public long? ItemId { get; set; }
-
+    List<string> TypeList = new List<string>() { "Nav Vendor", "Nav Customer", "Inter Company" };
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
     private List<View_NavCrossReference>? _navCrossReferenceItems;
     IGrid? SMGrid { get; set; }
+    private List<SoCustomer>? _AllSoCustomer;
+    private List<ViewPlants>? _plantItems;
     private View_NavCrossReference _selectedItems;
     //bool EditEnabled { get; set; } = true;
     bool DeleteEnabled { get; set; } = false;
+    bool isCompany { get; set; } = false;
+    bool isSoCompany { get; set; } = false;
     bool ExportSelectedRowsOnly { get; set; }
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
@@ -150,20 +219,41 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
         await UpdateDataAsync();
     }
-    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
         var navitems = (View_NavCrossReference)e.EditModel;
         if (e.IsNew)
         {
-
+            isCompany = false;
+            isSoCompany = false;
+        }
+        else
+        {
+            await SelectedItemChanged(navitems.TypeOfCompany);
         }
     }
     public async Task loadData(long? itemId)
     {
         ItemId = itemId;
         await UpdateDataAsync();
+    }
+    async Task SelectedItemChanged(string TypeOfCompany)
+    {
+        if (TypeOfCompany == "Inter Company")
+        {
+            isCompany = true;
+            isSoCompany = false;
+        }
+        else
+        {
+            isCompany = false;
+            isSoCompany = true;
+            _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery(TypeOfCompany));
+            StateHasChanged();
+        }
     }
     async Task UpdateDataAsync()
     {
@@ -221,6 +311,9 @@
                 {
                     ItemId = ItemId,
                     CrossReferenceNo = editModel.CrossReferenceNo,
+                    TypeOfCompany = editModel.TypeOfCompany,
+                    CompanyId = editModel.CompanyId,
+                    SoCustomerId = editModel.SoCustomerId,
                 };
 
             try
@@ -247,7 +340,9 @@
                     NavCrossReferenceId = editModel.NavCrossReferenceId,
                     ItemId = ItemId,
                     CrossReferenceNo = editModel.CrossReferenceNo,
-
+                    TypeOfCompany = editModel.TypeOfCompany,
+                    CompanyId = editModel.CompanyId,
+                    SoCustomerId = editModel.SoCustomerId
                 };
 
             var ans = await Mediator.Send(UpdateReq);

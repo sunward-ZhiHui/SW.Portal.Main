@@ -35,6 +35,27 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<SoCustomer>> GetListByTypeAsync(string Type)
+        {
+            try
+            {
+                var query = "select  * from SoCustomer where type=" + "'" + Type + "'";
+                if (Type == "So Customer")
+                {
+                    query = "select  * from SoCustomer where type='So Customer' or type is null";
+                }
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<SoCustomer>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
 
         public async Task<SoCustomer> GetByIdAsync(long id)
         {
@@ -55,5 +76,5 @@ namespace Infrastructure.Repository.Query
             }
         }
     }
-    
+
 }

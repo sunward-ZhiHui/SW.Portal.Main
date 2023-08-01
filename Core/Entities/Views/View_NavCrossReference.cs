@@ -22,6 +22,9 @@ namespace Core.Entities.Views
         public string? NAVCustomerCode { get; set; }
         public string? PlantCode { get; set; }
         public string? PlantDescription { get; set; }
+        public string? CustomerName { get; set; }
+        public string? ShipCode { get; set; }
+        public long? SoCustomerId { get; set; }
 
     }
 }

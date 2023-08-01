@@ -252,7 +252,7 @@
         Data.ExpectedShipmentDate = DateTime.Now;
         Data.AddedDate = DateTime.Now;
         Data.AddedBy = applicationUser.UserName;
-        _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("FM Global"));
         _statusListItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(345));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         if (SessionIds != null && SessionLineIds != null)

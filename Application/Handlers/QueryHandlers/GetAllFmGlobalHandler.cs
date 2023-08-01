@@ -1,6 +1,8 @@
 ﻿using Application.Queries;
+using Core.Entities;
 using Core.Entities.Views;
 using Core.Repositories.Query;
+using Core.Repositories.Query.Base;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -61,6 +63,19 @@ namespace Application.Handlers.QueryHandlers
             return (List<ViewFmglobalLine>)await _queryRepository.GetAllAsync(request.Id.Value);
         }
     }
+    public class GetAllFmGlobalLineByPalletEntryHandler : IRequestHandler<GetAllFmGlobalLineByPalletEntryNoQuery, List<ViewFmglobalLine>>
+    {
+        private readonly IFmGlobalLineQueryRepository _queryRepository;
+        public GetAllFmGlobalLineByPalletEntryHandler(IFmGlobalLineQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ViewFmglobalLine>> Handle(GetAllFmGlobalLineByPalletEntryNoQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewFmglobalLine>)await _queryRepository.GetFmGlobalLineByPalletEntryNoAsync(request.CompanyId);
+        }
+    }
+    
     public class GetAllFmGlobalLineBySessionHandler : IRequestHandler<GetAllFmGlobalLineBySessionQuery, ViewFmglobalLine>
     {
         private readonly IFmGlobalLineQueryRepository _queryRepository;
@@ -96,6 +111,96 @@ namespace Application.Handlers.QueryHandlers
         public async Task<ViewFmglobalLineItem> Handle(GetAllFmGlobalLineItemBySessionQuery request, CancellationToken cancellationToken)
         {
             return await _queryRepository.GetBySessionIdAsync(request.SessionId);
+        }
+    }
+    public class GetAllFmGlobalByAddressIdHandler : IRequestHandler<GetFmGlobalAddressQuery, List<View_FMGlobalAddess>>
+    {
+        private readonly IFmGlobalQueryRepository _queryRepository;
+        public GetAllFmGlobalByAddressIdHandler(IFmGlobalQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<View_FMGlobalAddess>> Handle(GetFmGlobalAddressQuery request, CancellationToken cancellationToken)
+        {
+            return (List<View_FMGlobalAddess>)await _queryRepository.GetFmGlobalAddressdAsync(request.Id.Value,request.BillingType);
+        }
+    }
+    public class GetPalletMovementListingHandler : IRequestHandler<GetPalletMovementListingQuery, List<ViewFmglobalLineItem>>
+    {
+        private readonly IFmGlobalLineItemQueryRepository _queryRepository;
+        public GetPalletMovementListingHandler(IFmGlobalLineItemQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ViewFmglobalLineItem>> Handle(GetPalletMovementListingQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewFmglobalLineItem>)await _queryRepository.GetPalletMovementListingdAsync();
+        }
+    }
+    public class CreateFmGlobalAddressHandler : IRequestHandler<CreateFmGlobalAddress, long>
+    {
+        private readonly IFmGlobalQueryRepository _queryRepository;
+        public CreateFmGlobalAddressHandler(IFmGlobalQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<long> Handle(CreateFmGlobalAddress request, CancellationToken cancellationToken)
+        {
+            var req = await _queryRepository.InsertFmAddress(request);
+
+
+            var fmGlobalAddress = new FMGlobalAddess();
+            fmGlobalAddress.AddressId = req;
+            fmGlobalAddress.FmglobalId = request.FMGlobalID;
+            fmGlobalAddress.AddressType = request.AddressType;
+            fmGlobalAddress.isBilling = request.isBilling;
+            fmGlobalAddress.isShipping = request.isShipping;
+            var reqq = await _queryRepository.InsertFmGlobalAddress(fmGlobalAddress);
+
+            return req;
+        }
+    }
+    public class EditFmGlobalAddressHandler : IRequestHandler<EditFmGlobalAddress, long>
+    {
+        private readonly IFmGlobalQueryRepository _queryRepository;
+
+        public EditFmGlobalAddressHandler(IFmGlobalQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<long> Handle(EditFmGlobalAddress request, CancellationToken cancellationToken)
+        {
+            var req = await _queryRepository.EditAddress(request);
+            return req;
+        }
+    }
+    public class DeleteFmGlobalAddressHandler : IRequestHandler<DeleteFmGlobalAddress, string>
+    {
+        private readonly IFmGlobalQueryRepository _queryRepository;
+
+        public DeleteFmGlobalAddressHandler(IFmGlobalQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+
+        public async Task<string> Handle(DeleteFmGlobalAddress request, CancellationToken cancellationToken)
+        {
+           
+            try
+            {
+              
+                await _queryRepository.DeleteAddressAsync(request.AddressID,request.FMGlobalID);
+            }
+            catch (Exception exp)
+            {
+                throw (new ApplicationException(exp.Message));
+            }
+
+            return "Sales Order Address information has been deleted!";
+
+
         }
     }
 }

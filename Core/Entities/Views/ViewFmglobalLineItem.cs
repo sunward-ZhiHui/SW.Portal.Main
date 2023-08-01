@@ -44,5 +44,10 @@ namespace Core.Entities.Views
         public string PalletNo { get; set; }
         public string TempPalletNo { get; set; }
         public decimal? NavQuantity { get; set; }
+        public DateTime? ExpectedShipmentDate { get; set; }
+        public DateTime? FMGlobalDate { get; set; }
+        public string LocationFrom { get; set; }
+        public string LocationTo { get; set; }
+        public string FMGlobalStatus { get; set; }
     }
 }

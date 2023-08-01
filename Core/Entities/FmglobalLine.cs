@@ -23,5 +23,6 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionId { get; set; }
         public string TempPalletNo { get; set; }
+        public long? PalletEntryNoId { get; set; }
     }
 }

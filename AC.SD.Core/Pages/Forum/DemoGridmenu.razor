@@ -1,0 +1,208 @@
+﻿
+@page "/DemoGridmenu"
+@using System.ComponentModel;
+@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+
+
+    <div>
+           <div class="w-100 ch-220">
+              @* <div class="d-flex demo-employee-card">*@
+                                @*<div class="flex-shrink-0">
+                                    
+                                <div class="flex-grow-1 ps-3">*@
+        <DxTabs ScrollMode="TabsScrollMode.NavButtons" @bind-ActiveTabIndex="@ActiveTabIndex">
+
+            <DxTabPage Text="Home">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="pages">
+                <div class="p-2">
+                    The pages tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="employees">
+                <div class="p-2">
+                    The employees tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="Home">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="pages">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="employees">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="Home">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="pages">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="employees">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="Home">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="pages">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="employees">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="Home">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="pages">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="employees">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="Home">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="pages">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="employees">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="Home">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="pages">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="employees">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="Home">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="pages">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="employees">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="Home">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="pages">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="employees">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="Home">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="pages">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="employees">
+                <div class="p-2">
+                    The Home tab's content
+                </div>
+            </DxTabPage>
+        </DxTabs>
+               <div>
+        </div>
+
+        </div>
+        </div>
+        @*</div>*@
+        @*</div>
+            </div>
+*@
+
+@code {
+    [DefaultValue(TabsScrollMode.Auto)]
+    [Parameter]
+    public TabsScrollMode ScrollMode { get; set; }
+    private List<ForumTypes>? _types;
+    public int ActiveTabIndex { get; set; } = 1;
+    public ApplicationUser? applicationUser { get; private set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+    applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        // var models = await Mediator.Send(new GetAllForumTypesUsers());
+    //  var model = await Mediator.Send(new GetAllForumTypes());
+    // _types = model;
+
+    //for (int i = 0; i < models.Count; i++)
+    //{
+    //    models[i].Index = i + 1;
+    //}
+
+        //_types = models;
+   
+    // await jsRuntime.InvokeAsync<string>("hideLoading");
+    //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
+     }
+   
+}

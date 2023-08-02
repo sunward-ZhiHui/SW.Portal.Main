@@ -16,7 +16,8 @@ namespace Core.EntityModels
         public decimal? BounsPrice { get; set; }
         public decimal? BounsQty { get; set; }
         public decimal? BounsFocQty { get; set; }
-       
+        public decimal? TierNewFromQty { get; set; }
+        public decimal? TierNewToQty { get; set; }
         public long? ItemId { get; set; }
         public long? SellingMethodId { get; set; }
         public long? CompanyId { get; set; }
@@ -25,5 +26,6 @@ namespace Core.EntityModels
         public DateTime PriceValidaityTo { get; set; }
         public string? SellingMethod { get; set; }
         public string? MasterType { get; set; }
+        public decimal? BounsToQty { get; set; }
     }
 }

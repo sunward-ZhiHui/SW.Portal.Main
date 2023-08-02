@@ -14,7 +14,15 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
-
+    public class GetSoCustomerByTypeQuery : PagedRequest, IRequest<List<SoCustomer>>
+    {
+        public string SearchString { get; set; }
+        public string Type { get; set; }
+        public GetSoCustomerByTypeQuery(string? Type)
+        {
+            this.Type = Type;
+        }
+    }
 
     public class GetSalesOrderLine : PagedRequest, IRequest<List<View_SoSalesOrderLine>>
     {

@@ -12,6 +12,7 @@ namespace Core.Repositories.Query
     public interface ISoCustomerQueryRepository : IQueryRepository<SoCustomer>
     {
         Task<IReadOnlyList<SoCustomer>> GetAllAsync();
+        Task<IReadOnlyList<SoCustomer>> GetListByTypeAsync(string Type);
         Task<SoCustomer> GetByIdAsync(Int64 id);
         
     }

@@ -13,7 +13,34 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 
+<style scoped>
 
+    #customers {
+        /* font-family: Arial, Helvetica, sans-serif;
+                                                    border-collapse: collapse;*/
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #ddd;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+</style>
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -82,6 +109,7 @@
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="SoSalesOrderLineId" Visible="false" />
+            <DxGridDataColumn FieldName="SellingMethod" />
             <DxGridDataColumn FieldName="ItemSerialNo" />
             <DxGridDataColumn FieldName="No" Caption="Item No" />
             <DxGridDataColumn FieldName="Description" />
@@ -89,22 +117,7 @@
             <DxGridDataColumn FieldName="Qty" />
             <DxGridDataColumn FieldName="BaseUnitofMeasure" Caption="Unit of measure" />
             <DxGridDataColumn FieldName="UnitPrice" Caption="Unit price" />
-            @* <DxGridDataColumn FieldName="AddedDate">
-            <CellDisplayTemplate>
-            @{
-            var item = (View_SoSalesOrderLine)context.DataItem;
-            }
-            @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
-            </CellDisplayTemplate>
-            </DxGridDataColumn>*@
-            @*<DxGridDataColumn FieldName="AddedBy" Caption="AddedBy" TextAlignment="GridTextAlignment.Left">
-            <CellDisplayTemplate>
-            @{
-            var item = (View_SoSalesOrderLine)context.DataItem;
-            }
-            <div> @item.AddedBy</div>
-            </CellDisplayTemplate>
-            </DxGridDataColumn> *@
+
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         @*  @bind-SelectedDataItems="SelectedDataItems"*@
@@ -163,11 +176,29 @@
                 <DxFormLayoutItem Caption="Unit of measure:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@BaseUnitofMeasure" Enabled=false />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Qty:" ColSpanMd="6">
-                    <DxSpinEdit Value="@SalesQty" ValueExpression="@(() => SalesQty)" ValueChanged="@((Decimal newValue) => OnValueChanged(newValue))" ShowSpinButtons="false" />
+                <DxFormLayoutItem Caption="Order Qty:" ColSpanMd="3">
+                    <DxSpinEdit Value="@SalesQty" ValueExpression="@(() => SalesQty)" ValueChanged="@((Decimal newValue) => OnValueChanged(newValue))" ShowSpinButtons="false">
+                        <Buttons>
+                            <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container-pricing-info")
+                                            Tooltip="Pricing Info"
+                                            Click="@(_ => OnButtonPricingInfoClick())" />
+                        </Buttons>
+                    </DxSpinEdit>
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Unit price:" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Bonus Qty:" ColSpanMd="3">
+                    <DxSpinEdit @bind-Value="@BounsFocQty" ShowSpinButtons="false" Enabled="false" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Unit Price:" ColSpanMd="6">
                     <DxSpinEdit @bind-Value="@UnitPrice" ShowSpinButtons="false" Enabled="false" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Manual Price:" ColSpanMd="3">
+                    <DxCheckBox Checked="@IsManualPrice" CheckedExpression="@(() => IsManualPrice)" CheckedChanged="@((bool value) => CheckedChanged(value))">
+                        Is Manual
+                    </DxCheckBox>
+
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Manual Price:" ColSpanMd="3">
+                    <DxSpinEdit @bind-Value="@types.ManualPrice" ShowSpinButtons="false" Enabled="@IsManualPrice" />
                 </DxFormLayoutItem>
                 <ValidationSummary />
             </DxFormLayout>
@@ -197,11 +228,12 @@
           AnimationType="FlyoutAnimationType.Fade"
           PreventCloseOnPositionTargetClick="true"
           FooterVisible="true"
+          CloseOnOutsideClick=false
           FooterCssClass="custom-flyout-footer"
           Width="max(25vw, 550px)"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
-        <div class="custom-flyout-body">
+        <div class="custom-flyout-body" style="width:100%">
             <DxGrid Data="@View_SalesOrderMasterPricingLineByItems" CssClass="ch-360" style="height: calc(100vh - 400px);">
                 <Columns>
                     <DxGridDataColumn FieldName="MasterType" Caption="Price Type" MinWidth="100">
@@ -213,22 +245,17 @@
                             @PriceType
                         </CellDisplayTemplate>
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PriceValidaityFrom" MinWidth="100">
+                    <DxGridDataColumn FieldName="PriceValidaityFrom" Caption="Price Duration" MinWidth="100">
                         <CellDisplayTemplate>
                             @{
                                 var item = (View_SalesOrderMasterPricingLineByItem)context.DataItem;
+                                var fromToYear = @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityFrom) + " To " + @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityTo);
                             }
-                            @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityFrom)
+                            @fromToYear
+
                         </CellDisplayTemplate>
                     </DxGridDataColumn>
-                    <DxGridDataColumn FieldName="PriceValidaityTo" MinWidth="100">
-                        <CellDisplayTemplate>
-                            @{
-                                var item = (View_SalesOrderMasterPricingLineByItem)context.DataItem;
-                            }
-                            @Application.Common.Helper.Helper.FormatMonthYear(item.PriceValidaityTo)
-                        </CellDisplayTemplate>
-                    </DxGridDataColumn>
+
                     <DxGridDataColumn FieldName="SellingMethodName" MinWidth="100" />
                     <DxGridDataColumn FieldName="SellingPrice" MinWidth="100" />
                 </Columns>
@@ -247,13 +274,110 @@
         </div>
     </FooterContentTemplate>
 </DxFlyout>
+<DxFlyout @bind-IsOpen=IsPricingInfoOpen
+          PositionTarget=@($"#flyout-overview-target-container-pricing-info")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+
+            <table style="width:100%" id="customers">
+                <tr>
+                    <th>Master Type</th>
+                    @{
+                        var masterTypeDis = "";
+                        if (salesOrderMasterPricingFromSalesModel!=null && salesOrderMasterPricingFromSalesModel.SalesOrderMasterPricingLineId > 0)
+                        {
+                            masterTypeDis = (salesOrderMasterPricingFromSalesModel.MasterType == "MasterPrice") ? "Master Price" : "Specific Item Price";
+                        }
+                        <td>@masterTypeDis</td>
+                    }
+                </tr>
+                <tr>
+                    <th>Price Duration</th>
+                    <td>
+                        @{
+                            var durationYear = "";
+                            if (salesOrderMasterPricingFromSalesModel!=null && salesOrderMasterPricingFromSalesModel.SalesOrderMasterPricingLineId > 0)
+                            {
+                                durationYear = Application.Common.Helper.Helper.FormatMonthYear(salesOrderMasterPricingFromSalesModel.PriceValidaityFrom) + " To " + Application.Common.Helper.Helper.FormatMonthYear(salesOrderMasterPricingFromSalesModel.PriceValidaityTo);
+                            }
+                            @durationYear
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <th>Selling Price</th>
+                    <td>@salesOrderMasterPricingFromSalesModel?.SellingPrice</td>
+                </tr>
+                @{
+                    if (salesOrderMasterPricingFromSalesModel!=null && salesOrderMasterPricingFromSalesModel.SalesOrderMasterPricingLineSellingMethodId > 0)
+                    {
+                        if (salesOrderMasterPricingFromSalesModel.SellingMethod == "Tier")
+                        {
+                            <tr>
+                                <th>Tier Duration Qty</th>
+                                <td>@(
+                                    salesOrderMasterPricingFromSalesModel.TierNewFromQty + (salesOrderMasterPricingFromSalesModel.TierNewToQty > 0 ? ("-" + salesOrderMasterPricingFromSalesModel.TierNewToQty) : " - No Limit Qty")
+                                    )</td>
+                            </tr>
+                            <tr>
+                                <th>Tier Price</th>
+                                <td>@salesOrderMasterPricingFromSalesModel.TierPrice</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <th>Bouns Qty</th>
+                                <td>
+                                    @(
+                                    salesOrderMasterPricingFromSalesModel.BounsQty + (salesOrderMasterPricingFromSalesModel.BounsToQty > 0 ? ("-" + salesOrderMasterPricingFromSalesModel.BounsToQty) : " - No Limit Qty")
+                                        )
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Bouns Foc Qty</th>
+                                <td>@salesOrderMasterPricingFromSalesModel.BounsFocQty</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2">No Selling Method Available</td>
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsPricingInfoOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
     [Parameter]
     public long? SoSalesOrderId { get; set; }
     decimal SalesQty;
+    decimal? OrderQty;
     decimal? UnitPrice;
     string PricingType;
+    bool IsManualPrice { get; set; } = false;
+    bool? IsManualPriceEnabled { get; set; } = false;
     bool IsOpen { get; set; } = false;
+    bool IsPricingInfoOpen { get; set; } = false;
     public List<View_SalesOrderMasterPricingLineByItem> View_SalesOrderMasterPricingLineByItems { get; set; }
     public SalesOrderMasterPricingFromSalesModel salesOrderMasterPricingFromSalesModel { get; set; }
     public View_SoSalesOrder SoSalesOrderItems { get; set; }
@@ -290,7 +414,9 @@
     private View_SoSalesOrderLine _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
     long? SellingMethodId { get; set; }
+    string SellingMethod { get; set; }
     long? ItemId { get; set; }
+    decimal? BounsFocQty { get; set; }
     async Task SelectedItemChanged(View_NavItems navitems)
     {
         if (navitems != null)
@@ -300,7 +426,7 @@
             Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
             ItemId = navitems.ItemId;
-            await loadNavItemsChangedData();
+            await loadNavItemsChangedData("");
         }
         else
         {
@@ -308,25 +434,51 @@
             Description = "";
             Description2 = "";
             BaseUnitofMeasure = "";
+            UnitPrice = 0;
+            PricingType = "";
+            BounsFocQty = 0;
+            OrderQty = 0;
         }
+    }
+    void CheckedChanged(bool value)
+    {
+        IsManualPrice = value;
+        IsManualPriceEnabled = value;
+    }
+    async Task PricingItemList(decimal? Qty)
+    {
+        salesOrderMasterPricingFromSalesModel = await Mediator.Send(new GetAllSalesOrderMasterPricingLineByItemByQtyQuery(SoSalesOrderItems.CompanyId, SoSalesOrderItems.OrderDate, SellingMethodId, ItemId, Qty, SellingMethod));
     }
     async Task OnValueChanged(decimal? Qty)
     {
+        salesOrderMasterPricingFromSalesModel = new SalesOrderMasterPricingFromSalesModel();
         UnitPrice = 0;
         PricingType = "";
+        BounsFocQty = 0;
+        OrderQty = Qty;
         if (Qty > 0)
         {
-            var result = await Mediator.Send(new GetAllSalesOrderMasterPricingLineByItemByQtyQuery(SoSalesOrderItems.CompanyId, SoSalesOrderItems.OrderDate, SellingMethodId, ItemId, Qty));
+            await PricingItemList(Qty);
+            var result = salesOrderMasterPricingFromSalesModel;
             if (result != null)
             {
+                IsPricingInfoOpen = true;
                 PricingType = result.MasterType;
-                if (result.SalesOrderMasterPricingLineSellingMethodId > 0)
+                if (SellingMethod.ToLower() == "tier")
                 {
-                    UnitPrice = result.TierPrice;
+                    if (result.SalesOrderMasterPricingLineSellingMethodId > 0)
+                    {
+                        UnitPrice = result.TierPrice;
+                    }
+                    else
+                    {
+                        UnitPrice = result.SellingPrice;
+                    }
                 }
                 else
                 {
                     UnitPrice = result.SellingPrice;
+                    BounsFocQty = result.BounsFocQty;
                 }
             }
             else
@@ -339,12 +491,16 @@
     async Task SelectedItemMethodChangesChanged(View_ApplicationMasterDetail masterDetail)
     {
         SellingMethodId = masterDetail.ApplicationMasterDetailID;
-        await loadNavItemsChangedData();
+        SellingMethod = masterDetail.Value;
+        await loadNavItemsChangedData("");
     }
-    async Task loadNavItemsChangedData()
+    async Task loadNavItemsChangedData(string type)
     {
         PricingType = "";
-        UnitPrice = null;
+        if (type != "edit")
+        {
+            UnitPrice = null;
+        }
         if (ItemId > 0 && SellingMethodId > 0)
         {
             View_SalesOrderMasterPricingLineByItems = await Mediator.Send(new GetAllSalesOrderMasterPricingLineByItemByMethodQuery(SoSalesOrderItems.CompanyId, SoSalesOrderItems.OrderDate, SellingMethodId, ItemId));
@@ -358,6 +514,10 @@
     void OnButtonClick()
     {
         IsOpen = true;
+    }
+    void OnButtonPricingInfoClick()
+    {
+        IsPricingInfoOpen = true;
     }
     protected override async Task OnInitializedAsync()
     {
@@ -407,7 +567,12 @@
             Description2 = "";
             BaseUnitofMeasure = "";
             SalesQty = 0;
+            BounsFocQty = null;
+            OrderQty = 0;
             UnitPrice = null;
+            SellingMethod = "";
+            View_SalesOrderMasterPricingLineByItems = new List<View_SalesOrderMasterPricingLineByItem>();
+            salesOrderMasterPricingFromSalesModel = new SalesOrderMasterPricingFromSalesModel();
         }
         else
         {
@@ -416,10 +581,15 @@
             Description2 = navitems.Description2;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
             SellingMethodId = navitems.SellingMethodId;
+            SellingMethod = navitems.SellingMethod;
             ItemId = navitems.ItemId;
             UnitPrice = navitems.UnitPrice;
+            BounsFocQty = navitems.OrderBounsQty;
             SalesQty = navitems.Qty > 0 ? navitems.Qty.Value : 0;
-            await loadNavItemsChangedData();
+            OrderQty = SalesQty;
+            IsManualPriceEnabled = navitems.IsManual == null ? false : navitems.IsManual;
+            await loadNavItemsChangedData("edit");
+            await PricingItemList(OrderQty);
         }
     }
     async Task UpdateDataAsync()
@@ -476,7 +646,7 @@
                     SoSalesOrderId = SoSalesOrderId,
                     ItemId = editModel.ItemId,
                     SellingMethodId = editModel.SellingMethodId,
-                    Qty = editModel.Qty,
+                    Qty = OrderQty,
                     UnitPrice = UnitPrice,
                     StatusCodeId = 1,
                     AddedByUserId = applicationUser.UserID,
@@ -486,6 +656,7 @@
                     IsManual = editModel.IsManual,
                     ManualPrice = editModel.ManualPrice,
                     PricingType = PricingType,
+                    OrderBounsQty = BounsFocQty,
                 };
 
             try
@@ -513,7 +684,7 @@
                     SoSalesOrderId = SoSalesOrderId,
                     ItemId = editModel.ItemId,
                     SellingMethodId = editModel.SellingMethodId,
-                    Qty = editModel.Qty,
+                    Qty = OrderQty,
                     UnitPrice = UnitPrice,
                     StatusCodeId = 1,
                     ModifiedByUserId = applicationUser.UserID,
@@ -521,7 +692,7 @@
                     IsManual = editModel.IsManual,
                     ManualPrice = editModel.ManualPrice,
                     PricingType = PricingType,
-
+                    OrderBounsQty = BounsFocQty,
                 };
 
             var ans = await Mediator.Send(UpdateReq);

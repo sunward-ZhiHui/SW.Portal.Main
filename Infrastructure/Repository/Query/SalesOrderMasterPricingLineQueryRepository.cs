@@ -16,11 +16,10 @@ namespace Infrastructure.Repository.Query
 {
     public class SalesOrderMasterPricingLineQueryRepository : QueryRepository<View_SalesOrderMasterPricingLine>, ISalesOrderMasterPricingLineQueryRepository
     {
-        private readonly ISalesOrderMasterPricingLineSellingMethodQueryRepository _salesOrderMasterPricingLineSellingMethodQueryRepository;
-        public SalesOrderMasterPricingLineQueryRepository(IConfiguration configuration, ISalesOrderMasterPricingLineSellingMethodQueryRepository salesOrderMasterPricingLineSellingMethodQueryRepository)
+        public SalesOrderMasterPricingLineQueryRepository(IConfiguration configuration)
             : base(configuration)
         {
-            _salesOrderMasterPricingLineSellingMethodQueryRepository = salesOrderMasterPricingLineSellingMethodQueryRepository;
+            
         }
         public async Task<View_SalesOrderMasterPricingLine> GetByIdAsync(long? Id)
         {
@@ -71,17 +70,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("ItemId", ItemId, DbType.Int64);
                 using (var connection = CreateConnection())
                 {
-                    var results = await _salesOrderMasterPricingLineSellingMethodQueryRepository.GetAllAsync();
-                    var result = (await connection.QueryAsync<View_SalesOrderMasterPricingLineByItem>(query, parameters)).ToList();
-                    if (result.Count > 0)
-                    {
-                        result.ForEach(s =>
-                        {
-                            s.SalesOrderMasterPricingLineSellingMethods = results.Where(w => w.SalesOrderMasterPricingLineId == s.SalesOrderMasterPricingLineId).ToList();
-                            view_SalesOrderMasterPricingLineByItems.Add(s);
-                        });
-                    }
-                    return view_SalesOrderMasterPricingLineByItems;
+                    return (await connection.QueryAsync<View_SalesOrderMasterPricingLineByItem>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)

@@ -1,0 +1,115 @@
+﻿
+@inject IJSRuntime jsRuntime
+@page "/PalletMovementListing"
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+
+<DxGrid @ref="Grid" Data="@_viewFmglobalLineItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+            @bind-SelectedDataItems="@SelectedDataItems"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20" CustomizeElement="Grid_CustomizeElement"
+        style="height: calc(100vh - 200px);"
+        CssClass="ch-360"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+    <Columns>
+            <DxGridDataColumn FieldName="FMGlobalDate"  Caption="Date"/>
+            <DxGridDataColumn FieldName="ExpectedShipmentDate" Caption="Shipment Date" />
+            <DxGridDataColumn FieldName="PalletNo" />
+            <DxGridDataColumn FieldName="TempPalletNo" Caption="Temporary No" />
+            <DxGridDataColumn FieldName="LocationFrom" />
+            <DxGridDataColumn FieldName="LocationTo" />
+            <DxGridDataColumn FieldName="ItemNo" />
+            <DxGridDataColumn FieldName="ItemDescription" />
+            <DxGridDataColumn FieldName="Uom" />
+            <DxGridDataColumn FieldName="NoOfCarton" />
+            <DxGridDataColumn FieldName="NoOfUnitsPerCarton" Caption="Unit Per Carton" />
+            <DxGridDataColumn FieldName="FMGlobalStatus" Caption="Status" />
+    </Columns>
+</DxGrid>
+</DxLoadingPanel>
+@code {
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    bool PanelVisible { get; set; }
+    private List<ViewFmglobalLineItem> _viewFmglobalLineItem;
+    IGrid Grid { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+       _viewFmglobalLineItem = await Mediator.Send(new GetPalletMovementListingQuery());
+        PanelVisible = false;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        
+    }
+    async Task ExportToExcel()
+
+    {
+        if (SelectedDataItems != null)
+        {
+
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+
+    }
+
+
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+
+
+
+    }
+}

@@ -221,7 +221,7 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _AllSoCustomer = await Mediator.Send(new GetSoCustomerQuery());
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("So Customer"));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         if (SessionIds != null)
         {

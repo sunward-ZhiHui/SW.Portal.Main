@@ -74,6 +74,20 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailConversations>)await _emailConversationsQueryRepository.GetConversationListAsync(request.ID);
         }
     }
+    public class GetTopConversationListHandler : IRequestHandler<GetTopConversationList, List<EmailConversations>>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetTopConversationListHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<List<EmailConversations>> Handle(GetTopConversationList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetTopConversationListAsync(request.TopicId);
+        }
+    }
     //Get Reply discussion list
     public class GetEmailReplyDiscussionListHandler : IRequestHandler<GetEmailReplyDiscussionList, List<EmailConversations>>
     {
@@ -118,6 +132,20 @@ namespace Application.Handlers.QueryHandlers
             return (List<Documents>)await _conversationQueryRepository.GetTopicDocListAsync(request.TopicId);
         }
     }
+    public class GetSubEmailTopicDocListHandler : IRequestHandler<GetSubEmailTopicDocList, List<Documents>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+
+        public GetSubEmailTopicDocListHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<Documents>> Handle(GetSubEmailTopicDocList request, CancellationToken cancellationToken)
+        {
+            return (List<Documents>)await _conversationQueryRepository.GetSubTopicDocListAsync(request.ConversationId);
+        }
+    }
 
 
     public class CreateEmailConversationHandler : IRequestHandler<CreateEmailCoversation, long>
@@ -137,6 +165,8 @@ namespace Application.Handlers.QueryHandlers
 
             var conversationAssignTo = new EmailConversationAssignTo();
             conversationAssignTo.ConversationId = req;
+            conversationAssignTo.ReplyId = request.ReplyId;
+            conversationAssignTo.PlistIdss = request.PlistIdss;
             conversationAssignTo.TopicId = request.TopicID;            
             conversationAssignTo.StatusCodeID = request.StatusCodeID;
             conversationAssignTo.AddedByUserID = request.AddedByUserID;
@@ -249,6 +279,19 @@ namespace Application.Handlers.QueryHandlers
             return (List<ViewEmployee>)await _conversationQueryRepository.GetAllParticipantAsync(request.TopicId);
         }
     }
+    public class GetAddConversationParticipantListHandler : IRequestHandler<GetAddConversationPListQuery, List<ViewEmployee>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+        public GetAddConversationParticipantListHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<ViewEmployee>> Handle(GetAddConversationPListQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewEmployee>)await _conversationQueryRepository.GetAddConversationPListAsync(request.ConversationId);
+        }
+    }
+    
     public class GetEmailAssignToListHandler : IRequestHandler<GetEmailAssignToList, List<EmailAssignToList>>
     {
         private readonly IEmailConversationsQueryRepository _conversationQueryRepository;

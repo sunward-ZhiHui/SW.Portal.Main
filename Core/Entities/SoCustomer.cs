@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities.Base;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    public class SoCustomer
+    public class SoCustomer 
     {
         [Key]
         public long SoCustomerId { get; set; }
@@ -20,5 +21,6 @@ namespace Core.Entities
         public string StateCode { get; set; }
         public string PostCode { get; set; }
         public string Channel { get; set; }
+        public string Type { get; set; }
     }
 }

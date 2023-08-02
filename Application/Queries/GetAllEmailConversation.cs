@@ -37,6 +37,15 @@ namespace Application.Queries
             this.TopicId = topicId;
         }
     }
+    public class GetAddConversationPListQuery : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+        public long ConversationId { get; private set; }
+        public GetAddConversationPListQuery(long ConversationId)
+        {
+            this.ConversationId = ConversationId;
+        }
+    }
+    
     public class GetEmailFullDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long TopicId { get; private set; }
@@ -73,6 +82,14 @@ namespace Application.Queries
             this.ID = Id;
         }
     }
+    public class GetTopConversationList : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public long TopicId { get; private set; }
+        public GetTopConversationList(long TopicId)
+        {
+            this.TopicId = TopicId;
+        }
+    }
     public class GetEmailReplyDiscussionList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long TopicId { get; private set; }
@@ -89,6 +106,14 @@ namespace Application.Queries
         public GetEmailTopicDocList(long TopicId)
         {
             this.TopicId = TopicId;
+        }
+    }
+    public class GetSubEmailTopicDocList : PagedRequest, IRequest<List<Documents>>
+    {
+        public long ConversationId { get; private set; }
+        public GetSubEmailTopicDocList(long ConvId)
+        {
+            this.ConversationId = ConvId;
         }
     }
     public class GetEmailAssignToList : PagedRequest, IRequest<List<EmailAssignToList>>

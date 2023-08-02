@@ -22,7 +22,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<SalesOrderMasterPricingLineSellingMethod>> Handle(GetAllSOMPricingLineSellingMethodQuery request, CancellationToken cancellationToken)
         {
-            return (List<SalesOrderMasterPricingLineSellingMethod>)await _salesOrderMasterPricingLineSellingMethodQueryRepository.GetAllSalesOrderMasterPricingLineAsync(request.SalesOrderMasterPricingLineId);
+            return (List<SalesOrderMasterPricingLineSellingMethod>)await _salesOrderMasterPricingLineSellingMethodQueryRepository.GetAllSalesOrderMasterPricingLineAsync(request.SalesOrderMasterPricingLineId,request.SellingMethodName);
         }
     }
 

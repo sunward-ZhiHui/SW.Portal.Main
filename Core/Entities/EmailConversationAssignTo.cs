@@ -26,5 +26,9 @@ namespace Core.Entities
         public string? AssigntoIds { get; set; }
         [NotMapped]
         public string? AssignccIds { get; set; }
+        [NotMapped]
+        public string? PlistIdss { get; set; }        
+        [NotMapped]
+        public long? ReplyId { get; set; }
     }
 }

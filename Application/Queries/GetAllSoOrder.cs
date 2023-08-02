@@ -39,12 +39,14 @@ namespace Application.Queries
         public DateTime? FromDate { get; set; }
         public long? SellingMethodId { get; set; }
         public long? ItemId { get; set; }
+
         public GetAllSalesOrderMasterPricingLineByItemByMethodQuery(long? CompanyId, DateTime? FromDate, long? SellingMethodId, long? ItemId)
         {
             this.CompanyId = CompanyId;
             this.FromDate = FromDate;
             this.SellingMethodId = SellingMethodId;
             this.ItemId = ItemId;
+
         }
     }
     public class GetAllSalesOrderMasterPricingLineByItemByQtyQuery : View_SalesOrderMasterPricingLineByItem, IRequest<SalesOrderMasterPricingFromSalesModel>
@@ -54,13 +56,15 @@ namespace Application.Queries
         public long? SellingMethodId { get; set; }
         public long? ItemId { get; set; }
         public decimal? Qty { get; set; }
-        public GetAllSalesOrderMasterPricingLineByItemByQtyQuery(long? CompanyId, DateTime? FromDate, long? SellingMethodId, long? ItemId, decimal? Qty)
+        public string SellingMethod { get; set; }
+        public GetAllSalesOrderMasterPricingLineByItemByQtyQuery(long? CompanyId, DateTime? FromDate, long? SellingMethodId, long? ItemId, decimal? Qty, string SellingMethod)
         {
             this.CompanyId = CompanyId;
             this.FromDate = FromDate;
             this.SellingMethodId = SellingMethodId;
             this.ItemId = ItemId;
             this.Qty = Qty;
+            this.SellingMethod = SellingMethod;
         }
     }
 

@@ -1,0 +1,100 @@
+﻿
+@page "/ccEmail"
+@using Application.Commands;
+@using Application.Common.Helper;
+@using Application.Queries;
+@using Application.Response;
+@using Microsoft.AspNetCore.Http;
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@using MediatR
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+
+<DxGrid @ref="CCGrid" SearchText="@GridSearchText"
+        Data="_forumTopicCC"
+        KeyFieldName="ID"
+        CustomizeElement="Grid_CustomizeElement"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        ValidationEnabled="true"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360 " style="height: calc(100vh - 269px);"
+        RowClick="OnEmailToRowClick"
+        AllowSelectRowByClick="true">
+    <Columns>
+        @*  <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
+        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
+        <DxGridDataColumn FieldName="FirstName">
+            <CellDisplayTemplate>
+                @{
+                    var item = (EmailTopics)context.DataItem;
+                }
+                <div style="width:100%">
+                    <strong>@item.FirstName</strong>
+                    <div>
+                        <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
+                        <text>@item.TopicName</text>
+                    </div>
+                </div>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        @*<DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />*@
+    </Columns>
+    <DetailRowTemplate>
+        <SubViewEmailCC Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
+    </DetailRowTemplate>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
+    </TotalSummary>
+</DxGrid>
+@code {
+    [Parameter]
+    public string? GridSearchText { get; set; }
+    IGrid CCGrid { get; set; }
+    private List<EmailTopics>? _forumTopicCC;
+    public ApplicationUser applicationUser { get; private set; }
+    string SelectedGroup = "none";
+    string SelectedReplyId = "none";
+    public string filterrowname { get; set; }
+    public long RTopicId = 0;
+    [Parameter]
+    public Action<string> CCTopicId { get; set; }
+    [Parameter]
+    public Action<string> SubViewCCTopicId { get; set; }   
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+    }
+    async Task OnEmailToRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        SelectedGroup = UniqueId.ToString();
+        CCTopicId?.Invoke(SelectedGroup);
+        //await LoadData();
+        StateHasChanged();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    private async void onSubViewEmailClick(string RId)
+    {
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SubViewCCTopicId?.Invoke(SelectedReplyId);
+        await Task.Delay(1000); // Example asynchronous operation
+                                //await LoadReplyData();
+        StateHasChanged();
+    }
+}

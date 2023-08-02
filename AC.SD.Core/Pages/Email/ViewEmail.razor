@@ -65,8 +65,29 @@
                         <div class="files-title">General Information</div>
                     </div> *@
                     <div class="card w-100" style="margin-bottom:10px; margin-top:10px;">
+                        <div class="d-flex py-2">
+                           @* <DxTextBox @bind-Text="SearchText" style="width: 100%;    margin-left: 5px;" />
+                            <DxButton Text="Apply" Click="() => GridSearchText = SearchText" CssClass="mx-2" />*@
+                        </div>
                         <div class="card-body p-0">
-                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                            <DxTabs ScrollMode="TabsScrollMode.NavButtons" @bind-ActiveTabIndex="@ActiveTabIndex">
+                                <DxTabPage Text="All" CssClass="@((isLeftMenuvisible == "All" ? "tActive": "tall"))" Click="@(() => OnLeftMenuItemClick("All"))">
+                                   
+                                </DxTabPage>
+                                <DxTabPage Text="Assign To" CssClass="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" Click="@(() => OnLeftMenuItemClick("AssignTo"))">
+                                   
+                                </DxTabPage>
+                                <DxTabPage Text="CC" CssClass="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" Click="@(() => OnLeftMenuItemClick("AssignCC"))">
+                                   
+                                </DxTabPage>
+                                <DxTabPage Text="Sent" CssClass="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" Click="@(() => OnLeftMenuItemClick("Sent"))">
+
+                                </DxTabPage>
+                                <DxTabPage Text="Library" CssClass="@((isLeftMenuvisible == "Library" ? "tActive": "library"))" Click="@(() => OnLeftMenuItemClick("Library"))">
+
+                                </DxTabPage>                                
+                              </DxTabs>
+                           @* <DxMenu CollapseItemsToHamburgerMenu="true"
                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                     DisplayMode="MenuDisplayMode.Auto">
                                 <Items>
@@ -74,13 +95,13 @@
                                     <DxMenuItem Text="Assign To" class="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" IconCssClass="fa fa-envelope" Click="@(() => OnLeftMenuItemClick("AssignTo"))" />                                    
                                     <DxMenuItem Text="CC" class="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" IconCssClass="popup-image popup-icon-position" Click="@(() => OnLeftMenuItemClick("AssignCC"))" />
                                     <DxMenuItem Text="Sent" class="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" IconCssClass="fa fa-paper-plane" Click="@(() => OnLeftMenuItemClick("Sent"))" />
-                                    @*<DxMenuItem Text="Draft" class="@((isLeftMenuvisible == "Draft" ? "tActive": "draft"))" IconCssClass="fab fa-stack-overflow" Click="@(() => OnLeftMenuItemClick("Draft"))" />*@
+
                                     @if (ActiveSessionId != null)
                                     {
                                         <DxButton Click="@(() => TOGrid.ClearFilter())">Clear Filter</DxButton>
                                     }
                                     </Items>
-                            </DxMenu>
+                            </DxMenu>*@
                         </div>
                     </div>
 
@@ -106,146 +127,26 @@
                             }*@
 
                         @if(isLeftMenuvisible == "All")
-                        {
-                                <AllEmail ATopicId="onViewEmailAllClick"></AllEmail>
+                        {                                
+                            <AllEmail GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId ="onSubViewEmailAllClick"></AllEmail>
                         }
                         else if (isLeftMenuvisible == "AssignTo")
-                        {
-                            <DxGrid @ref="TOGrid"
-                                    Data="_forumTopicTo"                                    
-                                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                                    KeyFieldName="ID"                                
-                                    CustomizeElement="Grid_CustomizeElement"
-                                    PagerNavigationMode="PagerNavigationMode.InputBox"
-                                    PageSizeSelectorVisible="true"
-                                    PageSizeSelectorAllRowsItemVisible="true"
-                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                    PageSize="20"                                                                  
-                                    ValidationEnabled="true"
-                                    AutoExpandAllGroupRows="true"
-                                    CssClass="w-100" style="height: calc(100vh - 220px);"
-                                    RowClick="OnEmailToRowClick"
-                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                    AllowSelectRowByClick="true">
-                                <Columns>
-                                    <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
-                                   @* <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
-                                    <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
-                                        <DxGridDataColumn FieldName="FirstName" Caption="">
-                                        <CellDisplayTemplate>
-                                            @{
-                                                var item = (EmailTopics)context.DataItem;
-                                            }
-                                            <div style="width:100%">                                                
-                                                <strong>@item.FirstName 
-                                                    @if(item.Urgent.GetValueOrDefault(false))
-                                                    {
-                                                            <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
-                                                    }                                                    
-                                                    </strong>
-                                                <div>
-                                                    <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
-                                                    <text>@item.TopicName</text>
-                                                </div>                                                
-                                            </div>
-                                        </CellDisplayTemplate>
-                                    </DxGridDataColumn>
-                                  @*  <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />  *@                                     
-                                </Columns>
-                                 <DetailRowTemplate>       
-                                    <SubViewEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
-                                </DetailRowTemplate>
-                                <TotalSummary>
-                                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
-                                </TotalSummary>
-                                </DxGrid>
+                        {                           
+                               <AssignToEmail GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick " SubViewToTopicId ="onSubViewEmailToClick"></AssignToEmail>
                             }
                             else if (isLeftMenuvisible == "AssignCC")
                             {
-                                <DxGrid @ref="CCGrid"
-                                    Data="_forumTopicCC"
-                                    KeyFieldName="ID"
-                                    CustomizeElement="Grid_CustomizeElement"
-                                    PagerNavigationMode="PagerNavigationMode.InputBox"
-                                    PageSizeSelectorVisible="true"
-                                    PageSizeSelectorAllRowsItemVisible="true"
-                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                    PageSize="20"
-                                    ValidationEnabled="true"
-                                    AutoExpandAllGroupRows="true"
-                                    CssClass="ch-360 " style="height: calc(100vh - 220px);"
-                                    RowClick="OnEmailToRowClick"                                    
-                                    AllowSelectRowByClick="true">
-                                    <Columns>
-                                      @*  <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
-                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
-                                        <DxGridDataColumn FieldName="FirstName">
-                                            <CellDisplayTemplate>
-                                                @{
-                                                    var item = (EmailTopics)context.DataItem;
-                                                }
-                                                <div style="width:100%">
-                                                    <strong>@item.FirstName</strong>
-                                                    <div>
-                                                        <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
-                                                        <text>@item.TopicName</text>
-                                                    </div>
-                                                </div>
-                                            </CellDisplayTemplate>
-                                        </DxGridDataColumn>
-                                        @*<DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />*@
-                                    </Columns>
-                                    <DetailRowTemplate>
-                                        <SubViewEmailCC Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
-                                    </DetailRowTemplate>                                   
-                                    <TotalSummary>
-                                        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
-                                    </TotalSummary>
-                                </DxGrid>
+                                <CCEmail GridSearchText="@GridSearchText" CCTopicId="onViewEmailCCClick" SubViewCCTopicId="onSubViewEmailCCClick"></CCEmail>
                             }
                             else if(isLeftMenuvisible == "Sent")
                             {
-                             <DxGrid @ref="SentGrid"
-                                    Data="_forumTopicSent"
-                                    KeyFieldName="ID"
-                                    CustomizeElement="Grid_CustomizeElement"
-                                    PagerNavigationMode="PagerNavigationMode.InputBox"
-                                    PageSizeSelectorVisible="true"
-                                    PageSizeSelectorAllRowsItemVisible="true"
-                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                    PageSize="20"
-                                    ValidationEnabled="true"
-                                    AutoExpandAllGroupRows="true"
-                                    CssClass="ch-360 " style="height: calc(100vh - 220px);"
-                                    RowClick="OnEmailToRowClick"                                    
-                                    AllowSelectRowByClick="true">
-                                    <Columns>
-                                       @* <DxGridDataColumn FieldName="FirstName" Caption="Name" Width="100" />
-                                        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
-                                        <DxGridDataColumn FieldName="FirstName">
-                                            <CellDisplayTemplate>
-                                                @{
-                                                    var item = (EmailTopics)context.DataItem;
-                                                }
-                                                <div style="width:100%">
-                                                    <strong>@item.FirstName</strong>
-                                                    <div>
-                                                        <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
-                                                        <text>@item.TopicName</text>
-                                                    </div>
-                                                </div>
-                                            </CellDisplayTemplate>
-                                        </DxGridDataColumn>
-                                       @* <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />*@
-                                    </Columns>  
-                                     <DetailRowTemplate>
-                                        <SubViewEmailSent Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
-                                    </DetailRowTemplate> 
-                                    <TotalSummary>
-                                        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
-                                    </TotalSummary>
-                                </DxGrid>
-                            }                            
+                                <SentEmail sentTopicId="onViewEmailSentClick" SubViewSentTopicId="onSubViewEmailSentClick"></SentEmail>
+                            }  
+                            else if(isLeftMenuvisible == "Library")
+                            {
+                                <MasterSearch GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailAllClick"></MasterSearch>
+                            }  
+                            
 
                             
                         </div>
@@ -846,7 +747,7 @@
                                 PageSizeSelectorAllRowsItemVisible="true"
                                 PageSizeSelectorItems="@(new int[] { 5,10,20 })"
                                 PageSize="20"
-                                style="height:calc(100vh - 289px)"
+                                style="height:calc(100vh - 355px)"
                                 CssClass="ch-360"
                                 AutoExpandAllGroupRows="true"
                                 RowClick="OnRowClick"
@@ -897,8 +798,8 @@
                           
                         }
                         else
-                        {         
-                            <ParticipantList @ref=RefTopicAddPList IsValidUser="@IsValidUser" Tid="@Tid"></ParticipantList>
+                        {
+                            <ParticipantList @ref=RefTopicAddPList IsValidUser="@IsValidUser" Tid="@Tid" Cid="@Cid"></ParticipantList>
                         }
                     </div>
                 </div>
@@ -1077,6 +978,9 @@
 
 
 @code {
+    public int ActiveTabIndex { get; set; } = 1;
+    string? SearchText { get; set; }
+    string? GridSearchText { get; set; }
     bool PreviewEnabled { get; set; } = false;
     bool docEnabled { get; set; } = false;
     private CancellationTokenSource cancellationTokenSource;
@@ -1102,6 +1006,8 @@
     private int ElementHeight { get; set; }
     [Parameter]
     public long Tid { get; set; }
+    [Parameter]
+    public long Cid { get; set; }
     public long RTopicId = 0;
     bool IsOpen { get; set; } = false;
     bool IsOpenFlyout { get; set; } = false;
@@ -1245,6 +1151,11 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentId");
         _selectlst = _topicDocList.FirstOrDefault(f => f.DocumentId == (long?)UniqueId);
 
+    }
+    void ApplySearch()
+    {       
+        //var assignToEmailComponent = new AssignToEmail();
+        //assignToEmailComponent.ApplySearch(GridSearchText);
     }
     private async Task ScrollToElement()
     {
@@ -1544,19 +1455,77 @@
         {
             await LoadData();
         }
-
-    }   
+    } 
+    private async void onSubViewEmailSentClick(string RId)
+    {
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
+        await Task.Delay(1000); // Example asynchronous operation
+        await LoadReplyData();
+        StateHasChanged();
+    }
+    private async void onSubViewEmailCCClick(string RId)
+    {
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
+        await Task.Delay(1000); // Example asynchronous operation
+        await LoadReplyData();
+        StateHasChanged(); 
+    }
+    private async void onSubViewEmailToClick(string RId)
+    {
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
+        await Task.Delay(1000); // Example asynchronous operation
+        await LoadReplyData();
+        StateHasChanged();       
+    }
+    private async void onSubViewEmailAllClick(string RId)
+    {
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
+        await Task.Delay(1000); // Example asynchronous operation
+        await LoadReplyData();
+        StateHasChanged();       
+    }    
+    private async void onViewEmailToClick(string ToTopicId)
+    {
+        SelectedGroup = ToTopicId;
+        await LoadData();
+        StateHasChanged();
+    } 
     private async void onViewEmailAllClick(string ATopicId)
     {
         SelectedGroup = ATopicId;
         await LoadData();
         StateHasChanged();
+    }    
+    private async void onViewEmailCCClick(string CCTopicId)
+    {
+        SelectedGroup = CCTopicId;
+        await LoadData();
+        StateHasChanged();
     }
+    private async void onViewEmailSentClick(string sentTopicId)
+    {
+        SelectedGroup = sentTopicId;
+        await LoadData();
+        StateHasChanged();
+    }   
     private async void onSubViewEmailClick(string RId)
     {
         SelectedReplyId = RId;
         var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
         RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
         await Task.Delay(1000); // Example asynchronous operation
         await LoadReplyData();
         StateHasChanged();
@@ -1875,6 +1844,33 @@
     }
     private List<string> data;
 
+    private async Task loadSubTopicDocList()
+    {
+        var conId = SelectedReplyId;
+
+        if (long.Parse(@SelectedGroup) > 0)
+        {
+            //await JSRuntime.InvokeAsync<string>("showLoading");
+            _topicDocList = await Mediator.Send(new GetSubEmailTopicDocList(long.Parse(@SelectedReplyId)));
+            //await JSRuntime.InvokeAsync<string>("hideLoading");
+
+
+            if (_topicDocList.Count > 0)
+            {
+                _selectlst = _topicDocList.FirstOrDefault();
+                //EditEnabled = true;
+                //DeleteEnabled = true;
+                PreviewEnabled = true;
+                docEnabled = true;                
+                StateHasChanged();
+            }
+            else
+            {                
+                PreviewEnabled = false;
+                docEnabled = false;
+            }
+        }
+    }
     private async Task loadTopicDocList()
     {
         if(long.Parse(@SelectedGroup) > 0)
@@ -1890,13 +1886,11 @@
                 //EditEnabled = true;
                 //DeleteEnabled = true;
                 PreviewEnabled=true;
-                docEnabled = true;
-                IsValidUser = true;
+                docEnabled = true;                
                 StateHasChanged();
             }
             else
-            {
-                IsValidUser = true;
+            {                
                 PreviewEnabled=false;
                 docEnabled = false;
             }
@@ -1909,6 +1903,9 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
         RTopicId = 0;
         Tid = long.Parse(@SelectedGroup);
+        var getconid = await Mediator.Send(new GetTopConversationList(Tid));
+        Cid = getconid[0].ID;
+        SelectedReplyId = getconid[0].ID.ToString();
         _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
@@ -1918,14 +1915,15 @@
         var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
 
         var ck_validuser = await Mediator.Send(new GetEmailValidUserList(long.Parse(@SelectedGroup), applicationUser.UserID));
-        if(ck_validuser.Count > 0)
-        {
-            IsValidUser = true;
-        }
-        else
-        {
-            IsValidUser = false;
-        }
+        IsValidUser = false;
+        //if(ck_validuser.Count > 0)
+        //{
+        //    IsValidUser = true;
+        //}
+        //else
+        //{
+        //    IsValidUser = false;
+        //}
 
         if (topicToList != null)
         {
@@ -1974,8 +1972,9 @@
     private async Task LoadReplyData()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
+        IsValidUser = true;
         //var rTopicId =@RTopicId;
-        //Tid = long.Parse(@SelectedReplyId);
+        Cid = long.Parse(@SelectedReplyId);
         Tid = RTopicId;
         _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
@@ -1989,8 +1988,18 @@
 
         OnMenuItemClick(isMenuvisible);
 
+
+        if (isMenuvisible == "AddParticipants")
+        {
+            await LoadPlist_Data();
+        }
+
+        var ConversationList = await Mediator.Send(new GetEmailConversationList(Cid));
+        
         _headTopic = await Mediator.Send(new GetByIdEmailTopics(RTopicId));
 
+        _headTopic[0].TopicName = ConversationList[0].Name;
+        _headTopic[0].AddedDate = ConversationList[0].AddedDate;
 
         isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
@@ -2012,6 +2021,8 @@
             if (long.Parse(@SelectedGroup) > 0)
             {
                 Tid = long.Parse(@SelectedGroup);
+                 var getconid = await Mediator.Send(new GetTopConversationList(Tid));
+                 Cid = getconid[0].ID;               
                 _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
                 _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
@@ -2040,7 +2051,7 @@
     private async Task LoadReplyDataPosts()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
-        //Tid = long.Parse(@SelectedReplyId);
+        Cid = long.Parse(@SelectedReplyId);
         Tid = RTopicId;
         _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
@@ -2277,7 +2288,15 @@
             isComponentVisible = false;
             isEllipsis = false;
             isCommand = false;
-            await loadTopicDocList();
+
+            if (RTopicId == 0)
+            {                
+                await loadTopicDocList();
+            }
+            else
+            {
+                await loadSubTopicDocList();
+            }            
         }
         else if (text == "AddParticipants")
         {
@@ -2296,7 +2315,11 @@
     }  
     async Task LoadPlist_Data()
     {
-        await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedGroup));
+        if(Cid > 0)
+        {
+            await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedReplyId));
+        }
+        
     }
     private async Task HandleValidSubmit()
     {
@@ -2337,7 +2360,14 @@
         {
             assignccidsString = string.Join(",", Data.AssignccIds);
         }
-        
+
+
+
+
+        List<long> concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
+                    concatList.Add(applicationUser.UserID);
+        concatList = concatList.Distinct().ToList();
+        string participantidsString = string.Join(",", concatList);
 
         var createReq = new CreateEmailCoversation
             {
@@ -2349,6 +2379,7 @@
                 FileData = fileContent,
                 AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
                 AssignccIdss = assignccidsString,
+                PlistIdss = participantidsString,
                 AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,

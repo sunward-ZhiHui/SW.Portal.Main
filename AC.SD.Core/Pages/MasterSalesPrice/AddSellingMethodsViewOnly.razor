@@ -32,14 +32,21 @@
                         @{
                             var item = (SalesOrderMasterPricingLineSellingMethod)context.DataItem;
                         }
-                        @(item.TierFromQty + (item.TierToQty > 0 ? ("-" + item.TierToQty) : ""))
+                        @(item.TierFromQty + (item.TierToQty > 0 ? ("-" + item.TierToQty) : " - No Limit Qty"))
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn FieldName="TierPrice" />
             }
             else
             {
-                <DxGridDataColumn FieldName="BounsQty" />
+                <DxGridDataColumn FieldName="BounsQty" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (SalesOrderMasterPricingLineSellingMethod)context.DataItem;
+                        }
+                        @(item.BounsQty + (item.BounsToQty > 0 ? ("-" + item.BounsToQty) : " - No Limit Qty"))
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
                 <DxGridDataColumn FieldName="BounsFocQty" Caption="Bouns Foc Qty" />
             }
 
@@ -65,7 +72,7 @@
         {
             PanelVisible = true;
             sellingMethodsName = Items.SellingMethodName.ToLower();
-            _addIitemPriceLineSellingMethods = Items.SalesOrderMasterPricingLineSellingMethods;
+            _addIitemPriceLineSellingMethods = await Mediator.Send(new GetAllSOMPricingLineSellingMethodQuery(Items.SalesOrderMasterPricingLineId, sellingMethodsName));
             PanelVisible = false;
             StateHasChanged();
         }

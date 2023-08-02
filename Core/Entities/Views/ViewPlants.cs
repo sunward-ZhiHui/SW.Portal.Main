@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Core.Entities.CustomValidations;
+using Core.Repositories.Query;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -13,10 +15,13 @@ namespace Core.Entities.Views
         public long PlantID { get; set; }
         public int Index { get; set; }
         public long CompanyID { get; set; }
-        [Required(ErrorMessage = "Plant Code is Required")]
-        public string? PlantCode { get; set; }
         [Required(ErrorMessage = "Description is Required")]
+        //[DescriptionValidaion(ErrorMessage = "Description Already Exits")]
         public string? Description { get; set; }
+        [Required(ErrorMessage = "Plant Code is Required")]
+       // [PlantsValidaion(Description = "Description")]
+        public string? PlantCode { get; set; }
+        
         public long? RegisteredCountryID { get; set; }
         public string? RegistrationNo { get; set; }
 

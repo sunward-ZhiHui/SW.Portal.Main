@@ -23,6 +23,8 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionId { get; set; }
         public long? FmglobalStausId { get; set; }
+        public long? SoCustomerId { get; set; }
+        public long? SoCustomerShipingAddressId { get; set; }
 
     }
 }

@@ -1,0 +1,493 @@
+﻿@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.EntityModels;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@errorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
+    </BodyTemplate>
+</DxPopup>
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" Data="@_soCusterAddress" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="AddressID"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 460px);"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+
+
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="AddressID" Visible="false" />
+            <DxGridDataColumn FieldName="Address1" />
+            <DxGridDataColumn FieldName="Address2" />
+            <DxGridDataColumn FieldName="CountryName" Caption="Country" />
+            <DxGridDataColumn FieldName="StateName" Caption="State" />
+            <DxGridDataColumn FieldName="CityName" Caption="City" />
+            <DxGridDataColumn FieldName="PostCode">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (View_FMGlobalAddess)context.DataItem;
+                        var postCode = item.PostCode > 0 ? item.PostCode.ToString() : "";
+                    }
+                    @postCode
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="isBilling" Caption="Is Default Address" />
+
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var dataItems = (View_FMGlobalAddess)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+
+                <DxFormLayoutItem Caption="Address1:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@dataItems.Address1" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Country" ColSpanMd="6">
+                    <DxComboBox Data="@_countryListItems"
+                                NullText="Select Country..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                Enabled="@isEnabled"
+                                @bind-Value="@dataItems.CountryID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedCountryItemChanged(applicationMasterChildModel))"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => dataItems.CountryID)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Address2:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@dataItems.Address2" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="State" ColSpanMd="6">
+                    <DxComboBox Data="@_stateListItems"
+                                NullText="Select State..."
+                                Enabled="@isEnabled"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@dataItems.StateID"
+                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => SelectedStateItemChanged(applicationMasterChildModel))">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => dataItems.StateID)" />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="PostCode:" ColSpanMd="6">
+                    @EditFormContext.GetEditor("PostCode")
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="City" ColSpanMd="6">
+                    <DxComboBox Data="@_cityListItems"
+                                NullText="Select City..."
+                                Enabled="@isEnabled"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@dataItems.CityID">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => dataItems.CityID)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@dataItems.isBilling">Is Default Address</DxCheckBox>
+                </DxFormLayoutItem>
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+    [Parameter]
+    public long? FmglobalId { get; set; }
+    bool PanelVisible { get; set; }
+    Dictionary<long, string>? UsernameIndex { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private string gridHeight = "calc(100vh - 230px - 143px)";
+    private List<View_FMGlobalAddess>? _soCusterAddress;
+    IGrid? Grid { get; set; }
+    private View_FMGlobalAddess _selectedItems;
+    //bool EditEnabled { get; set; } = true;
+    bool DeleteEnabled { get; set; } = false;
+    bool ExportSelectedRowsOnly { get; set; }
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? errorMessage;
+    string? DeleteerrorMessage;
+    bool MessageVisible { get; set; }
+    string styleClass = "";
+    string MessageHeader = "Error";
+    string MessageBody = "";
+    private bool loading;
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
+    string SelectedGroup = "none";
+    private View_FMGlobalAddess _selectlst;
+    public ApplicationUser? applicationUser { get; private set; }
+
+    bool isEnabled { get; set; } = true;
+
+    private List<ApplicationMasterChildModel> _countryListItems;
+    private List<ApplicationMasterChildModel> _stateListItems;
+    private List<ApplicationMasterChildModel> _cityListItems;
+
+    async void SelectedCountryItemChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+        if (applicationMasterChildModel != null)
+        {
+            CountryChanged(applicationMasterChildModel.ApplicationMasterChildId);
+        }
+        else
+        {
+            CountryChanged(-1);
+            StateChange(-1);
+        }
+    }
+    async void CountryChanged(long? ApplicationMasterChildId)
+    {
+        if (ApplicationMasterChildId != null)
+        {
+            _stateListItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+        }
+    }
+    async void SelectedStateItemChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+        if (applicationMasterChildModel != null)
+        {
+            StateChange(applicationMasterChildModel.ApplicationMasterChildId);
+        }
+        else
+        {
+            StateChange(-1);
+        }
+    }
+    async void StateChange(long? ApplicationMasterChildID)
+    {
+        if (ApplicationMasterChildID != null)
+        {
+            _cityListItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+        }
+
+    }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+
+        _countryListItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("119"));
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+
+        }
+        else
+        {
+            var editModel = (View_FMGlobalAddess)e.EditModel;
+            CountryChanged(editModel.CountryID);
+            StateChange(editModel.StateID);
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        if (FmglobalId > 0)
+        {
+            _soCusterAddress = await Mediator.Send(new GetFmGlobalAddressQuery(FmglobalId, "Shipping"));
+
+            AddEnabled = true;
+            if (_soCusterAddress.Count > 0)
+            {
+                _selectedItems = _soCusterAddress.FirstOrDefault();
+                EditEnabled = true;
+                DeleteEnabled = true;
+                StateHasChanged();
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    async Task ExportToExcel()
+    {
+
+        if (SelectedDataItems != null)
+        {
+
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (View_FMGlobalAddess)e.EditModel;
+        if (e.IsNew)
+        {
+            var createReq = new CreateFmGlobalAddress
+                {
+                    Address1 = editModel.Address1,
+                    Address2 = editModel.Address2,
+                    AddressType = "Shipping",
+                    PostCode = editModel.PostCode,
+                    CountryID = editModel.CountryID,
+                    StateID = editModel.StateID,
+                    CityID = editModel.CityID,
+                    FMGlobalID = FmglobalId.Value,
+                    isBilling = editModel.isBilling,
+                };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+
+                errorMessage = eq.Message;
+                PopupVisible = true;
+            }
+            await UpdateDataAsync();
+        }
+        else
+        {
+            var UpdateReq = new EditFmGlobalAddress
+                {
+                    FMGlobalAddessId = editModel.FMGlobalAddessId,
+                    FMGlobalID = editModel.FMGlobalID,
+                    AddressID = editModel.AddressID,
+                    Address1 = editModel.Address1,
+                    Address2 = editModel.Address2,
+                    AddressType = editModel.AddressType,
+                    PostCode = editModel.PostCode,
+                    CountryID = editModel.CountryID,
+                    StateID = editModel.StateID,
+                    CityID = editModel.CityID,
+                    isBilling = editModel.isBilling
+                };
+
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+    }
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
+    }
+    async void ClosePopup()
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
+    }
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+        var editModel = (View_FMGlobalAddess)e.DataItem;
+        var request = new DeleteFmGlobalAddress(editModel.AddressID, editModel.FMGlobalAddessId.Value);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "AddressID");
+        _selectedItems = _soCusterAddress.FirstOrDefault(f => f.AddressID == (long?)UniqueId);
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is View_FMGlobalAddess address)
+                    {
+                        var request = new DeleteFmGlobalAddress(address.AddressID, address.FMGlobalAddessId.Value);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+
+    }
+}

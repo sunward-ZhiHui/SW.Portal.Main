@@ -21,5 +21,7 @@ namespace Core.Entities
         public bool IsEnabled { get; set; } = true;
         [NotMapped]
         public long? RowIndex { get; set; }
+        [NotMapped]
+        public long ConversationId { get; set; }
     }    
 }

@@ -1,4 +1,5 @@
 ﻿@using AC.SD.Core.Data.Account;
+@using Application.Constant;
 @using Application.Queries;
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
@@ -11,6 +12,8 @@
 @inject IMediator Mediator
 @using global::Core.EntityModels;
 @using global::Core.Entities.Views;
+@using Microsoft.AspNetCore.SignalR.Client;
+ 
 <Toast />
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
 <link href="_content/AC.SD.Core/lib/font-awesome/css/all.css" rel="stylesheet" />
@@ -212,7 +215,7 @@
     /// <summary>
     /// The content to be displayed when there is an error.
     /// </summary>
-    [Parameter] 
+    [Parameter]
     public RenderFragment<Exception>? ErrorContent { get; set; }
     private bool loading;
     public ApplicationUser applicationUser { get; private set; }
@@ -238,6 +241,16 @@
         ThemeName = Themes.ActiveTheme.Name;
         NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+        hubConnection = hubConnection.TryInitialize(NavigationManager);
+
+        await hubConnection.StartAsync();
+
+        hubConnection.On<string>(ApplicationConstants.SignalR.ConnectUser, (senderUserId) =>
+        {
+            //onShowPopupMessage("Notification", "Received Successfully");
+        });
+        await hubConnection.SendAsync(ApplicationConstants.SignalR.OnConnect, applicationUser.SessionId);
     }
     private async void ResetPassword()
     {
@@ -516,4 +529,6 @@
         await _localStorageService.RemoveItem("user");
         NavigationManager.NavigateTo("account/logout");
     }
+    private HubConnection hubConnection;
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
 }

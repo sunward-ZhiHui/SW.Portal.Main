@@ -26,27 +26,45 @@ namespace Infrastructure.Service
         {
             _configuration = configuration;
         }
-        public async Task SyncBatchAsync(string company)
+        public async Task<List<Core.Entities.ItemBatchInfo>> SyncBatchAsync(string company, string itemNo)
         {
             try
             {
-                int pageSize = 1000;
-                int page = 0;
-                while (true)
+                //int pageSize = 1000;
+                //int page = 0;
+                //while (true)
+                //{
+                var context = new NAVService(_configuration, company);
+                var nquery = context.Context.ItemBatchInfo.Where(f => f.Item_No == itemNo);
+                DataServiceQuery<NAV.ItemBatchInfo> query = (DataServiceQuery<NAV.ItemBatchInfo>)nquery;
+
+                TaskFactory<IEnumerable<NAV.ItemBatchInfo>> taskFactory = new TaskFactory<IEnumerable<NAV.ItemBatchInfo>>();
+                IEnumerable<NAV.ItemBatchInfo> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
+
+                var prodCodes = result.ToList();
+
+                var ItemBatchInfo = new List<Core.Entities.ItemBatchInfo>();
+
+                prodCodes.ForEach(b =>
                 {
-                    var context = new NAVService(_configuration, company);
-                    var nquery = context.Context.ItemBatchInfo.Skip(page * pageSize).Take(pageSize);
-                    DataServiceQuery<NAV.ItemBatchInfo> query = (DataServiceQuery<NAV.ItemBatchInfo>)nquery;
+                    ItemBatchInfo.Add(new Core.Entities.ItemBatchInfo
+                    {
+                        BatchNo = b.Batch_No,
+                        BalanceQuantity = b.Remaining_Quantity,
+                        ExpiryDate = b.Expiration_Date,
+                        LocationCode = b.Location_Code,
+                        ManufacturingDate = b.Manufacturing_Date,
+                        QuantityOnHand = b.Remaining_Quantity,
+                        NavQuantity = b.Remaining_Quantity,
 
-                    TaskFactory<IEnumerable<NAV.ItemBatchInfo>> taskFactory = new TaskFactory<IEnumerable<NAV.ItemBatchInfo>>();
-                    IEnumerable<NAV.ItemBatchInfo> result = await taskFactory.FromAsync(query.BeginExecute(null, null), iar => query.EndExecute(iar));
-
-                    var prodCodes = result.ToList();
-                }
+                    });
+                });
+                return ItemBatchInfo;
+                //}
             }
             catch (Exception ex)
             {
-
+                return new List<Core.Entities.ItemBatchInfo>();
             }
         }
         public async Task PostSalesOrderAsync(PostSalesOrder postSalesOrder)

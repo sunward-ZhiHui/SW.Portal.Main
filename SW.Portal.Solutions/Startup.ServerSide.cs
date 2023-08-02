@@ -18,6 +18,8 @@ using Application;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Blazored.Toast;
 using AC.ShippingDocument.Reporting;
+using Application.Constant;
+using SW.Portal.Solutions.Hubs;
 
 namespace SW.Portal.Solutions.ServerSide {
 
@@ -101,7 +103,11 @@ namespace SW.Portal.Solutions.ServerSide {
             //app.UseStaticFiles(new StaticFileOptions {
             //    ServeUnknownFileTypes = true
             //});
-            app.UseEndpoints(endpoints => endpoints.MapBlazorHub());
+            app.UseEndpoints(endpoints => {
+                endpoints.MapBlazorHub();
+                endpoints.MapHub<NotificationHub>(ApplicationConstants.SignalR.HubUrl);
+            });
+
         }
         public override void Configure(IWebHostBuilder builder) {
             builder.ConfigureAppConfiguration(((context, configurationBuilder) => {

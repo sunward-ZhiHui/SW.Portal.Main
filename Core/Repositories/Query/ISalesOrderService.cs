@@ -12,5 +12,6 @@ namespace Core.Repositories.Query
     public interface ISalesOrderService : IQueryRepository<PostSalesOrder>
     {       
         Task PostSalesOrderAsync(PostSalesOrder postSalesOrder);
+        Task<List<Core.Entities.ItemBatchInfo>> SyncBatchAsync(string company, string itemNo);
     }
 }

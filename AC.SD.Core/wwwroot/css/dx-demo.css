@@ -26,6 +26,11 @@ body,
 .urgent_icon {
     float: right;
     color: red;
+    margin-left: 10px;
+}
+.type_color
+{
+    color:black;
 }
 #app,
 .demo-header-container,

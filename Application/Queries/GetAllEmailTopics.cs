@@ -160,9 +160,12 @@ namespace Application.Queries
     public class GetEmailParticipantsList : PagedRequest, IRequest<List<EmailParticipant>>
     {
         public long TopicId { get; private set; }
-        public GetEmailParticipantsList(long topicId)
+        public long UserId { get; private set; }
+        public GetEmailParticipantsList(long topicId,long userId)
         {
             this.TopicId = topicId;
+            this.UserId = userId;
+
         }
     }
     public class GetConversationParticipantsList : PagedRequest, IRequest<List<EmailParticipant>>

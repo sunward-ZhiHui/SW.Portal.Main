@@ -39,7 +39,7 @@
                 <div style="width:100%">
                     <strong>
                         @item.FirstName
-                        @if (item.Urgent.Value)
+                        @if (item.Urgent.GetValueOrDefault(false))
                         {
                             <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
                         }

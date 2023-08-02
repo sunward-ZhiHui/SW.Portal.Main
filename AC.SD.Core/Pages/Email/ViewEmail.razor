@@ -1904,7 +1904,8 @@
         RTopicId = 0;
         Tid = long.Parse(@SelectedGroup);
         var getconid = await Mediator.Send(new GetTopConversationList(Tid));
-        Cid = getconid[0].ID;
+        // Cid = getconid[0].ID;
+        Cid = 0;
         SelectedReplyId = getconid[0].ID.ToString();
         _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
@@ -1938,7 +1939,15 @@
 
         if (isMenuvisible == "AddParticipants")
         {
-            await LoadPlist_Data();
+
+            if (RTopicId == 0) //main topic click
+            {
+                await LoadMainTopicPlist_Data();
+            }
+            else //sub topic click
+            {
+                await LoadPlist_Data();
+            }            
         }
 
         // Generate index IDs for each row
@@ -1959,7 +1968,7 @@
             isEnabled = true;
             isEllipsis = true;
             isCommand = true;
-            _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
+            //_participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
 
 
             IsConHistory = true;            
@@ -1991,11 +2000,20 @@
 
         if (isMenuvisible == "AddParticipants")
         {
-            await LoadPlist_Data();
+
+            if (RTopicId == 0) //main topic click
+            {
+                await LoadMainTopicPlist_Data();
+            }
+            else //sub topic click
+            {
+                await LoadPlist_Data();
+            }
+
         }
 
         var ConversationList = await Mediator.Send(new GetEmailConversationList(Cid));
-        
+
         _headTopic = await Mediator.Send(new GetByIdEmailTopics(RTopicId));
 
         _headTopic[0].TopicName = ConversationList[0].Name;
@@ -2006,7 +2024,7 @@
         isEnabled = true;
         isEllipsis = true;
         isCommand = true;
-        _participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
+        // _participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
 
 
         IsConHistory = false;
@@ -2021,8 +2039,9 @@
             if (long.Parse(@SelectedGroup) > 0)
             {
                 Tid = long.Parse(@SelectedGroup);
-                 var getconid = await Mediator.Send(new GetTopConversationList(Tid));
-                 Cid = getconid[0].ID;               
+                var getconid = await Mediator.Send(new GetTopConversationList(Tid));
+                //Cid = getconid[0].ID;
+                Cid = 0;
                 _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
                 _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
@@ -2039,7 +2058,7 @@
                 isEnabled = true;
                 isEllipsis = true;
                 isCommand = true;
-                _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
+                //_participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
 
             }
 
@@ -2069,7 +2088,7 @@
         isEnabled = true;
         isEllipsis = true;
         isCommand = true;
-        _participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
+        //_participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
 
@@ -2303,7 +2322,7 @@
             isAddParticipant = true;
             isComponentVisible = false;
             isEllipsis = false;
-            isCommand = false;        
+            isCommand = false;  
         }
         else
         {
@@ -2318,8 +2337,11 @@
         if(Cid > 0)
         {
             await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedReplyId));
-        }
-        
+        }        
+    }
+    async Task LoadMainTopicPlist_Data()
+    {        
+        await RefTopicAddPList.loadMainTopicParticipentList(long.Parse(@SelectedGroup));        
     }
     private async Task HandleValidSubmit()
     {

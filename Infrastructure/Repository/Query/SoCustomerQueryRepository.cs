@@ -40,10 +40,10 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = "select  * from SoCustomer where type=" + "'" + Type + "'";
-                if (Type == "So Customer")
-                {
-                    query = "select  * from SoCustomer where type='So Customer' or type is null";
-                }
+                //if (Type == "So Customer")
+                //{
+                //    query = "select  * from SoCustomer where type='So Customer' or type is null";
+                //}
 
                 using (var connection = CreateConnection())
                 {

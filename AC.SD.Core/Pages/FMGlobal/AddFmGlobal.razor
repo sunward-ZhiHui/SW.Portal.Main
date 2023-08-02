@@ -243,7 +243,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("FM Global"));
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("Customer"));
         _statusListItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(345));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         PlantsData = _plantItems;

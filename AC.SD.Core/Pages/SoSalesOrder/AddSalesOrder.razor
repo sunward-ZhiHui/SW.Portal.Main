@@ -224,7 +224,7 @@
     {
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("So Customer"));
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("Clinic"));
         Data.DocumentDate = DateTime.Now;
         Data.OrderDate = DateTime.Now;
         Data.Date = DateTime.Now;

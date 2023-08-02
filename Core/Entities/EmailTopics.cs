@@ -39,7 +39,7 @@ namespace Core.Entities
         public long? OnBehalf { get; set; }
         public bool? Urgent { get; set; }
         public bool? OverDue { get; set; }
-       public int OnDraft { get; set; }
+        public int OnDraft { get; set; }
         [NotMapped]
         public string? FirstName { get; set; }
         [NotMapped]

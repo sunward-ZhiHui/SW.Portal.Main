@@ -1667,7 +1667,7 @@
             isEnabled = true;
             isEllipsis = true;
             isCommand = true;
-            _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
+            //_participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
 
 
             IsConHistory = true;            
@@ -1704,7 +1704,7 @@
         isEnabled = true;
         isEllipsis = true;
         isCommand = true;
-        _participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
+        //_participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
 
 
         IsConHistory = false;
@@ -1735,7 +1735,7 @@
                 isEnabled = true;
                 isEllipsis = true;
                 isCommand = true;
-                _participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
+                //_participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
 
             }
 
@@ -1765,7 +1765,7 @@
         isEnabled = true;
         isEllipsis = true;
         isCommand = true;
-        _participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
+        //_participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
 

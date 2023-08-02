@@ -236,7 +236,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailParticipant>> Handle(GetEmailParticipantsList request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetParticipantList(request.TopicId);
+            return await _emailTopicsQueryRepository.GetParticipantList(request.TopicId,request.UserId);
         }
     }
     public class GetConversationParticipantListHandler : IRequestHandler<GetConversationParticipantsList, List<EmailParticipant>>

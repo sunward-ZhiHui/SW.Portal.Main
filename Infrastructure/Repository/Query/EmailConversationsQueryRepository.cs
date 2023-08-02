@@ -382,7 +382,8 @@ namespace Infrastructure.Repository.Query
                 //                          ORDER BY FC.AddedDate ASC";
 
                 var query = @"SELECT  FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId 
-                                FROM EmailConversations FC          
+                                FROM EmailConversations FC  
+                                INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = FC.ID AND ECP.UserId = @UserId
                                 Cross Apply(Select DISTINCT ReplyId = CASE WHEN ECC.ReplyId>0 THEN ECC.ReplyId ELSE ECC.ID END
                                             From EmailConversations ECC
                                             WHERE  (ECC.ParticipantId = @UserId
@@ -395,7 +396,15 @@ namespace Infrastructure.Repository.Query
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID    
                                 WHERE  K.ReplyId=FC.ID AND FC.ReplyId=0
-                                ORDER BY FC.AddedDate ASC";
+                                --ORDER BY FC.AddedDate ASC
+
+                                UNION 
+
+                                select FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId  from EmailTopics EETT 
+                                INNER JOIN EmailConversations FC ON FC.TopicID = EETT.ID
+                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID  
+                                where OnBehalf =@UserId and EETT.ID = @TopicId";
 
 
                 var parameters = new DynamicParameters();

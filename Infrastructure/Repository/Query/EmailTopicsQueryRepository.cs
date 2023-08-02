@@ -258,8 +258,38 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-        }        
-        public async Task<List<EmailTopics>> GetTopicMasterSearchList(long UserId,string searchtxt)
+        }
+        public async Task<List<EmailTopics>> GetTopicMasterSearchList(long UserId, string searchtxt)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", searchtxt);
+                        parameters.Add("Option", "SELECT");
+
+                        connection.Open();
+
+                        var result = connection.Query<EmailTopics>("sp_Select_MasterSearchList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<EmailTopics>> GetTopicMasterSearchList_old(long UserId,string searchtxt)
         {
             try
             {
@@ -365,7 +395,9 @@ namespace Infrastructure.Repository.Query
 										 EXISTS(SELECT * FROM EmailConversationAssignCC TP WHERE ECC.ID = TP.ConversationId AND (TP.UserId = @UserId or TP.AddedByUserID = @UserId))
 										  OR 
 										 EXISTS(SELECT * FROM EmailConversationParticipant TP WHERE ECC.ID = TP.ConversationId AND (TP.UserId = @UserId or TP.AddedByUserID = @UserId))
-										)
+                                          OR 
+										 EXISTS(SELECT * FROM EmailTopics ETP WHERE TS.ID = ETP.ID AND (ETP.OnBehalf = @UserId))										
+                                         )
 							           )K
                             INNER JOIN
                                 Employee E ON TS.TopicFrom = E.UserId
@@ -429,6 +461,7 @@ namespace Infrastructure.Repository.Query
                                 EmailTopics TS
                             INNER JOIN
                                 EmailConversations EC ON EC.TopicId = TS.ID
+                            
                             INNER JOIN
                                 EmailConversationAssignTo TP ON EC.ID = TP.ConversationId
                             INNER JOIN
@@ -660,6 +693,7 @@ namespace Infrastructure.Repository.Query
                                 EmailTopics TS
                          INNER JOIN
                                 EmailConversations EC ON TS.ID = EC.TopicId
+                                INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = EC.ID AND ECP.UserId = @UserId
                             Cross APPLY(SELECT DISTINCT ReplyId = CASE WHEN ECC.ReplyId >0 THEN ECC.ReplyId ELSE ECC.ID END
 							            FROM EmailConversations ECC 
 										WHERE ECC.TopicID=@TopicId 
@@ -800,6 +834,7 @@ namespace Infrastructure.Repository.Query
                                 COALESCE(FN.NotificationCount, 0) AS NotificationCount
                             FROM EmailTopics TS
                          INNER JOIN EmailConversations EC ON TS.ID = EC.TopicId
+                         INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = EC.ID AND ECP.UserId = @UserId
                          Cross APPLY(SELECT DISTINCT ReplyId = CASE WHEN ECC.ReplyId >0 THEN ECC.ReplyId ELSE ECC.ID END
 							            FROM EmailConversations ECC 
 										WHERE ECC.TopicID=@TopicId 
@@ -926,17 +961,48 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailParticipant>> GetParticipantList(long topicId)
+        public async Task<List<EmailParticipant>> GetParticipantList(long topicId,long UserId)
         {
             try
             {
-                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY TP.ID ASC), TP.ID,TP.TopicId,AU.UserCode,AU.UserName,TP.AddedDate,TP.SessionId,AU.UserID, CASE WHEN FT.AddedByUserID = TP.UserID THEN 0 ELSE 1 END AS IsEnabled FROM EmailTopicParticipant TP 
+                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY TP.ID ASC), TP.ID,TP.TopicId,AU.UserCode,AU.UserName,TP.AddedDate,TP.SessionId,AU.UserID,
+                                CASE WHEN TP.AddedByUserID = TP.UserID THEN 0 ELSE 1 END AS IsEnabled,ECO.Name as SubjectName
+                                FROM EmailConversationParticipant TP 
                                 INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID   
-								INNER JOIN EmailTopics FT ON FT.ID = TP.TopicId                               
-                                WHERE TP.TopicId = @TopicId order by TP.ID ASC";
+								INNER JOIN EmailConversations ECO ON ECO.ID = TP.ConversationId            
+								
+								CROSS APPLY(
+									SELECT  EC.ID as ReplyId
+                            FROM
+                                EmailTopics TS
+                         INNER JOIN
+                                EmailConversations EC ON TS.ID = EC.TopicId
+						INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = EC.ID AND ECP.UserId = @UserId
+                            Cross APPLY(SELECT DISTINCT ReplyId = CASE WHEN ECC.ReplyId >0 THEN ECC.ReplyId ELSE ECC.ID END
+							            FROM EmailConversations ECC 
+										WHERE ECC.TopicID=@TopicId 
+										AND EXISTS(SELECT * FROM EmailConversationAssignTo TP WHERE ECC.ID = TP.ConversationId AND (TP.UserId = @UserId or TP.AddedByUserID = @UserId))
+							           )K
+                            INNER JOIN
+                                Employee E ON EC.AddedByUserID = E.UserId
+                             LEFT JOIN
+                            (
+                                SELECT
+                                    ReplyId,
+                                    COUNT(*) AS NotificationCount
+                                FROM
+                                    EmailConversations
+                                GROUP BY
+                                    ReplyId
+                            ) FN ON EC.ID = FN.ReplyId
+                            WHERE
+                                TS.ID = @TopicId and TS.OnDraft = 0 AND EC.ID=K.ReplyId                            
+								)R
+                                WHERE TP.ConversationId =R.ReplyId order by TP.ID ASC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", topicId);
+                parameters.Add("UserId", UserId);
 
                 using (var connection = CreateConnection())
                 {
@@ -955,11 +1021,11 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY TP.ID ASC), TP.ID,TP.TopicId,AU.UserCode,AU.UserName,TP.AddedDate,TP.SessionId,AU.UserID
-                                --CASE WHEN FT.AddedByUserID = TP.UserID THEN 0 ELSE 1 END AS IsEnabled
+                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY TP.ID ASC), TP.ID,TP.TopicId,AU.UserCode,AU.UserName,TP.AddedDate,TP.SessionId,AU.UserID,
+                                CASE WHEN TP.AddedByUserID = TP.UserID THEN 0 ELSE 1 END AS IsEnabled,ECO.Name as SubjectName
                                 FROM EmailConversationParticipant TP 
                                 INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID   
-								--INNER JOIN EmailTopics FT ON FT.ID = TP.TopicId                               
+								INNER JOIN EmailConversations ECO ON ECO.ID = TP.ConversationId                               
                                 WHERE TP.ConversationId = @ConversationId order by TP.ID ASC";
 
                 var parameters = new DynamicParameters();

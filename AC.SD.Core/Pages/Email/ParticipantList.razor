@@ -34,6 +34,7 @@
             <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
             </DxDataGridColumn>*@
             <DxGridDataColumn FieldName="RowIndex" Width="30" Caption="#" />
+            <DxGridDataColumn FieldName="SubjectName" MinWidth="100" />
             <DxGridDataColumn FieldName="UserName" MinWidth="100" />
             <DxGridDataColumn FieldName="UserCode" />
             <DxGridDataColumn FieldName="ID" Caption="Action" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
@@ -118,13 +119,26 @@
     {
         IsValidUser = IsValidUser;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _participant = await Mediator.Send(new GetConversationParticipantsList(Cid));
+        if (Cid == 0)
+        {
+            _participant = await Mediator.Send(new GetEmailParticipantsList(Tid, applicationUser.UserID));
+        }
+        else
+        {
+            _participant = await Mediator.Send(new GetConversationParticipantsList(Cid));
+        }
+        
     }
     public async Task loadParticipentList(long id)
     {  
         IsValidUser = IsValidUser;
         _participant = await Mediator.Send(new GetConversationParticipantsList(id));
-    }   
+    }  
+    public async Task loadMainTopicParticipentList(long tid)
+    {
+        IsValidUser = IsValidUser;
+        _participant = await Mediator.Send(new GetEmailParticipantsList(tid, applicationUser.UserID));
+    }
     public async Task onDeletePlist(long Id)
     {
         _participantLst = _participant.FirstOrDefault(a => a.ID == Id);

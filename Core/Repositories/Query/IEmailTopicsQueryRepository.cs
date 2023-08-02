@@ -29,7 +29,7 @@ namespace Core.Repositories.Query
         Task<List<EmailTopics>> GetSubTopicAllList(Int64 TopicId, long UserId);
 
         Task<List<EmailTopics>> GetTopicSentList(Int64 UserId);
-        Task<List<EmailParticipant>> GetParticipantList(Int64 topicId);
+        Task<List<EmailParticipant>> GetParticipantList(Int64 topicId,long UserId);
         Task<List<EmailParticipant>> GetConversationPList(Int64 ConversationId);
 
         Task<EmailTopics> GetCustomerByEmail(string email);

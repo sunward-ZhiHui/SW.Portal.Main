@@ -43,6 +43,11 @@
                         {
                             <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
                         }
+
+                        @if (item.OnBehalf == applicationUser.UserID)
+                        {
+                            <span class="urgent_icon"><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+                        }
                     </strong>
                     <div>
                         <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>

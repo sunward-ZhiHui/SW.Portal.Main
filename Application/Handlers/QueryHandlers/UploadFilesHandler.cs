@@ -46,6 +46,30 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
 
     }
+    public class FileUploadCommandHandler : IRequestHandler<FileUploadCommand, string>
+    {
+        private readonly IFileStorageService _fileStorageService;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+
+        public FileUploadCommandHandler(IFileStorageService fileStorageService, IWebHostEnvironment hostingEnvironment)
+        {
+            _fileStorageService = fileStorageService;
+            _hostingEnvironment = hostingEnvironment;
+        }
+        public async Task<string> Handle(FileUploadCommand request, CancellationToken cancellationToken)
+        {
+            string BaseDirectory = System.AppContext.BaseDirectory;
+            var reportFolder = Path.Combine(BaseDirectory, "Reports");
+            File.WriteAllBytes(reportFolder + request.FileName, request.FileContent);
+
+
+            // Save each file using the fileStorageService
+            //var saved = await _fileStorageService.SaveFileAsync(request.FileContent, request.SessionId);               
+
+            return request.FileName; ; // Return true if all files are saved successfully
+        }
+
+    }
     public class DownloadFileHandler : IRequestHandler<DownloadFileRequest, Documents>
     {
         private readonly IWebHostEnvironment _hostingEnvironment;

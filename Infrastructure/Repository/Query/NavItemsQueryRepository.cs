@@ -256,9 +256,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("IssueQuantity", itemBatchInfo.BalanceQuantity, DbType.Decimal);
                             parameters.Add("BalanceQuantity", itemBatchInfo.BalanceQuantity, DbType.Decimal);
                             parameters.Add("StatusCodeId", 1);
+                            parameters.Add("AddedDate", DateTime.Now);
 
-                            var query = "INSERT INTO [ItemBatchInfo](ItemId,CompanyId,LocationCode,BatchNo,LotNo,ExpiryDate,ManufacturingDate,QuantityOnHand,NavQuantity,IssueQuantity,@BalanceQuantity,StatusCodeId) OUTPUT INSERTED.ItemBatchId VALUES " +
-                                "(@ItemId,@CompanyId,@LocationCode,@BatchNo,@LotNo,@ExpiryDate,@ManufacturingDate,@QuantityOnHand,@NavQuantity,@IssueQuantity,@BalanceQuantity,@StatusCodeId)";
+                            var query = "INSERT INTO [ItemBatchInfo](ItemId,CompanyId,LocationCode,BatchNo,LotNo,ExpiryDate,ManufacturingDate,QuantityOnHand,NavQuantity,IssueQuantity,BalanceQuantity,StatusCodeId,AddedDate) OUTPUT INSERTED.ItemBatchId VALUES " +
+                                "(@ItemId,@CompanyId,@LocationCode,@BatchNo,@LotNo,@ExpiryDate,@ManufacturingDate,@QuantityOnHand,@NavQuantity,@IssueQuantity,@BalanceQuantity,@StatusCodeId,@AddedDate)";
 
                             var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
 
@@ -292,21 +293,17 @@ namespace Infrastructure.Repository.Query
                     var lst = await _salesOrderService.SyncBatchAsync(plantData.NavCompanyName, ItemNo);
                     if (lst != null && lst.Count > 0)
                     {
-                        lst.ForEach(async s =>
+                        foreach (var s in lst)
                         {
                             var Exits = lists.Where(w => w.BatchNo == s.BatchNo).Count();
-                            if (Exits > 0)
+                            if (Exits == 0)
                             {
-
+                                await InsertBatchInfo(s, plantData.CompanyID, ItemId); 
                             }
-                            else
-                            {
-                                await InsertBatchInfo(s, ItemId, CompanyId);
-                                itemBatchInfo.ItemBatchId = 1;
-                            }
-                        });
+                        }
                     }
                 }
+                itemBatchInfo.ItemBatchId = 1;
                 return itemBatchInfo;
             }
             catch (Exception exp)

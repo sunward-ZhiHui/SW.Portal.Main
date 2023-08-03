@@ -9,6 +9,6 @@ namespace DocumentApi.Models
         {
         }
         public DbSet<Documents> Documents { get; set; }
-        public DbSet<ReportDocuments> ReportDocuments { get; set; }
+      
     }
 }

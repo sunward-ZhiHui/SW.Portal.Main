@@ -14,5 +14,6 @@ namespace DocumentApi.Models
         public bool? IsLatest { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+      
     }
 }

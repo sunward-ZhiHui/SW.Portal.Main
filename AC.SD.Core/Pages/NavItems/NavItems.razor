@@ -5,10 +5,6 @@
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
 @using DevExpress.Export
-@inject IJSRuntime jsRuntime
-@inject AC.SD.Core.Services.ToastService toastService
-@using global::Core.Repositories.Query;
-@inject ILocalStorageService<ApplicationUser> _localStorageService
 <style>
     .alt-item > td {
         background-color: rgba(0, 0, 0, 0.05);
@@ -28,9 +24,8 @@
                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                     DisplayMode="MenuDisplayMode.Desktop">
                 <Items>
-                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@AddItemLine" Enabled="@EditEnabled" />
                     <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
-                    <DxMenuItem Text="Add Item Line" IconCssClass="fa fa-file-excel" Enabled="@EditEnabled" Click="@AddItemLine" />
                 </Items>
             </DxMenu>
         </div>
@@ -76,76 +71,7 @@
                 <DxGridDataColumn FieldName="UomName" Caption="Uom" Width="50%" />
                 <DxGridDataColumn FieldName="ItemSerialNo" Caption="ItemSerialNo" Width="50%" />
             </Columns>
-            <EditFormTemplate Context="EditFormContext">
-                @{
-                    var plant = (View_NavItems)EditFormContext.EditModel;
-                }
-                <DxFormLayout CssClass="w-100">
-                    <DxFormLayoutItem Caption="User Name" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@plant.AddedBy" ShowValidationIcon="true" Enabled=false />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Date" ColSpanMd="6">
-                        <DxDateEdit NullText="Date" @bind-Date="@plant.AddedDate" Enabled=false />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                        <DxComboBox Data="@_plantItems"
-                                    NullText="Select Company..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="PlantCode"
-                                    ValueFieldName="PlantID"
-                                    @bind-Value="@plant.CompanyId"
-                                    ShowValidationIcon="true">
-                            <Columns>
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
-                                                    Caption="Company Name"
-                                                    Width="180px" />
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
-                                                    Caption="Description" />
-                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
-                                                    Caption="Nav Company" />
-                            </Columns>
-                        </DxComboBox>
-                        <ValidationMessage For="@(() => plant.CompanyId)" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="No" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@plant.No" ShowValidationIcon="true" Enabled="false" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@plant.Description" ShowValidationIcon="true" Enabled="false" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Description2" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@plant.Description2" ShowValidationIcon="true" Enabled="false" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Pack Size" ColSpanMd="6">
-                        <DxComboBox Data="@_view_ApplicationMasterDetailsPackSize"
-                                    NullText="Select Pack Size..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="Value"
-                                    ValueFieldName="ApplicationMasterDetailID"
-                                    @bind-Value="@plant.PackSizeId" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Supply To" ColSpanMd="6">
-                        <DxComboBox Data="@_view_ApplicationMasterDetailsSupplyTo"
-                                    NullText="Select Supply To..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="Value"
-                                    ValueFieldName="ApplicationMasterDetailID"
-                                    @bind-Value="@plant.SupplyToId" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="UOM" ColSpanMd="6">
-                        <DxComboBox Data="@_view_ApplicationMasterDetailsUom"
-                                    NullText="Select Uom..."
-                                    FilteringMode="DataGridFilteringMode.Contains"
-                                    TextFieldName="Value"
-                                    ValueFieldName="ApplicationMasterDetailID"
-                                    @bind-Value="@plant.UomId" />
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="ItemSerialNo" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@plant.ItemSerialNo" ShowValidationIcon="true" />
-                        <ValidationMessage For="@(() => plant.ItemSerialNo)" />
-                    </DxFormLayoutItem>
-                </DxFormLayout>
-            </EditFormTemplate>
+
             <TotalSummary>
                 <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="No" />
             </TotalSummary>
@@ -155,18 +81,7 @@
 
 
 <div id="NavLineItems" style="@navLineItems">
-    <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
-        <div class="card-body p-0">
-            <DxMenu CollapseItemsToHamburgerMenu="true"
-                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                    DisplayMode="MenuDisplayMode.Desktop">
-                <Items>
-                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@BackEdit" />
-                </Items>
-            </DxMenu>
-        </div>
-    </div>
-    <NavItemsLine @ref="refNavItemsLine"></NavItemsLine>
+    <NavItemsLine @ref="refNavItemsLine" RevokeBack="BackEdit"></NavItemsLine>
 </div>
 
 @code {
@@ -184,18 +99,12 @@
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsUom;
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsPackSize;
     private List<View_ApplicationMasterDetail> _view_ApplicationMasterDetailsSupplyTo;
-    public ApplicationUser applicationUser { get; private set; }
     private bool HideNavHeaderLabel { get; set; } = true;
     private bool HideNavHeaderLineLabel { get; set; } = false;
+    [Parameter]
+    public EventCallback RId { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        PanelVisible = true;
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _plantItems = await Mediator.Send(new GetAllPlantQuery());
-        _view_ApplicationMasterDetailsPackSize = await Mediator.Send(new GetAllApplicationMasterDetailQuery(113));
-        _view_ApplicationMasterDetailsUom = await Mediator.Send(new GetAllApplicationMasterDetailQuery(178));
-        _view_ApplicationMasterDetailsSupplyTo = await Mediator.Send(new GetAllApplicationMasterDetailQuery(335));
-        PanelVisible = false;
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
@@ -214,12 +123,13 @@
     {
         navLineItems = "";
         navHeaderItems = "display:none;";
-        await refNavItemsLine.loadData(_selectedItems.ItemId);
+        await refNavItemsLine.loadData(_selectedItems.ItemId, _selectedItems);
     }
     void BackEdit()
     {
         navHeaderItems = "";
         navLineItems = "display:none;";
+        StateHasChanged();
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
@@ -235,65 +145,12 @@
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
-        var editablePlant = (View_NavItems)e.EditModel;
-        if (e.IsNew)
-        {
-
-        }
-        else
-        {
-            await UpdatePlantAsync(editablePlant);
-        }
 
     }
-    async Task UpdatePlantAsync(View_NavItems editablePlant)
-    {
-        var request = new EditNavItemsCommand
-            {
-                ItemId = editablePlant.ItemId,
-                ItemSerialNo = editablePlant.ItemSerialNo,
-                PackSizeId = editablePlant.PackSizeId,
-                SupplyToId = editablePlant.SupplyToId,
-                UomId = editablePlant.UomId,
-                CompanyId = editablePlant.CompanyId,
-                StatusCodeId = editablePlant.StatusCodeId,
-                AddedByUserId = editablePlant.AddedByUserId == null ? applicationUser.UserID : editablePlant.AddedByUserId,
-                ModifiedByUserId = applicationUser.UserID,
-                AddedDate = editablePlant.AddedDate == null ? DateTime.Now : editablePlant.AddedDate,
-                ModifiedDate = DateTime.Now,
-            };
-        var response = await Mediator.Send(request);
-        if (response.ItemId > 0)
-        {
-            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        }
-        else
-        {
-            toastService.ShowToast("Item SerialNo already exits", AC.SD.Core.Services.ToastLevel.Warning);
-        }
-        await UpdateDataAsync();
-    }
+
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        var newplant = (View_NavItems)e.EditModel;
-        if (e.IsNew)
-        {
 
-            newplant.No = "";
-            newplant.Description = "";
-            newplant.Description2 = "";
-            newplant.ItemSerialNo = "";
-        }
-        else
-        {
-            newplant.AddedBy = newplant.AddedBy == null ? applicationUser.UserName : newplant.AddedBy;
-            newplant.AddedDate = newplant.AddedDate == null ? DateTime.Now : newplant.AddedDate;
-        }
-    }
-    void addEdit()
-    {
-
-        Grid.StartEditDataItemAsync(_selectedItems);
     }
 
     void OnRowClick(GridRowClickEventArgs e)
@@ -302,10 +159,10 @@
         _selectedItems = _navItems.FirstOrDefault(f => f.ItemId == (long?)UniqueId);
         StateHasChanged();
     }
-    void OnRowDoubleClick(GridRowClickEventArgs e)
+    public async Task OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowClick(e);
-        addEdit();
+        await AddItemLine();
     }
     async Task ExportXlsx_Click()
     {

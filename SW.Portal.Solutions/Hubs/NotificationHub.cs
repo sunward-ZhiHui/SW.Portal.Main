@@ -14,7 +14,7 @@ namespace SW.Portal.Solutions.Hubs
         {
             await Clients.All.SendAsync(ApplicationConstants.SignalR.DisconnectUser, userId);
         }
-        public async Task UpdateEmailInboxAsync()
+        public async Task SendEmailAsync()
         {
             await Clients.All.SendAsync(ApplicationConstants.SignalR.ReceiveEmail);
         }

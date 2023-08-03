@@ -21,6 +21,7 @@ namespace Application.Constant
             public const string SendMessage = "SendMessageAsync";
 
             public const string OnConnect = "OnConnectAsync";
+            public const string SendEmail = "SendEmailAsync";
             public const string ConnectUser = "ConnectUser";
             public const string OnDisconnect = "OnDisconnectAsync";
             public const string DisconnectUser = "DisconnectUser";

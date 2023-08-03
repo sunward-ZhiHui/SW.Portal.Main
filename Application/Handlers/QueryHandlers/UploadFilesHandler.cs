@@ -46,6 +46,30 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
 
     }
+    public class FileUploadCommandHandler : IRequestHandler<FileUploadCommand, string>
+    {
+        private readonly IFileStorageService _fileStorageService;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+
+        public FileUploadCommandHandler(IFileStorageService fileStorageService, IWebHostEnvironment hostingEnvironment)
+        {
+            _fileStorageService = fileStorageService;
+            _hostingEnvironment = hostingEnvironment;
+        }
+        public async Task<string> Handle(FileUploadCommand request, CancellationToken cancellationToken)
+        {
+            string BaseDirectory = System.AppContext.BaseDirectory;
+            var reportFolder = Path.Combine(BaseDirectory, "Reports");
+            File.WriteAllBytes(reportFolder + request.FileName, request.FileContent);
+
+
+            // Save each file using the fileStorageService
+            //var saved = await _fileStorageService.SaveFileAsync(request.FileContent, request.SessionId);               
+
+            return request.FileName; ; // Return true if all files are saved successfully
+        }
+
+    }
     public class DownloadFileHandler : IRequestHandler<DownloadFileRequest, Documents>
     {
         private readonly IWebHostEnvironment _hostingEnvironment;
@@ -80,6 +104,47 @@ namespace CMS.Application.Handlers.QueryHandlers
                 ContentType = request.ContentType,
                 FilePath = BaseUrl,
                 ServerFilePath= serverFilePath
+                //FilePath = serverFilePath,
+
+            };
+
+            return Task.FromResult(response);
+        }
+    }
+    public class DownloadReportFileHandler : IRequestHandler<DownloadReportFileRequest, ReportDocuments>
+    {
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly IConfiguration _configuration;
+        public DownloadReportFileHandler(IWebHostEnvironment host, IConfiguration configuration)
+        {
+            _hostingEnvironment = host;
+            _configuration = configuration;
+        }
+        public Task<ReportDocuments> Handle(DownloadReportFileRequest request, CancellationToken cancellationToken)
+        {
+            // Read the file content from the specified FilePath
+            string BaseUrll = _configuration["DocumentsUrl:FileUrl"];
+
+
+            string originalString = _hostingEnvironment.ContentRootPath;
+            string substringToRemove = "SW.Portal.Solutions\\";
+            string result = originalString.Replace(substringToRemove, string.Empty);
+
+
+            //var BaseUrl = result + @"\DocumentApi\AppUpload\" + request.FilePath;
+            var BaseUrl = BaseUrll + request.FilePath;
+            //var filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\" + request.FilePath;
+            //var fileContent = File.ReadAllBytes(BaseUrl);
+          //  var serverFilePath = Path.Combine(_hostingEnvironment.WebRootPath ?? "", "AppUpload", request.FilePath);
+
+            // Create and populate the DownloadFileResponse
+            var response = new ReportDocuments
+            {
+                FileName = request.FileName,
+                //FileData = fileContent,
+                ContentType = request.ContentType,
+                FilePath = BaseUrl,
+               // ServerFilePath = serverFilePath
                 //FilePath = serverFilePath,
 
             };

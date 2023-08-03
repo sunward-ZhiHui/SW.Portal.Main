@@ -12,6 +12,6 @@ namespace Core.Repositories.Query
     public interface IReportFileUploadsQueryRepository : IQueryRepository<ReportDocuments>
     {
         Task<IReadOnlyList<ReportDocuments>> GetAllAsync();
-    
+        Task<long> Insert(ReportDocuments reportDocuments);
     }
 }

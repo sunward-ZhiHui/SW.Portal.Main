@@ -12,7 +12,8 @@
 @inject IConfiguration Configuration;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
-
+@using System.IO;
+@using System.Linq;
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -23,6 +24,7 @@
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@AddFile" />
                 <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectedItems.ReportDocumentID))"  />
+             <DxMenuItem Text="View Document" IconCssClass="fa fa-eye" Click="((e) => onPreView(_selectedItems.ReportDocumentID))" />
                 
             </Items>
         </DxMenu>
@@ -50,8 +52,8 @@
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
         <Columns>
 
-            <DxGridDataColumn FieldName="FileName" MinWidth="150" />
-            <DxGridDataColumn FieldName="ContentType" MinWidth="250" />
+            <DxGridDataColumn FieldName="Name" MinWidth="150" />
+            <DxGridDataColumn FieldName="Description" MinWidth="250" />
            @* <DxGridDataColumn FieldName="FileSize "  MinWidth="150" />*@
            @* <DxGridDataColumn FieldName="FilePath" Width="180" />*@
            
@@ -69,8 +71,8 @@
                     <DxTextBox @bind-Text="@documents.Description" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem>
-                    <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
-                    @*<div class="">
+                   @* <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+                    <div class="">
                         <DxUpload @ref="uploadComponent" Name="files"
                                   Visible="@AttachmentUploadVisible"
                                   AcceptedFileTypes=@AcceptedFileTypes
@@ -81,13 +83,16 @@
                                   SelectedFilesChanged="@AttachmentSelectedFilesChanged"
                                   FileUploaded="@isUploadSuccess"
                                   FileUploadError="@OnUploadError">
-                        </DxUpload>*@
+                        </DxUpload>
                   
 
-                  @*  <input type="file" @onchange="HandleFileChange" />
-                    <button @onclick="UploadFile">Upload</button>*@
                         <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
-                  @*  </div>*@
+                    </div>*@
+
+             
+                    <InputFile  type="file"  OnChange="@HandleFileChange" />
+                  @*  <button @onclick="UploadFile">Upload</button>*@
+
                     <div style="width:100%;">
                         @if (ActiveSessionId != null)
                         {
@@ -127,6 +132,10 @@
 </DxLoadingPanel>
 
 @code {
+    bool UploadVisible { get; set; } = false;
+    IEnumerable<UploadFileInfo> Files { get; set; }
+    UploadFileInfo FirstFile { get; set; }
+    DxUpload MyUpload { get; set; }
     ReportDocuments? Data { get; set; } = new ReportDocuments();
     private ReportDocuments _selectedItems;
     bool PopupVisible { get; set; } = false;
@@ -146,6 +155,22 @@
     bool isFileUpload = false;
     string MyError { get; set; }
     bool ErrorVisible { get; set; } = false;
+    //protected void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    //{
+    //    using (var memoryStream = new MemoryStream())
+    //    {
+    //        files.FileStream.CopyTo(memoryStream);
+    //        byte[] fileBytes = memoryStream.ToArray();
+
+    //         Now, you can use the 'fileBytes' array as needed.
+    //         For example, you can save it to a database or process it further.
+    //    }
+    //    Files = files;
+    //      UploadVisible = files.ToList().Count > 0;
+
+    //    InvokeAsync(StateHasChanged);
+    //}
+
     protected override async Task OnInitializedAsync()
     {
 
@@ -227,30 +252,39 @@
     }
     public void AddFile()
     {
-        PopupVisible = true;
+        Grid.StartEditNewRowAsync();
     }
     public async Task onDocDownload(long Id)
     {
-        //  _reportdocuments = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));
         var lst = _reportdocuments?.FirstOrDefault(a => a.ReportDocumentID == Id);
+       
+        //string BaseDirectory = System.AppContext.BaseDirectory;
+        //var reportFolder = Path.Combine(BaseDirectory, "Reports");
+        //var filePath = reportFolder + lst.FileName;
+        //        if (System.IO.File.Exists(filePath))
+        //        {
+        //            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+        //            return File(fileBytes, "application/octet-stream", lst.FileName);
+        //        }
+        ////  _reportdocuments = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));
+        //var lst = _reportdocuments?.FirstOrDefault(a => a.ReportDocumentID == Id);
 
 
 
-        //var url = FileUrl + lst.FilePath;
-        //await OpenUrlInNewTab(url);
-        //NavigationManager.NavigateTo(url, forceLoad: true);
+        ////var url = FileUrl + lst.FilePath;
+        ////await OpenUrlInNewTab(url);
+        ////NavigationManager.NavigateTo(url, forceLoad: true);
+//  var request = new DownloadReportFileRequest
+        //    {
+        //        FileName = lst.FileName,
+        //        FilePath = lst.FilePath,
+        //        ContentType = lst.ContentType
+        //    };
 
-        var request = new DownloadReportFileRequest
-            {
-                FileName = lst.FileName,
-                FilePath = lst.FilePath,
-                ContentType = lst.ContentType
-            };
+        //var response = await Mediator.Send(request);
 
-        var response = await Mediator.Send(request);
-
-        //  Trigger file download
-        await jsRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.ContentType, "");
+        ////  Trigger file download
+        //await jsRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.ContentType, "");
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
@@ -264,19 +298,24 @@
 
         var editModel = (ReportDocuments)e.EditModel;
 
-       
+
         var ex = _reportdocuments.Where(x => x.Name == editModel.Name);
-            if (ex.Any())
-            {
-                // onShowPopupMessage("Error", "The entered value Already exists.");
-                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
-            }
-            else
-            {
-                var createReq = new CreateReportFileQuery
+        if (ex.Any())
+        {
+            // onShowPopupMessage("Error", "The entered value Already exists.");
+            toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+
+
+            var createReq = new CreateReportFileQuery
                     {
                         Name = editModel.Name,
                         Description = editModel.Description,
+                        FileContent = fileContent,
+                        FileName = fileName,
+                       // FileContent = Files,
                         //StatusCodeID = 1,
                         //AddedByUserID = applicationUser.UserID,
                         // ModifiedByUserID = applicationUser.UserID,
@@ -285,29 +324,35 @@
                         SessionId = Guid.NewGuid()
                     };
 
-                try
-                {
-                    var result = await Mediator.Send(createReq);
-                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                    //  onShowPopupMessage("Success", "Record save Successfully");
-                }
-                catch (Exception eq)
-                {
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                //  onShowPopupMessage("Success", "Record save Successfully");
+            }
+            catch (Exception eq)
+            {
 
-                    //errorMessage = eq.Message;
-                    //PopupVisible = true;
+                //errorMessage = eq.Message;
+                //PopupVisible = true;
 
-                }
-
-                await UpdateDataAsync();
             }
 
-          
+            await UpdateDataAsync();
+        }
+
+
+
+    }
+    public async Task onPreView(long Id)
+    {
         
     }
     private byte[] fileContent;
     private string fileName;
     private string uploadStatus;
+
+   
 
     private async Task HandleFileChange(InputFileChangeEventArgs e)
     {
@@ -318,5 +363,15 @@
         fileContent = buffer;
     }
 
-    
+    private async Task UploadFile()
+    {
+        var command = new FileUploadCommand
+            {
+                FileName = fileName,
+                FileContent = fileContent
+            };
+
+        var result = await Mediator.Send(command);
+        uploadStatus = $"File '{result}' uploaded successfully!";
+    }
 }

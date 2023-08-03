@@ -31,13 +31,16 @@ namespace Application.Handlers.QueryHandlers
     public class CreateReportFileHandler : IRequestHandler<CreateReportFileQuery, long>
     {
         private readonly IReportFileUploadsQueryRepository _ReportFileQueryRepository;
-        public CreateReportFileHandler(IReportFileUploadsQueryRepository ReportFileQueryRepository, IQueryRepository<TopicToDoList> queryRepository)
+        public CreateReportFileHandler(IReportFileUploadsQueryRepository ReportFileQueryRepository)
         {
             _ReportFileQueryRepository = ReportFileQueryRepository;
         }
 
         public async Task<long> Handle(CreateReportFileQuery request, CancellationToken cancellationToken)
         {
+            string BaseDirectory = System.AppContext.BaseDirectory;
+            var reportFolder = Path.Combine(BaseDirectory, "Reports");
+            File.WriteAllBytes(Path.Combine(reportFolder, request.FileName), request.FileContent);
             var newlist = await _ReportFileQueryRepository.Insert(request);
             return newlist;
 

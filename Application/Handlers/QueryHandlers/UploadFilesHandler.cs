@@ -132,7 +132,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
 
             //var BaseUrl = result + @"\DocumentApi\AppUpload\" + request.FilePath;
-            var BaseUrl = BaseUrll + request.FilePath;
+          //  var BaseUrl = BaseUrll + request.FilePath;
             //var filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\" + request.FilePath;
             //var fileContent = File.ReadAllBytes(BaseUrl);
           //  var serverFilePath = Path.Combine(_hostingEnvironment.WebRootPath ?? "", "AppUpload", request.FilePath);
@@ -142,8 +142,8 @@ namespace CMS.Application.Handlers.QueryHandlers
             {
                 FileName = request.FileName,
                 //FileData = fileContent,
-                ContentType = request.ContentType,
-                FilePath = BaseUrl,
+               // ContentType = request.ContentType,
+               // FilePath = BaseUrl,
                // ServerFilePath = serverFilePath
                 //FilePath = serverFilePath,
 

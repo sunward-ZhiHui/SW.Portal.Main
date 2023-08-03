@@ -1,4 +1,5 @@
-﻿using Core.Entities;
+﻿using Azure.Core;
+using Core.Entities;
 using Core.Entities.Views;
 using Core.Repositories.Query;
 using Dapper;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -36,7 +38,7 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<long> Insert(ReportDocuments reportDocuments)
         {
-
+            
             try
             {
                 using (var connection = CreateConnection())
@@ -51,13 +53,13 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("Name", reportDocuments.Name);
                             parameters.Add("Description", reportDocuments.Description);
-                            //parameters.Add("SessionId", reportDocuments.SessionId);
-                            //parameters.Add("AddedByUserID", reportDocuments.AddedByUserID);
+                           parameters.Add("SessionId", reportDocuments.SessionId);
+                           parameters.Add("FileName", reportDocuments.FileName);
                             //parameters.Add("AddedDate", reportDocuments.AddedDate);
                             //parameters.Add("Iscompleted", reportDocuments.Iscompleted);
                             //parameters.Add("StatusCodeID", todolist.StatusCodeID);
 
-                            var query = "INSERT INTO ReportDocuments(Name,Description) VALUES (@Name,@Description)";
+                            var query = "INSERT INTO ReportDocuments(Name,Description,FileName,SessionId) VALUES (@Name,@Description,@FileName,@SessionId)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 

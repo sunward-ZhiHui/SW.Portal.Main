@@ -19,5 +19,12 @@ namespace Application.Queries
         public byte[]? FileData { get; set; }
         public string ContentType { get; set; }
     }
+    public class DownloadReportFileRequest : IRequest<ReportDocuments>
+    {
+        public string FileName { get; set; }
+        public string FilePath { get; set; }
+       // public byte[]? FileData { get; set; }
+        public string ContentType { get; set; }
+    }
 
 }

@@ -1,4 +1,5 @@
 ﻿@page "/FileUploads"
+@using Application.Commands;
 @using Application.Queries;
 @using DevExpress.Export;
 @inject IJSRuntime jsRuntime
@@ -10,6 +11,7 @@
 @using global::Core.Repositories.Query;
 @inject IConfiguration Configuration;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
 
 
 
@@ -19,7 +21,9 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@AddFile" />
+                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectedItems.ReportDocumentID))"  />
+                
             </Items>
         </DxMenu>
     </div>
@@ -40,6 +44,9 @@
             PageSize="20" CustomizeElement="Grid_CustomizeElement" style="height: calc(100vh - 220px);"
             CssClass="w-100" AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
+            FocusedRowEnabled ="true"
+            EditModelSaving="@OnEditModelSaving"
+            RowClick="OnRowClick"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
         <Columns>
 
@@ -49,62 +56,80 @@
            @* <DxGridDataColumn FieldName="FilePath" Width="180" />*@
            
         </Columns>
-        
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var documents = (ReportDocuments)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@documents.Name" />
+                    <ValidationMessage For="@(() => documents.Name)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@documents.Description" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem>
+                    <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+                    @*<div class="">
+                        <DxUpload @ref="uploadComponent" Name="files"
+                                  Visible="@AttachmentUploadVisible"
+                                  AcceptedFileTypes=@AcceptedFileTypes
+                                  UploadMode="@UploadMode.OnButtonClick"
+                                  UploadUrl="@GetUploadUrl()"
+                                  AllowMultiFileUpload="true"
+                                  ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                                  SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                                  FileUploaded="@isUploadSuccess"
+                                  FileUploadError="@OnUploadError">
+                        </DxUpload>*@
+                  
+
+                  @*  <input type="file" @onchange="HandleFileChange" />
+                    <button @onclick="UploadFile">Upload</button>*@
+                        <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
+                  @*  </div>*@
+                    <div style="width:100%;">
+                        @if (ActiveSessionId != null)
+                        {
+                            @if (_reportdocuments != null && _reportdocuments.Any())
+                            {
+                                <ul class="d-flex flex-column-reverse todo-list">
+                                    @foreach (var item in _reportdocuments)
+                                    {
+
+                                        <li class="doc_lst_view">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <span style="font-weight: 600; font-size: 14px;">@item.FileName</span>
+                                                    @{
+                                                        string formattedFileSize = FormatFileSize(item.FileSize);
+                                                    }
+                                                    <span style="font-size: 11px;">  @formattedFileSize</span>
+
+
+
+                                                </label>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+
+                            }
+                        }
+                    </div>
+                </DxFormLayoutItem>
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
     </DxGrid>
 
- 
-        <DxFormLayout CssClass="w-100 ">
-            <DxFormLayoutGroup Caption="Attachment" CssClass="txtEditorMsg" ColSpanMd="12">
-                <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
-                <div class="">
-                    <DxUpload @ref="uploadComponent" Name="files"
-                              Visible="@AttachmentUploadVisible"
-                              AcceptedFileTypes=@AcceptedFileTypes
-                              UploadMode="@UploadMode.OnButtonClick"
-                              UploadUrl="@GetUploadUrl()"
-                              AllowMultiFileUpload="true"
-                              ExternalSelectButtonCssSelector="#attachmentSelectButton"
-                              SelectedFilesChanged="@AttachmentSelectedFilesChanged"
-                              FileUploaded="@isUploadSuccess"
-                              FileUploadError="@OnUploadError">
-                    </DxUpload>
-                    <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
-                </div>
-                <div style="width:100%;">
-                    @if (ActiveSessionId != null)
-                    {
-                    @if (_reportdocuments != null && _reportdocuments.Any())
-                        {
-                            <ul class="d-flex flex-column-reverse todo-list">
-                            @foreach (var item in _reportdocuments)
-                                {
-
-                                    <li class="doc_lst_view">
-                                        <div class="form-check">
-                                            <label class="form-check-label">
-                                                <span style="font-weight: 600; font-size: 14px;">@item.FileName</span>
-                                                @{
-                                                    string formattedFileSize = FormatFileSize(item.FileSize);
-                                                }
-                                                <span style="font-size: 11px;">  @formattedFileSize</span>
-
-                                                @* <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> </button>*@
-
-                                            </label>
-                                        </div>
-                                    </li>
-                                }
-                            </ul>
-
-                        }
-                    }
-                </div>
-            </DxFormLayoutGroup>
-        </DxFormLayout>
-   
+       
 </DxLoadingPanel>
 
 @code {
+    ReportDocuments? Data { get; set; } = new ReportDocuments();
+    private ReportDocuments _selectedItems;
+    bool PopupVisible { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
     Guid? _sessionId;
     [Parameter]
@@ -127,10 +152,14 @@
         PanelVisible = true;
         _sessionId = Guid.NewGuid();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        var model = await Mediator.Send(new GetAllReportFileUploadsQuery());
-        _reportdocuments = model;
+        await UpdateDataAsync();
         PanelVisible = false;
 
+    }
+    async Task UpdateDataAsync()
+    {
+        var model = await Mediator.Send(new GetAllReportFileUploadsQuery());
+        _reportdocuments = model;
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -140,33 +169,16 @@
         }
 
     }
-    async Task ExportToExcel()
-
+    void EulaPopupClosed(PopupClosedEventArgs args)
     {
-        if (SelectedDataItems != null)
-        {
-
-            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
-
-                    ExportSelectedRowsOnly = true,
-                    CustomizeCell = OnCustomizeCell
-
-                });
-        }
-        else
-        {
-            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
-
-                    ExportSelectedRowsOnly = false,
-                    CustomizeCell = OnCustomizeCell
-
-                });
-        }
-
+        PopupVisible = false;
+        UpdateDataAsync();
     }
 
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+    }
 
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {
@@ -177,13 +189,15 @@
 
 
     }
-    public string GetUploadUrl()
+    public  string GetUploadUrl()
     {
         string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        
-        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + _sessionId + "&addedByUserId = 1" ;
+
+        string url = BaseUrl + "Report/UplodReportDocuments?SessionId=" + _sessionId + "&addedByUserId = 1" ;
         return url.ToString();
-        //return null;
+        PopupVisible = false;
+        UpdateDataAsync();
+
     }
     protected async void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
@@ -211,4 +225,98 @@
         var exp = (int)(Math.Log(bytes) / Math.Log(unit));
         return $"{bytes / Math.Pow(unit, exp):F2} {("KMGTPE")[exp - 1]}B";
     }
+    public void AddFile()
+    {
+        PopupVisible = true;
+    }
+    public async Task onDocDownload(long Id)
+    {
+        //  _reportdocuments = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));
+        var lst = _reportdocuments?.FirstOrDefault(a => a.ReportDocumentID == Id);
+
+
+
+        //var url = FileUrl + lst.FilePath;
+        //await OpenUrlInNewTab(url);
+        //NavigationManager.NavigateTo(url, forceLoad: true);
+
+        var request = new DownloadReportFileRequest
+            {
+                FileName = lst.FileName,
+                FilePath = lst.FilePath,
+                ContentType = lst.ContentType
+            };
+
+        var response = await Mediator.Send(request);
+
+        //  Trigger file download
+        await jsRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.ContentType, "");
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ReportDocumentID");
+        _selectedItems = _reportdocuments.FirstOrDefault(f => f.ReportDocumentID == (long?)UniqueId);
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editModel = (ReportDocuments)e.EditModel;
+
+       
+        var ex = _reportdocuments.Where(x => x.Name == editModel.Name);
+            if (ex.Any())
+            {
+                // onShowPopupMessage("Error", "The entered value Already exists.");
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                var createReq = new CreateReportFileQuery
+                    {
+                        Name = editModel.Name,
+                        Description = editModel.Description,
+                        //StatusCodeID = 1,
+                        //AddedByUserID = applicationUser.UserID,
+                        // ModifiedByUserID = applicationUser.UserID,
+                        //AddedDate = DateTime.Now,
+                        //  ModifiedDate = DateTime.Now,
+                        SessionId = Guid.NewGuid()
+                    };
+
+                try
+                {
+                    var result = await Mediator.Send(createReq);
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    //  onShowPopupMessage("Success", "Record save Successfully");
+                }
+                catch (Exception eq)
+                {
+
+                    //errorMessage = eq.Message;
+                    //PopupVisible = true;
+
+                }
+
+                await UpdateDataAsync();
+            }
+
+          
+        
+    }
+    private byte[] fileContent;
+    private string fileName;
+    private string uploadStatus;
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        fileName = file.Name;
+        var buffer = new byte[file.Size];
+        await file.OpenReadStream().ReadAsync(buffer);
+        fileContent = buffer;
+    }
+
+    
 }

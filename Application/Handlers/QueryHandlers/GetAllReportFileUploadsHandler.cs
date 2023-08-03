@@ -2,6 +2,7 @@
 using Core.Entities;
 using Core.Entities.Views;
 using Core.Repositories.Query;
+using Core.Repositories.Query.Base;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,22 @@ namespace Application.Handlers.QueryHandlers
             // return (List<AppSampling>)await _queryRepository.GetListAsync();
             return (List<ReportDocuments>)await _fileuploadqueryRepository.GetAllAsync();
             // return (List<AppSampling>)await _samplingqueryRepository.GetsamplingByStatus(request.Id);
+        }
+
+    }
+    public class CreateReportFileHandler : IRequestHandler<CreateReportFileQuery, long>
+    {
+        private readonly IReportFileUploadsQueryRepository _ReportFileQueryRepository;
+        public CreateReportFileHandler(IReportFileUploadsQueryRepository ReportFileQueryRepository, IQueryRepository<TopicToDoList> queryRepository)
+        {
+            _ReportFileQueryRepository = ReportFileQueryRepository;
+        }
+
+        public async Task<long> Handle(CreateReportFileQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _ReportFileQueryRepository.Insert(request);
+            return newlist;
+
         }
 
     }

@@ -400,6 +400,7 @@
         {
             var UpdateReq = new EditFmGlobalLineItemCommand
                 {
+                    FmglobalLineItemId=editModel.FmglobalLineItemId,
                     FmglobalLineId = editModel.FmglobalLineId,
                     ItemId = editModel.ItemId,
                     NoOfCarton = editModel.NoOfCarton,
@@ -408,7 +409,11 @@
                     StatusCodeId = editModel.StatusCodeId,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
-                    ItemBatchInfoId = editModel.ItemBatchInfoId
+                    ItemBatchInfoId = editModel.ItemBatchInfoId,
+                    AddedByUserId=editModel.AddedByUserId,
+                    AddedDate=editModel.AddedDate,
+                    SessionId=editModel.SessionId,
+
                 };
 
             var ans = await Mediator.Send(UpdateReq);

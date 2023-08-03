@@ -1,4 +1,5 @@
 ﻿using Application.Queries;
+using Application.Queries.Base;
 using Application.Response;
 using Core.Entities;
 using Core.Entities.Views;
@@ -81,7 +82,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<ItemBatchInfo>> Handle(GetAllNavItemBatchNoByItemIdQuery request, CancellationToken cancellationToken)
         {
-            return (List<ItemBatchInfo>)await _queryRepository.GetNavItemBatchNoByItemIdAsync(request.ItemId);
+            return (List<ItemBatchInfo>)await _queryRepository.GetNavItemBatchNoByItemIdAsync(request.ItemId,request.CompanyId);
         }
     }
     public class GetAllNavProductionInformationHandler : IRequestHandler<GetNavProductionInformationQuery, List<NavProductionInformation>>
@@ -106,6 +107,18 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<View_NavCrossReference>> Handle(GetNavCrossReferenceQuery request, CancellationToken cancellationToken)
         {
             return (List<View_NavCrossReference>)await _queryRepository.GetNavCrossReference(request.ItemId);
+        }
+    }
+    public class GetSyncBatchQueryHandler : IRequestHandler<GetSyncBatchQuery, ItemBatchInfo>
+    {
+        private readonly INavItemsQueryRepository _queryRepository;
+        public GetSyncBatchQueryHandler(INavItemsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<ItemBatchInfo> Handle(GetSyncBatchQuery request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetSyncBatchInfo(request.ItemNo,request.CompanyId,request.ItemId);
         }
     }
 }

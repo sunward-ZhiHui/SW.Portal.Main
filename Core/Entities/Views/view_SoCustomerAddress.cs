@@ -33,5 +33,7 @@ namespace Core.Entities.Views
         public bool? isBilling { get; set; }
         [NotMapped]
         public bool? isShipping { get; set; }
+        [NotMapped]
+        public string? PostCodeNumber { get; set; }
     }
 }

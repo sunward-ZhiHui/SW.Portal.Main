@@ -114,7 +114,7 @@
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
                                                 Caption="Description"
                                                 Width="130px">
-                                                </DxListEditorColumn>
+                            </DxListEditorColumn>
                             <DxListEditorColumn FieldName="@nameof(View_NavItems.BaseUnitofMeasure)"
                                                 Caption="Uom" Width="40px" />
                         </Columns>
@@ -148,6 +148,12 @@
                             <DxListEditorColumn FieldName="@nameof(ItemBatchInfo.NavQuantity)"
                                                 Caption="Quantity" />
                         </Columns>
+                        <Buttons>
+                            <DxEditorButton IconCssClass="@IconS"
+                                            Tooltip="Get Batch No From Nav"
+                                            Click="@(_ => OnButtonClick())">
+                            </DxEditorButton>
+                        </Buttons>
                     </DxComboBox>
                     <ValidationMessage For="@(() => types.CartonPackingId)" />
                 </DxFormLayoutItem>
@@ -198,7 +204,7 @@
     public long? FmglobalLineId { get; set; }
     bool IsOpen { get; set; } = false;
     private string BaseUnitofMeasure { get; set; }
-
+    string IconS = "editor-icon editor-icon-add";
     public ViewFmglobalLine SoSalesOrderItems { get; set; }
 
     private List<View_ApplicationMasterDetail> _viewCartonPackingItems;
@@ -232,21 +238,47 @@
     long? PalletEntryId { get; set; }
     long? ItemId { get; set; }
     long? CompanyId { get; set; }
+    long? NavItemId { get; set; }
+    string? NavItemNo { get; set; }
     async Task SelectedItemChanged(View_NavItems navitems)
     {
         if (navitems != null)
         {
+            NavItemNo = navitems.No;
+            NavItemId = navitems.ItemId;
             BaseUnitofMeasure = navitems.BaseUnitofMeasure;
             await loadNatchInfo(navitems.ItemId);
         }
         else
         {
+            NavItemId = 0;
+            NavItemNo = "";
             BaseUnitofMeasure = "";
+        }
+    }
+    async Task OnButtonClick()
+    {
+        if (!string.IsNullOrEmpty(NavItemNo) && CompanyId > 0)
+        {
+            IconS = "fa fa-spinner fa-spin";
+            var result = await Mediator.Send(new GetSyncBatchQuery(NavItemNo, CompanyId, NavItemId));
+            if (result.ItemBatchId == 1)
+            {
+                IconS = "editor-icon editor-icon-add";
+                StateHasChanged();
+                await loadNatchInfo(ItemId);
+            }
+            else
+            {
+                IconS = "editor-icon editor-icon-add";
+                StateHasChanged();
+            }
+
         }
     }
     async Task loadNatchInfo(long? ItemId)
     {
-        navItemBatchNoItems = await Mediator.Send(new GetAllNavItemBatchNoByItemIdQuery(ItemId));
+        navItemBatchNoItems = await Mediator.Send(new GetAllNavItemBatchNoByItemIdQuery(ItemId, CompanyId));
 
     }
     async Task SelectedItemMethodChangesChanged(View_ApplicationMasterDetail masterDetail)

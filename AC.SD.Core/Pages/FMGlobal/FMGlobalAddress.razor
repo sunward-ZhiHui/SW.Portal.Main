@@ -69,7 +69,7 @@
                                             <DxTextBox @bind-Text="@_soShippingCusterAddress.CityName" Enabled=false />
                                         </DxFormLayoutItem>
                                         <DxFormLayoutItem Caption="Post Code:" ColSpanMd="12">
-                                            <DxSpinEdit @bind-Value="@_soShippingCusterAddress.PostCode" Enabled=false />
+                                            <DxTextBox @bind-Text="@_soShippingCusterAddress.PostCodeNumber" Enabled=false />
                                         </DxFormLayoutItem>
                                     </DxFormLayout>
                                 </div>
@@ -93,7 +93,7 @@
     public ApplicationUser applicationUser { get; private set; }
     long? ShippingAddressID;
     view_SoCustomerAddress _soShippingCusterAddress = new view_SoCustomerAddress();
-
+    public SoCustomer _SoCustomer { get; set; }
     private List<view_SoCustomerAddress> _soAllShippingCusterAddress;
 
     protected override async Task OnInitializedAsync()
@@ -103,32 +103,57 @@
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
             _addressItems = await Mediator.Send(new GetSoCustomerAddressByCustomerQuery(_salesOrderItems.SoCustomerId.Value));
             _addressShippingItems = await Mediator.Send(new GetSoCustomerAddressByTypeQuery("Shipping", _salesOrderItems.SoCustomerId.Value));
+            _SoCustomer = await Mediator.Send(new GetAllSoCustomerByID(_salesOrderItems.SoCustomerId.Value));
 
 
-
-            if (_salesOrderItems.SoCustomerShipingAddressId != null)
+            if (_addressShippingItems != null && _addressShippingItems.Count > 0)
             {
-                var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.SoCustomerAddressId == _salesOrderItems.SoCustomerShipingAddressId).FirstOrDefault();
-                if (_soShippingCusterAddresss != null)
+                if (_salesOrderItems.SoCustomerShipingAddressId != null)
                 {
-                    _soShippingCusterAddress = _soShippingCusterAddresss;
+                    var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.SoCustomerAddressId == _salesOrderItems.SoCustomerShipingAddressId).FirstOrDefault();
+                    if (_soShippingCusterAddresss != null)
+                    {
+                        _soShippingCusterAddress = _soShippingCusterAddresss;
+                        _soShippingCusterAddress.PostCodeNumber = _soShippingCusterAddresss.PostCode.ToString();
+                    }
+                    else
+                    {
+                        LoadDefaultAddress();
+                    }
                 }
+                else
+                {
+                    var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.CustomerId == _salesOrderItems.SoCustomerId && x.isShipping == true).FirstOrDefault();
+                    if (_soShippingCusterAddresss != null)
+                    {
+                        _soShippingCusterAddress = _soShippingCusterAddresss;
+                        _soShippingCusterAddress.PostCodeNumber = _soShippingCusterAddresss.PostCode.ToString();
+                    }
+                    else
+                    {
+                        LoadDefaultAddress();
+                    }
+                }
+
+
+                _soAllShippingCusterAddress = _addressShippingItems.Where(x => x.AddressType == "Shipping" && x.CustomerId == _salesOrderItems.SoCustomerId).ToList();
             }
             else
             {
-                var _soShippingCusterAddresss = _addressItems.Where(x => x.AddressType == "Shipping" && x.CustomerId == _salesOrderItems.SoCustomerId && x.isShipping == true).FirstOrDefault();
-                if (_soShippingCusterAddresss != null)
-                {
-                    _soShippingCusterAddress = _soShippingCusterAddresss;
-                }
+                LoadDefaultAddress();
             }
-
-
-            _soAllShippingCusterAddress = _addressShippingItems.Where(x => x.AddressType == "Shipping" && x.CustomerId == _salesOrderItems.SoCustomerId).ToList();
-
         }
 
 
+    }
+    public void LoadDefaultAddress()
+    {
+        _soShippingCusterAddress.Address1 = _SoCustomer.Address1;
+        _soShippingCusterAddress.Address2 = _SoCustomer.Address2;
+        _soShippingCusterAddress.PostCodeNumber = _SoCustomer.PostCode;
+        _soShippingCusterAddress.CityName = _SoCustomer.City;
+        _soShippingCusterAddress.StateName = _SoCustomer.StateCode;
+        StateHasChanged();
     }
     async Task SelectedItemShipChanged(view_SoCustomerAddress address1)
     {
@@ -140,6 +165,7 @@
             _soShippingCusterAddress.StateName = address1.StateName;
             _soShippingCusterAddress.CityName = address1.CityName;
             _soShippingCusterAddress.PostCode = address1.PostCode;
+            _soShippingCusterAddress.PostCodeNumber = address1.PostCode.ToString();
             _salesOrderItems.SoCustomerShipingAddressId = address1.SoCustomerAddressId;
         }
         else

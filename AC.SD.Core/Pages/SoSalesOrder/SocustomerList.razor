@@ -66,7 +66,7 @@
             <DxGridDataColumn FieldName="StateCode" MinWidth="170" />
             <DxGridDataColumn FieldName="PostCode" MinWidth="170" />
             <DxGridDataColumn FieldName="Channel" MinWidth="170" />
-            <DxGridDataColumn FieldName="Type"  MinWidth="170" />
+            <DxGridDataColumn FieldName="Type" GroupIndex="0" MinWidth="170" />
             @* <DxGridDataColumn FieldName="ProdTask" Caption="Task" />*@
         </Columns>
         <EditFormTemplate Context="EditFormContext">
@@ -125,7 +125,7 @@
 
     private SoCustomer _selectlst;
     bool AddNewCustomer { get; set; } = false;
-    List<string> TypeList = new List<string>() { "So Customer", "FM Global", "Nav Vendor", "Nav Customer" };
+    List<string> TypeList = new List<string>() { "Clinic", "FM Global", "Vendor", "Customer" };
     protected override async Task OnInitializedAsync()
     {
 

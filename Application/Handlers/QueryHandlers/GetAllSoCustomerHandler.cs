@@ -23,5 +23,16 @@ namespace Application.Handlers.QueryHandlers
             return (List<SoCustomer>)await _queryRepository.GetAllAsync();
         }
     }
-   
+    public class GetAllSoCustomerByIDHandler : IRequestHandler<GetAllSoCustomerByID,SoCustomer>
+    {
+        private readonly ISoCustomerQueryRepository _queryRepository;
+        public GetAllSoCustomerByIDHandler(ISoCustomerQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<SoCustomer> Handle(GetAllSoCustomerByID request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetByIdAsync(request.Id.Value);
+        }
+    }
 }

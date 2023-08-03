@@ -13,5 +13,14 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
-   
+    public class GetAllSoCustomerByID : PagedRequest, IRequest<SoCustomer>
+    {
+        public string SearchString { get; set; }
+        public long? Id { get; set; }
+        public GetAllSoCustomerByID(long? Id)
+        {
+            this.Id= Id;
+        }
+    }
+    
 }

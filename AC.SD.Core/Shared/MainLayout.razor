@@ -13,6 +13,7 @@
 @using global::Core.EntityModels;
 @using global::Core.Entities.Views;
 @using Microsoft.AspNetCore.SignalR.Client;
+@inject AC.SD.Core.Services.ToastService toastService
  
 <Toast />
 <DemoScriptLoader @ref=@pageHelper Src="_content/AC.SD.Core/lib/page-helper.js" />
@@ -242,15 +243,24 @@
         NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
-        hubConnection = hubConnection.TryInitialize(NavigationManager);
+        //hubConnection = hubConnection.TryInitialize(NavigationManager);
 
-        await hubConnection.StartAsync();
+        //await hubConnection.StartAsync();
 
-        hubConnection.On<string>(ApplicationConstants.SignalR.ConnectUser, (senderUserId) =>
-        {
-            //onShowPopupMessage("Notification", "Received Successfully");
-        });
-        await hubConnection.SendAsync(ApplicationConstants.SignalR.OnConnect, applicationUser.SessionId);
+        //hubConnection.On<string>(ApplicationConstants.SignalR.ConnectUser, (senderUserId) =>
+        //{
+        //    //toastService.ShowToast("Login Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        //    //onShowPopupMessage("Notification", "Received Successfully");
+        //});
+
+        //hubConnection.On(ApplicationConstants.SignalR.ReceiveEmail, () =>
+        //{
+        //    //toastService.ShowToast("Received Successfully", AC.SD.Core.Services.ToastLevel.Success);            
+        //});
+
+        //await hubConnection.SendAsync(ApplicationConstants.SignalR.OnConnect, applicationUser.SessionId);
+
+        //await hubConnection.SendAsync(ApplicationConstants.SignalR.SendEmail);
     }
     private async void ResetPassword()
     {

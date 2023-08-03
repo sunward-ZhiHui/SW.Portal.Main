@@ -11,15 +11,20 @@ using System.Threading.Tasks;
 using Core.EntityModel;
 using Core.Entities.Views;
 using Core.Entities;
+using Azure.Core;
+using static Duende.IdentityServer.Models.IdentityResources;
 
 namespace Infrastructure.Repository.Query
 {
     public class NavItemsQueryRepository : QueryRepository<View_NavItems>, INavItemsQueryRepository
     {
-        public NavItemsQueryRepository(IConfiguration configuration)
+        private readonly ISalesOrderService _salesOrderService;
+        private readonly IPlantQueryRepository _plantQueryRepository;
+        public NavItemsQueryRepository(IConfiguration configuration, ISalesOrderService salesOrderService, IPlantQueryRepository plantQueryRepository)
             : base(configuration)
         {
-
+            _salesOrderService = salesOrderService;
+            _plantQueryRepository = plantQueryRepository;
         }
         public async Task<IReadOnlyList<View_NavItems>> GetAllAsync()
         {
@@ -179,11 +184,11 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<ItemBatchInfo>> GetNavItemBatchNoByItemIdAsync(long? ItemId)
+        public async Task<IReadOnlyList<ItemBatchInfo>> GetNavItemBatchNoByItemIdAsync(long? ItemId, long? CompanyId)
         {
             try
             {
-                var query = "select  * from ItemBatchInfo where  ItemId=" + ItemId;
+                var query = "select  * from ItemBatchInfo where  CompanyId= " + CompanyId + " AND ItemId=" + ItemId;
 
                 using (var connection = CreateConnection())
                 {
@@ -221,6 +226,88 @@ namespace Infrastructure.Repository.Query
                 {
                     return (await connection.QueryAsync<NavProductionInformation>(query)).ToList();
                 }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> InsertBatchInfo(ItemBatchInfo itemBatchInfo, long? CompanyId, long? ItemId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("ItemId", ItemId);
+                            parameters.Add("CompanyId", CompanyId);
+                            parameters.Add("LocationCode", itemBatchInfo.LocationCode);
+                            parameters.Add("BatchNo", itemBatchInfo.BatchNo);
+                            parameters.Add("LotNo", itemBatchInfo.LotNo);
+                            parameters.Add("ExpiryDate", itemBatchInfo.ExpiryDate, DbType.Date);
+                            parameters.Add("ManufacturingDate", itemBatchInfo.ManufacturingDate, DbType.Date);
+                            parameters.Add("QuantityOnHand", itemBatchInfo.QuantityOnHand, DbType.Decimal);
+                            parameters.Add("NavQuantity", itemBatchInfo.NavQuantity, DbType.Decimal);
+                            parameters.Add("IssueQuantity", itemBatchInfo.BalanceQuantity, DbType.Decimal);
+                            parameters.Add("BalanceQuantity", itemBatchInfo.BalanceQuantity, DbType.Decimal);
+                            parameters.Add("StatusCodeId", 1);
+
+                            var query = "INSERT INTO [ItemBatchInfo](ItemId,CompanyId,LocationCode,BatchNo,LotNo,ExpiryDate,ManufacturingDate,QuantityOnHand,NavQuantity,IssueQuantity,@BalanceQuantity,StatusCodeId) OUTPUT INSERTED.ItemBatchId VALUES " +
+                                "(@ItemId,@CompanyId,@LocationCode,@BatchNo,@LotNo,@ExpiryDate,@ManufacturingDate,@QuantityOnHand,@NavQuantity,@IssueQuantity,@BalanceQuantity,@StatusCodeId)";
+
+                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return lastInsertedRecordId;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ItemBatchInfo> GetSyncBatchInfo(string ItemNo, long? CompanyId, long? ItemId)
+        {
+            try
+            {
+                ItemBatchInfo itemBatchInfo = new ItemBatchInfo();
+                var lists = await GetNavItemBatchNoByItemIdAsync(ItemId, CompanyId);
+                var plantData = await _plantQueryRepository.GetByIdAsync(CompanyId.GetValueOrDefault(0));
+                if (plantData != null)
+                {
+                    var lst = await _salesOrderService.SyncBatchAsync(plantData.NavCompanyName, ItemNo);
+                    if (lst != null && lst.Count > 0)
+                    {
+                        lst.ForEach(async s =>
+                        {
+                            var Exits = lists.Where(w => w.BatchNo == s.BatchNo).Count();
+                            if (Exits > 0)
+                            {
+
+                            }
+                            else
+                            {
+                                await InsertBatchInfo(s, ItemId, CompanyId);
+                                itemBatchInfo.ItemBatchId = 1;
+                            }
+                        });
+                    }
+                }
+                return itemBatchInfo;
             }
             catch (Exception exp)
             {

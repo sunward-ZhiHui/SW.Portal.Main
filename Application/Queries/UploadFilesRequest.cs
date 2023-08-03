@@ -12,6 +12,12 @@ namespace Application.Queries
         public List<IFormFile>? Files { get; set; }
         public Guid SessionId { get; set; }
     }
+    public class FileUploadCommand : IRequest<string>
+    {
+        public string FileName { get; set; }
+        public byte[] FileContent { get; set; }
+        public Guid SessionId { get; set; }
+    }
     public class DownloadFileRequest : IRequest<Documents>
     {
         public string FileName { get; set; }

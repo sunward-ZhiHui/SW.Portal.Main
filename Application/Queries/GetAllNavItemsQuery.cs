@@ -50,9 +50,11 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
         public long? ItemId { get; set; }
-        public GetAllNavItemBatchNoByItemIdQuery(long? ItemId)
+        public long? CompanyId { get; set; }
+        public GetAllNavItemBatchNoByItemIdQuery(long? ItemId, long? CompanyId)
         {
             this.ItemId = ItemId;
+            this.CompanyId = CompanyId;
         }
     }
     public class GetNavProductionInformationQuery : PagedRequest, IRequest<List<NavProductionInformation>>
@@ -73,5 +75,17 @@ namespace Application.Queries
             this.ItemId = ItemId;
         }
     }
-
+    public class GetSyncBatchQuery : PagedRequest, IRequest<ItemBatchInfo>
+    {
+        public string SearchString { get; set; }
+        public string ItemNo { get; set; }
+        public long? ItemId { get; set; }
+        public long? CompanyId { get; set; }
+        public GetSyncBatchQuery(string ItemNo, long? CompanyId,long? ItemId)
+        {
+            this.ItemNo = ItemNo;
+            this.CompanyId = CompanyId;
+            this.ItemId = ItemId;
+        }
+    }
 }

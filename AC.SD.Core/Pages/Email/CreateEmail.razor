@@ -216,6 +216,15 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
+                                <DxCheckBox CssClass="w-100"
+                                        @bind-Checked="@Data.IsAllowParticipants"
+                                        Alignment="default"
+                                        LabelPosition="LabelPosition.Right">
+                                    Allow Participants
+                                </DxCheckBox>
+                            </DxFormLayoutItem>
+                            
 
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />
@@ -599,6 +608,7 @@ else
         Data.Follow = Follow[1];
         Data.Urgent = false;
         Data.OverDue = false;
+        Data.IsAllowParticipants = false;
 
         var topics = await Mediator.Send(new GetAllEmailTopics());
         _topics = topics;
@@ -799,19 +809,14 @@ else
 
         DateTime? nullableDateTime = DateTime.Now;
 
-        var ex = _topics.Where(x => x.TicketNo == Data.TicketNo && x.TopicName == Data.TopicName);
-        if (ex.Any())
-        {
+        //var ex = _topics.Where(x => x.TicketNo == Data.TicketNo && x.TopicName == Data.TopicName);
+        //if (ex.Any())
+        //{
 
             //addNew();
             //onShowPopupMessage("Error", "The Subject Name Already exists.");
             toastService.ShowToast("The Subject Name Already exists.", AC.SD.Core.Services.ToastLevel.Error);
             await JSRuntime.InvokeAsync<string>("hideLoading");
-
-        }
-        else
-        {
-
 
             var createReq = new CreateEmailTopics
                 {
@@ -822,6 +827,7 @@ else
                     Urgent = Data.Urgent,
                     DueDate = Data.DueDate,
                     OverDue = Data.OverDue,
+                    IsAllowParticipants = Data.IsAllowParticipants,
                     FileData = fileContent,
                     StatusCodeID = 1,
                     AddedByUserID = applicationUser.UserID,
@@ -835,9 +841,6 @@ else
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
                 };
-
-
-
             try
             {
                 //_sessionId = createReq.SessionId;
@@ -876,7 +879,7 @@ else
                 await JSRuntime.InvokeAsync<string>("hideLoading");
             }
 
-        }
+        
     }
     private async void onShowPopupMessage(string headerText, string bodyText)
     {

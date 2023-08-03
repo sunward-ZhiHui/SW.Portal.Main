@@ -580,19 +580,19 @@
                                             <div class="dxwinheight" style="padding: 20px; overflow: auto;">
                                                 <DxFormLayout>
                                                     <div class="open-button-old" style="width:99.5%">
-                                                        @if (_replyComment != null && _replyComment.Any())
+                                                       @* @if (_replyComment != null && _replyComment.Any())
                                                         {
                                                             @foreach (var item in _replyComment)
                                                             {
                                                                 <div class="replybox">
                                                                     <div> <i class="fa fa-reply" aria-hidden="true"></i> Reply</div>
                                                                     <div class="closebtn" @onclick="closeReply">X</div>
-                                                                    @*<p>@item.Message</p>*@
+                                                                    
                                                                     <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg editor-reply-height" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
                                                                     <div>@item.UserName  , @item.AddedDate</div>
                                                                 </div>
                                                             }
-                                                        }
+                                                        }*@
                                                         @*       DocumentContentChanged="OnmsgContentChanged"
                                                 Selection="@richSelection" SelectionChanged="OnSelectionChanged"
                                                 *@

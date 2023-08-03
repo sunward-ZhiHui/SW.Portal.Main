@@ -21,6 +21,8 @@
 @using System.Linq;
 @inject NavigationManager NavigationManager
 @inject IConfiguration Configuration
+@using Microsoft.AspNetCore.Components.Forms
+
 
 @page "/upload"
 
@@ -29,6 +31,14 @@
           AllowMultiFileUpload="true"     
           SelectedFilesChanged="GetSelectedFiles">
 </DxUpload>*@
+
+
+
+<InputFile OnChange="HandleFileChange" />
+<button class="btn btn-primary" @onclick="onInputFileHandleUpload">Upload</button>
+
+@*<input type="file" @onchange="EventCallback.Factory.Create(this, HandleFileChange)" />
+<button @onclick="UploadFile">Upload</button>*@
 
 
 <button id="overviewDemoSelectButton" class="btn border-primary btn-primary m-1">Select File</button>
@@ -55,6 +65,29 @@
 <button class="btn btn-primary" @onclick="HandleUpload">Upload</button>
 
 @code {
+
+    private string fileName;
+    private byte[] fileContent;
+
+    private IBrowserFile file;
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        // file = e.File;s
+        var file = e.File;
+        fileName = file.Name;
+        var buffer = new byte[file.Size];
+        await file.OpenReadStream().ReadAsync(buffer);
+        fileContent = buffer;
+    }
+
+    private void UploadFile()
+    {
+        // Your file upload logic here
+    }
+
+
+
     bool MessageVisible { get; set; } = false;
     string MyMessage { get; set; } = "";
     private DxUpload uploadComponent;   
@@ -187,6 +220,17 @@
     //{       
     //    selectedFiles.AddRange(files);
     //}
+
+    private async Task onInputFileHandleUpload()
+    {
+        var createReq = new FileUploadCommand
+            {
+                FileName = fileName,
+                FileContent = fileContent,
+                SessionId = Guid.NewGuid()
+            };
+        var result = await Mediator.Send(createReq);
+    }
 
     private async Task HandleUpload()
     {

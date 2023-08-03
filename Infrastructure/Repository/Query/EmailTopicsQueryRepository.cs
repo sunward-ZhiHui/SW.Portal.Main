@@ -1163,6 +1163,8 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("SessionId", EmailTopics.SessionId);
                         parameterss.Add("FileData", EmailTopics.FileData);
                         parameterss.Add("OnDraft", EmailTopics.OnDraft);
+                        parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);
+                        
 
                         parameterss.Add("Follow", EmailTopics.Follow);
                         parameterss.Add("OnBehalf", EmailTopics.OnBehalf);

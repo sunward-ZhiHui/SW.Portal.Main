@@ -64,7 +64,7 @@ namespace Infrastructure.Service
             }
             catch (Exception ex)
             {
-                return new List<Core.Entities.ItemBatchInfo>();
+                throw ex;
             }
         }
         public async Task PostSalesOrderAsync(PostSalesOrder postSalesOrder)

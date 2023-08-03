@@ -16,26 +16,27 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
 
-<div class="cw-880">
-    <EditForm Model="@Datas" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit"
-              Context="EditFormContext"
-              class="w-800">
-        <div style="height: calc(100vh - 250px);padding:10px; width: calc(300vh - 0px);/* overflow: auto; */border: 1px solid #d5d4d4; border-top: none;">
-            <DataAnnotationsValidator />
-            <div class="row">
-                <div class="col-md-2" style="padding-bottom: 12px">
-                    <label for="identifier">
-                        No Of BUOM In One Carton:
-                    </label>
-                    <DxSpinEdit @bind-Value="@Datas.NoOfBUOMInOneCarton" ShowValidationIcon="true" ShowSpinButtons="false" />
-                    <ValidationMessage For="@(() => Datas.NoOfBUOMInOneCarton)" />
-                </div>
-            </div>
-            <div class="col-md-12">
-                <DxButton SubmitFormOnClick="true" Text="Save" RenderStyle="ButtonRenderStyle.Primary" />
-            </div>
+<div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
+    <div class="card-body p-0">
+        <div class="save_hover" style="float: left;  line-height: 38px; margin-left: 10px; z-index: 9999; width:100px;">
+            <button type="submit" form="@MyIDs" disabled="@loadings" class="btnSubmitForm" onclick="@onsubmitInfoClick" style="font-weight:bold;">
+                @if (loadings)
+                {
+                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                }
+                <i class="fa fa-save"></i>
+                Save
+            </button>
         </div>
-
+    </div>
+</div>
+<div class="cw-880">
+    <EditForm Model="@Datas" id="@MyIDs" Context="EditFormContext" OnValidSubmit="@HandleValidInfoSubmit">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="No Of BUOM In One Carton" ColSpanMd="12">
+                <DxSpinEdit @bind-Value="@Datas.NoOfBUOMInOneCarton" ShowValidationIcon="true" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
     </EditForm>
 </div>
 
@@ -43,9 +44,9 @@
 @code {
     [Parameter]
     public long? ItemId { get; set; }
-    private bool loading;
+    private bool loadings;
     List<NavProductionInformation> _navProductionInformation;
-    private string MyID = "myid";
+    private string MyIDs = "myidwew";
     NavProductionInformation Datas = new NavProductionInformation();
     public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
@@ -74,12 +75,12 @@
     {
 
     }
-    void onsubmitClick()
+    void onsubmitInfoClick()
     {
     }
-    async Task HandleValidSubmit()
+    async Task HandleValidInfoSubmit()
     {
-        loading = true;
+        loadings = true;
 
         if (Datas.NavProductionInformationId > 0)
         {
@@ -91,7 +92,7 @@
                 };
             await Mediator.Send(createReq);
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            loading = false;
+            loadings = false;
             StateHasChanged();
         }
         else
@@ -104,7 +105,7 @@
             var result = await Mediator.Send(createReq);
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
             ItemId = result.ItemId;
-            loading = false;
+            loadings = false;
             StateHasChanged();
         }
     }

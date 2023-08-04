@@ -19,4 +19,7 @@ namespace Application.Queries
         
         public byte[] FileContent { get; set; }
     }
+    public class EditReportFileQuery : ReportDocuments, IRequest<long>
+    {
+    }
 }

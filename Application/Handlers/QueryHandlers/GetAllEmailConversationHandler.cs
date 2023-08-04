@@ -167,6 +167,7 @@ namespace Application.Handlers.QueryHandlers
             conversationAssignTo.ConversationId = req;
             conversationAssignTo.ReplyId = request.ReplyId;
             conversationAssignTo.PlistIdss = request.PlistIdss;
+            conversationAssignTo.AllowPlistids = request.AllowPlistids;            
             conversationAssignTo.TopicId = request.TopicID;            
             conversationAssignTo.StatusCodeID = request.StatusCodeID;
             conversationAssignTo.AddedByUserID = request.AddedByUserID;
@@ -174,6 +175,7 @@ namespace Application.Handlers.QueryHandlers
             conversationAssignTo.AddedDate = request.AddedDate;
             conversationAssignTo.AssigntoIds = request.AssigntoIdss;
             conversationAssignTo.AssignccIds = request.AssignccIdss;
+            conversationAssignTo.ConIds = request.ConIds;            
             var reqq = await _conversationQueryRepository.InsertAssignTo_sp(conversationAssignTo);
 
             //var listData = request.AssigntoIds.ToList();
@@ -326,6 +328,19 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<ViewEmployee>> Handle(GetByConvasationTopicIDPList request, CancellationToken cancellationToken)
         {
             return (List<ViewEmployee>)await _conversationQueryRepository.GetAllConvTopicPListAsync(request.ConvasationId, request.TopicId);
+        }
+    }
+
+    public class GetConvasationplistHandler : IRequestHandler<GetByConvasationPList, List<ViewEmployee>>
+    {
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+        public GetConvasationplistHandler(IEmailConversationsQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+        }
+        public async Task<List<ViewEmployee>> Handle(GetByConvasationPList request, CancellationToken cancellationToken)
+        {
+            return (List<ViewEmployee>)await _conversationQueryRepository.GetConvPListAsync(request.ConvasationId);
         }
     }
 

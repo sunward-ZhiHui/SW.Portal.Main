@@ -33,7 +33,8 @@ namespace Core.Repositories.Query
         Task<List<Documents>> GetTopicDocListAsync(long TopicId);
         Task<List<Documents>> GetSubTopicDocListAsync(long TopicId);
         Task<List<EmailAssignToList>> GetAllAssignToListAsync(long TopicId);
-        Task<List<ViewEmployee>> GetAllPListAsync(long TopicId);
+        Task<List<ViewEmployee>> GetAllPListAsync(long TopicId);        
+        Task<List<ViewEmployee>> GetConvPListAsync(long ConversationId);
         Task<List<ViewEmployee>> GetAllConvTopicPListAsync(long ConversationId, long TopicId);
         Task<List<ViewEmployee>> GetAllConvAssignToListAsync(long TopicId);
         Task<List<EmailTopicTo>> GetTopicToListAsync(long TopicId);

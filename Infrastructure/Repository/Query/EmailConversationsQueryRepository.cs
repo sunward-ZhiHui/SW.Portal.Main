@@ -134,7 +134,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        public async Task<List<ViewEmployee>> GetConvPListAsync(long ConversationId)
+        {
+            try
+            {
+                var query = @"SELECT FT.UserId as UserID,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
+                                INNER JOIN Employee E ON E.UserID = FT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FT.ConversationId = @ConversationId";
+
+                var parameters = new DynamicParameters();                
+                parameters.Add("ConversationId", ConversationId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<List<ViewEmployee>> GetAllConvTopicPListAsync(long ConversationId, long topicId)
         {
             try
@@ -1089,6 +1112,8 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AssigntoIds", conversationAssignTo.AssigntoIds);
                             parameters.Add("AssignccIds", conversationAssignTo.AssignccIds);
                             parameters.Add("PlistIdss", conversationAssignTo.PlistIdss);
+                            parameters.Add("AllowPlistids", conversationAssignTo.AllowPlistids);
+                            parameters.Add("ConIds", conversationAssignTo.ConIds);
                             parameters.Add("Option", "INSERT");
                         
                             //var query = "INSERT INTO EmailConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";

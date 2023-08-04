@@ -616,6 +616,9 @@
                                                                                 <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" NullText="Subject Name" Enabled="@IsReadOnly" />
                                                                                 <ValidationMessage For="@(() => Data.Name)" />
                                                                             </DxFormLayoutItem>
+                                                                            <DxFormLayoutItem Caption="From" ColSpanMd="12">
+                                                                                <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />
+                                                                            </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
                                                                             <DxTagBox NullText="Select Assign To..."
                                                                           Data="@_allparticipant"
@@ -818,6 +821,7 @@
                     <Items>
                         <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
                         <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
+                        <DxMenuItem @onclick="onAddCategoryPop" Text="Category" />
                     </Items>
                 </DxMenu>               
             </BodyTextTemplate>
@@ -906,6 +910,15 @@
             <DxButton RenderStyleMode="@ButtonRenderStyleMode.Outline"
                       Text="Submit" style="width: 100px !important; float: right;"
                       CssClass="w-100" />*@
+        </div>
+    </BodyTemplate>
+</DxPopup>
+
+
+<DxPopup @bind-Visible="@isTopicCategoryClosed" HeaderText="Category">
+    <BodyTemplate Context="PopupContext">
+        <div style="padding:10px;">
+
         </div>
     </BodyTemplate>
 </DxPopup>
@@ -1066,11 +1079,12 @@
     {
         [Required(ErrorMessage = "Remarks is required")]
         public string? Remarks { get; set; }
-    }
+    }   
     private DxUpload uploadComponent;  
 
     private Model _dataDuDate = new Model();
-    private ModelClose _dataTopicClose = new ModelClose();   
+    private ModelClose _dataTopicClose = new ModelClose();
+   
     string ClosedMsg { get; set; }
     DateTime? DateTimeValue { get; set; }
     DxPopup? popup;
@@ -1090,6 +1104,7 @@
     bool isFileUpload = false;
     bool isDueDate =false;
     bool isTopicClosed = false;
+    bool isTopicCategoryClosed = false;
     bool isAllPlistVisible = false;
     bool isAssignToVisible = false;
     bool isComponentVisible = true;
@@ -1392,6 +1407,10 @@
     {
         isTopicClosed = true;
     }
+    private void onAddCategoryPop()
+    {
+        isTopicCategoryClosed = true;
+    }    
     private void showTopicDescription()
     {
         isDescription = true;
@@ -1901,6 +1920,8 @@
     private async Task LoadData()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
+        closeReply();
+
         RTopicId = 0;
         Tid = long.Parse(@SelectedGroup);
         var getconid = await Mediator.Send(new GetTopConversationList(Tid));
@@ -2034,6 +2055,7 @@
     private async Task LoadDataPosts()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
+        closeReply();
         if(@SelectedGroup != "none")
         {
             if (long.Parse(@SelectedGroup) > 0)
@@ -2068,8 +2090,9 @@
 
     }
     private async Task LoadReplyDataPosts()
-    {
+    {        
         await JSRuntime.InvokeAsync<string>("showLoading");
+        closeReply();
         Cid = long.Parse(@SelectedReplyId);
         Tid = RTopicId;
         _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
@@ -2230,6 +2253,7 @@
         WindowVisible = true;        
         Data.AssignccIds = null;
         string selector = ".dxwinheight";
+        Data.From = applicationUser.UserName;
         ElementHeight = await JSRuntime.InvokeAsync<int>("getElementHeight", selector);
 
 
@@ -2237,24 +2261,50 @@
     private async Task onreply(long id)
     {
         if (id > 0)
-        {
+        {           
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
+
 
             //_allparticipant = await Mediator.Send(new GetAllConvAssToListQuery(_replyComment[0].ID));
             //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
             var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
-            Data.AssigntoIds = convlistTo.Select(s => s.UserId).ToList();
+            var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+            Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+
+            List<long> updatedList = Data.AssigntoIds.ToList();
+            long fromUserId = _replyComment[0].UserId.Value;
+
+            if(fromUserId != applicationUser.UserID)
+            {
+                updatedList.Add(fromUserId);
+            }
+
+            Data.AssigntoIds = updatedList;
+
 
             var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
-            Data.AssignccIds = convlistCC.Select(s => s.UserId).ToList();
+            var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+            Data.AssignccIds = concc.Select(s => s.UserId).ToList();
 
-            var gettid = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
-            _allparticipant = await Mediator.Send(new GetByConvasationTopicIDPList(id,gettid[0].TopicID));           
+
+            if(_headTopic[0].IsAllowParticipants.GetValueOrDefault(false))
+            {
+                var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
+                _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+            }
+            else
+            {
+                var gettid = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
+                _allparticipant = await Mediator.Send(new GetByConvasationTopicIDPList(id,gettid[0].TopicID));           
+
+            }
+
 
 
             WindowVisible = true;
             Data.Name = _replyComment[0].Name;
+            Data.From = applicationUser.UserName;
             IsReadOnly = false;
         }        
     }  
@@ -2276,12 +2326,13 @@
         _replyComment = null;
         Data.Name = null;
         IsReadOnly = true;
+        WindowVisible = false;
     }
     async void OnLeftMenuItemClick(string text)
     {
         isLeftMenuvisible = text;
     }
-   async Task OnMenuItemClick(string text)
+    async Task OnMenuItemClick(string text)
     {
         isMenuvisible = text;
 
@@ -2375,6 +2426,13 @@
             return;
         }
 
+        if(Data.AssigntoIds.Count() == 0)
+        {
+            toastService.ShowToast("Please Select Assign To", AC.SD.Core.Services.ToastLevel.Error);
+            loading = false;
+            return;
+        }
+
         string assignCCidsString = string.Join(",", _assigntoItems.Select(s => s.UserID).ToList());
         string assignccidsString = null;
         string assigntoidsString = string.Join(",", Data.AssigntoIds);
@@ -2384,13 +2442,40 @@
         }
 
 
+        List<long> concatList;
 
+        if (Data.AssignccIds != null)
+        {
+            concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
+        }
+        else
+        {
+            concatList = Data.AssigntoIds.ToList();
+        }
 
-        List<long> concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
-                    concatList.Add(applicationUser.UserID);
+        //List<long> concatList = Data.AssigntoIds.Concat(Data.AssignccIds).ToList();
+        concatList.Add(applicationUser.UserID);
         concatList = concatList.Distinct().ToList();
         string participantidsString = string.Join(",", concatList);
 
+        string plistUniqueItems = null;
+        long ConIds = 0;
+
+        var coId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0;
+        if(coId > 0)
+        {
+            var plist = await Mediator.Send(new GetByConvasationPList(coId));
+            List<long> plst = plist.Select(x => x.UserID.GetValueOrDefault()).ToList();
+            List<long> uniqueItems = concatList.Except(plst).ToList();
+            if(uniqueItems.Count > 0)
+            {
+                plistUniqueItems = string.Join(",", uniqueItems);
+            }
+
+            ConIds = _replyComment[0].ID;
+
+        }
+     
         var createReq = new CreateEmailCoversation
             {
                 //TopicID = (long.Parse(@SelectedGroup)),
@@ -2402,6 +2487,8 @@
                 AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
                 AssignccIdss = assignccidsString,
                 PlistIdss = participantidsString,
+                AllowPlistids = plistUniqueItems,
+                ConIds = ConIds,
                 AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,

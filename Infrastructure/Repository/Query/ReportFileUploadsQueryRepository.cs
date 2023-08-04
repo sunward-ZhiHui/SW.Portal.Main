@@ -7,6 +7,7 @@ using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -85,6 +86,48 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
 
+        }
+        public async Task<long> Update(ReportDocuments reportDocuments)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("Name", reportDocuments.Name);
+                            parameters.Add("Description", reportDocuments.Description);
+                            parameters.Add("SessionId", reportDocuments.SessionId);
+                            parameters.Add("FileName", reportDocuments.FileName);
+                            parameters.Add("ReportDocumentID", reportDocuments.ReportDocumentID);
+
+                            var query = " UPDATE ReportDocuments SET FileName = @FileName,Name=@Name,Description = @Description,SessionId =@SessionId WHERE ReportDocumentID = @ReportDocumentID";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
     }
 }

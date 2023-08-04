@@ -313,7 +313,7 @@
             PanelVisible = true;
             _selectedItems = _fmGlobalLineItems.FirstOrDefault();
 
-            if (SelectedDataItems != null)
+            if (_selectedItems != null)
             {
                 EditEnabled = true;
                 DeleteEnabled = true;
@@ -400,7 +400,7 @@
         {
             var UpdateReq = new EditFmGlobalLineItemCommand
                 {
-                    FmglobalLineItemId=editModel.FmglobalLineItemId,
+                    FmglobalLineItemId = editModel.FmglobalLineItemId,
                     FmglobalLineId = editModel.FmglobalLineId,
                     ItemId = editModel.ItemId,
                     NoOfCarton = editModel.NoOfCarton,
@@ -410,9 +410,9 @@
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
                     ItemBatchInfoId = editModel.ItemBatchInfoId,
-                    AddedByUserId=editModel.AddedByUserId,
-                    AddedDate=editModel.AddedDate,
-                    SessionId=editModel.SessionId,
+                    AddedByUserId = editModel.AddedByUserId,
+                    AddedDate = editModel.AddedDate,
+                    SessionId = editModel.SessionId,
 
                 };
 

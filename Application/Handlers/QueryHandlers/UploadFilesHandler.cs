@@ -148,31 +148,26 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public Task<ReportDocuments> Handle(DownloadReportFileRequest request, CancellationToken cancellationToken)
         {
-            // Read the file content from the specified FilePath
-            string BaseUrll = _configuration["DocumentsUrl:FileUrl"];
+
+            string BaseDirectory = System.AppContext.BaseDirectory;
+            var reportFolder = System.IO.Path.Combine(BaseDirectory, "Reports");
+            var filePath = reportFolder + request.FileName;
+          
+            //   if (Directory.EnumerateFiles(reportFolder).
+            //Select(Path.GetFileNameWithoutExtension).Contains(request.FileName))
+            //   {
+             byte[] reportBytes = File.ReadAllBytes(Path.Combine(reportFolder, request.FileName + ".repx"));
+           // byte[] reportBytes = File.ReadAllBytes(Path.Combine(reportFolder, request.FileName ));
 
 
-            string originalString = _hostingEnvironment.ContentRootPath;
-            string substringToRemove = "SW.Portal.Solutions\\";
-            string result = originalString.Replace(substringToRemove, string.Empty);
-
-
-            //var BaseUrl = result + @"\DocumentApi\AppUpload\" + request.FilePath;
-          //  var BaseUrl = BaseUrll + request.FilePath;
-            //var filePath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\" + request.FilePath;
-            //var fileContent = File.ReadAllBytes(BaseUrl);
-          //  var serverFilePath = Path.Combine(_hostingEnvironment.WebRootPath ?? "", "AppUpload", request.FilePath);
-
+            // }
+           
             // Create and populate the DownloadFileResponse
             var response = new ReportDocuments
             {
                 FileName = request.FileName,
-                //FileData = fileContent,
-               // ContentType = request.ContentType,
-               // FilePath = BaseUrl,
-               // ServerFilePath = serverFilePath
-                //FilePath = serverFilePath,
-
+                FileData = reportBytes,
+              
             };
 
             return Task.FromResult(response);

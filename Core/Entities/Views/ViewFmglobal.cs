@@ -39,5 +39,6 @@ namespace Core.Entities.Views
         public string FmglobalStatus { get; set; }
         public long? SoCustomerId { get; set; }
         public long? SoCustomerShipingAddressId { get; set; }
+        public string? ShippedBy { get; set; }
     }
 }

@@ -135,6 +135,8 @@ namespace Infrastructure
             services.AddTransient<INavProductionInformationCommandRepository, NavProductionInformationCommandRepository>();
             services.AddTransient<INavCrossReferenceCommandRepository, NavCrossReferenceCommandRepository>();
             services.AddTransient<IReportFileUploadsQueryRepository, ReportFileUploadsQueryRepository>();
+            services.AddTransient<IEmailActivityCatgorysQueryRepository,EmailActivityCatgorysQueryRepository>();
+
             return services;
         }
     }

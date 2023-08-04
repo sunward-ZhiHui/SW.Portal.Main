@@ -50,5 +50,16 @@ namespace Core.Entities.Views
         public string LocationTo { get; set; }
         public string FMGlobalStatus { get; set; }
         public decimal? TotalQty { get; set; }
+        public long? SoCustomerId { get; set; }
+        public long? SoCustomerShipingAddressId { get; set; }
+        public long? FMGlobalID { get; set; }
+        public string? ShipCode { get; set; }
+        public string? ShippedBy { get; set; }
+        public string? CustomerName { get; set; }
+        public string? Address1 { get; set; }
+        public string? Address2 { get; set; }
+        public string? PostCode { get; set; }
+        public string? City { get; set; }
+        public string? StateCode { get; set; }
     }
 }

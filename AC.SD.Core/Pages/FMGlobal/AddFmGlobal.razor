@@ -94,7 +94,7 @@
                                     ValueFieldName="IctmasterId"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@Data.LocationFromId" ShowValidationIcon="true"
-                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedItemChanged(viewIctmaster))">
+                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedFromItemChanged(viewIctmaster?.IctmasterId))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewIctmaster.Name)"
                                                     Caption="Location" />
@@ -118,7 +118,7 @@
                                     ValueFieldName="IctmasterId"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@Data.LocationToId" ShowValidationIcon="true"
-                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedItemChanged(viewIctmaster))">
+                                    SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedToItemChanged(viewIctmaster?.IctmasterId))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewIctmaster.Name)"
                                                     Caption="Location" />
@@ -152,6 +152,9 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.SoCustomerId)" />
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Shipped By" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.ShippedBy" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                         <DxComboBox Data="@_statusListItems"
                                     NullText="Select Status..."
@@ -176,10 +179,10 @@
                             <DxFormLayoutTabPage Caption="Pallet Entry">
                                 <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none"><FmGlobalLines @ref=RefFmGlobalLine FmglobalId=@FmglobalId></FmGlobalLines></div>
                             </DxFormLayoutTabPage>
-                            <DxFormLayoutTabPage Caption="Pallet Item Entry" Enabled="true">
+                            <DxFormLayoutTabPage Caption="Pallet Item Entry">
                                 <FmGlobalLineItems></FmGlobalLineItems>
                             </DxFormLayoutTabPage>
-                           <DxFormLayoutTabPage Caption="Address">
+                            <DxFormLayoutTabPage Caption="Address">
                                 <FMGlobalAddress _salesOrderItems="@Data"></FMGlobalAddress>
                             </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
@@ -211,8 +214,6 @@
     IEnumerable<ViewPlants> PlantsData { get; set; }
     private List<ViewIctmaster>? _AllICTMasterFrom;
     private List<ViewIctmaster>? _AllICTMasterTo;
-    private List<ViewIctmaster>? _AllICTMasterFromAll;
-    private List<ViewIctmaster>? _AllICTMasterToAll;
     private List<ViewPlants>? _plantItems;
     private List<View_ApplicationMasterDetail> _statusListItems;
 
@@ -223,17 +224,24 @@
     string MessageHeader = "";
     string MessageBody = "";
 
-    void SelectedItemChanged(ViewIctmaster viewIctmaster)
+    async Task SelectedFromItemChanged(long? fromId)
+    {
+        _AllICTMasterTo = new List<ViewIctmaster>();
+        if (fromId > 0)
+        {
+            _AllICTMasterTo = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, Data.CompanyId));
+            _AllICTMasterTo = _AllICTMasterTo.Where(w => w.IctmasterId != fromId).ToList();
+            StateHasChanged();
+        }
+    }
+    async Task SelectedToItemChanged(long? fromId)
     {
 
     }
     async Task SelectedItemPlantChanged(long? companyId)
     {
-       
-        _AllICTMasterFromAll = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, companyId));
-        _AllICTMasterFrom = _AllICTMasterFromAll;
-        _AllICTMasterToAll = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, companyId));
-        _AllICTMasterTo = _AllICTMasterToAll;
+
+        _AllICTMasterFrom = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, companyId));
         StateHasChanged();
     }
     async void SelectedStatusItemChanged(View_ApplicationMasterDetail applicationMasterChildModel)
@@ -306,6 +314,7 @@
                     SessionId = Data.SessionId,
                     StatusCodeId = 1,
                     SoCustomerId = Data.SoCustomerId,
+                    ShippedBy = Data.ShippedBy,
 
                 };
 
@@ -331,7 +340,7 @@
                     SessionId = Guid.NewGuid(),
                     StatusCodeId = 1,
                     SoCustomerId = Data.SoCustomerId,
-
+                    ShippedBy = Data.ShippedBy,
                 };
 
             var result = await Mediator.Send(createReq);

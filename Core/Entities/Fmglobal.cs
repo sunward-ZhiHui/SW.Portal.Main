@@ -25,6 +25,7 @@ namespace Core.Entities
         public long? FmglobalStausId { get; set; }
         public long? SoCustomerId { get; set; }
         public long? SoCustomerShipingAddressId { get; set; }
+        public string? ShippedBy { get; set; }
 
     }
 }

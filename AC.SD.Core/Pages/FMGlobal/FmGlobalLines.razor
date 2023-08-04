@@ -194,6 +194,8 @@
     long? ItemId { get; set; }
     string palletNo { get; set; }
     private List<ViewFmglobalLine> _viewPalletNoEntryItems;
+    [Parameter]
+    public Action<Guid?, Guid?> RevokeBack { get; set; }
     async Task SelectedItemChanged(View_NavItems navitems)
     {
 
@@ -240,8 +242,9 @@
             PanelVisible = true;
             _selectedItems = _fmGlobalLine.FirstOrDefault();
 
-            if (SelectedDataItems != null)
+            if (_selectedItems != null)
             {
+                RevokeBack?.Invoke(fmGlobalItems.SessionId, _selectedItems.SessionId);
                 EditEnabled = true;
                 DeleteEnabled = true;
                 StateHasChanged();
@@ -413,7 +416,7 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FmglobalLineId");
         _selectedItems = _fmGlobalLine.FirstOrDefault(f => f.FmglobalLineId == (long?)UniqueId);
-
+        RevokeBack?.Invoke(fmGlobalItems.SessionId, _selectedItems.SessionId);
         StateHasChanged();
 
     }

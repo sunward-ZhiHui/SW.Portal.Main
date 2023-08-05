@@ -135,6 +135,7 @@ namespace Infrastructure
             services.AddTransient<INavProductionInformationCommandRepository, NavProductionInformationCommandRepository>();
             services.AddTransient<INavCrossReferenceCommandRepository, NavCrossReferenceCommandRepository>();
             services.AddTransient<IReportFileUploadsQueryRepository, ReportFileUploadsQueryRepository>();
+            services.AddTransient<IFmGlobalMoveCommandRepository, FmGlobalMoveCommandRepository>();
             return services;
         }
     }

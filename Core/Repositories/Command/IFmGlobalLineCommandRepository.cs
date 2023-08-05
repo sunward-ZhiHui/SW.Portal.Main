@@ -12,4 +12,8 @@ namespace Core.Repositories.Command
     {
 
     }
+    public interface IFmGlobalMoveCommandRepository : ICommandRepository<FmglobalMove>
+    {
+
+    }
 }

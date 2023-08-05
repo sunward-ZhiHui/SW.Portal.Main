@@ -30,6 +30,24 @@
         </DxMenu>
     </div>
 </div>
+<div class="card w-100" style="margin-bottom:10px;padding:10px;">
+    <div class="card-body p-0">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Move Transaction Entry" ColSpanMd="6">
+                <DxTagBox Data="@_MovePalletNoEntryItems"
+                          NullText="Select Transaction Entry..."
+                          FilteringMode="DataGridFilteringMode.Contains"
+                          TextFieldName="PalletNo"
+                          ValueFieldName="FmglobalLineId"
+                          @bind-Values="@PalletMoveEntryNoIds" ShowValidationIcon="true" Enabled="IsRelease" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem ColSpanMd="6">
+                <DxButton Text="Move Transaction" Click="OnButtonClick" Enabled="IsRelease"></DxButton>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+
+    </div>
+</div>
 
 
 <DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
@@ -85,7 +103,19 @@
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="FmglobalLineId" Visible="false" />
             @* <DxGridDataColumn FieldName="PalletEntryName" Caption="Pallet Entry" />*@
-            <DxGridDataColumn FieldName="PalletNo" />
+            <DxGridDataColumn FieldName="PalletNo" >
+                <CellDisplayTemplate>
+                    
+                    @{
+                        var item = (ViewFmglobalLine)context.DataItem;
+                    }
+                    @if (item.FmglobalLinePreviousId > 0)
+                    {
+                        <i class="fa fa-exchange" aria-hidden="true" style="margin-right: 5px;padding: 5px;font-size: 20px; color: green;"></i>
+                    }
+                    @item.PalletNo
+                    </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn FieldName="TempPalletNo" />
             <DxGridDataColumn FieldName="AddedDate">
                 <CellDisplayTemplate>
@@ -194,10 +224,50 @@
     long? ItemId { get; set; }
     string palletNo { get; set; }
     private List<ViewFmglobalLine> _viewPalletNoEntryItems;
-    [Parameter]
-    public Action<Guid?, Guid?> RevokeBack { get; set; }
+    private List<ViewFmglobalLine> _MovePalletNoEntryItems;
+    public IEnumerable<long?> PalletMoveEntryNoIds { get; set; }
+    bool IsRelease { get; set; } = true;
+    // [Parameter]
+    //public Action<Guid?, Guid?> RevokeBack { get; set; }
     async Task SelectedItemChanged(View_NavItems navitems)
     {
+
+    }
+    void SelectedItemMoveChangesChanged(ViewFmglobalLine itemsData)
+    {
+
+    }
+    async Task OnButtonClick()
+    {
+        var createReq = new CreateFmglobalMoveCommand
+            {
+                FmglobalMoveId = 0,
+                PalletMoveEntryNoIds = PalletMoveEntryNoIds,
+                FmglobalId = fmGlobalItems.FmglobalId,
+                StatusCodeId = 1,
+                AddedByUserId = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ModifiedByUserId = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                LocationID = fmGlobalItems.LocationFromId,
+                LocationToID = fmGlobalItems.LocationToId,
+            };
+        try
+        {
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            IEnumerable<long?> PalletMoveEntryNoIds = new List<long?>();
+            StateHasChanged();
+            await loadItemDataData(fmGlobalItems.FmglobalId);
+
+        }
+        catch (Exception eq)
+        {
+
+            errorMessage = eq.Message;
+            PopupVisible = true;
+
+        }
 
     }
     void SelectedItemMethodChangesChanged(long? ItemsId)
@@ -211,6 +281,16 @@
             }
         }
     }
+    public async Task GetMovePalletData(long? LocationFromId)
+    {
+        _MovePalletNoEntryItems = await Mediator.Send(new GetAllFmGlobalLineByLocationFromQuery(LocationFromId));
+        if (fmGlobalItems != null && fmGlobalItems.FmglobalId > 0)
+        {
+            _MovePalletNoEntryItems = _MovePalletNoEntryItems.Where(w => w.FmglobalId != fmGlobalItems.FmglobalId).ToList();
+
+        }
+        StateHasChanged();
+    }
     protected override async Task OnInitializedAsync()
     {
         _viewPalletEntryItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(343));
@@ -218,9 +298,13 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         if (FmglobalId > 0)
         {
-            var items = await Mediator.Send(new GetAllFmGlobalByIdQuery(FmglobalId));
-            await loadData(items);
+            await loadItemDataData(FmglobalId);
         }
+    }
+    public async Task loadItemDataData(long? FmglobalId)
+    {
+        var items = await Mediator.Send(new GetAllFmGlobalByIdQuery(FmglobalId));
+        await loadData(items);
     }
     public async Task loadData(ViewFmglobal _fmglobalItem)
     {
@@ -228,7 +312,14 @@
         fmGlobalItems = _fmglobalItem;
         if (FmglobalId > 0)
         {
+            if (_fmglobalItem.FmglobalStatus.ToLower() == "released")
+            {
+                IsRelease = false;
+            }
             await UpdateDataAsync();
+            await GetMovePalletData(fmGlobalItems.LocationFromId);
+            StateHasChanged();
+
         }
         PanelVisible = false;
         StateHasChanged();
@@ -244,7 +335,7 @@
 
             if (_selectedItems != null)
             {
-                RevokeBack?.Invoke(fmGlobalItems.SessionId, _selectedItems.SessionId);
+                //RevokeBack?.Invoke(fmGlobalItems.SessionId, _selectedItems.SessionId);
                 EditEnabled = true;
                 DeleteEnabled = true;
                 StateHasChanged();
@@ -253,6 +344,12 @@
         PanelVisible = false;
         _viewPalletNoEntryItems = await Mediator.Send(new GetAllFmGlobalLineByPalletEntryNoQuery(fmGlobalItems.CompanyId));
         _viewPalletNoEntryItems = _viewPalletNoEntryItems.Where(w => w.FmglobalId != fmGlobalItems.FmglobalId).ToList();
+        if (IsRelease == false)
+        {
+            AddEnabled = false;
+            EditEnabled = false;
+            DeleteEnabled = false;
+        }
         StateHasChanged();
     }
     void onprint()
@@ -324,6 +421,7 @@
                     TempPalletNo = editModel.TempPalletNo,
                     CompanyId = fmGlobalItems.CompanyId,
                     PalletEntryNoId = editModel.PalletEntryNoId,
+                    LocationId = fmGlobalItems.LocationToId,
                 };
 
             try
@@ -362,6 +460,7 @@
                     CompanyId = fmGlobalItems.CompanyId,
                     TempPalletNo = editModel.TempPalletNo,
                     PalletEntryNoId = editModel.PalletEntryNoId,
+                    LocationId = fmGlobalItems.LocationToId,
                 };
 
             var ans = await Mediator.Send(UpdateReq);
@@ -416,7 +515,7 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FmglobalLineId");
         _selectedItems = _fmGlobalLine.FirstOrDefault(f => f.FmglobalLineId == (long?)UniqueId);
-        RevokeBack?.Invoke(fmGlobalItems.SessionId, _selectedItems.SessionId);
+        //RevokeBack?.Invoke(fmGlobalItems.SessionId, _selectedItems.SessionId);
         StateHasChanged();
 
     }
@@ -439,29 +538,30 @@
     }
     void addEdit()
     {
-
-
-        if (SelectedDataItems.Count == 1)
+        if (IsRelease == true)
         {
 
-            foreach (object item in SelectedDataItems)
+            if (SelectedDataItems.Count == 1)
             {
 
-                if (item is ViewFmglobalLine ViewFmglobalLine)
+                foreach (object item in SelectedDataItems)
                 {
 
-                    _selectlst = _fmGlobalLine.FirstOrDefault(f => f.FmglobalLineId == ViewFmglobalLine.FmglobalLineId);
+                    if (item is ViewFmglobalLine ViewFmglobalLine)
+                    {
+
+                        _selectlst = _fmGlobalLine.FirstOrDefault(f => f.FmglobalLineId == ViewFmglobalLine.FmglobalLineId);
 
 
+                    }
                 }
+                Grid.StartEditDataItemAsync(_selectlst);
             }
-            Grid.StartEditDataItemAsync(_selectlst);
+            else
+            {
+                Grid.StartEditDataItemAsync(_selectedItems);
+            }
         }
-        else
-        {
-            Grid.StartEditDataItemAsync(_selectedItems);
-        }
-
         //Grid.SelectDataItems(SelectedDataItems);
 
 
@@ -505,17 +605,25 @@
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
-
-        if (SelectedDataItems.Count > 1)
+        if (IsRelease == false)
         {
+            AddEnabled = false;
             EditEnabled = false;
             DeleteEnabled = false;
         }
         else
         {
-            EditEnabled = true;
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false;
+                DeleteEnabled = false;
+            }
+            else
+            {
+                EditEnabled = true;
 
-            DeleteEnabled = true;
+                DeleteEnabled = true;
+            }
         }
 
     }

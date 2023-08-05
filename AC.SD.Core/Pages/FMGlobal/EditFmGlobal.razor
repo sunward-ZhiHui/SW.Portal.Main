@@ -27,10 +27,11 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                        <DxMenuItem Text="Released" IconCssClass="fa fa-paper-plane" Click="@ClickReleased" Enabled="@IsRelease" />
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
+            <div class="save_hover" style="@buttonCss">
                 <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
                     @if (loading)
                     {
@@ -45,7 +46,7 @@
     </div>
 </div>
 <div class="">
-    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
+    <div class="row align-items-start" style="border: 1px solid #d5d4d4;">
         <div class="cw-480" style="margin-top:10px;">
             <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
@@ -54,7 +55,7 @@
                         <DxTextBox @bind-Text="@Data.AddedBy" ShowValidationIcon="true" Enabled=false />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Date" ColSpanMd="6">
-                        <DxDateEdit NullText="Date" @bind-Date="@Data.AddedDate" />
+                        <DxDateEdit NullText="Date" @bind-Date="@Data.AddedDate" Enabled="@IsRelease" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                         <DxComboBox Data="@_plantItems"
@@ -63,6 +64,7 @@
                                     FilteringMode="DataGridFilteringMode.Contains"
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
+                                    Enabled="@IsRelease"
                                     @bind-Value="@Data.CompanyId" ShowValidationIcon="true"
                                     SelectedItemChanged="@((ViewPlants viewPlantsmaster) => SelectedItemPlantChanged(viewPlantsmaster.PlantID))">
                             <Columns>
@@ -78,11 +80,11 @@
                         <ValidationMessage For="@(() => Data.CompanyId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Expected Shipment Date" ColSpanMd="6">
-                        <DxDateEdit NullText="Select a Date" @bind-Date="@Data.ExpectedShipmentDate" />
+                        <DxDateEdit NullText="Select a Date" @bind-Date="@Data.ExpectedShipmentDate" Enabled="@IsRelease" />
                         <ValidationMessage For="@(() => Data.ExpectedShipmentDate)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="PO No" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@Data.Pono" ShowValidationIcon="true" />
+                        <DxTextBox @bind-Text="@Data.Pono" ShowValidationIcon="true" Enabled="@IsRelease" />
                         <ValidationMessage For="@(() => Data.Pono)" />
                     </DxFormLayoutItem>
 
@@ -94,6 +96,7 @@
                                     TextFieldName="Name"
                                     ValueFieldName="IctmasterId"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    Enabled="@IsRelease"
                                     @bind-Value="@Data.LocationFromId" ShowValidationIcon="true"
                                     SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedFromItemChanged(viewIctmaster?.IctmasterId))">
                             <Columns>
@@ -119,6 +122,7 @@
                                     ValueFieldName="IctmasterId"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@Data.LocationToId" ShowValidationIcon="true"
+                                    Enabled="@IsRelease"
                                     SelectedItemChanged="@((ViewIctmaster viewIctmaster) => SelectedToItemChanged(viewIctmaster?.IctmasterId))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewIctmaster.Name)"
@@ -140,6 +144,7 @@
                                     FilteringMode="DataGridFilteringMode.Contains"
                                     TextFieldName="CustomerName"
                                     ValueFieldName="SoCustomerId"
+                                    Enabled="@IsRelease"
                                     @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
@@ -154,7 +159,7 @@
                         <ValidationMessage For="@(() => Data.SoCustomerId)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Shipped By" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@Data.ShippedBy" ShowValidationIcon="true" />
+                        <DxTextBox @bind-Text="@Data.ShippedBy" ShowValidationIcon="true" Enabled="@IsRelease" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                         <DxComboBox Data="@_statusListItems"
@@ -163,6 +168,7 @@
                                     TextFieldName="Value"
                                     ValueFieldName="ApplicationMasterDetailID"
                                     @bind-Value="@Data.FmglobalStausId"
+                                    Enabled="@IsRelease"
                                     SelectedItemChanged="@((View_ApplicationMasterDetail applicationMasteModel) => SelectedStatusItemChanged(applicationMasteModel))"
                                     ShowValidationIcon="true">
                         </DxComboBox>
@@ -178,7 +184,7 @@
                         <DxTabs @bind-ActiveTabIndex="@ActiveSubTabIndex" TabClick="OnTabClick">
                             <DxTabPage Text="Pallet Entry">
                                 <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none">
-                                    <FmGlobalLines @ref=RefFmGlobalLine RevokeBack="BackEdit" FmglobalId=@FmglobalId></FmGlobalLines>
+                                    <FmGlobalLines @ref=RefFmGlobalLine FmglobalId=@FmglobalId></FmGlobalLines>
                                 </div>
                             </DxTabPage>
                             <DxTabPage Text="Pallet Item Entry" Enabled="@childTabEnabled">
@@ -211,6 +217,7 @@
     private string MyID = "myid";
     long? EmployeeIds { get; set; }
     bool EditEnabledTab { get; set; } = false;
+    bool IsRelease { get; set; } = true;
     public int ActiveSubTabIndex { get; set; } = 0;
     bool childTabEnabled { get; set; } = false;
     ViewFmglobal _fmglobalItem = new ViewFmglobal();
@@ -218,6 +225,7 @@
     private List<ViewIctmaster>? _AllICTMasterTo;
     private List<ViewPlants>? _plantItems;
     private List<View_ApplicationMasterDetail> _statusListItems;
+    string buttonCss = "float: left; margin-top: -41px; line-height: 38px; margin-left: 254px; z-index: 9999; width:100px;";
 
     ViewFmglobal Data = new ViewFmglobal();
 
@@ -235,12 +243,19 @@
         {
             _AllICTMasterTo = await Mediator.Send(new GetIctMasterLocationByCompanyQuery(572, Data.CompanyId));
             _AllICTMasterTo = _AllICTMasterTo.Where(w => w.IctmasterId != fromId).ToList();
+            await RefFmGlobalLine.GetMovePalletData(fromId);
             StateHasChanged();
         }
     }
     async Task SelectedToItemChanged(long? fromId)
     {
 
+    }
+    async Task ClickReleased()
+    {
+        var releasedSatausId = _statusListItems.FirstOrDefault(a => a.Value.ToLower() == "released")?.ApplicationMasterDetailID;
+        Data.FmglobalStausId = releasedSatausId;
+        await HandleValidSubmit();
     }
     async Task SelectedItemPlantChanged(long? companyId)
     {
@@ -280,10 +295,14 @@
         Data.ExpectedShipmentDate = DateTime.Now;
         Data.AddedDate = DateTime.Now;
         Data.AddedBy = applicationUser.UserName;
+        await LoadEditData();
 
+    }
+    async Task LoadEditData()
+    {
         if (SessionIds != null)
         {
-            _fmglobalItem = await Mediator.Send(new GetAllFmGlobalBySessionQuery(SessionIds));
+            await loadLineData(SessionIds);
             if (_fmglobalItem != null)
             {
                 FmglobalId = _fmglobalItem.FmglobalId;
@@ -298,6 +317,7 @@
                 Data.SoCustomerId = _fmglobalItem.SoCustomerId;
                 Data.SoCustomerShipingAddressId = _fmglobalItem.SoCustomerShipingAddressId;
                 Data.ShippedBy = _fmglobalItem.ShippedBy;
+                Data.FmglobalStatus = _fmglobalItem.FmglobalStatus;
                 if (_fmglobalItem.FmglobalId > 0)
                 {
                     Data.FmglobalStausId = _fmglobalItem.FmglobalStausId;
@@ -308,13 +328,22 @@
                     Data.FmglobalStausId = StatusId;
                 }
                 Data.SessionId = _fmglobalItem.SessionId;
+                if (_fmglobalItem.FmglobalStatus.ToLower() == "released")
+                {
+                    buttonCss = "display:none;";
+                    IsRelease = false;
+                }
+                StateHasChanged();
                 await SelectedItemPlantChanged(_fmglobalItem.CompanyId);
                 await SelectedFromItemChanged(_fmglobalItem.LocationFromId);
-                await RefFmGlobalLine.loadData(_fmglobalItem);
             }
         }
     }
-
+    async Task loadLineData(Guid? SessionIds)
+    {
+        _fmglobalItem = await Mediator.Send(new GetAllFmGlobalBySessionQuery(SessionIds));
+        await RefFmGlobalLine.loadData(_fmglobalItem);
+    }
     void backUrl()
     {
         NavigationManager.NavigateTo("FmGlobal");
@@ -355,41 +384,13 @@
                     SoCustomerId = Data.SoCustomerId,
                     SoCustomerShipingAddressId = Data.SoCustomerShipingAddressId,
                     ShippedBy = Data.ShippedBy,
+                    FmglobalStaus = _statusListItems.FirstOrDefault(a => a.ApplicationMasterDetailID == Data.FmglobalStausId)?.Value,
                 };
 
             await Mediator.Send(createReq);
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             loading = false;
-            StateHasChanged();
-        }
-        else
-        {
-            var editModel = new Fmglobal();
-            var createReq = new CreateFmGlobalCommand
-                {
-                    CompanyId = Data.CompanyId,
-                    Pono = Data.Pono,
-                    ExpectedShipmentDate = Data.ExpectedShipmentDate,
-                    LocationFromId = Data.LocationFromId,
-                    LocationToId = Data.LocationToId,
-                    FmglobalStausId = Data.FmglobalStausId,
-                    AddedByUserId = applicationUser.UserID,
-                    ModifiedByUserId = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    ModifiedDate = DateTime.Now,
-                    SessionId = Guid.NewGuid(),
-                    StatusCodeId = 1,
-                    SoCustomerId = Data.SoCustomerId,
-                    SoCustomerShipingAddressId = Data.SoCustomerShipingAddressId,
-                    ShippedBy = Data.ShippedBy,
-                };
-
-            var result = await Mediator.Send(createReq);
-            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            FmglobalId = result.FmglobalId;
-            ActiveSubTabIndex = 0;
-            loading = false;
-            //NavigationManager.NavigateTo("EditFmGlobal/" + createReq.SessionId + "");
+            await LoadEditData();
             StateHasChanged();
         }
     }

@@ -88,6 +88,18 @@ namespace Application.Handlers.QueryHandlers
             return await _queryRepository.GetBySessionIdAsync(request.SessionId);
         }
     }
+    public class GetAllFmGlobalLineByLocationFromHandler : IRequestHandler<GetAllFmGlobalLineByLocationFromQuery, List<ViewFmglobalLine>>
+    {
+        private readonly IFmGlobalLineQueryRepository _queryRepository;
+        public GetAllFmGlobalLineByLocationFromHandler(IFmGlobalLineQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ViewFmglobalLine>> Handle(GetAllFmGlobalLineByLocationFromQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewFmglobalLine>)await _queryRepository.GetAllByLocationFromAsync(request.LocationFromId.Value);
+        }
+    }
     //FmglobalLineItem
     public class GetAllFmGlobalLineItemHandler : IRequestHandler<GetAllFmGlobalLineItemQuery, List<ViewFmglobalLineItem>>
     {

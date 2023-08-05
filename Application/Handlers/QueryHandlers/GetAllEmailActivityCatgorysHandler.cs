@@ -14,23 +14,34 @@ namespace Application.Handlers.QueryHandlers
 {
     public class GetAllEmailActivityCatgorysHandler : IRequestHandler<GetAllEmailActivityCatgorys, List<EmailActivityCatgorys>>
     {
-        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
-        // private readonly IQueryRepository<ViewProductionEntry> _queryRepository;
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;        
         public GetAllEmailActivityCatgorysHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository)
         {
             _emailactyqueryRepository = emailactyqueryRepository;
         }
         public async Task<List<EmailActivityCatgorys>> Handle(GetAllEmailActivityCatgorys request, CancellationToken cancellationToken)
-        {
-            // return (List<AppSampling>)await _queryRepository.GetListAsync();
+        {   
             return (List<EmailActivityCatgorys>)await _emailactyqueryRepository.GetAllAsync();
-            // return (List<AppSampling>)await _samplingqueryRepository.GetsamplingByStatus(request.Id);
         }
     }
-    public class CreateEmailActivityCatgorysHandlerr : IRequestHandler<CreateEmailActivityCatgorysQuery, long>
+    public class GetAllTopicCategoryHandler : IRequestHandler<GetAllTopicCategory, List<EmailActivityCatgorys>>
+    {
+
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public GetAllTopicCategoryHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+        public async Task<List<EmailActivityCatgorys>> Handle(GetAllTopicCategory request, CancellationToken cancellationToken)
+        {
+            return (List<EmailActivityCatgorys>)await _emailactyqueryRepository.GetAllTopicCategoryAsync(request.TopicId);
+            
+        }
+    }
+    public class CreateEmailActivityCatgorysHandler : IRequestHandler<CreateEmailActivityCatgorysQuery, long>
     {
         private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
-        public CreateEmailActivityCatgorysHandlerr(IEmailActivityCatgorysQueryRepository emailactyqueryRepository, IQueryRepository<EmailActivityCatgorys> queryRepository)
+        public CreateEmailActivityCatgorysHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository, IQueryRepository<EmailActivityCatgorys> queryRepository)
         {
             _emailactyqueryRepository = emailactyqueryRepository;
         }
@@ -39,8 +50,36 @@ namespace Application.Handlers.QueryHandlers
         {
             var newlist = await _emailactyqueryRepository.Insert(request);
             return newlist;
+        }
+    }
 
+    public class EditTopicCategoryQeryHandler : IRequestHandler<EditTopicCategoryQery, long>
+    {
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public EditTopicCategoryQeryHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository, IQueryRepository<EmailActivityCatgorys> queryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
         }
 
+        public async Task<long> Handle(EditTopicCategoryQery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _emailactyqueryRepository.UpdateAsync(request);
+            return newlist;
+        }
+    }
+
+    public class DeleteTopicCategoryQeryHandler : IRequestHandler<DeleteTopicCategoryQery, long>
+    {
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public DeleteTopicCategoryQeryHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository, IQueryRepository<EmailActivityCatgorys> queryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteTopicCategoryQery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _emailactyqueryRepository.DeleteAsync(request.ID);
+            return newlist;
+        }
     }
 }

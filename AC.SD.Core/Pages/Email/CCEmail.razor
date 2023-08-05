@@ -35,7 +35,17 @@
                     var item = (EmailTopics)context.DataItem;
                 }
                 <div style="width:100%">
-                    <strong>@item.FirstName</strong>
+                    <strong>
+                        @item.FirstName
+                        @if (item.Urgent.GetValueOrDefault(false))
+                        {
+                            <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
+                        }
+                        @if (item.IsAllowParticipants.GetValueOrDefault(false))
+                        {
+                            <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+                        }
+                    </strong>
                     <div>
                         <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
                         <text>@item.TopicName</text>

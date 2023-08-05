@@ -203,11 +203,14 @@
                                                             {
                                                                 @foreach (var Tagitem in _headTopic_Tag)
                                                                 {
-                                                                    <span class=" handline tagbg">@Tagitem.ManufacturingProcess</span>
+                                                                   @* <span class=" handline tagbg">@Tagitem.ManufacturingProcess</span>
                                                                     <span class=" handline tagbg">@Tagitem.CategoryAction</span>
-                                                                    <span class=" handline tagbg">@Tagitem.ActionName</span>
+                                                                    <span class=" handline tagbg">@Tagitem.ActionName</span>*@
+
+                                                                    <span class=" handline tagbg">@Tagitem.Name</span>
                                                                 }
                                                             }
+
                                                             
                                                            @* <h5>
                                                                 From: @item.FirstName
@@ -821,7 +824,7 @@
                     <Items>
                         <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
                         <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
-                        <DxMenuItem @onclick="onAddCategoryPop" Text="Category" />
+                        <DxMenuItem @onclick="onAddCategoryPop" Text="Tag" />
                     </Items>
                 </DxMenu>               
             </BodyTextTemplate>
@@ -915,10 +918,10 @@
 </DxPopup>
 
 
-<DxPopup @bind-Visible="@isTopicCategoryClosed" HeaderText="Category">
+<DxPopup @bind-Visible="@isTopicCategoryClosed" HeaderText="Tag">
     <BodyTemplate Context="PopupContext">
         <div style="padding:10px;">
-
+            <TopicCategory TopicId="@Tid" loadTagsList="onloadTagsList"></TopicCategory>
         </div>
     </BodyTemplate>
 </DxPopup>
@@ -1084,7 +1087,7 @@
 
     private Model _dataDuDate = new Model();
     private ModelClose _dataTopicClose = new ModelClose();
-   
+
     string ClosedMsg { get; set; }
     DateTime? DateTimeValue { get; set; }
     DxPopup? popup;
@@ -1121,7 +1124,7 @@
     public List<EmailConversations> _discussionFullList;
     public List<EmailConversations> _replyComment;
     private List<EmailTopics>? _headTopic;
-    private List<ActivityEmailTopics>? _headTopic_Tag;
+    private List<EmailActivityCatgorys>? _headTopic_Tag;
     string FilterString { get; set; }
     private List<EmailParticipant>? _participant;
     EmailParticipant _participantLst { get; set; }
@@ -1916,6 +1919,10 @@
         }
 
     }
+    private async void onloadTagsList()
+    {
+        _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
+    }
 
     private async Task LoadData()
     {
@@ -1981,7 +1988,8 @@
         if(long.Parse(@SelectedGroup) != 0)
         {
             _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));
-            _headTopic_Tag = await Mediator.Send(new GetByActivityEmailSession(_headTopic[0].SessionId.GetValueOrDefault()));
+            //_headTopic_Tag = await Mediator.Send(new GetByActivityEmailSession(_headTopic[0].SessionId.GetValueOrDefault()));
+            _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
 
 
             isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;

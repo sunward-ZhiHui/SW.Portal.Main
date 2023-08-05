@@ -18,6 +18,7 @@
 @using Microsoft.AspNetCore.Mvc;
 @using Microsoft.EntityFrameworkCore;
 @using System;
+@inject NavigationManager NavigationManager
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -29,7 +30,7 @@
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@EditFile" />
                 <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectedItems.ReportDocumentID))"  />
                
-             <DxMenuItem Text="View Document" IconCssClass="fa fa-eye" Click="((e) => onPreView(_selectedItems.ReportDocumentID))" />
+             <DxMenuItem Text="View Document" IconCssClass="fa fa-eye" Click="((e) => onPreView(_selectedItems.FileName))" />
                 
             </Items>
         </DxMenu>
@@ -89,8 +90,6 @@
                                   FileUploaded="@isUploadSuccess"
                                   FileUploadError="@OnUploadError">
                         </DxUpload>
-                  
-
                         <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                     </div>*@
 
@@ -115,9 +114,6 @@
                                                         string formattedFileSize = FormatFileSize(item.FileSize);
                                                     }
                                                     <span style="font-size: 11px;">  @formattedFileSize</span>
-
-
-
                                                 </label>
                                             </div>
                                         </li>
@@ -201,9 +197,6 @@
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
-
-
-
     }
     public  string GetUploadUrl()
     {
@@ -320,9 +313,6 @@
                     //PopupVisible = true;
 
                 }
-
-
-
             }
         }
         else
@@ -360,8 +350,6 @@
                 catch (Exception eq)
                 {
                    // toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
-
-
                 }
 
             }
@@ -373,9 +361,10 @@
 
 
     }
-    public async Task onPreView(long Id)
+    public async Task onPreView(string fileName)
     {
-
+        //NavigationManager.NavigateTo("ReportViewer/" + fileName + "");
+        await jsRuntime.InvokeVoidAsync("window.open", "ReportViewer/" + fileName + "", "_blank");
     }
     private byte[] fileContent;
     private string fileName;

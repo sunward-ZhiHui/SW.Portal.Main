@@ -28,6 +28,11 @@ body,
     color: var(--bs-primary);
     margin-left: 10px;
 }
+.primary_color_icon {
+    float: right;
+    color: var(--bs-primary);
+    margin-left: 10px;
+}
 .urgent_icon {
     float: right;
     color: red;
@@ -59,6 +64,7 @@ body,
     /* font-weight: 600; */
     transition: background-color 0.3s ease;
     margin-top: 10px;
+    margin-right:5px;
 }
 .doc_lst_view {
     border: 1px solid #cbc5c5ee;

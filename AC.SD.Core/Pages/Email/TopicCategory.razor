@@ -1,0 +1,433 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
+                @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" Data="@_topicCategorys" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="false" ShowGroupedColumns="false" ShowSearchBox="false"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="ID"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"           
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />         
+            @*<DxGridDataColumn FieldName="RowIndex" Caption="#" Width="35px" Visible="false"></DxGridDataColumn>*@
+            <DxGridDataColumn FieldName="Name" />
+           @* <DxGridDataColumn FieldName="Description" />*@
+            @*<DxGridDataColumn FieldName="AddedDate">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailActivityCatgorys)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AddedByUserID" Caption="AddedBy" TextAlignment="GridTextAlignment.Left">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailActivityCatgorys)context.DataItem;
+                    }
+                    <div> @item.AddedBy</div>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ModifiedDate" TextAlignment="GridTextAlignment.Left">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailActivityCatgorys)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ModifiedByUserID" Caption="ModifiedBy" TextAlignment="GridTextAlignment.Left">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (EmailActivityCatgorys)context.DataItem;
+                    }
+                    <div> @item.ModifiedBy</div>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>*@
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        @*  @bind-SelectedDataItems="SelectedDataItems"*@
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (EmailActivityCatgorys)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Tag:" ColSpanMd="12">                    
+                    <DxComboBox Data="@_AllCategory"
+                        AllowUserInput="true"
+                        NullText="Select Tag..."
+                        ListRenderMode="ListRenderMode.Virtual"
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Name"
+                        ValueFieldName="Name"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        @bind-Value="@types.Name"
+                        @bind-Text="@types.Name" ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.Name)" />
+                </DxFormLayoutItem>
+               @* <DxFormLayoutItem Caption="Description:" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@types.Description" />
+                </DxFormLayoutItem>*@
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool PanelVisible { get; set; }
+    Dictionary<long, string>? UsernameIndex { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private string gridHeight = "calc(100vh - 230px - 143px)";
+    private List<EmailActivityCatgorys>? _topicCategorys;
+    private List<EmailActivityCatgorys> _AllCategory;
+    IGrid? Grid { get; set; }
+    private EmailActivityCatgorys _selectedItems;
+    bool ExportSelectedRowsOnly { get; set; }
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false; 
+    string? DeleteerrorMessage;  
+    string styleClass = "";  
+    private bool loading;
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = true;
+    string SelectedGroup = "none";
+    [Parameter]
+    public long TopicId { get; set; }
+    private EmailActivityCatgorys _selectlst;
+    public ApplicationUser? applicationUser { get; private set; }
+    [Parameter]
+    public Action loadTagsList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var tId = TopicId;
+        PanelVisible = true;       
+        _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
+        PanelVisible = false;       
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;     
+        _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
+
+        PanelVisible = false;
+        if (_topicCategorys.Count > 0)
+        {
+            _selectedItems = _topicCategorys.FirstOrDefault();
+            StateHasChanged();
+        }
+
+        loadTagsList?.Invoke();
+        StateHasChanged();
+
+    }
+    async Task ExportToExcel()
+    {
+        if (SelectedDataItems != null)
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+                });
+        }
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
+
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editModel = (EmailActivityCatgorys)e.EditModel;
+
+        if (e.IsNew)
+        {
+
+
+            var ex = _topicCategorys.Where(x => x.Name == editModel.Name);
+            if (ex.Any())
+            {               
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                if (_topicCategorys.Count > 2)
+                {
+                    toastService.ShowToast("Applicable Total 3 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
+                    return;
+                }
+
+                var createReq = new CreateEmailActivityCatgorysQuery
+                    {
+                        Name = editModel.Name,
+                        TopicId = TopicId,
+                        Description = editModel.Description,
+                        StatusCodeID = 1,
+                        AddedByUserID = applicationUser.UserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        AddedDate = DateTime.Now,
+                        ModifiedDate = DateTime.Now,
+                        SessionId = Guid.NewGuid()
+                    };
+
+                try
+                {
+                    var result = await Mediator.Send(createReq);
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);                    
+                }
+                catch (Exception eq)
+                {
+                    toastService.ShowToast(eq.Message, AC.SD.Core.Services.ToastLevel.Error);
+                }
+
+                await UpdateDataAsync();
+            }
+        }
+        else
+        {
+            var ex = _topicCategorys.Where(x => x.Name == editModel.Name && x.ID != editModel.ID);
+            if (ex.Any())
+            {
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);                
+            }
+            else
+            {
+                var UpdateReq = new EditTopicCategoryQery
+                    {
+                        ID = editModel.ID,
+                        TopicId = TopicId,
+                        Name = editModel.Name,
+                        Description = editModel.Description,
+                        AddedByUserID = editModel.AddedByUserID,
+                        StatusCodeID = editModel.StatusCodeID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        ModifiedDate = DateTime.Now,
+                        AddedDate = editModel.AddedDate,
+                        SessionId = editModel.SessionId,
+
+                    };
+
+                var ans = await Mediator.Send(UpdateReq);
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+
+            }
+
+        }
+
+    }
+   
+    async void ClosePopup()
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
+    }
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+
+        var editModel = (EmailActivityCatgorys)e.DataItem;
+
+        //  string result = string.Empty;
+        //  result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
+        // Console.WriteLine(result);
+        // await UpdateDataAsync();
+
+        var request = new DeleteForumTypeCommand(editModel.ID);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }   
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedItems = _topicCategorys.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        StateHasChanged();
+
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is EmailActivityCatgorys emailActivityCatgorys)
+                {
+
+                    _selectlst = _topicCategorys.FirstOrDefault(f => f.ID == emailActivityCatgorys.ID);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
+
+        // Grid.SelectDataItems(SelectedDataItems);
+
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is EmailActivityCatgorys emailActivityCatgorys)
+                    {
+                        var request = new DeleteTopicCategoryQery(emailActivityCatgorys.ID);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+    }    
+}

@@ -1,0 +1,144 @@
+﻿@page "/demoDropDown"
+@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@inject AC.SD.Core.Services.ToastService toastService
+
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Save" IconCssClass="fa fa-add" Click="@Save" />                
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+  <DxFormLayout CssClass="w-100">
+    <DxFormLayoutItem Caption="Category" ColSpanMd="6">
+        <DxComboBox Data="@_EmailActyCategory"
+                                    NullText="Select Category..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="Name"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@Data.Name" ShowValidationIcon="true">
+                        
+                        </DxComboBox>
+                        </DxFormLayoutItem>
+                        </DxFormLayout>
+
+
+@code 
+{
+    IGrid? Grid { get; set; }
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? errorMessage;
+
+    private List<EmailActivityCatgorys> _EmailActyCategory;
+    EmailActivityCatgorys Data = new EmailActivityCatgorys();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //_EmailActyCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
+        var model = await Mediator.Send(new GetAllEmailActivityCatgorys());
+        _EmailActyCategory = model;
+    }
+
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (EmailActivityCatgorys)e.EditModel;
+
+        if (e.IsNew)
+        {
+            var ex = _EmailActyCategory.Where(x => x.Name == editModel.Name);
+            if (ex.Any())
+            {
+                // onShowPopupMessage("Error", "The entered value Already exists.");
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                var createReq = new CreateEmailActivityCatgorysQuery
+                    {
+                        Name = editModel.Name,
+
+                        ID = editModel.ID
+
+                    };
+
+                try
+                {
+                    var result = await Mediator.Send(createReq);
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    //  onShowPopupMessage("Success", "Record save Successfully");
+                }
+                catch (Exception eq)
+                {
+
+                    errorMessage = eq.Message;
+                    PopupVisible = true;
+
+                }
+
+                await OnInitializedAsync();
+            }
+
+            //var request = new CreateCommand<ForumTypeResponse>
+            //    {
+            //        Entity = new ForumTypeResponse
+            //        {
+            //            Name = editModel.Name,
+            //            Description = editModel.Description,
+            //            AddedDate = DateTime.Now,
+            //            SessionId = Guid.NewGuid(),
+            //            StatusCodeID = 1,
+            //            AddedByUserID = 1,
+            //        }
+            //    };
+
+            //var customer = await Mediator.Send(request);
+        }
+        //else
+        //{
+        //    var ex = _types.Where(x => x.Name == editModel.Name && x.ID != editModel.ID);
+        //    if (ex.Any())
+        //    {
+        //        toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+        //        // onShowPopupMessage("Error", "The entered value Already exists.");
+        //    }
+        //    else
+        //    {
+        //        var UpdateReq = new EditForumTypeCommand
+        //            {
+        //                ID = editModel.ID,
+        //                Name = editModel.Name,
+                       
+
+        //            };
+
+        //        var ans = await Mediator.Send(UpdateReq);
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await OnInitializedAsync();
+
+            }
+
+        
+            
+ 
+    void Save()
+        {
+           
+
+     
+        }
+
+
+
+}

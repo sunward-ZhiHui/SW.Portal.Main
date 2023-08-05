@@ -43,7 +43,6 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
         public async Task<List<EmailTopics>> GetByIdAsync(long id)
         {
             try
@@ -379,6 +378,7 @@ namespace Infrastructure.Repository.Query
                                 TS.SessionId,
                                 E.FirstName,
                                 E.LastName,
+                                TS.IsAllowParticipants,
                                 COALESCE(FN.NotificationCount, 0) AS NotificationCount
                             FROM
                                 EmailTopics TS
@@ -456,6 +456,7 @@ namespace Infrastructure.Repository.Query
                                 TS.SessionId,
                                 E.FirstName,
                                 E.LastName,
+                                TS.IsAllowParticipants,
                                 COALESCE(FN.NotificationCount, 0) AS NotificationCount
                             FROM
                                 EmailTopics TS
@@ -514,6 +515,7 @@ namespace Infrastructure.Repository.Query
                                 TS.SessionId,
                                 E.FirstName,
                                 E.LastName,
+                                TS.IsAllowParticipants,
                                 COALESCE(FN.NotificationCount, 0) AS NotificationCount
                             FROM
                                 EmailTopics TS
@@ -569,7 +571,8 @@ namespace Infrastructure.Repository.Query
                                 TS.FileData,
                                 TS.SessionId,
                                 E.FirstName,
-                                E.LastName                               
+                                E.LastName,
+                                TS.IsAllowParticipants
                             FROM
                                 EmailTopics TS                            
                             INNER JOIN
@@ -941,7 +944,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM EmailTopics TS                                
+                var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName,TS.IsAllowParticipants FROM EmailTopics TS                                
                                 INNER JOIN Employee E ON TS.TopicFrom = E.UserId                                    
                                 WHERE TS.TopicFrom = @UserId and TS.OnDraft = 0 order by TS.StartDate DESC";
 

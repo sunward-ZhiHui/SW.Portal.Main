@@ -132,6 +132,16 @@ namespace Application.Queries
             this.TopicId = topicId;
         }
     }
+    
+    public class GetByConvasationPList : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+        public long TopicId { get; set; }
+        public long ConvasationId { get; set; }
+        public GetByConvasationPList(long convId)
+        {            
+            this.ConvasationId = convId;
+        }
+    }
     public class GetByConvasationTopicIDPList : PagedRequest, IRequest<List<ViewEmployee>>
     {
         public long TopicId { get; set; }

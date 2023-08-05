@@ -47,4 +47,18 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class EditReportFileHandler : IRequestHandler<EditReportFileQuery, long>
+    {
+        private readonly IReportFileUploadsQueryRepository _reportFileQueryRepository;
+        public EditReportFileHandler(IReportFileUploadsQueryRepository reportFileQueryRepository)
+        {
+            _reportFileQueryRepository = reportFileQueryRepository;
+        }
+
+        public async Task<long> Handle(EditReportFileQuery request, CancellationToken cancellationToken)
+        {
+            var req = await _reportFileQueryRepository.Update(request);
+            return req;
+        }
+    }
 }

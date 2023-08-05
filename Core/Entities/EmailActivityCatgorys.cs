@@ -1,20 +1,20 @@
-﻿using Application.Response;
-using Core.Entities;
-using MediatR;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Commands
+namespace Core.Entities
 {
-    public class CreateForumTypeCommand : IRequest<ForumTypeResponse  >
+    public class EmailActivityCatgorys
     {
+        [Key]
         public long ID { get; set; }
-      //  public ApplicationUser applicationusers { get; set; }
-        public string Name { get; set; }
+        public long TopicId { get; set; }
+        [Required]
+        public string Name { get; set; }      
         public string Description { get; set; }
         public DateTime AddedDate { get; set; }
         public long? ModifiedByUserID { get; set; }
@@ -22,9 +22,9 @@ namespace Application.Commands
         public Guid? SessionId { get; set; }
         public int? StatusCodeID { get; set; }
         public long? AddedByUserID { get; set; }
-        public CreateForumTypeCommand()
-        {
-
-        }
+        [NotMapped]
+        public string ModifiedBy { get; set; }
+        [NotMapped]
+        public string AddedBy { get; set; }
     }
 }

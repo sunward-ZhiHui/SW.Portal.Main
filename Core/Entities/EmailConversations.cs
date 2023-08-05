@@ -38,6 +38,8 @@ namespace Core.Entities
         [NotMapped]
         public string? PlistIdss { get; set; }
         [NotMapped]
+        public string? AllowPlistids { get; set; }        
+        [NotMapped]
         public IEnumerable<long> AssigntoIds { get; set; }
         [NotMapped]
         public IEnumerable<long> AssignccIds { get; set; }
@@ -49,6 +51,10 @@ namespace Core.Entities
         public List<EmailAssignToList>? AssignCCList { get; set; }
         [NotMapped]
         public long? UserId { get; set; }
+        [NotMapped]
+        public string From { get; set; }
+        [NotMapped]
+        public long ConIds { get; set; }
 
     }
 }

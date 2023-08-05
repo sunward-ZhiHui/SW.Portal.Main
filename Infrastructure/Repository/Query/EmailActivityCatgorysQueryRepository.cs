@@ -1,0 +1,194 @@
+﻿using Core.Entities;
+using Core.Entities.Views;
+using Core.Repositories.Query;
+using Dapper;
+using Infrastructure.Repository.Query.Base;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Infrastructure.Repository.Query
+{
+    public class EmailActivityCatgorysQueryRepository : QueryRepository<EmailActivityCatgorys>, IEmailActivityCatgorysQueryRepository
+    {
+        public EmailActivityCatgorysQueryRepository(IConfiguration configuration) : base(configuration)
+        {
+        }
+
+        public async Task<IReadOnlyList<EmailActivityCatgorys>> GetAllAsync()
+        {
+            try
+            {
+                var query = "SELECT DISTINCT Name FROM EmailActivityCatgorys";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailActivityCatgorys>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<EmailActivityCatgorys>> GetAllTopicCategoryAsync(long TopicId)
+        {
+            try
+            {
+                var query = @"SELECT * FROM EmailActivityCatgorys WHERE TopicId = @TopicId";
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailActivityCatgorys>(query, parameters)).ToList();                    
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<long> Insert(EmailActivityCatgorys emailActivityCatgorys)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("TopicId", emailActivityCatgorys.TopicId);
+                            parameters.Add("Name", emailActivityCatgorys.Name);
+                            parameters.Add("Description", emailActivityCatgorys.Description);
+                            parameters.Add("StatusCodeID", emailActivityCatgorys.StatusCodeID);
+                            parameters.Add("AddedByUserID", emailActivityCatgorys.AddedByUserID);
+                            parameters.Add("ModifiedByUserID", emailActivityCatgorys.ModifiedByUserID);
+                            parameters.Add("AddedDate", emailActivityCatgorys.AddedDate);
+                            parameters.Add("ModifiedDate", emailActivityCatgorys.ModifiedDate);
+                            parameters.Add("SessionId", emailActivityCatgorys.SessionId);
+
+                            var query = "INSERT INTO EmailActivityCatgorys(Name,TopicId,Description,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId) VALUES (@Name,@TopicId,@Description,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId)";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+
+
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
+        public async Task<long> UpdateAsync(EmailActivityCatgorys emailActivityCatgorys)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("ID", emailActivityCatgorys.ID);
+                            parameters.Add("TopicId", emailActivityCatgorys.TopicId);
+                            parameters.Add("Name", emailActivityCatgorys.Name);
+                            parameters.Add("Description", emailActivityCatgorys.Description);
+                            parameters.Add("StatusCodeID", emailActivityCatgorys.StatusCodeID);
+                            parameters.Add("AddedByUserID", emailActivityCatgorys.AddedByUserID);
+                            parameters.Add("ModifiedByUserID", emailActivityCatgorys.ModifiedByUserID);
+                            parameters.Add("AddedDate", emailActivityCatgorys.AddedDate);
+                            parameters.Add("ModifiedDate", emailActivityCatgorys.ModifiedDate);
+                            parameters.Add("SessionId", emailActivityCatgorys.SessionId);
+
+                            var query = @"Update EmailActivityCatgorys SET Name = @Name,TopicId=@TopicId,Description=@Description,StatusCodeID=@StatusCodeID,AddedByUserID=@AddedByUserID,ModifiedByUserID=@ModifiedByUserID,AddedDate=@AddedDate,ModifiedDate=@ModifiedDate,SessionId=@SessionId WHERE ID = @ID";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            transaction.Commit();
+                            return rowsAffected;
+                        }
+
+
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
+        public async Task<long> DeleteAsync(long id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("id", id);
+
+                            var query = "DELETE  FROM EmailActivityCatgorys WHERE ID = @id";
+
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+    }
+}

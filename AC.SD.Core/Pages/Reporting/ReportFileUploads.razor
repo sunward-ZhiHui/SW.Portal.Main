@@ -1,8 +1,10 @@
-﻿@page "/FileUploads"
+﻿@page "/reportFileUploads"
 @using Application.Commands;
 @using Application.Queries;
 @using DevExpress.Export;
 @inject IJSRuntime jsRuntime
+@using System.IO;
+@using System.Text.RegularExpressions;
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
@@ -12,9 +14,11 @@
 @inject IConfiguration Configuration;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
-@using System.IO;
 @using System.Linq;
-
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.EntityFrameworkCore;
+@using System;
+@inject NavigationManager NavigationManager
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -23,8 +27,10 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@AddFile" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@EditFile" />
                 <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectedItems.ReportDocumentID))"  />
-             <DxMenuItem Text="View Document" IconCssClass="fa fa-eye" Click="((e) => onPreView(_selectedItems.ReportDocumentID))" />
+               
+             <DxMenuItem Text="View Document" IconCssClass="fa fa-eye" Click="((e) => onPreView(_selectedItems.FileName))" />
                 
             </Items>
         </DxMenu>
@@ -84,15 +90,13 @@
                                   FileUploaded="@isUploadSuccess"
                                   FileUploadError="@OnUploadError">
                         </DxUpload>
-                  
-
                         <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                     </div>*@
 
              
                     <InputFile  type="file"  OnChange="@HandleFileChange" />
                   @*  <button @onclick="UploadFile">Upload</button>*@
-
+                   
                     <div style="width:100%;">
                         @if (ActiveSessionId != null)
                         {
@@ -110,9 +114,6 @@
                                                         string formattedFileSize = FormatFileSize(item.FileSize);
                                                     }
                                                     <span style="font-size: 11px;">  @formattedFileSize</span>
-
-
-
                                                 </label>
                                             </div>
                                         </li>
@@ -155,21 +156,7 @@
     bool isFileUpload = false;
     string MyError { get; set; }
     bool ErrorVisible { get; set; } = false;
-    //protected void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
-    //{
-    //    using (var memoryStream = new MemoryStream())
-    //    {
-    //        files.FileStream.CopyTo(memoryStream);
-    //        byte[] fileBytes = memoryStream.ToArray();
 
-    //         Now, you can use the 'fileBytes' array as needed.
-    //         For example, you can save it to a database or process it further.
-    //    }
-    //    Files = files;
-    //      UploadVisible = files.ToList().Count > 0;
-
-    //    InvokeAsync(StateHasChanged);
-    //}
 
     protected override async Task OnInitializedAsync()
     {
@@ -210,9 +197,6 @@
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
-
-
-
     }
     public  string GetUploadUrl()
     {
@@ -256,35 +240,20 @@
     }
     public async Task onDocDownload(long Id)
     {
+
         var lst = _reportdocuments?.FirstOrDefault(a => a.ReportDocumentID == Id);
-       
-        //string BaseDirectory = System.AppContext.BaseDirectory;
-        //var reportFolder = Path.Combine(BaseDirectory, "Reports");
-        //var filePath = reportFolder + lst.FileName;
-        //        if (System.IO.File.Exists(filePath))
-        //        {
-        //            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-        //            return File(fileBytes, "application/octet-stream", lst.FileName);
-        //        }
-        ////  _reportdocuments = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));
-        //var lst = _reportdocuments?.FirstOrDefault(a => a.ReportDocumentID == Id);
+
+        var request = new DownloadReportFileRequest
+            {
+                FileName = lst.FileName,
 
 
+            };
 
-        ////var url = FileUrl + lst.FilePath;
-        ////await OpenUrlInNewTab(url);
-        ////NavigationManager.NavigateTo(url, forceLoad: true);
-//  var request = new DownloadReportFileRequest
-        //    {
-        //        FileName = lst.FileName,
-        //        FilePath = lst.FilePath,
-        //        ContentType = lst.ContentType
-        //    };
+        var response = await Mediator.Send(request);
 
-        //var response = await Mediator.Send(request);
-
-        ////  Trigger file download
-        //await jsRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.ContentType, "");
+        //  Trigger file download
+        await jsRuntime.InvokeVoidAsync("downloadFile", response.FileName +".repx", response.FileData, "");
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
@@ -296,82 +265,146 @@
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
+
         var editModel = (ReportDocuments)e.EditModel;
 
-
-        var ex = _reportdocuments.Where(x => x.Name == editModel.Name);
-        if (ex.Any())
+        if (fileName == null)
         {
-            // onShowPopupMessage("Error", "The entered value Already exists.");
-            toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+            return;
+        }
+
+        if (e.IsNew)
+        {
+            var ex = _reportdocuments.Where(x => x.FileName == fileName);
+            if (ex.Any())
+            {
+                // onShowPopupMessage("Error", "The entered value Already exists.");
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+
+                var createReq = new CreateReportFileQuery
+                        {
+                            Name = editModel.Name,
+                            Description = editModel.Description,
+                            FileContent = fileContent,
+                            FileName = fileName,
+                            // FileContent = Files,
+                            //StatusCodeID = 1,
+                            //AddedByUserID = applicationUser.UserID,
+                            // ModifiedByUserID = applicationUser.UserID,
+                            //AddedDate = DateTime.Now,
+                            //  ModifiedDate = DateTime.Now,
+                            SessionId = Guid.NewGuid()
+                        };
+
+                try
+                {
+                    var result = await Mediator.Send(createReq);
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    //  onShowPopupMessage("Success", "Record save Successfully");
+                }
+                catch (Exception eq)
+                {
+                    //toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+                    //errorMessage = eq.Message;
+                    //PopupVisible = true;
+
+                }
+            }
         }
         else
         {
 
+            var ex = _reportdocuments.Where(x => x.FileName == editModel.FileName && x.ReportDocumentID != editModel.ReportDocumentID);
+            if (ex.Any())
+            {
 
-            var createReq = new CreateReportFileQuery
+
+               toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                var UpdateReq = new EditReportFileQuery
                     {
+                        ReportDocumentID = editModel.ReportDocumentID,
                         Name = editModel.Name,
                         Description = editModel.Description,
-                        FileContent = fileContent,
-                        FileName = fileName,
-                       // FileContent = Files,
-                        //StatusCodeID = 1,
-                        //AddedByUserID = applicationUser.UserID,
-                        // ModifiedByUserID = applicationUser.UserID,
-                        //AddedDate = DateTime.Now,
-                        //  ModifiedDate = DateTime.Now,
-                        SessionId = Guid.NewGuid()
+                        FileName = editModel.FileName,
+                        FileData = editModel.FileData,
+                        //AddedByUserID = editModel.AddedByUserID,
+                        //StatusCodeID = editModel.StatusCodeID,
+                        //ModifiedByUserID = applicationUser.UserID,
+                        ////   ModifiedDate = DateTime.Now,
+                        //AddedDate = editModel.AddedDate,
+                        SessionId = editModel.SessionId,
+
                     };
-
-            try
-            {
-                var result = await Mediator.Send(createReq);
-                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                //  onShowPopupMessage("Success", "Record save Successfully");
-            }
-            catch (Exception eq)
-            {
-
-                //errorMessage = eq.Message;
-                //PopupVisible = true;
+                try
+                {
+                    var ans = await Mediator.Send(UpdateReq);
+                    toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                }
+                catch (Exception eq)
+                {
+                   // toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+                }
 
             }
 
-            await UpdateDataAsync();
         }
+        await UpdateDataAsync();
+
 
 
 
     }
-    public async Task onPreView(long Id)
+    public async Task onPreView(string fileName)
     {
-        
+        //NavigationManager.NavigateTo("ReportViewer/" + fileName + "");
+        await jsRuntime.InvokeVoidAsync("window.open", "ReportViewer/" + fileName + "", "_blank");
     }
     private byte[] fileContent;
     private string fileName;
     private string uploadStatus;
 
-   
+    void EditFile()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+    }
 
     private async Task HandleFileChange(InputFileChangeEventArgs e)
     {
         var file = e.File;
-        fileName = file.Name;
-        var buffer = new byte[file.Size];
-        await file.OpenReadStream().ReadAsync(buffer);
-        fileContent = buffer;
-    }
+        var name  = file.Name;
+        var ext = Path.GetExtension(name);
+        //Regex containsABadCharacter = new Regex("["
+        //  + Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars())) + "]");
+        //if (containsABadCharacter.IsMatch(name))
+        //{
+        //    toastService.ShowToast("The Record Format Is Not Supported", AC.SD.Core.Services.ToastLevel.Warning);
+        //}
+        HasSpecialChars(ext);
 
-    private async Task UploadFile()
+       
+        if (ext == ".repx" )
+        {
+            fileName = Path.GetFileNameWithoutExtension(name);
+
+            var buffer = new byte[file.Size];
+            await file.OpenReadStream().ReadAsync(buffer);
+            fileContent = buffer;
+        }
+        else
+        {
+            toastService.ShowToast("The Record Format Is Not Supported", AC.SD.Core.Services.ToastLevel.Warning);
+        }
+    }
+    private bool HasSpecialChars(string ext)
     {
-        var command = new FileUploadCommand
-            {
-                FileName = fileName,
-                FileContent = fileContent
-            };
-
-        var result = await Mediator.Send(command);
-        uploadStatus = $"File '{result}' uploaded successfully!";
+        return ext.Any(ch => !char.IsLetterOrDigit(ch));
     }
+   
 }

@@ -323,7 +323,7 @@
             {
 
 
-               toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
             }
             else
             {
@@ -349,7 +349,7 @@
                 }
                 catch (Exception eq)
                 {
-                   // toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+                    // toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
                 }
 
             }
@@ -380,15 +380,14 @@
         var file = e.File;
         var name  = file.Name;
         var ext = Path.GetExtension(name);
-        //Regex containsABadCharacter = new Regex("["
-        //  + Regex.Escape(new string(System.IO.Path.GetInvalidFileNameChars())) + "]");
-        //if (containsABadCharacter.IsMatch(name))
-        //{
-        //    toastService.ShowToast("The Record Format Is Not Supported", AC.SD.Core.Services.ToastLevel.Warning);
-        //}
-        HasSpecialChars(ext);
-
        
+
+        var m = Regex.Match(name, @"[\[\]'~#%&*{}<>:?/|\\@! 1,2,3,4,5,6,7,8,9,0""]");
+       
+        if(m.Success)
+        {
+            toastService.ShowToast("The File Name DoseNot Contains Special Characters", AC.SD.Core.Services.ToastLevel.Error);
+        }
         if (ext == ".repx" )
         {
             fileName = Path.GetFileNameWithoutExtension(name);
@@ -399,12 +398,9 @@
         }
         else
         {
-            toastService.ShowToast("The Record Format Is Not Supported", AC.SD.Core.Services.ToastLevel.Warning);
+            toastService.ShowToast("The Record Format Is Not Supported", AC.SD.Core.Services.ToastLevel.Error);
         }
     }
-    private bool HasSpecialChars(string ext)
-    {
-        return ext.Any(ch => !char.IsLetterOrDigit(ch));
-    }
+ 
    
 }

@@ -40,7 +40,7 @@ namespace Application.Handlers.QueryHandlers
         {
             string BaseDirectory = System.AppContext.BaseDirectory;
             var reportFolder = Path.Combine(BaseDirectory, "Reports");
-            File.WriteAllBytes(Path.Combine(reportFolder, request.FileName), request.FileContent);
+            File.WriteAllBytes(Path.Combine(reportFolder, request.FileName + ".repx"), request.FileContent);
             var newlist = await _ReportFileQueryRepository.Insert(request);
             return newlist;
 

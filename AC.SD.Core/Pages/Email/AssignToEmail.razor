@@ -11,6 +11,7 @@
 
 <DxGrid @ref="TOGrid" SearchText="@GridSearchText" 
         Data="_forumTopicTo"
+        VirtualScrollingEnabled="true"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
@@ -65,6 +66,7 @@
 
 
 @code {
+   
     IGrid TOGrid { get; set; }
     private List<EmailTopics>? _forumTopicTo;
     public ApplicationUser applicationUser { get; private set; }

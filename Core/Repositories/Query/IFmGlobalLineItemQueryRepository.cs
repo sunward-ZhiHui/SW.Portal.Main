@@ -14,7 +14,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ViewFmglobalLineItem>> GetAllByIdAsync(Int64 id);
         Task<ViewFmglobalLineItem> GetByIdAsync(Int64 id);
         Task<IReadOnlyList<ViewFmglobalLineItem>> GetPalletMovementListingdAsync();
-
+        Task<IReadOnlyList<View_FMGlobalMovePackingList>> GetPalletMovementListingReportdAsync();
         Task<ViewFmglobalLineItem> GetBySessionIdAsync(Guid? SessionId);
     }
 }

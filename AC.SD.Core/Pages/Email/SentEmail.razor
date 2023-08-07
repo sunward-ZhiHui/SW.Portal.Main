@@ -9,6 +9,7 @@
 
 <DxGrid @ref="SentGrid" SearchText="@GridSearchText"
         Data="_forumTopicSent"
+        VirtualScrollingEnabled="true"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -59,7 +60,6 @@
     </TotalSummary>
 </DxGrid>
 @code {
-
     private List<EmailTopics>? _forumTopicSent;
     IGrid SentGrid { get; set; }
     public ApplicationUser applicationUser { get; private set; }

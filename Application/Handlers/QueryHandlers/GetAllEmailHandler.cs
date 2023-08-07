@@ -25,6 +25,21 @@ namespace CMS.Application.Handlers.QueryHandlers
            
         }
     }
+    public class UpdateTopicArchiveHandler : IRequestHandler<UpdateTopicArchive, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public UpdateTopicArchiveHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+
+        }
+        public async Task<long> Handle(UpdateTopicArchive request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.UpdateTopicArchive(request);
+            return req;
+        }
+    }
     public class GetListBySessionHandler : IRequestHandler<GetListBySession, List<EmailTopics>>
     {
 

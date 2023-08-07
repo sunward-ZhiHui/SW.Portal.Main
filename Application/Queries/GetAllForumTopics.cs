@@ -60,7 +60,6 @@ namespace Application.Queries
     public class UpdateTopicClosed : ForumTopics, IRequest<long>
     {       
     }
-
     public class GetByIdTopics : PagedRequest, IRequest<List<ForumTopics>>
     {
         public long ID { get; private set; }

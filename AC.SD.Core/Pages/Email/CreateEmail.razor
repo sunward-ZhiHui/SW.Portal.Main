@@ -472,6 +472,9 @@ else
     }
     async  void OnCustomizeToolbar(IToolbar toolbar)
     {
+        BarGroupCollection groups = model.Groups;
+
+        groups.Clear();
 
         toolbar.Groups.Clear();
 
@@ -482,6 +485,9 @@ else
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Table);
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Picture);
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
+
+
+         AddFormattingGroup(groups);
 
         IBarGroup undoRedoGroup = toolbar.Groups[0];
         undoRedoGroup.Items.Add(0,RichEditBarItemNames.FullScreen);
@@ -497,6 +503,50 @@ else
 
 
         }
+    }
+
+    void AddFormattingGroup(BarGroupCollection groups) {
+        IBarGroup formattingGroup = groups.AddCustomGroup();
+        formattingGroup.IconCssClass = "tb-icon tb-icon-settings";
+        //Adds a custom drop-down item
+        IBarDropDown fontDropDown = formattingGroup.Items.AddCustomDropDown(string.Empty);
+        fontDropDown.Items.Add(RichEditBarItemNames.FontBold);
+        fontDropDown.Items.Add(RichEditBarItemNames.FontItalic);
+        fontDropDown.IconCssClass = "tb-icon tb-icon-font";
+        fontDropDown.Text = "Font";
+        //Adds a custom color edit
+        IBarColorEdit fontColor = fontDropDown.Items.AddCustomColorEdit(
+            () => currentColor.HasValue && !currentColor.Value.IsEmpty ? currentColor.Value : System.Drawing.Color.Black,
+            (value) => Task.FromResult(currentColor = value),
+            async () => {
+                TextSpan span = await selection.ActiveSubDocument.GetTextSpanAsync(selection.Intervals[0]);
+                await span.ChangePropertiesAsync(p => p.ForegroundColor = currentColor);
+            }
+        );
+        fontColor.Tooltip = "Change the font color.";
+        fontColor.Text = "Font Color";
+        //Adds a custom spin edit
+        IBarSpinEdit spinEdit = formattingGroup.Items.AddCustomSpinEdit(
+            () => currentLeftIndent,
+            async (value) => {
+                currentLeftIndent = value;
+                Paragraph paragraph = await GetCurrentParagraph();
+                await paragraph.ChangePropertiesAsync(p => p.LeftIndent = UnitConverter.InchesToTwips((float)value));
+            }
+        );
+        spinEdit.MinValue = -11;
+        spinEdit.MaxValue = 22;
+        spinEdit.Increment = 0.1m;
+        spinEdit.CssClass = "paragraph-left-indent-spinedit";
+        spinEdit.Text = "Left indent:";
+        spinEdit.Tooltip = "Change the indent of the paragraph under the caret.";
+        IBarDropDown paragraphDropDown = formattingGroup.Items.AddCustomDropDown(string.Empty);
+        paragraphDropDown.Items.Add(RichEditBarItemNames.IndentMenu);
+        paragraphDropDown.Items.Add(RichEditBarItemNames.ParagraphAlignmentMenu);
+        paragraphDropDown.Items.Add(RichEditBarItemNames.LineSpacingMenu);
+        paragraphDropDown.Items.Add(RichEditBarItemNames.NumberingMenu);
+        paragraphDropDown.IconCssClass = "tb-icon tb-icon-paragraph";
+        paragraphDropDown.Text = "Paragraph";
     }
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();

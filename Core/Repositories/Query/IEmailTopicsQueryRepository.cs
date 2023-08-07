@@ -39,7 +39,8 @@ namespace Core.Repositories.Query
         Task<long> InsertParticipant(TopicParticipant topicParticipant);
         Task<EmailTopics> GetTopicListAsync();      
         Task<long> UpdateDueDate(EmailTopics EmailTopics);
-        Task<long> UpdateTopicClose(EmailTopics EmailTopics);        
+        Task<long> UpdateTopicClose(EmailTopics EmailTopics);
+        Task<long> UpdateTopicArchive(EmailTopics emailTopics);
         Task<List<ActivityEmailTopics>> GetByActivityEmailSessionList(Guid sessionId);
         Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId);
        

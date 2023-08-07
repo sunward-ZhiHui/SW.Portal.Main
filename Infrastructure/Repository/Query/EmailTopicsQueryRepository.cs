@@ -364,66 +364,24 @@ namespace Infrastructure.Repository.Query
         public async Task<List<EmailTopics>> GetTopicAllList(long UserId)
         {
             try
-            {               
-                var query = @"SELECT DISTINCT TS.ID, TS.SessionId,  TS.TopicName,TS.Remarks,
-                                TS.SeqNo,
-                                TS.Status,
-                                TS.Follow,
-                                TS.OnBehalf,
-                                COALESCE(TS.Urgent, 0) AS Urgent,
-                                COALESCE(TS.OverDue, 0) AS OverDue,                               
-                                TS.DueDate,
-                                TS.StartDate,
-                                TS.FileData,
-                                TS.SessionId,
-                                E.FirstName,
-                                E.LastName,
-                                TS.IsAllowParticipants,
-                                COALESCE(FN.NotificationCount, 0) AS NotificationCount
-                            FROM
-                                EmailTopics TS
-                            INNER JOIN
-                                EmailConversations EC ON EC.TopicId = TS.ID
-                            CROSS APPLY(SELECT DISTINCT ReplyId = CASE WHEN ECC.ReplyId >0 THEN ECC.ReplyId ELSE ECC.ID END
-							            FROM EmailConversations ECC 
-										WHERE --ECC.TopicID=@TopicId 
-										--AND 
-										(ECC.ParticipantId = @UserId
-										 OR
-										 EXISTS(SELECT * FROM EmailConversationAssignTo TP WHERE ECC.ID = TP.ConversationId AND (TP.UserId = @UserId or TP.AddedByUserID = @UserId))
-										 OR 
-										 EXISTS(SELECT * FROM EmailConversationAssignCC TP WHERE ECC.ID = TP.ConversationId AND (TP.UserId = @UserId or TP.AddedByUserID = @UserId))
-										  OR 
-										 EXISTS(SELECT * FROM EmailConversationParticipant TP WHERE ECC.ID = TP.ConversationId AND (TP.UserId = @UserId or TP.AddedByUserID = @UserId))
-                                          OR 
-										 EXISTS(SELECT * FROM EmailTopics ETP WHERE TS.ID = ETP.ID AND (ETP.OnBehalf = @UserId))										
-                                         )
-							           )K
-                            INNER JOIN
-                                Employee E ON TS.TopicFrom = E.UserId
-                            LEFT JOIN
-                                (
-                                    SELECT
-                                        TopicId,
-                                        COUNT(*) AS NotificationCount
-                                    FROM
-                                       EmailNotifications WHERE UserId = @UserId
-                                    GROUP BY
-                                        TopicId
-                                ) FN ON TS.ID = FN.TopicId
-                            WHERE
-                                TS.OnDraft = 0 and EC.ID=K.ReplyId  /*and EC.ReplyId = 0*/
-                            ORDER BY
-                                TS.StartDate DESC";
-
-                var parameters = new DynamicParameters();
-                parameters.Add("UserId", UserId);
-
+            {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
-                    return res;
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("Option", "SELECT_ASSIGN_ALL");
+
+                        connection.Open();
+
+                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
                 }
             }
             catch (Exception exp)
@@ -436,60 +394,23 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                //var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM EmailTopics TS 
-                //                INNER JOIN EmailTopicTo TP ON TS.ID = TP.TopicId 
-                //                INNER JOIN Employee E ON TS.TopicFrom = E.UserId                         
-                //                WHERE TP.UserId = @UserId order by TS.StartDate DESC";
-
-
-
-                var query = @"SELECT DISTINCT TS.SessionId, TS.ID, TS.TopicName,TS.Remarks,
-                                TS.SeqNo,
-                                TS.Status,
-                                TS.Follow,
-                                TS.OnBehalf,
-                                TS.Urgent,
-                                TS.OverDue,
-                                TS.DueDate,
-                                TS.StartDate,
-                                TS.FileData,
-                                TS.SessionId,
-                                E.FirstName,
-                                E.LastName,
-                                TS.IsAllowParticipants,
-                                COALESCE(FN.NotificationCount, 0) AS NotificationCount
-                            FROM
-                                EmailTopics TS
-                            INNER JOIN
-                                EmailConversations EC ON EC.TopicId = TS.ID
-                            
-                            INNER JOIN
-                                EmailConversationAssignTo TP ON EC.ID = TP.ConversationId
-                            INNER JOIN
-                                Employee E ON TS.TopicFrom = E.UserId
-                            LEFT JOIN
-                                (
-                                    SELECT
-                                        TopicId,
-                                        COUNT(*) AS NotificationCount
-                                    FROM
-                                       EmailNotifications WHERE UserId = @UserId
-                                    GROUP BY
-                                        TopicId
-                                ) FN ON TS.ID = FN.TopicId
-                            WHERE
-                                (TP.UserId = @UserId) and TS.OnDraft = 0 /*and EC.ReplyId = 0*/
-                            ORDER BY
-                                TS.StartDate DESC";
-
-                var parameters = new DynamicParameters();
-                parameters.Add("UserId", UserId);
-
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
-                    return res;
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", UserId);                        
+                        parameters.Add("Option", "SELECT_ASSIGN_TO");
+
+                        connection.Open();
+
+                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
                 }
             }
             catch (Exception exp)
@@ -502,52 +423,52 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT DISTINCT TS.SessionId, TS.ID, TS.TopicName,TS.Remarks,
-                                TS.SeqNo,
-                                TS.Status,
-                                TS.Follow,
-                                TS.OnBehalf,
-                                TS.Urgent,
-                                TS.OverDue,
-                                TS.DueDate,
-                                TS.StartDate,
-                                TS.FileData,
-                                TS.SessionId,
-                                E.FirstName,
-                                E.LastName,
-                                TS.IsAllowParticipants,
-                                COALESCE(FN.NotificationCount, 0) AS NotificationCount
-                            FROM
-                                EmailTopics TS
-                            INNER JOIN
-                                EmailConversations EC ON EC.TopicId = TS.ID
-                            INNER JOIN
-                                EmailConversationAssignCC TP ON EC.ID = TP.ConversationId
-                            INNER JOIN
-                                Employee E ON TS.TopicFrom = E.UserId
-                            LEFT JOIN
-                                (
-                                    SELECT
-                                        TopicId,
-                                        COUNT(*) AS NotificationCount
-                                    FROM
-                                       EmailNotifications WHERE UserId = @UserId
-                                    GROUP BY
-                                        TopicId
-                                ) FN ON TS.ID = FN.TopicId
-                            WHERE
-                                (TP.UserId = @UserId) and TS.OnDraft = 0 /*and EC.ReplyId = 0*/
-                            ORDER BY
-                                TS.StartDate DESC";
-
-                var parameters = new DynamicParameters();
-                parameters.Add("UserId", UserId);
-
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
-                    return res;
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("Option", "SELECT_ASSIGN_CC");
+
+                        connection.Open();
+
+                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<EmailTopics>> GetTopicSentList(long UserId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("Option", "SELECT_ASSIGN_SENT");
+
+                        connection.Open();
+
+                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
                 }
             }
             catch (Exception exp)
@@ -940,29 +861,7 @@ namespace Infrastructure.Repository.Query
             }
         }
      
-        public async Task<List<EmailTopics>> GetTopicSentList(long UserId)
-        {
-            try
-            {
-                var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName,TS.IsAllowParticipants FROM EmailTopics TS                                
-                                INNER JOIN Employee E ON TS.TopicFrom = E.UserId                                    
-                                WHERE TS.TopicFrom = @UserId and TS.OnDraft = 0 order by TS.StartDate DESC";
-
-                var parameters = new DynamicParameters();
-                parameters.Add("UserId", UserId);
-
-                using (var connection = CreateConnection())
-                {
-                    connection.Open();
-                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
-                    return res;
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
+      
 
         public async Task<List<EmailParticipant>> GetParticipantList(long topicId,long UserId)
         {
@@ -1357,7 +1256,48 @@ namespace Infrastructure.Repository.Query
             }
 
         }
-        
+        public async Task<long> UpdateTopicArchive(EmailTopics EmailTopics)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();                           
+                            parameters.Add("ID", EmailTopics.ID);
+                            parameters.Add("ModifiedByUserID", EmailTopics.ModifiedByUserID);
+                            parameters.Add("ModifiedDate", EmailTopics.ModifiedDate);                           
+
+                            var query = " UPDATE EmailTopics SET IsArchive = 1,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+
         public async Task<List<ActivityEmailTopics>> GetByActivityEmailSessionList(Guid sessionId)
         {
             try

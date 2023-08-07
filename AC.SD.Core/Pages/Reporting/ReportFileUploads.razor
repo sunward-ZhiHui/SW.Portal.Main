@@ -380,13 +380,14 @@
         var file = e.File;
         var name  = file.Name;
         var ext = Path.GetExtension(name);
-       
+
 
         var m = Regex.Match(name, @"[\[\]'~#%&*{}<>:?/|\\@! 1,2,3,4,5,6,7,8,9,0""]");
-       
+
         if(m.Success)
         {
             toastService.ShowToast("The File Name DoseNot Contains Special Characters", AC.SD.Core.Services.ToastLevel.Error);
+            return;
         }
         if (ext == ".repx" )
         {

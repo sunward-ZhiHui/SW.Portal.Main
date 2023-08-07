@@ -26,5 +26,19 @@ namespace Core.Entities.Views
         public string PalletEntryName { get; set; }
         public string TempPalletNo { get; set; }
         public long? PalletEntryNoId { get; set; }
+        public long? LocationToId { get; set; }
+        public long? LocationFromId { get; set; }
+        public int? IsHandQty { get; set; }
+        public long? FmglobalLinePreviousId { get; set; }
+        public DateTime? TransactionDate { get; set; }
+        public long? TransactionUserId { get; set; }
+        public string? TransactionUser { get; set; }
+        public int? TransactionQty { get; set; }
+        public long? FmglobalHeaderId { get; set; }
+        public long? FmglobalMoveId { get; set; }
+        public DateTime? TransactionModifiedDate { get; set; }
+        public long? TransactionModifiedUserId { get; set; }
+        public string? TransactionModifiedUser { get; set; }
+
     }
 }

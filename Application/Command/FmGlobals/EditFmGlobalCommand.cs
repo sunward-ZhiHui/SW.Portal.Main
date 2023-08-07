@@ -3,6 +3,7 @@ using Core.Entities;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,6 +28,7 @@ namespace Application.Command.FmGlobals
         public long? SoCustomerId { get; set; }
         public long? SoCustomerShipingAddressId { get; set; }
         public string? ShippedBy { get; set; }
+        public string? FmglobalStaus { get; set; }
         public EditFmGlobalCommand()
         {
 
@@ -49,6 +51,7 @@ namespace Application.Command.FmGlobals
         public long? CompanyId { get; set; }
         public string TempPalletNo { get; set; }
         public long? PalletEntryNoId { get; set; }
+        public long? LocationId { get; set; }
         public EditFmGlobalLineCommand()
         {
 

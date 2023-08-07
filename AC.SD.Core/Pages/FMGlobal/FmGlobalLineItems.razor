@@ -240,6 +240,7 @@
     long? CompanyId { get; set; }
     long? NavItemId { get; set; }
     string? NavItemNo { get; set; }
+    bool IsRelease { get; set; } = true;
     async Task SelectedItemChanged(View_NavItems navitems)
     {
         if (navitems != null)
@@ -289,10 +290,11 @@
         _viewCartonPackingItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(344));
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
-    public async Task loadData(ViewFmglobalLine _fmglobalItem, long? CompanyIds)
+    public async Task loadData(ViewFmglobalLine _fmglobalItem, long? CompanyIds, bool IsReleases)
     {
         FmglobalLineId = _fmglobalItem.FmglobalLineId;
         SoSalesOrderItems = _fmglobalItem;
+        IsRelease = IsReleases;
         if (FmglobalLineId > 0)
         {
             CompanyId = CompanyIds;
@@ -321,6 +323,12 @@
             }
         }
         PanelVisible = false;
+        if (IsRelease == false)
+        {
+            AddEnabled = false;
+            EditEnabled = false;
+            DeleteEnabled = false;
+        }
         StateHasChanged();
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
@@ -491,27 +499,29 @@
     }
     void addEdit()
     {
-
-
-        if (SelectedDataItems.Count == 1)
+        if (IsRelease == true)
         {
 
-            foreach (object item in SelectedDataItems)
+            if (SelectedDataItems.Count == 1)
             {
 
-                if (item is ViewFmglobalLineItem ViewFmglobalLineItem)
+                foreach (object item in SelectedDataItems)
                 {
 
-                    _selectlst = _fmGlobalLineItems.FirstOrDefault(f => f.FmglobalLineItemId == ViewFmglobalLineItem.FmglobalLineItemId);
+                    if (item is ViewFmglobalLineItem ViewFmglobalLineItem)
+                    {
+
+                        _selectlst = _fmGlobalLineItems.FirstOrDefault(f => f.FmglobalLineItemId == ViewFmglobalLineItem.FmglobalLineItemId);
 
 
+                    }
                 }
+                Grid.StartEditDataItemAsync(_selectlst);
             }
-            Grid.StartEditDataItemAsync(_selectlst);
-        }
-        else
-        {
-            Grid.StartEditDataItemAsync(_selectedItems);
+            else
+            {
+                Grid.StartEditDataItemAsync(_selectedItems);
+            }
         }
 
     }
@@ -554,17 +564,25 @@
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
-
-        if (SelectedDataItems.Count > 1)
+        if (IsRelease == false)
         {
+            AddEnabled = false;
             EditEnabled = false;
             DeleteEnabled = false;
         }
         else
         {
-            EditEnabled = true;
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false;
+                DeleteEnabled = false;
+            }
+            else
+            {
+                EditEnabled = true;
 
-            DeleteEnabled = true;
+                DeleteEnabled = true;
+            }
         }
 
     }

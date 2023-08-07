@@ -59,6 +59,16 @@ namespace Application.Queries
             this.CompanyId = CompanyId;
         }
     }
+    public class GetAllFmGlobalLineByLocationFromQuery : PagedRequest, IRequest<List<ViewFmglobalLine>>
+    {
+        public string SearchString { get; set; }
+        public long? LocationFromId { get; set; }
+        public GetAllFmGlobalLineByLocationFromQuery(long? LocationFromId)
+        {
+            this.LocationFromId = LocationFromId;
+        }
+    }
+    
     public class GetAllFmGlobalLineItemQuery : PagedRequest, IRequest<List<ViewFmglobalLineItem>>
     {
         public string SearchString { get; set; }

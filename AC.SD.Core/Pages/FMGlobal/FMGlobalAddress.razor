@@ -12,9 +12,9 @@
     <div class="row" style="text-align:center; margin-top: 10px;">
         <div class="col-md-6">
             <span>SHIPPING ADDRESS</span>
-            <div>
+            <div style="padding:10px;">
                 <div>
-                    <DxCheckBox CssClass="w-100" Checked="@ShippingChecked" CheckedChanged="@((bool value) => ShippingCheckedChanged(value))">
+                    <DxCheckBox CssClass="w-100" Checked="@ShippingChecked" CheckedChanged="@((bool value) => ShippingCheckedChanged(value))" Enabled="IsRelease">
                         Override Address
                     </DxCheckBox>
                 </div>
@@ -90,6 +90,7 @@
     private List<view_SoCustomerAddress> _addressItems;
     private List<view_SoCustomerAddress> _addressShippingItems;
     bool ShippingEnabled { get; set; } = false;
+    bool IsRelease { get; set; } = true;
     public ApplicationUser applicationUser { get; private set; }
     long? ShippingAddressID;
     view_SoCustomerAddress _soShippingCusterAddress = new view_SoCustomerAddress();
@@ -100,6 +101,11 @@
     {
         if (_salesOrderItems.SoCustomerId > 0)
         {
+            if (_salesOrderItems.FmglobalStatus.ToLower() == "released")
+            {
+                IsRelease = false;
+                StateHasChanged();
+            }
             applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
             _addressItems = await Mediator.Send(new GetSoCustomerAddressByCustomerQuery(_salesOrderItems.SoCustomerId.Value));
             _addressShippingItems = await Mediator.Send(new GetSoCustomerAddressByTypeQuery("Shipping", _salesOrderItems.SoCustomerId.Value));

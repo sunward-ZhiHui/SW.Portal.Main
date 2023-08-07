@@ -39,5 +39,13 @@ namespace Infrastructure.Repository.Command
         }
 
     }
+    public class FmGlobalMoveCommandRepository : CommandRepository<FmglobalMove>, IFmGlobalMoveCommandRepository
+    {
+        public FmGlobalMoveCommandRepository(IConfiguration configuration)
+            : base(configuration)
+        {
+
+        }
+    }
 }
 

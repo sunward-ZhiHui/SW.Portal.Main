@@ -137,6 +137,7 @@ namespace Infrastructure
             services.AddTransient<IReportFileUploadsQueryRepository, ReportFileUploadsQueryRepository>();
             services.AddTransient<IEmailActivityCatgorysQueryRepository,EmailActivityCatgorysQueryRepository>();
 
+            services.AddTransient<IFmGlobalMoveCommandRepository, FmGlobalMoveCommandRepository>();
             return services;
         }
     }

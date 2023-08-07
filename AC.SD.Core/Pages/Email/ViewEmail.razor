@@ -825,6 +825,7 @@
                         <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
                         <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
                         <DxMenuItem @onclick="onAddCategoryPop" Text="Tag" />
+                        <DxMenuItem @onclick="onArchivePop" Text="Archive" />
                     </Items>
                 </DxMenu>               
             </BodyTextTemplate>
@@ -926,6 +927,17 @@
     </BodyTemplate>
 </DxPopup>
 
+<DxPopup @bind-Visible="@isArchiveClosed" HeaderText="Archive">
+    <BodyTemplate Context="PopupContext">       
+    <div class="text-center">
+        <Content>
+            <p>Do you want to Archive this Topic</p>
+        </Content>        
+        <DxButton style="align-items" Text="Yes" Click="@((e) => SubmitIsArchived())"/>
+        <DxButton CssClass="dx-button.dx-icon" Text="No" Click="@(() => ClosePopup())" />
+    </div>      
+    </BodyTemplate>
+</DxPopup>
 
 <DxPopup @bind-Visible="@isAssignToVisible" HeaderText="Assigned To">
     <BodyTemplate Context="PopupContext">      
@@ -1108,6 +1120,7 @@
     bool isDueDate =false;
     bool isTopicClosed = false;
     bool isTopicCategoryClosed = false;
+    bool isArchiveClosed = false;
     bool isAllPlistVisible = false;
     bool isAssignToVisible = false;
     bool isComponentVisible = true;
@@ -1413,7 +1426,11 @@
     private void onAddCategoryPop()
     {
         isTopicCategoryClosed = true;
-    }    
+    } 
+    private void onArchivePop()
+    {
+        isArchiveClosed = true;
+    }     
     private void showTopicDescription()
     {
         isDescription = true;
@@ -1813,6 +1830,22 @@
             //isAssignToVisible = false;
         }
     }
+    private async Task SubmitIsArchived()
+    {       
+        var UpdateReq = new UpdateTopicArchive
+        {
+            ID = long.Parse(@SelectedGroup),                
+            ModifiedByUserID = applicationUser.UserID,
+            ModifiedDate = DateTime.Now
+        };
+        var result = await Mediator.Send(UpdateReq);   
+        
+        isArchiveClosed = false;
+        await LoadData();
+        toastService.ShowToast("Archive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        
+
+    }
     private async Task SubmitDocDelete(long Id)
     {
         if (Id > 0)
@@ -1840,6 +1873,7 @@
     {
         PopupVisible = false;
         DocPopupVisible = false;
+        isArchiveClosed = false;
     }
 
     private void ToggleItemVisibility(int id)

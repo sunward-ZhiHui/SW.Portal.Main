@@ -1,6 +1,7 @@
 ﻿using Application.Queries.Base;
 using Application.Response;
 using Core.Entities;
+using Core.Repositories.Query;
 using MediatR;
  
 
@@ -10,6 +11,10 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class UpdateTopicArchive : EmailTopics, IRequest<long>
+    {
+    }
+
     public class GetActivityEmailTopics : PagedRequest, IRequest<List<ActivityEmailTopics>>
     {
         public string SearchString { get; set; }

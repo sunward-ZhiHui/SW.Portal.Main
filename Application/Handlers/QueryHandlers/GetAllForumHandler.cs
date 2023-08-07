@@ -206,7 +206,6 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
-
     public class CreateForumParticipantHandler : IRequestHandler<CreateTopicParticipant, long>
     {
         private readonly IForumTopicsQueryRepository _forumTopicsQueryRepository;

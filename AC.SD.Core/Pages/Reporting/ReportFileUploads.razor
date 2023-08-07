@@ -96,8 +96,9 @@
                         <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                     </div>*@
 
-             
-                    <InputFile  type="file"  OnChange="@HandleFileChange" />
+                
+                    <InputFile  type="file"  OnChange="@HandleFileChange"  required/>
+                    
                   @*  <button @onclick="UploadFile">Upload</button>*@
                    
                     <div style="width:100%;">
@@ -276,11 +277,11 @@
 
         if (e.IsNew)
         {
-            if (fileName == null)
-            {
-                toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
-                return;
-            }
+            //if (fileName == null)
+            //{
+            //    toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+            //    return;
+            //}
             var ex = _reportdocuments.Where(x => x.FileName.ToLower() == fileName.ToLower());
             if (ex.Any())
             {

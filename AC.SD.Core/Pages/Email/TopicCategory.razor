@@ -19,7 +19,7 @@
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled=@DeleteEnabled />
                 @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
             </Items>
         </DxMenu>
@@ -157,7 +157,8 @@
     string styleClass = "";  
     private bool loading;
     bool Blukdeletepopup { get; set; } = false;
-    bool EditEnabled { get; set; } = true;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
     string SelectedGroup = "none";
     [Parameter]
     public long TopicId { get; set; }
@@ -168,6 +169,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+
         var tId = TopicId;
         PanelVisible = true;       
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
@@ -184,9 +186,9 @@
         if (_topicCategorys.Count > 0)
         {
             _selectedItems = _topicCategorys.FirstOrDefault();
+            DeleteEnabled = true;
             StateHasChanged();
         }
-
         loadTagsList?.Invoke();
         StateHasChanged();
 
@@ -199,6 +201,7 @@
                 {
                     ExportSelectedRowsOnly = true,
                     CustomizeCell = OnCustomizeCell
+
                 });
         }
         else
@@ -299,7 +302,7 @@
         }
 
     }
-   
+
     async void ClosePopup()
     {
         SelectedDataItems = null;
@@ -341,13 +344,14 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _topicCategorys.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        DeleteEnabled = true;
         StateHasChanged();
-
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowClick(e);
         addEdit();
+       
     }
     void addNew()
     {
@@ -385,6 +389,7 @@
     void addDelete()
     {
         Blukdeletepopup = true;
+      
     }
     async Task bulkDelete()
     {
@@ -424,10 +429,14 @@
         if (SelectedDataItems.Count > 1)
         {
             EditEnabled = false;
+            
         }
         else
         {
             EditEnabled = true;
+            
         }
-    }    
+    }
+    
+
 }

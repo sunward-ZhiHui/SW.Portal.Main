@@ -121,5 +121,9 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetPalletMovementListingReportQuery : PagedRequest, IRequest<List<View_FMGlobalMovePackingList>>
+    {
+        public string SearchString { get; set; }
+    }
 
 }

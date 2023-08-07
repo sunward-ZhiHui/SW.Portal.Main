@@ -455,7 +455,8 @@ namespace Infrastructure.Repository.Query
                                         EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                     WHERE
-                                        FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId";
+                                        FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId
+                                    ORDER BY FC.AddedDate DESC";
 										//AND (FC.ParticipantId = @UserId
 										//OR EXISTS(SELECT * FROM EmailConversationAssignTo AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId)
 										//OR EXISTS(SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId))";

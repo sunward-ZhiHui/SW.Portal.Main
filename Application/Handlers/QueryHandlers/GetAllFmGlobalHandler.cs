@@ -149,6 +149,18 @@ namespace Application.Handlers.QueryHandlers
             return (List<ViewFmglobalLineItem>)await _queryRepository.GetPalletMovementListingdAsync();
         }
     }
+    public class GetPalletMovementListingReportHandler : IRequestHandler<GetPalletMovementListingReportQuery, List<View_FMGlobalMovePackingList>>
+    {
+        private readonly IFmGlobalLineItemQueryRepository _queryRepository;
+        public GetPalletMovementListingReportHandler(IFmGlobalLineItemQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<View_FMGlobalMovePackingList>> Handle(GetPalletMovementListingReportQuery request, CancellationToken cancellationToken)
+        {
+            return (List<View_FMGlobalMovePackingList>)await _queryRepository.GetPalletMovementListingReportdAsync();
+        }
+    }
     public class CreateFmGlobalAddressHandler : IRequestHandler<CreateFmGlobalAddress, long>
     {
         private readonly IFmGlobalQueryRepository _queryRepository;

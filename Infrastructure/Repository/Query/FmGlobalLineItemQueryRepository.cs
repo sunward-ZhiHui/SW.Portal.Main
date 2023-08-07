@@ -51,7 +51,21 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        public async Task<IReadOnlyList<View_FMGlobalMovePackingList>> GetPalletMovementListingReportdAsync()
+        {
+            try
+            {
+                var query = "select  * from View_FMGlobalMovePackingList";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<View_FMGlobalMovePackingList>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<ViewFmglobalLineItem>> GetAllByIdAsync(Int64 id)
         {
             try

@@ -19,6 +19,8 @@
 @using Microsoft.EntityFrameworkCore;
 @using System;
 @inject NavigationManager NavigationManager
+@inject IJSRuntime jsRuntime
+
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -28,6 +30,7 @@
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@AddFile" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@EditFile" />
+                  <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
                 <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectedItems.ReportDocumentID))"  />
                
              <DxMenuItem Text="View Document" IconCssClass="fa fa-eye" Click="((e) => onPreView(_selectedItems.FileName))" />
@@ -54,7 +57,7 @@
             SelectionMode="GridSelectionMode.Multiple"
             FocusedRowEnabled ="true"
             EditModelSaving="@OnEditModelSaving"
-            RowClick="OnRowClick"
+            RowClick="OnRowClick" DataItemDeleting ="@onDataItemDeleting"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
         <Columns>
 
@@ -156,7 +159,7 @@
     bool isFileUpload = false;
     string MyError { get; set; }
     bool ErrorVisible { get; set; } = false;
-
+    bool Blukdeletepopup { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -172,6 +175,7 @@
     {
         var model = await Mediator.Send(new GetAllReportFileUploadsQuery());
         _reportdocuments = model;
+       
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -268,15 +272,16 @@
 
         var editModel = (ReportDocuments)e.EditModel;
 
-        if (fileName == null)
-        {
-            toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
-            return;
-        }
+       
 
         if (e.IsNew)
         {
-            var ex = _reportdocuments.Where(x => x.FileName == fileName);
+            if (fileName == null)
+            {
+                toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+                return;
+            }
+            var ex = _reportdocuments.Where(x => x.FileName.ToLower() == fileName.ToLower());
             if (ex.Any())
             {
                 // onShowPopupMessage("Error", "The entered value Already exists.");
@@ -290,7 +295,7 @@
                             Name = editModel.Name,
                             Description = editModel.Description,
                             FileContent = fileContent,
-                            FileName = fileName,
+                            FileName = fileName.ToLower(),
                             // FileContent = Files,
                             //StatusCodeID = 1,
                             //AddedByUserID = applicationUser.UserID,
@@ -332,8 +337,9 @@
                         ReportDocumentID = editModel.ReportDocumentID,
                         Name = editModel.Name,
                         Description = editModel.Description,
-                        FileName = editModel.FileName,
-                        FileData = editModel.FileData,
+                        FileContent = fileContent,
+                        FileName = fileName,
+                        ActFileName = editModel.FileName,
                         //AddedByUserID = editModel.AddedByUserID,
                         //StatusCodeID = editModel.StatusCodeID,
                         //ModifiedByUserID = applicationUser.UserID,
@@ -346,6 +352,7 @@
                 {
                     var ans = await Mediator.Send(UpdateReq);
                     toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                   
                 }
                 catch (Exception eq)
                 {
@@ -356,6 +363,7 @@
 
         }
         await UpdateDataAsync();
+        await jsRuntime.InvokeAsync<string>("ReloadUrl");
 
 
 
@@ -402,6 +410,19 @@
             toastService.ShowToast("The Record Format Is Not Supported", AC.SD.Core.Services.ToastLevel.Error);
         }
     }
- 
-   
+    async Task onDataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+      //  var dateitem = e.DataItem;
+         var reportdocument = ( ReportDocuments)e.DataItem;
+       // var request = new DeleteReportdocumentQuery((long)dateitem);
+        var request = new DeleteReportdocumentQuery(reportdocument.ReportDocumentID,reportdocument.FileName);
+        await Mediator.Send(request);
+        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        await UpdateDataAsync();
+    }
+    void addDelete()
+    {
+        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+    }
+  
 }

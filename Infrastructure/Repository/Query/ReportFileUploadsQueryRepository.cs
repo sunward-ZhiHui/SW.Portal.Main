@@ -39,7 +39,7 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<long> Insert(ReportDocuments reportDocuments)
         {
-            
+
             try
             {
                 using (var connection = CreateConnection())
@@ -54,8 +54,8 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("Name", reportDocuments.Name);
                             parameters.Add("Description", reportDocuments.Description);
-                           parameters.Add("SessionId", reportDocuments.SessionId);
-                           parameters.Add("FileName", reportDocuments.FileName);
+                            parameters.Add("SessionId", reportDocuments.SessionId);
+                            parameters.Add("FileName", reportDocuments.FileName);
                             //parameters.Add("AddedDate", reportDocuments.AddedDate);
                             //parameters.Add("Iscompleted", reportDocuments.Iscompleted);
                             //parameters.Add("StatusCodeID", todolist.StatusCodeID);
@@ -129,9 +129,49 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<long> Delete(long ReportDocumentID)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("ReportDocumentID", ReportDocumentID);
+                           // parameters.Add("FileName", reportName);
+
+                            var query = "DELETE  FROM ReportDocuments WHERE ReportDocumentID = @ReportDocumentID";
+
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
-}
-    
+}   
 
     
  

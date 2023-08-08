@@ -737,11 +737,11 @@
                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                     DisplayMode="MenuDisplayMode.Desktop">
                                     <Items>
-                                        @if(IsValidUser)
-                                        {
+                                       @* @if(IsValidUser)
+                                        {*@
                                             <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="((e) => onPreview(_selectlst.DocumentId))" Enabled=PreviewEnabled />
                                             <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectlst.DocumentId))" Enabled=docEnabled />
-                                        }                                       
+                                        @*} *@                                      
                                         
                                     </Items>
                                     </DxMenu>
@@ -1759,13 +1759,13 @@
             {
                 MyDocumentFormat = DocumentFormat.OpenXml;
                 documentContent = content;
-                await File.WriteAllBytesAsync(filePath, documentContent);
+                //await File.WriteAllBytesAsync(filePath, documentContent);                
             }
             else if (extension.ToLower() == ".txt")
             {                
                 MyDocumentFormat = DocumentFormat.PlainText;
                 documentContent = content;                
-                await File.WriteAllBytesAsync(filePath, documentContent);
+                //await File.WriteAllBytesAsync(filePath, documentContent);                
             }
             else if(extension.ToLower() == ".pdf")
             {

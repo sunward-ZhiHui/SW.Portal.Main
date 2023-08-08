@@ -631,13 +631,15 @@ else
 
     protected override async Task OnInitializedAsync() {
 
+        onloadSession();
+
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         AppUserId = applicationUser.UserID;
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
 
-        onloadSession();
+        
         Follow = new List<string>
         {
              "Follow Up","No Follow Up"

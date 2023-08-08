@@ -1,4 +1,6 @@
 ﻿@using Application.Queries;
+@using DevExpress.Blazor.Reporting;
+@using DevExpress.XtraReports.UI;
 @using MediatR
 @using global::Core.Entities;
 @inject IMediator Mediator
@@ -8,10 +10,35 @@
 @page "/Documents/{SessionId:guid}"
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration;
+
+@*<DxDocumentViewer Height="800px" ReportName=@Reportname Width="100%" @ref="dxDocumentViewer"></DxDocumentViewer>
+<div @ref="viewerComponent" style="width: 100%; height: calc(100vh - 150px);">
+    <DxReportViewer @ref="reportViewer" Report="report" SizeMode="SizeMode.Small" SinglePagePreview="true" RootCssClasses="w-100 h-100" />
+</div>*@
 @code {
+    [Inject] public DevExpress.XtraReports.Services.IReportProvider reportProvider { get; set; }
+    DxReportViewer reportViewer;
+  //  DxDocumentViewer dxDocumentViewer;
+    private ElementReference viewerComponent;
+
+    string Reportname { get; set; } = "PdfViewer";
+
     private Documents _documentsData;
     [Parameter]
     public Guid? SessionId { get; set; }
+
+    XtraReport report = new XtraReport()
+        {
+            Landscape = true,
+            Bands = {
+        new DetailBand() {
+            Name = "DetailBand",
+            HeightF = 25,
+        }
+    }
+        };
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -22,6 +49,10 @@
             {
                 string url = Configuration["DocumentsUrl:ServerUrl"] + _documentsData.FilePath;
                 var DoumentBytes = await Mediator.Send(new GetDocumentsBytesDataQuery(url));
+                XRPdfContent pdfContent = new XRPdfContent();
+                pdfContent.Source = DoumentBytes; //System.IO.File.ReadAllBytes(url);
+                report.Bands[BandKind.Detail].Controls.Add(pdfContent);
+                //dxDocumentViewer.ChildContent = DoumentBytes;
             }
         }
     }

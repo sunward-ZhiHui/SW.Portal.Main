@@ -1791,14 +1791,14 @@
     }
     public async Task onDocDownload(long Id)
     {
-        //_topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup))); 
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup))); 
         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
 
 
 
         var url = FileUrl + lst.FilePath;
         await OpenUrlInNewTab(url);
-        NavigationManager.NavigateTo(url, forceLoad: true);
+      //  NavigationManager.NavigateTo(url, forceLoad: true);
 
         //var request = new DownloadFileRequest
         //    {

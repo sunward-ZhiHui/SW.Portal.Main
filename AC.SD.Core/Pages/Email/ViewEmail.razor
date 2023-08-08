@@ -1796,21 +1796,21 @@
 
 
 
-        //var url = FileUrl + lst.FilePath;
-        //await OpenUrlInNewTab(url);
-        //NavigationManager.NavigateTo(url, forceLoad: true);
+        var url = FileUrl + lst.FilePath;
+        await OpenUrlInNewTab(url);
+        NavigationManager.NavigateTo(url, forceLoad: true);
 
-        var request = new DownloadFileRequest
-            {
-                FileName = lst.FileName, 
-                FilePath = lst.FilePath, 
-                ContentType = lst.ContentType
-            };
+        //var request = new DownloadFileRequest
+        //    {
+        //        FileName = lst.FileName, 
+        //        FilePath = lst.FilePath, 
+        //        ContentType = lst.ContentType
+        //    };
 
-        var response = await Mediator.Send(request);
+        //var response = await Mediator.Send(request);
 
-        //  Trigger file download
-        await JSRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.FileData, response.ContentType,"");
+        ////  Trigger file download
+        //await JSRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.FileData, response.ContentType,"");
     }
     public async Task onDocDelete(long Id)
     {

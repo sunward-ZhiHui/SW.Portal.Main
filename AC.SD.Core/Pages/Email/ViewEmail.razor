@@ -1791,7 +1791,7 @@
     }
     public async Task onDocDownload(long Id)
     {
-        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup))); 
+        //_topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup))); 
         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
 
 

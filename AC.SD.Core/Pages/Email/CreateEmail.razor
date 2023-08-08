@@ -472,10 +472,7 @@ else
     }
     async  void OnCustomizeToolbar(IToolbar toolbar)
     {
-        BarGroupCollection groups = model.Groups;
-
-        groups.Clear();
-
+        BarGroupCollection groups = toolbar.Groups;
         toolbar.Groups.Clear();
 
         // Inserts the File group at the first position in the group collection
@@ -487,7 +484,36 @@ else
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
 
 
-         AddFormattingGroup(groups);
+        //AddFormattingGroup(groups);
+
+
+        IBarGroup fontGroup = toolbar.Groups[RichEditToolbarGroupNames.Font];
+        //IBarItem fontSizeItem = fontGroup.Items[RichEditBarItemNames.FontSize];
+
+        //// Assuming fontSizeItem has a property to set the font size
+        //fontSizeItem  = 18; // Assuming 18 is the desired font size
+
+
+        IBarItem fontSizeItem = fontGroup.Items[RichEditBarItemNames.FontSize];
+        if (fontSizeItem.Type == BarItemTypes.ComboBox)
+        {
+            IBarComboBox fontSizeComboBox = (IBarComboBox)fontSizeItem;
+            fontSizeComboBox.Items.Clear();
+            fontSizeComboBox.Items.Add("12", "12");
+            fontSizeComboBox.Items.Add("14", "14");
+            fontSizeComboBox.Items.Add("18", "18"); 
+            fontSizeComboBox.Items.Add("24", "24");
+            fontSizeComboBox.AllowUserInput = false;
+            //fontSizeComboBox = 2; // Set the default font size
+
+        }
+        fontSizeItem.Text = "Font Size:";
+        fontSizeItem.Tooltip = "Changes the selected text's font size.";
+
+
+       
+
+         //AddFormattingGroup(toolbar.Groups);
 
         IBarGroup undoRedoGroup = toolbar.Groups[0];
         undoRedoGroup.Items.Add(0,RichEditBarItemNames.FullScreen);
@@ -509,44 +535,6 @@ else
         IBarGroup formattingGroup = groups.AddCustomGroup();
         formattingGroup.IconCssClass = "tb-icon tb-icon-settings";
         //Adds a custom drop-down item
-        IBarDropDown fontDropDown = formattingGroup.Items.AddCustomDropDown(string.Empty);
-        fontDropDown.Items.Add(RichEditBarItemNames.FontBold);
-        fontDropDown.Items.Add(RichEditBarItemNames.FontItalic);
-        fontDropDown.IconCssClass = "tb-icon tb-icon-font";
-        fontDropDown.Text = "Font";
-        //Adds a custom color edit
-        IBarColorEdit fontColor = fontDropDown.Items.AddCustomColorEdit(
-            () => currentColor.HasValue && !currentColor.Value.IsEmpty ? currentColor.Value : System.Drawing.Color.Black,
-            (value) => Task.FromResult(currentColor = value),
-            async () => {
-                TextSpan span = await selection.ActiveSubDocument.GetTextSpanAsync(selection.Intervals[0]);
-                await span.ChangePropertiesAsync(p => p.ForegroundColor = currentColor);
-            }
-        );
-        fontColor.Tooltip = "Change the font color.";
-        fontColor.Text = "Font Color";
-        //Adds a custom spin edit
-        IBarSpinEdit spinEdit = formattingGroup.Items.AddCustomSpinEdit(
-            () => currentLeftIndent,
-            async (value) => {
-                currentLeftIndent = value;
-                Paragraph paragraph = await GetCurrentParagraph();
-                await paragraph.ChangePropertiesAsync(p => p.LeftIndent = UnitConverter.InchesToTwips((float)value));
-            }
-        );
-        spinEdit.MinValue = -11;
-        spinEdit.MaxValue = 22;
-        spinEdit.Increment = 0.1m;
-        spinEdit.CssClass = "paragraph-left-indent-spinedit";
-        spinEdit.Text = "Left indent:";
-        spinEdit.Tooltip = "Change the indent of the paragraph under the caret.";
-        IBarDropDown paragraphDropDown = formattingGroup.Items.AddCustomDropDown(string.Empty);
-        paragraphDropDown.Items.Add(RichEditBarItemNames.IndentMenu);
-        paragraphDropDown.Items.Add(RichEditBarItemNames.ParagraphAlignmentMenu);
-        paragraphDropDown.Items.Add(RichEditBarItemNames.LineSpacingMenu);
-        paragraphDropDown.Items.Add(RichEditBarItemNames.NumberingMenu);
-        paragraphDropDown.IconCssClass = "tb-icon tb-icon-paragraph";
-        paragraphDropDown.Text = "Paragraph";
     }
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();

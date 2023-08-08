@@ -825,7 +825,7 @@
                         <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
                         <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
                         <DxMenuItem @onclick="onAddCategoryPop" Text="Tag" />
-                <DxMenuItem @onclick="onArchivePop" Text="Archive" />
+                        <DxMenuItem @onclick="onArchivePop" Text="Archive" />
                     </Items>
                 </DxMenu>               
             </BodyTextTemplate>
@@ -1839,12 +1839,11 @@
             ModifiedDate = DateTime.Now
         };
         var result = await Mediator.Send(UpdateReq);   
-        if(result == 1)
-        {
-            isArchiveClosed = false;
-            await LoadData();
-            toastService.ShowToast("Archive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
-        }
+        
+        isArchiveClosed = false;
+        await LoadData();
+        toastService.ShowToast("Archive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        
 
     }
     private async Task SubmitDocDelete(long Id)

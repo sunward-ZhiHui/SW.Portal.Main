@@ -1272,10 +1272,9 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();                           
                             parameters.Add("ID", EmailTopics.ID);
                             parameters.Add("ModifiedByUserID", EmailTopics.ModifiedByUserID);
-                            parameters.Add("ModifiedDate", EmailTopics.ModifiedDate);                           
+                            parameters.Add("ModifiedDate", EmailTopics.ModifiedDate);
 
-                            var query = " UPDATE EmailTopics SET IsArchive = 1,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
-
+                            var query = " UPDATE EmailConversationParticipant SET IsArchive = 1 where TopicId = @ID and UserId = @ModifiedByUserID";
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
                             transaction.Commit();

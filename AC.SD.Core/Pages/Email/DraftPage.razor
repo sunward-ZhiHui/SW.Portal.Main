@@ -58,7 +58,8 @@
         ValidationEnabled="true"     
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 220px);"
-        RowClick="OnEmailToRowClick"        
+        RowClick="OnEmailToRowClick"    
+        RowDoubleClick="OnRowDoubleClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
     <Columns>
@@ -154,7 +155,7 @@
     {
         EditEnabled = true;
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SessionId"); 
-        _selectedItems = _emailTopicDraft.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        _selectedItems = _emailTopicDraft.FirstOrDefault(f => f.SessionId == (Guid?)UniqueId);
         SelectedGroup = UniqueId.ToString();
         //addEdit();
         DeleteEnabled = true;

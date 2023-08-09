@@ -204,11 +204,26 @@
                                                             {
                                                                 @foreach (var Tagitem in _headTopic_Tag)
                                                                 {
-                                                                   @* <span class=" handline tagbg">@Tagitem.ManufacturingProcess</span>
-                                                                    <span class=" handline tagbg">@Tagitem.CategoryAction</span>
-                                                                    <span class=" handline tagbg">@Tagitem.ActionName</span>*@
+                                                                    @if(Tagitem.GroupName != null)
+                                                                    {
+                                                                        <span class=" handline tagbg">@Tagitem.GroupName</span>
+                                                                    }
+                                                                    
+                                                                    @if(Tagitem.CategoryName != null)
+                                                                    {
+                                                                        <span class=" handline tagbg">@Tagitem.CategoryName</span>
+                                                                    }
+                                                                    
+                                                                    @if(Tagitem.ActionName != null)
+                                                                    {
+                                                                        <span class=" handline tagbg">@Tagitem.ActionName</span>
+                                                                    }
 
-                                                                    <span class=" handline tagbg">@Tagitem.Name</span>
+                                                                     @if(Tagitem.Name != null)
+                                                                    {
+                                                                        <span class=" handline tagbg">@Tagitem.Name</span>
+                                                                    }                                                                   
+                                                                    
                                                                 }
                                                             }
 

@@ -62,8 +62,8 @@
                     Sent
                 </button>
              </div>
-             @if(IsDraftEnabled)
-            {
+            @* @if(IsDraftEnabled)
+            {*@
                 <div class="save_hover" @onclick="@(() => addNew(1))" style="float: left; margin-top: -41px; line-height: 38px; margin-left: -12px; z-index: 9999; width:100px;">
                     <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
                         @if (loading)
@@ -74,7 +74,7 @@
                         Draft
                     </button>
                 </div>
-            }
+            @*}*@
             
         </div>
     </div>

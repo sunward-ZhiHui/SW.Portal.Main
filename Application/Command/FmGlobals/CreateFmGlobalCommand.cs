@@ -27,6 +27,7 @@ namespace Application.Command.FmGlobals
         public long? SoCustomerId { get; set; }
         public long? SoCustomerShipingAddressId { get; set; }
         public string? ShippedBy { get; set; }
+        public string? FmglobalStaus { get; set; }
         public CreateFmGlobalCommand()
         {
         }
@@ -48,6 +49,7 @@ namespace Application.Command.FmGlobals
         public long? CompanyId { get; set; }
         public string TempPalletNo { get; set; }
         public long? PalletEntryNoId { get; set; }
+        public long? LocationId { get; set; }
         public CreateFmGlobalLineCommand()
         {
 
@@ -70,6 +72,25 @@ namespace Application.Command.FmGlobals
         public Guid? SessionId { get; set; }
         public long? ItemBatchInfoId { get; set; }
         public CreateGlobalLineItemCommand()
+        {
+
+        }
+    }
+    public class CreateFmglobalMoveCommand : IRequest<FmglobalMoveResponse>
+    {
+        public long FmglobalMoveId { get; set; }
+        public long? LocationID { get; set; }
+        public long? FmglobalLineId { get; set; }
+        public int? IsMoveQty { get; set; }
+        public int? StatusCodeId { get; set; }
+        public long? AddedByUserId { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public long? ModifiedByUserId { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public long? FmglobalId { get; set; }
+        public long? LocationToID { get; set; }
+        public IEnumerable<long?> PalletMoveEntryNoIds { get; set; }
+        public CreateFmglobalMoveCommand()
         {
 
         }

@@ -1,5 +1,4 @@
-﻿
-@page "/assignToEmail"
+﻿@page "/assignToEmail"
 @using Application.Queries;
 @using global::Core.Entities;
 @using global::Core.Repositories.Query;
@@ -12,6 +11,7 @@
 
 <DxGrid @ref="TOGrid" SearchText="@GridSearchText" 
         Data="_forumTopicTo"
+        VirtualScrollingEnabled="true"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
@@ -22,7 +22,7 @@
         PageSize="20"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 269px);"
+        CssClass="w-100" style="height: calc(100vh - 235px);"
         RowClick="OnEmailToRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
@@ -41,6 +41,10 @@
                         @if (item.Urgent.GetValueOrDefault(false))
                         {
                             <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
+                        }
+                        @if (item.IsAllowParticipants.GetValueOrDefault(false))
+                        {
+                            <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
                         }
                     </strong>
                     <div>
@@ -62,6 +66,7 @@
 
 
 @code {
+   
     IGrid TOGrid { get; set; }
     private List<EmailTopics>? _forumTopicTo;
     public ApplicationUser applicationUser { get; private set; }

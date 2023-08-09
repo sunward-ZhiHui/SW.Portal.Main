@@ -18,6 +18,7 @@
 <DxGrid @ref="AllEmailGrid" SearchText="@GridSearchText"
         Data="_emailTopicAll"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        VirtualScrollingEnabled="true"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
         PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -27,7 +28,7 @@
         PageSize="20"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 308px);"
+        CssClass="w-100" style="height: calc(100vh - 281px);"
         RowClick="OnEmailToRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
@@ -62,6 +63,11 @@
                         @if (item.Urgent.GetValueOrDefault(false))
                         {
                             <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
+                        }
+
+                        @if (item.IsArchive.GetValueOrDefault(false))
+                        {
+                            <span class="urgent_icon"><i class="fa fa-archive" aria-hidden="true"></i></span>
                         }
                     </strong>
                     <div>

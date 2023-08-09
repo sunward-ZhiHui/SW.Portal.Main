@@ -18,9 +18,13 @@ namespace Application.Handlers.CommandHandler
     public class EditFmGlobalHandler : IRequestHandler<EditFmGlobalCommand, FmglobalResponse>
     {
         private readonly IFmGlobalCommandRepository _commandRepository;
-        public EditFmGlobalHandler(IFmGlobalCommandRepository customerRepository)
+        private readonly IFmGlobalLineQueryRepository _fmGlobalLineQueryRepository;
+        private readonly IFmGlobalMoveCommandRepository _fmGlobalMoveCommandRepository;
+        public EditFmGlobalHandler(IFmGlobalCommandRepository commandRepository, IFmGlobalLineQueryRepository fmGlobalLineQueryRepository, IFmGlobalMoveCommandRepository fmGlobalMoveCommandRepository)
         {
-            _commandRepository = customerRepository;
+            _commandRepository = commandRepository;
+            _fmGlobalLineQueryRepository = fmGlobalLineQueryRepository;
+            _fmGlobalMoveCommandRepository = fmGlobalMoveCommandRepository;
         }
         public async Task<FmglobalResponse> Handle(EditFmGlobalCommand request, CancellationToken cancellationToken)
         {
@@ -34,6 +38,34 @@ namespace Application.Handlers.CommandHandler
             try
             {
                 await _commandRepository.UpdateAsync(queryrEntity);
+                if (!string.IsNullOrEmpty(request.FmglobalStaus) && request.FmglobalStaus.ToLower() == "released")
+                {
+                    var result = await _fmGlobalLineQueryRepository.GetAllbyIdsAsync(request.FmglobalId);
+                    if (result != null && result.Count > 0)
+                    {
+                        result.ToList().ForEach(async s =>
+                        {
+                            var Exits = await _fmGlobalLineQueryRepository.GetFMGlobalMoveCheckExits(request.LocationFromId, request.LocationToId,s.FmglobalId, s.FmglobalLineId, 1, 0);
+                            if (Exits == null)
+                            {
+                                var lastInsertedRecordId = await _fmGlobalLineQueryRepository.UpdatePreviosMoveQty(s.FmglobalLineId, request.LocationFromId,request.ModifiedByUserId);
+                                if (lastInsertedRecordId == 0)
+                                {
+                                    FmglobalMove fmglobalMove = new FmglobalMove();
+                                    fmglobalMove.LocationID = request.LocationFromId;
+                                    fmglobalMove.AddedDate = DateTime.Now;
+                                    fmglobalMove.AddedByUserId = request.ModifiedByUserId;
+                                    fmglobalMove.FMGlobalID = request.FmglobalId;
+                                    fmglobalMove.LocationToID = request.LocationToId;
+                                    fmglobalMove.FmglobalLineId = s.FmglobalLineId;
+                                    fmglobalMove.IsHandQty = 1;
+                                    fmglobalMove.TransactionQty = 0;
+                                    await _fmGlobalMoveCommandRepository.AddAsync(fmglobalMove);
+                                }
+                            }
+                        });
+                    }
+                }
             }
             catch (Exception exp)
             {

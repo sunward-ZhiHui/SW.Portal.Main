@@ -13,6 +13,7 @@
 
 <DxGrid @ref="AllEmailGrid" SearchText="@GridSearchText"
         Data="_emailTopicAll"
+        VirtualScrollingEnabled="true"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="ID"
         CustomizeElement="Grid_CustomizeElement"
@@ -23,7 +24,7 @@
         PageSize="20"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 269px);"
+        CssClass="w-100" style="height: calc(100vh - 235px);"
         RowClick="OnEmailToRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
@@ -47,6 +48,10 @@
                         @if (item.OnBehalf == applicationUser.UserID)
                         {
                             <span class="onbehalf_icon"><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+                        }
+                        @if (item.IsAllowParticipants.GetValueOrDefault(false))
+                        {
+                            <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
                         }
                     </strong>
                     <div>

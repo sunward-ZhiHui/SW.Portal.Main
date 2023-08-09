@@ -14,5 +14,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ReportDocuments>> GetAllAsync();
         Task<long> Insert(ReportDocuments reportDocuments);
         Task<long> Update(ReportDocuments reportDocuments);
+        Task<long> Delete(long ReportDocumentID);
     }
 }

@@ -88,6 +88,18 @@ namespace Application.Handlers.QueryHandlers
             return await _queryRepository.GetBySessionIdAsync(request.SessionId);
         }
     }
+    public class GetAllFmGlobalLineByLocationFromHandler : IRequestHandler<GetAllFmGlobalLineByLocationFromQuery, List<ViewFmglobalLine>>
+    {
+        private readonly IFmGlobalLineQueryRepository _queryRepository;
+        public GetAllFmGlobalLineByLocationFromHandler(IFmGlobalLineQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ViewFmglobalLine>> Handle(GetAllFmGlobalLineByLocationFromQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewFmglobalLine>)await _queryRepository.GetAllByLocationFromAsync(request.LocationFromId.Value);
+        }
+    }
     //FmglobalLineItem
     public class GetAllFmGlobalLineItemHandler : IRequestHandler<GetAllFmGlobalLineItemQuery, List<ViewFmglobalLineItem>>
     {
@@ -135,6 +147,18 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<ViewFmglobalLineItem>> Handle(GetPalletMovementListingQuery request, CancellationToken cancellationToken)
         {
             return (List<ViewFmglobalLineItem>)await _queryRepository.GetPalletMovementListingdAsync();
+        }
+    }
+    public class GetPalletMovementListingReportHandler : IRequestHandler<GetPalletMovementListingReportQuery, List<View_FMGlobalMovePackingList>>
+    {
+        private readonly IFmGlobalLineItemQueryRepository _queryRepository;
+        public GetPalletMovementListingReportHandler(IFmGlobalLineItemQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<View_FMGlobalMovePackingList>> Handle(GetPalletMovementListingReportQuery request, CancellationToken cancellationToken)
+        {
+            return (List<View_FMGlobalMovePackingList>)await _queryRepository.GetPalletMovementListingReportdAsync();
         }
     }
     public class CreateFmGlobalAddressHandler : IRequestHandler<CreateFmGlobalAddress, long>

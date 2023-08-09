@@ -21,5 +21,18 @@ namespace Application.Queries
     }
     public class EditReportFileQuery : ReportDocuments, IRequest<long>
     {
+        public byte[] FileContent { get; set; }
+        public string ActFileName { get; set; }
+    }
+    public class DeleteReportdocumentQuery : ReportDocuments, IRequest<long>
+    {
+        public long ReportDocumentID { get; set; }
+      public string ReportName { get; set; }
+
+        public DeleteReportdocumentQuery(long Id, string reportName)
+        {
+            this.ReportDocumentID = Id;
+           this.ReportName = reportName;
+        }
     }
 }

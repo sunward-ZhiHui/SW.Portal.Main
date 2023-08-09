@@ -203,11 +203,14 @@
                                                             {
                                                                 @foreach (var Tagitem in _headTopic_Tag)
                                                                 {
-                                                                    <span class=" handline tagbg">@Tagitem.ManufacturingProcess</span>
+                                                                   @* <span class=" handline tagbg">@Tagitem.ManufacturingProcess</span>
                                                                     <span class=" handline tagbg">@Tagitem.CategoryAction</span>
-                                                                    <span class=" handline tagbg">@Tagitem.ActionName</span>
+                                                                    <span class=" handline tagbg">@Tagitem.ActionName</span>*@
+
+                                                                    <span class=" handline tagbg">@Tagitem.Name</span>
                                                                 }
                                                             }
+
                                                             
                                                            @* <h5>
                                                                 From: @item.FirstName
@@ -734,11 +737,11 @@
                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                     DisplayMode="MenuDisplayMode.Desktop">
                                     <Items>
-                                        @if(IsValidUser)
-                                        {
+                                       @* @if(IsValidUser)
+                                        {*@
                                             <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="((e) => onPreview(_selectlst.DocumentId))" Enabled=PreviewEnabled />
                                             <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectlst.DocumentId))" Enabled=docEnabled />
-                                        }                                       
+                                        @*} *@                                      
                                         
                                     </Items>
                                     </DxMenu>
@@ -821,7 +824,8 @@
                     <Items>
                         <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
                         <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
-                        <DxMenuItem @onclick="onAddCategoryPop" Text="Category" />
+                        <DxMenuItem @onclick="onAddCategoryPop" Text="Tag" />
+                        <DxMenuItem @onclick="onArchivePop" Text="Archive" />
                     </Items>
                 </DxMenu>               
             </BodyTextTemplate>
@@ -915,14 +919,25 @@
 </DxPopup>
 
 
-<DxPopup @bind-Visible="@isTopicCategoryClosed" HeaderText="Category">
+<DxPopup @bind-Visible="@isTopicCategoryClosed" HeaderText="Tag">
     <BodyTemplate Context="PopupContext">
         <div style="padding:10px;">
-
+            <TopicCategory TopicId="@Tid" loadTagsList="onloadTagsList"></TopicCategory>
         </div>
     </BodyTemplate>
 </DxPopup>
 
+<DxPopup @bind-Visible="@isArchiveClosed" HeaderText="Archive">
+    <BodyTemplate Context="PopupContext">       
+    <div class="text-center">
+        <Content>
+            <p>Do you want to Archive this Topic</p>
+        </Content>        
+        <DxButton style="align-items" Text="Yes" Click="@((e) => SubmitIsArchived())"/>
+        <DxButton CssClass="dx-button.dx-icon" Text="No" Click="@(() => ClosePopup())" />
+    </div>      
+    </BodyTemplate>
+</DxPopup>
 
 <DxPopup @bind-Visible="@isAssignToVisible" HeaderText="Assigned To">
     <BodyTemplate Context="PopupContext">      
@@ -1084,7 +1099,7 @@
 
     private Model _dataDuDate = new Model();
     private ModelClose _dataTopicClose = new ModelClose();
-   
+
     string ClosedMsg { get; set; }
     DateTime? DateTimeValue { get; set; }
     DxPopup? popup;
@@ -1105,6 +1120,7 @@
     bool isDueDate =false;
     bool isTopicClosed = false;
     bool isTopicCategoryClosed = false;
+    bool isArchiveClosed = false;
     bool isAllPlistVisible = false;
     bool isAssignToVisible = false;
     bool isComponentVisible = true;
@@ -1121,7 +1137,7 @@
     public List<EmailConversations> _discussionFullList;
     public List<EmailConversations> _replyComment;
     private List<EmailTopics>? _headTopic;
-    private List<ActivityEmailTopics>? _headTopic_Tag;
+    private List<EmailActivityCatgorys>? _headTopic_Tag;
     string FilterString { get; set; }
     private List<EmailParticipant>? _participant;
     EmailParticipant _participantLst { get; set; }
@@ -1410,7 +1426,11 @@
     private void onAddCategoryPop()
     {
         isTopicCategoryClosed = true;
-    }    
+    } 
+    private void onArchivePop()
+    {
+        isArchiveClosed = true;
+    }     
     private void showTopicDescription()
     {
         isDescription = true;
@@ -1739,13 +1759,13 @@
             {
                 MyDocumentFormat = DocumentFormat.OpenXml;
                 documentContent = content;
-                await File.WriteAllBytesAsync(filePath, documentContent);
+                //await File.WriteAllBytesAsync(filePath, documentContent);                
             }
             else if (extension.ToLower() == ".txt")
             {                
                 MyDocumentFormat = DocumentFormat.PlainText;
                 documentContent = content;                
-                await File.WriteAllBytesAsync(filePath, documentContent);
+                //await File.WriteAllBytesAsync(filePath, documentContent);                
             }
             else if(extension.ToLower() == ".pdf")
             {
@@ -1776,21 +1796,21 @@
 
 
 
-        //var url = FileUrl + lst.FilePath;
-        //await OpenUrlInNewTab(url);
-        //NavigationManager.NavigateTo(url, forceLoad: true);
+        var url = FileUrl + lst.FilePath;
+        await OpenUrlInNewTab(url);
+      //  NavigationManager.NavigateTo(url, forceLoad: true);
 
-        var request = new DownloadFileRequest
-            {
-                FileName = lst.FileName, 
-                FilePath = lst.FilePath, 
-                ContentType = lst.ContentType
-            };
+        //var request = new DownloadFileRequest
+        //    {
+        //        FileName = lst.FileName, 
+        //        FilePath = lst.FilePath, 
+        //        ContentType = lst.ContentType
+        //    };
 
-        var response = await Mediator.Send(request);
+        //var response = await Mediator.Send(request);
 
-        //  Trigger file download
-        await JSRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.FileData, response.ContentType,"");
+        ////  Trigger file download
+        //await JSRuntime.InvokeVoidAsync("downloadFile", response.FileName, response.FileData, response.ContentType,"");
     }
     public async Task onDocDelete(long Id)
     {
@@ -1809,6 +1829,22 @@
             toastService.ShowToast("No data found", AC.SD.Core.Services.ToastLevel.Error);
             //isAssignToVisible = false;
         }
+    }
+    private async Task SubmitIsArchived()
+    {       
+        var UpdateReq = new UpdateTopicArchive
+        {
+            ID = long.Parse(@SelectedGroup),                
+            ModifiedByUserID = applicationUser.UserID,
+            ModifiedDate = DateTime.Now
+        };
+        var result = await Mediator.Send(UpdateReq);   
+        
+        isArchiveClosed = false;
+        await LoadData();
+        toastService.ShowToast("Archive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
+        
+
     }
     private async Task SubmitDocDelete(long Id)
     {
@@ -1837,6 +1873,7 @@
     {
         PopupVisible = false;
         DocPopupVisible = false;
+        isArchiveClosed = false;
     }
 
     private void ToggleItemVisibility(int id)
@@ -1916,6 +1953,10 @@
         }
 
     }
+    private async void onloadTagsList()
+    {
+        _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
+    }
 
     private async Task LoadData()
     {
@@ -1981,7 +2022,8 @@
         if(long.Parse(@SelectedGroup) != 0)
         {
             _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));
-            _headTopic_Tag = await Mediator.Send(new GetByActivityEmailSession(_headTopic[0].SessionId.GetValueOrDefault()));
+            //_headTopic_Tag = await Mediator.Send(new GetByActivityEmailSession(_headTopic[0].SessionId.GetValueOrDefault()));
+            _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
 
 
             isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;

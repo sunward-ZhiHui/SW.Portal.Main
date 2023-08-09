@@ -4,6 +4,8 @@
 @using MediatR;
 @inject IMediator Mediator
 @using global::Core.Entities.Views;
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
 
 
   <div class="card w-100" style="margin-bottom:10px;">
@@ -12,9 +14,9 @@
                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                     DisplayMode="MenuDisplayMode.Desktop">
                 <Items>
-                    <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="@onView" />
-                    <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="@onCopyLink"  />
-                <DxMenuItem Text="Reserve Number Series" IconCssClass="fa fa-list-ol" Click="@onReserveNumberSeries" />
+                    <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="@onView" Enabled="false"/>
+                    <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="@onCopyLink" Enabled="false" />
+                <DxMenuItem Text="Reserve Number Series" IconCssClass="fa fa-list-ol" Click="@onReserveNumberSeries" Enabled="false"/>
                 </Items>
             </DxMenu>
         </div>
@@ -92,9 +94,10 @@
 
         StateHasChanged();
     }
-    void OnRowDoubleClick(GridRowClickEventArgs e)
+  async  void  OnRowDoubleClick(GridRowClickEventArgs e)
     {
-        
+     // await   jsRuntime.InvokeVoidAsync("" + fileName + "", "_blank");
+        NavigationManager.NavigateTo($"fileProfileTypeTreeView/"+ _selectedItems.FileProfileTypeId);
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

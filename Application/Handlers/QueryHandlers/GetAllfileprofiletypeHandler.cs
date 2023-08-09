@@ -10,16 +10,16 @@ using System.Threading.Tasks;
 
 namespace Application.Handlers.QueryHandlers
 {
-    public class GetAllfileprofiletypeHandler : IRequestHandler<GetAllfileprofiletypeQuery, List<fileprofiletype>>
+    public class GetAllfileprofiletypeHandler : IRequestHandler<GetAllfileprofiletypeQuery, List<Fileprofiletype>>
     {
-        private readonly IfileprofileQueryRepository _fileprofileQueryRepository;
-        public GetAllfileprofiletypeHandler(IfileprofileQueryRepository fileprofileQueryRepository)
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetAllfileprofiletypeHandler(IFileprofileQueryRepository fileprofileQueryRepository)
         {
             _fileprofileQueryRepository = fileprofileQueryRepository;
         }
-        public async Task<List<fileprofiletype>> Handle(GetAllfileprofiletypeQuery request, CancellationToken cancellationToken)
+        public async Task<List<Fileprofiletype>> Handle(GetAllfileprofiletypeQuery request, CancellationToken cancellationToken)
         {
-            return (List<fileprofiletype>)await _fileprofileQueryRepository.GetAllAsync();
+            return (List<Fileprofiletype>)await _fileprofileQueryRepository.GetAllAsync(request.FileProfileTypeID);
         }
 
     }

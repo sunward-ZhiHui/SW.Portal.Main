@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Core.Repositories.Query
 {
-    public interface IfileprofileQueryRepository : IQueryRepository<fileprofiletype>
+    public interface IFileprofileQueryRepository : IQueryRepository<Fileprofiletype>
     {
-        Task<IReadOnlyList<fileprofiletype>> GetAllAsync();
+        Task<IReadOnlyList<Fileprofiletype>> GetAllAsync(long FileProfileTypeID);
     }
 }

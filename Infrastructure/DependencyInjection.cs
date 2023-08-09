@@ -139,7 +139,7 @@ namespace Infrastructure
             services.AddTransient<IFileProfileTypeDocumentQueryRepository, FileProfileTypeDocumentQueryRepository>();
 
             services.AddTransient<IFmGlobalMoveCommandRepository, FmGlobalMoveCommandRepository>();
-            services.AddTransient<IfileprofileQueryRepository,fileprofiletypeQueryRepository>();
+            services.AddTransient<IFileprofileQueryRepository,FileprofiletypeQueryRepository>();
             return services;
         }
     }

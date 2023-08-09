@@ -9,7 +9,12 @@ using System.Threading.Tasks;
 
 namespace Application.Queries
 {
-    public class GetAllfileprofiletypeQuery : PagedRequest, IRequest<List<fileprofiletype>>
+    public class GetAllfileprofiletypeQuery : PagedRequest, IRequest<List<Fileprofiletype>>
     {
+        public long FileProfileTypeID { get; private set; }
+        public GetAllfileprofiletypeQuery(long FileProfileTypeID)
+        {
+            this.FileProfileTypeID = FileProfileTypeID;
+        }
     }
 }

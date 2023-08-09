@@ -1,32 +1,116 @@
 ﻿using Core.Entities;
+using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
 using Infrastructure.Repository.Query.Base;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static DevExpress.Xpo.DB.DataStoreLongrunnersWatch;
 
 namespace Infrastructure.Repository.Query
 {
-    public class fileprofiletypeQueryRepository : QueryRepository<fileprofiletype>, IfileprofileQueryRepository
+    public class FileprofiletypeQueryRepository : QueryRepository<Fileprofiletype>, IFileprofileQueryRepository
     {
-        public fileprofiletypeQueryRepository(IConfiguration configuration) : base(configuration)
+        public FileprofiletypeQueryRepository(IConfiguration configuration) : base(configuration)
         {
         }
 
-        public async Task<IReadOnlyList<fileprofiletype>> GetAllAsync()
+        public async Task<IReadOnlyList<Fileprofiletype>> GetAllAsync(long fileProfileTypeID)
         {
+            List<Fileprofiletype> fileprofiletype = new List<Fileprofiletype>();
             try
             {
-                var query = "SELECT * FROM Fileprofiletype";
+                var parameters = new DynamicParameters();
+                parameters.Add("FileProfileTypeId", fileProfileTypeID);
 
+                var query = @"WITH RecursiveHierarchy AS(
+                                SELECT
+                                    FileProfileTypeID,
+                                    ParentID,
+                                    Name,
+                                    FileProfileTypeID AS RootID
+
+                                FROM
+                                    FileProfileType
+                                WHERE
+                                    ParentID IS NULL
+
+                                UNION ALL
+
+                                SELECT
+                                    t.FileProfileTypeID,
+                                    t.ParentID,
+                                    t.Name,
+                                    rh.RootID
+
+                                FROM
+                                    FileProfileType t
+                                JOIN
+                                    RecursiveHierarchy rh ON t.ParentID = rh.FileProfileTypeID
+                            )
+                            SELECT
+                                FileProfileTypeID,
+                                ParentID,
+                                Name,
+                                RootID
+
+
+                            FROM
+                                RecursiveHierarchy
+                            WHERE
+                                RootID = @FileProfileTypeId";
+
+                                
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<fileprofiletype>(query)).ToList();
+                    var result = (await connection.QueryAsync<Fileprofiletype>(query, parameters)).ToList();
+                    result.ForEach(s =>
+                    {
+                        if (!s.ParentId.HasValue)
+                        {
+                            Fileprofiletype applicationChildDataResponse = new Fileprofiletype
+                            {
+                                FileProfileTypeId = s.FileProfileTypeId,
+                                ProfileId = s.ProfileId,
+                                ParentId = s.ParentId,
+                                Name = s.Name,
+                                Label = s.Name,
+                            };
+                            fileprofiletype.Add(applicationChildDataResponse);
+                        }
+                        else
+                        {
+                            var applicationChild = fileprofiletype.FirstOrDefault(a => a.FileProfileTypeId == s.ParentId);
+                            if (applicationChild != null)
+                            {
+                                applicationChild.Children.Add(new Fileprofiletype
+                                {
+                                    FileProfileTypeId = s.FileProfileTypeId,
+                                    ProfileId = s.ProfileId,
+                                    ParentId = s.ParentId,
+                                    Name = s.Name,
+                                    Label = s.Name,
+                                });
+                            }
+                            else
+                            {
+                                fileprofiletype.ToList().ForEach(applicationChildModel =>
+                                {
+                                    AddChildLevelData(applicationChildModel, s);
+                                });
+                            }
+                        }
+                    });
                 }
+               
+                
+                return fileprofiletype;
             }
             catch (Exception exp)
             {
@@ -34,6 +118,26 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        
+        private void AddChildLevelData(Fileprofiletype applicationChildModel, Fileprofiletype childData)
+        {
+            applicationChildModel.Children.ToList().ForEach(parent =>
+            {
+                if (parent.FileProfileTypeId == childData.ParentId)
+                {
+                    parent.Children.Add(new Fileprofiletype
+                    {
+                        FileProfileTypeId = childData.FileProfileTypeId,
+                        ProfileId = childData.ProfileId,
+                        ParentId = childData.ParentId,
+                        Name = childData.Name,
+                        Label = childData.Name,
+                    });
+                }
+                else
+                {
+                    AddChildLevelData(parent, childData);
+                }
+            });
+        }
     }
 }

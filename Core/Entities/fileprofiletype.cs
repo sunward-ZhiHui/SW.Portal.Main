@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Core.EntityModels;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    public class fileprofiletype
+    public class Fileprofiletype
     {
         public long FileProfileTypeId { get; set; }
         public long ProfileId { get; set; }
@@ -32,5 +34,8 @@ namespace Core.Entities
         public string ProfileInfo { get; set; }
         public bool? IsTemplateCaseNo { get; set; }
         public long? TemplateTestCaseId { get; set; }
+        [NotMapped]
+        public string? Label { get; set; }
+        public List<Fileprofiletype> Children { get; set; } = new List<Fileprofiletype>();
     }
 }

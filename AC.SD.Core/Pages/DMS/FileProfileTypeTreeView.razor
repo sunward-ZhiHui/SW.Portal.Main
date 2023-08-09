@@ -1,0 +1,59 @@
+﻿@page "/fileProfileTypeTreeView"
+@page "/fileProfileTypeTreeView/{FileProfileTypeId}"
+@using Application.Queries;
+@using global::Core.Entities;
+@using MediatR
+@inject IMediator Mediator
+              
+<div class="main-container">
+
+   <div class="content-container row">
+        <div class=" col-md-4">
+                <div class="mini-menu-bar-top" style="height: calc(100vh - 200px);">
+                <div class="mini-menu-bar-heading">
+                        <div class="files-title"> </div>
+
+
+                </div>
+               <div>
+                 <div class="views-accordion">
+                           <DxTreeView Data="@_TreeData"
+                        @bind-FilterString="FilterString"
+                                            FilterMinLength="2"
+                                            ShowFilterPanel="true"
+                                            FilterMode="FilterMode"
+                                            AllowSelectNodes="true"
+                                            LoadChildNodesOnDemand=false
+                                            AnimationType="LayoutAnimationType.Slide">
+                                            <DataMappings>
+                                            <DxTreeViewDataMapping Children="Children" CssClass="CssClass" Text="Label" Name="ParentID" />
+                                            </DataMappings>
+                                </DxTreeView>
+                    </div>
+                </div>
+            </div>
+       <div class="menu-bar-content-container col-md-8">
+
+       </div>
+    
+      </div>
+   </div>
+ </div>
+ @code {
+
+    [Parameter]
+    public string FileProfileTypeId { get; set; }
+         DxTreeView treeview;
+        private List<Fileprofiletype> _TreeData { get; set; }
+        string FilterString { get; set; }
+        string SelectedGroup = "none";
+        NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;
+
+       protected override async Task OnInitializedAsync()
+       {
+
+        _TreeData = await Mediator.Send(new GetAllfileprofiletypeQuery(long.Parse(FileProfileTypeId)));
+
+       }
+   
+    }

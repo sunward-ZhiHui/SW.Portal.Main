@@ -1,0 +1,114 @@
+﻿
+@page "/fileprofiletypedocument"
+@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities.Views;
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+
+
+  <div class="card w-100" style="margin-bottom:10px;">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="@onView" Enabled="false"/>
+                    <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="@onCopyLink" Enabled="false" />
+                <DxMenuItem Text="Reserve Number Series" IconCssClass="fa fa-list-ol" Click="@onReserveNumberSeries" Enabled="false"/>
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+
+                                             <DxGrid @ref="Grid"
+                                                Data="fileProfileTypeDocuments"
+                                                KeyFieldName="FileProfileTypeId"
+                                                EditMode="GridEditMode.EditForm" 
+                                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                                EditorRenderMode="GridEditorRenderMode.Integrated"
+                                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                                ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                                PagerNavigationMode="PagerNavigationMode.InputBox" 
+                                                PageSizeSelectorVisible="true"
+                                                PageSizeSelectorAllRowsItemVisible="true"
+                                                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                                PageSize="20"  CustomizeElement="Grid_CustomizeElement"    ValidationEnabled="false"                                            F
+                                                RowClick="OnRowClick"
+                                                RowDoubleClick="OnRowDoubleClick"
+                                                FocusedRowEnabled="true"
+                                                AllowSelectRowByClick="true"
+                                                SelectionMode="GridSelectionMode.Single"
+                                                CssClass="ch-360"
+                                                style="height: calc(100vh - 220px);">
+                                            <Columns>
+                                                
+                                                <DxGridDataColumn FieldName="Profile"  MinWidth="80" />
+                                                <DxGridDataColumn FieldName="Name" MinWidth="80" />
+                                                 <DxGridDataColumn FieldName="Description" MinWidth="80" />
+                                                  <DxGridDataColumn FieldName="AddedBy" MinWidth="80" />
+                                            </Columns>
+                                           
+                                        </DxGrid>
+                              </DxLoadingPanel>
+
+@code {
+    IGrid Grid { get; set; }
+    private List<view_FileProfileTypeDocument> fileProfileTypeDocuments { get; set; }
+    bool PanelVisible { get; set; }
+    private view_FileProfileTypeDocument _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+        //PanelVisible = true;
+
+        PanelVisible = true;
+        fileProfileTypeDocuments = await Mediator.Send(new GetAllFileProfileTypeDocuments());
+      
+        PanelVisible = false;
+    }
+
+    void onView()
+    {
+
+    }
+    void onCopyLink()
+    {
+
+    }
+    void onReserveNumberSeries()
+    {
+
+    }
+    async void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        _selectedItems = fileProfileTypeDocuments.FirstOrDefault(f => f.FileProfileTypeId == (long?)UniqueId);
+
+        StateHasChanged();
+    }
+  async  void  OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+     // await   jsRuntime.InvokeVoidAsync("" + fileName + "", "_blank");
+        NavigationManager.NavigateTo($"fileProfileTypeTreeView/"+ _selectedItems.FileProfileTypeId);
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
+}

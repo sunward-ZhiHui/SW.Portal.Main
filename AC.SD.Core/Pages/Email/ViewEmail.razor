@@ -219,11 +219,11 @@
                                                                         <span class=" handline tagbg">@Tagitem.ActionName</span>
                                                                     }
 
-                                                                     @if(Tagitem.Name != null)
+                                                                    @if (!string.IsNullOrWhiteSpace(Tagitem.Name))
                                                                     {
-                                                                        <span class=" handline tagbg">@Tagitem.Name</span>
-                                                                    }                                                                   
-                                                                    
+                                                                        <span class="handline tagbg">@Tagitem.Name</span>
+                                                                    }
+
                                                                 }
                                                             }
 
@@ -941,7 +941,7 @@
 <DxPopup @bind-Visible="@isTopicCategoryClosed" HeaderText="Tag" AllowResize="true">
     <BodyTemplate Context="PopupContext">
         <div style="padding:10px;">
-            <TopicTags TopicId="@Tid" loadTagsList="onloadTagsList"></TopicTags>
+           @* <TopicTags TopicId="@Tid" loadTagsList="onloadTagsList"></TopicTags>*@
         </div>
     </BodyTemplate>
 </DxPopup>
@@ -1974,7 +1974,7 @@
         }
 
     }
-    private async void onloadTagsList()
+    public async void onloadTagsList()
     {
         _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
     }

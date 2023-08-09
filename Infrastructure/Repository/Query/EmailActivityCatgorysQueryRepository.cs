@@ -23,7 +23,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT DISTINCT Name FROM EmailActivityCatgorys";
+                var query = "SELECT DISTINCT Name FROM EmailActivityCatgorys where Name IS NOT NULL";
 
                 using (var connection = CreateConnection())
                 {

@@ -13,7 +13,7 @@ namespace Core.Entities
         [Key]
         public long ID { get; set; }
         public long TopicId { get; set; }
-        [Required]
+        [EitherRequired("Name", "GroupTag", ErrorMessage = "Either Others or GroupTag is required.")]
         public string Name { get; set; }
         public long? GroupTag { get; set; }
         public long? CategoryTag { get; set; }
@@ -33,4 +33,42 @@ namespace Core.Entities
         [NotMapped]
         public string AddedBy { get; set; }
     }
+
+
+    public class EitherRequiredAttribute : ValidationAttribute
+    {
+        private readonly string[] _propertyNames;
+
+        public EitherRequiredAttribute(params string[] propertyNames)
+        {
+            _propertyNames = propertyNames;
+        }
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            var hasValue = false;
+
+            foreach (var propertyName in _propertyNames)
+            {
+                var property = validationContext.ObjectType.GetProperty(propertyName);
+                if (property != null)
+                {
+                    var propertyValue = property.GetValue(validationContext.ObjectInstance);
+                    if (propertyValue != null && !string.IsNullOrWhiteSpace(propertyValue.ToString()))
+                    {
+                        hasValue = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!hasValue)
+            {
+                return new ValidationResult(ErrorMessage);
+            }
+
+            return ValidationResult.Success;
+        }
+    }
+
 }

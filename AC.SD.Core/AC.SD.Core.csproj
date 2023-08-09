@@ -106,6 +106,12 @@
     <None Include="Pages\HR\Employee.razor" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="DevExpress.Blazor.Reporting.v23.1.JSBasedControls.BlazorServer">
+      <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.Blazor.Reporting.v23.1.JSBasedControls.BlazorServer.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Blazor.Reporting.v23.1.JSBasedControls.Common">
+      <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.Blazor.Reporting.v23.1.JSBasedControls.Common.dll</HintPath>
+    </Reference>
     <Reference Include="DevExpress.Blazor.Reporting.v23.1.Viewer">
       <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.Blazor.Reporting.v23.1.Viewer.dll</HintPath>
     </Reference>

@@ -14,7 +14,13 @@ namespace Core.Entities
         public long ID { get; set; }
         public long TopicId { get; set; }
         [Required]
-        public string Name { get; set; }      
+        public string Name { get; set; }
+        public long? GroupTag { get; set; }
+        public long? CategoryTag { get; set; }
+        public long? ActionTag { get; set; }
+        public string? GroupName { get; set; }
+        public string? CategoryName { get; set; }
+        public string? ActionName { get; set; }
         public string Description { get; set; }
         public DateTime AddedDate { get; set; }
         public long? ModifiedByUserID { get; set; }

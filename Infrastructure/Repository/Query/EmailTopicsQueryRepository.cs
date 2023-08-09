@@ -518,7 +518,39 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        public long DeleteTopicDraftList(long TopicId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("TopicId", TopicId);
+                        parameters.Add("Option", "EMAIL_DRAFT_DELETE");                       
+                        connection.Open();
+                        var task = connection.ExecuteAsync("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        task.Wait(); // Synchronously wait for the task to complete
+                        var rowsAffected = task.Result; // Retrieve the result
+
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailTopics>> GetSubTopicSearchAllList(long TopicId, long UserId,string SearchTxt)
         {
             try
@@ -1386,8 +1418,6 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
-
     }
     
 }

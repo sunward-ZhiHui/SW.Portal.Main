@@ -39,7 +39,11 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT * FROM EmailActivityCatgorys WHERE TopicId = @TopicId";
+                var query = @"SELECT t3.Value as GroupName,t4.Value as CategoryName,t5.Value as ActionName, t2.* FROM EmailActivityCatgorys t2
+                                LEFT JOIN ApplicationMasterChild t3 ON t3.ApplicationMasterChildID=t2.GroupTag
+                                LEFT JOIN ApplicationMasterChild t4 ON t4.ApplicationMasterChildID=t2.CategoryTag
+                                LEFT JOIN ApplicationMasterChild t5 ON t5.ApplicationMasterChildID=t2.ActionTag
+                                WHERE t2.TopicId = @TopicId";
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId);
 
@@ -67,6 +71,9 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("TopicId", emailActivityCatgorys.TopicId);
+                            parameters.Add("GroupTag", emailActivityCatgorys.GroupTag);
+                            parameters.Add("CategoryTag", emailActivityCatgorys.CategoryTag);
+                            parameters.Add("ActionTag", emailActivityCatgorys.ActionTag);
                             parameters.Add("Name", emailActivityCatgorys.Name);
                             parameters.Add("Description", emailActivityCatgorys.Description);
                             parameters.Add("StatusCodeID", emailActivityCatgorys.StatusCodeID);
@@ -76,7 +83,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", emailActivityCatgorys.ModifiedDate);
                             parameters.Add("SessionId", emailActivityCatgorys.SessionId);
 
-                            var query = "INSERT INTO EmailActivityCatgorys(Name,TopicId,Description,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId) VALUES (@Name,@TopicId,@Description,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId)";
+                            var query = "INSERT INTO EmailActivityCatgorys(Name,GroupTag,CategoryTag,ActionTag,TopicId,Description,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId) VALUES (@Name,@GroupTag,@CategoryTag,@ActionTag,@TopicId,@Description,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -118,6 +125,9 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("ID", emailActivityCatgorys.ID);
                             parameters.Add("TopicId", emailActivityCatgorys.TopicId);
+                            parameters.Add("GroupTag", emailActivityCatgorys.GroupTag);
+                            parameters.Add("CategoryTag", emailActivityCatgorys.CategoryTag);
+                            parameters.Add("ActionTag", emailActivityCatgorys.ActionTag);
                             parameters.Add("Name", emailActivityCatgorys.Name);
                             parameters.Add("Description", emailActivityCatgorys.Description);
                             parameters.Add("StatusCodeID", emailActivityCatgorys.StatusCodeID);
@@ -127,7 +137,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", emailActivityCatgorys.ModifiedDate);
                             parameters.Add("SessionId", emailActivityCatgorys.SessionId);
 
-                            var query = @"Update EmailActivityCatgorys SET Name = @Name,TopicId=@TopicId,Description=@Description,StatusCodeID=@StatusCodeID,AddedByUserID=@AddedByUserID,ModifiedByUserID=@ModifiedByUserID,AddedDate=@AddedDate,ModifiedDate=@ModifiedDate,SessionId=@SessionId WHERE ID = @ID";
+                            var query = @"Update EmailActivityCatgorys SET Name = @Name,GroupTag = @GroupTag,CategoryTag = @CategoryTag,ActionTag = @ActionTag,TopicId=@TopicId,Description=@Description,StatusCodeID=@StatusCodeID,AddedByUserID=@AddedByUserID,ModifiedByUserID=@ModifiedByUserID,AddedDate=@AddedDate,ModifiedDate=@ModifiedDate,SessionId=@SessionId WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
                             transaction.Commit();

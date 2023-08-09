@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
@@ -138,6 +139,27 @@ namespace Infrastructure.Repository.Query
                     AddChildLevelData(parent, childData);
                 }
             });
+        }
+
+       
+        public async Task<IReadOnlyList<view_GetFileProfileTypeDocument>> GetAllSelectedFileAsync(long selectedFileProfileTypeID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("FileProfileTypeId", selectedFileProfileTypeID);
+
+                var query = "select  * from view_GetFileProfileTypeDocument where FileProfileTypeId=@FileProfileTypeId";
+
+                using (var connection = CreateConnection())
+                {
+                    return connection.Query<view_GetFileProfileTypeDocument>(query, parameters).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
     }
 }

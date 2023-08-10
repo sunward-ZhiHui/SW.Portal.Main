@@ -281,8 +281,8 @@
         if (_topicCategorys.Count > 0)
         {
             _selectedItems = _topicCategorys.FirstOrDefault();
-            EditEnabled = true;
-            DeleteEnabled = true;
+            EditEnabled = false;
+            DeleteEnabled = false;
             AddEnabled = false;
             StateHasChanged();
         }
@@ -305,10 +305,14 @@
         if (_topicCategorys.Count == 0)
         {
             AddEnabled = true;
+            EditEnabled = true;
+            DeleteEnabled = true;
         }
         else
         {
             AddEnabled = false;
+            EditEnabled = false;
+            DeleteEnabled = false;
         }
 
         //if (_topicCategorys.Count > 0)

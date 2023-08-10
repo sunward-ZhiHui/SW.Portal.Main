@@ -84,6 +84,11 @@
                         
                    
                     </div>
+                    <DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
                     <DxGrid @ref="Grid"
                             Data="_fileProfileselectedlst"
                             KeyFieldName="FileProfileTypeId"
@@ -121,7 +126,7 @@
                             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DocumentName" />
                         </TotalSummary>
                     </DxGrid>
-
+                    </DxLoadingPanel>
                 </div>
             </div>
         </div>
@@ -142,16 +147,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-
+        PanelVisible = true;
         _TreeData = await Mediator.Send(new GetAllfileprofiletypeQuery(long.Parse(FileProfileTypeId)));
-      
+        PanelVisible = false;
     }
     private async Task SelectionChanged(TreeViewNodeEventArgs e)
     {
         var list = (Fileprofiletype)e.NodeInfo.DataItem;
-      
+        PanelVisible = true;
         _fileProfileselectedlst = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(list.FileProfileTypeId));
-
+        PanelVisible = false;
     }
 
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)

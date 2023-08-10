@@ -19,7 +19,23 @@
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew"/>
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Completed" IconCssClass="fa fa-check-square" Click="@addDelete" Enabled=@DeleteEnabled />
+                <DxMenu Visible="@Complete">
+                    <Items>
+                       
+                        <DxMenuItem Text="Completed" IconCssClass="fa fa-check-square" Click="@addDelete" style="float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999; width:100px;" />
+                    </Items>
+                </DxMenu>
+
+                <DxMenu Visible="@Incomplete">
+                    <Items>
+                        <DxMenuItem Text="InCompleted" IconCssClass="fa fa-check-square" Click="@onIncomplete" style="float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999; width:100px;" />
+                    </Items>
+                </DxMenu>
+
+
+             @*   <DxMenuItem Text="Completed" IconCssClass="fa fa-check-square" Click="@addDelete" Enabled=@DeleteEnabled />
+
+                <DxMenuItem Text="InCompleted" IconCssClass="fa fa-check-square" Click="@onIncomplete" Enabled=@DeleteEnabled />*@
                 @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
             </Items>
         </DxMenu>
@@ -92,6 +108,22 @@
     </DxGrid>
 </DxLoadingPanel>
 
+<DxPopup @bind-Visible="@IncompletePopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to Incomplete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="@((e) => onInCompleteAction(_selectedItems.ID))" />
+    </FooterContentTemplate>
+</DxPopup>
+
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
          HeaderText="CRT"
@@ -99,7 +131,7 @@
          Width="300px">
     <BodyContentTemplate>
         <p>
-            Do you want to delete
+            Do you want to Complete
         </p>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -108,6 +140,9 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    bool IncompletePopup { get; set; } = false;
+    bool Complete { get; set; } = false;
+    bool Incomplete { get; set; } = false;
     bool PanelVisible { get; set; }    
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
@@ -137,7 +172,7 @@
     {
         //var tId = TopicId;
         PanelVisible = true;
-      
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID));
         PanelVisible = false;
@@ -158,13 +193,13 @@
 
         if (_toDoNotes.Count == 0)
         {
-            
+
             //EditEnabled = true;
             //DeleteEnabled = true;
         }
         else
         {
-            
+
             //EditEnabled = false;
             //DeleteEnabled = false;
         }
@@ -175,7 +210,7 @@
         //    DeleteEnabled = true;
         //    StateHasChanged();
         //}
-       
+
         StateHasChanged();
 
     }
@@ -294,6 +329,7 @@
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
+        IncompletePopup = false;
         PopupVisible = false;
         UpdateDataAsync();
     }
@@ -337,6 +373,16 @@
         _selectedItems = _toDoNotes.FirstOrDefault(f => f.ID == (long?)UniqueId);
         DeleteEnabled = true;
         NotesId?.Invoke((long)UniqueId);
+        if (_selectedItems.Completed == true )
+        {
+            Incomplete = true;
+            Complete = false;
+        }
+        else
+        {
+            Complete = true;
+            Incomplete = false;
+        }
         StateHasChanged();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
@@ -354,9 +400,20 @@
     {
         Grid.StartEditDataItemAsync(_selectedItems);
     }
+    void  onIncomplete()
+    {
+        IncompletePopup = true;
+    }
     void addDelete()
     {
         Blukdeletepopup = true;
+    }
+    async Task onInCompleteAction(long Id)
+    {
+        var request = new IncompleteTodoNoteQuery(Id);
+        await Mediator.Send(request);
+        Incomplete = false;
+        toastService.ShowToast("Record InCompleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
     }
     async Task bulkDelete()
     {
@@ -372,7 +429,7 @@
                         var request = new DeleteToDoNotesQuery(ToDoNotes.ID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
-                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        toastService.ShowToast("Record Completed Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         Grid.SetFocusedRowIndex(0);
                     }
 

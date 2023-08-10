@@ -82,4 +82,18 @@ namespace Application.Handlers.QueryHandlers
             return newlist;
         }
     }
+    public class IncompleteToDoNotesHandler : IRequestHandler<IncompleteTodoNoteQuery, long>
+    {
+        private readonly IToDoNotesQueryRepository _toDoNotesQueryRepository;
+        public IncompleteToDoNotesHandler(IToDoNotesQueryRepository toDoNotesQueryRepository)
+        {
+            _toDoNotesQueryRepository = toDoNotesQueryRepository;
+        }
+
+        public async Task<long> Handle(IncompleteTodoNoteQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _toDoNotesQueryRepository.IncompleteAsync(request.incompleteID);
+            return newlist;
+        }
+    }
 }

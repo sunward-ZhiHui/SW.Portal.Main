@@ -18,7 +18,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled=@DeleteEnabled />
                 @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
@@ -210,6 +210,7 @@
     private bool loading;
     bool Blukdeletepopup { get; set; } = false;
     bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     string SelectedGroup = "none";
     [Parameter]
@@ -282,19 +283,34 @@
             _selectedItems = _topicCategorys.FirstOrDefault();
             EditEnabled = true;
             DeleteEnabled = true;
+            AddEnabled = false;
             StateHasChanged();
+        }
+
+        if(_topicCategorys.Count == 0)
+        {
+            AddEnabled = true;
         }
     }
     public async Task loadTagList(long tid)
     {
         _topicCategorys = await Mediator.Send(new GetAllTopicCategory(tid));
     }
-    async Task UpdateDataAsync()
+    public async Task UpdateDataAsync()
     {
         PanelVisible = true;     
         _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
-
         PanelVisible = false;
+
+        if (_topicCategorys.Count == 0)
+        {
+            AddEnabled = true;
+        }
+        else
+        {
+            AddEnabled = false;
+        }
+
         //if (_topicCategorys.Count > 0)
         //{
         //    _selectedItems = _topicCategorys.FirstOrDefault();
@@ -349,7 +365,7 @@
             {
                 if (_topicCategorys.Count > 0)
                 {
-                    toastService.ShowToast("Applicable Total 3 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
+                    toastService.ShowToast("Applicable Total 1 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
                     return;
                 }
 

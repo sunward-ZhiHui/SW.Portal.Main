@@ -1,0 +1,3 @@
+﻿@using DocumentViewer
+@using DocumentViewer.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

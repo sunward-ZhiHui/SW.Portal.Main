@@ -278,19 +278,21 @@
         _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
         PanelVisible = false;       
 
-        if (_topicCategorys.Count > 0)
-        {
-            _selectedItems = _topicCategorys.FirstOrDefault();
-            EditEnabled = false;
-            DeleteEnabled = false;
-            AddEnabled = false;
-            StateHasChanged();
-        }
+        //if (_topicCategorys.Count > 0)
+        //{
+        //    _selectedItems = _topicCategorys.FirstOrDefault();
+        //    EditEnabled = true;
+        //    DeleteEnabled = true;
+        //    AddEnabled = false;
+        //    StateHasChanged();
+        //}
 
         if(_topicCategorys.Count == 0)
         {
             AddEnabled = true;
+
         }
+
     }
     public async Task loadTagList(long tid)
     {
@@ -305,15 +307,9 @@
         if (_topicCategorys.Count == 0)
         {
             AddEnabled = true;
-            EditEnabled = true;
-            DeleteEnabled = true;
+
         }
-        else
-        {
-            AddEnabled = false;
-            EditEnabled = false;
-            DeleteEnabled = false;
-        }
+
 
         //if (_topicCategorys.Count > 0)
         //{
@@ -467,6 +463,7 @@
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
+
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -476,9 +473,9 @@
         }
         else
         {
-           var editModel = (EmailActivityCatgorys)e.EditModel;            
-           GroupTagChanged(editModel.GroupTag);            
-           CategoryTagChange(editModel.CategoryTag);
+            var editModel = (EmailActivityCatgorys)e.EditModel;            
+            GroupTagChanged(editModel.GroupTag);            
+            CategoryTagChange(editModel.CategoryTag);
         }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -494,13 +491,14 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _topicCategorys.FirstOrDefault(f => f.ID == (long?)UniqueId);
         DeleteEnabled = true;
+        EditEnabled = true;
         StateHasChanged();
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowClick(e);
         addEdit();
-       
+
     }
     void addNew()
     {
@@ -531,7 +529,7 @@
         //    Grid.StartEditDataItemAsync(_selectedItems);
         //}
 
-      
+
 
 
 
@@ -558,6 +556,9 @@
                         var request = new DeleteTopicCategoryQery(emailActivityCatgorys.ID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
+                        AddEnabled=true;
+                        DeleteEnabled=false;
+                        EditEnabled = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
                         Grid.SetFocusedRowIndex(0);
                     }

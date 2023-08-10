@@ -3,6 +3,7 @@
 @using Application.Response;
 @using MediatR
 @using global::Core.Entities;
+@using global::Core.EntityModels;
 @inject IMediator Mediator
 @using DevExpress.Export
 @using global::Core.Repositories.Query;
@@ -17,7 +18,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled=@DeleteEnabled />
                 @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
@@ -50,9 +51,11 @@
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
             PageSize="20"           
             CssClass="ch-360"
+            style="height:calc(100vh - 350px);min-height:350px !important"
             FocusedRowEnabled="true"
             RowClick="OnRowClick"
             AllowSelectRowByClick="true"
+            CustomizeEditModel="Grid_CustomizeEditModel"
             CustomizeElement="Grid_CustomizeElement"
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
@@ -61,7 +64,10 @@
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />         
             @*<DxGridDataColumn FieldName="RowIndex" Caption="#" Width="35px" Visible="false"></DxGridDataColumn>*@
-            <DxGridDataColumn FieldName="Name" />
+            <DxGridDataColumn FieldName="GroupName" Caption="Group" />
+            <DxGridDataColumn FieldName="CategoryName" Caption="Category" />
+            <DxGridDataColumn FieldName="ActionName" Caption="Action" />
+            <DxGridDataColumn FieldName="Name" Caption="Others" />
            @* <DxGridDataColumn FieldName="Description" />*@
             @*<DxGridDataColumn FieldName="AddedDate">
                 <CellDisplayTemplate>
@@ -103,20 +109,66 @@
                 var types = (EmailActivityCatgorys)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Tag:" ColSpanMd="12">                    
+
+
+                <DxFormLayoutItem Caption="Group" ColSpanMd="6">
+                    <DxComboBox Data="@_groupTagItems"
+                                NullText="Select Group Tag..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                Enabled="@isEnabled"
+                                @bind-Value="@types.GroupTag"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
+                                ShowValidationIcon="true">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.GroupTag)" />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="Category" ColSpanMd="6">
+                    <DxComboBox Data="@_categoryTagItems"
+                                NullText="Select State..."
+                                Enabled="@isEnabled"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@types.CategoryTag"
+                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.CategoryTag)" />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="Action" ColSpanMd="6">
+                    <DxComboBox Data="@_actionTagItems"
+                                NullText="Select City..."
+                                Enabled="@isEnabled"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Value"
+                                ValueFieldName="ApplicationMasterChildId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@types.ActionTag">
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.ActionTag)" />
+                </DxFormLayoutItem>
+
+
+                <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="6">
                     <DxComboBox Data="@_AllCategory"
-                        AllowUserInput="true"
-                        NullText="Select Tag..."
-                        ListRenderMode="ListRenderMode.Virtual"
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Name"
-                        ValueFieldName="Name"
-                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                        @bind-Value="@types.Name"
-                        @bind-Text="@types.Name" ShowValidationIcon="true">
+                                AllowUserInput="true"
+                                NullText="Select Others Tag..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Name"
+                                ValueFieldName="Name"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@types.Name"
+                                @bind-Text="@types.Name" ShowValidationIcon="true">
                     </DxComboBox>
                     <ValidationMessage For="@(() => types.Name)" />
                 </DxFormLayoutItem>
+
                @* <DxFormLayoutItem Caption="Description:" ColSpanMd="12">
                     <DxTextBox @bind-Text="@types.Description" />
                 </DxFormLayoutItem>*@
@@ -158,6 +210,7 @@
     private bool loading;
     bool Blukdeletepopup { get; set; } = false;
     bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     string SelectedGroup = "none";
     [Parameter]
@@ -167,8 +220,56 @@
     [Parameter]
     public Action loadTagsList { get; set; }
 
+    bool isEnabled { get; set; } = true;
+    private List<ApplicationMasterChildModel> _groupTagItems;
+    private List<ApplicationMasterChildModel> _categoryTagItems;
+    private List<ApplicationMasterChildModel> _actionTagItems;
+
+    async void selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+        if (applicationMasterChildModel != null)
+        {
+            GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
+            //_categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(applicationMasterChildModel.ApplicationMasterChildId));
+        }
+        else
+        {
+            GroupTagChanged(-1);
+            CategoryTagChange(-1);
+        }
+    }
+    async void GroupTagChanged(long? ApplicationMasterChildId)
+    {
+        if (ApplicationMasterChildId != null)
+        {
+            _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+        }
+    }
+    async void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+        if (applicationMasterChildModel != null)
+        {
+            // _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+            CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId);
+        }
+        else
+        {
+            CategoryTagChange(-1);
+        }
+    }
+    async void CategoryTagChange(long? ApplicationMasterChildID)
+    {
+        if (ApplicationMasterChildID != null)
+        {
+            _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+        }
+
+    }
+
+
     protected override async Task OnInitializedAsync()
     {
+        _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105"));
 
         var tId = TopicId;
         PanelVisible = true;       
@@ -176,19 +277,50 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
         PanelVisible = false;       
-    }
-    async Task UpdateDataAsync()
-    {
-        PanelVisible = true;     
-        _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
 
-        PanelVisible = false;
         if (_topicCategorys.Count > 0)
         {
             _selectedItems = _topicCategorys.FirstOrDefault();
-            DeleteEnabled = true;
+            EditEnabled = false;
+            DeleteEnabled = false;
+            AddEnabled = false;
             StateHasChanged();
         }
+
+        if(_topicCategorys.Count == 0)
+        {
+            AddEnabled = true;
+        }
+    }
+    public async Task loadTagList(long tid)
+    {
+        _topicCategorys = await Mediator.Send(new GetAllTopicCategory(tid));
+    }
+    public async Task UpdateDataAsync()
+    {
+        PanelVisible = true;     
+        _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
+        PanelVisible = false;
+
+        if (_topicCategorys.Count == 0)
+        {
+            AddEnabled = true;
+            EditEnabled = true;
+            DeleteEnabled = true;
+        }
+        else
+        {
+            AddEnabled = false;
+            EditEnabled = false;
+            DeleteEnabled = false;
+        }
+
+        //if (_topicCategorys.Count > 0)
+        //{
+        //    _selectedItems = _topicCategorys.FirstOrDefault();
+        //    DeleteEnabled = true;
+        //    StateHasChanged();
+        //}
         loadTagsList?.Invoke();
         StateHasChanged();
 
@@ -228,23 +360,24 @@
 
         if (e.IsNew)
         {
-
-
             var ex = _topicCategorys.Where(x => x.Name == editModel.Name);
             if (ex.Any())
             {               
-                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+                toastService.ShowToast("The entered value Already exists Others Tag.", AC.SD.Core.Services.ToastLevel.Error);
             }
             else
             {
-                if (_topicCategorys.Count > 2)
+                if (_topicCategorys.Count > 0)
                 {
-                    toastService.ShowToast("Applicable Total 3 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
+                    toastService.ShowToast("Applicable Total 1 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
                     return;
                 }
 
                 var createReq = new CreateEmailActivityCatgorysQuery
                     {
+                        GroupTag = editModel.GroupTag,
+                        CategoryTag = editModel.CategoryTag,
+                        ActionTag = editModel.ActionTag,
                         Name = editModel.Name,
                         TopicId = TopicId,
                         Description = editModel.Description,
@@ -283,6 +416,9 @@
                         ID = editModel.ID,
                         TopicId = TopicId,
                         Name = editModel.Name,
+                        GroupTag = editModel.GroupTag,
+                        CategoryTag = editModel.CategoryTag,
+                        ActionTag = editModel.ActionTag,
                         Description = editModel.Description,
                         AddedByUserID = editModel.AddedByUserID,
                         StatusCodeID = editModel.StatusCodeID,
@@ -332,6 +468,19 @@
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
     }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+
+        }
+        else
+        {
+           var editModel = (EmailActivityCatgorys)e.EditModel;            
+           GroupTagChanged(editModel.GroupTag);            
+           CategoryTagChange(editModel.CategoryTag);
+        }
+    }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -361,35 +510,39 @@
     void addEdit()
     {
 
-        if (SelectedDataItems.Count == 1)
-        {
+        //if (SelectedDataItems.Count == 1)
+        //{
 
-            foreach (object item in SelectedDataItems)
-            {
+        //    foreach (object item in SelectedDataItems)
+        //    {
 
-                if (item is EmailActivityCatgorys emailActivityCatgorys)
-                {
+        //        if (item is EmailActivityCatgorys emailActivityCatgorys)
+        //        {
 
-                    _selectlst = _topicCategorys.FirstOrDefault(f => f.ID == emailActivityCatgorys.ID);
+        //            _selectlst = _topicCategorys.FirstOrDefault(f => f.ID == emailActivityCatgorys.ID);
 
 
-                }
-            }
-            Grid.StartEditDataItemAsync(_selectlst);
-        }
-        else
-        {
-            Grid.StartEditDataItemAsync(_selectedItems);
-        }
+        //        }
+        //    }
+        //    Grid.StartEditDataItemAsync(_selectlst);
+        //}
+        //else
+        //{
+        //    Grid.StartEditDataItemAsync(_selectedItems);
+        //}
 
-        // Grid.SelectDataItems(SelectedDataItems);
+      
+
+
+
+
+        Grid.StartEditDataItemAsync(_selectedItems);
 
 
     }
     void addDelete()
     {
-        Blukdeletepopup = true;
-      
+        Blukdeletepopup = true;      
     }
     async Task bulkDelete()
     {

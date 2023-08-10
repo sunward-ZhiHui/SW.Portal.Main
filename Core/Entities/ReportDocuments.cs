@@ -13,7 +13,7 @@ namespace Core.Entities
     {
         [Key]
         public long ReportDocumentID { get; set; }
-        [Required]
+        
         public string FileName { get; set;}
         public string ContentType { get; set;}
         public int FileSize { get; set;}

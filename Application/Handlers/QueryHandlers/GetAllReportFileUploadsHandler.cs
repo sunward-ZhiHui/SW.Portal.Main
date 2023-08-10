@@ -67,9 +67,12 @@ namespace Application.Handlers.QueryHandlers
                 File.Delete(Path.Combine(reportFolder, request.ActFileName + ".repx"));
             
               File.WriteAllBytes(Path.Combine(reportFolder, request.FileName + ".repx"), request.FileContent);
-            }  
-           
+            }
+            else
+            {
                 request.FileName = request.ActFileName;
+            }
+               
                 
             
 

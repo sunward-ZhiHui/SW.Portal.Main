@@ -153,6 +153,19 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class DeleteEmailTopicDraftHandler : IRequestHandler<DeleteEmailTopicDraft, long>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public DeleteEmailTopicDraftHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<long> Handle(DeleteEmailTopicDraft request, CancellationToken cancellationToken)
+        {
+            return _emailTopicsQueryRepository.DeleteTopicDraftList(request.TopicId);
+        }
+    }
     public class GetSubEmailTopicToHandler : IRequestHandler<GetSubEmailTopicTo, List<EmailTopics>>
     {
 

@@ -1,4 +1,4 @@
-﻿@using Application.Queries;
+﻿@*@using Application.Queries;
 @using DevExpress.Blazor.Reporting;
 @using DevExpress.XtraReports.UI;
 @using MediatR
@@ -11,14 +11,14 @@
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration;
 
-<DxDocumentViewer Height="800px" ReportName=@Reportname Width="100%" @ref="dxDocumentViewer"></DxDocumentViewer>
+@*<DxDocumentViewer Height="800px" ReportName=@Reportname Width="100%" @ref="dxDocumentViewer"></DxDocumentViewer>
 <div @ref="viewerComponent" style="width: 100%; height: calc(100vh - 150px);">
     <DxReportViewer @ref="reportViewer" Report="report" SizeMode="SizeMode.Small" SinglePagePreview="true" RootCssClasses="w-100 h-100" />
 </div>
 @code {
     [Inject] public DevExpress.XtraReports.Services.IReportProvider reportProvider { get; set; }
     DxReportViewer reportViewer;
-    DxDocumentViewer dxDocumentViewer;
+  //  DxDocumentViewer dxDocumentViewer;
     private ElementReference viewerComponent;
 
     string Reportname { get; set; } = "PdfViewer";
@@ -57,3 +57,4 @@
         }
     }
 }
+*@

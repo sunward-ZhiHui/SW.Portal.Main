@@ -662,7 +662,7 @@ namespace Infrastructure.Repository.Query
                 var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData FROM EmailConversations FC                                
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
-                                WHERE FC.ID = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate ASC";
+                                WHERE FC.ID = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate DESC";
 
 
                 var parameters = new DynamicParameters();
@@ -689,7 +689,8 @@ namespace Infrastructure.Repository.Query
                                         EmailConversations FC
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                     WHERE
-                                       FC.ReplyId = @ReplyId";
+                                       FC.ReplyId = @ReplyId
+                                       ORDER BY FC.AddedDate DESC";
 
                         var parameterss = new DynamicParameters();
                         parameterss.Add("TopicId", TopicId, DbType.Int64);

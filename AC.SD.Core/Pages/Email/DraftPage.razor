@@ -39,12 +39,13 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />                
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />   
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled=@DeleteEnabled />
             </Items>
         </DxMenu>
     </div>
 </div>
-<DxGrid @ref="TOGrid"
+<DxGrid @ref="Grid"
         Data="_emailTopicDraft"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="SessionId"
@@ -54,10 +55,11 @@
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20"
-        ValidationEnabled="true"
+        ValidationEnabled="true"     
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 220px);"
-        RowClick="OnEmailToRowClick"        
+        RowClick="OnEmailToRowClick"    
+        RowDoubleClick="OnRowDoubleClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
     <Columns>
@@ -79,18 +81,66 @@
     </TotalSummary>
 </DxGrid>
 
-
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
 
 @code{
-    IGrid TOGrid { get; set; }
+    IGrid Grid { get; set; }
     private List<EmailTopics>? _emailTopicDraft;
+    private EmailTopics _selectedItems;
     public ApplicationUser applicationUser { get; private set; }
     string SelectedGroup = "none";
     bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    DxPopup? popup;
 
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _emailTopicDraft = await Mediator.Send(new GetEmailTopicDraft(applicationUser.UserID));
+
+        if (_emailTopicDraft.Count > 0)
+        {
+            _selectedItems = _emailTopicDraft.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        //SelectedDataItems = null;
+        Blukdeletepopup = false;       
+        await UpdateDataAsync();
+    }
+    async Task bulkDelete()
+    {
+        var request = new DeleteEmailTopicDraft(_selectedItems.ID);
+        await Mediator.Send(request);
+        Blukdeletepopup = false;
+        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        Grid.SetFocusedRowIndex(0);
+    }
+    async Task UpdateDataAsync()
+    {
         _emailTopicDraft = await Mediator.Send(new GetEmailTopicDraft(applicationUser.UserID));
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -104,9 +154,11 @@
     async Task OnEmailToRowClick(GridRowClickEventArgs e)
     {
         EditEnabled = true;
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SessionId");
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "SessionId"); 
+        _selectedItems = _emailTopicDraft.FirstOrDefault(f => f.SessionId == (Guid?)UniqueId);
         SelectedGroup = UniqueId.ToString();
-        addEdit();
+        //addEdit();
+        DeleteEnabled = true;
         StateHasChanged();
     }
     void addNew()

@@ -101,6 +101,14 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class DeleteEmailTopicDraft : PagedRequest, IRequest<long>
+    {
+        public long TopicId { get; private set; }
+        public DeleteEmailTopicDraft(long TopicId)
+        {
+            this.TopicId = TopicId;
+        }
+    }
     public class GetSubEmailTopicTo : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long TopicId { get; private set; }

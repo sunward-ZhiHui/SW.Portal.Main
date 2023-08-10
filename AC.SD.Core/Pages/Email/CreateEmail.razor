@@ -62,8 +62,8 @@
                     Sent
                 </button>
              </div>
-             @if(IsDraftEnabled)
-            {
+            @* @if(IsDraftEnabled)
+            {*@
                 <div class="save_hover" @onclick="@(() => addNew(1))" style="float: left; margin-top: -41px; line-height: 38px; margin-left: -12px; z-index: 9999; width:100px;">
                     <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
                         @if (loading)
@@ -74,7 +74,7 @@
                         Draft
                     </button>
                 </div>
-            }
+            @*}*@
             
         </div>
     </div>
@@ -467,9 +467,9 @@ else
                 window.submitForm = function () {
                     document.getElementById('myForm').submit();
                 };
-            ");
+            ");            
         }
-    }
+    } 
     async  void OnCustomizeToolbar(IToolbar toolbar)
     {
         BarGroupCollection groups = toolbar.Groups;
@@ -494,21 +494,21 @@ else
         //fontSizeItem  = 18; // Assuming 18 is the desired font size
 
 
-        IBarItem fontSizeItem = fontGroup.Items[RichEditBarItemNames.FontSize];
-        if (fontSizeItem.Type == BarItemTypes.ComboBox)
-        {
-            IBarComboBox fontSizeComboBox = (IBarComboBox)fontSizeItem;
-            fontSizeComboBox.Items.Clear();
-            fontSizeComboBox.Items.Add("12", "12");
-            fontSizeComboBox.Items.Add("14", "14");
-            fontSizeComboBox.Items.Add("18", "18"); 
-            fontSizeComboBox.Items.Add("24", "24");
-            fontSizeComboBox.AllowUserInput = false;
-            //fontSizeComboBox = 2; // Set the default font size
-
-        }
-        fontSizeItem.Text = "Font Size:";
-        fontSizeItem.Tooltip = "Changes the selected text's font size.";
+        //IBarItem fontSizeItem = fontGroup.Items[RichEditBarItemNames.FontSize];
+        //if (fontSizeItem.Type == BarItemTypes.ComboBox)
+        //{
+        //    IBarComboBox fontSizeComboBox = (IBarComboBox)fontSizeItem;
+        //    fontSizeComboBox.Items.Clear();
+        //    fontSizeComboBox.Items.Add("12", "12");
+        //    fontSizeComboBox.Items.Add("14", "14");
+        //    fontSizeComboBox.Items.Add("18", "18"); 
+        //    fontSizeComboBox.Items.Add("24", "24");
+        //    fontSizeComboBox.AllowUserInput = false;
+        //    //fontSizeComboBox = 2; // Set the default font size
+        //    //int defaultFontSizeIndex = fontSizeComboBox.Items.IndexOf(2);                       
+        //}
+        //fontSizeItem.Text = "Font Size:";
+        //fontSizeItem.Tooltip = "Changes the selected text's font size.";
 
 
        

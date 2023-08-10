@@ -179,6 +179,7 @@
                                                 <DxMenuItem Text="Files" Enabled="@isEnabled" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
                                                 <DxMenuItem Text="Todo" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />
+                                                <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                             </Items>
                                         </DxMenu>
                                     </div>
@@ -203,11 +204,26 @@
                                                             {
                                                                 @foreach (var Tagitem in _headTopic_Tag)
                                                                 {
-                                                                   @* <span class=" handline tagbg">@Tagitem.ManufacturingProcess</span>
-                                                                    <span class=" handline tagbg">@Tagitem.CategoryAction</span>
-                                                                    <span class=" handline tagbg">@Tagitem.ActionName</span>*@
+                                                                    @if(Tagitem.GroupName != null)
+                                                                    {
+                                                                        <span class=" handline tagbg">@Tagitem.GroupName</span>
+                                                                    }
+                                                                    
+                                                                    @if(Tagitem.CategoryName != null)
+                                                                    {
+                                                                        <span class=" handline tagbg">@Tagitem.CategoryName</span>
+                                                                    }
+                                                                    
+                                                                    @if(Tagitem.ActionName != null)
+                                                                    {
+                                                                        <span class=" handline tagbg">@Tagitem.ActionName</span>
+                                                                    }
 
-                                                                    <span class=" handline tagbg">@Tagitem.Name</span>
+                                                                    @if (!string.IsNullOrWhiteSpace(Tagitem.Name))
+                                                                    {
+                                                                        <span class="handline tagbg">@Tagitem.Name</span>
+                                                                    }
+
                                                                 }
                                                             }
 
@@ -800,8 +816,11 @@
                         }
                         else if (isMenuvisible == "Todo")
                         {
-                            <ToDoList Tid="@Tid"></ToDoList>
-                          
+                            <ToDoList Tid="@Tid"></ToDoList>                          
+                        }
+                        else if (isMenuvisible == "Tags")
+                        {
+                            <TopicTags @ref=RefTopicTagList TopicId="@Tid" loadTagsList="onloadTagsList"></TopicTags>
                         }
                         else
                         {
@@ -824,7 +843,7 @@
                     <Items>
                         <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
                         <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
-                        <DxMenuItem @onclick="onAddCategoryPop" Text="Tag" />
+                        @*<DxMenuItem @onclick="onAddCategoryPop" Text="Tag" />*@
                         <DxMenuItem @onclick="onArchivePop" Text="Archive" />
                     </Items>
                 </DxMenu>               
@@ -919,10 +938,10 @@
 </DxPopup>
 
 
-<DxPopup @bind-Visible="@isTopicCategoryClosed" HeaderText="Tag">
+<DxPopup @bind-Visible="@isTopicCategoryClosed" HeaderText="Tag" AllowResize="true">
     <BodyTemplate Context="PopupContext">
         <div style="padding:10px;">
-            <TopicCategory TopicId="@Tid" loadTagsList="onloadTagsList"></TopicCategory>
+           @* <TopicTags TopicId="@Tid" loadTagsList="onloadTagsList"></TopicTags>*@
         </div>
     </BodyTemplate>
 </DxPopup>
@@ -1072,6 +1091,7 @@
     public string MyHeight { get; set; } = "200px";
     string width = "800px", height = "800px";
     private ParticipantList? RefTopicAddPList { get; set; }
+    private TopicTags? RefTopicTagList { get; set; }
     private bool IsValidUser { get; set; } = false;
     [Parameter]
     public EventCallback<string> Participent { get; set; }
@@ -1126,6 +1146,7 @@
     bool isComponentVisible = true;
     bool isEnabled { get; set; } = false;
     bool isAddParticipant = false;
+    bool isTags = false;
     bool isCommand = false;
     bool isCommandTopicClosed = true;
     bool isEllipsis = false;
@@ -1798,7 +1819,7 @@
 
         var url = FileUrl + lst.FilePath;
         await OpenUrlInNewTab(url);
-      //  NavigationManager.NavigateTo(url, forceLoad: true);
+        //  NavigationManager.NavigateTo(url, forceLoad: true);
 
         //var request = new DownloadFileRequest
         //    {
@@ -1839,11 +1860,11 @@
             ModifiedDate = DateTime.Now
         };
         var result = await Mediator.Send(UpdateReq);   
-        
+
         isArchiveClosed = false;
         await LoadData();
         toastService.ShowToast("Archive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
-        
+
 
     }
     private async Task SubmitDocDelete(long Id)
@@ -1953,7 +1974,7 @@
         }
 
     }
-    private async void onloadTagsList()
+    public async void onloadTagsList()
     {
         _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
     }
@@ -2010,6 +2031,10 @@
             {
                 await LoadPlist_Data();
             }            
+        }
+        else if(isMenuvisible == "Tags")
+        {
+            await loadTags_Data();
         }
 
         // Generate index IDs for each row
@@ -2384,6 +2409,7 @@
             isAddParticipant = false;
             isEllipsis = true;
             isCommand = true;
+            isTags = false;
             //await LoadDataPosts();
             if (RTopicId == 0)
             {
@@ -2400,6 +2426,7 @@
             isComponentVisible = false;
             isEllipsis = false;
             isCommand = false;
+            isTags = false;
 
             if (RTopicId == 0)
             {                
@@ -2415,6 +2442,14 @@
             isAddParticipant = true;
             isComponentVisible = false;
             isEllipsis = false;
+            isCommand = false;
+            isTags = false;
+        }
+        else if (text == "Tags")
+        {
+            isTags = true;
+            isComponentVisible = false;
+            isEllipsis = false;
             isCommand = false;  
         }
         else
@@ -2423,6 +2458,7 @@
             isComponentVisible = false;
             isEllipsis = false;
             isCommand = false;
+            isTags = false;
         }
     }  
     async Task LoadPlist_Data()
@@ -2431,6 +2467,10 @@
         {
             await RefTopicAddPList.loadParticipentList(long.Parse(@SelectedReplyId));
         }        
+    } 
+    async Task loadTags_Data()
+    {
+        await RefTopicTagList.loadTagList(long.Parse(@SelectedGroup));
     }
     async Task LoadMainTopicPlist_Data()
     {        

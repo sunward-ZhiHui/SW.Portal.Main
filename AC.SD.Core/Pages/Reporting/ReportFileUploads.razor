@@ -28,12 +28,12 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@AddFile" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@EditFile" />
-                  <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
-                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectedItems.ReportDocumentID))"  />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@AddFile"  />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@EditFile" Enabled="@EditEnabled" />
+                  <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled ="@DeleteEnabled" />
+                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectedItems.ReportDocumentID))"  Enabled ="@DownloadEnabled" />
                
-             <DxMenuItem Text="View Document" IconCssClass="fa fa-eye" Click="((e) => onPreView(_selectedItems.FileName))" />
+             <DxMenuItem Text="View Document" IconCssClass="fa fa-eye" Click="((e) => onPreView(_selectedItems.FileName))" Enabled="@PreviewEnabled"/>
                 
             </Items>
         </DxMenu>
@@ -57,7 +57,7 @@
             SelectionMode="GridSelectionMode.Multiple"
             FocusedRowEnabled ="true"
             EditModelSaving="@OnEditModelSaving"
-            RowClick="OnRowClick" DataItemDeleting ="@onDataItemDeleting"
+            RowClick="OnRowClick" 
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
         <Columns>
 
@@ -96,8 +96,15 @@
                         <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                     </div>*@
 
-                
-                    <InputFile  type="file"  OnChange="@HandleFileChange"  required/>
+                    @if (documents.ReportDocumentID == 0)
+                    {
+                        <InputFile  type="file"  OnChange="@HandleFileChange"  required/>
+                    }
+                    else
+                    {
+                            <InputFile  type="file"  OnChange="@HandleFileChange"/>
+                    }
+
                     
                   @*  <button @onclick="UploadFile">Upload</button>*@
                    
@@ -135,15 +142,34 @@
 
        
 </DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes"  Click="@((e) => bulkDelete(_selectedItems))"/>
+    </FooterContentTemplate>
+</DxPopup>
 
 @code {
+
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool DownloadEnabled { get; set; } = false;
+    bool PreviewEnabled { get; set; } = false;
     bool UploadVisible { get; set; } = false;
     IEnumerable<UploadFileInfo> Files { get; set; }
     UploadFileInfo FirstFile { get; set; }
     DxUpload MyUpload { get; set; }
     ReportDocuments? Data { get; set; } = new ReportDocuments();
     private ReportDocuments _selectedItems;
-    bool PopupVisible { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
     Guid? _sessionId;
     [Parameter]
@@ -168,6 +194,7 @@
         PanelVisible = true;
         _sessionId = Guid.NewGuid();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
         await UpdateDataAsync();
         PanelVisible = false;
 
@@ -176,7 +203,25 @@
     {
         var model = await Mediator.Send(new GetAllReportFileUploadsQuery());
         _reportdocuments = model;
-       
+        if (_reportdocuments.Count > 0)
+        {
+            _selectedItems = _reportdocuments.FirstOrDefault();
+
+            EditEnabled = true;
+            DeleteEnabled = true;
+            PreviewEnabled = true;
+            DownloadEnabled = true;
+            StateHasChanged();
+
+        }
+        else
+        {
+            EditEnabled = false;
+            DeleteEnabled = false;
+            PreviewEnabled = false;
+            DownloadEnabled = false;
+        }
+
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -185,16 +230,6 @@
             e.CssClass = "alt-item";
         }
 
-    }
-    void EulaPopupClosed(PopupClosedEventArgs args)
-    {
-        PopupVisible = false;
-        UpdateDataAsync();
-    }
-
-    async void ClosePopup()
-    {
-        PopupVisible = false;
     }
 
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
@@ -209,7 +244,7 @@
 
         string url = BaseUrl + "Report/UplodReportDocuments?SessionId=" + _sessionId + "&addedByUserId = 1" ;
         return url.ToString();
-        PopupVisible = false;
+
         UpdateDataAsync();
 
     }
@@ -273,7 +308,7 @@
 
         var editModel = (ReportDocuments)e.EditModel;
 
-       
+
 
         if (e.IsNew)
         {
@@ -287,6 +322,7 @@
             {
                 // onShowPopupMessage("Error", "The entered value Already exists.");
                 toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+                return;
             }
             else
             {
@@ -353,7 +389,7 @@
                 {
                     var ans = await Mediator.Send(UpdateReq);
                     toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                   
+
                 }
                 catch (Exception eq)
                 {
@@ -411,19 +447,27 @@
             toastService.ShowToast("The Record Format Is Not Supported", AC.SD.Core.Services.ToastLevel.Error);
         }
     }
-    async Task onDataItemDeleting(GridDataItemDeletingEventArgs e)
+    async Task bulkDelete(ReportDocuments reportdocument)
     {
-      //  var dateitem = e.DataItem;
-         var reportdocument = ( ReportDocuments)e.DataItem;
-       // var request = new DeleteReportdocumentQuery((long)dateitem);
+        //  var dateitem = e.DataItem;
+      
+        // var request = new DeleteReportdocumentQuery((long)dateitem);
         var request = new DeleteReportdocumentQuery(reportdocument.ReportDocumentID,reportdocument.FileName);
         await Mediator.Send(request);
         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        Blukdeletepopup = false;
         await UpdateDataAsync();
     }
     void addDelete()
     {
-        Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        //  Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        Blukdeletepopup = true;
     }
-  
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+      
+        Blukdeletepopup = false;
+       
+         UpdateDataAsync();
+    }
 }

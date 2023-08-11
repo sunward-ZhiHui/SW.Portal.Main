@@ -2350,41 +2350,112 @@
         {           
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
 
-
+            //asignto
             //_allparticipant = await Mediator.Send(new GetAllConvAssToListQuery(_replyComment[0].ID));
             //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
-            var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
-            var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
-            Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+            //var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
+            //var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+            //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
 
-            List<long> updatedList = Data.AssigntoIds.ToList();
-            long fromUserId = _replyComment[0].UserId.Value;
+            //List<long> updatedList = Data.AssigntoIds.ToList();
+            //long fromUserId = _replyComment[0].UserId.Value;
 
-            if(fromUserId != applicationUser.UserID)
-            {
-                updatedList.Add(fromUserId);
-            }
+            //if(fromUserId != applicationUser.UserID)
+            //{
+            //    updatedList.Add(fromUserId);
+            //}
 
-            Data.AssigntoIds = updatedList;
+            //Data.AssigntoIds = updatedList;
 
-
-            var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
-            var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
-            Data.AssignccIds = concc.Select(s => s.UserId).ToList();
+            //cclist
+            //var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+            //var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+            //Data.AssignccIds = concc.Select(s => s.UserId).ToList();
 
 
             if(_headTopic[0].IsAllowParticipants.GetValueOrDefault(false))
             {
                 var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
                 _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+
+
+                var gettids = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
+                var getplllst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
+                var parttcc = getplllst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+
+
+                #region AssignTo
+                /*Assignto*/
+                var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
+                var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+                Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+
+                List<long> updatedList = Data.AssigntoIds.ToList();
+                long fromUserId = _replyComment[0].UserId.Value;
+
+                if (fromUserId != applicationUser.UserID)
+                {
+                    updatedList.Add(fromUserId);
+                }
+
+                //Data.AssigntoIds = updatedList;
+                
+                Data.AssigntoIds = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                
+                #endregion
+
+                #region AssignCC
+                /*AssignCC*/
+                    var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                    var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+                    //Data.AssignccIds = concc.Select(s => s.UserId).ToList();
+
+
+                    
+                    //var parttcc = getplllst.Select(p => p.UserID).ToList();
+                    //Data.AssigntoIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+                    
+                    Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+                
+                #endregion
+
             }
             else
             {
                 var gettid = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
-                _allparticipant = await Mediator.Send(new GetByConvasationTopicIDPList(id,gettid[0].TopicID));           
+                _allparticipant = await Mediator.Send(new GetByConvasationTopicIDPList(id,gettid[0].TopicID));
 
+
+                  #region AssignTo
+                /*Assignto*/
+                var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
+                var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+                Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+
+                List<long> updatedList = Data.AssigntoIds.ToList();
+                long fromUserId = _replyComment[0].UserId.Value;
+
+                if (fromUserId != applicationUser.UserID)
+                {
+                    updatedList.Add(fromUserId);
+                }
+
+                Data.AssigntoIds = updatedList;
+                #endregion
+
+
+                #region AssignCC
+                var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+                Data.AssignccIds = concc.Select(s => s.UserId).ToList();
+                #endregion
             }
+
+
+        
 
 
 
@@ -2610,6 +2681,9 @@
             //uploadComponent.UploadAllFiles();
 
             uploadComponent.UploadAllFiles();
+
+
+            await Task.Delay(2000); // Delay for 2 seconds
 
             if(RTopicId == 0)
             {

@@ -37,5 +37,14 @@ namespace Application.Queries
         {
             this.ID = ID;
         }
-    }    
+    }
+    public class IncompleteTodoNoteQuery : PagedRequest, IRequest<long>
+    {
+        public long incompleteID { get; set; }
+        public IncompleteTodoNoteQuery(long incompleteID)
+        {
+            this.incompleteID = incompleteID;
+        }
+    }
+    
 }

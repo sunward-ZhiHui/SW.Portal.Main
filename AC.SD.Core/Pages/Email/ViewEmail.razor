@@ -943,8 +943,21 @@
         </div>
     </BodyTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@isArchiveClosed"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>Do you want to Archive this Topic</p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+          <DxButton style="align-items" Text="Yes" Click="@((e) => SubmitIsArchived())" RenderStyle="ButtonRenderStyle.Secondary"/>
+    </FooterContentTemplate>
 
-<DxPopup @bind-Visible="@isArchiveClosed" HeaderText="Archive">
+</DxPopup>
+@*<DxPopup @bind-Visible="@isArchiveClosed" HeaderText="Archive">
     <BodyTemplate Context="PopupContext">       
     <div class="text-center">
         <Content>
@@ -954,7 +967,7 @@
         <DxButton CssClass="dx-button.dx-icon" Text="No" Click="@(() => ClosePopup())" />
     </div>      
     </BodyTemplate>
-</DxPopup>
+</DxPopup>*@
 
 <DxPopup @bind-Visible="@isAssignToVisible" HeaderText="Assigned To">
     <BodyTemplate Context="PopupContext">      
@@ -1022,8 +1035,8 @@
 *@
 
 
-@code {
-    public int ActiveTabIndex { get; set; } = 1;
+    @code {
+        public int ActiveTabIndex { get; set; } = 1;
     string? SearchText { get; set; }
     string? GridSearchText { get; set; }
     bool PreviewEnabled { get; set; } = false;
@@ -2401,25 +2414,25 @@
                 }
 
                 //Data.AssigntoIds = updatedList;
-                
+
                 Data.AssigntoIds = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
-                
+
                 #endregion
 
                 #region AssignCC
                 /*AssignCC*/
-                    var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
-                    var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
-                    //Data.AssignccIds = concc.Select(s => s.UserId).ToList();
+                var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+                //Data.AssignccIds = concc.Select(s => s.UserId).ToList();
 
 
-                    
-                    //var parttcc = getplllst.Select(p => p.UserID).ToList();
-                    //Data.AssigntoIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
 
-                    
-                    Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
-                
+                //var parttcc = getplllst.Select(p => p.UserID).ToList();
+                //Data.AssigntoIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+
+                Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
                 #endregion
 
             }
@@ -2429,7 +2442,7 @@
                 _allparticipant = await Mediator.Send(new GetByConvasationTopicIDPList(id,gettid[0].TopicID));
 
 
-                  #region AssignTo
+                #region AssignTo
                 /*Assignto*/
                 var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
                 var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
@@ -2455,7 +2468,7 @@
             }
 
 
-        
+
 
 
 
@@ -2647,7 +2660,7 @@
             ConIds = _replyComment[0].ID;
 
         }
-     
+
         var createReq = new CreateEmailCoversation
             {
                 //TopicID = (long.Parse(@SelectedGroup)),
@@ -2695,7 +2708,7 @@
             }
 
             // await LoadData();
-            
+
             onRestText();
             closeReply();
             onloadSession();
@@ -2711,7 +2724,7 @@
             {
                 await LoadReplyDataPosts();
             }
-           
+
             WindowVisible = false;
             loading = false;
         }
@@ -2724,7 +2737,11 @@
     {
         Data.Message = null;
     }
+      void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        isArchiveClosed = false;
 
+    }
     void HandleInvalidSubmit()
     {
 

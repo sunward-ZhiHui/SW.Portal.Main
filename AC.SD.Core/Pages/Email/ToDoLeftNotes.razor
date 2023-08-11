@@ -412,7 +412,7 @@
     {
         var request = new IncompleteTodoNoteQuery(Id);
         await Mediator.Send(request);
-        Incomplete = false;
+        IncompletePopup = false;
         toastService.ShowToast("Record InCompleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
     }
     async Task bulkDelete()

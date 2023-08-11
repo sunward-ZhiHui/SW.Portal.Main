@@ -1,57 +1,82 @@
 ﻿@model SpreadsheetDocumentContentFromBytes
-@if (@Model.Extensions == "xls" || @Model.Extensions == "xlsx")
+@if (Model.Type == "image")
 {
-    @(
-        Html.DevExpress()
-                                        .Spreadsheet("spreadsheet")
-                                        .Height("calc(100vh - 150px)")
-                                        .Width("100%")
-                                        .ConfirmOnLosingChanges(confirm => confirm.Enabled(false))
-                                        .DocumentRequestHandlerUrl(Url.Action("DxDocRequest"))
-                                        .Open(@Model.DocumentId, DevExpress.Spreadsheet.DocumentFormat.Xlsx, @Model.ContentAccessorByBytes).ReadOnly(true)
-    )
-}
-else if (@Model.Extensions == "doc" || @Model.Extensions == "docx")
-{
-    @(
-        Html.DevExpress().RichEdit("DemoRichEdit")
-                                            .Height("calc(100vh - 150px)")
-                                            .Width("100%")
-                                            .ConfirmOnLosingChanges(c => c.Enabled(false))
-                                            .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.OpenXml)
-                                            .ContextMenu(cm => cm
-                                            .Enabled(false)
-                                            ).Ribbon(ribbon => ribbon
-                                            .Tabs(tabs =>
-                                            {
-                                                tabs.RemoveByTitle("File");
-                                            }).Tabs(tabs =>
-                                            {
-                                                tabs.RemoveByTitle("Mail Merge");
-                                            })
-                                            ).ReadOnly(true)
-    )
-
-}
-else if (@Model.Extensions == "png" || @Model.Extensions == "jpg" || @Model.Extensions == "jpeg" || @Model.Extensions == "gif")
-{
-
-
-
-
-    <img style="width: 100%; height: calc(100vh - 89px);" src="@Model.Url" />
-}
-else if (Model.Extensions == "pdf")
-{
-    <iframe style="width: 100%; height: calc(100vh - 89px);" src="@Model.Url"></iframe>
-}
-else if (@Model.Extensions == "webm" || @Model.Extensions == "amv" || @Model.Extensions == "mp4" || @Model.Extensions == "flv" || @Model.Extensions == "vob" || @Model.Extensions == "wmv")
-{
-    <video controls style="width: 100%; height: calc(100vh - 160px);">
-        <source src="@Model.Url" type="video/@Model.Extensions">
-    </video>
+    <div style="text-align:center;">
+    <img style="max-width: 100%; max-height: calc(100vh - 155px);" src="@Model.Url" />
+    </div>
 }
 else
 {
-    <div>Invalid Url.</div>
+    @if (@Model.Extensions == "xls" || @Model.Extensions == "xlsx")
+    {
+        @(
+                    Html.DevExpress()
+                                                    .Spreadsheet("spreadsheet")
+                                                    .Height("calc(100vh - 150px)")
+                                                    .Width("100%")
+                                                    .ConfirmOnLosingChanges(confirm => confirm.Enabled(false))
+                                                    .DocumentRequestHandlerUrl(Url.Action("DxDocRequest"))
+                                                    .Open(@Model.DocumentId, DevExpress.Spreadsheet.DocumentFormat.Xlsx, @Model.ContentAccessorByBytes).ReadOnly(true)
+                    )
+    }
+    else if (@Model.Extensions == "doc" || @Model.Extensions == "docx" || @Model.Extensions == "txt")
+    {
+        if (@Model.Extensions == "doc" || @Model.Extensions == "docx")
+        {
+            @(
+                Html.DevExpress().RichEdit("DemoRichEdit")
+                                                                                    .Height("calc(100vh - 150px)")
+                                                                                    .Width("100%")
+                                                                                    .ConfirmOnLosingChanges(c => c.Enabled(false))
+                                                                                    .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.OpenXml)
+                                                                                    .ContextMenu(cm => cm
+                                                                                    .Enabled(false)
+                                                                                    ).Ribbon(ribbon => ribbon
+                                                                                    .Tabs(tabs =>
+                                                                                    {
+                                                                                        tabs.RemoveByTitle("File");
+                                                                                    }).Tabs(tabs =>
+                                                                                    {
+                                                                                        tabs.RemoveByTitle("Mail Merge");
+                                                                                    })
+                                                                                    ).ReadOnly(true)
+                                                )
+        }
+        else
+        {
+            @(
+                    Html.DevExpress().RichEdit("DemoRichEdit")
+                                                                                        .Height("calc(100vh - 150px)")
+                                                                                        .Width("100%")
+                                                                                        .ConfirmOnLosingChanges(c => c.Enabled(false))
+                                                                                        .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.PlainText)
+                                                                                        .ContextMenu(cm => cm
+                                                                                        .Enabled(false)
+                                                                                        ).Ribbon(ribbon => ribbon
+                                                                                        .Tabs(tabs =>
+                                                                                        {
+                                                                                            tabs.RemoveByTitle("File");
+                                                                                        }).Tabs(tabs =>
+                                                                                        {
+                                                                                            tabs.RemoveByTitle("Mail Merge");
+                                                                                        })
+                                                                                        ).ReadOnly(true)
+                                                    )
+        }
+
+    }
+    else if (Model.Extensions == "pdf")
+    {
+        <iframe style="width: 100%; height: calc(100vh - 155px);" src="@Model.Url"></iframe>
+    }
+    else if (@Model.Extensions == "webm" || @Model.Extensions == "amv" || @Model.Extensions == "mp4" || @Model.Extensions == "flv" || @Model.Extensions == "vob" || @Model.Extensions == "wmv")
+    {
+        <video style="width: 100%; height: calc(100vh - 160px);" controls autoplay>
+            <source src="@Model.Url" type="video/@Model.Extensions">
+        </video>
+    }
+    else
+    {
+        <div>Invalid Url.</div>
+    }
 }

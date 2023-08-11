@@ -35,37 +35,37 @@ namespace DocumentViewer.Controllers
                 if (!string.IsNullOrEmpty(url))
                 {
                     string s = viewmodel.Url.Split('.').Last();
-                    viewmodel.Extensions = s;
+                    viewmodel.Extensions = s.ToLower();
                     var uri = new Uri(url);
                     var host = uri.Host;
-                   // if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
-                   // {
-                        string contentType = "";
-                        var request = HttpWebRequest.Create(url) as HttpWebRequest;
-                        if (request != null)
+                    // if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                    // {
+                    string contentType = "";
+                    var request = HttpWebRequest.Create(url) as HttpWebRequest;
+                    if (request != null)
+                    {
+                        var response = request.GetResponse() as HttpWebResponse;
+                        if (response != null)
+                            contentType = response.ContentType;
+                    }
+                    if (contentType != null)
+                    {
+                        var webClient = new WebClient();
                         {
-                            var response = request.GetResponse() as HttpWebResponse;
-                            if (response != null)
-                                contentType = response.ContentType;
-                        }
-                        if (contentType != null)
-                        {
-                            var webClient = new WebClient();
-                            {
-                                byte[] byteArrayAccessor() => webClient.DownloadData(new Uri(url));
-                                viewmodel.DocumentId = "DocumentId1";
-                                viewmodel.ContentAccessorByBytes = byteArrayAccessor;
-
-                                viewmodel.ContentType = contentType;
-                                return View(viewmodel);
-                            }
-                        //}
-                       /* else
-                        {
-                            viewmodel.DocumentId = "0";
+                            byte[] byteArrayAccessor() => webClient.DownloadData(new Uri(url));
+                            viewmodel.DocumentId = "DocumentId1";
+                            viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                            viewmodel.Type = contentType.Split("/")[0].ToLower();
                             viewmodel.ContentType = contentType;
                             return View(viewmodel);
-                        }*/
+                        }
+                        //}
+                        /* else
+                         {
+                             viewmodel.DocumentId = "0";
+                             viewmodel.ContentType = contentType;
+                             return View(viewmodel);
+                         }*/
                     }
                     else
                     {

@@ -8,6 +8,7 @@ namespace DocumentViewer.Models
     public class SpreadsheetDocumentContentFromBytes
     {
         public string DocumentId { get; set; }
+        public string Type { get; set; }
         public string ContentType { get; set; }
         public string Extensions { get; set; }
         public string Url { get; set; }

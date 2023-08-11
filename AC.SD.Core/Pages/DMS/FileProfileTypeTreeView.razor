@@ -5,175 +5,133 @@
 @using MediatR
 @using global::Core.Entities.Views;
 @inject IMediator Mediator
- 
-  
-@*  <div class="main-container">
 
-    <div class="content-container row">
-      
+<link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 
-      <div class=" col-md-4">
-                <div class="mini-menu-bar-top" style="height: calc(100vh - 200px);">
-                <div class="mini-menu-bar-heading">
-                        <div class="files-title">Application Permission </div>
-                  
-
-                </div>
-                <div>
-                    <div class="views-accordion">
-                             <DxTreeView Data="@_TreeData"
-                            @bind-FilterString="FilterString"
-                                            FilterMinLength="2"
-                                            ShowFilterPanel="true"
-                                            FilterMode="FilterMode"
-                                            AllowSelectNodes="true"
-                                            LoadChildNodesOnDemand=false  SelectionChanged="@SelectionChanged"
-                                            AnimationType="LayoutAnimationType.Slide">
-                                            <DataMappings>
-                                            <DxTreeViewDataMapping Children="Children" CssClass="CssClass" Text="Label" Name="ParentID" />
-                                            </DataMappings>
-                                </DxTreeView>
-                    </div>
-                </div>
-            </div>
-             <div class="menu-bar-content-container col-md-7">
-                    <div class="content-padding-20">
-                        <div class="menu-bar-content-container-heading">
-                            <div class="heading-icon-text">
-                                <div class="mb-cc-text">
-                                    <div class="card w-100">
-                                        <div class="card-body p-0">
-
-                                        <DxGrid @ref="Grid"
-                                                Data="_fileProfileselectedlst"
-                                                KeyFieldName="FileProfileTypeId"
-                                                EditMode="GridEditMode.EditForm" 
-                                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-                                                EditorRenderMode="GridEditorRenderMode.Integrated"
-                                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                                                ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-                                                PagerNavigationMode="PagerNavigationMode.InputBox" 
-                                                PageSizeSelectorVisible="true"
-                                                PageSizeSelectorAllRowsItemVisible="true"
-                                                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                                PageSize="20"  CustomizeElement="Grid_CustomizeElement"    ValidationEnabled="false"                                            F
-
-                                                FocusedRowEnabled="false"
-                                                AllowSelectRowByClick="true"
-                                                SelectionMode="GridSelectionMode.Single"
-                                                CssClass="ch-360"
-                                                style="height: calc(100vh - 220px);">
-                                            <Columns>
-
-                                                <DxGridDataColumn FieldName="DocumentName" Caption="File Name"  MinWidth="80" />
-                                                <DxGridDataColumn FieldName="FileProfileTypeName"  Caption="Profile Type Name" MinWidth="80" />
-                                                 <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="80" />
-                                                  <DxGridDataColumn FieldName="DocFileSize" Caption="Size(KB)" MinWidth="80" />
-                                                    <DxGridDataColumn FieldName="DocumentDescription" Caption="Description" MinWidth="80" />
-                                                      <DxGridDataColumn FieldName="ExpiryDate" Caption="Expiry Date" MinWidth="80" />
-                                                      <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="80" />
-                                                      <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="80" />
-                                            </Columns>
-
-                                        </DxGrid>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                         </div>
-                    </div>
-                 </div>
-
-       
-      </div>
-     </div>
-  </div>*@
-
-
-
-
-  
 <div class="">
-    <div class="main-container row" style="border: 1px solid #b2afaf;  margin-bottom:10px;">
-        
-            <div class="mini-menu-bar col-md-3" >
-                 <div class="" style="margin-top:10px;">
+    <div class="main-container">
+       
+        <div class="content-container row">
+           
+            <div class="mini-menu-bar col-md-3">
                 <div class="mini-menu-bar-top">
                     <div class="mini-menu-bar-heading">
                         <div class="files-title"></div>
-                    </div> 
+                    </div>
                     <div>
                         <div class="views-accordion">
                             <DxTreeView Data="@_TreeData"
                             @bind-FilterString="FilterString"
-                                            FilterMinLength="2"
-                                            ShowFilterPanel="true"
-                                            FilterMode="FilterMode"
-                                            AllowSelectNodes="true"
-                                            LoadChildNodesOnDemand=false  SelectionChanged="@SelectionChanged"
-                                            AnimationType="LayoutAnimationType.Slide">
-                                            <DataMappings>
-                                            <DxTreeViewDataMapping Children="Children" CssClass="CssClass" Text="Label" Name="ParentID" />
-                                            </DataMappings>
-                                </DxTreeView>
+                                        FilterMinLength="2"
+                                        ShowFilterPanel="true"
+                                        FilterMode="FilterMode"
+                                        AllowSelectNodes="true"
+                                        LoadChildNodesOnDemand=false SelectionChanged="@SelectionChanged"
+                                        AnimationType="LayoutAnimationType.Slide">
+                                <DataMappings>
+                                    <DxTreeViewDataMapping Children="Children" CssClass="CssClass" Text="Label" Name="ParentID" />
+                                </DataMappings>
+                            </DxTreeView>
                         </div>
                     </div>
                 </div>
-                  </div>
-                 </div>
-                  
+              
+            </div>
+            <!-- Menu Bar Content -->
+            <div class="menu-bar-content-container col-md-9">
+                <div class="content-padding-20">
+                    <div class="menu-bar-content-container-heading">
+                        <div class="heading-icon-text">
+                            <div class="mb-cc-text">
+                                <div class="card w-100">
+                                    <div class="card-body p-0">
+                                        <DxMenu CollapseItemsToHamburgerMenu="true"
+                                                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                                DisplayMode="MenuDisplayMode.Desktop">
+                                            <Items>
+                                                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" />
+                                                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" />
+                                                <DxMenuItem Text="View File" IconCssClass="fa fa-eye" />
+                                                <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" />
 
 
-                          
-            <div class="col-md-9">
-               
-                 
-                    <div class="" style="margin-top:10px;  margin-bottom:10px;">
-                      
-                           <DxGrid @ref="Grid"
-                                                Data="_fileProfileselectedlst"
-                                                KeyFieldName="FileProfileTypeId"
-                                                EditMode="GridEditMode.EditForm" 
-                                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-                                                EditorRenderMode="GridEditorRenderMode.Integrated"
-                                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                                                ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-                                                PagerNavigationMode="PagerNavigationMode.InputBox" 
-                                                PageSizeSelectorVisible="true"
-                                                PageSizeSelectorAllRowsItemVisible="true"
-                                                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                                PageSize="20"  CustomizeElement="Grid_CustomizeElement"    ValidationEnabled="false"                                            F
+                                                <DxMenuItem Text="" IconCssClass="fa fa-ellipsis-v">
+                                                    <Items>
+                                                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" />
+                                                        <DxMenuItem Text="History" IconCssClass="fa fa-history" />
+                                                        <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" />
+                                                        <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" />
+                                                        <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" />
+                                                        <DxMenuItem Text="Play" IconCssClass="fa fa-play-circle" />
+                                                        <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" />
+                                                        <DxMenuItem Text="Link Download" IconCssClass="fa fa-link" />
+                                                        <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" />
+                                                        <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" />
+                                                        <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" />
+                                                        <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" />
+                                                    </Items>
+                                                </DxMenuItem>
 
-                                                FocusedRowEnabled="false"
-                                                AllowSelectRowByClick="true"
-                                                SelectionMode="GridSelectionMode.Single"
-                                                CssClass="ch-360"
-                                                style="height: calc(100vh - 200px);">
-                                            <Columns>
+                                            </Items>
+                                        </DxMenu>
 
-                                                <DxGridDataColumn FieldName="DocumentName" Caption="File Name"  MinWidth="80" />
-                                                <DxGridDataColumn FieldName="FileProfileTypeName"  Caption="Profile Type Name" MinWidth="80" />
-                                                 <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="80" />
-                                                  <DxGridDataColumn FieldName="DocFileSize" Caption="Size(KB)" MinWidth="80" />
-                                                    <DxGridDataColumn FieldName="DocumentDescription" Caption="Description" MinWidth="80" />
-                                                      <DxGridDataColumn FieldName="ExpiryDate" Caption="Expiry Date" MinWidth="80" />
-                                                      <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="80" />
-                                                      <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="80" />
-                                                       
-                        
-                                            </Columns>
 
-                                        </DxGrid>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-            
-        
 
+                        </div>
+                        
+                   
+                    </div>
+                    <DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+                    <DxGrid @ref="Grid"
+                            Data="_fileProfileselectedlst"
+                            KeyFieldName="FileProfileTypeId"
+                            EditMode="GridEditMode.EditForm"
+                            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                            EditorRenderMode="GridEditorRenderMode.Integrated"
+                            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                            ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                            PagerNavigationMode="PagerNavigationMode.InputBox"
+                            PageSizeSelectorVisible="true"
+                            PageSizeSelectorAllRowsItemVisible="true"
+                            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                            PageSize="20" CustomizeElement="Grid_CustomizeElement" ValidationEnabled="false" F
+                            RowClick="OnRowClick"
+                            FocusedRowEnabled="true"
+                            AllowSelectRowByClick="true"
+                            SelectionMode="GridSelectionMode.Single"
+                            CssClass="ch-360"
+                            style="height: calc(100vh - 205px);">
+                        <Columns>
+
+                            <DxGridDataColumn FieldName="DocumentName" Caption="File Name" MinWidth="80" />
+                            <DxGridDataColumn FieldName="FileProfileTypeName" Caption="Profile Type Name" MinWidth="80" />
+                            <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="80" />
+                            <DxGridDataColumn FieldName="DocFileSize" Caption="Size(KB)" MinWidth="80" />
+                            <DxGridDataColumn FieldName="DocumentDescription" Caption="Description" MinWidth="80" />
+                            <DxGridDataColumn FieldName="ExpiryDate" Caption="Expiry Date" MinWidth="80" />
+                            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="80" />
+                            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="80" />
+                            
+
+                        </Columns>
+                        <TotalSummary>
+                            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DocumentName" />
+                        </TotalSummary>
+                    </DxGrid>
+                    </DxLoadingPanel>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @code {
     IGrid Grid { get; set; }
     [Parameter]
@@ -183,21 +141,22 @@
     private List<view_GetFileProfileTypeDocument> _fileProfileselectedlst { get; set; }
     string FilterString { get; set; }
     string SelectedGroup = "none";
+    public view_GetFileProfileTypeDocument _selectedItems { get; set; }
     NavigationFilterMode FilterMode { get; set; } = NavigationFilterMode.EntireBranch;
     bool PanelVisible { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-
+        PanelVisible = true;
         _TreeData = await Mediator.Send(new GetAllfileprofiletypeQuery(long.Parse(FileProfileTypeId)));
-      
+        PanelVisible = false;
     }
     private async Task SelectionChanged(TreeViewNodeEventArgs e)
     {
         var list = (Fileprofiletype)e.NodeInfo.DataItem;
-      
+        PanelVisible = true;
         _fileProfileselectedlst = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(list.FileProfileTypeId));
-
+        PanelVisible = false;
     }
 
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -212,4 +171,12 @@
             e.CssClass = "header-bold";
         }
     }
- }
+    async void OnRowClick(GridRowClickEventArgs e)
+    {
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        _selectedItems = _fileProfileselectedlst.FirstOrDefault(f => f.FileProfileTypeId == (long?)UniqueId);
+              StateHasChanged();
+
+    }
+}

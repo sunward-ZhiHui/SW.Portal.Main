@@ -37,9 +37,7 @@
 @using System.Threading.Tasks
 @using System.Threading
 @using System.Timers
-
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
-
 <div class="">
     <div class="main-container">
         <!--  -->
@@ -1071,6 +1069,7 @@
     public DocumentFormat MyDocumentFormat { get; set; }
     private string? BaseUrl;
     private string? FileUrl;
+    private string? DocumentViewUrl;
     string documentPath = @"D:\Projects\SW.Portal.Solutions\DocumentApi\AppUpload\Documents\21c984af-3b75-4284-8ae1-8513d5df003e\21c984af-3b75-4284-8ae1-8513d5df003e.docx";
     string documentFormat = "docx";
     private ElementReference OfficeContainerRef;
@@ -1592,6 +1591,17 @@
     }
     public async Task onPreview(long Id)
     {
+        _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);       
+        var url = DocumentViewUrl+"?url="+FileUrl + _documents.FilePath;
+        await OpenDocumentPreview(url);
+    }
+    private async Task OpenDocumentPreview(string url)
+    {        
+        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+
+    public async Task onPreview_old(long Id)
+    {
         _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
 
         var request = new DownloadFileRequest
@@ -1811,6 +1821,14 @@
         await JSRuntime.InvokeVoidAsync("open", url, "_blank");
     }
     public async Task onDocDownload(long Id)
+    {
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup))); 
+        var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
+
+        var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
+        await OpenDocumentPreview(url);
+    }
+    public async Task onDocDownload_old(long Id)
     {
         _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup))); 
         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
@@ -2203,6 +2221,7 @@
 
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
 
         onloadSession();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");

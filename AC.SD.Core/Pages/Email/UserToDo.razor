@@ -1,0 +1,42 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@page "/todo"
+
+<div class="">
+    <div class="main-container">
+        <div class="content-container row">
+            <div class="mini-menu-bar col-md-3" style="overflow-x: hidden;">
+                <div class="mini-menu-bar-top">
+                    <ToDoLeftNotes NotesId="onViewClick "></ToDoLeftNotes>
+                </div>
+            </div>
+            <div class="menu-bar-content-container col-md-9">
+                <ToDoNotesList @ref=RefToDoHistoryList></ToDoNotesList>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    long? SeletedNoteId { get; set; }
+    private ToDoNotesList? RefToDoHistoryList { get; set; }
+    protected override async Task OnInitializedAsync()
+    {      
+    }
+    private async void onViewClick(long NoteId)
+    {
+        SeletedNoteId = NoteId;
+        //await LoadData();
+        await RefToDoHistoryList.LoadHistoryData(NoteId);
+        StateHasChanged();
+    }
+}

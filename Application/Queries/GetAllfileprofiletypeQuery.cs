@@ -1,6 +1,7 @@
 ﻿using Application.Queries.Base;
 using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace Application.Queries
             this.FileProfileTypeID = FileProfileTypeID;
         }
     }
-    public class GetAllSelectedfileprofiletypeQuery : PagedRequest, IRequest<List<view_GetFileProfileTypeDocument>>
+    public class GetAllSelectedfileprofiletypeQuery : PagedRequest, IRequest<DocumentTypeModel>
     {
         public long selectedFileProfileTypeID { get; private set; }
         public GetAllSelectedfileprofiletypeQuery(long selectedFileProfileTypeID)

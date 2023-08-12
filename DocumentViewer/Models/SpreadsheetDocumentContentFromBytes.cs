@@ -7,6 +7,7 @@ namespace DocumentViewer.Models
 {
     public class SpreadsheetDocumentContentFromBytes
     {
+        public long? Id { get; set; }
         public string DocumentId { get; set; }
         public string Type { get; set; }
         public string ContentType { get; set; }

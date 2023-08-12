@@ -30,7 +30,7 @@ namespace DocumentViewer.Controllers
             {
                 viewmodel.Extensions = "";
                 viewmodel.Url = string.IsNullOrEmpty(url) ? "" : url;
-
+                viewmodel.Id = 1;
                 viewmodel.DocumentId = "1";
                 if (!string.IsNullOrEmpty(url))
                 {
@@ -69,17 +69,21 @@ namespace DocumentViewer.Controllers
                     }
                     else
                     {
+                        viewmodel.Id = 0;
                         return View(viewmodel);
                     }
                 }
                 else
                 {
+                    viewmodel.Id = 0;
                     return View(viewmodel);
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                viewmodel.Id = 0;
+                return View(viewmodel);
+                //throw new Exception(ex.Message);
             }
         }
         [HttpPost]

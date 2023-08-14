@@ -1,0 +1,464 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew"/>
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenu Visible="@Complete">
+                    <Items>
+                       
+                        <DxMenuItem Text="Completed" IconCssClass="fa fa-check-square" Click="@addDelete" style="float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999; width:100px;" />
+                    </Items>
+                </DxMenu>
+
+                <DxMenu Visible="@Incomplete">
+                    <Items>
+                        <DxMenuItem Text="InCompleted" IconCssClass="fa fa-check-square" Click="@onIncomplete" style="float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999; width:100px;" />
+                    </Items>
+                </DxMenu>
+
+
+             @*   <DxMenuItem Text="Completed" IconCssClass="fa fa-check-square" Click="@addDelete" Enabled=@DeleteEnabled />
+
+                <DxMenuItem Text="InCompleted" IconCssClass="fa fa-check-square" Click="@onIncomplete" Enabled=@DeleteEnabled />*@
+                @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" Data="@_toDoNotes" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="false" ShowGroupedColumns="false" ShowSearchBox="false"
+            VirtualScrollingEnabled="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            KeyFieldName="ID"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="w-100" style="height: calc(100vh - 200px);min-height:350px !important;"
+            RowClick="OnRowClick"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+        <Columns>
+            <DxGridDataColumn FieldName="Notes" Caption="">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ToDoNotes)context.DataItem;
+                    }
+                    <div style="width:100%">
+                        <strong>
+                            @item.Notes
+                        </strong>
+                        <div>
+                            <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)</span>
+                            @*<text>@item.Notes</text>*@
+                        </div>
+                    </div>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="Completed" GroupIndex="0" Width="10%" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        @*  @bind-SelectedDataItems="SelectedDataItems"*@
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (ToDoNotes)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Notes:" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@types.Notes" />
+                    <ValidationMessage For="@(() => types.Notes)" />
+                </DxFormLayoutItem>               
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@IncompletePopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to Incomplete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="@((e) => onInCompleteAction(_selectedItems.ID))" />
+    </FooterContentTemplate>
+</DxPopup>
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to Complete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool IncompletePopup { get; set; } = false;
+    bool Complete { get; set; } = false;
+    bool Incomplete { get; set; } = false;
+    bool PanelVisible { get; set; }    
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private string gridHeight = "calc(100vh - 230px - 143px)";
+    private List<ToDoNotes>? _toDoNotes; 
+    IGrid? Grid { get; set; }
+    private ToDoNotes _selectedItems;
+    bool ExportSelectedRowsOnly { get; set; }
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? DeleteerrorMessage;
+    string styleClass = "";
+    private bool loading;
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = false;   
+    bool DeleteEnabled { get; set; } = false;
+    string SelectedGroup = "none";
+    [Parameter]
+    public Action<long> NotesId { get; set; }
+    //[Parameter]
+    //public long TopicId { get; set; } = 94;
+    private ToDoNotes _selectlst;
+    public ApplicationUser? applicationUser { get; private set; } 
+    bool isEnabled { get; set; } = true;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        //var tId = TopicId;
+        PanelVisible = true;
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID));
+        PanelVisible = false;
+
+        if (_toDoNotes.Count > 0)
+        {
+            _selectedItems = _toDoNotes.FirstOrDefault();
+            //EditEnabled = false;
+            //DeleteEnabled = false;            
+            StateHasChanged();
+        }        
+    }   
+    public async Task UpdateDataAsync()
+    {
+        PanelVisible = true;        
+        _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID));
+        PanelVisible = false;
+
+        if (_toDoNotes.Count == 0)
+        {
+
+            //EditEnabled = true;
+            //DeleteEnabled = true;
+        }
+        else
+        {
+
+            //EditEnabled = false;
+            //DeleteEnabled = false;
+        }
+
+        //if (_toDoNotes.Count > 0)
+        //{
+        //    _selectedItems = _toDoNotes.FirstOrDefault();
+        //    DeleteEnabled = true;
+        //    StateHasChanged();
+        //}
+
+        StateHasChanged();
+
+    }
+    async Task ExportToExcel()
+    {
+        if (SelectedDataItems != null)
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+                });
+        }
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
+
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editModel = (ToDoNotes)e.EditModel;
+
+        if (e.IsNew)
+        {
+            var ex = _toDoNotes.Where(x => x.Notes == editModel.Notes);
+            if (ex.Any())
+            {
+                toastService.ShowToast("The entered value Already exists Notes.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                //if (_toDoNotes.Count > 0)
+                //{
+                //    toastService.ShowToast("Applicable Total 1 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
+                //    return;
+                //}
+
+                var createReq = new CreateToDoNotesQuery
+                    {                        
+                        Notes = editModel.Notes,
+                        StatusCodeID = 1,
+                        AddedByUserID = applicationUser.UserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        AddedDate = DateTime.Now,
+                        ModifiedDate = DateTime.Now,
+                        SessionId = Guid.NewGuid()
+                    };
+
+                try
+                {
+                    var result = await Mediator.Send(createReq);
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                }
+                catch (Exception eq)
+                {
+                    toastService.ShowToast(eq.Message, AC.SD.Core.Services.ToastLevel.Error);
+                }
+
+                await UpdateDataAsync();
+            }
+        }
+        else
+        {
+            var ex = _toDoNotes.Where(x => x.Notes == editModel.Notes && x.ID != editModel.ID);
+            if (ex.Any())
+            {
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                var UpdateReq = new EditToDoNotesQuery
+                    {
+                        ID = editModel.ID,                       
+                        Notes = editModel.Notes,                       
+                        AddedByUserID = editModel.AddedByUserID,
+                        StatusCodeID = editModel.StatusCodeID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        ModifiedDate = DateTime.Now,
+                        AddedDate = editModel.AddedDate,
+                        SessionId = editModel.SessionId,
+
+                    };
+
+                var ans = await Mediator.Send(UpdateReq);
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+
+            }
+
+        }
+
+    }
+
+    async void ClosePopup()
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        IncompletePopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
+    }
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+
+        var editModel = (ToDoNotes)e.DataItem;
+
+        //  string result = string.Empty;
+        //  result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
+        // Console.WriteLine(result);
+        // await UpdateDataAsync();
+
+        var request = new DeleteToDoNotesQuery(editModel.ID);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+
+        }
+        else
+        {
+            var editModel = (ToDoNotes)e.EditModel;           
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedItems = _toDoNotes.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        DeleteEnabled = true;
+        NotesId?.Invoke((long)UniqueId);
+        if (_selectedItems.Completed == true )
+        {
+            Incomplete = true;
+            Complete = false;
+        }
+        else
+        {
+            Complete = true;
+            Incomplete = false;
+        }
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+    }
+    void  onIncomplete()
+    {
+        IncompletePopup = true;
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task onInCompleteAction(long Id)
+    {
+        var request = new IncompleteTodoNoteQuery(Id);
+        await Mediator.Send(request);
+        IncompletePopup = false;
+        toastService.ShowToast("Record InCompleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is ToDoNotes ToDoNotes)
+                    {
+                        var request = new DeleteToDoNotesQuery(ToDoNotes.ID);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record Completed Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+
+        }
+        else
+        {
+            EditEnabled = true;
+
+        }
+    }
+}

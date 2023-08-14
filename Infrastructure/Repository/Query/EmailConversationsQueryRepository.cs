@@ -167,33 +167,33 @@ namespace Infrastructure.Repository.Query
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
 								INNER JOIN Plant p on p.PlantID = E.PlantID
 								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
-                                WHERE FT.ConversationId = @ConversationId
+                                WHERE FT.ConversationId = @ConversationId";
 
-                                UNION
+        //                        UNION
 
-								SELECT FCT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName from EmailConversationAssignTo FCT
-                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
-                                INNER JOIN Employee E ON E.UserID = FCT.UserId
-								INNER JOIN Plant p on p.PlantID = E.PlantID
-								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
-                                WHERE FCT.ConversationId = @ConversationId
+								//SELECT FCT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName from EmailConversationAssignTo FCT
+        //                        INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+        //                        INNER JOIN Employee E ON E.UserID = FCT.UserId
+								//INNER JOIN Plant p on p.PlantID = E.PlantID
+								//INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+        //                        WHERE FCT.ConversationId = @ConversationId
  
-                                UNION
+        //                        UNION
 
-								SELECT FCT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName from EmailConversationAssignCC FCT
-                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
-                                INNER JOIN Employee E ON E.UserID = FCT.UserId
-								INNER JOIN Plant p on p.PlantID = E.PlantID
-								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
-                                WHERE FCT.ConversationId = @ConversationId
+								//SELECT FCT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName from EmailConversationAssignCC FCT
+        //                        INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+        //                        INNER JOIN Employee E ON E.UserID = FCT.UserId
+								//INNER JOIN Plant p on p.PlantID = E.PlantID
+								//INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+        //                        WHERE FCT.ConversationId = @ConversationId
 
-                                UNION
-                                SELECT FT.ParticipantId as UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversations FT
-                                INNER JOIN ApplicationUser AU ON AU.UserID = FT.ParticipantId
-                                INNER JOIN Employee E ON E.UserID = FT.ParticipantId
-                                INNER JOIN Plant p on p.PlantID = E.PlantID
-                                INNER JOIN Designation D ON D.DesignationID = E.DesignationID
-                                WHERE FT.ID = @ConversationId";
+        //                        UNION
+        //                        SELECT FT.ParticipantId as UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversations FT
+        //                        INNER JOIN ApplicationUser AU ON AU.UserID = FT.ParticipantId
+        //                        INNER JOIN Employee E ON E.UserID = FT.ParticipantId
+        //                        INNER JOIN Plant p on p.PlantID = E.PlantID
+        //                        INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+        //                        WHERE FT.ID = @ConversationId";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicID", topicId);

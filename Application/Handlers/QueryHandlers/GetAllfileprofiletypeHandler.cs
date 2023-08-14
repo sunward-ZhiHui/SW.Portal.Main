@@ -1,6 +1,7 @@
 ﻿using Application.Queries;
 using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using Core.Repositories.Query;
 using MediatR;
 using System;
@@ -24,16 +25,16 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    public class GetAllselectedfileprofiletypeHandler : IRequestHandler<GetAllSelectedfileprofiletypeQuery, List<view_GetFileProfileTypeDocument>>
+    public class GetAllselectedfileprofiletypeHandler : IRequestHandler<GetAllSelectedfileprofiletypeQuery, DocumentTypeModel>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
         public GetAllselectedfileprofiletypeHandler(IFileprofileQueryRepository fileprofileQueryRepository)
         {
             _fileprofileQueryRepository = fileprofileQueryRepository;
         }
-        public async Task<List<view_GetFileProfileTypeDocument>> Handle(GetAllSelectedfileprofiletypeQuery request, CancellationToken cancellationToken)
+        public async Task<DocumentTypeModel> Handle(GetAllSelectedfileprofiletypeQuery request, CancellationToken cancellationToken)
         {
-            return (List<view_GetFileProfileTypeDocument>)await _fileprofileQueryRepository.GetAllSelectedFileAsync(request.selectedFileProfileTypeID);
+            return await _fileprofileQueryRepository.GetAllSelectedFileAsync(request.selectedFileProfileTypeID);
         }
 
     }

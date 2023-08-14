@@ -570,7 +570,7 @@ namespace Infrastructure.Repository.Query
                                 TS.Urgent,
                                 TS.OverDue,
                                 TS.DueDate,
-                                TS.StartDate,
+                                EC.AddedDate as StartDate,
                                 TS.FileData,
                                 TS.SessionId,
                                 E.FirstName,
@@ -621,7 +621,7 @@ namespace Infrastructure.Repository.Query
             }
         }
         public async Task<List<EmailTopics>> GetSubTopicToList(long TopicId, long UserId)
-        {
+            {
             try
             {
                 //var query = @"SELECT TS.ID,TS.TopicName,TS.Remarks,TS.SeqNo,TS.Status,TS.Follow,TS.OnBehalf,TS.Urgent,TS.OverDue,TS.DueDate,TS.StartDate,TS.FileData,TS.SessionId,E.FirstName,E.LastName FROM EmailTopics TS 
@@ -639,7 +639,7 @@ namespace Infrastructure.Repository.Query
                                 TS.Urgent,
                                 TS.OverDue,
                                 TS.DueDate,
-                                TS.StartDate,
+                                EC.AddedDate as StartDate,
                                 TS.FileData,
                                 TS.SessionId,
                                 E.FirstName,
@@ -670,7 +670,7 @@ namespace Infrastructure.Repository.Query
                             WHERE
                                 TS.ID = @TopicId and TS.OnDraft = 0 AND EC.ID=K.ReplyId 
                             ORDER BY
-                                TS.StartDate DESC";
+                                 EC.AddedDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId);
@@ -707,7 +707,7 @@ namespace Infrastructure.Repository.Query
                                 TS.Urgent,
                                 TS.OverDue,
                                 TS.DueDate,
-                                TS.StartDate,
+                                EC.AddedDate as StartDate,
                                 TS.FileData,
                                 TS.SessionId,
                                 E.FirstName,
@@ -745,7 +745,7 @@ namespace Infrastructure.Repository.Query
                             WHERE
                                 TS.OnDraft = 0 and EC.ID=K.ReplyId  /*and EC.ReplyId = 0*/
                             ORDER BY
-                                TS.StartDate DESC";
+                                 EC.AddedDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId);
@@ -782,7 +782,7 @@ namespace Infrastructure.Repository.Query
                                 TS.Urgent,
                                 TS.OverDue,
                                 TS.DueDate,
-                                TS.StartDate,
+                                EC.AddedDate as StartDate,
                                 TS.FileData,
                                 TS.SessionId,
                                 E.FirstName,
@@ -811,7 +811,7 @@ namespace Infrastructure.Repository.Query
                             WHERE
                                 TS.ID = @TopicId and TS.OnDraft = 0 AND EC.ID=K.ReplyId 
                             ORDER BY
-                                TS.StartDate DESC";
+                                 EC.AddedDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId);
@@ -849,7 +849,7 @@ namespace Infrastructure.Repository.Query
                                 TS.Urgent,
                                 TS.OverDue,
                                 TS.DueDate,
-                                TS.StartDate,
+                                EC.AddedDate as StartDate,
                                 TS.FileData,
                                 TS.SessionId,
                                 E.FirstName,
@@ -874,7 +874,7 @@ namespace Infrastructure.Repository.Query
                             WHERE
                                 TS.id = @TopicId and TS.OnDraft = 0 AND EC.ReplyId = 0 AND TS.TopicFrom = @UserId and EC.AddedByUserID = @UserId
                             ORDER BY
-                                TS.StartDate DESC";
+                                 EC.AddedDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId);

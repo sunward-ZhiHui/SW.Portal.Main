@@ -18,6 +18,9 @@ namespace Reporting.Core.Services
             {
 
                 [$"ConnectionStrings:Report_Connection"] = config.GetConnectionString(localConnectionName),
+                [$"ConnectionStrings:SunwardNAV01"] = config.GetConnectionString("SunwardNAV01"),
+                [$"ConnectionStrings:SWUAT"] = config.GetConnectionString("SWUAT"),
+                [$"ConnectionStrings:localhost_SW_Int_LIVE_Connection"] = config.GetConnectionString("localhost_SW_Int_LIVE_Connection"),
                 //[$"ConnectionStrings:NWindConnectionString"] = $"XpoProvider=SQLite;Data Source={dirPath}/nwind.db",
                 //[$"ConnectionStrings:VehiclesDBConnectionString"] = $"XpoProvider=SQLite;Data Source={dirPath}/vehicles.db",
                 //[$"ConnectionStrings:HomesConnectionString"] = $"XpoProvider=SQLite;Data Source={dirPath}/homes.db",

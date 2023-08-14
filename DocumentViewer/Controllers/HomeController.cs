@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Web;
 using DevExpress.AspNetCore.Spreadsheet;
 using DevExpress.Spreadsheet;
 using DevExpress.XtraSpreadsheet.Export;
@@ -11,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Policy;
 using System.Net.Mime;
+using DocumentViewer.Helpers;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace DocumentViewer.Controllers
 {
@@ -53,7 +56,7 @@ namespace DocumentViewer.Controllers
                         var webClient = new WebClient();
                         {
                             byte[] byteArrayAccessor() => webClient.DownloadData(new Uri(url));
-                            viewmodel.DocumentId = "DocumentId1";
+                            viewmodel.DocumentId = Guid.NewGuid().ToString();
                             viewmodel.ContentAccessorByBytes = byteArrayAccessor;
                             viewmodel.Type = contentType.Split("/")[0].ToLower();
                             viewmodel.ContentType = contentType;
@@ -85,6 +88,34 @@ namespace DocumentViewer.Controllers
                 return View(viewmodel);
                 //throw new Exception(ex.Message);
             }
+        }
+        [HttpGet("DownloadFromUrl")]
+        public IActionResult DownloadFromUrl(string url)
+        {
+            try
+            {
+                var result = DownloadExtention.GetUrlContent(url);
+                var request = HttpWebRequest.Create(url) as HttpWebRequest;
+                string contentType = "";
+                string filename = "";
+                Uri uri = new Uri(url);
+                filename = uri.LocalPath.Split("/").Last();
+                if (request != null)
+                {
+                    var response = request.GetResponse() as HttpWebResponse;
+                    if (response != null)
+                        contentType = response.ContentType;
+                }
+                if (result != null)
+                {
+                    return File(result.Result, contentType, filename);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Ok("file is not exist");
         }
         [HttpPost]
         public ContentResult DxDocRequest()

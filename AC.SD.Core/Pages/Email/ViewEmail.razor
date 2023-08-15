@@ -816,7 +816,8 @@
                         }
                         else if (isMenuvisible == "Todo")
                         {
-                            <ToDoList Tid="@Tid"></ToDoList>                          
+                            @*<ToDoList Tid="@Tid"></ToDoList>  *@
+                            <UserToDo Topicid="@Tid"> </UserToDo>
                         }
                         else if (isMenuvisible == "Tags")
                         {
@@ -1038,7 +1039,8 @@
 
 
     @code {
-        public int ActiveTabIndex { get; set; } = 1;
+   
+    public int ActiveTabIndex { get; set; } = 1;
     string? SearchText { get; set; }
     string? GridSearchText { get; set; }
     bool PreviewEnabled { get; set; } = false;

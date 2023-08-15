@@ -12,7 +12,7 @@ namespace Core.Repositories.Query
     public interface IToDoNotesQueryRepository : IQueryRepository<ToDoNotes>
     {
         Task<IReadOnlyList<ToDoNotes>> GetAllAsync();        
-        Task<IReadOnlyList<ToDoNotes>> GetAllToDoNotesAsync(long UserId);
+        Task<IReadOnlyList<ToDoNotes>> GetAllToDoNotesAsync(long UserId,long Topicid);
         Task<long> Insert(ToDoNotes ToDoNotes);
         Task<long> UpdateAsync(ToDoNotes ToDoNotes);
         Task<long> DeleteAsync(long id);

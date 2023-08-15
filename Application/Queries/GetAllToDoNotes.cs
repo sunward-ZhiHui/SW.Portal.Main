@@ -17,9 +17,11 @@ namespace Application.Queries
     public class GetByToDoNotes : PagedRequest, IRequest<List<ToDoNotes>>
     {
         public long UserID { get; set; }
-        public GetByToDoNotes(long UserID)
+        public long TopicId { get; set; }
+        public GetByToDoNotes(long UserID, long topicId)
         {
             this.UserID = UserID;
+            TopicId = topicId;
         }
     }
 

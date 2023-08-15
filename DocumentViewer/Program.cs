@@ -4,9 +4,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("_sw_corsPolicy", x =>
+    {
+        x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();//.AllowCredentials();
+    });
+});
 var app = builder.Build();
-
+app.UseCors("_sw_corsPolicy");
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

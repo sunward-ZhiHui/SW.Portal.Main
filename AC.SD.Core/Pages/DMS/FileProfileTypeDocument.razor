@@ -14,9 +14,9 @@
                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                     DisplayMode="MenuDisplayMode.Desktop">
                 <Items>
-                    <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="@onView" Enabled="false"/>
-                    <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="@onCopyLink" Enabled="false" />
-                <DxMenuItem Text="Reserve Number Series" IconCssClass="fa fa-list-ol" Click="@onReserveNumberSeries" Enabled="false"/>
+                <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="@onView" Enabled="@viewEnabled" />
+                <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="@onCopyLink" Enabled="@copylinkEnabled" />
+                <DxMenuItem Text="Reserve Number Series" IconCssClass="fa fa-list-ol" Click="@onReserveNumberSeries" Enabled="@reserveNumberseriesEnabled" />
                 </Items>
             </DxMenu>
         </div>
@@ -67,13 +67,22 @@
     private List<view_FileProfileTypeDocument> fileProfileTypeDocuments { get; set; }
     bool PanelVisible { get; set; }
     private view_FileProfileTypeDocument _selectedItems;
+    public bool viewEnabled {get;set;} = false;
+    public bool copylinkEnabled { get; set; } = false;
+    public bool reserveNumberseriesEnabled { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         //PanelVisible = true;
 
         PanelVisible = true;
         fileProfileTypeDocuments = await Mediator.Send(new GetAllFileProfileTypeDocuments());
-      
+        if (fileProfileTypeDocuments.Count>0)
+        {
+            _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
+            copylinkEnabled = true;
+            viewEnabled = true;
+            reserveNumberseriesEnabled = true;
+        }
         PanelVisible = false;
     }
 

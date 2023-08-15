@@ -103,9 +103,9 @@
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="FmglobalLineId" Visible="false" />
             @* <DxGridDataColumn FieldName="PalletEntryName" Caption="Pallet Entry" />*@
-            <DxGridDataColumn FieldName="PalletNo" >
+            <DxGridDataColumn FieldName="PalletNo">
                 <CellDisplayTemplate>
-                    
+
                     @{
                         var item = (ViewFmglobalLine)context.DataItem;
                     }
@@ -114,7 +114,7 @@
                         <i class="fa fa-exchange" aria-hidden="true" style="margin-right: 5px;padding: 5px;font-size: 20px; color: green;"></i>
                     }
                     @item.PalletNo
-                    </CellDisplayTemplate>
+                </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="TempPalletNo" />
             <DxGridDataColumn FieldName="AddedDate">
@@ -604,6 +604,11 @@
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
+        if (SelectedToItems is IGridSelectionChanges changes)
+        {
+            var SelectedItemsInfo = changes.SelectedDataItems.FirstOrDefault();
+            _selectedItems = (ViewFmglobalLine)SelectedItemsInfo;
+        }
         SelectedDataItems = SelectedToItems;
         if (IsRelease == false)
         {

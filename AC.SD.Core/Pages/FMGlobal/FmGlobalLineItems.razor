@@ -563,6 +563,11 @@
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
+        if (SelectedToItems is IGridSelectionChanges changes)
+        {
+            var SelectedItemsInfo = changes.SelectedDataItems.FirstOrDefault();
+            _selectedItems = (ViewFmglobalLineItem)SelectedItemsInfo;
+        }
         SelectedDataItems = SelectedToItems;
         if (IsRelease == false)
         {

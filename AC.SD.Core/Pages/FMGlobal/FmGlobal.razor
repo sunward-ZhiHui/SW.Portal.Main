@@ -55,7 +55,8 @@
             RowClick="OnRowClick"
             AllowSelectRowByClick="true"
             RowDoubleClick="OnRowDoubleClick"
-            ShowGroupPanel="true" ShowGroupedColumns="true">
+            ShowGroupPanel="true" ShowGroupedColumns="true" SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            SelectedDataItem="@SelectedDataItem">
 
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
@@ -82,7 +83,7 @@
 
             <DxGridDataColumn FieldName="Pono" Caption="PO No" MinWidth="80" />
             <DxGridDataColumn FieldName="LocationFrom" MinWidth="80" />
-            <DxGridDataColumn FieldName="LocationTo" MinWidth="80" />      
+            <DxGridDataColumn FieldName="LocationTo" MinWidth="80" />
             <DxGridDataColumn FieldName="FmglobalStatus" Caption="Status" MinWidth="80" />
         </Columns>
         <TotalSummary>
@@ -98,6 +99,7 @@
     private ViewFmglobal _selectedItems;
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
+    object SelectedDataItem { get; set; }
     bool PanelVisible { get; set; }
     protected override async Task OnInitializedAsync()
     {
@@ -107,6 +109,7 @@
         if (_fmglobalDatas.Count > 0)
         {
             _selectedItems = _fmglobalDatas.FirstOrDefault();
+            Grid.SetFocusedRowIndex(0);
             EditEnabled = true;
             DeleteEnabled = true;
             StateHasChanged();
@@ -119,6 +122,14 @@
         _selectedItems = _fmglobalDatas.FirstOrDefault(f => f.FmglobalId == (long?)UniqueId);
 
 
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> newSelection)
+    {
+        if (newSelection is IGridSelectionChanges changes)
+        {
+            var SelectedItemsInfo = changes.SelectedDataItems.FirstOrDefault();
+            _selectedItems = (ViewFmglobal)SelectedItemsInfo;
+        }
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
@@ -188,5 +199,5 @@
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
-    }   
+    }
 }

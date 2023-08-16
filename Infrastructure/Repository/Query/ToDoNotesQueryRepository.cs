@@ -39,7 +39,12 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT * from ToDoNotes WHERE AddedByUserID = @UserID ORDER BY Completed ASC /*AND (Completed = 0 OR Completed IS NULL)*/";
+                // var query = @"SELECT * from ToDoNotes WHERE AddedByUserID = @UserID ORDER BY Completed ASC /*AND (Completed = 0 OR Completed IS NULL)*/";
+                var query = @"
+                            SELECT * 
+                            FROM ToDoNotes
+                            WHERE (@TopicId = 0 AND ( TopicId = 0 OR TopicId IS NULL ) AND AddedByUserID = @UserID)
+                               OR (@TopicId > 0 AND  TopicId = @TopicId AND TopicId IS NOT NULL AND AddedByUserID = @UserID) ORDER BY Completed ASC";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", UserID);
                 parameters.Add("TopicId", TopicId);

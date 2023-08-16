@@ -49,5 +49,6 @@ namespace Core.Entities.Views
         public string FolderID { get; set; }
         public string DocAddedBy { get; set; }
         public Guid DocSessionID { get; set;}
+        public long? ArchiveStatusId { get; set; }
     }
 }

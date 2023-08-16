@@ -18,26 +18,26 @@
     <script src="~/node_modules/devexpress-richedit/dist/dx.richedit.js"></script>
 </head>
 <body>
-     <header>
+    <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3" style="background-color: #3f51b5 !important;">
-    <div class="container-fluid">
-    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="color:white;">Sunward Document Viewer</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-    aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-    @*<ul class="navbar-nav flex-grow-1">
-    <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-    </li>
-    <li class="nav-item">
-    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-    </li>
-    </ul>*@
-    </div>
-    </div>
-    </nav>
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="color:white;">Sunward Document Viewer</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="nav navbar-nav navbar-right">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="javascript:void(0);"  id="downloadClick">Download </a>
+                        </li>
+                        @* <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>*@
+                    </ul>
+                </div>
+            </div>
+        </nav>
     </header>
     <div style="padding-left:10px;padding-right:10px;">
         <main role="main" class="pb-3">
@@ -50,9 +50,47 @@
     &copy; 2023 - DocumentViewer - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>
     </footer>*@
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+
+    <script type="text/javascript">
+
+        $('#downloadClick').on('click', function () {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const url = urlParams.get('url');
+            if (url != null) {
+                var fileName = url.split("/").pop();
+                $.ajax({
+                    url: '@Url.Action("downloadfromurl")',
+                    data: { url: url },
+                    method: 'GET',
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function (data) {
+                        var a = document.createElement('a');
+                        var url = window.URL.createObjectURL(data);
+                        a.href = url;
+                        a.download = fileName;
+                        document.body.append(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                    },
+                    error: function (ex) {
+                        if (ex.status == 500) {
+                            alert("File is not exist")
+                        }
+
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

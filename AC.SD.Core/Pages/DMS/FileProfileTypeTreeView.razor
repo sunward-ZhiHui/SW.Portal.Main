@@ -13,54 +13,55 @@
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
 @inject ClipboardService ClipboardService
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 
-
- <div class="menu-bar-content-container col-md-12">
-            <div class="card w-100" style="margin-bottom:1px;">
-
-
-
-                <div class="card-body p-0"> 
-
-
-                    <DxMenu CollapseItemsToHamburgerMenu="true"
-                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                            DisplayMode="MenuDisplayMode.Desktop">
-
-                        <Items>
-                            <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" />
-                            <DxMenuItem Position="ItemPosition.End" Text="@Name" />
-                              <DxMenuItem Position="ItemPosition.End" Text="@Count" />
-                            <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-cloud-download" Click="onDownload" Enabled="@ondownloadEnabled" />
-                            <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" />
-                            <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-refresh " Click="onRefersh" />
-                            <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info-circle " Click="onInfo" Enabled=@informationEnabled />
-                            <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-reply " Click="onBack" />
-                            @if (TreeView == false)
-                            {
-
-                                <DxButton SizeMode="SizeMode.Large" RenderStyle="ButtonRenderStyle.None" IconCssClass="fa fa-code-fork" Click="Onhide" style=" width:100px;float: left; margin-bottom: -34px;margin-left:3px;z-index: 9999; " />
-                            }
-
-                            @if (TreeView == true)
-                            {
-                                <DxMenu Visible="@TreeView">
-                                    <Items>
-                                        <DxButton SizeMode="SizeMode.Medium" RenderStyle="ButtonRenderStyle.None" IconCssClass="fa fa-code-fork" Click="OnShow" style=" width:100px;float: left; margin-bottom: -41px;  margin-left:3px;z-index: 9999; margin-top:6px;" />
-                                    </Items>
-                                </DxMenu>
-                            }
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
 
 
 
+        <div class="card-body p-0">
 
 
-                        </Items>
-                    </DxMenu>
-                </div>
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" />
+                    <DxMenuItem Position="ItemPosition.End" Text="@Name" />
+                    <DxMenuItem Position="ItemPosition.End" Text="@Count" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-cloud-download" Click="onDownload" Enabled="@ondownloadEnabled" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-refresh " Click="onRefersh" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info-circle " Click="onInfo" Enabled=@informationEnabled />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-reply " Click="onBack" />
+                    @if (TreeView == false)
+                    {
+
+                        <DxButton SizeMode="SizeMode.Large" RenderStyle="ButtonRenderStyle.None" IconCssClass="fa fa-code-fork" Click="Onhide" style=" width:100px;float: left; margin-bottom: -34px;margin-left:3px;z-index: 9999; " />
+                    }
+
+                    @if (TreeView == true)
+                    {
+                        <DxMenu Visible="@TreeView">
+                            <Items>
+                                <DxButton SizeMode="SizeMode.Medium" RenderStyle="ButtonRenderStyle.None" IconCssClass="fa fa-code-fork" Click="OnShow" style=" width:100px;float: left; margin-bottom: -41px;  margin-left:3px;z-index: 9999; margin-top:6px;" />
+                            </Items>
+                        </DxMenu>
+                    }
 
 
-            </div>
+
+
+
+                </Items>
+            </DxMenu>
+        </div>
+
+
+    </div>
 </div>
 <div class="">
     <div class="main-container">
@@ -69,33 +70,32 @@
             {
                 <div class="col-md-3" style="height: calc(100vh - 150px); padding:10px;">
                     <div style="height:90%; border: 1px solid #b2afaf; overflow: auto; margin-bottom: 10px;">
-                    <div class="mini-menu-bar-top">
-                        <div class="mini-menu-bar-heading">
-                            <div class="files-title" style="padding:10px;">
-                               
+                        <div class="mini-menu-bar-top">
+                            <div class="mini-menu-bar-heading">
+                                <div class="files-title" style="padding:10px;">
+                                </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <div class="views-accordion">
-                                <DxTreeView Data="@_TreeData"
-                                @bind-FilterString="FilterString"
+                            <div>
+                                <div class="views-accordion">
+                                    <DxTreeView Data="@_TreeData"
+                                            @bind-FilterString="FilterString"
                                             FilterMinLength="2"
                                             ShowFilterPanel="true"
                                             FilterMode="FilterMode"
                                             AllowSelectNodes="true"
                                             LoadChildNodesOnDemand=false SelectionChanged="@SelectionChanged"
                                             AnimationType="LayoutAnimationType.Slide">
-                                    <DataMappings>
-                                        <DxTreeViewDataMapping Children="Children" CssClass="CssClass" Text="Label" Name="ParentID" />
-                                    </DataMappings>
-                                </DxTreeView>
+                                        <DataMappings>
+                                            <DxTreeViewDataMapping Children="Children" CssClass="CssClass" Text="Label" Name="ParentID" />
+                                        </DataMappings>
+                                    </DxTreeView>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
-              
-            </div>
             }
             @if (TreeView == false)
             {
@@ -109,102 +109,8 @@
                                     <div class="card w-100" style="margin-bottom:10px;">
                                         <div class="card-body p-0">
                                             <DxMenu CollapseItemsToHamburgerMenu="true"
-                                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                                    DisplayMode="MenuDisplayMode.Desktop">
-                                                <Items>
-                                                    <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
-                                                    <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Enabled="@uploadEnabled" />
-                                                    <DxMenuItem Text="View File" IconCssClass="fa fa-eye"  Click="@((e) => onView(_selectedItems.DocumentID))" Enabled="@viewfileEnabled" />
-                                                    <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
-
-
-                                                    <DxMenuItem Text="More" IconCssClass="fa fa-ellipsis-v">
-                                                        <Items>
-                                                            <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Enabled="@deleteEnabled" />
-                                                            <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Enabled="@historyEnabled" />
-                                                            <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Enabled="@checkoutEnabled" />
-                                                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Click="onCheckin" Enabled="@checkInEnabled" />
-                                                            <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Enabled="@NotifyEnabled" />
-                                                            <DxMenuItem Text="Play" IconCssClass="fa fa-play-circle" Click="onPlay" Enabled="@playEnabled" />
-                                                            <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Enabled="@shareEnabled" />
-                                                            <DxMenuItem Text="Link Download" IconCssClass="fa fa-link" Click="onLinkDownload" Enabled="@linkdownloadEnabled" />
-                                                            <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Enabled="@formdetailsEnabled" />
-                                                            <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewparentDocuments" Enabled="@viewParentEnabled" />
-                                                            <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Enabled="@renameEnabled" />
-                                                            <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" Click="onReleaseforwiki" Enabled="@releasewikiEnabled" />
-                                                        </Items>
-                                                    </DxMenuItem>
-
-                                                </Items>
-                                            </DxMenu>
-                                        </div>
-                                    </div>
-
-                                    <DxLoadingPanel @bind-Visible="PanelVisible"
-                                                    IsContentBlocked="true"
-                                                    ApplyBackgroundShading="true"
-                                                    IndicatorAreaVisible="false"
-                                                    Text="Fetching Data...">
-                                        <DxGrid @ref="Grid"
-                                                Data="_fileProfileselectedlst"
-                                                KeyFieldName="DocumentID"
-                                                EditMode="GridEditMode.EditForm"
-                                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-                                                EditorRenderMode="GridEditorRenderMode.Integrated"
-                                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                                                ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-                                                PagerNavigationMode="PagerNavigationMode.InputBox"
-                                                PageSizeSelectorVisible="true"
-                                                PageSizeSelectorAllRowsItemVisible="true"
-                                                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                                PageSize="20" CustomizeElement="Grid_CustomizeElement" ValidationEnabled="false" F
-                                                RowClick="OnRowClick"
-                                                FocusedRowEnabled="true"
-                                                AllowSelectRowByClick="true"
-                                                SelectionMode="GridSelectionMode.Single"
-                                                CssClass="ch-360"
-                                                style="height: calc(100vh - 290px);">
-                                            <Columns>
-
-                                                <DxGridDataColumn FieldName="FileName" Caption="File Name" MinWidth="80" />
-                                                <DxGridDataColumn FieldName="FileProfileTypeName" Caption="Profile Type Name" MinWidth="80" />
-                                                <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="80" />
-                                                <DxGridDataColumn FieldName="FileSize" Caption="Size(KB)" MinWidth="80" />
-                                                <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
-                                                <DxGridDataColumn FieldName="ExpiryDate" Caption="Expiry Date" MinWidth="80" />
-                                                <DxGridDataColumn FieldName="AddedByUser" Caption="Modified By" MinWidth="80" />
-                                                <DxGridDataColumn FieldName="AddedDate" Caption="Modified Date" MinWidth="80" />
-
-
-                                            </Columns>
-                                            <TotalSummary>
-                                                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
-                                            </TotalSummary>
-                                        </DxGrid>
-                                    </DxLoadingPanel>
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-            else
-            {
-
-                <div class="col-md-9" >
-
-
-                    <div class="" style="margin-top:10px;">
-                        <div id="">
-                            <div class="">
-                                <div class="">
-                                    <div class="card w-100" style="margin-bottom:10px;">
-                                        <div class="card-body p-0">
-                                            <DxMenu CollapseItemsToHamburgerMenu="true"
-                                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                                    DisplayMode="MenuDisplayMode.Desktop">
+                                                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                                DisplayMode="MenuDisplayMode.Desktop">
                                                 <Items>
                                                     <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
                                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Enabled="@uploadEnabled" />
@@ -235,29 +141,123 @@
                                     </div>
 
                                     <DxLoadingPanel @bind-Visible="PanelVisible"
-                                                    IsContentBlocked="true"
-                                                    ApplyBackgroundShading="true"
-                                                    IndicatorAreaVisible="false"
-                                                    Text="Fetching Data...">
+                                                IsContentBlocked="true"
+                                                ApplyBackgroundShading="true"
+                                                IndicatorAreaVisible="false"
+                                                Text="Fetching Data...">
                                         <DxGrid @ref="Grid"
-                                                Data="_fileProfileselectedlst"
-                                                KeyFieldName="DocumentID"
-                                                EditMode="GridEditMode.EditForm"
-                                                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-                                                EditorRenderMode="GridEditorRenderMode.Integrated"
-                                                ColumnResizeMode="GridColumnResizeMode.NextColumn"
-                                                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-                                                ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-                                                PagerNavigationMode="PagerNavigationMode.InputBox"
-                                                PageSizeSelectorVisible="true"
-                                                PageSizeSelectorAllRowsItemVisible="true"
-                                                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-                                                PageSize="20" CustomizeElement="Grid_CustomizeElement" ValidationEnabled="false" F
-                                                RowClick="OnRowClick"
-                                                FocusedRowEnabled="true"
-                                                AllowSelectRowByClick="true"
-                                                SelectionMode="GridSelectionMode.Single"
-                                                CssClass="ch-360"
+                                            Data="_fileProfileselectedlst"
+                                            KeyFieldName="DocumentID"
+                                            EditMode="GridEditMode.EditForm"
+                                            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                            EditorRenderMode="GridEditorRenderMode.Integrated"
+                                            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                            ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                            PagerNavigationMode="PagerNavigationMode.InputBox"
+                                            PageSizeSelectorVisible="true"
+                                            PageSizeSelectorAllRowsItemVisible="true"
+                                            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                            PageSize="20" CustomizeElement="Grid_CustomizeElement" ValidationEnabled="false" F
+                                            RowClick="OnRowClick"
+                                            FocusedRowEnabled="true"
+                                            AllowSelectRowByClick="true"
+                                            SelectionMode="GridSelectionMode.Single"
+                                            CssClass="ch-360"
+                                                style="height: calc(100vh - 290px);">
+                                            <Columns>
+
+                                                <DxGridDataColumn FieldName="FileName" Caption="File Name" MinWidth="80" />
+                                                <DxGridDataColumn FieldName="FileProfileTypeName" Caption="Profile Type Name" MinWidth="80" />
+                                                <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="80" />
+                                                <DxGridDataColumn FieldName="FileSize" Caption="Size(KB)" MinWidth="80" />
+                                                <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
+                                                <DxGridDataColumn FieldName="ExpiryDate" Caption="Expiry Date" MinWidth="80" />
+                                                <DxGridDataColumn FieldName="AddedByUser" Caption="Modified By" MinWidth="80" />
+                                                <DxGridDataColumn FieldName="AddedDate" Caption="Modified Date" MinWidth="80" />
+
+
+                                            </Columns>
+                                            <TotalSummary>
+                                                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
+                                            </TotalSummary>
+                                        </DxGrid>
+                                    </DxLoadingPanel>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+
+                <div class="col-md-9">
+
+
+                    <div class="" style="margin-top:10px;">
+                        <div id="">
+                            <div class="">
+                                <div class="">
+                                    <div class="card w-100" style="margin-bottom:10px;">
+                                        <div class="card-body p-0">
+                                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                                DisplayMode="MenuDisplayMode.Desktop">
+                                                <Items>
+                                                    <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
+                                                    <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Enabled="@uploadEnabled" />
+                                                    <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="@((e) => onView(_selectedItems.DocumentID))" Enabled="@viewfileEnabled" />
+                                                    <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
+
+
+                                                    <DxMenuItem Text="More" IconCssClass="fa fa-ellipsis-v">
+                                                        <Items>
+                                                            <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Enabled="@deleteEnabled" />
+                                                            <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Enabled="@historyEnabled" />
+                                                            <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Enabled="@checkoutEnabled" />
+                                                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Click="onCheckin" Enabled="@checkInEnabled" />
+                                                            <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Enabled="@NotifyEnabled" />
+                                                            <DxMenuItem Text="Play" IconCssClass="fa fa-play-circle" Click="onPlay" Enabled="@playEnabled" />
+                                                            <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Enabled="@shareEnabled" />
+                                                            <DxMenuItem Text="Link Download" IconCssClass="fa fa-link" Click="onLinkDownload" Enabled="@linkdownloadEnabled" />
+                                                            <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Enabled="@formdetailsEnabled" />
+                                                            <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewparentDocuments" Enabled="@viewParentEnabled" />
+                                                            <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Enabled="@renameEnabled" />
+                                                            <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" Click="onReleaseforwiki" Enabled="@releasewikiEnabled" />
+                                                        </Items>
+                                                    </DxMenuItem>
+
+                                                </Items>
+                                            </DxMenu>
+                                        </div>
+                                    </div>
+
+                                    <DxLoadingPanel @bind-Visible="PanelVisible"
+                                                IsContentBlocked="true"
+                                                ApplyBackgroundShading="true"
+                                                IndicatorAreaVisible="false"
+                                                Text="Fetching Data...">
+                                        <DxGrid @ref="Grid"
+                                            Data="_fileProfileselectedlst"
+                                            KeyFieldName="DocumentID"
+                                            EditMode="GridEditMode.EditForm"
+                                            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                            EditorRenderMode="GridEditorRenderMode.Integrated"
+                                            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                            ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                            PagerNavigationMode="PagerNavigationMode.InputBox"
+                                            PageSizeSelectorVisible="true"
+                                            PageSizeSelectorAllRowsItemVisible="true"
+                                            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                            PageSize="20" CustomizeElement="Grid_CustomizeElement" ValidationEnabled="false" F
+                                            RowClick="OnRowClick"
+                                            FocusedRowEnabled="true"
+                                            AllowSelectRowByClick="true"
+                                            SelectionMode="GridSelectionMode.Single"
+                                            CssClass="ch-360"
                                                 style="height: calc(100vh - 280px);">
                                             <Columns>
 
@@ -283,11 +283,11 @@
                         </div>
                     </div>
                 </div>
-           
+
             }
         </div>
-   </div>
- </div>
+    </div>
+</div>
 @code {
     IGrid Grid { get; set; }
     [Parameter]
@@ -305,20 +305,20 @@
     bool TreeView { get; set; } = false;
     public Fileprofiletype SelectedName { get; set; }
     public string Name;
-    public  bool DownloadEnabled {get; set;} = false;
-    public  bool uploadEnabled {get; set;}=false;
-    public  bool copylinkEnabled {get; set;}=false;
-    public  bool deleteEnabled {get; set;}=false;
-    public  bool viewfileEnabled {get; set;}=false;
-    public  bool historyEnabled {get; set;}=false;
+    public bool DownloadEnabled { get; set; } = false;
+    public bool uploadEnabled { get; set; } = false;
+    public bool copylinkEnabled { get; set; } = false;
+    public bool deleteEnabled { get; set; } = false;
+    public bool viewfileEnabled { get; set; } = false;
+    public bool historyEnabled { get; set; } = false;
     public bool checkoutEnabled { get; set; } = false;
-    public  bool checkInEnabled {get; set;}=false;
-    public  bool NotifyEnabled {get; set;}=false;
-    public  bool playEnabled {get; set;}=false;
-    public  bool shareEnabled {get; set;}=false;
-    public  bool formdetailsEnabled {get; set;}=false;
-    public  bool linkdownloadEnabled {get; set;}=false;
-    public  bool viewParentEnabled {get; set;}=false;
+    public bool checkInEnabled { get; set; } = false;
+    public bool NotifyEnabled { get; set; } = false;
+    public bool playEnabled { get; set; } = false;
+    public bool shareEnabled { get; set; } = false;
+    public bool formdetailsEnabled { get; set; } = false;
+    public bool linkdownloadEnabled { get; set; } = false;
+    public bool viewParentEnabled { get; set; } = false;
     public bool renameEnabled { get; set; } = false;
     public bool releasewikiEnabled { get; set; } = false;
     public bool ondownloadEnabled { get; set; } = false;
@@ -329,14 +329,16 @@
     private string? DocumentViewUrl;
     private string? ServerUrl;
     public string Text;
+    public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
         DocumentViewUrl = Configuration["DocumentsUrl:FileViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _TreeData = await Mediator.Send(new GetAllfileprofiletypeQuery(long.Parse(FileProfileTypeId)));
         await loadFileProfileData(long.Parse(FileProfileTypeId));
-        if(_TreeData.Count >0)
+        if (_TreeData.Count > 0)
         {
             SelectedName = _TreeData.FirstOrDefault();
             Name = SelectedName.Name;
@@ -354,9 +356,9 @@
         if (fileProfileTypeId > 0)
         {
             PanelVisible = true;
-            _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(fileProfileTypeId));         
+            _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(fileProfileTypeId));
             _fileProfileselectedlst = _fileProfileselectedlstItems.DocumentsData;
-            if(  _fileProfileselectedlst != null)
+            if (_fileProfileselectedlst != null)
             {
                 var downloadcount = _fileProfileselectedlst.Count;
                 Count = downloadcount.ToString();
@@ -432,8 +434,11 @@
 
     private async Task onCopy()
     {
-       
-        await ClipboardService.WriteTextAsync("https://www.meziantou.net/copying-text-to-clipboard-in-a-blazor-application.htm");
+        if (_selectedItems.DocumentID > 0)
+        {
+            var url = ServerUrl + "id=" + _selectedItems.DocumentID + "&&type=latest";
+            await ClipboardService.WriteTextAsync("https://www.meziantou.net/copying-text-to-clipboard-in-a-blazor-application.htm");
+        }
     }
     void OnSecurity()
     {
@@ -461,13 +466,11 @@
     }
     async void onView(long FileProfileTypeId)
     {
-
-
-       ViewFileprofile = _fileProfileselectedlst.FirstOrDefault(f => f.DocumentID == FileProfileTypeId);
-        //  _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
-        var url = DocumentViewUrl + "?url=" + ServerUrl + ViewFileprofile.FilePath;
-
-        await OpenDocumentPreview(url);
+        if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+            await OpenDocumentPreview(url);
+        }
     }
     private async Task OpenDocumentPreview(string url)
     {
@@ -477,9 +480,19 @@
     {
 
     }
-    void onHistory()
+    async Task onHistory()
     {
-
+        if (_selectedItems.DocumentID > 0)
+        {
+            SearchModel searchModel = new SearchModel();
+            searchModel.Id = _selectedItems.DocumentID;
+            searchModel.MasterTypeID = _selectedItems.FilterProfileTypeId;
+            searchModel.SearchString = _selectedItems.Type;
+            searchModel.SessionID = _selectedItems.SessionID;
+            searchModel.ParentID = _selectedItems.DocumentParentId;
+            searchModel.UserID = applicationUser.UserID;
+            var historyData = await Mediator.Send(new GetFileProfileTypeDocumentByHistory(searchModel));
+        }
     }
     void onCheckOut()
     {
@@ -519,7 +532,6 @@
     }
     void onReleaseforwiki()
     {
-        
+
     }
 }
-   

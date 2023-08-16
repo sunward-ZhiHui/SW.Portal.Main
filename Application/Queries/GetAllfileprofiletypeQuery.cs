@@ -27,4 +27,13 @@ namespace Application.Queries
             this.selectedFileProfileTypeID = selectedFileProfileTypeID;
         }
     }
+    public class GetFileProfileTypeDocumentByHistory : PagedRequest, IRequest<DocumentTypeModel>
+    {
+        public SearchModel SearchModel { get; private set; }
+        public GetFileProfileTypeDocumentByHistory(SearchModel searchModel)
+        {
+            this.SearchModel = searchModel;
+        }
+    }
+
 }

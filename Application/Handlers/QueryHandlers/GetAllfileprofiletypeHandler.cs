@@ -38,5 +38,18 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetFileProfileTypeDocumentByHistoryHandler : IRequestHandler<GetFileProfileTypeDocumentByHistory, DocumentTypeModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetFileProfileTypeDocumentByHistoryHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<DocumentTypeModel> Handle(GetFileProfileTypeDocumentByHistory request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.GetFileProfileTypeDocumentByHistory(request.SearchModel);
+        }
+
+    }
 
 }

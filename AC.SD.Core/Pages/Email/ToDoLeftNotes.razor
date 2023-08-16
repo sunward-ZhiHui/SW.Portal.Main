@@ -166,7 +166,8 @@
     private ToDoNotes _selectlst;
     public ApplicationUser? applicationUser { get; private set; } 
     bool isEnabled { get; set; } = true;
-
+    [Parameter]
+    public long Topicid { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -174,7 +175,8 @@
         PanelVisible = true;
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID));
+        _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
+
         PanelVisible = false;
 
         if (_toDoNotes.Count > 0)
@@ -188,7 +190,7 @@
     public async Task UpdateDataAsync()
     {
         PanelVisible = true;        
-        _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID));
+        _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID,Topicid));
         PanelVisible = false;
 
         if (_toDoNotes.Count == 0)
@@ -268,6 +270,7 @@
                         StatusCodeID = 1,
                         AddedByUserID = applicationUser.UserID,
                         ModifiedByUserID = applicationUser.UserID,
+                        TopicId = Topicid,
                         AddedDate = DateTime.Now,
                         ModifiedDate = DateTime.Now,
                         SessionId = Guid.NewGuid()
@@ -301,6 +304,7 @@
                         Notes = editModel.Notes,                       
                         AddedByUserID = editModel.AddedByUserID,
                         StatusCodeID = editModel.StatusCodeID,
+                        TopicId=Topicid,
                         ModifiedByUserID = applicationUser.UserID,
                         ModifiedDate = DateTime.Now,
                         AddedDate = editModel.AddedDate,

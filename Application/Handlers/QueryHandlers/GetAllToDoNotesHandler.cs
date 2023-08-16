@@ -34,7 +34,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<ToDoNotes>> Handle(GetByToDoNotes request, CancellationToken cancellationToken)
         {
-            return (List<ToDoNotes>)await _toDoNotesQueryRepository.GetAllToDoNotesAsync(request.UserID);
+            return (List<ToDoNotes>)await _toDoNotesQueryRepository.GetAllToDoNotesAsync(request.UserID,request.TopicId);
             
         }
     }

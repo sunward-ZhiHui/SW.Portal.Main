@@ -332,7 +332,7 @@
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-        DocumentViewUrl = Configuration["DocumentsUrl:FileViewer"];
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
         _TreeData = await Mediator.Send(new GetAllfileprofiletypeQuery(long.Parse(FileProfileTypeId)));
         await loadFileProfileData(long.Parse(FileProfileTypeId));
@@ -462,9 +462,7 @@
     async void onView(long FileProfileTypeId)
     {
 
-
        ViewFileprofile = _fileProfileselectedlst.FirstOrDefault(f => f.DocumentID == FileProfileTypeId);
-        //  _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
         var url = DocumentViewUrl + "?url=" + ServerUrl + ViewFileprofile.FilePath;
 
         await OpenDocumentPreview(url);

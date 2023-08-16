@@ -23,7 +23,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT  * FROM ToDoNotes";
+                var query = "SELECT * FROM ToDoNotes";
 
                 using (var connection = CreateConnection())
                 {
@@ -35,13 +35,14 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<ToDoNotes>> GetAllToDoNotesAsync(long UserID)
+        public async Task<IReadOnlyList<ToDoNotes>> GetAllToDoNotesAsync(long UserID,long TopicId)
         {
             try
             {
                 var query = @"SELECT * from ToDoNotes WHERE AddedByUserID = @UserID ORDER BY Completed ASC /*AND (Completed = 0 OR Completed IS NULL)*/";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", UserID);
+                parameters.Add("TopicId", TopicId);
 
                 using (var connection = CreateConnection())
                 {
@@ -65,7 +66,8 @@ namespace Infrastructure.Repository.Query
                     {
                         try
                         {
-                            var parameters = new DynamicParameters();                           
+                            var parameters = new DynamicParameters();
+                            parameters.Add("TopicId", ToDoNotes.TopicId);
                             parameters.Add("Notes", ToDoNotes.Notes);                           
                             parameters.Add("StatusCodeID", ToDoNotes.StatusCodeID);
                             parameters.Add("AddedByUserID", ToDoNotes.AddedByUserID);
@@ -74,7 +76,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", ToDoNotes.ModifiedDate);
                             parameters.Add("SessionId", ToDoNotes.SessionId);
 
-                            var query = "INSERT INTO ToDoNotes(Notes,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId) VALUES (@Notes,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId)";
+                            var query = "INSERT INTO ToDoNotes(TopicId,Notes,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId) VALUES (@TopicId,@Notes,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 

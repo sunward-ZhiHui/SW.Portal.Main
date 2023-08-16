@@ -2,6 +2,7 @@
 @page "/fileProfileTypeTreeView/{FileProfileTypeId}"
 @using Application.Queries;
 @using System.IO;
+@using System.Runtime.InteropServices.ComTypes;
 @using global::Core.Entities;
 @using MediatR
 @using global::Core.Entities.Views;
@@ -9,7 +10,9 @@
 @inject IMediator Mediator
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime;
-
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
 
 
  <div class="menu-bar-content-container col-md-12">
@@ -111,11 +114,11 @@
                                                 <Items>
                                                     <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
                                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Enabled="@uploadEnabled" />
-                                                    <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewfileEnabled" />
+                                                    <DxMenuItem Text="View File" IconCssClass="fa fa-eye"  Click="@((e) => onView(_selectedItems.DocumentID))" Enabled="@viewfileEnabled" />
                                                     <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
 
 
-                                                    <DxMenuItem Text="" IconCssClass="fa fa-ellipsis-v">
+                                                    <DxMenuItem Text="More" IconCssClass="fa fa-ellipsis-v">
                                                         <Items>
                                                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Enabled="@deleteEnabled" />
                                                             <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Enabled="@historyEnabled" />
@@ -205,11 +208,11 @@
                                                 <Items>
                                                     <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
                                                     <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Enabled="@uploadEnabled" />
-                                                    <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewfileEnabled" />
+                                                    <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="@((e) => onView(_selectedItems.DocumentID))" Enabled="@viewfileEnabled" />
                                                     <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
 
 
-                                                    <DxMenuItem Text="" IconCssClass="fa fa-ellipsis-v">
+                                                    <DxMenuItem Text="More" IconCssClass="fa fa-ellipsis-v">
                                                         <Items>
                                                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Enabled="@deleteEnabled" />
                                                             <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Enabled="@historyEnabled" />
@@ -293,6 +296,7 @@
     private List<Fileprofiletype> _TreeData { get; set; }
     private DocumentTypeModel _fileProfileselectedlstItems { get; set; }
     private List<DocumentsModel> _fileProfileselectedlst { get; set; }
+    DocumentsModel ViewFileprofile { get; set; }
     string FilterString { get; set; }
     string SelectedGroup = "none";
     public DocumentsModel _selectedItems { get; set; }
@@ -322,9 +326,14 @@
     public bool moreEnabled { get; set; } = false;
     public bool informationEnabled { get; set; } = false;
     public string Count;
+    private string? DocumentViewUrl;
+    private string? ServerUrl;
+    public string Text;
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
+        DocumentViewUrl = Configuration["DocumentsUrl:FileViewer"];
+        ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
         _TreeData = await Mediator.Send(new GetAllfileprofiletypeQuery(long.Parse(FileProfileTypeId)));
         await loadFileProfileData(long.Parse(FileProfileTypeId));
         if(_TreeData.Count >0)
@@ -352,7 +361,7 @@
                 var downloadcount = _fileProfileselectedlst.Count;
                 Count = downloadcount.ToString();
             }
-            
+
             if (_fileProfileselectedlst.Count > 0)
             {
                 _selectedItems = _fileProfileselectedlst.FirstOrDefault();
@@ -398,8 +407,8 @@
     async void OnRowClick(GridRowClickEventArgs e)
     {
 
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FilterProfileTypeId");
-        _selectedItems = _fileProfileselectedlst.FirstOrDefault(f => f.FilterProfileTypeId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentID");
+        _selectedItems = _fileProfileselectedlst.FirstOrDefault(f => f.DocumentID == (long?)UniqueId);
         StateHasChanged();
 
     }
@@ -421,33 +430,10 @@
         await JSRuntime.InvokeAsync<string>("ReloadUrl");
     }
 
-    void onCopy()
+    private async Task onCopy()
     {
-        //string sourceFile = @"E:\old_file_Backup\Blazor.txt";
-        //string destinationFile = @"E:\copiedfloder\CopyText.txt";
-        //try
-        //{
-        //    File.Copy(sourceFile,destinationFile, true);
-        //}
-        //catch (IOException iox)
-        //{
-        //    Console.WriteLine(iox.Message);
-        //}
-        string sourceDir = @"E:\old_file_Backup\";
-        string backupDir = @"E:\copiedfloder\";
-        var filename = "Blazor.txt";
-
-        string[] textFiles = Directory.GetFiles(sourceDir, "*.txt");
-
-        foreach (string textFile in textFiles)
-        {
-            string fileName = textFile.Substring(sourceDir.Length);
-
-            File.Copy(Path.Combine(sourceDir, fileName),
-                    Path.Combine(backupDir, fileName), true);
-        }
-
-        Console.WriteLine("Files copied");
+       
+        await ClipboardService.WriteTextAsync("https://www.meziantou.net/copying-text-to-clipboard-in-a-blazor-application.htm");
     }
     void OnSecurity()
     {
@@ -473,9 +459,19 @@
     {
 
     }
-    void onView()
+    async void onView(long FileProfileTypeId)
     {
 
+
+       ViewFileprofile = _fileProfileselectedlst.FirstOrDefault(f => f.DocumentID == FileProfileTypeId);
+        //  _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
+        var url = DocumentViewUrl + "?url=" + ServerUrl + ViewFileprofile.FilePath;
+
+        await OpenDocumentPreview(url);
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
     void onDelete()
     {
@@ -526,4 +522,4 @@
         
     }
 }
-
+   

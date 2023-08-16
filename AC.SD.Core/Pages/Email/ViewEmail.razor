@@ -344,6 +344,14 @@
                                                             <h5>                                                                
                                                                 From: @item.UserName
                                                                 <br>
+                                                                <div class="mailbox-read-time pull-right">
+                                                                    <div class="" style="margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
+                                                                    @* <div class="btn-group" style="float: right; margin-top: -25px;">
+                                                                    <button type="button" @onclick="@(() => onreply(item.ID))" style="border: 1px solid #eeebeb; padding: 8px; border-radius: 5px;" class="">
+                                                                    <i class="fa fa-reply"></i> Reply
+                                                                    </button>
+                                                                    </div>*@
+                                                                </div>
                                                                 To:
                                                                 @if (item.AssignToList != null && item.AssignToList.Any())
                                                                 {
@@ -352,24 +360,15 @@
                                                                         <span>@items.FirstName ,</span>
                                                                     }
                                                                 }
-                                                                <br>
-                                                                CC:
+                                                                <br>                                                             
                                                                 @if (item.AssignCCList != null && item.AssignCCList.Any())
                                                                 {
+                                                                    <text>CC:</text>
                                                                     @foreach (var items in item.AssignCCList)
                                                                     {
                                                                         <span>@items.FirstName ,</span>
                                                                     }
                                                                 }
-                                                                
-                                                                <div class="mailbox-read-time pull-right">
-                                                                    <div class="" style="margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
-                                                                   @* <div class="btn-group" style="float: right; margin-top: -25px;">
-                                                                        <button type="button" @onclick="@(() => onreply(item.ID))" style="border: 1px solid #eeebeb; padding: 8px; border-radius: 5px;" class="">
-                                                                            <i class="fa fa-reply"></i> Reply
-                                                                        </button>
-                                                                    </div>*@
-                                                                </div>
                                                             </h5>
                                                         </div>                                                                                                            
                                                     </div>
@@ -446,6 +445,7 @@
                                                                                 <h5>                                                                                   
                                                                                     From: @items.UserName
                                                                                     <br>
+                                                                                    <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</span>
                                                                                     To:
                                                                                     @if (items.AssignToList != null && items.AssignToList.Any())
                                                                                     {
@@ -455,15 +455,16 @@
                                                                                         }
                                                                                     }
                                                                                     <br>
-                                                                                    CC:
+                                                                                    
                                                                                     @if (items.AssignCCList != null && items.AssignCCList.Any())
                                                                                     {
+                                                                                        <text>CC:</text>
                                                                                         @foreach (var itm in items.AssignCCList)
                                                                                         {
                                                                                             <span>@itm.FirstName ,</span>
                                                                                         }
                                                                                     }
-                                                                                    <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</span>
+                                                                                    
                                                                                    @* <div class="mailbox-read-time pull-right">
                                                                                         <div class="" style="margin-right: 77px; margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
                                                                                         <div class="btn-group" style="float: right; margin-top: -25px;">
@@ -505,6 +506,7 @@
                                                                                                             
                                                                                                             From: @itm.UserName
                                                                                                             <br>
+                                                                                                            <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@itm.AddedDate)</span>
                                                                                                             To:
                                                                                                             @if (itm.AssignToList != null && itm.AssignToList.Any())
                                                                                                             {
@@ -514,15 +516,15 @@
                                                                                                                 }
                                                                                                             }
                                                                                                              <br>
-                                                                                                            CC:
+                                                                                                            
                                                                                                             @if (itm.AssignCCList != null && itm.AssignCCList.Any())
                                                                                                             {
+                                                                                                                    <text>CC:</text>
                                                                                                                 @foreach (var itms in itm.AssignCCList)
                                                                                                                 {
                                                                                                                     <span>@itms.FirstName ,</span>
                                                                                                                 }
-                                                                                                            }
-                                                                                                            <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@itm.AddedDate)</span>                                                                                                            
+                                                                                                            }                                                                                                            
                                                                                                         </h5>
                                                                                                     </div>
                                                                                                     <div>

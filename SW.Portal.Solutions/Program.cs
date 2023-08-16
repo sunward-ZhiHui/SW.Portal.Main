@@ -46,6 +46,7 @@ public class Program
             services.AddScoped<DemoThemeService>();
             services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();
             services.AddDevExpressServerSideBlazorReportViewer();
+            services.AddScoped<ClipboardService>();
         }
     }
 }

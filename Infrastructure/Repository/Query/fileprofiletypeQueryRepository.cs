@@ -151,8 +151,8 @@ namespace Infrastructure.Repository.Query
         {
             DocumentTypeModel DocumentTypeModel = new DocumentTypeModel();
             List<DocumentsModel> documentsModel = new List<DocumentsModel>();
-           // try
-            //{
+            try
+            {
                 var userData = await _localStorageService.GetItem<ApplicationUser>("user");
                 var appUsers = await GetApplicationUserAsync();
                 var fileProfileType = await GetFileprofiletypeAsync();
@@ -164,36 +164,7 @@ namespace Infrastructure.Repository.Query
                 var documentPermission = await GetDocumentPermissionByRoll();
                 parameters.Add("FileProfileTypeId", selectedFileProfileTypeID);
                 parameters.Add("documentsIds", string.Join(',', linkfileProfileTypeDocumentids));
-                var query = "select  " +
-                    "SessionId," +
-                    "DocumentId," +
-                    "FileName," +
-                    "ContentType," +
-                    "FileSize," +
-                    "UploadDate," +
-                    "FilterProfileTypeId," +
-                    "CloseDocumentId," +
-                    "DocumentParentId," +
-                    "IsMobileUpload," +
-                    "TableName," +
-                    "ExpiryDate," +
-                    "AddedByUserId," +
-                    "ModifiedByUserId," +
-                    "ModifiedDate," +
-                    "IsLocked," +
-                    "LockedByUserId," +
-                    "LockedDate," +
-                    "AddedDate," +
-                    "IsCompressed," +
-                    "FileIndex," +
-                    "ProfileNo," +
-                    "IsLatest," +
-                    "ArchiveStatusId," +
-                    "Description," +
-                    "IsWikiDraft," +
-                    "IsWiki," +
-                    "FilePath " +
-                    "from Documents where FilterProfileTypeId=@FileProfileTypeId " +
+                var query = DocumentQueryString() + " where FilterProfileTypeId=@FileProfileTypeId " +
                     "AND IsLatest=1 " +
                     "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) " +
                     "OR (DocumentID in(@documentsIds) AND IsLatest=1) " +
@@ -347,7 +318,7 @@ namespace Infrastructure.Repository.Query
                         var roleItem = roleItems.FirstOrDefault(u => u.UserId == userData.UserID);
                         if (roleItem != null)
                         {
-                            DocumentTypeModel.DocumentPermissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleItem.RoleId).FirstOrDefault(); ;
+                            DocumentTypeModel.DocumentPermissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleItem.RoleId).FirstOrDefault();
                             if (closedocumentPermission.Count > 0)
                             {
                                 var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
@@ -422,11 +393,11 @@ namespace Infrastructure.Repository.Query
                     }
                     return DocumentTypeModel;
                 }
-            //}
-           // catch (Exception exp)
-           // {
-               // throw new Exception(exp.Message, exp);
-           // }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
 
         public async Task<IReadOnlyList<DocumentPermissionModel>> GetDocumentPermissionByRoll()
@@ -533,6 +504,40 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        private string DocumentQueryString()
+        {
+            var query = "select  " +
+                    "SessionId," +
+                    "DocumentId," +
+                    "FileName," +
+                    "ContentType," +
+                    "FileSize," +
+                    "UploadDate," +
+                    "FilterProfileTypeId," +
+                    "CloseDocumentId," +
+                    "DocumentParentId," +
+                    "IsMobileUpload," +
+                    "TableName," +
+                    "ExpiryDate," +
+                    "AddedByUserId," +
+                    "ModifiedByUserId," +
+                    "ModifiedDate," +
+                    "IsLocked," +
+                    "LockedByUserId," +
+                    "LockedDate," +
+                    "AddedDate," +
+                    "IsCompressed," +
+                    "FileIndex," +
+                    "ProfileNo," +
+                    "IsLatest," +
+                    "ArchiveStatusId," +
+                    "Description," +
+                    "IsWikiDraft," +
+                    "IsWiki," +
+                    "FilePath " +
+                    "from Documents ";
+            return query;
+        }
         public async Task<IReadOnlyList<Notes>> GeNotesAsync(List<long> documentIds)
         {
             try
@@ -568,5 +573,147 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        private async Task<DocumentsModel> GetParentDocuments(SearchModel searchModel, IReadOnlyList<ApplicationUser> appUsers, IReadOnlyList<Fileprofiletype> fileProfileType)
+        {
+            try
+            {
+                DocumentsModel documentsModel = new DocumentsModel();
+                var parameters = new DynamicParameters();
+                parameters.Add("FilterProfileTypeId", searchModel.MasterTypeID);
+                parameters.Add("DocumentId", searchModel.ParentID);
+                parameters.Add("SessionID", searchModel.SessionID, DbType.Guid);
+                var query = DocumentQueryString() + " where FilterProfileTypeId=@FilterProfileTypeId AND SessionID=@SessionID AND DocumentId=@DocumentId AND IsLatest=0";
+
+                using (var connection = CreateConnection())
+                {
+                    var documetsparent = await connection.QueryFirstOrDefaultAsync<DocumentsModel>(query, parameters);
+                    if (documetsparent != null)
+                    {
+                        var fileName = documetsparent.FileName.Split('.');
+                        documentsModel.DocumentID = documetsparent.DocumentID;
+                        documentsModel.FileName = documetsparent.FileIndex > 0 ? fileName[0] + "_V0" + documetsparent.FileIndex + "." + fileName[1] : documetsparent.FileName;
+                        documentsModel.ContentType = documetsparent.ContentType;
+                        documentsModel.FileSize = (long)Math.Round(Convert.ToDouble(documetsparent.FileSize / 1024));
+                        documentsModel.UploadDate = documetsparent.UploadDate;
+                        documentsModel.SessionID = documetsparent.SessionId;
+                        documentsModel.FilterProfileTypeId = documetsparent.FilterProfileTypeId;
+                        documentsModel.FileProfileTypeName = fileProfileType?.FirstOrDefault(f => f.FileProfileTypeId == documetsparent.FilterProfileTypeId)?.Name;
+                        documentsModel.DocumentParentId = documetsparent.DocumentParentId;
+                        documentsModel.TableName = documetsparent.TableName;
+                        documentsModel.Type = "Document";
+                        documentsModel.AddedDate = documetsparent.AddedDate;
+                        documentsModel.AddedByUser = appUsers?.FirstOrDefault(f => f.UserID == documetsparent.AddedByUserID)?.UserName;
+                        documentsModel.IsCompressed = documetsparent.IsCompressed;
+                        documentsModel.FileIndex = documetsparent.FileIndex;
+                        documentsModel.ProfileNo = documetsparent.ProfileNo;
+                        documentsModel.Description = documetsparent.Description;
+                        documentsModel.FilePath = documetsparent.FilePath;
+
+                    }
+                    return documentsModel;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<IReadOnlyList<DocumentsModel>> GetHistoryDocuments(SearchModel searchModel, IReadOnlyList<ApplicationUser> appUsers, IReadOnlyList<Fileprofiletype> fileProfileType)
+        {
+            try
+            {
+                List<DocumentsModel> documentsModel = new List<DocumentsModel>();
+                var parameters = new DynamicParameters();
+                parameters.Add("FilterProfileTypeId", searchModel.MasterTypeID);
+                parameters.Add("DocumentParentId", searchModel.ParentID);
+                parameters.Add("SessionID", searchModel.SessionID, DbType.Guid);
+                var query = DocumentQueryString() + " where FilterProfileTypeId=@FilterProfileTypeId AND SessionID=@SessionID AND DocumentParentId=@DocumentParentId AND IsLatest=0";
+
+                using (var connection = CreateConnection())
+                {
+                    var documentlist = (await connection.QueryAsync<DocumentsModel>(query, parameters)).ToList();
+                    if (searchModel.ParentID != null)
+                    {
+                        if (documentlist != null && documentlist.Count > 0)
+                        {
+                            documentlist.ForEach(s =>
+                            {
+                                var fileName = s.FileName.Split('.');
+                                DocumentsModel documentsModels = new DocumentsModel
+                                {
+                                    DocumentID = s.DocumentID,
+                                    FileName = s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + "." + fileName[1] : s.FileName,
+                                    ContentType = s.ContentType,
+                                    FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024)),
+                                    UploadDate = s.UploadDate,
+                                    SessionID = s.SessionId,
+                                    FilterProfileTypeId = s.FilterProfileTypeId,
+                                    FileProfileTypeName = fileProfileType.FirstOrDefault(f => f.FileProfileTypeId == s.FilterProfileTypeId)?.Name,
+                                    DocumentParentId = s.DocumentParentId,
+                                    TableName = s.TableName,
+                                    Type = "Document",
+                                    AddedDate = s.AddedDate,
+                                    AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName,
+                                    IsCompressed = s.IsCompressed,
+                                    ProfileNo = s.ProfileNo,
+                                    Description = s.Description,
+                                    FilePath = s.FilePath
+                                };
+                                documentsModel.Add(documentsModels);
+                            });
+                        }
+                    }
+                    return documentsModel;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentTypeModel> GetFileProfileTypeDocumentByHistory(SearchModel searchModel)
+        {
+            DocumentTypeModel DocumentTypeModel = new DocumentTypeModel();
+            List<DocumentsModel> documentsModel = new List<DocumentsModel>();
+            try
+            {
+                var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                var appUsers = await GetApplicationUserAsync();
+                var fileProfileType = await GetFileprofiletypeAsync();
+                var roleItemsList = await GetDocumentUserRoleAsync(searchModel.MasterTypeID.Value);
+                var docParent = await GetParentDocuments(searchModel, appUsers, fileProfileType);
+                var documentPermission = await GetDocumentPermissionByRoll();
+                if (docParent != null && docParent.DocumentID > 0)
+                {
+                    documentsModel.Add(docParent);
+                }
+                var historyData = await GetHistoryDocuments(searchModel, appUsers, fileProfileType);
+                if (historyData != null)
+                {
+                    documentsModel.AddRange(historyData);
+                }
+                DocumentTypeModel documentTypeModel = new DocumentTypeModel();
+                documentTypeModel.DocumentsData = documentsModel.OrderByDescending(a => a.DocumentID).ToList();
+                var roleid = roleItemsList.FirstOrDefault()?.RoleId;
+                if (roleid != null)
+                {
+                    var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleid).FirstOrDefault();
+                    if (permissionData != null)
+                    {
+                        documentTypeModel.DocumentPermissionData = permissionData;
+                    }
+                }
+                else
+                {
+                    documentTypeModel.DocumentPermissionData = new DocumentPermissionModel { IsUpdateDocument = true, IsRead = true, IsShare = true, IsEdit = true, IsMove = true };
+                }
+                return documentTypeModel;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
     }
 }

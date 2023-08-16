@@ -333,7 +333,7 @@
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
-        DocumentViewUrl = Configuration["DocumentsUrl:FileViewer"];
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _TreeData = await Mediator.Send(new GetAllfileprofiletypeQuery(long.Parse(FileProfileTypeId)));

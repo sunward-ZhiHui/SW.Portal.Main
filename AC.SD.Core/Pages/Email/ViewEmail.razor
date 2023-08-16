@@ -816,7 +816,8 @@
                         }
                         else if (isMenuvisible == "Todo")
                         {
-                            <ToDoList Tid="@Tid"></ToDoList>                          
+                            @*<ToDoList Tid="@Tid"></ToDoList>  *@
+                            <UserToDo Topicid="@Tid"> </UserToDo>
                         }
                         else if (isMenuvisible == "Tags")
                         {
@@ -1038,7 +1039,8 @@
 
 
     @code {
-        public int ActiveTabIndex { get; set; } = 1;
+   
+    public int ActiveTabIndex { get; set; } = 1;
     string? SearchText { get; set; }
     string? GridSearchText { get; set; }
     bool PreviewEnabled { get; set; } = false;
@@ -2444,10 +2446,17 @@
                 _allparticipant = await Mediator.Send(new GetByConvasationTopicIDPList(id,gettid[0].TopicID));
 
 
+                var gettids = await Mediator.Send(new GetEmailConversationList(_replyComment[0].ID));
+                var getplsst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
+                var getpatlist = getplsst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+
                 #region AssignTo
                 /*Assignto*/
                 var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
                 var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+                
+                //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
                 Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
 
                 List<long> updatedList = Data.AssigntoIds.ToList();
@@ -2458,14 +2467,16 @@
                     updatedList.Add(fromUserId);
                 }
 
-                Data.AssigntoIds = updatedList;
+                //Data.AssigntoIds = updatedList;
+                Data.AssigntoIds = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
                 #endregion
 
 
                 #region AssignCC
                 var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
                 var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
-                Data.AssignccIds = concc.Select(s => s.UserId).ToList();
+                //Data.AssignccIds = concc.Select(s => s.UserId).ToList();
+                Data.AssignccIds = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
                 #endregion
             }
 
@@ -2671,7 +2682,8 @@
                 Message = htmlString,
                 //FileData = Data.Message != null ? Encoding.UTF8.GetBytes(Data.Message) : Encoding.UTF8.GetBytes("Attachments"),
                 FileData = fileContent,
-                AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
+                //AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
+                AssigntoIdss =  assigntoidsString,
                 AssignccIdss = assignccidsString,
                 PlistIdss = participantidsString,
                 AllowPlistids = plistUniqueItems,

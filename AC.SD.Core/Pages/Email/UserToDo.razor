@@ -17,23 +17,28 @@
         <div class="content-container row">
             <div class="mini-menu-bar col-md-3" style="overflow-x: hidden;">
                 <div class="mini-menu-bar-top">
-                    <ToDoLeftNotes NotesId="onViewClick "></ToDoLeftNotes>
+                    <ToDoLeftNotes NotesId="onViewClick " Topicid="@TopicTid"></ToDoLeftNotes>
                 </div>
             </div>
             <div class="menu-bar-content-container col-md-9">
-                <ToDoNotesList @ref=RefToDoHistoryList></ToDoNotesList>
+                <ToDoNotesList @ref=RefToDoHistoryList ></ToDoNotesList>
             </div>
         </div>
     </div>
 </div>
 @code {
+    [Parameter]
+    public long Topicid { get; set; }
     long? SeletedNoteId { get; set; }
+    long TopicTid { get; set; }
     private ToDoNotesList? RefToDoHistoryList { get; set; }
     protected override async Task OnInitializedAsync()
-    {      
+    {
+        TopicTid = Topicid;
     }
     private async void onViewClick(long NoteId)
     {
+       
         SeletedNoteId = NoteId;
         //await LoadData();
         await RefToDoHistoryList.LoadHistoryData(NoteId);

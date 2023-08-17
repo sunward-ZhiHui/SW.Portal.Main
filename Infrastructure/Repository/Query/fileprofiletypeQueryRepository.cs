@@ -714,6 +714,40 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DocumentsModel> GetFileProfileTypeDelete(DocumentsModel documentsModel)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentID", documentsModel.DocumentID);
+                            parameters.Add("IsLatest", 1, (DbType?)SqlDbType.Bit);
+                            var Addquerys = "UPDATE Documents SET IsLatest = @IsLatest WHERE  DocumentID = @DocumentID";
+                            await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters, transaction);
 
+                            transaction.Commit();
+
+                            return documentsModel;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

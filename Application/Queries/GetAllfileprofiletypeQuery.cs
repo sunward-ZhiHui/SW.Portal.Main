@@ -35,5 +35,23 @@ namespace Application.Queries
             this.SearchModel = searchModel;
         }
     }
+    public class GetFileProfileTypeDelete : PagedRequest, IRequest<DocumentsModel>
+    {
+        public DocumentsModel DocumentsModel { get; private set; }
+        public GetFileProfileTypeDelete(DocumentsModel documentsModel)
+        {
+            this.DocumentsModel = documentsModel;
+        }
+    }
+    public class GetFileDownload : PagedRequest, IRequest<DocumentsModel>
+    {
+        public DocumentsModel DocumentsModel { get; private set; }
+        public GetFileDownload(DocumentsModel documentsModel)
+        {
+            this.DocumentsModel = documentsModel;
+        }
+    }
+    
+
 
 }

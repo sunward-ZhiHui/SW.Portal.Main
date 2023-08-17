@@ -44,7 +44,7 @@ namespace Infrastructure.Repository.Query
                             SELECT * 
                             FROM ToDoNotes
                             WHERE (@TopicId = 0 AND ( TopicId = 0 OR TopicId IS NULL ) AND AddedByUserID = @UserID)
-                               OR (@TopicId > 0 AND  TopicId = @TopicId AND TopicId IS NOT NULL AND AddedByUserID = @UserID) ORDER BY Completed ASC";
+                               OR (@TopicId > 0 AND  TopicId = @TopicId AND TopicId IS NOT NULL AND AddedByUserID = @UserID) ORDER BY Completed DESC";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", UserID);
                 parameters.Add("TopicId", TopicId);
@@ -81,7 +81,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", ToDoNotes.ModifiedDate);
                             parameters.Add("SessionId", ToDoNotes.SessionId);
 
-                            var query = "INSERT INTO ToDoNotes(TopicId,Notes,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId) VALUES (@TopicId,@Notes,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId)";
+                            var query = "INSERT INTO ToDoNotes(TopicId,Notes,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Completed) VALUES (@TopicId,@Notes,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,'Open')";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -167,7 +167,7 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("id", id);
 
-                            var query = "UPDATE ToDoNotes SET Completed = 1 WHERE ID = @id";
+                            var query = "UPDATE ToDoNotes SET Completed = 'Completed' WHERE ID = @id";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
@@ -206,7 +206,7 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("ID", incompleteid);
 
-                            var query = "UPDATE ToDoNotes SET Completed = 0 WHERE ID = @ID";
+                            var query = "UPDATE ToDoNotes SET Completed = 'Open' WHERE ID = @ID";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

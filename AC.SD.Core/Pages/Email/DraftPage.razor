@@ -66,7 +66,7 @@
         <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
         <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
         <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
-        <DxGridDataColumn FieldName="StartDate" Caption="Received Date">
+        <DxGridDataColumn FieldName="StartDate" Caption="Draft Date">
             <CellDisplayTemplate>
                 @{
                     var item = (EmailTopics)context.DataItem;

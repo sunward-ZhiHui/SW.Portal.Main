@@ -12,6 +12,14 @@
     text-align: center;
     background: #000
 }
+.HiddenToggle
+{
+    display:none;
+}
+.ActiveToggle
+{
+    display:block;
+}
 .bottom-sheet {
     position: fixed;
     bottom: 0;

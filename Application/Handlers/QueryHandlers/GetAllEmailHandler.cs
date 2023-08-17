@@ -65,6 +65,33 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<EmailTopics>> Handle(GetEmailTopicTo request, CancellationToken cancellationToken)
         {
             return await _emailTopicsQueryRepository.GetTopicToList(request.UserId);
+        }
+    }
+    public class SetPinEmailTopicToHandler : IRequestHandler<SetPinEmailTopicTo, long>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public SetPinEmailTopicToHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<long> Handle(SetPinEmailTopicTo request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.SetPinTopicToList(request.ID);
+
+        }
+    }
+    public class UnSetPinEmailTopicToHandler : IRequestHandler<UnSetPinEmailTopicTo, long>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public UnSetPinEmailTopicToHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<long> Handle(UnSetPinEmailTopicTo request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.UnSetPinTopicToList(request.ID);
 
         }
     }

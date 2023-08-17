@@ -15,7 +15,7 @@ namespace Core.Entities
         public long ID { get; set; }
         [Required(ErrorMessage = "Please Enter Notes.")]
         public string? Notes { get; set; }  
-        public bool Completed { get; set; }
+        public string? Completed { get; set; }
         public long? TopicId { get; set; }
         [NotMapped]
         public string ModifiedBy { get; set; }

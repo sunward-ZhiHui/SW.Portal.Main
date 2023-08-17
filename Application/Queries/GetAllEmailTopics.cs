@@ -51,6 +51,22 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class SetPinEmailTopicTo : PagedRequest, IRequest<long>
+    {
+        public long ID { get; private set; }
+        public SetPinEmailTopicTo(long Id)
+        {
+            this.ID = Id;
+        }
+    }
+    public class UnSetPinEmailTopicTo : PagedRequest, IRequest<long>
+    {
+        public long ID { get; private set; }
+        public UnSetPinEmailTopicTo(long Id)
+        {
+            this.ID = Id;
+        }
+    }
     public class GetEmailTopicAll : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }

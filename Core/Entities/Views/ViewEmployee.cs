@@ -67,5 +67,6 @@ namespace Core.Entities.Views
         public Guid? SessionId { get; set; }
         public long? RoleID { get; set; }
         public int? UserStatus { get; set; }
+        public string Name { get; set; }
     }
 }

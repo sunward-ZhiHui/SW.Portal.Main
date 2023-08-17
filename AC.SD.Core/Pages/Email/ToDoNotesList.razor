@@ -107,9 +107,15 @@
                 <DxFormLayoutItem Caption="Remain Date:" ColSpanMd="4">
                     <DxDateEdit @bind-Date="@types.RemainDate" TimeSectionVisible="true" />
                 </DxFormLayoutItem>
+              
+                 <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                    <DxComboBox Data="@StatusList" @bind-Value="@types.Status" ShowValidationIcon="true" />
+                            <ValidationMessage For="@(() => types.Status)" />
+                        </DxFormLayoutItem>
+
                 <ValidationSummary />
             </DxFormLayout>
-        </EditFormTemplate>
+         </EditFormTemplate>
     </DxGrid>
 </DxLoadingPanel>
 
@@ -152,6 +158,7 @@
     public ApplicationUser? applicationUser { get; private set; }
     bool isEnabled { get; set; } = true;
     public long SelectedNoteId { get; set; }
+    List<string> StatusList = new List<string>() { "Open", "Close" };
     [Parameter]
     public long Topicid { get; set; }
 
@@ -269,6 +276,7 @@
                         ModifiedByUserID = applicationUser.UserID,
                         AddedDate = DateTime.Now,
                         ModifiedDate = DateTime.Now,
+                       Status=editModel.Status,
                         SessionId = Guid.NewGuid()
                     };
 
@@ -306,8 +314,8 @@
                         ModifiedDate = DateTime.Now,
                         AddedDate = editModel.AddedDate,
                         SessionId = editModel.SessionId,
-
-                    };
+                        Status = editModel.Status,
+                      };
 
                 var ans = await Mediator.Send(UpdateReq);
                 toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);

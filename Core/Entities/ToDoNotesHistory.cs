@@ -24,6 +24,9 @@ namespace Core.Entities
         [NotMapped]
         public string ModifiedBy { get; set; }
         [NotMapped]
-        public string AddedBy { get; set; }        
+        public string AddedBy { get; set; }
+       
+        public string Status{ get; set; }
     }
 }
+ 

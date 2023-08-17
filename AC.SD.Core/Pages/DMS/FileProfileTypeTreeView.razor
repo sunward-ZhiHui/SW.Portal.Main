@@ -37,7 +37,8 @@
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-refresh " Click="onRefersh" />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info-circle " Click="onInfo" Enabled=@informationEnabled />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-reply " Click="onBack" />
-                    <DxButton SizeMode="SizeMode.Large" RenderStyle="ButtonRenderStyle.None" IconCssClass="fa fa-code-fork" Click="OnShowhide" style=" width:100px;float: left; margin-bottom: -34px;margin-left:3px;z-index: 9999; " />
+                    <DxMenuItem Position="ItemPosition.Start" IconCssClass="fa fa-code-fork " Click="OnShowhide" />
+                   @* <DxButton SizeMode="SizeMode.Large" RenderStyle="ButtonRenderStyle.None" IconCssClass="fa fa-code-fork" Click="OnShowhide" style=" width:100px;float: left; margin-bottom: -34px;margin-left:3px;z-index: 9999; " />*@
                 </Items>
             </DxMenu>
         </div>
@@ -58,6 +59,7 @@
                         </div>
 
                         <div>
+                          
                             <div class="views-accordion">
                                 <DxTreeView Data="@_TreeData"
                                             @bind-FilterString="FilterString"
@@ -65,12 +67,13 @@
                                             ShowFilterPanel="true"
                                             FilterMode="FilterMode"
                                             AllowSelectNodes="true"
-                                            LoadChildNodesOnDemand=false SelectionChanged="@SelectionChanged"
-                                            AnimationType="LayoutAnimationType.Slide">
+                                            LoadChildNodesOnDemand=false 
+                                            AnimationType="LayoutAnimationType.Slide" SelectionChanged="@SelectionChanged">
                                     <DataMappings>
                                         <DxTreeViewDataMapping Children="Children" CssClass="CssClass" Text="Label" Name="ParentID" />
                                     </DataMappings>
                                 </DxTreeView>
+                                
                             </div>
                         </div>
                     </div>
@@ -168,7 +171,22 @@
         </div>
     </div>
 </div>
+<DxPopup @bind-Visible="@PopupVisible"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Width="1000px">
+    <BodyContentTemplate>
+      <HistoryPopup selectedFiles="@selectedFiles"></HistoryPopup>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+
+    public bool PopupVisible { get; set; } = false;
+    [Parameter]
+    public DocumentsModel selectedFiles { get; set; }
     IGrid Grid { get; set; }
     [Parameter]
     public long FileProfileTypeId { get; set; }
@@ -211,8 +229,10 @@
     public string Count;
     private string? DocumentViewUrl;
     private string? ServerUrl;
-    public string Text;
+
+   
     public ApplicationUser applicationUser { get; private set; }
+   
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
@@ -232,6 +252,7 @@
     private async Task SelectionChanged(TreeViewNodeEventArgs e)
     {
         var list = (Fileprofiletype)e.NodeInfo.DataItem;
+
         if (list != null)
         {
             Name = list.Name;
@@ -240,8 +261,11 @@
         }
 
     }
+  
     private async Task loadFileProfileData()
     {
+
+
         if (FileProfileTypeId > 0)
         {
             PanelVisible = true;
@@ -334,8 +358,10 @@
     {
         if (_selectedItems.DocumentID > 0)
         {
-            var url = ServerUrl + "id=" + _selectedItems.DocumentID + "&&type=latest";
-            await ClipboardService.WriteTextAsync("https://www.meziantou.net/copying-text-to-clipboard-in-a-blazor-application.htm");
+            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+           // var url = ServerUrl + "id=" + _selectedItems.DocumentID + "&&type=latest";
+            await ClipboardService.WriteTextAsync(url);
+         
         }
     }
     void OnSecurity()
@@ -389,17 +415,11 @@
     }
     async Task onHistory()
     {
-        if (_selectedItems.DocumentID > 0)
-        {
-            SearchModel searchModel = new SearchModel();
-            searchModel.Id = _selectedItems.DocumentID;
-            searchModel.MasterTypeID = _selectedItems.FilterProfileTypeId;
-            searchModel.SearchString = _selectedItems.Type;
-            searchModel.SessionID = _selectedItems.SessionID;
-            searchModel.ParentID = _selectedItems.DocumentParentId;
-            searchModel.UserID = applicationUser.UserID;
-            var historyData = await Mediator.Send(new GetFileProfileTypeDocumentByHistory(searchModel));
-        }
+
+       
+        selectedFiles = _selectedItems;
+        PopupVisible = true;
+      
     }
     void onCheckOut()
     {
@@ -409,7 +429,7 @@
     {
         if (_selectedItems.DocumentID > 0)
         {
-           // await Mediator.Send(new GetFileProfileTypeDelete(_selectedItems));
+            // await Mediator.Send(new GetFileProfileTypeDelete(_selectedItems));
             //await loadFileProfileData();
         }
     }
@@ -444,5 +464,9 @@
     void onReleaseforwiki()
     {
 
+    }
+    void ClosePopup()
+    {
+        PopupVisible = false;
     }
 }

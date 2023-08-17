@@ -43,6 +43,15 @@ namespace Application.Queries
             this.DocumentsModel = documentsModel;
         }
     }
+    public class GetFileProfileTypeCheckOut : PagedRequest, IRequest<DocumentsModel>
+    {
+        public DocumentsModel DocumentsModel { get; private set; }
+        public GetFileProfileTypeCheckOut(DocumentsModel documentsModel)
+        {
+            this.DocumentsModel = documentsModel;
+        }
+    }
+    
     public class GetFileDownload : PagedRequest, IRequest<DocumentsModel>
     {
         public DocumentsModel DocumentsModel { get; private set; }

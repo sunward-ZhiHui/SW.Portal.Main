@@ -162,20 +162,19 @@ namespace Infrastructure.Repository.Query
                 var linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
                 var parameters = new DynamicParameters();
                 var documentPermission = await GetDocumentPermissionByRoll();
-                parameters.Add("FileProfileTypeId", selectedFileProfileTypeID);
-                parameters.Add("documentsIds", string.Join(',', linkfileProfileTypeDocumentids));
+                parameters.Add("FileProfileTypeId", selectedFileProfileTypeID,DbType.Int64);
                 var query = DocumentQueryString() + " where FilterProfileTypeId=@FileProfileTypeId " +
                     "AND IsLatest=1 " +
                     "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) " +
-                    "OR (DocumentID in(@documentsIds) AND IsLatest=1) " +
+                    "OR (DocumentID in(" + string.Join(',', linkfileProfileTypeDocumentids) + ") AND IsLatest=1) " +
                     "order by DocumentId desc";
 
                 using (var connection = CreateConnection())
                 {
-                    var documents = (await connection.QueryAsync<DocumentsModel>(query, parameters)).ToList();
+                    var documents = (await connection.QueryAsync<Documents>(query, parameters)).ToList();
                     if (documents != null && documents.Count > 0)
                     {
-                        var docIds = documents.Select(a => a.DocumentID).ToList();
+                        var docIds = documents.Select(a => a.DocumentId).ToList();
                         var notes = await GeNotesAsync(docIds);
                         var taskMasternotes = await GetTaskMasterAsync(docIds);
                         var setAccess = roleItemsList;
@@ -185,10 +184,10 @@ namespace Infrastructure.Repository.Query
                              var name = s.FileName != null ? s.FileName?.Substring(s.FileName.LastIndexOf(".")) : "";
                              var fileName = s.FileName?.Split(name);
                              DocumentsModel documentsModels = new DocumentsModel();
-                             var setAccessFlag = roleItemsList.Where(a => a.UserId == userData.UserID && a.DocumentId == s.DocumentID).Count();
-                             documentsModels.NotesCount = notes.Where(a => a.DocumentId == s.DocumentID).Count();
+                             var setAccessFlag = roleItemsList.Where(a => a.UserId == userData.UserID && a.DocumentId == s.DocumentId).Count();
+                             documentsModels.NotesCount = notes.Where(a => a.DocumentId == s.DocumentId).Count();
                              documentsModels.NotesColor = "";
-                             var taskNotesCount = taskMasternotes.Where(a => a.SourceId == s.DocumentID).Count();
+                             var taskNotesCount = taskMasternotes.Where(a => a.SourceId == s.DocumentId).Count();
                              if (taskNotesCount > 0)
                              {
                                  documentsModels.NotesColor = "green";
@@ -202,7 +201,7 @@ namespace Infrastructure.Repository.Query
                              }
                              documentsModels.SetAccessFlag = setAccessFlag > 0 ? true : false;
                              documentsModels.SessionId = s.SessionId;
-                             documentsModels.DocumentID = s.DocumentID;
+                             documentsModels.DocumentID = s.DocumentId;
                              documentsModels.FileName = s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName;
                              documentsModels.ContentType = s.ContentType;
                              documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
@@ -217,14 +216,14 @@ namespace Infrastructure.Repository.Query
                              documentsModels.ExpiryDate = s.ExpiryDate;
                              documentsModels.FileIndex = s.FileIndex;
                              documentsModels.TotalDocument = documentcount == 1 ? 1 : (documentcount + 1);
-                             documentsModels.UploadedByUserId = s.AddedByUserID;
-                             documentsModels.ModifiedByUserID = s.ModifiedByUserID;
+                             documentsModels.UploadedByUserId = s.AddedByUserId;
+                             documentsModels.ModifiedByUserID = s.ModifiedByUserId;
                              documentsModels.AddedDate = s.ModifiedDate == null ? s.UploadDate : s.ModifiedDate;
-                             documentsModels.AddedByUser = s.ModifiedByUserID == null ? appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName : appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserID)?.UserName;
+                             documentsModels.AddedByUser = s.ModifiedByUserId == null ? appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName : appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
                              documentsModels.IsLocked = s.IsLocked;
                              documentsModels.LockedByUserId = s.LockedByUserId;
                              documentsModels.LockedDate = s.LockedDate;
-                             documentsModels.AddedByUserID = s.AddedByUserID;
+                             documentsModels.AddedByUserID = s.AddedByUserId;
                              documentsModels.IsCompressed = s.IsCompressed;
                              documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
                              documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;
@@ -252,10 +251,10 @@ namespace Infrastructure.Repository.Query
                              }
                              if (setAccess.Count > 0)
                              {
-                                 var roleDocItem = setAccess.FirstOrDefault(u => u.DocumentId == s.DocumentID);
+                                 var roleDocItem = setAccess.FirstOrDefault(u => u.DocumentId == s.DocumentId);
                                  if (roleDocItem != null)
                                  {
-                                     var roleItem = setAccess.FirstOrDefault(u => u.UserId == userData.UserID && u.DocumentId == s.DocumentID);
+                                     var roleItem = setAccess.FirstOrDefault(u => u.UserId == userData.UserID && u.DocumentId == s.DocumentId);
                                      if (roleItem != null)
                                      {
                                          var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleItem.RoleId).FirstOrDefault();
@@ -285,7 +284,7 @@ namespace Infrastructure.Repository.Query
                                  documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = false };
                              }
                              documentsModels.IsExpiryDate = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsExpiryDate;
-                             var description = linkfileProfileTypes?.Where(f => f.FileProfileTypeId == selectedFileProfileTypeID && f.TransactionSessionId == s.SessionId && f.DocumentId == s.DocumentID).FirstOrDefault()?.Description;
+                             var description = linkfileProfileTypes?.Where(f => f.FileProfileTypeId == selectedFileProfileTypeID && f.TransactionSessionId == s.SessionId && f.DocumentId == s.DocumentId).FirstOrDefault()?.Description;
                              if (description != null)
                              {
                                  documentsModels.Description = description;
@@ -729,6 +728,44 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DocumentID", documentsModel.DocumentID);
                             parameters.Add("IsLatest", 1, (DbType?)SqlDbType.Bit);
                             var Addquerys = "UPDATE Documents SET IsLatest = @IsLatest WHERE  DocumentID = @DocumentID";
+                            await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return documentsModel;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsModel> GetFileProfileTypeCheckOut(DocumentsModel documentsModel)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentID", documentsModel.DocumentID);
+                            parameters.Add("LockedDate", DateTime.Now,DbType.DateTime);
+                            parameters.Add("LockedByUserId", userData.UserID);
+                            parameters.Add("IsLocked", 1, (DbType?)SqlDbType.Bit);
+                            var Addquerys = "UPDATE Documents SET IsLocked = @IsLocked,LockedDate=@LockedDate,LockedByUserId=@LockedByUserId WHERE  DocumentID = @DocumentID";
                             await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters, transaction);
 
                             transaction.Commit();

@@ -67,6 +67,20 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetFileProfileTypeCheckOutHandler : IRequestHandler<GetFileProfileTypeCheckOut, DocumentsModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetFileProfileTypeCheckOutHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<DocumentsModel> Handle(GetFileProfileTypeCheckOut request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.GetFileProfileTypeCheckOut(request.DocumentsModel);
+        }
+
+    }
+    
     public class GetFileDownloadHandler : IRequestHandler<GetFileDownload, DocumentsModel>
     {
         private readonly IConfiguration _configuration;

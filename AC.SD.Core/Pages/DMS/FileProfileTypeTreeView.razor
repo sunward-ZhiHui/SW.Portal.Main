@@ -87,12 +87,19 @@
                             <div class="">
                                 <div class="card w-100" style="margin-bottom:10px;">
                                     <div class="card-body p-0">
+
                                         <DxMenu CollapseItemsToHamburgerMenu="true"
                                                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                                 DisplayMode="MenuDisplayMode.Desktop">
                                             <Items>
                                                 <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
-                                                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Enabled="@uploadEnabled" />
+                                                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Enabled="@uploadEnabled">
+                                                    <TextTemplate>
+                                                        <label for="input-file" style="cursor:pointer;">
+                                                            Upload
+                                                        </label>
+                                                    </TextTemplate>
+                                                </DxMenuItem>
                                                 <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewfileEnabled" />
                                                 <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
 
@@ -102,7 +109,13 @@
                                                         <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Enabled="@deleteEnabled" />
                                                         <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Enabled="@historyEnabled" />
                                                         <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Enabled="@checkoutEnabled" />
-                                                        <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Click="onCheckin" Enabled="@checkInEnabled" />
+                                                        <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Enabled="@checkInEnabled">
+                                                            <TextTemplate>
+                                                                <label for="input-file" style="cursor:pointer;">
+                                                                    Check In
+                                                                </label>
+                                                            </TextTemplate>
+                                                        </DxMenuItem>
                                                         <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Enabled="@NotifyEnabled" />
                                                         <DxMenuItem Text="Play" IconCssClass="fa fa-play-circle" Click="onPlay" Enabled="@playEnabled" />
                                                         <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Enabled="@shareEnabled" />
@@ -146,7 +159,19 @@
                                             style="height: calc(100vh - 290px);">
                                         <Columns>
 
-                                            <DxGridDataColumn FieldName="FileName" Caption="File Name" MinWidth="80" />
+                                            <DxGridDataColumn FieldName="FileName" Caption="File Name" MinWidth="80">
+                                                <CellDisplayTemplate>
+
+                                                    @{
+                                                        var item = (DocumentsModel)context.DataItem;
+                                                    }
+                                                    @if (item.IsLocked == true)
+                                                    {
+                                                        <i class="fa fa-lock" aria-hidden="true" style="margin-right: 5px;"></i>
+                                                    }
+                                                    @item.FileName
+                                                </CellDisplayTemplate>
+                                            </DxGridDataColumn>
                                             <DxGridDataColumn FieldName="FileProfileTypeName" Caption="Profile Type Name" MinWidth="80" />
                                             <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="80" />
                                             <DxGridDataColumn FieldName="FileSize" Caption="Size(KB)" MinWidth="80" />
@@ -287,7 +312,7 @@
                 deleteEnabled = true;
                 historyEnabled = true;
                 checkoutEnabled = true;
-                checkInEnabled = true;
+                checkInEnabled = false;
                 playEnabled = true;
                 shareEnabled = true;
                 NotifyEnabled = true;
@@ -301,7 +326,11 @@
                 moreEnabled = true;
                 informationEnabled = true;
                 securityEnabled = true;
-
+                if (_selectedItems.IsLocked == true)
+                {
+                    checkoutEnabled = false;
+                    checkInEnabled = true;
+                }
             }
             PanelVisible = false;
         }
@@ -321,9 +350,15 @@
     }
     async void OnRowClick(GridRowClickEventArgs e)
     {
-
+        checkoutEnabled = true;
+        checkInEnabled = false;
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentID");
         _selectedItems = _fileProfileselectedlst.FirstOrDefault(f => f.DocumentID == (long?)UniqueId);
+        if (_selectedItems.IsLocked == true)
+        {
+            checkoutEnabled = false;
+            checkInEnabled = true;
+        }
         StateHasChanged();
 
     }
@@ -363,6 +398,10 @@
             await ClipboardService.WriteTextAsync(url);
          
         }
+    }
+    private void LoadFiles(InputFileChangeEventArgs e)
+    {
+
     }
     void OnSecurity()
     {
@@ -425,13 +464,18 @@
     {
 
     }
-    async Task onCheckin()
+    async Task onCheckOut()
     {
         if (_selectedItems.DocumentID > 0)
         {
-            // await Mediator.Send(new GetFileProfileTypeDelete(_selectedItems));
-            //await loadFileProfileData();
+            await Mediator.Send(new GetFileProfileTypeCheckOut(_selectedItems));
+            await loadFileProfileData();
+            await Download();
         }
+    }
+    async Task onCheckin()
+    {
+
     }
     void onNotify()
     {

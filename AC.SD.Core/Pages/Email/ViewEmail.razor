@@ -176,7 +176,7 @@
                                                 <DxMenuItem Text="" IconCssClass="fa fa-th-list" Click="@(() => ToggleButtonClick())" />
                                                 <DxMenuItem Text="Posts" class="@((isMenuvisible == "Posts" ? "tActive": "tfiles"))" IconCssClass="menu-icon-products menu-icon" Click="@(() => OnMenuItemClick("Posts"))" />
                                                 <DxMenuItem Text="Files" Enabled="@isEnabled" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
-                                                <DxMenuItem Text="Todo" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
+                                                <DxMenuItem Text="Todo" Enabled="@isEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />
                                                 <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                             
@@ -818,8 +818,8 @@
                         }
                         else if (isMenuvisible == "Todo")
                         {
-                            <ToDoList Tid="@Tid"></ToDoList>  
-                           @* <UserToDo Topicid="@Tid"> </UserToDo>*@
+                           @* <ToDoList Tid="@Tid"></ToDoList>*@
+                            <UserToDo @ref=RefTopicTodo Topicid="@Tid"> </UserToDo>
                         }
                         else if (isMenuvisible == "Tags")
                         {
@@ -1112,6 +1112,7 @@
     string width = "800px", height = "800px";
     private ParticipantList? RefTopicAddPList { get; set; }
     private TopicTags? RefTopicTagList { get; set; }
+    private UserToDo? RefTopicTodo { get; set; }
     private bool IsValidUser { get; set; } = false;
     [Parameter]
     public EventCallback<string> Participent { get; set; }
@@ -2080,6 +2081,10 @@
         {
             await loadTags_Data();
         }
+        else if(isMenuvisible == "Todo")
+        {
+            await loadTodo_Data();
+        }
 
         // Generate index IDs for each row
         //var indexedDiscussionList = _discussionList.Select((item, index) => new
@@ -2464,7 +2469,7 @@
                 /*Assignto*/
                 var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
                 var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
-                
+
                 //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
                 Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
 
@@ -2596,6 +2601,10 @@
     async Task loadTags_Data()
     {
         await RefTopicTagList.loadTagList(long.Parse(@SelectedGroup));
+    }
+    async Task loadTodo_Data()
+    {
+        await RefTopicTodo.leftTodoLst(Tid);
     }
     async Task LoadMainTopicPlist_Data()
     {        

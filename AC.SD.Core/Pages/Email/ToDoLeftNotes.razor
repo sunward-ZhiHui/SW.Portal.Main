@@ -55,7 +55,7 @@
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-
+  @*  style="height: calc(100vh - 200px);min-height:350px !important;"*@
     <DxGrid @ref="Grid" Data="@_toDoNotes" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="false" ShowGroupedColumns="false" ShowSearchBox="false"
             VirtualScrollingEnabled="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
@@ -68,7 +68,7 @@
             PageSize="20"
             ValidationEnabled="true"
             AutoExpandAllGroupRows="true"
-            CssClass="w-100" style="height: calc(100vh - 200px);min-height:350px !important;"
+            CssClass="w-100" style="@gridHeight"
             RowClick="OnRowClick"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged">
@@ -140,12 +140,13 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    string styleTreeDisplay = "width:100%";
     bool IncompletePopup { get; set; } = false;
     bool Complete { get; set; } = false;
     bool Incomplete { get; set; } = false;
     bool PanelVisible { get; set; }    
     IReadOnlyList<object> SelectedDataItems { get; set; }
-    private string gridHeight = "calc(100vh - 230px - 143px)";
+    private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
     private List<ToDoNotes>? _toDoNotes; 
     IGrid? Grid { get; set; }
     private ToDoNotes _selectedItems;
@@ -178,6 +179,11 @@
         _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
 
         PanelVisible = false;
+        if( Topicid >0)
+        {
+            gridHeight = "height: calc(100vh - 338px);";
+            //styleTreeDisplay = "width:10%";
+        }
 
         if (_toDoNotes.Count > 0)
         {
@@ -464,5 +470,9 @@
             EditEnabled = true;
 
         }
+    }
+    public async void LoadData(long Topicid)
+    {
+        _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
     }
 }

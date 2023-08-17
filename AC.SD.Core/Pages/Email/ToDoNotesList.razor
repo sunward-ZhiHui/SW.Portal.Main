@@ -52,7 +52,7 @@
             PageSize="20"
             ValidationEnabled="true"
             AutoExpandAllGroupRows="true"
-            CssClass="w-100" style="height: calc(100vh - 200px);min-height:350px !important;"
+            CssClass="w-100" style="@gridHeight"
             RowClick="OnRowClick"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged">
@@ -129,9 +129,10 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
-    private string gridHeight = "calc(100vh - 230px - 143px)";
+    private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
     private List<ToDoNotesHistory>? _ToDoNotesHistory;
     IGrid? Grid { get; set; }
     private ToDoNotesHistory _selectedItems;
@@ -151,7 +152,8 @@
     public ApplicationUser? applicationUser { get; private set; }
     bool isEnabled { get; set; } = true;
     public long SelectedNoteId { get; set; }
-
+    [Parameter]
+    public long Topicid { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -161,7 +163,10 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         //_ToDoNotesHistory = await Mediator.Send(new GetAllToDoNotesHistory());
         PanelVisible = false;
-
+        if(Topicid >0)
+        {
+            gridHeight ="height: calc(100vh - 338px);";
+        }
         //if (_ToDoNotesHistory.Count > 0)
         //{
         //    _selectedItems = _ToDoNotesHistory.FirstOrDefault();

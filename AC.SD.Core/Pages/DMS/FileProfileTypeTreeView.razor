@@ -23,24 +23,59 @@
 
         <div class="card-body p-0">
 
-
             <DxMenu CollapseItemsToHamburgerMenu="true"
                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                     DisplayMode="MenuDisplayMode.Desktop">
 
                 <Items>
+                    <DxMenuItem Position="ItemPosition.Start" IconCssClass="fa fa-reply " Click="onBack" />
+                    <DxMenuItem Position="ItemPosition.Start" IconCssClass="fa fa-bars" Click="OnShowhide" />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" />
                     <DxMenuItem Position="ItemPosition.End" Text="@Name" />
-                    <DxMenuItem Position="ItemPosition.End" Text="@Count" />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-cloud-download" Click="onDownload" Enabled="@ondownloadEnabled" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-file-excel" Click="onDownload" Enabled="@ondownloadEnabled" />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-refresh " Click="onRefersh" />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info-circle " Click="onInfo" Enabled=@informationEnabled />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-reply " Click="onBack" />
-                    <DxMenuItem Position="ItemPosition.Start" IconCssClass="fa fa-code-fork " Click="OnShowhide" />
-                   @* <DxButton SizeMode="SizeMode.Large" RenderStyle="ButtonRenderStyle.None" IconCssClass="fa fa-code-fork" Click="OnShowhide" style=" width:100px;float: left; margin-bottom: -34px;margin-left:3px;z-index: 9999; " />*@
+                  
+              
+                  
+                    <DxMenuItem Text="More" Position="ItemPosition.Start" IconCssClass="fa fa-ellipsis-v">
+                        <Items>
+                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
+                            <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Enabled="@uploadEnabled">
+                                <TextTemplate>
+                                    <label for="input-file" style="cursor:pointer;">
+                                        Upload
+                                    </label>
+                                </TextTemplate>
+                            </DxMenuItem>
+                            <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewfileEnabled" />
+                            <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
+
+
+                            <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Enabled="@deleteEnabled" />
+                            <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Enabled="@historyEnabled" />
+                            <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Enabled="@checkoutEnabled" />
+                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Enabled="@checkInEnabled">
+                                <TextTemplate>
+                                    <label for="input-file" style="cursor:pointer;">
+                                        Check In
+                                    </label>
+                                </TextTemplate>
+                            </DxMenuItem>
+                            <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Enabled="@NotifyEnabled" />
+                            <DxMenuItem Text="Play" IconCssClass="fa fa-play-circle" Click="onPlay" Enabled="@playEnabled" />
+                            <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Enabled="@shareEnabled" />
+                            <DxMenuItem Text="Link Document" IconCssClass="fa fa-link" Click="onLinkDownload" Enabled="@linkdownloadEnabled" />
+                            <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Enabled="@formdetailsEnabled" />
+                            <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewparentDocuments" Enabled="@viewParentEnabled" />
+                            <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Enabled="@renameEnabled" />
+                            <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" Click="onReleaseforwiki" Enabled="@releasewikiEnabled" />
+                        </Items>
+                    </DxMenuItem>
+
                 </Items>
             </DxMenu>
+       
         </div>
 
 
@@ -51,12 +86,8 @@
         <div class="row">
 
             <div class="@treeViewDisplay" style="@styleTreeDisplay">
-                <div style="height:90%; border: 1px solid #b2afaf; overflow: auto; margin-bottom: 10px;">
-                    <div class="mini-menu-bar-top">
-                        <div class="mini-menu-bar-heading">
-                            <div class="files-title" style="padding:10px;">
-                            </div>
-                        </div>
+                <div style="height:90%; border: 1px solid #b2afaf; overflow: auto; margin-bottom: 10px; padding:10px;">
+                  
 
                         <div>
                           
@@ -76,7 +107,7 @@
                                 
                             </div>
                         </div>
-                    </div>
+                    
                 </div>
 
             </div>
@@ -85,52 +116,9 @@
                     <div id="">
                         <div class="">
                             <div class="">
-                                <div class="card w-100" style="margin-bottom:10px;">
-                                    <div class="card-body p-0">
+                                
 
-                                        <DxMenu CollapseItemsToHamburgerMenu="true"
-                                                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                                DisplayMode="MenuDisplayMode.Desktop">
-                                            <Items>
-                                                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
-                                                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Enabled="@uploadEnabled">
-                                                    <TextTemplate>
-                                                        <label for="input-file" style="cursor:pointer;">
-                                                            Upload
-                                                        </label>
-                                                    </TextTemplate>
-                                                </DxMenuItem>
-                                                <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewfileEnabled" />
-                                                <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
-
-
-                                                <DxMenuItem Text="More" IconCssClass="fa fa-ellipsis-v">
-                                                    <Items>
-                                                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Enabled="@deleteEnabled" />
-                                                        <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Enabled="@historyEnabled" />
-                                                        <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Enabled="@checkoutEnabled" />
-                                                        <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Enabled="@checkInEnabled">
-                                                            <TextTemplate>
-                                                                <label for="input-file" style="cursor:pointer;">
-                                                                    Check In
-                                                                </label>
-                                                            </TextTemplate>
-                                                        </DxMenuItem>
-                                                        <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Enabled="@NotifyEnabled" />
-                                                        <DxMenuItem Text="Play" IconCssClass="fa fa-play-circle" Click="onPlay" Enabled="@playEnabled" />
-                                                        <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Enabled="@shareEnabled" />
-                                                        <DxMenuItem Text="Link Download" IconCssClass="fa fa-link" Click="onLinkDownload" Enabled="@linkdownloadEnabled" />
-                                                        <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Enabled="@formdetailsEnabled" />
-                                                        <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewparentDocuments" Enabled="@viewParentEnabled" />
-                                                        <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Enabled="@renameEnabled" />
-                                                        <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" Click="onReleaseforwiki" Enabled="@releasewikiEnabled" />
-                                                    </Items>
-                                                </DxMenuItem>
-
-                                            </Items>
-                                        </DxMenu>
-                                    </div>
-                                </div>
+                                
 
                                 <DxLoadingPanel @bind-Visible="PanelVisible"
                                                 IsContentBlocked="true"
@@ -156,7 +144,7 @@
                                             AllowSelectRowByClick="true"
                                             SelectionMode="GridSelectionMode.Single"
                                             CssClass="ch-360"
-                                            style="height: calc(100vh - 290px);">
+                                            style="height: calc(100vh - 219px);">
                                         <Columns>
 
                                             <DxGridDataColumn FieldName="FileName" Caption="File Name" MinWidth="80">
@@ -251,7 +239,7 @@
     public bool securityEnabled { get; set; } = false;
     public bool moreEnabled { get; set; } = false;
     public bool informationEnabled { get; set; } = false;
-    public string Count;
+   
     private string? DocumentViewUrl;
     private string? ServerUrl;
 
@@ -296,11 +284,7 @@
             PanelVisible = true;
             _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
             _fileProfileselectedlst = _fileProfileselectedlstItems.DocumentsData;
-            if (_fileProfileselectedlst != null)
-            {
-                var downloadcount = _fileProfileselectedlst.Count;
-                Count = downloadcount.ToString();
-            }
+           
 
             if (_fileProfileselectedlst.Count > 0)
             {
@@ -384,10 +368,7 @@
     {
         NavigationManager.NavigateTo($"fileprofiletypedocument/");
     }
-    async void onRefersh()
-    {
-        await JSRuntime.InvokeAsync<string>("ReloadUrl");
-    }
+   
 
     private async Task onCopy()
     {

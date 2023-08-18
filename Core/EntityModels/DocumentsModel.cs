@@ -11,6 +11,8 @@ namespace Core.EntityModels
     {
         public long DocumentID { get; set; }
         public long? DepartmentID { get; set; }
+        public long? ParentId { get; set; }
+        public long? FileProfileTypeId { get; set; }
         public long? WikiID { get; set; }
         public long? CategoryID { get; set; }
         public string FileName { get; set; }
@@ -117,8 +119,8 @@ namespace Core.EntityModels
 
         public bool? IsNoAccess { get; set; }
         public bool? isSetAccess { get; set; }
-
-
+        public string AddedBy { get; set; }
+        public string ModifiedBy { get; set; }
         // Add New User AssignTask Permission
         public List<long?> AssignedToIds { get; set; }
         public List<long?> AssignedCCIds { get; set; }
@@ -178,6 +180,8 @@ namespace Core.EntityModels
         public long? NotesCount { get; set; }
         public string NotesColor { get; set; }
         public string FilePath { get; set; }
+        public string? FileSizes { get; set; }
+        public string? FileCounts { get; set; }
     }
     public class DocumentListModel : BaseModel
     {

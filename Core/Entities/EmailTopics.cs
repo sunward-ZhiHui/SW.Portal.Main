@@ -30,6 +30,7 @@ namespace Core.Entities
         public string? Remarks { get; set; }       
         public string? Description { get; set; }
         public string? Type { get; set; }
+        public string? PinStatus { get; set; }
         public int SeqNo { get; set; }
         public string? SubjectName { get; set; }
         public string? Label { get; set; }

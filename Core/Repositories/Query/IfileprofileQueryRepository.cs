@@ -15,5 +15,9 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<Fileprofiletype>> GetAllAsync(long FileProfileTypeID);
         Task<DocumentTypeModel> GetAllSelectedFileAsync(long selectedFileProfileTypeID);
         Task<DocumentTypeModel> GetFileProfileTypeDocumentByHistory(SearchModel searchModel);
+        Task<DocumentsModel> GetFileProfileTypeDelete(DocumentsModel documentsModel);
+        Task<DocumentsModel> GetFileProfileTypeCheckOut(DocumentsModel documentsModel);
+        
+
     }
 }

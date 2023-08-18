@@ -1,0 +1,160 @@
+﻿
+@page "/history"
+@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@inject AC.SD.Core.Services.ToastService toastService
+
+
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled ="@DownloadEnabled" />
+                <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewEnabled" />
+                <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
+              
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+ <DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+<DxGrid @ref="Grid"  FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_histryselectedFile"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+        CustomizeElement="Grid_CustomizeElement"
+        ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360"
+        style="height: calc(100vh - 270px);"
+        FocusedRowEnabled="true"
+        RowClick="OnRowClick"
+        AllowSelectRowByClick="true">
+    <Columns>
+            <DxGridDataColumn FieldName="FileName" Caption="File Name" MinWidth="80" />
+            <DxGridDataColumn FieldName="FileProfileTypeName" Caption="Profile Type Name" MinWidth="80" />
+            <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="80" />
+            <DxGridDataColumn FieldName="FileSize" Caption="Size(KB)" MinWidth="80" />
+            <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="Modified By" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Modified Date" MinWidth="80" />
+
+    </Columns>
+    </DxGrid>
+    </DxLoadingPanel>
+@code {
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    [Parameter]
+    public DocumentsModel selectedFiles { get; set; }
+    public ApplicationUser applicationUser { get; private set; }
+    private DocumentTypeModel _historyLst { get; set; }
+    private List<DocumentsModel> _histryselectedFile { get; set; }
+    public DocumentsModel _selectedItems { get; set; }
+    private string? DocumentViewUrl;
+    private string? ServerUrl;
+    bool DownloadEnabled { get; set; } = false;
+    bool viewEnabled { get; set; } = false;
+    bool copylinkEnabled { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+        if (selectedFiles.DocumentID > 0)
+        {
+            SearchModel searchModel = new SearchModel();
+            searchModel.Id = selectedFiles.DocumentID;
+            searchModel.MasterTypeID = selectedFiles.FilterProfileTypeId;
+            searchModel.SearchString = selectedFiles.Type;
+            searchModel.SessionID = selectedFiles.SessionID;
+            searchModel.ParentID = selectedFiles.DocumentParentId;
+            searchModel.UserID = applicationUser.UserID;
+            var historyData = await Mediator.Send(new GetFileProfileTypeDocumentByHistory(searchModel));
+            _historyLst = historyData;
+            _histryselectedFile = _historyLst.DocumentsData;
+
+        }
+
+        if (_histryselectedFile.Count >0)
+        {
+            _selectedItems = _histryselectedFile.FirstOrDefault();
+            DownloadEnabled = true;
+            viewEnabled = true;
+            copylinkEnabled = true;
+        }
+        PanelVisible = false;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async void OnRowClick(GridRowClickEventArgs e)
+    {
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentID");
+        _selectedItems = _histryselectedFile.FirstOrDefault(f => f.DocumentID == (long?)UniqueId);
+        StateHasChanged();
+
+    }
+    async Task Download()
+    {
+        if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems));
+            //  Trigger file download
+            await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+        }
+    }
+    async void onView()
+    {
+        if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+            await OpenDocumentPreview(url);
+        }
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    private async Task onCopy()
+    {
+        if (_selectedItems.DocumentID > 0)
+        {
+            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+            await ClipboardService.WriteTextAsync(url);
+          
+        }
+    }
+}

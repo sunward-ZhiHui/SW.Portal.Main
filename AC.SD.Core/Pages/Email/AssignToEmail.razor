@@ -63,7 +63,16 @@
                 </div>
             </CellDisplayTemplate>
         </DxGridDataColumn>       
-        <DxGridDataColumn FieldName="PinStatus" Caption=" " SortOrder="GridColumnSortOrder.Ascending" GroupIndex="0" Width="10%" />
+        <DxGridDataColumn FieldName="PinStatus" Caption=" " SortOrder="GridColumnSortOrder.Ascending" GroupIndex="0" Width="10%">
+        <GroupRowTemplate>
+                @*<text>@context.DataColumn.FieldName =  @context.GroupValue</text>  *@               
+                
+                @if ((string)context.GroupValue == "Lock")
+                {
+                    <text>Focus</text>
+                }
+            </GroupRowTemplate>
+        </DxGridDataColumn>
     </Columns>
     <DetailRowTemplate>
         <SubViewEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />

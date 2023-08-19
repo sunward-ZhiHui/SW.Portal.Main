@@ -8,22 +8,73 @@
 @using global::Core.EntityModels;
 @inject IJSRuntime jsRuntime
 @inject NavigationManager NavigationManager
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
 
 
-@*<div class="card w-100" style="margin-bottom:10px;">
-    <div class="card-body p-0">
-        <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
-            <Items>
-                <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="@onView" Enabled="@viewEnabled" />
-                <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="@onCopyLink" Enabled="@copylinkEnabled" />
-                <DxMenuItem Text="Reserve Number Series" IconCssClass="fa fa-list-ol" Click="@onReserveNumberSeries" Enabled="@reserveNumberseriesEnabled" />
-            </Items>
-        </DxMenu>
+
+        <div class="card-body p-0">
+
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+
+                <Items>
+                    <DxMenuItem Position="ItemPosition.Start" IconCssClass="fa fa-reply " Click="onBack" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-file-excel" Click="onDownload" Enabled="@ondownloadEnabled" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info-circle " Click="onInfo" Enabled=@informationEnabled />
+
+                    <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
+                        <Items>
+                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
+                            <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Enabled="@uploadEnabled">
+                                <TextTemplate>
+                                    <label for="input-file" style="cursor:pointer;">
+                                        Upload
+                                    </label>
+                                </TextTemplate>
+                            </DxMenuItem>
+                            <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewfileEnabled" />
+                            <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
+
+
+                            <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Enabled="@deleteEnabled" />
+                            <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Enabled="@historyEnabled" />
+                            <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Enabled="@checkoutEnabled" />
+                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Enabled="@checkInEnabled">
+                                <TextTemplate>
+                                    <label for="input-file" style="cursor:pointer;">
+                                        Check In
+                                    </label>
+                                </TextTemplate>
+                            </DxMenuItem>
+                            <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Enabled="@NotifyEnabled" />
+                            <DxMenuItem Text="Play" IconCssClass="fa fa-play-circle" Click="onPlay" Enabled="@playEnabled" />
+                            <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Enabled="@shareEnabled" />
+                            <DxMenuItem Text="Link Document" IconCssClass="fa fa-link" Click="onLinkDownload" Enabled="@linkdownloadEnabled" />
+                            <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Enabled="@formdetailsEnabled" />
+                            <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewparentDocuments" Enabled="@viewParentEnabled" />
+                            <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Enabled="@renameEnabled" />
+                            <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" Click="onReleaseforwiki" Enabled="@releasewikiEnabled" />
+                        </Items>
+                    </DxMenuItem>
+
+                </Items>
+            </DxMenu>
+
+        </div>
+
+
     </div>
-</div>*@
-
+</div>
 <div class="demo-breadcrumbs-container theme-blazing-berry">
     <div class="breadcrumb">
         <div class="demo-breadcrumbs sidebar-hidden">
@@ -80,7 +131,7 @@
             CustomizeSummaryDisplayText="Grid_CustomizeSummaryDisplayText"
             SelectionMode="GridSelectionMode.Single"
             CssClass="ch-360"
-            style="height: calc(100vh - 220px);">
+            style="height: calc(100vh - 250px);">
         <Columns>
             <DxGridDataColumn FieldName="FileName" Caption="Name" MinWidth="80">
                 <CellDisplayTemplate>
@@ -121,27 +172,69 @@
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
+<DxPopup @bind-Visible="@PopupVisible"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Width="1000px">
+    <BodyContentTemplate>
+        <HistoryPopup selectedFiles="@selectedFiles"></HistoryPopup>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     IGrid Grid { get; set; }
     [Parameter]
     public Guid? SessionId { get; set; }
+    public bool PopupVisible { get; set; } = false;
+    public DocumentsModel selectedFiles { get; set; }
     public long? FileProfileTypeId { get; set; }
     private List<DocumentsModel> fileProfileTypeDocuments { get; set; }
     private List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     private DocumentTypeModel _fileProfileselectedlstItems { get; set; }
     bool PanelVisible { get; set; }
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
-
     private DocumentsModel _selectedItems;
+    public string Name;
+    public string isVisibleMore { get; set; } = "display:none;";
+    public bool DownloadEnabled { get; set; } = false;
+    public bool uploadEnabled { get; set; } = false;
+    public bool copylinkEnabled { get; set; } = false;
+    public bool deleteEnabled { get; set; } = false;
+    public bool viewfileEnabled { get; set; } = false;
+    public bool historyEnabled { get; set; } = false;
+    public bool checkoutEnabled { get; set; } = false;
+    public bool checkInEnabled { get; set; } = false;
+    public bool NotifyEnabled { get; set; } = false;
+    public bool playEnabled { get; set; } = false;
+    public bool shareEnabled { get; set; } = false;
+    public bool formdetailsEnabled { get; set; } = false;
+    public bool linkdownloadEnabled { get; set; } = false;
+    public bool viewParentEnabled { get; set; } = false;
+    public bool renameEnabled { get; set; } = false;
+    public bool releasewikiEnabled { get; set; } = false;
+    public bool ondownloadEnabled { get; set; } = false;
+    public bool securityEnabled { get; set; } = false;
+    public bool moreEnabled { get; set; } = false;
+    public bool informationEnabled { get; set; } = false;
+
+    private string? DocumentViewUrl;
+    private string? ServerUrl;
     protected override async Task OnInitializedAsync()
     {
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
     }
     protected override async Task OnParametersSetAsync()
     {
+        isVisibleMore = "display:none;";
+        ondownloadEnabled = false;moreEnabled = false;informationEnabled = false;securityEnabled = false;
+       
         FolderPathLists = new List<DocumentsModel>();
         FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == SessionId)?.FileProfileTypeId;
-        PanelVisible = true;
+
         if (FileProfileTypeId > 0)
         {
             var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
@@ -152,17 +245,74 @@
                 FolderPathLists.Add(fileType);
             }
         }
+        await loadFileProfileData();
+        base.OnParametersSet();
+    }
+    async Task loadFileProfileData()
+    {
+        PanelVisible = true;
         _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
         fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
 
         if (fileProfileTypeDocuments.Count > 0)
         {
             _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
+            permissionEnabled();
+            Grid.SetFocusedRowIndex(0);
         }
-        Grid.SetFocusedRowIndex(0);
+        else
+        {
+            permissionEnabled();
+        }
         PanelVisible = false;
         StateHasChanged();
-        base.OnParametersSet();
+    }
+    public void permissionEnabled()
+    {
+        isVisibleMore = "display:none;";
+        DownloadEnabled = false; uploadEnabled = false; copylinkEnabled = false; viewfileEnabled = false;
+        deleteEnabled = false; historyEnabled = false; checkoutEnabled = false; checkInEnabled = false;
+        playEnabled = false; shareEnabled = false; NotifyEnabled = false; formdetailsEnabled = false; linkdownloadEnabled = false; formdetailsEnabled = false;
+        renameEnabled = false; releasewikiEnabled = false; viewParentEnabled = false;
+        if (_selectedItems != null)
+        {
+            ondownloadEnabled = true;
+            moreEnabled = true;
+            informationEnabled = true;
+            securityEnabled = true;
+        }
+        if (_selectedItems != null && _selectedItems.FilterProfileTypeId > 0)
+        {
+            isVisibleMore = "";
+            ondownloadEnabled = true;
+            moreEnabled = true;
+            informationEnabled = true;
+            securityEnabled = true;
+            DownloadEnabled = true;
+            uploadEnabled = true;
+            copylinkEnabled = true;
+            viewfileEnabled = true;
+            deleteEnabled = true;
+            historyEnabled = true;
+            checkoutEnabled = true;
+            checkInEnabled = false;
+            playEnabled = true;
+            shareEnabled = true;
+            NotifyEnabled = true;
+            formdetailsEnabled = true;
+            linkdownloadEnabled = true;
+            formdetailsEnabled = true;
+            renameEnabled = true;
+            releasewikiEnabled = true;
+            viewParentEnabled = true;
+
+            if (_selectedItems.IsLocked == true)
+            {
+                checkoutEnabled = false;
+                checkInEnabled = true;
+            }
+        }
+        StateHasChanged();
     }
     private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
     {
@@ -182,10 +332,6 @@
     {
         NavigationManager.NavigateTo("fileprofiletype");
     }
-    void onView()
-    {
-
-    }
     void onCopyLink()
     {
 
@@ -194,17 +340,22 @@
     {
 
     }
-    async void OnRowClick(GridRowClickEventArgs e)
+    void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
         _selectedItems = fileProfileTypeDocuments.FirstOrDefault(f => f.FileProfileTypeId == (long?)UniqueId);
+        permissionEnabled();
         StateHasChanged();
     }
-    async void OnRowDoubleClick(GridRowClickEventArgs e)
+    void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         if (_selectedItems.FileProfileTypeId > 0)
         {
             NavigationManager.NavigateTo($"fileprofiletype/" + _selectedItems.SessionID);
+        }
+        else
+        {
+            OnRowClick(e);
         }
     }
     void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
@@ -245,5 +396,128 @@
             e.Style = "background-color: rgba(0, 0, 0, 0.08)";
             e.CssClass = "header-bold";
         }
+    }
+    void onBack()
+    {
+        NavigationManager.NavigateTo($"fileprofiletype");
+    }
+
+
+    private async Task onCopy()
+    {
+        if (_selectedItems.DocumentID > 0)
+        {
+            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+            await ClipboardService.WriteTextAsync(url);
+
+        }
+    }
+    private void LoadFiles(InputFileChangeEventArgs e)
+    {
+
+    }
+    void OnSecurity()
+    {
+
+    }
+    void onDownload()
+    {
+
+    }
+    void onmore()
+    {
+
+    }
+    void onInfo()
+    {
+
+    }
+    async Task Download()
+    {
+        if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems));
+            //  Trigger file download
+            await jsRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+        }
+    }
+    void onUpload()
+    {
+
+    }
+    async void onView()
+    {
+        if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+            await OpenDocumentPreview(url);
+        }
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    async Task onDelete()
+    {
+        if (_selectedItems.DocumentID > 0)
+        {
+            await Mediator.Send(new GetFileProfileTypeDelete(_selectedItems));
+            await loadFileProfileData();
+        }
+    }
+    async Task onHistory()
+    {
+        selectedFiles = _selectedItems;
+        PopupVisible = true;
+
+    }
+    async Task onCheckOut()
+    {
+        if (_selectedItems.DocumentID > 0)
+        {
+            await Mediator.Send(new GetFileProfileTypeCheckOut(_selectedItems));
+            await loadFileProfileData();
+            await Download();
+        }
+    }
+    async Task onCheckin()
+    {
+
+    }
+    void onNotify()
+    {
+
+    }
+    void onPlay()
+    {
+
+    }
+    void onShare()
+    {
+
+    }
+    void onLinkDownload()
+    {
+
+    }
+    void onFormDetails()
+    {
+
+    }
+    void onViewparentDocuments()
+    {
+
+    }
+    void onRename()
+    {
+
+    }
+    void onReleaseforwiki()
+    {
+
+    }
+    void ClosePopup()
+    {
+        PopupVisible = false;
     }
 }

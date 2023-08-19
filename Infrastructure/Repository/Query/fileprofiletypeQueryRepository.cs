@@ -205,7 +205,7 @@ namespace Infrastructure.Repository.Query
                     var query = DocumentQueryString() + " where FilterProfileTypeId=@FileProfileTypeId " +
                         "AND IsLatest=1 " +
                         "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) " +
-                        "OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument t2 where FileProfileTypeID=t2.FileProfileTypeID) AND IsLatest=1) " +
+                        "OR (DocumentID in(" + string.Join(",", linkfileProfileTypeDocumentids) + ") AND IsLatest=1) " +
                         "order by DocumentId desc";
 
                     using (var connection = CreateConnection())
@@ -259,7 +259,10 @@ namespace Infrastructure.Repository.Query
                                  documentsModels.UploadedByUserId = s.AddedByUserId;
                                  documentsModels.ModifiedByUserID = s.ModifiedByUserId;
                                  documentsModels.AddedDate = s.ModifiedDate == null ? s.UploadDate : s.ModifiedDate;
-                                 documentsModels.AddedByUser = s.ModifiedByUserId == null ? appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName : appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                                 documentsModels.ModifiedDate = s.ModifiedDate;
+                                 documentsModels.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
+                                 documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                                 //documentsModels.AddedByUser = s.ModifiedByUserId == null ? appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName : appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
                                  documentsModels.IsLocked = s.IsLocked;
                                  documentsModels.LockedByUserId = s.LockedByUserId;
                                  documentsModels.LockedDate = s.LockedDate;

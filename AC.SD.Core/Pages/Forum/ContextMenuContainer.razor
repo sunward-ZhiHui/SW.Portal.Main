@@ -1,0 +1,37 @@
+﻿
+
+﻿@using GridWithContextMenu.Data
+@using System.Collections
+
+
+@*<DxContextMenu @ref="RowContextMenu"
+               Data="RowContextMenuData"
+               ItemClick="RowContextMenu_ItemClick">
+    <DataMappings>
+        <DxContextMenuDataMapping Text="@nameof(ContextMenuItem.Text)"
+                                  Visible="@nameof(ContextMenuItem.Visible)"
+                                  Enabled="@nameof(ContextMenuItem.Enabled)"
+                                  BeginGroup="@nameof(ContextMenuItem.BeginGroup)"
+                                  CssClass="@nameof(ContextMenuItem.CssClass)"
+                                  IconCssClass="@nameof(ContextMenuItem.IconCssClass)" />
+    </DataMappings>
+</DxContextMenu>
+@code {
+    DxContextMenu RowContextMenu { get; set; }
+    IEnumerable RowContextMenuData { get; set; }
+    int ContextMenuRowIndex { get; set; }
+    [Parameter]  
+    public IGrid Grid { get; set; }
+    async Task RowContextMenu_ItemClick(ContextMenuItemClickEventArgs e)
+        => await GridContextMenuHelper.ProcessRowMenuItemClickAsync((ContextMenuItem)e.ItemInfo.DataItem, ContextMenuRowIndex, Grid);
+
+    public async Task Grid_ContextMenu(GridCustomizeElementEventArgs e, MouseEventArgs mouseArgs)
+    {
+     if(GridContextMenuHelper.IsRowContextMenuElement(e.ElementType))
+     {
+    		ContextMenuRowIndex = e.VisibleIndex;
+    		RowContextMenuData = GridContextMenuHelper.GetRowItems(e);
+    		await RowContextMenu.ShowAsync(mouseArgs);
+      }
+    }*@
+}

@@ -17,18 +17,18 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew"/>
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="" IconCssClass="fa fa-add" Click="@addNew"/>
+                <DxMenuItem Text="" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenu Visible="@Complete">
                     <Items>
                        
-                        <DxMenuItem Text="Completed" IconCssClass="fa fa-check-square" Click="@addDelete" style="float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999;" />
+                        <DxMenuItem Text="" IconCssClass="fa fa-check" Click="@addDelete" style="float: left; margin-bottom: -41px;  margin-left:100px; z-index: 9999;" />
                     </Items>
                 </DxMenu>
 
                 <DxMenu Visible="@Incomplete">
                     <Items>
-                        <DxMenuItem Text="Re-Open" IconCssClass="fa fa-check-square" Click="@onIncomplete" style="float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999;" />
+                        <DxMenuItem Text="" IconCssClass="fa fa-check-square" Click="@onIncomplete" style="float: left; margin-bottom: -41px;  margin-left:100px; z-index: 9999;" />
                     </Items>
                 </DxMenu>
 
@@ -196,7 +196,7 @@
         PanelVisible = false;
         if( Topicid >0)
         {
-            gridHeight = "height: calc(100vh - 338px);";
+            gridHeight = "height: calc(100vh - 350px);";
             //styleTreeDisplay = "width:10%";
         }
 

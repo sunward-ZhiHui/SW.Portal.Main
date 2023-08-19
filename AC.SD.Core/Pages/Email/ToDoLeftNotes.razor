@@ -22,13 +22,13 @@
                 <DxMenu Visible="@Complete">
                     <Items>
                        
-                        <DxMenuItem Text="Completed" IconCssClass="fa fa-check-square" Click="@addDelete" style="float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999; width:100px;" />
+                        <DxMenuItem Text="Completed" IconCssClass="fa fa-check-square" Click="@addDelete" style="float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999;" />
                     </Items>
                 </DxMenu>
 
                 <DxMenu Visible="@Incomplete">
                     <Items>
-                        <DxMenuItem Text="InCompleted" IconCssClass="fa fa-check-square" Click="@onIncomplete" style="float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999; width:100px;" />
+                        <DxMenuItem Text="Re-Open" IconCssClass="fa fa-check-square" Click="@onIncomplete" style="float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999;" />
                     </Items>
                 </DxMenu>
 
@@ -55,8 +55,10 @@
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
+  @*  style="height: calc(100vh - 200px);min-height:350px !important;"*@
+  
 
-    <DxGrid @ref="Grid" Data="@_toDoNotes" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="false" ShowGroupedColumns="false" ShowSearchBox="false"
+    <DxGrid @ref="Grid" Data="@_toDoNotes"  EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" 
             VirtualScrollingEnabled="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             KeyFieldName="ID"
@@ -68,7 +70,7 @@
             PageSize="20"
             ValidationEnabled="true"
             AutoExpandAllGroupRows="true"
-            CssClass="w-100" style="height: calc(100vh - 200px);min-height:350px !important;"
+            CssClass="w-100" style="@gridHeight"
             RowClick="OnRowClick"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged">
@@ -88,8 +90,21 @@
                         </div>
                     </div>
                 </CellDisplayTemplate>
+            </DxGridDataColumn>           
+            <DxGridDataColumn FieldName="Completed" Caption=" " SortOrder="GridColumnSortOrder.Descending" GroupIndex="0" Width="10%">
+                <GroupRowTemplate>
+                    @*<text>@context.DataColumn.FieldName =  @context.GroupValue</text>  *@
+
+                    @if ((string)context.GroupValue == "Open")
+                    {
+                        <text>Open</text>
+                    }
+                    else
+                    {
+                        <text>Completed</text>
+                    }
+                </GroupRowTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="Completed" GroupIndex="0" Width="10%" />
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
         @*  @bind-SelectedDataItems="SelectedDataItems"*@
@@ -115,7 +130,7 @@
          Width="300px">
     <BodyContentTemplate>
         <p>
-            Do you want to Incomplete
+            Do you want to Re-Open
         </p>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -140,12 +155,13 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    string styleTreeDisplay = "width:100%";
     bool IncompletePopup { get; set; } = false;
     bool Complete { get; set; } = false;
     bool Incomplete { get; set; } = false;
     bool PanelVisible { get; set; }    
     IReadOnlyList<object> SelectedDataItems { get; set; }
-    private string gridHeight = "calc(100vh - 230px - 143px)";
+    private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
     private List<ToDoNotes>? _toDoNotes; 
     IGrid? Grid { get; set; }
     private ToDoNotes _selectedItems;
@@ -178,6 +194,11 @@
         _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
 
         PanelVisible = false;
+        if( Topicid >0)
+        {
+            gridHeight = "height: calc(100vh - 338px);";
+            //styleTreeDisplay = "width:10%";
+        }
 
         if (_toDoNotes.Count > 0)
         {
@@ -377,7 +398,7 @@
         _selectedItems = _toDoNotes.FirstOrDefault(f => f.ID == (long?)UniqueId);
         DeleteEnabled = true;
         NotesId?.Invoke((long)UniqueId);
-        if (_selectedItems.Completed == true )
+        if (_selectedItems.Completed == "Completed" )
         {
             Incomplete = true;
             Complete = false;
@@ -464,5 +485,9 @@
             EditEnabled = true;
 
         }
+    }
+    public async void LoadData(long Topicid)
+    {
+        _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
     }
 }

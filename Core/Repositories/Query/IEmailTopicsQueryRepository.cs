@@ -18,6 +18,8 @@ namespace Core.Repositories.Query
         Task<List<EmailTopics>> GetByIdTopicToList(Int64 UserId);
         Task<List<EmailTopics>> GetByIdTopicCCList(Int64 UserId);
         Task<List<EmailTopics>> GetTopicToList(Int64 UserId);
+        Task<long> SetPinTopicToList(Int64 Id);
+        Task<long> UnSetPinTopicToList(Int64 Id);
         Task<List<EmailTopics>> GetTopicAllList(Int64 UserId);
         Task<List<EmailTopics>> GetTopicMasterSearchList(Int64 UserId,string MasterSearch);        
         Task<List<EmailTopics>> GetTopicCCList(Int64 UserId);

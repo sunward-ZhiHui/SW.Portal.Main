@@ -57,7 +57,7 @@
 
             </div>*@
             <!-- Mini Menu Bar -->
-            <div class="mini-menu-bar col-md-3" style="overflow-x: hidden;">
+            <div class="mini-menu-bar col-md-3 @toggleButtonVisible"  style="overflow-x: hidden;">
                 <div class="mini-menu-bar-top">
                     @*<div class="mini-menu-bar-heading">
                         <div class="files-title">General Information</div>
@@ -130,7 +130,7 @@
                         }
                         else if (isLeftMenuvisible == "AssignTo")
                         {                           
-                               <AssignToEmail GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick " SubViewToTopicId ="onSubViewEmailToClick"></AssignToEmail>
+                               <AssignToEmail GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId ="onSubViewEmailToClick"></AssignToEmail>
                             }
                             else if (isLeftMenuvisible == "AssignCC")
                             {
@@ -159,7 +159,7 @@
                 </div>*@
             </div>
             <!-- Menu Bar Content -->
-            <div class="menu-bar-content-container col-md-9">
+            <div class="menu-bar-content-container @hiddenButtonCssClass">
                 <div class="content-padding-20">
                     <div class="menu-bar-content-container-heading">
                         <div class="heading-icon-text">                          
@@ -173,11 +173,13 @@
                                                 CollapseItemsToHamburgerMenu="true"
                                                 CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
                                             <Items>
+                                                <DxMenuItem Text="" IconCssClass="fa fa-th-list" Click="@(() => ToggleButtonClick())" />
                                                 <DxMenuItem Text="Posts" class="@((isMenuvisible == "Posts" ? "tActive": "tfiles"))" IconCssClass="menu-icon-products menu-icon" Click="@(() => OnMenuItemClick("Posts"))" />
                                                 <DxMenuItem Text="Files" Enabled="@isEnabled" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
-                                                <DxMenuItem Text="Todo" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
+                                                <DxMenuItem Text="Todo" Enabled="@isEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />
                                                 <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
+                                            
                                             </Items>
                                         </DxMenu>
                                     </div>
@@ -185,11 +187,11 @@
                             </div>
 
                         </div>
-                        <div>
+                        <div>          
                             @if (_headTopic != null && _headTopic.Any())
                             {
                                 @foreach (var item in _headTopic)
-                                {
+                                {                                    
                                     <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto">
                                         <div class="uk-card-header topicheadbg" style="height: auto; border-bottom: none;">
                                             <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
@@ -317,7 +319,7 @@
                             }
                         </div>
                     </div>
-                    <div class="@((isComponentVisible ? "menu-bar-content-container-content msgOpen" : "menu-bar-content-container-content msgClose"))">
+                    <div class="@((isComponentVisible ? "menu-bar-content-container-content msgOpen" : "menu-bar-content-container-content msgClosed"))">
                         @* <div class="spacing-box"></div>  *@
                         @if (isMenuvisible == "Posts")
                         {
@@ -646,18 +648,13 @@
                                                                                       TextFieldName="FirstName"
                                                                                       ListRenderMode="ListRenderMode.Virtual"
                                                                                       @bind-Values="@Data.AssigntoIds"
+                                                                                      EditFormat="{0}-{1}"
                                                                                       CssClass="cw-480">
-                                                                                <DxListEditorColumn FieldName="@nameof(EmailAssignToList.CompanyName)"
-                                                                                    Caption="Company"
-                                                                                    Width="100px"/>
-                                                                                <DxListEditorColumn FieldName="@nameof(EmailAssignToList.DesignationName)"
-                                                                                    Caption="Designation" />
-                                                                                <DxListEditorColumn FieldName="@nameof(EmailAssignToList.FirstName)"
-                                                                                    Caption="First Name" 
-                                                                                    Width="100px" />
-                                                                                    <DxListEditorColumn FieldName="@nameof(EmailAssignToList.NickName)"
-                                                                                    Caption="Nick Name" />
-                                                                            </DxTagBox>
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                                                                </DxTagBox>
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="CC" ColSpanMd="12">
                                                                             <DxTagBox NullText="Select cc..."
@@ -667,18 +664,13 @@
                                                                                       TextFieldName="FirstName"
                                                                                        ListRenderMode="ListRenderMode.Virtual"
                                                                                       @bind-Values="@Data.AssignccIds"
+                                                                                      EditFormat="{0}-{1}"
                                                                                       CssClass="cw-480">
-                                                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
-                                                                                    Caption="Company"
-                                                                                    Width="100px"/>
-                                                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
-                                                                                    Caption="Designation" />
-                                                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)"
-                                                                                    Caption="First Name" 
-                                                                                    Width="100px" />
-                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
-                                                                                    Caption="Nick Name" />
-                                                                            </DxTagBox>
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                                                                </DxTagBox>
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem ColSpanMd="12">
                                                                                 <div class="">
@@ -756,7 +748,7 @@
                                        @* @if(IsValidUser)
                                         {*@
                                             <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="((e) => onPreview(_selectlst.DocumentId))" Enabled=PreviewEnabled />
-                                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectlst.DocumentId))" Enabled=docEnabled />
+                                            @*<DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectlst.DocumentId))" Enabled=docEnabled />*@
                                         @*} *@                                      
                                         
                                     </Items>
@@ -791,7 +783,7 @@
                                             @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="ModifiedBy" MinWidth="200" />
+                                    @*<DxGridDataColumn FieldName="ModifiedBy" MinWidth="200" />
                                     <DxGridDataColumn FieldName="ModifiedDate" Width="180px">
                                         <CellDisplayTemplate>
                                             @{
@@ -799,7 +791,7 @@
                                             }
                                             @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
                                         </CellDisplayTemplate>
-                                    </DxGridDataColumn>
+                                    </DxGridDataColumn>*@
 
                                     @*<DxGridDataColumn FieldName="FileSize" />*@
                                    @* <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
@@ -816,8 +808,8 @@
                         }
                         else if (isMenuvisible == "Todo")
                         {
-                            <ToDoList Tid="@Tid"></ToDoList>  
-                           @* <UserToDo Topicid="@Tid"> </UserToDo>*@
+                           @* <ToDoList Tid="@Tid"></ToDoList>*@
+                            <UserToDo @ref=RefTopicTodo Topicid="@Tid"> </UserToDo>
                         }
                         else if (isMenuvisible == "Tags")
                         {
@@ -1038,8 +1030,10 @@
 *@
 
 
-    @code {
-   
+@code {
+    private string toggleButtonVisible = "ActiveToggle";
+    private string hiddenButtonCssClass = "col-md-9";
+
     public int ActiveTabIndex { get; set; } = 1;
     string? SearchText { get; set; }
     string? GridSearchText { get; set; }
@@ -1108,6 +1102,7 @@
     string width = "800px", height = "800px";
     private ParticipantList? RefTopicAddPList { get; set; }
     private TopicTags? RefTopicTagList { get; set; }
+    private UserToDo? RefTopicTodo { get; set; }
     private bool IsValidUser { get; set; } = false;
     [Parameter]
     public EventCallback<string> Participent { get; set; }
@@ -1120,6 +1115,11 @@
 
         //await JSRuntime.InvokeVoidAsync("adjustHeight", setHeight);
         await JSRuntime.InvokeVoidAsync("setHeight", selector, setHeight);
+    }
+    private void ToggleButtonClick()
+    {
+        toggleButtonVisible = toggleButtonVisible == "HiddenToggle" ? "ActiveToggle" : "HiddenToggle";        
+        hiddenButtonCssClass = toggleButtonVisible == "HiddenToggle" ? "col-md-12" : "col-md-9";
     }
     private class Model
     {
@@ -2071,6 +2071,10 @@
         {
             await loadTags_Data();
         }
+        else if(isMenuvisible == "Todo")
+        {
+            await loadTodo_Data();
+        }
 
         // Generate index IDs for each row
         //var indexedDiscussionList = _discussionList.Select((item, index) => new
@@ -2455,7 +2459,7 @@
                 /*Assignto*/
                 var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
                 var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
-                
+
                 //Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
                 Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
 
@@ -2587,6 +2591,10 @@
     async Task loadTags_Data()
     {
         await RefTopicTagList.loadTagList(long.Parse(@SelectedGroup));
+    }
+    async Task loadTodo_Data()
+    {
+        await RefTopicTodo.leftTodoLst(Tid);
     }
     async Task LoadMainTopicPlist_Data()
     {        

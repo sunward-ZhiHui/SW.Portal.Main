@@ -15,13 +15,13 @@
 <div class="">
     <div class="main-container">
         <div class="content-container row">
-            <div class="mini-menu-bar col-md-3" style="overflow-x: hidden;">
+            <div class="@leftTodoDisplay" style="@styleTreeDisplay overflow-x: hidden;">
                 <div class="mini-menu-bar-top">
-                    <ToDoLeftNotes NotesId="onViewClick " Topicid="@TopicTid"></ToDoLeftNotes>
+                    <ToDoLeftNotes NotesId="onViewClick " Topicid="@TopicTid" @ref=RefToDoLeftNotes></ToDoLeftNotes>
                 </div>
             </div>
-            <div class="menu-bar-content-container col-md-9">
-                <ToDoNotesList @ref=RefToDoHistoryList ></ToDoNotesList>
+            <div class="@RighttodoDisplay">
+                <ToDoNotesList @ref=RefToDoHistoryList Topicid="@TopicTid"></ToDoNotesList>
             </div>
         </div>
     </div>
@@ -31,17 +31,30 @@
     public long Topicid { get; set; }
     long? SeletedNoteId { get; set; }
     long TopicTid { get; set; }
+    private ToDoLeftNotes? RefToDoLeftNotes { get; set; }
     private ToDoNotesList? RefToDoHistoryList { get; set; }
+     string leftTodoDisplay = "col-md-3";
+    string RighttodoDisplay = "col-md-9";
+    string styleTreeDisplay = "height: calc(100vh - 190px); padding:10px";
     protected override async Task OnInitializedAsync()
     {
         TopicTid = Topicid;
+        if(Topicid > 0)
+        {
+            leftTodoDisplay = "col-md-3";
+            RighttodoDisplay = "col-md-9";
+        }
     }
-    private async void onViewClick(long NoteId)
+    public async void onViewClick(long NoteId)
     {
-       
+
         SeletedNoteId = NoteId;
         //await LoadData();
         await RefToDoHistoryList.LoadHistoryData(NoteId);
         StateHasChanged();
+    }
+    public async  Task leftTodoLst(long Topicid)
+    {
+        RefToDoLeftNotes.LoadData(Topicid);
     }
 }

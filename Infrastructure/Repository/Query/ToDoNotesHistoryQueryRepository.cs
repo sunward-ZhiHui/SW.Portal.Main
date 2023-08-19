@@ -79,8 +79,9 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", ToDoNotesHistory.AddedDate);
                             parameters.Add("ModifiedDate", ToDoNotesHistory.ModifiedDate);
                             parameters.Add("SessionId", ToDoNotesHistory.SessionId);
+                            parameters.Add("Status", ToDoNotesHistory.Status);
 
-                            var query = "INSERT INTO ToDoNotesHistory(NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId) VALUES (@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId)";
+                            var query = "INSERT INTO ToDoNotesHistory(NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status) VALUES (@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -125,9 +126,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DueDate", ToDoNotesHistory.DueDate);
                             parameters.Add("RemainDate", ToDoNotesHistory.RemainDate);
                             parameters.Add("ModifiedByUserID", ToDoNotesHistory.ModifiedByUserID);
-                            parameters.Add("ModifiedDate", ToDoNotesHistory.ModifiedDate);                           
+                            parameters.Add("ModifiedDate", ToDoNotesHistory.ModifiedDate);
+                            parameters.Add("Status", ToDoNotesHistory.Status);
 
-                            var query = @"Update ToDoNotesHistory SET Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate WHERE ID = @ID";
+                            var query = @"Update ToDoNotesHistory SET Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Status = @Status WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
                             transaction.Commit();

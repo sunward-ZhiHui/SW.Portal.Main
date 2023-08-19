@@ -6,6 +6,9 @@
 @using MediatR
 @inject IMediator Mediator
 @using System.Linq
+<style scoped>
+  
+</style>
 
 
 
@@ -35,9 +38,18 @@
                 @{
                     var item = (EmailTopics)context.DataItem;
                 }
-                <div style="width:100%">
+                <div style="width:100%; padding-right: 6px;" @oncontextmenu="((e) => { ContextMenu.ShowAsync(e); } )" @oncontextmenu:preventDefault>
                     <strong>
                         @item.FirstName
+                        @if (item.PinStatus == "Lock")
+                        {
+                            <span class="primary_color_icon handline" @onclick="@(() => onUnPin(item.ID))"><i class="fa fa-thumb-tack pinrotated" aria-hidden="true"></i></span>
+                        }
+                        else
+                        {
+                            <span class="primary_color_icon handline" @onclick="@(() => onPin(item.ID))"><i class="fa fa-thumb-tack" aria-hidden="true"></i></span>
+                        }
+
                         @if (item.Urgent.GetValueOrDefault(false))
                         {
                             <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
@@ -45,16 +57,30 @@
                         @if (item.IsAllowParticipants.GetValueOrDefault(false))
                         {
                             <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
-                        }
+                        }                       
                     </strong>
                     <div>
                         <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
                         <text>@item.TopicName</text>
-                    </div>
+                    </div>                   
                 </div>
+                <DxContextMenu @ref="@ContextMenu" ItemClick="@OnItemClick">
+                    <Items>                        
+                        <DxContextMenuItem Text="Focus" IconCssClass="fa fa-thumb-tack"></DxContextMenuItem>                                             
+                    </Items>
+                </DxContextMenu>
             </CellDisplayTemplate>
+        </DxGridDataColumn>       
+        <DxGridDataColumn FieldName="PinStatus" Caption=" " SortOrder="GridColumnSortOrder.Ascending" GroupIndex="0" Width="10%">
+        <GroupRowTemplate>
+                @*<text>@context.DataColumn.FieldName =  @context.GroupValue</text>  *@               
+                
+                @if ((string)context.GroupValue == "Lock")
+                {
+                    <text>Focused</text>
+                }
+            </GroupRowTemplate>
         </DxGridDataColumn>
-        @*  <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />  *@
     </Columns>
     <DetailRowTemplate>
         <SubViewEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
@@ -66,7 +92,7 @@
 
 
 @code {
-   
+    DxContextMenu ContextMenu { get; set; }
     IGrid TOGrid { get; set; }
     private List<EmailTopics>? _forumTopicTo;
     public ApplicationUser applicationUser { get; private set; }
@@ -87,6 +113,10 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
     }
+    void OnItemClick(ContextMenuItemClickEventArgs args)
+    {
+        //ClickedItem = args.ItemInfo.Text;
+    }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -96,6 +126,20 @@
         }
 
     }   
+    async Task onGridRefresh()
+    {
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+    }
+    async Task onPin(long Id)
+    {           
+        var request = await Mediator.Send(new SetPinEmailTopicTo(Id));
+        await onGridRefresh();
+    }
+    async Task onUnPin(long Id)
+    {
+        var request = await Mediator.Send(new UnSetPinEmailTopicTo(Id));
+        await onGridRefresh();
+    }
     async Task OnEmailToRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");

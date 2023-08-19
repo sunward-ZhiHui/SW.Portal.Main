@@ -1,0 +1,249 @@
+﻿@page "/fileprofiletype"
+@page "/fileprofiletype/{SessionId:guid}"
+@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+
+
+@*<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="View" IconCssClass="fa fa-eye" Click="@onView" Enabled="@viewEnabled" />
+                <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="@onCopyLink" Enabled="@copylinkEnabled" />
+                <DxMenuItem Text="Reserve Number Series" IconCssClass="fa fa-list-ol" Click="@onReserveNumberSeries" Enabled="@reserveNumberseriesEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>*@
+
+<div class="demo-breadcrumbs-container theme-blazing-berry">
+    <div class="breadcrumb">
+        <div class="demo-breadcrumbs sidebar-hidden">
+            <!--!-->
+
+            <div class="items">
+                <a href="javascript:void(0);" onclick="@(() => openFileProfileMainLink())">Main</a>
+                @if (FolderPathLists.Count > 0)
+                {
+                    <span class="separator"></span>
+                    @foreach (var item in FolderPathLists)
+                    {
+                        var names = item.FileName.Length > 20 ? item.FileName.Substring(0, 20) + "..." : item.FileName;
+                        if (FolderPathLists.IndexOf(item) == FolderPathLists.Count - 1)
+                        {
+                            <span title="@item.FileName">@names</span>
+                        }
+                        else
+                        {
+                            <a href="javascript:void(0);" title="@item.FileName" onclick="@(() => openFileProfileLink(item))">@names</a>
+                        }
+                        <span class="separator"></span>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid"
+            Data="fileProfileTypeDocuments"
+            KeyFieldName="DocumentID"
+            EditMode="GridEditMode.EditForm"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            EditorRenderMode="GridEditorRenderMode.Integrated"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            CustomizeCellDisplayText="Grid_CustomizeCellDisplayText"
+            PageSize="20" CustomizeElement="Grid_CustomizeElement" ValidationEnabled="false"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            FocusedRowEnabled="true"
+            AllowSelectRowByClick="true"
+            CustomizeSummaryDisplayText="Grid_CustomizeSummaryDisplayText"
+            SelectionMode="GridSelectionMode.Single"
+            CssClass="ch-360"
+            style="height: calc(100vh - 220px);">
+        <Columns>
+            <DxGridDataColumn FieldName="FileName" Caption="Name" MinWidth="80">
+                <CellDisplayTemplate>
+
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                    }
+                    @if (item.Type == "Document")
+                    {
+                        @if (item.IsLocked == true)
+                        {
+                            <i class="fa fa-lock" aria-hidden="true" style="margin-right: 5px;"></i>
+                        }
+                    }
+                    else
+                    {
+                        <i class="fa fa-folder" aria-hidden="true" style="margin-right: 5px;"></i>
+                    }
+                    @item.FileName
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ProfileNo" Caption="Profile" MinWidth="80" />
+            <DxGridDataColumn FieldName="FileSizes" Caption="File Size" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                    }
+
+                    @(item.FileSizes + (!string.IsNullOrEmpty(item.FileCounts) ? ("," + item.FileCounts) : ""))
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="Description" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="ModifiedBy" MinWidth="40" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Modified" MinWidth="40" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    IGrid Grid { get; set; }
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    public long? FileProfileTypeId { get; set; }
+    private List<DocumentsModel> fileProfileTypeDocuments { get; set; }
+    private List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    private DocumentTypeModel _fileProfileselectedlstItems { get; set; }
+    bool PanelVisible { get; set; }
+    List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
+
+    private DocumentsModel _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        FolderPathLists = new List<DocumentsModel>();
+        FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == SessionId)?.FileProfileTypeId;
+        PanelVisible = true;
+        if (FileProfileTypeId > 0)
+        {
+            var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
+            if (fileType != null)
+            {
+
+                FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
+                FolderPathLists.Add(fileType);
+            }
+        }
+        _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
+        fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
+
+        if (fileProfileTypeDocuments.Count > 0)
+        {
+            _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
+        }
+        Grid.SetFocusedRowIndex(0);
+        PanelVisible = false;
+        StateHasChanged();
+        base.OnParametersSet();
+    }
+    private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
+    {
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetAllFileProfileTypeName(foldersListItems, items, foldersModel);
+            foldersModel.Add(items);
+        }
+        return foldersModel;
+    }
+    public void openFileProfileLink(DocumentsModel documentsModel)
+    {
+        NavigationManager.NavigateTo("fileprofiletype/" + documentsModel.SessionID);
+    }
+    public void openFileProfileMainLink()
+    {
+        NavigationManager.NavigateTo("fileprofiletype");
+    }
+    void onView()
+    {
+
+    }
+    void onCopyLink()
+    {
+
+    }
+    void onReserveNumberSeries()
+    {
+
+    }
+    async void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        _selectedItems = fileProfileTypeDocuments.FirstOrDefault(f => f.FileProfileTypeId == (long?)UniqueId);
+        StateHasChanged();
+    }
+    async void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        if (_selectedItems.FileProfileTypeId > 0)
+        {
+            NavigationManager.NavigateTo($"fileprofiletype/" + _selectedItems.SessionID);
+        }
+    }
+    void Grid_CustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
+    {
+        if (e.FieldName == "FileSizes")
+        {
+            var dataItems = (DocumentsModel)e.DataItem;
+            if (dataItems.FileProfileTypeId > 0)
+            {
+                // var resp = await Mediator.Send(new GetAllSelectedFileCountQuery(dataItems.FileProfileTypeId.Value));
+                //e.DisplayText = "Test";
+            }
+        }
+    }
+    void Grid_CustomizeSummaryDisplayText(GridCustomizeSummaryDisplayTextEventArgs e)
+    {
+        if (e.Item.Name == "Custom")
+            e.DisplayText = string.Format("Sum of Selected: {0:c}", e.Value);
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+        //if (e.ElementType == GridElementType.DataCell)
+        //{
+        //    var dataColumn = (IGridDataColumn)e.Column;
+        //    switch (dataColumn.FieldName)
+        //    {
+        //        case "FileSizes":
+        //            var FileProfileTypeIds = e.Grid.GetRowValue(e.VisibleIndex, "FileProfileTypeId");
+        //            break;
+        //    }
+        //}
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
+}

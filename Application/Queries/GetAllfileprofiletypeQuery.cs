@@ -19,14 +19,19 @@ namespace Application.Queries
             this.FileProfileTypeID = FileProfileTypeID;
         }
     }
+    public class GetAllfileprofiletypeListQuery : PagedRequest, IRequest<List<DocumentsModel>>
+    {
+        
+    }
     public class GetAllSelectedfileprofiletypeQuery : PagedRequest, IRequest<DocumentTypeModel>
     {
-        public long selectedFileProfileTypeID { get; private set; }
-        public GetAllSelectedfileprofiletypeQuery(long selectedFileProfileTypeID)
+        public long? selectedFileProfileTypeID { get; private set; }
+        public GetAllSelectedfileprofiletypeQuery(long? selectedFileProfileTypeID)
         {
             this.selectedFileProfileTypeID = selectedFileProfileTypeID;
         }
     }
+    
     public class GetFileProfileTypeDocumentByHistory : PagedRequest, IRequest<DocumentTypeModel>
     {
         public SearchModel SearchModel { get; private set; }

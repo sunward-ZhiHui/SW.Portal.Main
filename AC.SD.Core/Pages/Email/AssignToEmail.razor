@@ -6,6 +6,9 @@
 @using MediatR
 @inject IMediator Mediator
 @using System.Linq
+<style scoped>
+  
+</style>
 
 
 
@@ -35,16 +38,16 @@
                 @{
                     var item = (EmailTopics)context.DataItem;
                 }
-                <div style="width:100%">
+                <div style="width:100%; padding-right: 6px;" @oncontextmenu="((e) => { ContextMenu.ShowAsync(e); } )" @oncontextmenu:preventDefault>
                     <strong>
                         @item.FirstName
                         @if (item.PinStatus == "Lock")
                         {
-                            <span class="primary_color_icon handline" @onclick="@(() => onUnPin(item.ID))"><i class="fa fa-unlock" aria-hidden="true"></i></span>
+                            <span class="primary_color_icon handline" @onclick="@(() => onUnPin(item.ID))"><i class="fa fa-thumb-tack pinrotated" aria-hidden="true"></i></span>
                         }
                         else
                         {
-                            <span class="primary_color_icon handline" @onclick="@(() => onPin(item.ID))"><i class="fa fa-thumb-tack fa-unlock" aria-hidden="true"></i></span>
+                            <span class="primary_color_icon handline" @onclick="@(() => onPin(item.ID))"><i class="fa fa-thumb-tack" aria-hidden="true"></i></span>
                         }
 
                         @if (item.Urgent.GetValueOrDefault(false))
@@ -59,8 +62,13 @@
                     <div>
                         <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
                         <text>@item.TopicName</text>
-                    </div>
+                    </div>                   
                 </div>
+                <DxContextMenu @ref="@ContextMenu" ItemClick="@OnItemClick">
+                    <Items>                        
+                        <DxContextMenuItem Text="Focus" IconCssClass="fa fa-thumb-tack"></DxContextMenuItem>                                             
+                    </Items>
+                </DxContextMenu>
             </CellDisplayTemplate>
         </DxGridDataColumn>       
         <DxGridDataColumn FieldName="PinStatus" Caption=" " SortOrder="GridColumnSortOrder.Ascending" GroupIndex="0" Width="10%">
@@ -69,7 +77,7 @@
                 
                 @if ((string)context.GroupValue == "Lock")
                 {
-                    <text>Focus</text>
+                    <text>Focused</text>
                 }
             </GroupRowTemplate>
         </DxGridDataColumn>
@@ -84,7 +92,7 @@
 
 
 @code {
-
+    DxContextMenu ContextMenu { get; set; }
     IGrid TOGrid { get; set; }
     private List<EmailTopics>? _forumTopicTo;
     public ApplicationUser applicationUser { get; private set; }
@@ -104,6 +112,10 @@
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+    }
+    void OnItemClick(ContextMenuItemClickEventArgs args)
+    {
+        //ClickedItem = args.ItemInfo.Text;
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

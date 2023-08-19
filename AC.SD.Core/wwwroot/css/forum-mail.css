@@ -942,7 +942,7 @@ main {
         height: 100%;
         position: relative;
         /*background-color: #f5f5f5;*/
-        box-shadow: -15px 0px 10px -20px #78787b;
+        /*box-shadow: -15px 0px 10px -20px #78787b;*/
         padding: 0px;
         margin-top: -10px;
     }
@@ -1289,9 +1289,13 @@ main {
 {
     height:400px;
 }
-    .editor-reply-height {
-        height: 180px !important;
-    }
+.editor-reply-height {
+    height: 180px !important;
+}
+.pinrotated {
+    transform: rotate(37deg);
+    margin-right: 3px;
+}
 
 .card-body {
     padding: 10px 10px;

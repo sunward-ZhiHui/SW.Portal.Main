@@ -319,7 +319,7 @@
                             }
                         </div>
                     </div>
-                    <div class="@((isComponentVisible ? "menu-bar-content-container-content msgOpen" : "menu-bar-content-container-content msgClose"))">
+                    <div class="@((isComponentVisible ? "menu-bar-content-container-content msgOpen" : "menu-bar-content-container-content msgClosed"))">
                         @* <div class="spacing-box"></div>  *@
                         @if (isMenuvisible == "Posts")
                         {
@@ -648,18 +648,13 @@
                                                                                       TextFieldName="FirstName"
                                                                                       ListRenderMode="ListRenderMode.Virtual"
                                                                                       @bind-Values="@Data.AssigntoIds"
+                                                                                      EditFormat="{0}-{1}"
                                                                                       CssClass="cw-480">
-                                                                                <DxListEditorColumn FieldName="@nameof(EmailAssignToList.CompanyName)"
-                                                                                    Caption="Company"
-                                                                                    Width="100px"/>
-                                                                                <DxListEditorColumn FieldName="@nameof(EmailAssignToList.DesignationName)"
-                                                                                    Caption="Designation" />
-                                                                                <DxListEditorColumn FieldName="@nameof(EmailAssignToList.FirstName)"
-                                                                                    Caption="First Name" 
-                                                                                    Width="100px" />
-                                                                                    <DxListEditorColumn FieldName="@nameof(EmailAssignToList.NickName)"
-                                                                                    Caption="Nick Name" />
-                                                                            </DxTagBox>
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                                                                </DxTagBox>
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="CC" ColSpanMd="12">
                                                                             <DxTagBox NullText="Select cc..."
@@ -669,18 +664,13 @@
                                                                                       TextFieldName="FirstName"
                                                                                        ListRenderMode="ListRenderMode.Virtual"
                                                                                       @bind-Values="@Data.AssignccIds"
+                                                                                      EditFormat="{0}-{1}"
                                                                                       CssClass="cw-480">
-                                                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
-                                                                                    Caption="Company"
-                                                                                    Width="100px"/>
-                                                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
-                                                                                    Caption="Designation" />
-                                                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)"
-                                                                                    Caption="First Name" 
-                                                                                    Width="100px" />
-                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
-                                                                                    Caption="Nick Name" />
-                                                                            </DxTagBox>
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                                                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                                                                </DxTagBox>
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem ColSpanMd="12">
                                                                                 <div class="">

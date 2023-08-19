@@ -66,6 +66,9 @@
                         <strong>
                             @item.Description
                         </strong>
+                        <div style="float: right; font-size: 11px;">
+                            @item.Status
+                        </div>
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)</span>
                             @if(item.DueDate != null)
@@ -281,7 +284,7 @@
                         ModifiedByUserID = applicationUser.UserID,
                         AddedDate = DateTime.Now,
                         ModifiedDate = DateTime.Now,
-                       Status=editModel.Status,
+                        Status=editModel.Status,
                         SessionId = Guid.NewGuid()
                     };
 
@@ -317,7 +320,7 @@
                         StatusCodeID = editModel.StatusCodeID,
                         ModifiedByUserID = applicationUser.UserID,
                         ModifiedDate = DateTime.Now,
-                        AddedDate = editModel.AddedDate,
+                        AddedDate = editModel.AddedDate,                        
                         SessionId = editModel.SessionId,
                         Status = editModel.Status,
                       };

@@ -125,23 +125,15 @@ else
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                       ValueFieldName="UserID"
                                       TextFieldName="Name"
-                                      EditFormat="{0}  {1}"
+                                      EditFormat="{0}-{1}"
                                       TagsChanged="@onToChanged"
                                       ListRenderMode="ListRenderMode.Virtual"
                                       @bind-Values="Data.ToIds"
-                                      CssClass="cw-480">
-                                    
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
-                                            Caption="Name"
-                                            />
-                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)"
-                                                        Caption="Last Name" />
-                                       
-                                   <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
-                                                        Caption="Designation" />
-                                   <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
-                                                        Caption="Company"
-                                                        Width="100px" />
+                                      CssClass="cw-480">                                    
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name"/>
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />                                       
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"Caption="Designation" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
                                 </DxTagBox>
                                 <ValidationMessage For="@(() => Data.ToIds)" />
                             </DxFormLayoutItem>
@@ -154,7 +146,7 @@ else
                                       TextFieldName="Name"
                                       TagsChanged="@onCcChanged"
                                       @bind-Values="@Data.CCIds"
-                                          EditFormat="{0}  {1}"
+                                          EditFormat="{0}-{1}"
                                       CssClass="cw-480">
                                           
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
@@ -179,7 +171,7 @@ else
                                         TextFieldName="Name"
                                         ValueFieldName="UserID"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                            EditFormat="{0}  {1}"
+                                            EditFormat="{0}-{1}"
                                         @bind-Value="@Data.OnBehalf" ShowValidationIcon="true">
                                         <Columns>
                                                

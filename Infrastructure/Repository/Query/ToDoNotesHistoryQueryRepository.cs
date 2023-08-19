@@ -126,9 +126,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DueDate", ToDoNotesHistory.DueDate);
                             parameters.Add("RemainDate", ToDoNotesHistory.RemainDate);
                             parameters.Add("ModifiedByUserID", ToDoNotesHistory.ModifiedByUserID);
-                            parameters.Add("ModifiedDate", ToDoNotesHistory.ModifiedDate);                           
+                            parameters.Add("ModifiedDate", ToDoNotesHistory.ModifiedDate);
+                            parameters.Add("Status", ToDoNotesHistory.Status);
 
-                            var query = @"Update ToDoNotesHistory SET Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate WHERE ID = @ID";
+                            var query = @"Update ToDoNotesHistory SET Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Status = @Status WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
                             transaction.Commit();

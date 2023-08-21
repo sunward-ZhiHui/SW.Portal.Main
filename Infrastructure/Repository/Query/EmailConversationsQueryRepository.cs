@@ -404,7 +404,7 @@ namespace Infrastructure.Repository.Query
                 //OR EXISTS(SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId))
                 //                          ORDER BY FC.AddedDate ASC";
 
-                var query = @"SELECT  FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId,
+                var query_NOTUSED = @"SELECT  FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId,
                                 AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate
                                 FROM EmailConversations FC  
 								 LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
@@ -432,6 +432,39 @@ namespace Infrastructure.Repository.Query
                                  INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                  INNER JOIN Employee EMP ON EMP.UserID = AU.UserID  
                                 where OnBehalf =@UserId and EETT.ID = @TopicId";
+
+                var query = @"SELECT * FROM (
+                            SELECT FC.TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
+                                AET.Comment AS ActCommentName, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate
+                            FROM EmailConversations FC
+                            LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
+                            INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = FC.ID AND ECP.UserId = @UserId
+                            CROSS APPLY (
+                                SELECT DISTINCT ReplyId = CASE WHEN ECC.ReplyId > 0 THEN ECC.ReplyId ELSE ECC.ID END
+                                FROM EmailConversations ECC
+                                WHERE (
+                                        ECC.ParticipantId = @UserId
+                                        OR EXISTS (SELECT * FROM EmailConversationAssignTo AST WHERE AST.ConversationId = ECC.ID AND AST.UserId = @UserId)
+                                        OR EXISTS (SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = ECC.ID AND AST.UserId = @UserId)
+                                        OR EXISTS (SELECT * FROM EmailConversationParticipant ECP WHERE ECP.ConversationId = ECC.ID AND ECP.UserId = @UserId)
+                                    ) AND ECC.TopicID = @TopicId
+                            ) K
+                            INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                            INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
+                            LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
+                            WHERE K.ReplyId = FC.ID AND FC.ReplyId = 0
+
+                            UNION
+
+                            SELECT EETT.ID AS TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
+                                '' AS ActCommentName, '' AS ActUserName, '' AS ActAddedDate
+                            FROM EmailTopics EETT
+                            INNER JOIN EmailConversations FC ON FC.TopicID = EETT.ID
+                            INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                            INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
+                            WHERE OnBehalf = @UserId AND EETT.ID = @TopicId
+                        ) AS CombinedResult
+                        ORDER BY CombinedResult.AddedDate DESC";
 
 
                 var parameters = new DynamicParameters();

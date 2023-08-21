@@ -1134,6 +1134,7 @@ namespace Infrastructure.Repository.Query
 
                         parameterss.Add("isValidateSession", EmailTopics.isValidateSession);
                         parameterss.Add("ActivityEmailTopicId", EmailTopics.ActivityEmailTopicId);
+                        parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);                        
 
                         connection.Open();
 

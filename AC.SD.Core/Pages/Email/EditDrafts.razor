@@ -129,7 +129,7 @@ else
                                       Data="_participant"
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                       ValueFieldName="UserID"
-                                      TextFieldName="FirstName"
+                                      TextFieldName="Name"
                                       TagsChanged="@onToChanged"
                                       ListRenderMode="ListRenderMode.Virtual"
                                       @bind-Values="Data.ToIds"
@@ -154,7 +154,7 @@ else
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                       ListRenderMode="ListRenderMode.Virtual"
                                       ValueFieldName="UserID"
-                                      TextFieldName="FirstName"
+                                      TextFieldName="Name"
                                       TagsChanged="@onCcChanged"
                                       @bind-Values="@Data.CCIds"
                                        EditFormat="{0}-{1}"
@@ -176,7 +176,7 @@ else
                                         NullText="Select OnBehalf..."
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         ListRenderMode="ListRenderMode.Virtual"
-                                        TextFieldName="FirstName"
+                                        TextFieldName="Name"
                                         ValueFieldName="UserID"
                                          EditFormat="{0}-{1}"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -395,7 +395,7 @@ else
         List<string> concatList = sToIds.Concat(sCCIds).ToList();
 
         //_CCparticipant = _Toparticipant.Where(c => !newTags.Contains(c.FirstName)).ToList();
-        _participant = _Toparticipant.Where(c => !concatList.Contains(c.FirstName)).ToList();
+        _participant = _Toparticipant.Where(c => !concatList.Contains(c.Name +"-"+ c.NickName)).ToList();
         var todd = Data.ToIds;
         var ccdd = Data.CCIds;
 
@@ -445,7 +445,7 @@ else
         List<string> concatList = sCCIds.Concat(sToIds).ToList();
 
         //_Toparticipant = _CCparticipant.Where(c => !newTags.Contains(c.FirstName)).ToList();
-        _participant = _Toparticipant.Where(c => !concatList.Contains(c.FirstName)).ToList();
+        _participant = _Toparticipant.Where(c => !concatList.Contains(c.Name +"-"+ c.NickName)).ToList();
 
 
 
@@ -652,6 +652,7 @@ else
                 Data.OnBehalf = actItem[0].OnBehalf;
                 Data.Urgent = actItem[0].Urgent;
                 Data.OverDue = actItem[0].OverDue;
+                Data.IsAllowParticipants = actItem[0].IsAllowParticipants;
                 Data.Follow = actItem[0].Follow;
                 Data.SessionId = actItem[0].SessionId;
                 Data.ID = actItem[0].ID;
@@ -723,7 +724,7 @@ else
 
         foreach (var itm in concatList)
         {
-            var ls = _Allparticipant.Where(c => c.FirstName == itm).ToList();
+            var ls = _Allparticipant.Where(c => c.Name +"-"+ c.NickName == itm).ToList();
 
             for(var i=0;i<ls.Count;i++)
             {
@@ -735,7 +736,7 @@ else
 
         foreach(var itm in sToIds)
         {
-            var ls = _Allparticipant.Where(c => c.FirstName == itm).ToList();
+            var ls = _Allparticipant.Where(c => c.Name +"-"+ c.NickName == itm).ToList();
 
             for (var i = 0; i < ls.Count; i++)
             {
@@ -745,7 +746,7 @@ else
 
         foreach (var itm in sCCIds)
         {
-            var ls = _Allparticipant.Where(c => c.FirstName == itm).ToList();
+            var ls = _Allparticipant.Where(c => c.Name +"-"+ c.NickName == itm).ToList();
 
             for (var i = 0; i < ls.Count; i++)
             {
@@ -828,7 +829,7 @@ else
                     ActivityEmailTopicId = ActivityEmailTopicId,
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
-                IsAllowParticipants = Data.IsAllowParticipants,
+                    IsAllowParticipants = Data.IsAllowParticipants,
                 };
         try
         {

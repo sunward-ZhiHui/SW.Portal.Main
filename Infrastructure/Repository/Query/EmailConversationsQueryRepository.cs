@@ -162,7 +162,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
+                var query = @"SELECT concat(E.FirstName,',',E.LastName) as Name, FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
 								INNER JOIN Plant p on p.PlantID = E.PlantID

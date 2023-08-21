@@ -65,7 +65,5 @@ namespace Application.Queries
             this.DocumentsModel = documentsModel;
         }
     }
-    
-
 
 }

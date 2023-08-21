@@ -17,18 +17,18 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="" IconCssClass="fa fa-add" Click="@addNew"/>
-                <DxMenuItem Text="" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="@AddText" IconCssClass="fa fa-add" Click="@addNew"/>
+                <DxMenuItem Text="@EditText" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenu Visible="@Complete">
                     <Items>
                        
-                        <DxMenuItem Text="" IconCssClass="fa fa-check" Click="@addDelete" style="float: left; margin-bottom: -41px;  margin-left:100px; z-index: 9999;" />
+                        <DxMenuItem Text="@CompleteText" IconCssClass="fa fa-check" Click="@addDelete" style="@CompeleteStyle" />
                     </Items>
                 </DxMenu>
 
                 <DxMenu Visible="@Incomplete">
                     <Items>
-                        <DxMenuItem Text="" IconCssClass="fa fa-check-square" Click="@onIncomplete" style="float: left; margin-bottom: -41px;  margin-left:100px; z-index: 9999;" />
+                        <DxMenuItem Text="@ReopenText" IconCssClass="fa fa-check-square" Click="@onIncomplete" style="@CompeleteStyle" />
                     </Items>
                 </DxMenu>
 
@@ -162,6 +162,11 @@
     bool PanelVisible { get; set; }    
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
+    private string CompeleteStyle = "float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999;";
+    private string AddText = "Add";
+    private string EditText = "Edit";
+    private string CompleteText = "Complete";
+    private string ReopenText = "Re-Open";
     private List<ToDoNotes>? _toDoNotes; 
     IGrid? Grid { get; set; }
     private ToDoNotes _selectedItems;
@@ -197,6 +202,11 @@
         if( Topicid >0)
         {
             gridHeight = "height: calc(100vh - 350px);";
+            AddText= "";
+            EditText = "";
+            CompleteText = "";
+            ReopenText = "";
+            CompeleteStyle = "float: left; margin-bottom: -41px;  margin-left:100px; z-index: 9999;";
             //styleTreeDisplay = "width:10%";
         }
 

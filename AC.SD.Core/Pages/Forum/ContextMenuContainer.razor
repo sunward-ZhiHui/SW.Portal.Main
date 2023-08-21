@@ -1,10 +1,8 @@
-﻿
-
-﻿@using GridWithContextMenu.Data
+﻿﻿@using AC.SD.Core.Pages.Forum
 @using System.Collections
 
 
-@*<DxContextMenu @ref="RowContextMenu"
+<DxContextMenu @ref="RowContextMenu"
                Data="RowContextMenuData"
                ItemClick="RowContextMenu_ItemClick">
     <DataMappings>
@@ -33,5 +31,5 @@
     		RowContextMenuData = GridContextMenuHelper.GetRowItems(e);
     		await RowContextMenu.ShowAsync(mouseArgs);
       }
-    }*@
+    }
 }

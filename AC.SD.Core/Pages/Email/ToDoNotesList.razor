@@ -17,7 +17,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled=@DeleteEnabled />
                 @*<DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />*@
@@ -115,7 +115,7 @@
                 <DxFormLayoutItem Caption="Status"  ColSpanMd="6">
                     <DxComboBox Data="@StatusList" @bind-Value="@types.Status"
                                 NullText="Select Status..."
-                                 @bind-Text="@Text"
+                    @bind-Text="@Text"
                                  ShowValidationIcon="true" />
                             <ValidationMessage For="@(() => types.Status)" />
                         </DxFormLayoutItem>
@@ -156,6 +156,7 @@
     string styleClass = "";
     private bool loading;
     bool Blukdeletepopup { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     string SelectedGroup = "none";
@@ -165,8 +166,11 @@
     public ApplicationUser? applicationUser { get; private set; }
     bool isEnabled { get; set; } = true;
     public long SelectedNoteId { get; set; }
+    //  List<string> StatusList { get; set; }
+
     List<string> StatusList = new List<string>() { "Open", "Close" };
-    string Text { get; set; } = "Active";
+
+    string Text { get; set; } = "Open";
     [Parameter]
     public long Topicid { get; set; }
 
@@ -174,10 +178,15 @@
     {
         //var tId = TopicId;
         PanelVisible = true;
-
+        //StatusList = new List<string>
+        //{
+        //     "Open","Close"
+        //};
+        //Data.Status = StatusList[0];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         //_ToDoNotesHistory = await Mediator.Send(new GetAllToDoNotesHistory());
         PanelVisible = false;
+
         if(Topicid >0)
         {
             gridHeight ="height: calc(100vh - 351px);";
@@ -193,6 +202,10 @@
     public async Task LoadHistoryData(long NotesId)
     {
         SelectedNoteId = NotesId;
+        if (SelectedNoteId > 0)
+        {
+            AddEnabled = true;
+        }
         _ToDoNotesHistory = await Mediator.Send(new GetByToDoNotesHistory(NotesId,applicationUser.UserID));
         StateHasChanged();
     }
@@ -202,17 +215,17 @@
         _ToDoNotesHistory = await Mediator.Send(new GetByToDoNotesHistory(SelectedNoteId, applicationUser.UserID));
         PanelVisible = false;
 
-        if (_ToDoNotesHistory.Count == 0)
+        if (_ToDoNotesHistory.Count > 0)
         {
 
-            //EditEnabled = true;
-            //DeleteEnabled = true;
+            EditEnabled = true;
+            DeleteEnabled = true;
         }
         else
         {
 
-            //EditEnabled = false;
-            //DeleteEnabled = false;
+            EditEnabled = false;
+            DeleteEnabled = false;
         }
 
         //if (_ToDoNotesHistory.Count > 0)
@@ -399,11 +412,13 @@
     void addNew()
     {
         Grid.StartEditNewRowAsync();
+        Text = "Open";
 
     }
     void addEdit()
     {
         Grid.StartEditDataItemAsync(_selectedItems);
+        Text = _selectedItems.Status;
     }
     void addDelete()
     {
@@ -429,6 +444,7 @@
 
                 }
             }
+            await UpdateDataAsync();
         }
         catch (Exception eq)
         {

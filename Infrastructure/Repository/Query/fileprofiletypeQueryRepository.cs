@@ -182,267 +182,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<DocumentTypeModel> GetAllSelectedFileAsync(long? selectedFileProfileTypeID)
-        {
-            DocumentTypeModel DocumentTypeModel = new DocumentTypeModel();
-            List<DocumentsModel> documentsModel = new List<DocumentsModel>();
-            try
-            {
-                var docs = await GetAllFileProfileDocumentIdAsync(selectedFileProfileTypeID);
-                DocumentTypeModel.DocumentsData.AddRange(docs);
-                if (selectedFileProfileTypeID > 0)
-                {
-                    var userData = await _localStorageService.GetItem<ApplicationUser>("user");
-                    var appUsers = await GetApplicationUserAsync();
-                    var fileProfileType = await GetFileprofiletypeAsync();
-                    var linkfileProfileTypes = await GetLinkFileProfileTypeDocumentAsync(selectedFileProfileTypeID);
-                    var roleItemsList = await GetDocumentUserRoleAsync(selectedFileProfileTypeID);
-                    var closedocumentPermission = await GetCloseDocumentPermissionAsync(selectedFileProfileTypeID);
-                    var linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
-                    var parameters = new DynamicParameters();
-                    var documentPermission = await GetDocumentPermissionByRoll();
-                    parameters.Add("FileProfileTypeId", selectedFileProfileTypeID, DbType.Int64);
-                    var query = DocumentQueryString() + " where FilterProfileTypeId=@FileProfileTypeId " +
-                        "AND IsLatest=1 " +
-                        "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) " +
-                        "OR (DocumentID in(" + string.Join(",", linkfileProfileTypeDocumentids) + ") AND IsLatest=1) " +
-                        "order by DocumentId desc";
-
-                    using (var connection = CreateConnection())
-                    {
-                        var documents = (await connection.QueryAsync<Documents>(query, parameters)).ToList();
-                        if (documents != null && documents.Count > 0)
-                        {
-                            var docIds = documents.Select(a => a.DocumentId).ToList();
-                            var notes = await GeNotesAsync(docIds);
-                            var taskMasternotes = await GetTaskMasterAsync(docIds);
-                            var setAccess = roleItemsList;
-                            documents.ForEach(s =>
-                             {
-                                 var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
-                                 var name = s.FileName != null ? s.FileName?.Substring(s.FileName.LastIndexOf(".")) : "";
-                                 var fileName = s.FileName?.Split(name);
-                                 DocumentsModel documentsModels = new DocumentsModel();
-                                 var setAccessFlag = roleItemsList.Where(a => a.UserId == userData.UserID && a.DocumentId == s.DocumentId).Count();
-                                 documentsModels.NotesCount = notes.Where(a => a.DocumentId == s.DocumentId).Count();
-                                 documentsModels.NotesColor = "";
-                                 var taskNotesCount = taskMasternotes.Where(a => a.SourceId == s.DocumentId).Count();
-                                 if (taskNotesCount > 0)
-                                 {
-                                     documentsModels.NotesColor = "green";
-                                 }
-                                 else
-                                 {
-                                     if (documentsModels.NotesCount > 0)
-                                     {
-                                         documentsModels.NotesColor = "blue";
-                                     }
-                                 }
-                                 documentsModels.SetAccessFlag = setAccessFlag > 0 ? true : false;
-                                 documentsModels.SessionId = s.SessionId;
-                                 documentsModels.DocumentID = s.DocumentId;
-                                 documentsModels.FileName = s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName;
-                                 documentsModels.ContentType = s.ContentType;
-                                 documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
-                                 documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
-                                 documentsModels.UploadDate = s.UploadDate;
-                                 documentsModels.SessionID = s.SessionId;
-                                 documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
-                                 documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
-                                 documentsModels.DocumentParentId = s.DocumentParentId;
-                                 documentsModels.TableName = s.TableName;
-                                 documentsModels.IsMobileUpload = s.IsMobileUpload;
-                                 documentsModels.Type = "Document";
-                                 documentsModels.ExpiryDate = s.ExpiryDate;
-                                 documentsModels.FileIndex = s.FileIndex;
-                                 documentsModels.TotalDocument = documentcount == 1 ? 1 : (documentcount + 1);
-                                 documentsModels.UploadedByUserId = s.AddedByUserId;
-                                 documentsModels.ModifiedByUserID = s.ModifiedByUserId;
-                                 documentsModels.AddedDate = s.ModifiedDate == null ? s.UploadDate : s.ModifiedDate;
-                                 documentsModels.ModifiedDate = s.ModifiedDate;
-                                 documentsModels.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
-                                 documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
-                                 //documentsModels.AddedByUser = s.ModifiedByUserId == null ? appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName : appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
-                                 documentsModels.IsLocked = s.IsLocked;
-                                 documentsModels.LockedByUserId = s.LockedByUserId;
-                                 documentsModels.LockedDate = s.LockedDate;
-                                 documentsModels.AddedByUserID = s.AddedByUserId;
-                                 documentsModels.IsCompressed = s.IsCompressed;
-                                 documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
-                                 documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;
-                                 documentsModels.IsEnableCreateTask = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsEnableCreateTask;
-                                 documentsModels.CloseDocumentId = s.CloseDocumentId;
-                                 documentsModels.CssClass = s.CloseDocumentId != null && s.CloseDocumentId == 2561 ? "blue-grey lighten - 3" : "transparent";
-                                 documentsModels.ProfileNo = s.ProfileNo;
-                                 documentsModels.FilePath = s.FilePath;
-                                 documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
-                                 if (documentsModels.isDocumentAccess == true && (documentsModels.IsEnableCreateTask == false || documentsModels.IsEnableCreateTask == null))
-                                 {
-                                     documentsModels.ItemsAllFlag = true;
-                                 }
-                                 if (documentsModels.isDocumentAccess != true && (documentsModels.IsEnableCreateTask == false || documentsModels.IsEnableCreateTask == null))
-                                 {
-                                     documentsModels.ItemsFlag = true;
-                                 }
-                                 if (documentsModels.isDocumentAccess != true && documentsModels.IsEnableCreateTask == true)
-                                 {
-                                     documentsModels.ItemsWithCreateTask = true;
-                                 }
-                                 if (documentsModels.isDocumentAccess == true && documentsModels.IsEnableCreateTask == true)
-                                 {
-                                     documentsModels.ItemsAllWithCreateTask = true;
-                                 }
-                                 if (setAccess.Count > 0)
-                                 {
-                                     var roleDocItem = setAccess.FirstOrDefault(u => u.DocumentId == s.DocumentId);
-                                     if (roleDocItem != null)
-                                     {
-                                         var roleItem = setAccess.FirstOrDefault(u => u.UserId == userData.UserID && u.DocumentId == s.DocumentId);
-                                         if (roleItem != null)
-                                         {
-                                             var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleItem.RoleId).FirstOrDefault();
-                                             documentsModels.DocumentPermissionData = permissionData;
-                                         }
-                                         else
-                                         {
-                                             documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = true, IsRename = false, IsCopy = false, IsCreateFolder = false, IsEdit = false, IsMove = false, IsShare = false, IsFileDelete = false };
-                                         }
-                                     }
-                                     else
-                                     {
-                                         var filprofilepermission = setAccess.FirstOrDefault(u => u.FileProfileTypeId == s.FilterProfileTypeId && u.DocumentId == null && u.UserId == userData.UserID);
-                                         if (filprofilepermission != null)
-                                         {
-                                             var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)filprofilepermission.RoleId).FirstOrDefault();
-                                             documentsModels.DocumentPermissionData = permissionData;
-                                         }
-                                         else
-                                         {
-                                             documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = true, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = true, IsCopy = true, IsCreateFolder = true, IsEdit = true, IsMove = true, IsShare = true, IsFileDelete = true };
-                                         }
-                                     }
-                                 }
-                                 else
-                                 {
-                                     documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = false };
-                                 }
-                                 documentsModels.IsExpiryDate = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsExpiryDate;
-                                 var description = linkfileProfileTypes?.Where(f => f.FileProfileTypeId == selectedFileProfileTypeID && f.TransactionSessionId == s.SessionId && f.DocumentId == s.DocumentId).FirstOrDefault()?.Description;
-                                 if (description != null)
-                                 {
-                                     documentsModels.Description = description;
-                                 }
-                                 else
-                                 {
-                                     documentsModels.Description = s.Description;
-                                 }
-                                 if (documentsModels.DocumentPermissionData != null)
-                                 {
-                                     if (documentsModels.DocumentPermissionData.IsRead == true)
-                                     {
-                                         documentsModel.Add(documentsModels);
-                                     }
-                                     else if (documentsModels.DocumentPermissionData.IsRead == false)
-                                     {
-
-                                     }
-                                 }
-                                 else
-                                 {
-                                     documentsModel.Add(documentsModels);
-                                 }
-                             });
-                        }
-                        DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());
-                        var roleItems = roleItemsList.Where(w => w.FileProfileTypeId == selectedFileProfileTypeID).ToList();
-                        if (roleItems.Count > 0)
-                        {
-                            var roleItem = roleItems.FirstOrDefault(u => u.UserId == userData.UserID);
-                            if (roleItem != null)
-                            {
-                                DocumentTypeModel.DocumentPermissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleItem.RoleId).FirstOrDefault();
-                                if (closedocumentPermission.Count > 0)
-                                {
-                                    var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
-                                    if (userpermission != null)
-                                    {
-                                        DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
-                                    }
-                                    else
-                                    {
-                                        DocumentTypeModel.DocumentPermissionData.IsCloseDocument = false;
-                                    }
-                                }
-                                else
-                                {
-                                    DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
-                                }
-                            }
-                            else
-                            {
-                                if (DocumentTypeModel.DocumentsData.Count > 0)
-                                {
-                                    DocumentTypeModel.DocumentsData.ForEach(p =>
-                                    {
-                                        p.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = false, IsRename = false };
-                                        if (closedocumentPermission.Count > 0)
-                                        {
-                                            var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
-                                            if (userpermission != null)
-                                            {
-                                                p.DocumentPermissionData.IsCloseDocument = true;
-                                            }
-                                            else
-                                            {
-                                                p.DocumentPermissionData.IsCloseDocument = false;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            p.DocumentPermissionData.IsCloseDocument = true;
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                        else
-                        {
-
-                            DocumentTypeModel.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = false };
-                            if (closedocumentPermission.Count > 0)
-                            {
-                                var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
-                                if (userpermission != null)
-                                {
-                                    DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
-                                }
-                                else
-                                {
-                                    DocumentTypeModel.DocumentPermissionData.IsCloseDocument = false;
-                                }
-                            }
-                            else
-                            {
-                                DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
-                            }
-                        }
-                        DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
-                        if (DocumentTypeModel != null)
-                        {
-                            DocumentTypeModel.IsExpiryDate = DocumentTypeModel.DocumentsData.FirstOrDefault()?.IsExpiryDate;
-                            DocumentTypeModel.TotalDocument = DocumentTypeModel.DocumentsData.ToList().Count();
-                            DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
-                        }
-                    }
-                }
-                return DocumentTypeModel;
-
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
+       
         public static string FormatSize(Int64 bytes)
         {
             string[] suffixes = { "Bytes", "KB", "MB", "GB", "TB", "PB" };
@@ -835,6 +575,267 @@ namespace Infrastructure.Repository.Query
                         }
                     }
                 }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentTypeModel> GetAllSelectedFileAsync(long? selectedFileProfileTypeID)
+        {
+            DocumentTypeModel DocumentTypeModel = new DocumentTypeModel();
+            List<DocumentsModel> documentsModel = new List<DocumentsModel>();
+            try
+            {
+                var docs = await GetAllFileProfileDocumentIdAsync(selectedFileProfileTypeID);
+                DocumentTypeModel.DocumentsData.AddRange(docs);
+                if (selectedFileProfileTypeID > 0)
+                {
+                    var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                    var appUsers = await GetApplicationUserAsync();
+                    var fileProfileType = await GetFileprofiletypeAsync();
+                    var linkfileProfileTypes = await GetLinkFileProfileTypeDocumentAsync(selectedFileProfileTypeID);
+                    var roleItemsList = await GetDocumentUserRoleAsync(selectedFileProfileTypeID);
+                    var closedocumentPermission = await GetCloseDocumentPermissionAsync(selectedFileProfileTypeID);
+                    var linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
+                    var parameters = new DynamicParameters();
+                    var documentPermission = await GetDocumentPermissionByRoll();
+                    parameters.Add("FileProfileTypeId", selectedFileProfileTypeID, DbType.Int64);
+                    var query = DocumentQueryString() + " where FilterProfileTypeId=@FileProfileTypeId " +
+                        "AND IsLatest=1 " +
+                        "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) " +
+                        "OR (DocumentID in(" + string.Join(",", linkfileProfileTypeDocumentids) + ") AND IsLatest=1) " +
+                        "order by DocumentId desc";
+
+                    using (var connection = CreateConnection())
+                    {
+                        var documents = (await connection.QueryAsync<Documents>(query, parameters)).ToList();
+                        if (documents != null && documents.Count > 0)
+                        {
+                            var docIds = documents.Select(a => a.DocumentId).ToList();
+                            var notes = await GeNotesAsync(docIds);
+                            var taskMasternotes = await GetTaskMasterAsync(docIds);
+                            var setAccess = roleItemsList;
+                            documents.ForEach(s =>
+                            {
+                                var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
+                                var name = s.FileName != null ? s.FileName?.Substring(s.FileName.LastIndexOf(".")) : "";
+                                var fileName = s.FileName?.Split(name);
+                                DocumentsModel documentsModels = new DocumentsModel();
+                                var setAccessFlag = roleItemsList.Where(a => a.UserId == userData.UserID && a.DocumentId == s.DocumentId).Count();
+                                documentsModels.NotesCount = notes.Where(a => a.DocumentId == s.DocumentId).Count();
+                                documentsModels.NotesColor = "";
+                                var taskNotesCount = taskMasternotes.Where(a => a.SourceId == s.DocumentId).Count();
+                                if (taskNotesCount > 0)
+                                {
+                                    documentsModels.NotesColor = "green";
+                                }
+                                else
+                                {
+                                    if (documentsModels.NotesCount > 0)
+                                    {
+                                        documentsModels.NotesColor = "blue";
+                                    }
+                                }
+                                documentsModels.SetAccessFlag = setAccessFlag > 0 ? true : false;
+                                documentsModels.SessionId = s.SessionId;
+                                documentsModels.DocumentID = s.DocumentId;
+                                documentsModels.FileName = s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName;
+                                documentsModels.ContentType = s.ContentType;
+                                documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
+                                documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
+                                documentsModels.UploadDate = s.UploadDate;
+                                documentsModels.SessionID = s.SessionId;
+                                documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
+                                documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
+                                documentsModels.DocumentParentId = s.DocumentParentId;
+                                documentsModels.TableName = s.TableName;
+                                documentsModels.IsMobileUpload = s.IsMobileUpload;
+                                documentsModels.Type = "Document";
+                                documentsModels.ExpiryDate = s.ExpiryDate;
+                                documentsModels.FileIndex = s.FileIndex;
+                                documentsModels.TotalDocument = documentcount == 1 ? 1 : (documentcount + 1);
+                                documentsModels.UploadedByUserId = s.AddedByUserId;
+                                documentsModels.ModifiedByUserID = s.ModifiedByUserId;
+                                documentsModels.AddedDate = s.ModifiedDate == null ? s.UploadDate : s.ModifiedDate;
+                                documentsModels.ModifiedDate = s.ModifiedDate;
+                                documentsModels.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
+                                documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                                //documentsModels.AddedByUser = s.ModifiedByUserId == null ? appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName : appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                                documentsModels.IsLocked = s.IsLocked;
+                                documentsModels.LockedByUserId = s.LockedByUserId;
+                                documentsModels.LockedDate = s.LockedDate;
+                                documentsModels.AddedByUserID = s.AddedByUserId;
+                                documentsModels.IsCompressed = s.IsCompressed;
+                                documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
+                                documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;
+                                documentsModels.IsEnableCreateTask = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsEnableCreateTask;
+                                documentsModels.CloseDocumentId = s.CloseDocumentId;
+                                documentsModels.CssClass = s.CloseDocumentId != null && s.CloseDocumentId == 2561 ? "blue-grey lighten - 3" : "transparent";
+                                documentsModels.ProfileNo = s.ProfileNo;
+                                documentsModels.FilePath = s.FilePath;
+                                documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
+                                if (documentsModels.isDocumentAccess == true && (documentsModels.IsEnableCreateTask == false || documentsModels.IsEnableCreateTask == null))
+                                {
+                                    documentsModels.ItemsAllFlag = true;
+                                }
+                                if (documentsModels.isDocumentAccess != true && (documentsModels.IsEnableCreateTask == false || documentsModels.IsEnableCreateTask == null))
+                                {
+                                    documentsModels.ItemsFlag = true;
+                                }
+                                if (documentsModels.isDocumentAccess != true && documentsModels.IsEnableCreateTask == true)
+                                {
+                                    documentsModels.ItemsWithCreateTask = true;
+                                }
+                                if (documentsModels.isDocumentAccess == true && documentsModels.IsEnableCreateTask == true)
+                                {
+                                    documentsModels.ItemsAllWithCreateTask = true;
+                                }
+                                if (setAccess.Count > 0)
+                                {
+                                    var roleDocItem = setAccess.FirstOrDefault(u => u.DocumentId == s.DocumentId);
+                                    if (roleDocItem != null)
+                                    {
+                                        var roleItem = setAccess.FirstOrDefault(u => u.UserId == userData.UserID && u.DocumentId == s.DocumentId);
+                                        if (roleItem != null)
+                                        {
+                                            var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleItem.RoleId).FirstOrDefault();
+                                            documentsModels.DocumentPermissionData = permissionData;
+                                        }
+                                        else
+                                        {
+                                            documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = true, IsRename = false, IsCopy = false, IsCreateFolder = false, IsEdit = false, IsMove = false, IsShare = false, IsFileDelete = false };
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var filprofilepermission = setAccess.FirstOrDefault(u => u.FileProfileTypeId == s.FilterProfileTypeId && u.DocumentId == null && u.UserId == userData.UserID);
+                                        if (filprofilepermission != null)
+                                        {
+                                            var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)filprofilepermission.RoleId).FirstOrDefault();
+                                            documentsModels.DocumentPermissionData = permissionData;
+                                        }
+                                        else
+                                        {
+                                            documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = true, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = true, IsCopy = true, IsCreateFolder = true, IsEdit = true, IsMove = true, IsShare = true, IsFileDelete = true };
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = false };
+                                }
+                                documentsModels.IsExpiryDate = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsExpiryDate;
+                                var description = linkfileProfileTypes?.Where(f => f.FileProfileTypeId == selectedFileProfileTypeID && f.TransactionSessionId == s.SessionId && f.DocumentId == s.DocumentId).FirstOrDefault()?.Description;
+                                if (description != null)
+                                {
+                                    documentsModels.Description = description;
+                                }
+                                else
+                                {
+                                    documentsModels.Description = s.Description;
+                                }
+                                if (documentsModels.DocumentPermissionData != null)
+                                {
+                                    if (documentsModels.DocumentPermissionData.IsRead == true)
+                                    {
+                                        documentsModel.Add(documentsModels);
+                                    }
+                                    else if (documentsModels.DocumentPermissionData.IsRead == false)
+                                    {
+
+                                    }
+                                }
+                                else
+                                {
+                                    documentsModel.Add(documentsModels);
+                                }
+                            });
+                        }
+                        DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());
+                        var roleItems = roleItemsList.Where(w => w.FileProfileTypeId == selectedFileProfileTypeID).ToList();
+                        if (roleItems.Count > 0)
+                        {
+                            var roleItem = roleItems.FirstOrDefault(u => u.UserId == userData.UserID);
+                            if (roleItem != null)
+                            {
+                                DocumentTypeModel.DocumentPermissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleItem.RoleId).FirstOrDefault();
+                                if (closedocumentPermission.Count > 0)
+                                {
+                                    var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
+                                    if (userpermission != null)
+                                    {
+                                        DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
+                                    }
+                                    else
+                                    {
+                                        DocumentTypeModel.DocumentPermissionData.IsCloseDocument = false;
+                                    }
+                                }
+                                else
+                                {
+                                    DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
+                                }
+                            }
+                            else
+                            {
+                                if (DocumentTypeModel.DocumentsData.Count > 0)
+                                {
+                                    DocumentTypeModel.DocumentsData.ForEach(p =>
+                                    {
+                                        p.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = false, IsRename = false };
+                                        if (closedocumentPermission.Count > 0)
+                                        {
+                                            var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
+                                            if (userpermission != null)
+                                            {
+                                                p.DocumentPermissionData.IsCloseDocument = true;
+                                            }
+                                            else
+                                            {
+                                                p.DocumentPermissionData.IsCloseDocument = false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            p.DocumentPermissionData.IsCloseDocument = true;
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                            DocumentTypeModel.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = false };
+                            if (closedocumentPermission.Count > 0)
+                            {
+                                var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
+                                if (userpermission != null)
+                                {
+                                    DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
+                                }
+                                else
+                                {
+                                    DocumentTypeModel.DocumentPermissionData.IsCloseDocument = false;
+                                }
+                            }
+                            else
+                            {
+                                DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
+                            }
+                        }
+                        DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
+                        if (DocumentTypeModel != null)
+                        {
+                            DocumentTypeModel.IsExpiryDate = DocumentTypeModel.DocumentsData.FirstOrDefault()?.IsExpiryDate;
+                            DocumentTypeModel.TotalDocument = DocumentTypeModel.DocumentsData.ToList().Count();
+                            DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
+                        }
+                    }
+                }
+                return DocumentTypeModel;
 
             }
             catch (Exception exp)

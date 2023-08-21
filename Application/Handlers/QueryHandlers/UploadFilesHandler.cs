@@ -15,7 +15,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Hosting;
-
+using Microsoft.AspNetCore.Http;
 
 namespace CMS.Application.Handlers.QueryHandlers
 {
@@ -171,6 +171,69 @@ namespace CMS.Application.Handlers.QueryHandlers
             };
 
             return Task.FromResult(response);
+        }
+    }
+    public class CreateFileHandler : IRequestHandler<CreateFileQuery, long>
+    {
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private readonly INewEmailUploadQueryRepository _ReportFileQueryRepository;
+      
+        public CreateFileHandler(INewEmailUploadQueryRepository ReportFileQueryRepository, IWebHostEnvironment host)
+        {
+            _ReportFileQueryRepository = ReportFileQueryRepository;
+            _hostingEnvironment = host;
+           
+        }
+
+        public async Task<long> Handle(CreateFileQuery request, CancellationToken cancellationToken)
+        {
+            var BaseDirectory = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\";
+            var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + request.SessionId;
+            if (!System.IO.Directory.Exists(serverPaths))
+            {
+                System.IO.Directory.CreateDirectory(serverPaths);
+
+            }
+            var reportFolder = Path.Combine(BaseDirectory, request.SessionId.ToString());
+            File.WriteAllBytes(Path.Combine(reportFolder, request.FileName), request.FileContent);
+
+            var fileName = request.FileName;
+
+            string getNextFileName(string fileName)
+            {
+                string extension = Path.GetExtension(fileName);
+
+                int i = 0;
+                while (System.IO.File.Exists(fileName))
+                {
+                    if (i == 0)
+                        fileName = fileName.Replace(extension, "(" + ++i + ")" + extension);
+                    else
+                        fileName = fileName.Replace("(" + i + ")" + extension, "(" + ++i + ")" + extension);
+                }
+
+                return fileName;
+            }
+          
+            var filePath = getNextFileName(serverPaths);
+            var documents = new Documents
+            {
+                FileName = request.FileName,
+                ContentType =request.ContentType,
+
+                FileSize = request.FileSize,
+                UploadDate = DateTime.Now,
+                AddedByUserId = request.AddedByUserId,
+                AddedDate = DateTime.Now,
+                SessionId = request.SessionId,
+                IsLatest = true,
+                FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", ""),
+
+            };
+            var newlist = await _ReportFileQueryRepository.Insert(documents);
+            return newlist;
+
+           
         }
     }
 }

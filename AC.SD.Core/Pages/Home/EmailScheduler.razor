@@ -1,0 +1,74 @@
+﻿@using Data
+
+<DxScheduler StartDate="@DateTime.Today"
+             DataStorage="@DataStorage"
+             GroupType="SchedulerGroupType.Date"
+             ShowAppointmentTooltip="true">
+    <Views>
+        <DxSchedulerDayView DayCount="2" ShowWorkTimeOnly="true" />
+    </Views>
+    <AppointmentTooltipHeaderTemplate>
+        <div class="tooltip-text-header">@context.Appointment.Subject</div>
+        @if (IsAccepted(context))
+        {
+            <div style="margin-right: .3em;">(Accepted)</div>
+        }
+        <DxSchedulerShowAppointmentCompactFormButton></DxSchedulerShowAppointmentCompactFormButton>
+        <DxSchedulerDeleteAppointmentButton></DxSchedulerDeleteAppointmentButton>
+        <DxSchedulerCloseAppointmentButton></DxSchedulerCloseAppointmentButton>
+    </AppointmentTooltipHeaderTemplate>
+    <AppointmentTooltipTemplate>
+        <span style="vertical-align: middle;">
+            @context.Appointment.Subject
+        </span>
+        @if (context.Resource != null)
+        {
+            <span style="vertical-align: middle;">
+                (@context.Resource.Caption)
+            </span>
+        }
+    </AppointmentTooltipTemplate>
+</DxScheduler>
+
+@code {
+    DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
+        {
+            //AppointmentsSource = ResourceAppointmentCollection.GetAppointments(),
+            AppointmentMappings = new DxSchedulerAppointmentMappings()
+            {
+                Type = "AppointmentType",
+                Start = "StartDate",
+                End = "EndDate",
+                Subject = "Caption",
+                AllDay = "AllDay",
+                Location = "Location",
+                Description = "Description",
+                LabelId = "Label",
+                StatusId = "Status",
+                RecurrenceInfo = "Recurrence",
+                ResourceId = "ResourceId",
+                CustomFieldMappings = new List<DxSchedulerCustomFieldMapping> {
+                new DxSchedulerCustomFieldMapping{ Name = "Accepted", Mapping = "Accepted" }
+            }
+            },
+            //ResourcesSource = ResourceAppointmentCollection.GetResourcesForGrouping(),
+            ResourceMappings = new DxSchedulerResourceMappings()
+            {
+                Id = "Id",
+                Caption = "Name",
+                BackgroundCssClass = "BackgroundCss",
+                TextCssClass = "TextCss"
+            }
+        };
+    bool IsAccepted(SchedulerAppointmentTooltipInfo tooltipInfo) =>
+        (bool)tooltipInfo.CustomFields["Accepted"];
+}
+
+<style>
+    .tooltip-text-header {
+        margin-right: auto;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+</style>

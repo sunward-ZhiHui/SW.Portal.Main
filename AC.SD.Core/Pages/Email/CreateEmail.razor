@@ -120,18 +120,18 @@ else
                                 <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="To" ColSpanMd="12">
-                                <DxTagBox NullText="Select To..."
-                                      Data="_participant"
+                                <DxTagBox  Data="_participant"
+                                     @bind-Values="Data.ToIds"
+                                     NullText="Select To..."                                     
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                       ValueFieldName="UserID"
-                                      TextFieldName="Name"
-                                      EditFormat="{0}-{1}"
+                                      TextFieldName="Name"                                     
                                       TagsChanged="@onToChanged"
-                                      ListRenderMode="ListRenderMode.Virtual"
-                                      @bind-Values="Data.ToIds"
+                                      EditFormat="{0}-{1}"
+                                      ListRenderMode="ListRenderMode.Virtual"                                     
                                       CssClass="cw-480">                                    
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name"/>
-                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />                                       
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />                                       
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"Caption="Designation" />
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
                                 </DxTagBox>
@@ -140,20 +140,21 @@ else
                             <DxFormLayoutItem Caption="CC" ColSpanMd="12">
                                 <DxTagBox NullText="Select Cc..."
                                       Data="_participant"
+                                      @bind-Values="@Data.CCIds"
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                       ListRenderMode="ListRenderMode.Virtual"
                                       ValueFieldName="UserID"
                                       TextFieldName="Name"
                                       TagsChanged="@onCcChanged"
-                                      @bind-Values="@Data.CCIds"
-                                          EditFormat="{0}-{1}"
+                                      
+                                      EditFormat="{0}-{1}"
                                       CssClass="cw-480">
                                           
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
                                                         Caption="Name"
                                                          />
-                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)"
-                                                        Caption="Last Name" />
+                                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
+                                                        Caption="Nick Name" />
                                             <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
                                             Caption="Designation" />
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
@@ -178,8 +179,8 @@ else
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
                                                             Caption="Name"
                                                             />
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)"
-                                                            Caption="Last Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
+                                                            Caption="Nick Name" />
                                                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
                                             Caption="Designation" />
                                              <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
@@ -396,7 +397,7 @@ else
         List<string> concatList = sToIds.Concat(sCCIds).ToList();
 
         //_CCparticipant = _Toparticipant.Where(c => !newTags.Contains(c.FirstName)).ToList();
-        _participant = _Toparticipant.Where(c => !concatList.Contains(c.FirstName)).ToList();
+        _participant = _Toparticipant.Where(c => !concatList.Contains(c.Name + "-" + c.NickName)).ToList();
         var todd = Data.ToIds;
         var ccdd = Data.CCIds;
 
@@ -442,7 +443,7 @@ else
         List<string> concatList = sCCIds.Concat(sToIds).ToList();
 
         //_Toparticipant = _CCparticipant.Where(c => !newTags.Contains(c.FirstName)).ToList();
-        _participant = _Toparticipant.Where(c => !concatList.Contains(c.FirstName)).ToList();
+        _participant = _Toparticipant.Where(c => !concatList.Contains(c.Name + "-" + c.NickName)).ToList();
 
 
 
@@ -769,7 +770,7 @@ else
 
         foreach (var itm in concatList)
         {
-            var ls = _Allparticipant.Where(c => c.FirstName == itm).ToList();
+            var ls = _Allparticipant.Where(c => c.Name + "-" + c.NickName == itm).ToList();
 
             for(var i=0;i<ls.Count;i++)
             {
@@ -781,7 +782,7 @@ else
 
         foreach(var itm in sToIds)
         {
-            var ls = _Allparticipant.Where(c => c.FirstName == itm).ToList();
+            var ls = _Allparticipant.Where(c => c.Name + "-" + c.NickName == itm).ToList();
 
             for (var i = 0; i < ls.Count; i++)
             {
@@ -791,7 +792,7 @@ else
 
         foreach (var itm in sCCIds)
         {
-            var ls = _Allparticipant.Where(c => c.FirstName == itm).ToList();
+            var ls = _Allparticipant.Where(c => c.Name + "-" + c.NickName == itm).ToList();
 
             for (var i = 0; i < ls.Count; i++)
             {

@@ -2,6 +2,7 @@
 @using Application.Queries;
 @using Application.Response;
 @using System.Text;
+@using global::Core.EntityModels;
 @using global::Core.Repositories.Query;
 @using DevExpress.Blazor.ComboBox;
 @using DevExpress.Export;
@@ -132,17 +133,18 @@ else
                                       TagsChanged="@onToChanged"
                                       ListRenderMode="ListRenderMode.Virtual"
                                       @bind-Values="Data.ToIds"
+                                        EditFormat="{0}-{1}"
                                       CssClass="cw-480">
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
-                                            Caption="Company"
-                                            Width="100px"/>
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
-                                            Caption="Designation" />
-                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)"
-                                            Caption="First Name" 
-                                            Width="100px" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
+                                            Caption="Name"
+                                            />
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
                                             Caption="Nick Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                            Caption="DesignationName"
+                                            />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                            Caption="Company" />
                                 </DxTagBox>
                                 <ValidationMessage For="@(() => Data.ToIds)" />
                             </DxFormLayoutItem>
@@ -155,41 +157,53 @@ else
                                       TextFieldName="FirstName"
                                       TagsChanged="@onCcChanged"
                                       @bind-Values="@Data.CCIds"
+                                       EditFormat="{0}-{1}"
                                       CssClass="cw-480">
-                                           <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
-                                            Caption="Company"
-                                            Width="100px"/>
-                                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
-                                            Caption="Designation" />
-                                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)"
-                                            Caption="First Name" 
-                                            Width="100px" />
+                                           <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
+                                            Caption="Name"
+                                            />
                                             <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
-                                            Caption="Nick Name" />
+                                            Caption="NickName" />
+                                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                            Caption="Designation Name" 
+                                             />
+                                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                            Caption="Company" />
                                 </DxTagBox>
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
+                            <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="12">
                                 <DxComboBox Data="@_Allparticipant"
                                         NullText="Select OnBehalf..."
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         ListRenderMode="ListRenderMode.Virtual"
                                         TextFieldName="FirstName"
                                         ValueFieldName="UserID"
+                                         EditFormat="{0}-{1}"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                         @bind-Value="@Data.OnBehalf" ShowValidationIcon="true">
                                         <Columns>
-                                                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
-                                            Caption="Company"
-                                            Width="100px"/>
-                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
-                                            Caption="Designation" />
-                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)"
-                                            Caption="First Name" 
-                                            Width="100px" />
+                                                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
+                                            Caption="Name"
+                                         />
                                                 <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
                                             Caption="Nick Name" />
+                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                            Caption="Designation Name" 
+                                          />
+                                                <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                            Caption="Company" />
                                         </Columns>
                                         </DxComboBox>
+                            </DxFormLayoutItem>
+
+
+                             <DxFormLayoutItem Caption="Follow" ColSpanMd="3">
+                                <DxComboBox Data="@Follow"
+                                        NullText="Select Follow..."
+                                        @bind-Value="@Data.Follow"
+                                        CssClass="cw-480">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Data.Follow)" />
                             </DxFormLayoutItem>
 
                             <DxFormLayoutItem Caption="" ColSpanMd="1">
@@ -201,7 +215,7 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
-                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="1">
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
                                         @bind-Checked="@Data.OverDue"
                                         Alignment="default"
@@ -210,15 +224,16 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
-                            <DxFormLayoutItem Caption="Follow" ColSpanMd="2">
-                                <DxComboBox Data="@Follow"
-                                        NullText="Select Follow..."
-                                        @bind-Value="@Data.Follow"
-                                        CssClass="cw-480">
-                                </DxComboBox>
-                                <ValidationMessage For="@(() => Data.Follow)" />
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
+                                <DxCheckBox CssClass="w-100"
+                                        @bind-Checked="@Data.IsAllowParticipants"
+                                        Alignment="default"
+                                        LabelPosition="LabelPosition.Right">
+                                    Allow Participants
+                                </DxCheckBox>
                             </DxFormLayoutItem>
 
+                     
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
@@ -273,7 +288,7 @@ else
                                             string formattedFileSize = FormatFileSize(item.FileSize.Value);
                                         }
                                         <span style="font-size: 11px;">  @formattedFileSize</span>
-                                        <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> </button>
+                                        <button class="dxbl-btn fa fa-eye" @onclick="@(() => onDocDownload(item.DocumentId))"> </button>
                                         <button class="btnDelete fas fa-trash" @onclick="@(() => onDelete(item.DocumentId))"> </button>
                                     </label>
                                 </div>
@@ -339,6 +354,9 @@ else
     private List<ViewEmployee>? _Toparticipant;
     private List<ViewEmployee>? _CCparticipant;
     IEnumerable<ForumTypes>? _OnBehalf;
+    Documents _documents { get; set; }
+    private string? DocumentViewUrl;
+
     public static string FormatFileSize(long bytes)
     {
         var unit = 1024;
@@ -576,6 +594,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         AppUserId = applicationUser.UserID;
@@ -590,7 +610,7 @@ else
         Data.Follow = Follow[1];
         Data.Urgent = false;
         Data.OverDue = false;
-
+        Data.IsAllowParticipants = false;
         var topics = await Mediator.Send(new GetAllEmailTopics());
         _topics = topics;
         //var appusers = await Mediator.Send(new GetAllApplicationUserQuery());
@@ -640,7 +660,9 @@ else
                 Data.StartDate = actItem[0].StartDate;
                 Data.DueDate = actItem[0].DueDate;
                 Data.FileData = actItem[0].FileData;
+               // Data.IsAllowParticipants = actItem[0].IsAllowParticipants;
                 _sessionId = actItem[0].SessionId;
+              
                 // ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
 
                 //List<long?> ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
@@ -806,6 +828,7 @@ else
                     ActivityEmailTopicId = ActivityEmailTopicId,
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
+                IsAllowParticipants = Data.IsAllowParticipants,
                 };
         try
         {
@@ -902,15 +925,22 @@ else
     }
     public async Task onDocDownload(long Id)
     {
-        var lst = _documentslst.FirstOrDefault(a => a.DocumentId == Id);
+        //var lst = _documentslst.FirstOrDefault(a => a.DocumentId == Id);
 
 
-        var url = FileUrl + lst.FilePath;
-        await OpenUrlInNewTab(url);
-
+        //var url = FileUrl + lst.FilePath;
+        //await OpenUrlInNewTab(url);
+        _documents = _documentslst.FirstOrDefault(a => a.DocumentId == Id);
+        var url = DocumentViewUrl +"?url="+ FileUrl+_documents.FilePath;
+        await OpenDocumentPreview(url);
+         
+        
     }
-
-  }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+}
 
 
 

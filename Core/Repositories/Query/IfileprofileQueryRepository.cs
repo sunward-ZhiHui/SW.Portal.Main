@@ -18,7 +18,8 @@ namespace Core.Repositories.Query
         Task<DocumentsModel> GetFileProfileTypeDelete(DocumentsModel documentsModel);
         Task<DocumentsModel> GetFileProfileTypeCheckOut(DocumentsModel documentsModel);
         Task<IReadOnlyList<DocumentsModel>> GetAllFileProfileDocumentAsync();
-        
+
+
 
     }
 }

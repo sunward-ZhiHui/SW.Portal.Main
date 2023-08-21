@@ -670,13 +670,13 @@ else
                 //var filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
 
                 //Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
-                IEnumerable<string> Totags = filteredToList.Select(s => s.FirstName).ToList();
+                IEnumerable<string> Totags = filteredToList.Select(s => s.Name + "-" + s.NickName).ToList();
 
                 //List<long?> CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
                 //var filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
 
                 //Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
-                IEnumerable<string> CCtags = filteredCCList.Select(s => s.FirstName).ToList();            
+                IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();            
 
                 Data.ToIds = filteredToList.Select(s => s.UserId.Value).ToList();
                 sToIds = Totags.ToList();

@@ -180,6 +180,8 @@ namespace Infrastructure.Repository.Query
                                 TS.StartDate,
                                 TS.FileData,
                                 TS.SessionId,
+                                concat(E.FirstName,',',E.LastName) as Name,
+                                E.NickName,
                                 E.FirstName,
                                 E.LastName,
                                 TP.UserId
@@ -187,9 +189,9 @@ namespace Infrastructure.Repository.Query
                             FROM
                                 EmailTopics TS
                             INNER JOIN
-                                EmailTopicTo TP ON TS.ID = TP.TopicId
+                                EmailConversationAssignTo TP ON TS.ID = TP.TopicId
                             INNER JOIN
-                                Employee E ON TS.TopicFrom = E.UserId
+                                Employee E ON TP.UserId = E.UserId
                           
                             WHERE
                                 TS.ID = @TopicId
@@ -227,6 +229,8 @@ namespace Infrastructure.Repository.Query
                                 TS.StartDate,
                                 TS.FileData,
                                 TS.SessionId,
+                                concat(E.FirstName,',',E.LastName) as Name,
+                                E.NickName,
                                 E.FirstName,
                                 E.LastName,
                                 TP.UserId
@@ -234,10 +238,9 @@ namespace Infrastructure.Repository.Query
                             FROM
                                 EmailTopics TS
                             INNER JOIN
-                                EmailTopicCC TP ON TS.ID = TP.TopicId
+                                EmailConversationAssignCC TP ON TS.ID = TP.TopicId
                             INNER JOIN
-                                Employee E ON TS.TopicFrom = E.UserId
-                          
+                                Employee E ON TP.UserId = E.UserId                          
                             WHERE
                                 TS.ID = @TopicId
                             ORDER BY

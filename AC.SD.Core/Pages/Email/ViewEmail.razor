@@ -375,6 +375,15 @@
                                                         </div>                                                                                                            
                                                     </div>
                                                 </div>
+                                                @if (item.ReplyId == 0 && @item.ActUserName != null)
+                                                {    
+                                                    <div class="replybox">
+                                                        <div> <i class="fa fa-reply" aria-hidden="true"></i> Reply</div>
+                                                        <text>@item.ActCommentName</text>
+                                                       <div style="float:right;">@item.ActUserName , @item.ActAddedDate</div>
+                                                    </div>
+
+                                                }
                                                 <div class="uk-card-body">                                                   
                                                     <p class="uk-text-success">                                                       
                                                         <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />                                                      
@@ -579,7 +588,7 @@
                                     @if(IsConHistory)
                                     {
                                         <DxButton RenderStyle="ButtonRenderStyle.Success" CssClass="me-1 btn-success open-button"
-                                      Click="onWindowVisible" style="width:200px;">New Conversation</DxButton>
+                                      Click="onWindowVisible" style="width:200px;">New Subject</DxButton>
                                     }
                                     
                                     <DxWindow @bind-Visible=WindowVisible 

@@ -55,6 +55,12 @@ namespace Core.Entities
         public string From { get; set; }
         [NotMapped]
         public long ConIds { get; set; }
+        [NotMapped]
+        public string? ActCommentName { get; set; }
+        [NotMapped]
+        public string? ActUserName { get; set; }
+        [NotMapped]
+        public DateTime? ActAddedDate { get; set; }
 
     }
 }

@@ -23,6 +23,8 @@ namespace Core.Entities
         public string CcIds { get; set; }       
         public string Tags { get; set; }
         public string Comment { get; set; }
+        public long? AddedByUserID { get; set; }
+        public DateTime? AddedDate { get; set; }
         [NotMapped]
         public string ManufacturingProcess { get; set; }
         [NotMapped]

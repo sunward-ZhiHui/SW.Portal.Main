@@ -404,8 +404,10 @@ namespace Infrastructure.Repository.Query
                 //OR EXISTS(SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId))
                 //                          ORDER BY FC.AddedDate ASC";
 
-                var query = @"SELECT  FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId 
+                var query = @"SELECT  FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId,
+                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate
                                 FROM EmailConversations FC  
+								 LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                                 INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = FC.ID AND ECP.UserId = @UserId
                                 Cross Apply(Select DISTINCT ReplyId = CASE WHEN ECC.ReplyId>0 THEN ECC.ReplyId ELSE ECC.ID END
                                             From EmailConversations ECC
@@ -418,12 +420,14 @@ namespace Infrastructure.Repository.Query
 		                                   )K
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID    
+								LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID 
                                 WHERE  K.ReplyId=FC.ID AND FC.ReplyId=0
                                 --ORDER BY FC.AddedDate ASC
 
                                 UNION 
 
-                                select FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId  from EmailTopics EETT 
+                                select FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId,
+								'' as ActCommentName,'' as ActUserName,'' as ActAddedDate from EmailTopics EETT 
                                 INNER JOIN EmailConversations FC ON FC.TopicID = EETT.ID
                                  INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                  INNER JOIN Employee EMP ON EMP.UserID = AU.UserID  
@@ -659,9 +663,12 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData FROM EmailConversations FC                                
+                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,
+                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate FROM EmailConversations FC  
+                                LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
+                                INNER JOIN Employee EMP ON EMP.UserID = AU.UserID      
+                                LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID 
                                 WHERE FC.ID = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate DESC";
 
 

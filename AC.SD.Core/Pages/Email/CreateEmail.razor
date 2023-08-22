@@ -236,7 +236,7 @@ else
                                         @bind-Checked="@Data.IsAllowParticipants"
                                         Alignment="default"
                                         LabelPosition="LabelPosition.Right">
-                                    Allow Participants
+                                    Allow Add Participants
                                 </DxCheckBox>
                             </DxFormLayoutItem>
                             
@@ -253,9 +253,9 @@ else
                             {
                                  <DxFormLayoutItem Caption=" " ColSpanMd="12">
                                     <div class="replybox">
-                                        <div> <i class="fa fa-reply" aria-hidden="true"></i> Reply</div>
+                                        <div style="font-weight: bold;">Activity Comment</div>
                                         <text>@ActComment</text>
-                                        <div>@ActUserName  , @ActAddedDate</div>
+                                        <div style=" float: right; font-size: 12px;"> @ActUserName  , @ActAddedDate </div>
                                     </div>
                                 </DxFormLayoutItem>
                             }

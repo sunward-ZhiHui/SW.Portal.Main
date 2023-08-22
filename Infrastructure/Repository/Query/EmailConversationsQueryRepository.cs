@@ -487,10 +487,13 @@ namespace Infrastructure.Repository.Query
                                         AU.UserName,
                                         AU.UserID,
                                         FC.ReplyId,
-                                        FC.SessionId,FC.FileData
+                                        FC.SessionId,FC.FileData,
+                                        EN.IsRead,
+										EN.ID as EmailNotificationId
                                     FROM
                                         EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                        INNER JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
                                     WHERE
                                         FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId
                                     ORDER BY FC.AddedDate DESC";
@@ -724,16 +727,20 @@ namespace Infrastructure.Repository.Query
                                         AU.UserName,
                                         AU.UserID,
                                         FC.ReplyId,
-                                        FC.SessionId,FC.FileData
+                                        FC.SessionId,FC.FileData,
+                                        EN.IsRead,
+										EN.ID as EmailNotificationId
                                     FROM
                                         EmailConversations FC
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                        INNER JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
                                     WHERE
                                        FC.ReplyId = @ReplyId
                                        ORDER BY FC.AddedDate DESC";
 
                         var parameterss = new DynamicParameters();
                         parameterss.Add("TopicId", TopicId, DbType.Int64);
+                        parameterss.Add("UserId", UserId, DbType.Int64);
                         parameterss.Add("ReplyId", topic.ID, DbType.Int64);
                         var subQueryResults = connection.Query<EmailConversations>(subQuery, parameterss).ToList();
 

@@ -34,7 +34,10 @@
                         var item = (EmailTopics)context.DataItem;
                     }
                     <div style="width:100%">
-                        <strong>@item.FirstName</strong>
+                        <strong>
+                            @item.FirstName
+                            <text class="notificationCount">@item.NotificationCount</text>
+                        </strong>
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
                             <text>@item.TopicName</text>

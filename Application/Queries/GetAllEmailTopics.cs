@@ -67,6 +67,22 @@ namespace Application.Queries
             this.ID = Id;
         }
     }
+    public class UpdateMarkasRead : PagedRequest, IRequest<long>
+    {
+        public long ID { get; private set; }
+        public UpdateMarkasRead(long Id)
+        {
+            this.ID = Id;
+        }
+    }
+    public class UpdateMarkasunRead : PagedRequest, IRequest<long>
+    {
+        public long ID { get; private set; }
+        public UpdateMarkasunRead(long Id)
+        {
+            this.ID = Id;
+        }
+    }
     public class GetEmailTopicAll : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }

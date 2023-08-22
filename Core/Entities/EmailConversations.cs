@@ -61,6 +61,10 @@ namespace Core.Entities
         public string? ActUserName { get; set; }
         [NotMapped]
         public DateTime? ActAddedDate { get; set; }
+        [NotMapped]
+        public bool? IsRead { get; set; }
+        [NotMapped]
+        public long EmailNotificationId { get; set; }
 
     }
 }

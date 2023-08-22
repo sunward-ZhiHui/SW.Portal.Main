@@ -95,6 +95,35 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class UpdateMarkasReadHandler : IRequestHandler<UpdateMarkasRead, long>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public UpdateMarkasReadHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<long> Handle(UpdateMarkasRead request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.UpdateMarkasReadList(request.ID);
+
+        }
+    }
+    public class UpdateMarkasunReadHandler : IRequestHandler<UpdateMarkasunRead, long>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public UpdateMarkasunReadHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<long> Handle(UpdateMarkasunRead request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.UpdateMarkasunReadList(request.ID);
+
+        }
+    }
+
     public class GetEmailTopicAllHandler : IRequestHandler<GetEmailTopicAll, List<EmailTopics>>
     {
 

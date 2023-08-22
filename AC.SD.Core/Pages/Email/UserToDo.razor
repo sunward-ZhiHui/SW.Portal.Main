@@ -27,14 +27,14 @@
     </div>
 </div>
 @code {
- 
+
     [Parameter]
     public long Tid { get; set; }
     long? SeletedNoteId { get; set; }
     long TopicTid { get; set; }
     private ToDoLeftNotes? RefToDoLeftNotes { get; set; }
     private ToDoNotesList? RefToDoHistoryList { get; set; }
-     string leftTodoDisplay = "col-md-3";
+    string leftTodoDisplay = "col-md-3";
     string RighttodoDisplay = "col-md-9";
     string styleTreeDisplay = "height: calc(100vh - 190px); padding:10px";
     protected override async Task OnInitializedAsync()
@@ -58,6 +58,7 @@
     public async  Task leftTodoLst(long Topicid)
     {
         RefToDoLeftNotes.LoadData(Topicid);
+        await RefToDoHistoryList.LoadRightTodoData(Topicid);
     }
     
 }

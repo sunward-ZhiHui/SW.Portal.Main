@@ -2102,7 +2102,7 @@
 
         if (isMenuvisible == "AddParticipants")
         {
-
+             OnMenuItemClick("Posts");
             if (RTopicId == 0) //main topic click
             {
                 await LoadMainTopicPlist_Data();
@@ -2114,18 +2114,23 @@
         }
         else if(isMenuvisible == "Tags")
         {
+             OnMenuItemClick("Posts");
             await loadTags_Data();
         }
         else if(isMenuvisible == "Todo")
         {
            
-           
+            OnMenuItemClick("Posts");
                 await loadTodo_Data();
-     
-            
-           
+      
         }
+        else if (isMenuvisible == "Files")
+        {
 
+            OnMenuItemClick("Posts");
+            
+
+        }
         // Generate index IDs for each row
         //var indexedDiscussionList = _discussionList.Select((item, index) => new
         //{
@@ -2177,7 +2182,7 @@
 
         if (isMenuvisible == "AddParticipants")
         {
-
+               OnMenuItemClick("Posts");
             if (RTopicId == 0) //main topic click
             {
                 await LoadMainTopicPlist_Data();
@@ -2190,8 +2195,21 @@
         }
        else if(isMenuvisible == "Todo")
         {
+            OnMenuItemClick("Posts");
             await loadTodo_Data();
            
+        }
+        else if (isMenuvisible == "Files")
+        {
+
+            OnMenuItemClick("Posts");
+
+
+        }
+          else if(isMenuvisible == "Tags")
+        {
+             OnMenuItemClick("Posts");
+            
         }
         var ConversationList = await Mediator.Send(new GetEmailConversationList(Cid));
 

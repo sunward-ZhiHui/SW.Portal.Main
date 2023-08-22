@@ -2154,7 +2154,7 @@
         }
        else if(isMenuvisible == "Todo")
         {
-            await  loadTodoSub_Data();
+            await loadTodo_Data();
            
         }
         var ConversationList = await Mediator.Send(new GetEmailConversationList(Cid));
@@ -2614,12 +2614,7 @@
     {
         await RefTopicTodo.leftTodoLst(Tid);
     }
-    async Task loadTodoSub_Data()
-    {
-       
-        await RefTopicTodo.leftSubTodoLst(Tid);
-        
-    }
+   
     async Task LoadMainTopicPlist_Data()
     {        
         await RefTopicAddPList.loadMainTopicParticipentList(long.Parse(@SelectedGroup));        

@@ -508,8 +508,5 @@
     {
         _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
     }
-    public async void LoadSubData(long Topicid)
-    {
-        _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
-    }
+   
 }

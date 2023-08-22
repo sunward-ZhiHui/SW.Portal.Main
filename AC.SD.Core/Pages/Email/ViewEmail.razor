@@ -378,9 +378,9 @@
                                                 @if (item.ReplyId == 0 && @item.ActUserName != null)
                                                 {    
                                                     <div class="replybox">
-                                                        <div> <i class="fa fa-reply" aria-hidden="true"></i> Reply</div>
+                                                        <div style="font-weight: bold;">Activity Comment</div>
                                                         <text>@item.ActCommentName</text>
-                                                       <div style="float:right;">@item.ActUserName , @item.ActAddedDate</div>
+                                                        <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
                                                     </div>
 
                                                 }
@@ -450,12 +450,22 @@
                                                                 {
                                                                     @foreach (var items in @item.ReplyConversation)
                                                                     {
-                                                                        <div class="lstcoversationrply">
+                                                                        <div class="lstcoversationrply @((items.IsRead.GetValueOrDefault(false) ? "markasread" : "markasunread"))">
                                                                             <div class="mailbox-read-info" style="border-bottom:1px solid #f4f4f4">
                                                                                 @*<h3>@items.Name</h3>*@
                                                                                 <h5>                                                                                   
                                                                                     From: @items.UserName
                                                                                     <br>
+                                                                                    @if(items.IsRead.GetValueOrDefault(false))
+                                                                                    {
+                                                                                        <span class="primary_color_icon handline" @onclick="@(() => onMarkasunRead(items.EmailNotificationId))" title="Mark as unread"><i class="fa fa-envelope-open" aria-hidden="true"></i></span>
+                                                                                        
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <span class="primary_color_icon handline" @onclick="@(() => onMarkasRead(items.EmailNotificationId))" title="Mark as read"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                                                                                    }                                                                                   
+                                                                                    
                                                                                     <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</span>
                                                                                     To:
                                                                                     @if (items.AssignToList != null && items.AssignToList.Any())
@@ -1124,6 +1134,32 @@
 
         //await JSRuntime.InvokeVoidAsync("adjustHeight", setHeight);
         await JSRuntime.InvokeVoidAsync("setHeight", selector, setHeight);
+    }
+    async Task onMarkasRead(long Id)
+    {
+        var request = await Mediator.Send(new UpdateMarkasRead(Id));
+      
+        if (RTopicId == 0)
+        {
+            await LoadData();
+        }
+        else
+        {
+              await LoadReplyData();
+        }
+    }
+    async Task onMarkasunRead(long Id)
+    {
+        var request = await Mediator.Send(new UpdateMarkasunRead(Id));
+        
+        if (RTopicId == 0)
+        {
+            await LoadData();
+        }
+        else
+        {
+              await LoadReplyData();
+        }
     }
     private void ToggleButtonClick()
     {
@@ -2715,7 +2751,8 @@
                 PlistIdss = participantidsString,
                 AllowPlistids = plistUniqueItems,
                 ConIds = ConIds,
-                AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),
+               // AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),
+                AllParticipantIds = concatList,
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
                 StatusCodeID = 1,

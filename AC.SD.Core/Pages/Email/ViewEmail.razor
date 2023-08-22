@@ -828,7 +828,7 @@
                         else if (isMenuvisible == "Todo")
                         {
                            @* <ToDoList Tid="@Tid"></ToDoList>*@
-                            <UserToDo @ref=RefTopicTodo Topicid="@Tid"> </UserToDo>
+                            <UserToDo @ref=RefTopicTodo Tid="@Tid" > </UserToDo>
                         }
                         else if (isMenuvisible == "Tags")
                         {
@@ -2118,7 +2118,12 @@
         }
         else if(isMenuvisible == "Todo")
         {
-            await loadTodo_Data();
+           
+           
+                await loadTodo_Data();
+     
+            
+           
         }
 
         // Generate index IDs for each row
@@ -2183,7 +2188,11 @@
             }
 
         }
-
+       else if(isMenuvisible == "Todo")
+        {
+            await  loadTodoSub_Data();
+           
+        }
         var ConversationList = await Mediator.Send(new GetEmailConversationList(Cid));
 
         _headTopic = await Mediator.Send(new GetByIdEmailTopics(RTopicId));
@@ -2640,6 +2649,12 @@
     async Task loadTodo_Data()
     {
         await RefTopicTodo.leftTodoLst(Tid);
+    }
+    async Task loadTodoSub_Data()
+    {
+       
+        await RefTopicTodo.leftSubTodoLst(Tid);
+        
     }
     async Task LoadMainTopicPlist_Data()
     {        

@@ -17,18 +17,19 @@
         <div class="content-container row">
             <div class="@leftTodoDisplay" style="@styleTreeDisplay overflow-x: hidden;">
                 <div class="mini-menu-bar-top">
-                    <ToDoLeftNotes NotesId="onViewClick " Topicid="@TopicTid" @ref=RefToDoLeftNotes></ToDoLeftNotes>
+                    <ToDoLeftNotes NotesId="onViewClick " Topicid="@Tid" @ref=RefToDoLeftNotes></ToDoLeftNotes>
                 </div>
             </div>
             <div class="@RighttodoDisplay">
-                <ToDoNotesList @ref=RefToDoHistoryList Topicid="@TopicTid"></ToDoNotesList>
+                <ToDoNotesList @ref=RefToDoHistoryList Topicid="@Tid"></ToDoNotesList>
             </div>
         </div>
     </div>
 </div>
 @code {
+ 
     [Parameter]
-    public long Topicid { get; set; }
+    public long Tid { get; set; }
     long? SeletedNoteId { get; set; }
     long TopicTid { get; set; }
     private ToDoLeftNotes? RefToDoLeftNotes { get; set; }
@@ -38,8 +39,8 @@
     string styleTreeDisplay = "height: calc(100vh - 190px); padding:10px";
     protected override async Task OnInitializedAsync()
     {
-        TopicTid = Topicid;
-        if(Topicid > 0)
+        TopicTid = Tid;
+        if (Tid > 0)
         {
 
             leftTodoDisplay = "col-md-3";
@@ -57,5 +58,9 @@
     public async  Task leftTodoLst(long Topicid)
     {
         RefToDoLeftNotes.LoadData(Topicid);
+    }
+    public async Task leftSubTodoLst(long Topicid)
+    {
+        RefToDoLeftNotes.LoadSubData(Topicid);
     }
 }

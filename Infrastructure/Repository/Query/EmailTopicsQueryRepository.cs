@@ -432,7 +432,46 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        public async Task<long> UpdateMarkasAllReadList(long id,long userId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("id", id);
+                            parameters.Add("userId", userId);
+
+                            var query = "UPDATE EmailNotifications SET IsRead = 1 where UserId = @userId and IsRead = 0 and ConversationId in (select ID from EmailConversations where ReplyId = @id)";
+
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async Task<long> UpdateMarkasReadList(long id)
         {

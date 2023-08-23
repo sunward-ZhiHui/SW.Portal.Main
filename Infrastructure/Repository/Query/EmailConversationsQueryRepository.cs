@@ -435,7 +435,7 @@ namespace Infrastructure.Repository.Query
 
                 var query = @"SELECT * FROM (
                             SELECT FC.TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
-                                AET.Comment AS ActCommentName, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate
+                                AET.Comment AS ActCommentName, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants
                             FROM EmailConversations FC
                             LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                             INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = FC.ID AND ECP.UserId = @UserId
@@ -457,7 +457,7 @@ namespace Infrastructure.Repository.Query
                             UNION
 
                             SELECT EETT.ID AS TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
-                                '' AS ActCommentName, '' AS ActUserName, '' AS ActAddedDate
+                                '' AS ActCommentName, '' AS ActUserName, '' AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants
                             FROM EmailTopics EETT
                             INNER JOIN EmailConversations FC ON FC.TopicID = EETT.ID
                             INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
@@ -493,7 +493,7 @@ namespace Infrastructure.Repository.Query
                                     FROM
                                         EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                        INNER JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
+                                        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = FC.ParticipantId
                                     WHERE
                                         FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId
                                     ORDER BY FC.AddedDate DESC";
@@ -700,7 +700,7 @@ namespace Infrastructure.Repository.Query
             {
 
                 var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,
-                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate FROM EmailConversations FC  
+                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants FROM EmailConversations FC  
                                 LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID      
@@ -733,7 +733,7 @@ namespace Infrastructure.Repository.Query
                                     FROM
                                         EmailConversations FC
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                        INNER JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
+                                        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
                                     WHERE
                                        FC.ReplyId = @ReplyId
                                        ORDER BY FC.AddedDate DESC";
@@ -1033,8 +1033,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", forumConversations.AddedDate);
                             parameters.Add("FileData", forumConversations.FileData);
                             parameters.Add("Name", forumConversations.Name);
+                            parameters.Add("DueDate", forumConversations.DueDate);
+                            parameters.Add("IsAllowParticipants", forumConversations.IsAllowParticipants);
 
-                            var query = "INSERT INTO EmailConversations(TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
+                            var query = "INSERT INTO EmailConversations(DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

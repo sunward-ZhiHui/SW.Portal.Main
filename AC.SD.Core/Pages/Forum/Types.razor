@@ -10,7 +10,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @page "/FourmTypes"
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@using GridWithContextMenu.Data;
+@using AC.SD.Core.Pages.Forum
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -148,7 +148,7 @@
     </EditFormTemplate>
     
 </DxGrid>
-   @* <ContextMenuContainer Grid="Grid" @ref="ContextMenuContainer" />*@
+   <ContextMenuContainer Grid="Grid" @ref="ContextMenuContainer" />
 </DxLoadingPanel>
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
@@ -447,13 +447,13 @@
         {
             e.CssClass = "alt-item";
         }
-        //if (GridContextMenuHelper.IsContextMenuElement(e.ElementType))
-        //{
-        //    e.Attributes["oncontextmenu"] = EventCallback.Factory.Create<MouseEventArgs>(
-        //         this,
-        //        async mArgs => await ContextMenuContainer.Grid_ContextMenu(e, mArgs)
-        //    );
-        //}
+        if (GridContextMenuHelper.IsContextMenuElement(e.ElementType))
+        {
+            e.Attributes["oncontextmenu"] = EventCallback.Factory.Create<MouseEventArgs>(
+                 this,
+                async mArgs => await ContextMenuContainer.Grid_ContextMenu(e, mArgs)
+            );
+        }
     }
     void Onclick(DataGridSelection<ForumTypes> e)
     {

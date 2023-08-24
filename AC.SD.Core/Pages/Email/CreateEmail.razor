@@ -22,6 +22,8 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @using System.IO;
 @using System.ComponentModel;
+@using System;
+@using System.Linq;
 @page "/CreateEmail"
 @page "/CreateEmail/{ActiveSessionId}"
 <style>
@@ -35,6 +37,15 @@
 
     .dxuc-upload-icon {
         display: none; /* or any other style to disable or hide the icon */
+    }
+
+    .replybox {
+        color: black;
+        border: 1px solid #dedede;
+        padding: 10px;
+        border-radius: 4px;
+        background: #eef2f0;
+        margin-bottom: 10px;
     }
 </style>
 <div class="card w-100 tooltips" style="margin-bottom:10px;">
@@ -225,7 +236,7 @@ else
                                         @bind-Checked="@Data.IsAllowParticipants"
                                         Alignment="default"
                                         LabelPosition="LabelPosition.Right">
-                                    Allow Participants
+                                    Allow Add Participants
                                 </DxCheckBox>
                             </DxFormLayoutItem>
                             
@@ -237,6 +248,17 @@ else
                             <DxFormLayoutItem Caption="Due Date" ColSpanMd="4">
                                 <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
                             </DxFormLayoutItem>
+
+                            @if (ActiveSessionId != null)
+                            {
+                                 <DxFormLayoutItem Caption=" " ColSpanMd="12">
+                                    <div class="replybox">
+                                        <div style="font-weight: bold;">Activity Comment</div>
+                                        <text>@ActComment</text>
+                                        <div style=" float: right; font-size: 12px;"> @ActUserName  , @ActAddedDate </div>
+                                    </div>
+                                </DxFormLayoutItem>
+                            }
                             <DxFormLayoutItem ColSpanMd="8">
                                 <DxRichEdit DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Data.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
                                   
@@ -357,7 +379,10 @@ else
     private List<ViewEmployee>? _Toparticipant;
     private List<ViewEmployee>? _CCparticipant;
     IEnumerable<ForumTypes>? _OnBehalf;
-
+    string? ActComment = "";
+    string? ActUserName = "";
+    DateTime? ActAddedDate = DateTime.Now;
+    byte[] replyboxHhtmlArray;
     private List<ApplicationUser> _applicationUsers;  
 
     List<long> participantIds = new List<long>();
@@ -515,9 +540,9 @@ else
         //fontSizeItem.Tooltip = "Changes the selected text's font size.";
 
 
-       
 
-         //AddFormattingGroup(toolbar.Groups);
+
+        //AddFormattingGroup(toolbar.Groups);
 
         IBarGroup undoRedoGroup = toolbar.Groups[0];
         undoRedoGroup.Items.Add(0,RichEditBarItemNames.FullScreen);
@@ -643,7 +668,7 @@ else
         AppUserId = applicationUser.UserID;
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
 
-        
+
         Follow = new List<string>
         {
              "Follow Up","No Follow Up"
@@ -687,6 +712,21 @@ else
                 isValidateSession = false;
                 //var docId = "70F019EC011241C9807C39BF2BE79136";
                 //Guid docSessionId = Guid.Parse(docId);
+
+                var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
+                ActUserName = Namelist[0].Name;
+                ActAddedDate = actItem[0].AddedDate;
+
+
+               // string replyboxHtml = @"<div class=""replybox"">
+               //                             <div> <i class=""fa fa-reply"" aria-hidden=""true""></i> Reply</div>
+               //                             <text>@ActComment</text>
+               //                             <div>@ActUserName , @ActAddedDate</div>
+               //                         </div>";
+
+               //replyboxHhtmlArray = Encoding.UTF8.GetBytes(replyboxHtml);
+
+
                 if(actItem[0].DocumentSessionId != null)
                 {
                     var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].DocumentSessionId.Value));
@@ -694,8 +734,11 @@ else
                 }
 
                 Data.TopicName = actItem[0].SubjectName;
+
                 if (actItem[0].Comment != null)
                 {
+                    ActComment = actItem[0].Comment;
+
                     byte[] array1 = { 123, 92, 114, 116, 102, 49, 92, 100, 101, 102, 102, 48, 123, 92, 102, 111, 110, 116, 116, 98, 108, 123, 92, 102, 48, 32, 67, 97, 108, 105, 98, 114, 105, 59, 125, 125, 123, 92, 99, 111, 108, 111, 114, 116, 98, 108, 32, 59, 92, 114, 101, 100, 48, 92, 103, 114, 101, 101, 110, 48, 92, 98, 108, 117, 101, 50, 53, 53, 32, 59, 125, 123, 92, 42, 92, 100, 101, 102, 99, 104, 112, 32, 92, 102, 115, 50, 50, 125, 123, 92, 115, 116, 121, 108, 101, 115, 104, 101, 101, 116, 32, 123, 92, 113, 108, 92, 102, 115, 50, 50, 32, 78, 111, 114, 109, 97, 108, 59, 125, 123, 92, 42, 92, 99, 115, 49, 92, 102, 115, 50, 50, 32, 68, 101, 102, 97, 117, 108, 116, 32, 80, 97, 114, 97, 103, 114, 97, 112, 104, 32, 70, 111, 110, 116, 59, 125, 123, 92, 42, 92, 99, 115, 50, 92, 117, 108, 92, 102, 115, 50, 50, 92, 99, 102, 49, 32, 72, 121, 112, 101, 114, 108, 105, 110, 107, 59, 125, 123, 92, 42, 92, 116, 115, 51, 92, 116, 115, 114, 111, 119, 100, 92, 102, 115, 50, 50, 92, 113, 108, 92, 116, 115, 118, 101, 114, 116, 97, 108, 116, 92, 99, 108, 116, 120, 108, 114, 116, 98, 32, 78, 111, 114, 109, 97, 108, 32, 84, 97, 98, 108, 101, 59, 125, 125, 123, 92, 42, 92, 108, 105, 115, 116, 111, 118, 101, 114, 114, 105, 100, 101, 116, 97, 98, 108, 101, 125, 123, 92, 105, 110, 102, 111, 125, 92, 110, 111, 117, 105, 99, 111, 109, 112, 97, 116, 92, 115, 112, 108, 121, 116, 119, 110, 105, 110, 101, 92, 104, 116, 109, 97, 117, 116, 115, 112, 92, 101, 120, 112, 115, 104, 114, 116, 110, 92, 115, 112, 108, 116, 112, 103, 112, 97, 114, 92, 100, 101, 102, 116, 97, 98, 55, 50, 48, 92, 115, 101, 99, 116, 100, 92, 109, 97, 114, 103, 108, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 114, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 116, 115, 120, 110, 49, 52, 52, 48, 92, 109, 97, 114, 103, 98, 115, 120, 110, 49, 52, 52, 48, 92, 104, 101, 97, 100, 101, 114, 121, 55, 50, 48, 92, 102, 111, 111, 116, 101, 114, 121, 55, 50, 48, 92, 112, 103, 119, 115, 120, 110, 49, 50, 50, 52, 48, 92, 112, 103, 104, 115, 120, 110, 49, 53, 56, 52, 48, 92, 99, 111, 108, 115, 49, 92, 99, 111, 108, 115, 120, 55, 50, 48, 92, 112, 97, 114, 100, 92, 112, 108, 97, 105, 110, 92, 113, 108, 123, 92, 102, 115, 50, 50, 92, 99, 102, 48, 32 };
 
 
@@ -707,7 +750,7 @@ else
                     byte[] array5 = array3.Concat(array4).ToArray();
 
 
-                    Data.FileData = array5;
+                    //Data.FileData = array5;
                 }
 
                 ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
@@ -715,13 +758,13 @@ else
                 var filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
 
                 //Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
-                IEnumerable<string> Totags = filteredToList.Select(s => s.FirstName).ToList();
+                IEnumerable<string> Totags = filteredToList.Select(s => s.Name + "-" + s.NickName).ToList();
 
                 List<long?> CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
                 var filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
 
                 //Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
-                IEnumerable<string> CCtags = filteredCCList.Select(s => s.FirstName).ToList();            
+                IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
 
                 Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
                 sToIds = Totags.ToList();
@@ -853,6 +896,9 @@ else
 
         DateTime? nullableDateTime = DateTime.Now;
 
+
+        //byte[] combinedArray = replyboxHhtmlArray.Concat(fileContent).ToArray();
+
         //var ex = _topics.Where(x => x.TicketNo == Data.TicketNo && x.TopicName == Data.TopicName);
         //if (ex.Any())
         //{
@@ -872,7 +918,7 @@ else
                     DueDate = Data.DueDate,
                     OverDue = Data.OverDue,
                     IsAllowParticipants = Data.IsAllowParticipants,
-                    FileData = fileContent,
+                    FileData = fileContent,                
                     StatusCodeID = 1,
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
@@ -892,7 +938,7 @@ else
                 if (result != null)
                 {                    
                     uploadComponent.UploadAllFiles();
-                    await Task.Delay(2000); // Delay for 2 seconds
+                    await Task.Delay(5000); // Delay for 2 seconds
 
                     //   onShowPopupMessage("success", "Topic have been saved successully");
                     ActivityEmailTopicId = 0;

@@ -47,6 +47,10 @@ namespace Core.Entities
         public string? FirstName { get; set; }
         [NotMapped]
         public string? LastName { get; set; }
+        [NotMapped]
+        public string? Name { get; set; }
+        [NotMapped]
+        public string? NickName { get; set; }
 
         [NotMapped]
         public string? From { get; set; }

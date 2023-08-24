@@ -143,6 +143,7 @@ namespace Infrastructure
 
             services.AddTransient<IFmGlobalMoveCommandRepository, FmGlobalMoveCommandRepository>();
             services.AddTransient<IFileprofileQueryRepository,FileprofiletypeQueryRepository>();
+            services.AddTransient<INewEmailUploadQueryRepository, NewEmailUploadQueryRepository>();
             return services;
         }
     }

@@ -17,6 +17,8 @@ namespace Core.Entities
         public long TopicID { get; set; }
         [Required(ErrorMessage = "Please Enter Message.")]
         public string Message { get; set; }
+        public DateTime? DueDate { get; set; }
+        public bool? IsAllowParticipants { get; set; }
         public  long ParticipantId  { get; set; }
         public long ReplyId { get; set; }
         public string? ReplyMessage { get; set; }
@@ -55,6 +57,16 @@ namespace Core.Entities
         public string From { get; set; }
         [NotMapped]
         public long ConIds { get; set; }
+        [NotMapped]
+        public string? ActCommentName { get; set; }
+        [NotMapped]
+        public string? ActUserName { get; set; }
+        [NotMapped]
+        public DateTime? ActAddedDate { get; set; }
+        [NotMapped]
+        public bool? IsRead { get; set; }
+        [NotMapped]
+        public long EmailNotificationId { get; set; }
 
     }
 }

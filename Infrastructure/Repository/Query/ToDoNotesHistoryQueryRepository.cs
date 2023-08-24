@@ -169,7 +169,7 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("id", id);
 
-                            var query = "UPDATE ToDoNotesHistory SET Completed=1 WHERE ID = @id";
+                            var query = "Delete From ToDoNotesHistory  WHERE ID = @id";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

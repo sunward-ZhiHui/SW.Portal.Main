@@ -180,6 +180,8 @@ namespace Infrastructure.Repository.Query
                                 TS.StartDate,
                                 TS.FileData,
                                 TS.SessionId,
+                                concat(E.FirstName,',',E.LastName) as Name,
+                                E.NickName,
                                 E.FirstName,
                                 E.LastName,
                                 TP.UserId
@@ -187,9 +189,9 @@ namespace Infrastructure.Repository.Query
                             FROM
                                 EmailTopics TS
                             INNER JOIN
-                                EmailTopicTo TP ON TS.ID = TP.TopicId
+                                EmailConversationAssignTo TP ON TS.ID = TP.TopicId
                             INNER JOIN
-                                Employee E ON TS.TopicFrom = E.UserId
+                                Employee E ON TP.UserId = E.UserId
                           
                             WHERE
                                 TS.ID = @TopicId
@@ -227,6 +229,8 @@ namespace Infrastructure.Repository.Query
                                 TS.StartDate,
                                 TS.FileData,
                                 TS.SessionId,
+                                concat(E.FirstName,',',E.LastName) as Name,
+                                E.NickName,
                                 E.FirstName,
                                 E.LastName,
                                 TP.UserId
@@ -234,10 +238,9 @@ namespace Infrastructure.Repository.Query
                             FROM
                                 EmailTopics TS
                             INNER JOIN
-                                EmailTopicCC TP ON TS.ID = TP.TopicId
+                                EmailConversationAssignCC TP ON TS.ID = TP.TopicId
                             INNER JOIN
-                                Employee E ON TS.TopicFrom = E.UserId
-                          
+                                Employee E ON TP.UserId = E.UserId                          
                             WHERE
                                 TS.ID = @TopicId
                             ORDER BY
@@ -429,7 +432,125 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<long> UpdateMarkasAllReadList(long id,long userId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
 
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("id", id);
+                            parameters.Add("userId", userId);
+
+                            var query = "UPDATE EmailNotifications SET IsRead = 1 where UserId = @userId and IsRead = 0 and ConversationId in (select ID from EmailConversations where ReplyId = @id)";
+
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<long> UpdateMarkasReadList(long id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("id", id);
+
+                            var query = "UPDATE EmailNotifications SET IsRead = 1 WHERE ID = @id";
+
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> UpdateMarkasunReadList(long id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("id", id);
+
+                            var query = "UPDATE EmailNotifications SET IsRead = 0 WHERE ID = @id";
+
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<long> UnSetPinTopicToList(long id)
         {
             try
@@ -735,17 +856,15 @@ namespace Infrastructure.Repository.Query
 										AND EXISTS(SELECT * FROM EmailConversationAssignTo TP WHERE ECC.ID = TP.ConversationId AND (TP.UserId = @UserId or TP.AddedByUserID = @UserId))
 							           )K
                             INNER JOIN
-                                Employee E ON EC.AddedByUserID = E.UserId
-                             LEFT JOIN
-                            (
-                                SELECT
-                                    ReplyId,
-                                    COUNT(*) AS NotificationCount
-                                FROM
-                                    EmailConversations
-                                GROUP BY
-                                    ReplyId
-                            ) FN ON EC.ID = FN.ReplyId
+                                Employee E ON EC.AddedByUserID = E.UserId                           
+                            OUTER APPLY
+							(
+								SELECT									
+									COUNT(*) AS NotificationCount
+								FROM  EmailConversations ECC
+								INNER JOIN EmailNotifications EN ON ECC.ID=EN.ConversationId and EN.IsRead = 0
+								WHERE EN.TopicId=EC.TopicID AND EN.UserId=ECP.UserId AND EC.ID=ECC.ReplyId
+							) FN 
                             WHERE
                                 TS.ID = @TopicId and TS.OnDraft = 0 AND EC.ID=K.ReplyId 
                             ORDER BY
@@ -877,16 +996,14 @@ namespace Infrastructure.Repository.Query
 							           )K
                             INNER JOIN
                                 Employee E ON EC.AddedByUserID = E.UserId
-                             LEFT JOIN
-                            (
-                                SELECT
-                                    ReplyId,
-                                    COUNT(*) AS NotificationCount
-                                FROM
-                                    EmailConversations
-                                GROUP BY
-                                    ReplyId
-                            ) FN ON EC.ID = FN.ReplyId
+                           OUTER APPLY
+							(
+								SELECT									
+									COUNT(*) AS NotificationCount
+								FROM  EmailConversations ECC
+								INNER JOIN EmailNotifications EN ON ECC.ID=EN.ConversationId and EN.IsRead = 0
+								WHERE EN.TopicId=EC.TopicID AND EN.UserId=ECP.UserId AND EC.ID=ECC.ReplyId
+							) FN 
                             WHERE
                                 TS.ID = @TopicId and TS.OnDraft = 0 AND EC.ID=K.ReplyId 
                             ORDER BY
@@ -1134,6 +1251,7 @@ namespace Infrastructure.Repository.Query
 
                         parameterss.Add("isValidateSession", EmailTopics.isValidateSession);
                         parameterss.Add("ActivityEmailTopicId", EmailTopics.ActivityEmailTopicId);
+                        parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);                        
 
                         connection.Open();
 

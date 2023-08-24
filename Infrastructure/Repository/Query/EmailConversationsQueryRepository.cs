@@ -404,8 +404,10 @@ namespace Infrastructure.Repository.Query
                 //OR EXISTS(SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId))
                 //                          ORDER BY FC.AddedDate ASC";
 
-                var query = @"SELECT  FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId 
+                var query_NOTUSED = @"SELECT  FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId,
+                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate
                                 FROM EmailConversations FC  
+								 LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                                 INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = FC.ID AND ECP.UserId = @UserId
                                 Cross Apply(Select DISTINCT ReplyId = CASE WHEN ECC.ReplyId>0 THEN ECC.ReplyId ELSE ECC.ID END
                                             From EmailConversations ECC
@@ -418,16 +420,51 @@ namespace Infrastructure.Repository.Query
 		                                   )K
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID    
+								LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID 
                                 WHERE  K.ReplyId=FC.ID AND FC.ReplyId=0
                                 --ORDER BY FC.AddedDate ASC
 
                                 UNION 
 
-                                select FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId  from EmailTopics EETT 
+                                select FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId,
+								'' as ActCommentName,'' as ActUserName,'' as ActAddedDate from EmailTopics EETT 
                                 INNER JOIN EmailConversations FC ON FC.TopicID = EETT.ID
                                  INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                  INNER JOIN Employee EMP ON EMP.UserID = AU.UserID  
                                 where OnBehalf =@UserId and EETT.ID = @TopicId";
+
+                var query = @"SELECT * FROM (
+                            SELECT FC.TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
+                                AET.Comment AS ActCommentName, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants
+                            FROM EmailConversations FC
+                            LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
+                            INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = FC.ID AND ECP.UserId = @UserId
+                            CROSS APPLY (
+                                SELECT DISTINCT ReplyId = CASE WHEN ECC.ReplyId > 0 THEN ECC.ReplyId ELSE ECC.ID END
+                                FROM EmailConversations ECC
+                                WHERE (
+                                        ECC.ParticipantId = @UserId
+                                        OR EXISTS (SELECT * FROM EmailConversationAssignTo AST WHERE AST.ConversationId = ECC.ID AND AST.UserId = @UserId)
+                                        OR EXISTS (SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = ECC.ID AND AST.UserId = @UserId)
+                                        OR EXISTS (SELECT * FROM EmailConversationParticipant ECP WHERE ECP.ConversationId = ECC.ID AND ECP.UserId = @UserId)
+                                    ) AND ECC.TopicID = @TopicId
+                            ) K
+                            INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                            INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
+                            LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
+                            WHERE K.ReplyId = FC.ID AND FC.ReplyId = 0
+
+                            UNION
+
+                            SELECT EETT.ID AS TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
+                                '' AS ActCommentName, '' AS ActUserName, '' AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants
+                            FROM EmailTopics EETT
+                            INNER JOIN EmailConversations FC ON FC.TopicID = EETT.ID
+                            INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                            INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
+                            WHERE OnBehalf = @UserId AND EETT.ID = @TopicId
+                        ) AS CombinedResult
+                        ORDER BY CombinedResult.AddedDate DESC";
 
 
                 var parameters = new DynamicParameters();
@@ -450,10 +487,13 @@ namespace Infrastructure.Repository.Query
                                         AU.UserName,
                                         AU.UserID,
                                         FC.ReplyId,
-                                        FC.SessionId,FC.FileData
+                                        FC.SessionId,FC.FileData,
+                                        EN.IsRead,
+										EN.ID as EmailNotificationId
                                     FROM
                                         EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = FC.ParticipantId
                                     WHERE
                                         FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId
                                     ORDER BY FC.AddedDate DESC";
@@ -659,9 +699,12 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData FROM EmailConversations FC                                
+                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,
+                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants FROM EmailConversations FC  
+                                LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
+                                INNER JOIN Employee EMP ON EMP.UserID = AU.UserID      
+                                LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID 
                                 WHERE FC.ID = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate DESC";
 
 
@@ -684,16 +727,20 @@ namespace Infrastructure.Repository.Query
                                         AU.UserName,
                                         AU.UserID,
                                         FC.ReplyId,
-                                        FC.SessionId,FC.FileData
+                                        FC.SessionId,FC.FileData,
+                                        EN.IsRead,
+										EN.ID as EmailNotificationId
                                     FROM
                                         EmailConversations FC
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
                                     WHERE
                                        FC.ReplyId = @ReplyId
                                        ORDER BY FC.AddedDate DESC";
 
                         var parameterss = new DynamicParameters();
                         parameterss.Add("TopicId", TopicId, DbType.Int64);
+                        parameterss.Add("UserId", UserId, DbType.Int64);
                         parameterss.Add("ReplyId", topic.ID, DbType.Int64);
                         var subQueryResults = connection.Query<EmailConversations>(subQuery, parameterss).ToList();
 
@@ -986,8 +1033,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", forumConversations.AddedDate);
                             parameters.Add("FileData", forumConversations.FileData);
                             parameters.Add("Name", forumConversations.Name);
+                            parameters.Add("DueDate", forumConversations.DueDate);
+                            parameters.Add("IsAllowParticipants", forumConversations.IsAllowParticipants);
 
-                            var query = "INSERT INTO EmailConversations(TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
+                            var query = "INSERT INTO EmailConversations(DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

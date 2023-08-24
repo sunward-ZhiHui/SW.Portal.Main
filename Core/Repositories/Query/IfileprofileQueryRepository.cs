@@ -18,6 +18,17 @@ namespace Core.Repositories.Query
         Task<DocumentsModel> GetFileProfileTypeDelete(DocumentsModel documentsModel);
         Task<DocumentsModel> GetFileProfileTypeCheckOut(DocumentsModel documentsModel);
         Task<IReadOnlyList<DocumentsModel>> GetAllFileProfileDocumentAsync();
+        Task<IReadOnlyList<DocumentLinkModel>> GetDocumentLinkByDocumentId(long? id);
+        Task<DocumentLink> InsertDocumentLink(DocumentLink documentLink);
+        Task<DocumentLinkModel> DeleteDocumentLink(DocumentLinkModel documentLink);
+        Task<IReadOnlyList<DocumentLinkModel>> GetParentDocumentsByLinkDocumentId(long? id);
+        Task<DocumentsModel> UpdateDescriptionField(DocumentsModel documentsModel);
+        Task<DocumentsModel> UpdateExpiryDateField(DocumentsModel documentsModel);
+        Task<DocumentPermissionModel> GetAllSelectedFilePermissionAsync(long? DocumentId,long? selectedFileProfileTypeID);
+        Task<DocumentsModel> UpdateDocumentRename(DocumentsModel value);
+        Task<IReadOnlyList<UserGroup>> GetUserGroups();
+        Task<IReadOnlyList<DocumentRole>> GetDocumentRole();
+
 
 
 

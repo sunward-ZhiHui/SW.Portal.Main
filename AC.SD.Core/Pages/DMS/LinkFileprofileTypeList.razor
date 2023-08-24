@@ -1,0 +1,248 @@
+﻿@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+<div class="demo-breadcrumbs-container theme-blazing-berry">
+    <div class="breadcrumb">
+        <div class="demo-breadcrumbs sidebar-hidden">
+            <!--!-->
+
+            <div class="items">
+                <a href="javascript:void(0);" onclick="@(() => openFileProfileMainLink())">Main</a>
+                @if (FolderPathLists.Count > 0)
+                {
+                    <span class="separator"></span>
+                    @foreach (var item in FolderPathLists)
+                    {
+                        var names = item.FileName.Length > 20 ? item.FileName.Substring(0, 20) + "..." : item.FileName;
+                        if (FolderPathLists.IndexOf(item) == FolderPathLists.Count - 1)
+                        {
+                            <span title="@item.FileName">@names</span>
+                        }
+                        else
+                        {
+                            <a href="javascript:void(0);" title="@item.FileName" onclick="@(() => openFileProfileLink(item))">@names</a>
+                        }
+                        <span class="separator"></span>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<DxLoadingPanel @bind-Visible="PanelVisibleLink"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="linkDocGrid"
+            Data="fileProfileTypeDocumentsLink"
+            KeyFieldName="DocumentID"
+            EditMode="GridEditMode.EditForm"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            EditorRenderMode="GridEditorRenderMode.Integrated"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20" CustomizeElement="Grid_Link_CustomizeElement" ValidationEnabled="false"
+            RowClick="OnRowLinkClick"
+            RowDoubleClick="OnRowDoubleLinkClick"
+            FocusedRowEnabled="true"
+            AllowSelectRowByClick="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            CssClass="ch-360"
+            style="height: calc(100vh - 250px);">
+        <Columns>
+            <DxGridDataColumn FieldName="DocumentID" Visible="false" />
+            <DxGridSelectionColumn AllowSelectAll="false" Width="60px" />
+            <DxGridDataColumn FieldName="FileName" Caption="Name" MinWidth="80">
+                <CellDisplayTemplate>
+
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                    }
+                    @if (item.Type == "Document")
+                    {
+                        @if (item.IsLocked == true)
+                        {
+                            <i class="fa fa-lock" aria-hidden="true" style="margin-right: 5px;"></i>
+                        }
+                    }
+                    else
+                    {
+                        <i class="fa fa-folder" aria-hidden="true" style="margin-right: 5px;"></i>
+                    }
+                    @item.FileName
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ProfileNo" Caption="Profile" MinWidth="80" />
+            <DxGridDataColumn FieldName="FileSizes" Caption="File Size" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                    }
+
+                    @(item.FileSizes + (!string.IsNullOrEmpty(item.FileCounts) ? ("," + item.FileCounts) : ""))
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="Description" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="ModifiedBy" MinWidth="40" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Modified" MinWidth="40" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    IGrid linkDocGrid { get; set; }
+    [Parameter]
+    public DocumentsModel ParentSelectedFiles { get; set; }
+    [Parameter]
+    public DocumentLinkModel LinkProfileSelectedFiles { get; set; }
+    [Parameter]
+    public string LinkType { get; set; }
+    public Guid? SessionId { get; set; }
+    public bool PanelVisibleLink { get; set; } = false;
+    public bool PopupVisibleLinkDocument { get; set; } = false;
+    public DocumentsModel selectedFiles { get; set; }
+    public long? FileProfileTypeId { get; set; }
+    private List<DocumentsModel> fileProfileTypeDocumentsLink { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAllList { get; set; }
+    private DocumentTypeModel _fileProfileselectedlstItemsList { get; set; }
+    bool PanelVisible { get; set; }
+    List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
+    private DocumentsModel _selectedItemsList;
+    public ApplicationUser applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        fileProfileTypeDocumentsAllList = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        await loadFileProfileDataList();
+    }
+    public async Task loadFileProfileDataList()
+    {
+        FolderPathLists = new List<DocumentsModel>();
+        if (FileProfileTypeId > 0)
+        {
+            var fileType = fileProfileTypeDocumentsAllList.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
+            if (fileType != null)
+            {
+
+                FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAllList, fileType, FolderPathLists);
+                FolderPathLists.Add(fileType);
+            }
+        }
+        await loadFileProfileDataLists();
+    }
+    async Task loadFileProfileDataLists()
+    {
+        PanelVisibleLink = true;
+        _fileProfileselectedlstItemsList = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
+        fileProfileTypeDocumentsLink = _fileProfileselectedlstItemsList.DocumentsData;
+
+        if (fileProfileTypeDocumentsLink.Count > 0)
+        {
+            _selectedItemsList = fileProfileTypeDocumentsLink.FirstOrDefault();
+            linkDocGrid.SetFocusedRowIndex(0);
+        }
+        PanelVisibleLink = false;
+        StateHasChanged();
+    }
+    private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
+    {
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetAllFileProfileTypeName(foldersListItems, items, foldersModel);
+            foldersModel.Add(items);
+        }
+        return foldersModel;
+    }
+    async Task openFileProfileMainLink()
+    {
+        FileProfileTypeId = null;
+        await loadFileProfileDataList();
+    }
+    async Task openFileProfileLink(DocumentsModel documentsModel)
+    {
+        FileProfileTypeId = documentsModel.FileProfileTypeId;
+        await loadFileProfileDataList();
+    }
+    async Task OnRowLinkClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentID");
+        _selectedItemsList = fileProfileTypeDocumentsLink.FirstOrDefault(f => f.DocumentID == (long?)UniqueId);
+        StateHasChanged();
+    }
+    async Task OnRowDoubleLinkClick(GridRowClickEventArgs e)
+    {
+        if (_selectedItemsList != null && _selectedItemsList.FileProfileTypeId > 0)
+        {
+            FileProfileTypeId = _selectedItemsList.FileProfileTypeId;
+            await loadFileProfileDataList();
+        }
+        else
+        {
+            await OnRowLinkClick(e);
+        }
+    }
+    void Grid_Link_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+        if (e.ElementType == GridElementType.HeaderCell)
+        {
+            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+            e.CssClass = "header-bold";
+        }
+    }
+    async void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        if (SelectedToItems is IGridSelectionChanges changes)
+        {
+            var SelectedItemsInfo = changes.SelectedDataItems.FirstOrDefault();
+            var selectList = (DocumentsModel)SelectedItemsInfo;
+            if (selectList.FilterProfileTypeId > 0)
+            {
+                _selectedItemsList = selectList;
+                if (ParentSelectedFiles.DocumentID != _selectedItemsList.DocumentID)
+                {
+                    var insertDocumentLink = new DocumentLink
+                        {
+                            DocumentLinkId = -1,
+                            DocumentId = ParentSelectedFiles.DocumentID,
+                            AddedByUserId = applicationUser.UserID,
+                            AddedDate = DateTime.Now,
+                            StatusCodeId = _selectedItemsList.StatusCodeID,
+                            LinkDocumentId = _selectedItemsList.DocumentID,
+                            FolderId = _selectedItemsList.FolderId,
+                            FileProfieTypeId = _selectedItemsList.FilterProfileTypeId,
+                            DocumentPath = LinkType,
+                        };
+                    var request = await Mediator.Send(new InsertDocumentLink(insertDocumentLink));
+                    toastService.ShowToast("Link Document added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                }
+            }
+        }
+    }
+}

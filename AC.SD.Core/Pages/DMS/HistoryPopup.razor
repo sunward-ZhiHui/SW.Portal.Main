@@ -37,6 +37,7 @@
 <DxGrid @ref="Grid"  FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="_histryselectedFile"
+            KeyFieldName="DocumentID"
             ShowGroupPanel="true" ShowGroupedColumns="true"
         CustomizeElement="Grid_CustomizeElement"
         ShowSearchBox="true"
@@ -131,7 +132,7 @@
     {
         if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var response = await Mediator.Send(new GetFileDownload(_selectedItems));
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID,_selectedItems.FileName,_selectedItems.FilePath));
             //  Trigger file download
             await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
         }

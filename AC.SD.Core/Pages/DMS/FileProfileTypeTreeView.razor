@@ -404,7 +404,7 @@
     {
         if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var response = await Mediator.Send(new GetFileDownload(_selectedItems));
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID,_selectedItems.FileName,_selectedItems.FilePath));
             //  Trigger file download
             await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
         }

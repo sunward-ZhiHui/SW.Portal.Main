@@ -1,0 +1,210 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@inject AC.SD.Core.Services.ToastService toastService
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="OnDownload" Enabled="@DownloadEnabled" />
+                <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewEnabled" />
+                <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Enabled="@NotifyEnabled" />
+                <DxMenuItem Text="Link Document" IconCssClass="fa fa-link" Click="onLinkDocuments" Enabled="@linkdownloadEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisibleParent"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_documentLinkModel"
+            KeyFieldName="DocumentLinkId"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridDataColumn FieldName="LinkDocumentName" Caption="Parent Document Name" MinWidth="80" />
+            <DxGridDataColumn FieldName="DocumentPath" Caption="Link From" MinWidth="80" />
+            <DxGridDataColumn FieldName="FullPath" Caption="Document Path" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="Link Created By" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="80" />
+        </Columns>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@PopupVisibleLinkParentDocument"
+         ShowFooter="true"
+         HeaderText="Link Documents links"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <LinkDocumentsLinks selectedFiles="@_selectedItems"></LinkDocumentsLinks>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkParentDocumentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    [Parameter]
+    public DocumentsModel ParentSelectedFiles { get; set; }
+    [Parameter]
+    public DocumentLinkModel LinkProfileSelectedFiles { get; set; }
+    [Parameter]
+    public string LinkType { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public List<DocumentLinkModel> _documentLinkModel { get; set; }
+    public DocumentLinkModel _selectedItems { get; set; }
+    public bool PopupVisibleLinkParentDocument { get; set; } = false;
+    IGrid Grid { get; set; }
+    bool PanelVisibleParent { get; set; }
+    public bool DownloadEnabled { get; set; } = false;
+    public bool viewEnabled { get; set; } = false;
+    public bool NotifyEnabled { get; set; } = false;
+    public bool linkdownloadEnabled { get; set; } = false;
+    private string? DocumentViewUrl;
+    private string? ServerUrl;
+    protected override async Task OnInitializedAsync()
+    {
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        await loadTableItems();
+    }
+    async Task loadTableItems()
+    {
+        PanelVisibleParent = true;
+        _documentLinkModel = await Mediator.Send(new GetParentDocumentsByLinkDocument(LinkProfileSelectedFiles.LinkDocumentId));
+        if (_documentLinkModel != null && _documentLinkModel.Count > 0)
+        {
+            _documentLinkModel.ForEach(s =>
+            {
+                var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, s.PathFileProfieTypeId);
+                s.FullPath = lists.FirstOrDefault()?.FileProfilePath;
+                s.FileProfileTypeParentId = lists.FirstOrDefault()?.FileProfileTypeParentId;
+            });
+            _selectedItems = _documentLinkModel.FirstOrDefault();
+            Grid.SetFocusedRowIndex(0);
+            PermissionEnabled();
+        }
+        PanelVisibleParent = false;
+    }
+    void PermissionEnabled()
+    {
+        DownloadEnabled = false;
+        viewEnabled = false; NotifyEnabled = false; linkdownloadEnabled = false;
+        if (_selectedItems != null)
+        {
+            DownloadEnabled = true;
+            viewEnabled = true; NotifyEnabled = true; linkdownloadEnabled = true;
+        }
+        StateHasChanged();
+    }
+    async Task CloseLinkParentDocumentPopup()
+    {
+        PopupVisibleLinkParentDocument = false;
+    }
+    private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel> foldersList = new List<FileProfileTypeModel>();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string> FolderPathLists = new List<string>();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<string> foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentLinkId");
+        _selectedItems = _documentLinkModel.FirstOrDefault(f => f.DocumentLinkId == (long?)UniqueId);
+        PermissionEnabled();
+        StateHasChanged();
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task OnDownload()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID, _selectedItems.LinkDocumentName, _selectedItems.FilePath));
+            //  Trigger file download
+            await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.LinkDocumentName, response.ImageData, "");
+        }
+    }
+    async void onView()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    void onLinkDocuments()
+    {
+        PopupVisibleLinkParentDocument = true;
+    }
+    void onNotify() { }
+}

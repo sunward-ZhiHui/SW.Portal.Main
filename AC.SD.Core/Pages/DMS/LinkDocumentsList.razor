@@ -1,0 +1,294 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager Navigator
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Enabled="@uploadEnabled"></DxMenuItem>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@OnAddNew" />
+                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="OnDownload" Enabled="@DownloadEnabled" />
+                <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewEnabled" />
+                <DxMenuItem Text="Delete Link" IconCssClass="fa fa-remove" Click="onDeleteLink" Enabled="@deletelinkEnabled" />
+                <DxMenuItem Text="Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewParentDocuments" Enabled="@ViewParentDocumentsEnabled" />
+                <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Enabled="@NotifyEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_documentLinkModel"
+            KeyFieldName="DocumentLinkId"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridDataColumn FieldName="LinkDocumentName" Caption="Link Document Name" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentLinkModel)context.DataItem;
+                        <a href="javascript:void(0);" title="@item.LinkDocumentName" onclick="@(() => openFileProfileLink(item))" style="color:black;">@item.LinkDocumentName</a>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="DocumentPath" Caption="Link From" MinWidth="80" />
+            <DxGridDataColumn FieldName="FullPath" Caption="Document Path" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentLinkModel)context.DataItem;
+                        <a href="javascript:void(0);" title="@item.FullPath" onclick="@(() => openFileProfileLink(item))" style="color:black;">@item.FullPath</a>
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AddedByUser" Caption="Link Created By" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="80" />
+        </Columns>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@PopupVisibleLinkDocument"
+         ShowFooter="true"
+         HeaderText="File Profile Type Document"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <LinkFileprofileTypeList ParentSelectedFiles="@selectedFiles" LinkProfileSelectedFiles="@_selectedItems" LinkType="@LinkType"></LinkFileprofileTypeList>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkDocumentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@PopupVisibleLinkParentDocument"
+         ShowFooter="true"
+         HeaderText="Parent Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <ParentLinkDocuments ParentSelectedFiles="@selectedFiles" LinkProfileSelectedFiles="@_selectedItems" LinkType="Link Documents"></ParentLinkDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkParentDocumentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete Link"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    [Parameter]
+    public DocumentsModel selectedFiles { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public List<DocumentLinkModel> _documentLinkModel { get; set; }
+    public DocumentLinkModel _selectedItems { get; set; }
+    public bool PopupVisibleLinkDocument { get; set; } = false;
+    public bool PopupVisibleLinkParentDocument { get; set; } = false;
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    public bool uploadEnabled { get; set; } = false;
+    public bool DownloadEnabled { get; set; } = false;
+    public bool viewEnabled { get; set; } = false;
+    public bool deletelinkEnabled { get; set; } = false;
+    public bool ViewParentDocumentsEnabled { get; set; } = false;
+    public bool NotifyEnabled { get; set; } = false;
+    private string? DocumentViewUrl;
+    private string? ServerUrl;
+    public string LinkType = "Profile Type";
+    bool Blukdeletepopup { get; set; } = false;
+    string? DeleteerrorMessage;
+    protected override async Task OnInitializedAsync()
+    {
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        await loadTableItems();
+    }
+    async Task loadTableItems()
+    {
+        PanelVisible = true;
+        _documentLinkModel = await Mediator.Send(new GetFileProfileTypeLinkDocument(selectedFiles.DocumentID));
+        if (_documentLinkModel != null && _documentLinkModel.Count > 0)
+        {
+            _documentLinkModel.ForEach(s =>
+            {
+                var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, s.PathFileProfieTypeId);
+                s.FullPath = lists.FirstOrDefault()?.FileProfilePath;
+                s.FileProfileTypeParentId = lists.FirstOrDefault()?.FileProfileTypeParentId;
+            });
+            _selectedItems = _documentLinkModel.FirstOrDefault();
+            Grid.SetFocusedRowIndex(0);
+            PermissionEnabled();
+        }
+        PanelVisible = false;
+    }
+    async Task CloseLinkDocumentPopup()
+    {
+        await loadTableItems();
+        PopupVisibleLinkDocument = false;
+    }
+    async Task CloseLinkParentDocumentPopup()
+    {
+        PopupVisibleLinkParentDocument = false;
+    }
+    void PermissionEnabled()
+    {
+        uploadEnabled = false; DownloadEnabled = false;
+        viewEnabled = false; deletelinkEnabled = false;
+        ViewParentDocumentsEnabled = false; NotifyEnabled = false;
+        if (_selectedItems != null)
+        {
+            uploadEnabled = true; DownloadEnabled = true;
+            viewEnabled = true; deletelinkEnabled = true;
+            ViewParentDocumentsEnabled = true; NotifyEnabled = true;
+        }
+        StateHasChanged();
+    }
+    private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel> foldersList = new List<FileProfileTypeModel>();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string> FolderPathLists = new List<string>();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<string> foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentLinkId");
+        _selectedItems = _documentLinkModel.FirstOrDefault(f => f.DocumentLinkId == (long?)UniqueId);
+        PermissionEnabled();
+        StateHasChanged();
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void OnAddNew()
+    {
+        PopupVisibleLinkDocument = true;
+    }
+    async Task OnDownload()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID, _selectedItems.LinkDocumentName, _selectedItems.FilePath));
+            //  Trigger file download
+            await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.LinkDocumentName, response.ImageData, "");
+        }
+    }
+    async void onView()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+        }
+    }
+    void onDeleteLink()
+    {
+        if (_selectedItems != null && _selectedItems.DocumentLinkId > 0)
+        {
+            Blukdeletepopup = true;
+        }
+    }
+    async void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        Blukdeletepopup = false;
+    }
+    async Task bulkDelete()
+    {
+        await Mediator.Send(new DeleteDocumentLink(_selectedItems));
+        await loadTableItems();
+        toastService.ShowToast("Document Link deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        Blukdeletepopup = false;
+    }
+    void onViewParentDocuments()
+    {
+        PopupVisibleLinkParentDocument = true;
+    }
+    async Task openFileProfileLink(DocumentLinkModel documentLinkModel)
+    {
+        var ProfilesessionId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == documentLinkModel.PathFileProfieTypeId)?.SessionID;
+        var url = Navigator.BaseUri.ToString() + "fileprofiletype/" + ProfilesessionId + "/" + documentLinkModel.SessionId;
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    void onNotify() { }
+}

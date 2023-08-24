@@ -49,6 +49,7 @@
     <Compile Remove="Services\WorldcitiesDataService.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Remove="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
     <Content Remove="wwwroot\images\icons\align-left.svg" />
   </ItemGroup>
   <ItemGroup>
@@ -100,9 +101,11 @@
     <UpToDateCheckInput Remove="Pages\HR\Employee.razor" />
   </ItemGroup>
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
     <_ContentIncludedByDefault Remove="Pages\HR\Employee.razor" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
     <None Include="Pages\HR\Employee.razor" />
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +124,9 @@
     <Reference Include="DevExpress.XtraReports.v23.1.Extensions">
       <HintPath>..\..\..\Program Files\DevExpress 23.1\Components\Bin\NetCore\DevExpress.XtraReports.v23.1.Extensions.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
   </ItemGroup>
 
 </Project>

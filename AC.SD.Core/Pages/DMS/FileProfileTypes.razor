@@ -1,5 +1,6 @@
 ﻿@page "/fileprofiletype"
 @page "/fileprofiletype/{SessionId:guid}"
+@page "/fileprofiletype/{SessionId:guid}/{DocSessionId:guid}"
 @using Application.Queries;
 @using MediatR;
 @inject IMediator Mediator
@@ -12,6 +13,7 @@
 @inject IConfiguration Configuration
 @inject ClipboardService ClipboardService
 @using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 <div class="menu-bar-content-container col-md-12">
     <div class="card w-100" style="margin-bottom:1px;">
@@ -33,35 +35,36 @@
 
                     <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                         <Items>
-                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
-                            <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Enabled="@uploadEnabled">
+                            <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Visible="@DownloadEnabled" />
+                            <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Visible="@uploadEnabled">
                                 <TextTemplate>
                                     <label for="input-file" style="cursor:pointer;">
                                         Upload
                                     </label>
                                 </TextTemplate>
                             </DxMenuItem>
-                            <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewfileEnabled" />
-                            <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
-
-
-                            <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Enabled="@deleteEnabled" />
-                            <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Enabled="@historyEnabled" />
-                            <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Enabled="@checkoutEnabled" />
-                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Enabled="@checkInEnabled">
+                            <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
+                            <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Visible="@copylinkEnabled" />
+                             <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Visible="@renameEnabled" >
+                                
+                             </DxMenuItem>
+                            <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Visible="@deleteEnabled" />
+                            <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Visible="@historyEnabled" />
+                            <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Visible="@checkoutEnabled" />
+                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Visible="@checkInEnabled">
                                 <TextTemplate>
                                     <label for="input-file" style="cursor:pointer;">
                                         Check In
                                     </label>
                                 </TextTemplate>
                             </DxMenuItem>
-                            <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Enabled="@NotifyEnabled" />
-                            <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Enabled="@shareEnabled" />
-                            <DxMenuItem Text="Link Document" IconCssClass="fa fa-link" Click="onLinkDownload" Enabled="@linkdownloadEnabled" />
-                            <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Enabled="@formdetailsEnabled" />
-                            <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewparentDocuments" Enabled="@viewParentEnabled" />
-                            <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Enabled="@renameEnabled" />
-                            <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" Click="onReleaseforwiki" Enabled="@releasewikiEnabled" />
+                            <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Visible="@NotifyEnabled" />
+                            <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Visible="@shareEnabled" />
+                            <DxMenuItem Text="Link Document" IconCssClass="fa fa-link" Click="onLinkDocuments" Visible="@linkdownloadEnabled" />
+                            <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Visible="@formdetailsEnabled" />
+                            <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewparentDocuments" Visible="@viewParentEnabled" />
+                           
+                            <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" Click="onReleaseforwiki" Visible="@releasewikiEnabled" />
                         </Items>
                     </DxMenuItem>
 
@@ -128,32 +131,72 @@
             AllowSelectRowByClick="true"
             CustomizeSummaryDisplayText="Grid_CustomizeSummaryDisplayText"
             SelectionMode="GridSelectionMode.Single"
-            CssClass="ch-360"
-            style="height: calc(100vh - 250px);">
+            CssClass="w-100"
+            TextWrapEnabled="false"
+            style="height: calc(100vh - 250px);"
+            >
         <Columns>
-            <DxGridDataColumn FieldName="DocumentID" Visible="false" />
-            <DxGridDataColumn FieldName="FileName" Caption="Name" MinWidth="80">
+@*            <DxGridSelectionColumn FixedPosition="GridColumnFixedPosition.Left" Width="60px" />
+*@            <DxGridDataColumn FieldName="DocumentID"  Visible="false" />
+            <DxGridDataColumn FieldName="FileName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="270">
                 <CellDisplayTemplate>
 
                     @{
                         var item = (DocumentsModel)context.DataItem;
+                        var contentType = item.ContentType!=null?item.ContentType.Split("/").First().ToLower():"";
                     }
                     @if (item.Type == "Document")
                     {
+                        @if(item.Extension=="xlsx" || item.Extension=="xls")
+                        {
+                            <i class="fa fa-file-excel" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else if(item.Extension=="ppt" || item.Extension=="pptx")
+                        {
+                            <i class="fa fa-file-powerpoint" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else if(item.Extension=="doc" || item.Extension=="docx")
+                        {
+                            <i class="fa fa-file-word" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else if(item.Extension=="pdf")
+                        {
+                            <i class="fa fa-file-pdf" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else if(item.Extension=="txt")
+                        {
+                            <i class="fa fa-file-text" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else
+                        {
+                            if (contentType == "image")
+                            {
+                                <i class="fa fa-file-image" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                            }
+                            else if (contentType == "video")
+                            {
+                                <i class="fa fa-file-video" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                            }
+                            else
+                            {
+                                <i class="fa fa-file" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                            }
+                        }
                         @if (item.IsLocked == true)
                         {
-                            <i class="fa fa-lock" aria-hidden="true" style="margin-right: 5px;"></i>
+                            <i class="fa fa-lock" aria-hidden="true" style="margin-right: 5px;" title="@item.LockedByUser"></i>
                         }
+                        
                     }
                     else
                     {
-                        <i class="fa fa-folder" aria-hidden="true" style="margin-right: 5px;"></i>
+                        <i class="fa fa-folder" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
                     }
-                    @item.FileName
+                    <span id=@($"flyout-overview-target-container-RenameFilename-{item.DocumentID}")>@item.FileName</span>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="ProfileNo" Caption="Profile" MinWidth="80" />
-            <DxGridDataColumn FieldName="FileSizes" Caption="File Size" MinWidth="40">
+            <DxGridDataColumn FieldName="ProfileNo" FixedPosition="GridColumnFixedPosition.Left" Caption="Profile" MinWidth="170" />
+            <DxGridDataColumn FieldName="FileSizes" FixedPosition="GridColumnFixedPosition.Left" Caption="File Size"MinWidth="170">
                 <CellDisplayTemplate>
                     @{
                         var item = (DocumentsModel)context.DataItem;
@@ -162,9 +205,32 @@
                     @(item.FileSizes + (!string.IsNullOrEmpty(item.FileCounts) ? ("," + item.FileCounts) : ""))
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="Description" MinWidth="80" />
-            <DxGridDataColumn FieldName="AddedByUser" Caption="ModifiedBy" MinWidth="40" />
-            <DxGridDataColumn FieldName="AddedDate" Caption="Modified" MinWidth="40" />
+            <DxGridDataColumn FieldName="Description" FixedPosition="GridColumnFixedPosition.Left" MinWidth="200">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                    }
+                    <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-Description-{item.DocumentID}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.Description"></i>
+                    <span title="@item.Description">@item.Description</span
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ExpiryDate" MinWidth="170" FixedPosition="GridColumnFixedPosition.Left">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                        var expiryDate= (item.ExpiryDate!= null ? Application.Common.Helper.Helper.FormatDate(item.ExpiryDate.Value) : null);
+                    }
+                    @if (item.Type == "Document")
+                    {
+                        <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-ExpiryDate-{item.DocumentID}") onclick="@(() => OnButtonExpiryDateClick(item))" title="@expiryDate"></i>
+                       @expiryDate
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy"  MinWidth="170" />
+            <DxGridDataColumn FieldName="AddedDate"   Caption="Added" MinWidth="170" />
+            <DxGridDataColumn FieldName="ModifiedBy"  Caption="ModifiedBy" MinWidth="170" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified" MinWidth="170" />
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
@@ -173,7 +239,8 @@
 </DxLoadingPanel>
 <DxPopup @bind-Visible="@PopupVisible"
          ShowFooter="true"
-         HeaderText="CRT"
+         HeaderText="Document History"
+         CloseOnOutsideClick="false"
          Width="1000px">
     <BodyContentTemplate>
         <HistoryPopup selectedFiles="@selectedFiles"></HistoryPopup>
@@ -182,19 +249,151 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@PopupVisibleLinkDocument"
+         ShowFooter="true"
+         HeaderText="Link Documents"
+         CloseOnOutsideClick="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <LinkDocumentsList selectedFiles="@selectedFiles"></LinkDocumentsList>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkDocumentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@PopupVisibleLinkParentDocument"
+         ShowFooter="true"
+         HeaderText="Parent Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <ParentLinkDocuments ParentSelectedFiles="@_selectedItems" LinkProfileSelectedFiles="@LinkProfileSelectedFiles" LinkType="Profile Type"></ParentLinkDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkParentDocumentPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxFlyout @bind-IsOpen=IsDescriptionOpen
+          PositionTarget=@($"#flyout-overview-target-container-Description-{_selectedDescriptionItems?.DocumentID}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText="Update Description"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Description:" ColSpanMd="12">
+                <DxMemo @bind-Text="@_selectedDescriptionItems.Description" CssClass="cw-480" Rows="5" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+<DxFlyout @bind-IsOpen=IsExpiryDateOpen
+          PositionTarget=@($"#flyout-overview-target-container-ExpiryDate-{_selectedDescriptionItems?.DocumentID}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          HeaderVisible="true"
+           HeaderText="Update Expiry Date"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="12">
+                <DxDateEdit NullText="Select a Expiry Date..." @bind-Date="@_selectedDescriptionItems.ExpiryDate" CssClass="cw-320" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateExpiryDate()) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsExpiryDateOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+<DxFlyout
+    @bind-IsOpen=IsRenameOpen
+    PositionTarget=@($"#flyout-overview-target-container-RenameFilename-{_selectedDescriptionItems?.DocumentID}")
+    RestrictionTarget="#Navigation-Flyout-Customization"
+     AnimationType="FlyoutAnimationType.Fade"
+    HeaderVisible="true"
+    HeaderText="Rename Document"
+    FooterVisible="true"
+    FooterCssClass="custom-flyout-footer"
+    Width="max(25vw, 550px)"
+    PreventCloseOnPositionTargetClick="true"
+   >
+   <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Document Name:" ColSpanMd="9">
+               <DxTextBox @bind-Text="@NewRename" CssClass="cw-480" />
+            </DxFormLayoutItem>
+             <DxFormLayoutItem Caption="" ColSpanMd="3">
+               <DxTextBox @bind-Text="@_selectedDescriptionItems.Extension" CssClass="cw-480"  Enabled="false"/>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDocumentRename()) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsRenameOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+<DxPopup @bind-Visible="@PopupVisibleSecurityAccess"
+         ShowFooter="true"
+         HeaderText="Security Access"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <ParentLinkDocuments ParentSelectedFiles="@_selectedItems" LinkProfileSelectedFiles="@LinkProfileSelectedFiles" LinkType="Profile Type"></ParentLinkDocuments>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSecurityAccessPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     IGrid Grid { get; set; }
     [Parameter]
     public Guid? SessionId { get; set; }
+    [Parameter]
+    public Guid? DocSessionId { get; set; }
+    bool IsDescriptionOpen { get; set; } = false;
+    bool IsRenameOpen { get; set; } = false;
     public bool PopupVisible { get; set; } = false;
+    public bool PopupVisibleLinkDocument { get; set; } = false;
+    public bool PopupVisibleSecurityAccess { get; set; } = false;
+    public bool IsExpiryDateOpen { get; set; } = false;
     public DocumentsModel selectedFiles { get; set; }
     public long? FileProfileTypeId { get; set; }
     private List<DocumentsModel> fileProfileTypeDocuments { get; set; }
-    private List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     private DocumentTypeModel _fileProfileselectedlstItems { get; set; }
     bool PanelVisible { get; set; }
+    DocumentLinkModel LinkProfileSelectedFiles = new DocumentLinkModel();
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     private DocumentsModel _selectedItems;
+    DocumentsModel _selectedDescriptionItems=new DocumentsModel();
     public string Name;
     public string isVisibleMore { get; set; } = "display:none;";
     public bool DownloadEnabled { get; set; } = false;
@@ -217,6 +416,8 @@
     public bool moreEnabled { get; set; } = false;
     public bool informationEnabled { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
+    public bool PopupVisibleLinkParentDocument { get; set; } = false;
+    public string? NewRename { get; set; }
     private string? DocumentViewUrl;
     private string? ServerUrl;
     protected override async Task OnInitializedAsync()
@@ -252,10 +453,15 @@
         PanelVisible = true;
         _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
         fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
-
+        if (DocSessionId != null)
+        {
+            fileProfileTypeDocuments = fileProfileTypeDocuments.Where(w => w.SessionID == DocSessionId).ToList();
+        }
         if (fileProfileTypeDocuments.Count > 0)
         {
+
             _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
+
             permissionEnabled();
             Grid.SetFocusedRowIndex(0);
         }
@@ -389,12 +595,15 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentID");
         _selectedItems = fileProfileTypeDocuments.FirstOrDefault(f => f.DocumentID == (long?)UniqueId);
-        permissionEnabled();
+        if (_selectedItems != null)
+        {
+            permissionEnabled();
+        }
         StateHasChanged();
     }
     async Task OnRowDoubleClick(GridRowClickEventArgs e)
     {
-        if (_selectedItems.FileProfileTypeId > 0)
+        if (_selectedItems != null && _selectedItems.FileProfileTypeId > 0)
         {
             NavigationManager.NavigateTo($"fileprofiletype/" + _selectedItems.SessionID);
         }
@@ -436,21 +645,19 @@
         //            break;
         //    }
         //}
-        if (e.ElementType == GridElementType.HeaderCell)
-        {
-            e.Style = "background-color: rgba(0, 0, 0, 0.08)";
-            e.CssClass = "header-bold";
-        }
+        //if (e.ElementType == GridElementType.HeaderCell)
+        //{
+        //    e.Style = "background-color: rgba(0, 0, 0, 0.08)";
+        //    e.CssClass = "header-bold";
+        //}
     }
     void onBack()
     {
         NavigationManager.NavigateTo($"fileprofiletype");
     }
-
-
     private async Task onCopy()
     {
-        if (_selectedItems.DocumentID > 0)
+        if (_selectedItems != null && _selectedItems.DocumentID > 0)
         {
             var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
             await ClipboardService.WriteTextAsync(url);
@@ -463,7 +670,7 @@
     }
     void OnSecurity()
     {
-
+        PopupVisibleSecurityAccess = true;
     }
     void onDownload()
     {
@@ -479,9 +686,9 @@
     }
     async Task Download()
     {
-        if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var response = await Mediator.Send(new GetFileDownload(_selectedItems));
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID, _selectedItems.FileName, _selectedItems.FilePath));
             //  Trigger file download
             await jsRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
         }
@@ -492,7 +699,7 @@
     }
     async void onView()
     {
-        if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
             var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
             await OpenDocumentPreview(url);
@@ -504,7 +711,7 @@
     }
     async Task onDelete()
     {
-        if (_selectedItems.DocumentID > 0)
+        if (_selectedItems != null && _selectedItems.DocumentID > 0)
         {
             await Mediator.Send(new GetFileProfileTypeDelete(_selectedItems));
             await loadFileProfileData();
@@ -512,13 +719,16 @@
     }
     async Task onHistory()
     {
-        selectedFiles = _selectedItems;
-        PopupVisible = true;
+        if (_selectedItems != null && _selectedItems.DocumentID > 0)
+        {
+            selectedFiles = _selectedItems;
+            PopupVisible = true;
+        }
 
     }
     async Task onCheckOut()
     {
-        if (_selectedItems.DocumentID > 0)
+        if (_selectedItems != null && _selectedItems.DocumentID > 0)
         {
             await Mediator.Send(new GetFileProfileTypeCheckOut(_selectedItems));
             await loadFileProfileData();
@@ -537,21 +747,33 @@
     {
 
     }
-    void onLinkDownload()
+    async Task onLinkDocuments()
     {
-
+        if (_selectedItems != null && _selectedItems.DocumentID > 0)
+        {
+            selectedFiles = _selectedItems;
+            PopupVisibleLinkDocument = true;
+        }
     }
+
     void onFormDetails()
     {
 
     }
+    async Task CloseLinkParentDocumentPopup()
+    {
+        PopupVisibleLinkParentDocument = false;
+    }
     void onViewparentDocuments()
     {
-
+        LinkProfileSelectedFiles.DocumentLinkId = 0;
+        LinkProfileSelectedFiles.LinkDocumentId = _selectedItems.DocumentID;
+        LinkProfileSelectedFiles.DocumentID = _selectedItems.DocumentID;
+        PopupVisibleLinkParentDocument = true;
     }
     void onRename()
     {
-
+        OnButtonRenameDescriptionClick();
     }
     void onReleaseforwiki()
     {
@@ -560,5 +782,61 @@
     void ClosePopup()
     {
         PopupVisible = false;
+    }
+    void CloseLinkDocumentPopup()
+    {
+        PopupVisibleLinkDocument = false;
+    }
+    void OnButtonDescriptionClick(DocumentsModel items)
+    {
+        IsDescriptionOpen = true;
+        _selectedDescriptionItems = new DocumentsModel();
+        _selectedDescriptionItems = items;
+    }
+    async Task OnUpdateDescription()
+    {
+        await Mediator.Send(new GetUpdateDescriptionField(_selectedDescriptionItems));
+        await loadFileProfileData();
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        IsDescriptionOpen = false;
+    }
+    void OnButtonExpiryDateClick(DocumentsModel items)
+    {
+        IsExpiryDateOpen = true;
+        _selectedDescriptionItems = new DocumentsModel();
+        _selectedDescriptionItems = items;
+    }
+    void OnButtonRenameDescriptionClick()
+    {
+        IsRenameOpen = true;
+        _selectedDescriptionItems = new DocumentsModel();
+        _selectedDescriptionItems = _selectedItems;
+        if (!string.IsNullOrEmpty(_selectedDescriptionItems.FileName))
+        {
+            NewRename = _selectedDescriptionItems.FileName.Remove(_selectedDescriptionItems.FileName.LastIndexOf("."));
+        }
+    }
+    async Task OnUpdateExpiryDate()
+    {
+        await Mediator.Send(new GetUpdateExpiryDateField(_selectedDescriptionItems));
+        await loadFileProfileData();
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        IsExpiryDateOpen = false;
+    }
+    async Task OnUpdateDocumentRename()
+    {
+        var NewName =NewRename != null ? NewRename.Trim() : "";
+        if (!string.IsNullOrEmpty(NewName))
+        {
+            _selectedDescriptionItems.FileName = NewRename + "." + _selectedDescriptionItems.Extension;
+            await Mediator.Send(new GetUpdateDocumentRename(_selectedDescriptionItems));
+            await loadFileProfileData();
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            IsRenameOpen = false;
+        }
+    }
+    void CloseSecurityAccessPopup()
+    {
+        PopupVisibleSecurityAccess = false;
     }
 }

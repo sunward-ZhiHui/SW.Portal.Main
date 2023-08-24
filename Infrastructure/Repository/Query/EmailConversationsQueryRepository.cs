@@ -208,6 +208,29 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<ViewEmployee>> GetAllConvTPListAsync(long topicId)
+        {
+            try
+            {
+                var query = @"SELECT concat(E.FirstName,',',E.LastName) as Name, FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
+                                INNER JOIN Employee E ON E.UserID = FT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FT.ConversationId = (SELECT TOP 1 ID FROM EmailConversations WHERE TopicID = @TopicID AND ReplyId = 0)";              
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicID", topicId);                
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<ViewEmployee>> GetAllPListAsync(long topicId)
         {
             try
@@ -961,7 +984,27 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
+        public async Task<List<EmailConversationAssignTo>> GetConversationTopicIdList(long TopicId)
+        {
+            try
+            {
+                var query = @"SELECT TOP 1 * FROM EmailConversations WHERE TopicID = @TopicID AND ReplyId = 0";
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
 
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
+                    return res;                   
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailConversationAssignTo>> GetConversationAssignToList(long ConversationId)
         {
             try
@@ -977,7 +1020,7 @@ namespace Infrastructure.Repository.Query
                 {
                     connection.Open();
                     var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
-                    return res;                   
+                    return res;
                 }
             }
             catch (Exception exp)
@@ -985,7 +1028,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-		public async Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId)
+        public async Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId)
 		{
 			try
 			{

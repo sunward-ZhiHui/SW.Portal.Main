@@ -1445,6 +1445,46 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        public async Task<long> UpdateSubjectDueDate(EmailConversations emailConversations)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DueDate", emailConversations.DueDate);
+                            parameters.Add("ID", emailConversations.ID);
+
+                            var query = " UPDATE EmailConversations SET DueDate = @DueDate WHERE ID = @ID";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
         public async Task<long> UpdateTopicClose(EmailTopics EmailTopics)
         {
             try

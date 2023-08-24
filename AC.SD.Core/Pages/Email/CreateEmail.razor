@@ -937,9 +937,9 @@ else
                 var result = await Mediator.Send(createReq);
                 if (result != null)
                 {                
-                    await Task.Delay(5000); // Delay for 5 seconds
+                   
                     uploadComponent.UploadAllFiles();                  
-
+                await Task.Delay(5000); // Delay for 5 seconds
                     //   onShowPopupMessage("success", "Topic have been saved successully");
                     ActivityEmailTopicId = 0;
                     toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);

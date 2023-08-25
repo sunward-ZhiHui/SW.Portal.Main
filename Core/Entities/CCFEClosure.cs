@@ -17,7 +17,9 @@ namespace Core.Entities
         public string? Comments { get; set; }
         public long? ClosedBy { get; set; }
         public DateTime Date { get;set; }
-
+        public bool IsSatisfactoryForNotSatisfactory { get;set; }
+        public long? NotSatisfactoryClosedBy { get; set; }
+        public DateTime? NotSatisfactoryDate { get; set; }  
 
     }
 }

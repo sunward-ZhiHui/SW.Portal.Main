@@ -589,6 +589,7 @@
 
         <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION D:CHANGE IMPLEMENTATION(* Attach Document Copy)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
 
+
             <DxFormLayoutTabPages >
                 <DxFormLayoutTabPage Caption="DISCONTINUE OF IMPLEMENTATION (if Applicable)">
 
@@ -628,29 +629,52 @@
 
             <DxFormLayoutItem Caption="All Completed:" ColSpanMd="12">
 
+             </DxFormLayoutItem>
+                  <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
 
-            </DxFormLayoutItem>
+                            <DxCheckBox @bind-Checked="@Data.IsSatisfactory" LabelPosition="LabelPosition.Right">Satisfactory</DxCheckBox>
+                  </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsNotSatisfactory" LabelPosition="LabelPosition.Right">Not Satisfactory</DxCheckBox>
+                        </DxFormLayoutItem>
+
+          
             <DxFormLayoutItem Caption="Activities Found Comments(if Any):" ColSpanMd="12">
 
+                <DxMemo @bind-Text="@Data.ClosureComments" Rows="5"></DxMemo>
 
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Closed By(Pharmacist):" ColSpanMd="6">
-
+                <DxComboBox Data="@applicationUsers"
+                            NullText="Select Closed By..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                            @bind-Value="Data.ClosedBy"
+                            ShowValidationIcon="true">
+                </DxComboBox>
 
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
-
+                <DxDateEdit @bind-Date="@Data.Date"></DxDateEdit>
 
             </DxFormLayoutItem>
             <DxFormLayoutGroup Caption="*To be filled Completed Activities Not Satisfactory initially" ColSpanMd="12">
                 <DxFormLayoutItem Caption="All Completed:" ColSpanMd="12">
-                    
+                    <DxCheckBox @bind-Checked="@Data.IsSatisfactoryForNotSatisfactory" LabelPosition="LabelPosition.Right">Satisfactory</DxCheckBox>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Activities Found Closed By(Pharmacist):" ColSpanMd="6">
-                   
+                    <DxComboBox Data="@applicationUsers"
+                            NullText="Select Closed By..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                    @bind-Value="Data.NotSatisfactoryClosedBy"
+                            ShowValidationIcon="true">
+                </DxComboBox>
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
-                 
+                    <DxDateEdit @bind-Date="@Data.NotSatisfactoryDate"></DxDateEdit>
                 </DxFormLayoutItem>
             </DxFormLayoutGroup>
         </DxFormLayoutGroup>

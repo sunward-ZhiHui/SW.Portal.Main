@@ -132,5 +132,25 @@ namespace Core.EntityModels
         public string? ApprovalComments { get; set; }
         public long? VerifiedBy { get; set; }
         public DateTime? ApprovalDate { get; set; }
+
+        [Key]
+        public long? CCFEClosureID { get; set; }
+        public bool IsSatisfactory { get; set; }
+        public bool IsNotSatisfactory { get; set; }
+        public string? ClosureComments { get; set; }
+        public long? ClosedBy { get; set; }
+        public DateTime Date { get; set; }
+        public bool IsSatisfactoryForNotSatisfactory { get; set; }
+        public long? NotSatisfactoryClosedBy { get; set; }
+        public DateTime? NotSatisfactoryDate { get; set; }
+
+
+        [Key]
+        public long CCFDImplementationDetailsID { get; set; }
+        public long CCFDImplementationID { get; set; }
+        public bool? IsRequired { get; set; }
+        public long? ResponsibiltyTo { get; set; }
+        public long? DoneBy { get; set; }
+        public DateTime? DoneByDate { get; set; }
     }
 }

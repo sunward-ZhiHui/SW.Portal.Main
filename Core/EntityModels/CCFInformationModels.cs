@@ -134,6 +134,17 @@ namespace Core.EntityModels
         public DateTime? ApprovalDate { get; set; }
 
         [Key]
+        public long? CCFDImplementationID { get; set; }
+        public long? ClassOfDocumentID { get; set; }
+        public string? HODComments { get; set; }
+        public string? HODSignature { get; set; }
+        public DateTime HODDate { get; set; }
+        public bool? ImplementationIsAcceptable { get; set; }
+        public bool? ImplementationIsNotAcceptable { get; set; }
+        public long? ImplementationVerifiedBy { get; set; }
+        public DateTime VerifiedDate { get; set; }
+
+        [Key]
         public long? CCFEClosureID { get; set; }
         public bool IsSatisfactory { get; set; }
         public bool IsNotSatisfactory { get; set; }

@@ -1,55 +1,152 @@
 ﻿@page "/changecontrolform"
 @using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
 
 
 <EditForm Model="@Data" Context="EditFormContext">
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION A:CHANGE INFORMATION(To be filled by Initiator/PIC)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
-            <DxFormLayoutItem Caption="Internal Changes" ColSpanMd="6">
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
               
-               
+                <DxCheckBox @bind-Checked="@Data.IsInternalChanges" LabelPosition="LabelPosition.Right" >Internal Changes</DxCheckBox>
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption=" Authority Directed Changes" ColSpanMd="6">
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
+
+                <DxCheckBox @bind-Checked="@Data.IsAuthorityDirectedChanges" LabelPosition="LabelPosition.Right">Authority Directed Changes</DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="Initiator
+                                       /PIC:" >
+                <DxComboBox Data="@applicationUsers"
+                            NullText="Select PIC..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                             @bind-Value="@Data.PIC"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Date:" >
+
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Department:" >
+                <DxComboBox Data="@_departmentItems"
+                            NullText="Select Department..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="DepartmentName"
+                            ValueFieldName="DepartmentId"
+                           
+                            @bind-Value="@Data.DepartmentID"
+                            ShowValidationIcon="true" CssClass="cw-480">
+                            
+                </DxComboBox>
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Responsible Person/PIA:" >
+                <DxComboBox Data="@applicationUsers"
+                            NullText="Select PIA..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                            @bind-Value="@Data.PIA"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Change Related To:" ColSpanLg="4" ColSpanMd="12" >
                 
-
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Initiator/PIC:" ColSpanMd="6">
-               
 
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsSiteTransfer" LabelPosition="LabelPosition.Right" CssClass="w-100">Site Transfer</DxCheckBox>
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
 
-
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsProduct" LabelPosition="LabelPosition.Right">Product</DxCheckBox>
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Department:" ColSpanMd="6">
-               
 
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsEquipment" LabelPosition="LabelPosition.Right">Equipment</DxCheckBox>
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Responsible Person/PIA:" ColSpanMd="6">
 
-
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsComposition" LabelPosition="LabelPosition.Right" >Composition</DxCheckBox>
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Changed Related To:" ColSpanMd="12">
 
-
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsFacility" LabelPosition="LabelPosition.Right">Facility</DxCheckBox>
+                    </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsLayout" LabelPosition="LabelPosition.Right">Layout</DxCheckBox>
+                    </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsDocument" LabelPosition="LabelPosition.Right">Document</DxCheckBox>
+                 </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsProcess" LabelPosition="LabelPosition.Right">Process</DxCheckBox>
             </DxFormLayoutItem>
+             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+
+                <DxCheckBox @bind-Checked="@Data.IsControlParameter" LabelPosition="LabelPosition.Right">Control Paramenter</DxCheckBox>
+                  </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsBatchSize">Batch Size</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsHoldingTime" LabelPosition="LabelPosition.Right">Holding Time</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsRawMeterial" LabelPosition="LabelPosition.Right">Raw Material</DxCheckBox>
+                </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsArtwork" LabelPosition="LabelPosition.Right">ArtWork/Labelling</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsPackagingMaterial" LabelPosition="LabelPosition.Right" >Packaging Material</DxCheckBox>
+                </DxFormLayoutItem>
+                 <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsVendor" LabelPosition="LabelPosition.Right">Vendor</DxCheckBox>
+                  </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsShelfLife" LabelPosition="LabelPosition.Right">Shelf Life</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsRegulatory" LabelPosition="LabelPosition.Right">Regulatory</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsReTestPeriod" LabelPosition="LabelPosition.Right">Re- Test Period</DxCheckBox>
+                  </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Others:"  ColSpanMd="12">
+                <DxTextBox @bind-Text="@Data.Others"  />
+            </DxFormLayoutItem>
+
+
             <DxFormLayoutItem Caption="Description of Proposed Change:" ColSpanMd="12">
 
-
+                <DxMemo @bind-Text="@Data.DescriptionOfProposedChange" Rows="5" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Justification:" ColSpanMd="12">
-
+                  <DxMemo @bind-Text = "@Data.Justification" Rows="5"/>
 
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Proposed Implementation Action:" ColSpanMd="12">
-
+                <DxMemo @bind-Text="@Data.ProposedImplementationAction" Rows="5" />
 
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Related Deviation to be Attached(if Any):" ColSpanMd="12">
-
+                <DxMemo @bind-Text="@Data.RelatedDeviation" Rows="5" />
 
             </DxFormLayoutItem>
         </DxFormLayoutGroup>
+    </DxFormLayout>
+</EditForm>
+<EditForm Model="@Data" Context="EditFormContext">
+    <DxFormLayout CssClass="w-100">
         <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION B:CHANGE EVALUATION" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
             <DxFormLayoutItem Caption="Status:" ColSpanMd="12">
 
@@ -200,7 +297,10 @@
             </DxFormLayoutGroup>
 
         </DxFormLayoutGroup>
-
+    </DxFormLayout>
+</EditForm>
+<EditForm Model="@Data" Context="EditFormContext">
+    <DxFormLayout CssClass="w-100">
         <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION C:CHANGE APPROVAL(To be filled by QA)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
             <DxFormLayoutItem Caption="Change Approval:" ColSpanMd="12">
 
@@ -220,7 +320,10 @@
             </DxFormLayoutItem>
          
         </DxFormLayoutGroup>
-
+    </DxFormLayout>
+</EditForm>
+<EditForm Model="@Data" Context="EditFormContext">
+    <DxFormLayout CssClass="w-100">
         <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION D:CHANGE IMPLEMENTATION(* Attach Document Copy)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
 
             <DxFormLayoutTabPages >
@@ -256,6 +359,10 @@
 
             </DxFormLayoutTabPages>
         </DxFormLayoutGroup>
+    </DxFormLayout>
+</EditForm>
+<EditForm Model="@Data" Context="EditFormContext">
+    <DxFormLayout CssClass="w-100">
         <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION E:CHANGE CLOSURE(To be filled By QA)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
 
             <DxFormLayoutItem Caption="All Completed:" ColSpanMd="12">
@@ -290,5 +397,15 @@
 </EditForm>
 @code {
     int ActiveTabIndex { get; set; } = 1;
-    view_ProductionActivityAppLineReport Data = new view_ProductionActivityAppLineReport();
+    CCFAInformation Data = new CCFAInformation();
+    private List<ViewDepartment> _departmentItems;
+    private List<ApplicationUser> applicationUsers;
+    protected override async Task OnInitializedAsync()
+    {
+
+        _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
+        applicationUsers = await Mediator.Send(new GetAllApplicationUserQuery());
+
+    
+    }
 }

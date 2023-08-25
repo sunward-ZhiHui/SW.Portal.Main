@@ -21,6 +21,7 @@ namespace Core.Repositories.Query
         Task<long> SetPinTopicToList(Int64 Id);
         Task<long> UnSetPinTopicToList(Int64 Id);
         Task<long> UpdateMarkasReadList(Int64 Id);
+        Task<long> UpdateMarkasAllReadList(Int64 Id,long userId);
         Task<long> UpdateMarkasunReadList(Int64 Id);
         Task<List<EmailTopics>> GetTopicAllList(Int64 UserId);
         Task<List<EmailTopics>> GetTopicMasterSearchList(Int64 UserId,string MasterSearch);        
@@ -44,6 +45,7 @@ namespace Core.Repositories.Query
         Task<long> InsertParticipant(TopicParticipant topicParticipant);
         Task<EmailTopics> GetTopicListAsync();      
         Task<long> UpdateDueDate(EmailTopics EmailTopics);
+        Task<long> UpdateSubjectDueDate(EmailConversations emailConversations);
         Task<long> UpdateTopicClose(EmailTopics EmailTopics);
         Task<long> UpdateTopicArchive(EmailTopics emailTopics);
         Task<List<ActivityEmailTopics>> GetByActivityEmailSessionList(Guid sessionId);

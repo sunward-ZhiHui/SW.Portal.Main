@@ -30,7 +30,21 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  *,Name as Filename,\r\nFileProfileTypeID as DocumentID,\r\nProfile as ProfileNo,\r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\nCONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\nCONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\nAND IsLatest=1  \r\nAND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\nOR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\nfrom view_FileProfileTypeDocument t2";
+                var query = "select  *,Name as Filename,\r\n" +
+                    "FileProfileTypeID as DocumentID,\r\n" +
+                    "AddedBy as AddedByUser,\r\n" +
+                    "ModifiedBy as ModifiedByUser,\r\n" +
+                    "ModifiedDate,\r\n" +
+                    "AddedDate,\r\n" +
+                    "Profile as ProfileNo,\r\n" +
+                    //"CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n" +
+                    //"CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\n" +
+                    "CONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\n" +
+                    "CONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\n" +
+                    "AND IsLatest=1  \r\n" +
+                    "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\n" +
+                    "OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n" +
+                    "from view_FileProfileTypeDocument t2";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DocumentsModel>(query)).ToList();
@@ -182,7 +196,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-       
+
         public static string FormatSize(Int64 bytes)
         {
             string[] suffixes = { "Bytes", "KB", "MB", "GB", "TB", "PB" };
@@ -204,6 +218,38 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DocumentPermissionModel>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<UserGroup>> GetUserGroups()
+        {
+            try
+            {
+                var query = "select  * from UserGroup where IsTMS=1 AND StatusCodeID=1";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<UserGroup>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DocumentRole>> GetDocumentRole()
+        {
+            try
+            {
+                var query = "select  * from DocumentRole where StatusCodeID=1";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentRole>(query)).ToList();
                 }
             }
             catch (Exception exp)
@@ -638,6 +684,7 @@ namespace Infrastructure.Repository.Query
                                         documentsModels.NotesColor = "blue";
                                     }
                                 }
+                                documentsModels.Extension = s.FileName?.Split(".").Last();
                                 documentsModels.SetAccessFlag = setAccessFlag > 0 ? true : false;
                                 documentsModels.SessionId = s.SessionId;
                                 documentsModels.DocumentID = s.DocumentId;
@@ -658,10 +705,12 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.TotalDocument = documentcount == 1 ? 1 : (documentcount + 1);
                                 documentsModels.UploadedByUserId = s.AddedByUserId;
                                 documentsModels.ModifiedByUserID = s.ModifiedByUserId;
-                                documentsModels.AddedDate = s.ModifiedDate == null ? s.UploadDate : s.ModifiedDate;
+                                documentsModels.AddedDate = s.UploadDate;
                                 documentsModels.ModifiedDate = s.ModifiedDate;
                                 documentsModels.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
+                                documentsModels.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
                                 documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                                documentsModels.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
                                 //documentsModels.AddedByUser = s.ModifiedByUserId == null ? appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName : appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
                                 documentsModels.IsLocked = s.IsLocked;
                                 documentsModels.LockedByUserId = s.LockedByUserId;
@@ -836,6 +885,503 @@ namespace Infrastructure.Repository.Query
                     }
                 }
                 return DocumentTypeModel;
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentPermissionModel> GetAllSelectedFilePermissionAsync(long? DocumentId, long? selectedFileProfileTypeID)
+        {
+            DocumentTypeModel DocumentTypeModel = new DocumentTypeModel();
+            List<DocumentsModel> documentsModel = new List<DocumentsModel>();
+            try
+            {
+                var docs = await GetAllFileProfileDocumentIdAsync(selectedFileProfileTypeID);
+                DocumentTypeModel.DocumentsData.AddRange(docs);
+                if (selectedFileProfileTypeID > 0)
+                {
+                    var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                    var appUsers = await GetApplicationUserAsync();
+                    var fileProfileType = await GetFileprofiletypeAsync();
+                    var roleItemsList = await GetDocumentUserRoleAsync(selectedFileProfileTypeID);
+                    var closedocumentPermission = await GetCloseDocumentPermissionAsync(selectedFileProfileTypeID);
+                    var parameters = new DynamicParameters();
+                    var documentPermission = await GetDocumentPermissionByRoll();
+                    parameters.Add("DocumentID", DocumentId, DbType.Int64);
+                    var query = DocumentQueryString() + " where DocumentID=@DocumentID ";
+
+                    using (var connection = CreateConnection())
+                    {
+                        var documents = (await connection.QueryAsync<Documents>(query, parameters)).ToList();
+                        if (documents != null && documents.Count > 0)
+                        {
+                            var setAccess = roleItemsList;
+                            documents.ForEach(s =>
+                            {
+                                DocumentsModel documentsModels = new DocumentsModel();
+                                if (setAccess.Count > 0)
+                                {
+                                    var roleDocItem = setAccess.FirstOrDefault(u => u.DocumentId == s.DocumentId);
+                                    if (roleDocItem != null)
+                                    {
+                                        var roleItem = setAccess.FirstOrDefault(u => u.UserId == userData.UserID && u.DocumentId == s.DocumentId);
+                                        if (roleItem != null)
+                                        {
+                                            var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleItem.RoleId).FirstOrDefault();
+                                            documentsModels.DocumentPermissionData = permissionData;
+                                        }
+                                        else
+                                        {
+                                            documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = true, IsRename = false, IsCopy = false, IsCreateFolder = false, IsEdit = false, IsMove = false, IsShare = false, IsFileDelete = false };
+                                        }
+                                    }
+                                    else
+                                    {
+                                        var filprofilepermission = setAccess.FirstOrDefault(u => u.FileProfileTypeId == s.FilterProfileTypeId && u.DocumentId == null && u.UserId == userData.UserID);
+                                        if (filprofilepermission != null)
+                                        {
+                                            var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)filprofilepermission.RoleId).FirstOrDefault();
+                                            documentsModels.DocumentPermissionData = permissionData;
+                                        }
+                                        else
+                                        {
+                                            documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = true, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = true, IsCopy = true, IsCreateFolder = true, IsEdit = true, IsMove = true, IsShare = true, IsFileDelete = true };
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = false };
+                                }
+
+                                if (documentsModels.DocumentPermissionData != null)
+                                {
+                                    if (documentsModels.DocumentPermissionData.IsRead == true)
+                                    {
+                                        documentsModel.Add(documentsModels);
+                                    }
+                                    else if (documentsModels.DocumentPermissionData.IsRead == false)
+                                    {
+
+                                    }
+                                }
+                                else
+                                {
+                                    documentsModel.Add(documentsModels);
+                                }
+                            });
+                        }
+                        DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());
+                        var roleItems = roleItemsList.Where(w => w.FileProfileTypeId == selectedFileProfileTypeID).ToList();
+                        if (roleItems.Count > 0)
+                        {
+                            var roleItem = roleItems.FirstOrDefault(u => u.UserId == userData.UserID);
+                            if (roleItem != null)
+                            {
+                            }
+                            else
+                            {
+                                if (DocumentTypeModel.DocumentsData.Count > 0)
+                                {
+                                    DocumentTypeModel.DocumentsData.ForEach(p =>
+                                    {
+                                        p.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = false, IsRename = false };
+                                        if (closedocumentPermission.Count > 0)
+                                        {
+                                            var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
+                                            if (userpermission != null)
+                                            {
+                                                p.DocumentPermissionData.IsCloseDocument = true;
+                                            }
+                                            else
+                                            {
+                                                p.DocumentPermissionData.IsCloseDocument = false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            p.DocumentPermissionData.IsCloseDocument = true;
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+                return DocumentTypeModel.DocumentPermissionData;
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DocumentLinkModel>> GetDocumentLinkByDocumentId(long? id)
+        {
+            List<DocumentLinkModel> DocumentLinkModels = new List<DocumentLinkModel>();
+            try
+            {
+                var fileProfileList = await GetFileprofiletypeAsync();
+                var parameters = new DynamicParameters();
+                parameters.Add("DocumentID", id, DbType.Int64);
+                var query = "select\r\nt1.DocumentLinkId,\r\nt1.DocumentID,\r\nt1.FileProfieTypeID,\r\nt1.LinkDocumentId,\r\nt1.DocumentPath,\r\nt1.FolderID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.AddedDate,\r\nt2.SessionID,\r\nt2.FileSize, \r\nt2.FileName as Title,\r\nt2.ContentType, \r\nt2.FileName as LinkDocumentName,\r\nt2.FilterProfileTypeID as PathFileProfieTypeId,\r\nt2.FolderID as LinkFolderID,\r\nt2.FilePath,\r\nt3.TableName as Type,\r\nt3.FileName as DocumentName,\r\nt4.UserName as AddedByUser,\r\nt5.UserName as ModifiedByUser,\r\nt6.CodeValue as StatusCode\r\nfrom DocumentLink t1 \r\nJOIN Documents t2 ON t1.LinkDocumentId=t2.DocumentID\r\nJOIN Documents t3 ON t1.DocumentID=t3.DocumentID \r\nLEFT JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID\r\nLEFT JOIN CodeMaster t6 ON t6.CodeID=t1.StatusCodeID where t1.DocumentID=@DocumentID";
+                using (var connection = CreateConnection())
+                {
+                    var DocumentLink = (await connection.QueryAsync<DocumentLinkModel>(query, parameters)).ToList();
+                    if (DocumentLink != null && DocumentLink.Count > 0)
+                    {
+                        DocumentLink.ForEach(s =>
+                        {
+
+                            DocumentLinkModel DocumentLinkModel = new DocumentLinkModel();
+                            DocumentLinkModel.DocumentLinkId = s.DocumentLinkId;
+                            DocumentLinkModel.DocumentID = s.LinkDocumentId;
+                            DocumentLinkModel.LinkDocumentId = s.LinkDocumentId;
+                            DocumentLinkModel.ModifiedByUser = s.ModifiedByUser;
+                            DocumentLinkModel.StatusCode = s.StatusCode;
+                            DocumentLinkModel.AddedByUserID = s.AddedByUserID;
+                            DocumentLinkModel.ModifiedByUserID = s.ModifiedByUserID;
+                            DocumentLinkModel.StatusCodeID = s.StatusCodeID;
+                            DocumentLinkModel.AddedDate = s.AddedDate;
+                            DocumentLinkModel.ModifiedDate = s.ModifiedDate;
+                            DocumentLinkModel.DocumentId = s.DocumentId;
+                            DocumentLinkModel.AddedByUser = s.AddedByUser;
+                            DocumentLinkModel.FileProfieTypeId = s.FileProfieTypeId;
+                            DocumentLinkModel.FolderId = s.FolderId;
+                            DocumentLinkModel.DocumentPath = s.DocumentPath;
+                            DocumentLinkModel.SessionId = s.SessionId;
+                            var filesize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
+                            DocumentLinkModel.FileSize = filesize;
+                            DocumentLinkModel.Title = s.Title;
+                            DocumentLinkModel.Type = s.Type;
+                            DocumentLinkModel.ContentType = s.ContentType;
+                            DocumentLinkModel.DocumentName = s.DocumentName;
+                            DocumentLinkModel.LinkDocumentName = s.LinkDocumentName;
+                            var FileProfileTypeId = s.PathFileProfieTypeId;
+                            DocumentLinkModel.PathFileProfieTypeId = FileProfileTypeId;
+                            DocumentLinkModel.PathFileProfieTypeId = FileProfileTypeId;
+                            DocumentLinkModel.FilePath = s.FilePath;
+                            DocumentLinkModels.Add(DocumentLinkModel);
+                        });
+
+                    }
+                }
+                return DocumentLinkModels.OrderByDescending(d => d.AddedDate).ToList();
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DocumentLinkModel>> GetParentDocumentsByLinkDocumentId(long? id)
+        {
+            List<DocumentLinkModel> DocumentLinkModels = new List<DocumentLinkModel>();
+            try
+            {
+                var fileProfileList = await GetFileprofiletypeAsync();
+                var parameters = new DynamicParameters();
+                parameters.Add("LinkDocumentId", id, DbType.Int64);
+                var query = "select\r\nt1.DocumentLinkId,\r\n" +
+                    "t1.DocumentID,\r\nt1.FileProfieTypeID,\r\n" +
+                    "t1.LinkDocumentId,\r\nt1.DocumentPath,\r\n" +
+                    "t1.FolderID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\n" +
+                    "t1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.AddedDate,\r\n" +
+                    "t3.SessionID,\r\n" +
+                    "t3.FileSize, \r\n" +
+                    "t3.FileName as Title,\r\n" +
+                    "t3.ContentType, \r\nt3.FileName as LinkDocumentName,\r\n" +
+                    "t3.FilterProfileTypeID as PathFileProfieTypeId,\r\n" +
+                    "t3.FolderID as LinkFolderID,\r\n" +
+                    "t3.FilePath,\r\n" +
+                    "t2.TableName as Type,\r\n" +
+                    "t2.FileName as DocumentName,\r\n" +
+                    "t4.UserName as AddedByUser,\r\nt5.UserName as ModifiedByUser,\r\n" +
+                    "t6.CodeValue as StatusCode\r\nfrom DocumentLink t1 \r\n" +
+                    "JOIN Documents t2 ON " +
+                    "t1.LinkDocumentId=t2.DocumentID\r\n" +
+                    "JOIN Documents t3 ON t1.DocumentID=t3.DocumentID \r\n" +
+                    "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID\r\n" +
+                    "LEFT JOIN CodeMaster t6 ON t6.CodeID=t1.StatusCodeID where t1.LinkDocumentId=@LinkDocumentId";
+                using (var connection = CreateConnection())
+                {
+                    var DocumentLink = (await connection.QueryAsync<DocumentLinkModel>(query, parameters)).ToList();
+                    if (DocumentLink != null && DocumentLink.Count > 0)
+                    {
+                        DocumentLink.ForEach(s =>
+                        {
+
+                            DocumentLinkModel DocumentLinkModel = new DocumentLinkModel();
+                            DocumentLinkModel.DocumentLinkId = s.DocumentLinkId;
+                            DocumentLinkModel.DocumentID = s.DocumentID;
+                            DocumentLinkModel.LinkDocumentId = s.LinkDocumentId;
+                            DocumentLinkModel.ModifiedByUser = s.ModifiedByUser;
+                            DocumentLinkModel.StatusCode = s.StatusCode;
+                            DocumentLinkModel.AddedByUserID = s.AddedByUserID;
+                            DocumentLinkModel.ModifiedByUserID = s.ModifiedByUserID;
+                            DocumentLinkModel.StatusCodeID = s.StatusCodeID;
+                            DocumentLinkModel.AddedDate = s.AddedDate;
+                            DocumentLinkModel.ModifiedDate = s.ModifiedDate;
+                            DocumentLinkModel.DocumentId = s.DocumentId;
+                            DocumentLinkModel.AddedByUser = s.AddedByUser;
+                            DocumentLinkModel.FileProfieTypeId = s.FileProfieTypeId;
+                            DocumentLinkModel.FolderId = s.FolderId;
+                            DocumentLinkModel.DocumentPath = s.DocumentPath;
+                            DocumentLinkModel.SessionId = s.SessionId;
+                            var filesize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
+                            DocumentLinkModel.FileSize = filesize;
+                            DocumentLinkModel.Title = s.Title;
+                            DocumentLinkModel.Type = s.Type;
+                            DocumentLinkModel.ContentType = s.ContentType;
+                            DocumentLinkModel.DocumentName = s.DocumentName;
+                            DocumentLinkModel.LinkDocumentName = s.LinkDocumentName;
+                            var FileProfileTypeId = s.PathFileProfieTypeId;
+                            DocumentLinkModel.PathFileProfieTypeId = FileProfileTypeId;
+                            DocumentLinkModel.PathFileProfieTypeId = FileProfileTypeId;
+                            DocumentLinkModel.FilePath = s.FilePath;
+                            DocumentLinkModels.Add(DocumentLinkModel);
+                        });
+
+                    }
+                }
+                return DocumentLinkModels.OrderByDescending(d => d.AddedDate).ToList();
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentLink> CheckDocumentLinkExits(DocumentLink documentLink)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DocumentId", documentLink.DocumentId);
+                parameters.Add("LinkDocumentId", documentLink.LinkDocumentId);
+                var query = "select  * from DocumentLink where DocumentId=@DocumentId AND LinkDocumentId=@LinkDocumentId";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DocumentLink>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentLinkModel> DeleteDocumentLink(DocumentLinkModel documentLink)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentLinkId", documentLink.DocumentLinkId);
+
+                            var query = "Delete from DocumentLink where DocumentLinkId=@DocumentLinkId";
+
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return documentLink;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentLink> InsertDocumentLink(DocumentLink documentLink)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var checkLink = await CheckDocumentLinkExits(documentLink);
+                            if (checkLink == null)
+                            {
+                                var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                                var parameters = new DynamicParameters();
+                                parameters.Add("DocumentId", documentLink.DocumentId);
+                                parameters.Add("AddedByUserId", userData.UserID);
+                                parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
+                                parameters.Add("StatusCodeId", documentLink.StatusCodeId);
+                                parameters.Add("LinkDocumentId", documentLink.LinkDocumentId);
+                                parameters.Add("FolderId", documentLink.FolderId);
+                                parameters.Add("FileProfieTypeId", documentLink.FileProfieTypeId);
+                                parameters.Add("DocumentPath", documentLink.DocumentPath);
+                                var query = "INSERT INTO [DocumentLink](DocumentId,AddedByUserId,AddedDate,StatusCodeId,LinkDocumentId,FolderId,FileProfieTypeId,DocumentPath) OUTPUT INSERTED.DocumentLinkId VALUES " +
+                                    "(@DocumentId,@AddedByUserId,@AddedDate,@StatusCodeId,@LinkDocumentId,@FolderId,@FileProfieTypeId,@DocumentPath)";
+
+                                documentLink.DocumentLinkId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+
+                                transaction.Commit();
+                            }
+                            return documentLink;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsModel> UpdateExpiryDateField(DocumentsModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentId", value.DocumentID);
+                            parameters.Add("FilterProfileTypeId", value.FilterProfileTypeId);
+                            parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                            parameters.Add("ModifiedByUserId", userData.UserID);
+                            parameters.Add("ExpiryDate", value.ExpiryDate, DbType.DateTime);
+                            var query = "Update Documents SET ExpiryDate=@ExpiryDate,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE " +
+                                "DocumentId= @DocumentId AND FilterProfileTypeId=@FilterProfileTypeId";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsModel> UpdateDocumentRename(DocumentsModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentId", value.DocumentID);
+                            parameters.Add("FileName", value.FileName, DbType.String);
+                            parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                            parameters.Add("ModifiedByUserId", userData.UserID);
+                            var query = "Update Documents SET FileName=@FileName,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE " +
+                                "DocumentId= @DocumentId";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsModel> UpdateDescriptionField(DocumentsModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                            if (value.Type == "Document")
+                            {
+                                var parameters = new DynamicParameters();
+                                parameters.Add("DocumentId", value.DocumentID);
+                                parameters.Add("FilterProfileTypeId", value.FilterProfileTypeId);
+                                parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                                parameters.Add("ModifiedByUserId", userData.UserID);
+                                parameters.Add("Description", value.Description);
+
+                                var query = "Update Documents SET Description=@Description,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE " +
+                                    "DocumentId= @DocumentId AND FilterProfileTypeId=@FilterProfileTypeId";
+                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                                var parametersLink = new DynamicParameters();
+                                parametersLink.Add("DocumentId", value.DocumentID);
+                                parametersLink.Add("Description", value.Description);
+                                parametersLink.Add("TransactionSessionId", value.SessionId);
+                                var querys = "Update LinkFileProfileTypeDocument SET Description=@Description WHERE " +
+                                    "DocumentId= @DocumentId AND TransactionSessionId=@TransactionSessionId";
+                                await connection.QuerySingleOrDefaultAsync<long>(querys, parametersLink, transaction);
+                            }
+                            else
+                            {
+                                var parameters = new DynamicParameters();
+                                parameters.Add("FileProfileTypeId", value.DocumentID);
+                                parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                                parameters.Add("ModifiedByUserId", userData.UserID);
+                                parameters.Add("Description", value.Description);
+                                var query = "Update Fileprofiletype SET Description=@Description,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE " +
+                                    "FileProfileTypeId=@FileProfileTypeId";
+                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            }
+                            transaction.Commit();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
 
             }
             catch (Exception exp)

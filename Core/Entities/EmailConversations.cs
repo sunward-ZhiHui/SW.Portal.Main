@@ -17,6 +17,8 @@ namespace Core.Entities
         public long TopicID { get; set; }
         [Required(ErrorMessage = "Please Enter Message.")]
         public string Message { get; set; }
+        public DateTime? DueDate { get; set; }
+        public bool? IsAllowParticipants { get; set; }
         public  long ParticipantId  { get; set; }
         public long ReplyId { get; set; }
         public string? ReplyMessage { get; set; }

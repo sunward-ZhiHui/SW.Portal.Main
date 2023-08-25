@@ -95,6 +95,20 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class UpdateMarkasAllReadHandler : IRequestHandler<UpdateMarkasAllRead, long>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public UpdateMarkasAllReadHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<long> Handle(UpdateMarkasAllRead request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.UpdateMarkasAllReadList(request.ID,request.UserId);
+
+        }
+    }
     public class UpdateMarkasReadHandler : IRequestHandler<UpdateMarkasRead, long>
     {
 
@@ -409,6 +423,22 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<long> Handle(UpdateEmailTopicDueDate request, CancellationToken cancellationToken)
         {
             var req = await _emailTopicsQueryRepository.UpdateDueDate(request);
+            return req;
+        }
+    }
+    public class UpdateEmailTopicSubjectDueDateHandler : IRequestHandler<UpdateEmailTopicSubjectDueDate, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public UpdateEmailTopicSubjectDueDateHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+
+        }
+
+        public async Task<long> Handle(UpdateEmailTopicSubjectDueDate request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.UpdateSubjectDueDate(request);
             return req;
         }
     }

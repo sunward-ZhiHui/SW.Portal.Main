@@ -208,6 +208,29 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<ViewEmployee>> GetAllConvTPListAsync(long topicId)
+        {
+            try
+            {
+                var query = @"SELECT concat(E.FirstName,',',E.LastName) as Name, FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailConversationParticipant FT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
+                                INNER JOIN Employee E ON E.UserID = FT.UserId
+								INNER JOIN Plant p on p.PlantID = E.PlantID
+								INNER JOIN Designation D ON D.DesignationID = E.DesignationID
+                                WHERE FT.ConversationId = (SELECT TOP 1 ID FROM EmailConversations WHERE TopicID = @TopicID AND ReplyId = 0)";              
+
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicID", topicId);                
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<ViewEmployee>> GetAllPListAsync(long topicId)
         {
             try
@@ -435,7 +458,7 @@ namespace Infrastructure.Repository.Query
 
                 var query = @"SELECT * FROM (
                             SELECT FC.TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
-                                AET.Comment AS ActCommentName, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate
+                                AET.Comment AS ActCommentName, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants
                             FROM EmailConversations FC
                             LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                             INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = FC.ID AND ECP.UserId = @UserId
@@ -457,7 +480,7 @@ namespace Infrastructure.Repository.Query
                             UNION
 
                             SELECT EETT.ID AS TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
-                                '' AS ActCommentName, '' AS ActUserName, '' AS ActAddedDate
+                                '' AS ActCommentName, '' AS ActUserName, '' AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants
                             FROM EmailTopics EETT
                             INNER JOIN EmailConversations FC ON FC.TopicID = EETT.ID
                             INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
@@ -493,7 +516,7 @@ namespace Infrastructure.Repository.Query
                                     FROM
                                         EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                        INNER JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
+                                        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = FC.ParticipantId
                                     WHERE
                                         FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId
                                     ORDER BY FC.AddedDate DESC";
@@ -700,7 +723,7 @@ namespace Infrastructure.Repository.Query
             {
 
                 var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,
-                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate FROM EmailConversations FC  
+                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants FROM EmailConversations FC  
                                 LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID      
@@ -733,7 +756,7 @@ namespace Infrastructure.Repository.Query
                                     FROM
                                         EmailConversations FC
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                        INNER JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
+                                        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
                                     WHERE
                                        FC.ReplyId = @ReplyId
                                        ORDER BY FC.AddedDate DESC";
@@ -961,7 +984,27 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
+        public async Task<List<EmailConversationAssignTo>> GetConversationTopicIdList(long TopicId)
+        {
+            try
+            {
+                var query = @"SELECT TOP 1 * FROM EmailConversations WHERE TopicID = @TopicID AND ReplyId = 0";
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId);
 
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
+                    return res;                   
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailConversationAssignTo>> GetConversationAssignToList(long ConversationId)
         {
             try
@@ -977,7 +1020,7 @@ namespace Infrastructure.Repository.Query
                 {
                     connection.Open();
                     var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
-                    return res;                   
+                    return res;
                 }
             }
             catch (Exception exp)
@@ -985,7 +1028,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-		public async Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId)
+        public async Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId)
 		{
 			try
 			{
@@ -1033,8 +1076,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", forumConversations.AddedDate);
                             parameters.Add("FileData", forumConversations.FileData);
                             parameters.Add("Name", forumConversations.Name);
+                            parameters.Add("DueDate", forumConversations.DueDate);
+                            parameters.Add("IsAllowParticipants", forumConversations.IsAllowParticipants);
 
-                            var query = "INSERT INTO EmailConversations(TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
+                            var query = "INSERT INTO EmailConversations(DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

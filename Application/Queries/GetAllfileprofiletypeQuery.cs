@@ -21,7 +21,7 @@ namespace Application.Queries
     }
     public class GetAllfileprofiletypeListQuery : PagedRequest, IRequest<List<DocumentsModel>>
     {
-        
+
     }
     public class GetAllSelectedfileprofiletypeQuery : PagedRequest, IRequest<DocumentTypeModel>
     {
@@ -31,7 +31,7 @@ namespace Application.Queries
             this.selectedFileProfileTypeID = selectedFileProfileTypeID;
         }
     }
-    
+
     public class GetFileProfileTypeDocumentByHistory : PagedRequest, IRequest<DocumentTypeModel>
     {
         public SearchModel SearchModel { get; private set; }
@@ -56,14 +56,90 @@ namespace Application.Queries
             this.DocumentsModel = documentsModel;
         }
     }
-    
+    public class GetFileProfileTypeLinkDocument : PagedRequest, IRequest<List<DocumentLinkModel>>
+    {
+        public long? Id { get; private set; }
+        public GetFileProfileTypeLinkDocument(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class GetParentDocumentsByLinkDocument : PagedRequest, IRequest<List<DocumentLinkModel>>
+    {
+        public long? Id { get; private set; }
+        public GetParentDocumentsByLinkDocument(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class InsertDocumentLink : PagedRequest, IRequest<DocumentLink>
+    {
+        public DocumentLink DocumentLink { get; private set; }
+        public InsertDocumentLink(DocumentLink documentLink)
+        {
+            this.DocumentLink = documentLink;
+        }
+    }
+    public class DeleteDocumentLink : PagedRequest, IRequest<DocumentLinkModel>
+    {
+        public DocumentLinkModel DocumentLink { get; private set; }
+        public DeleteDocumentLink(DocumentLinkModel documentLink)
+        {
+            this.DocumentLink = documentLink;
+        }
+    }
     public class GetFileDownload : PagedRequest, IRequest<DocumentsModel>
     {
+        public long? DocumentId { get; private set; }
+        public string? FileName { get; private set; }
+        public string? FilePath { get; private set; }
+        public GetFileDownload(long? documentId, string? fileName, string? filePath)
+        {
+            this.DocumentId = documentId;
+            this.FileName = fileName;
+            this.FilePath = filePath;
+        }
+    }
+    public class GetUpdateDescriptionField : PagedRequest, IRequest<DocumentsModel>
+    {
         public DocumentsModel DocumentsModel { get; private set; }
-        public GetFileDownload(DocumentsModel documentsModel)
+        public GetUpdateDescriptionField(DocumentsModel documentsModel)
         {
             this.DocumentsModel = documentsModel;
         }
     }
+    public class GetUpdateExpiryDateField : PagedRequest, IRequest<DocumentsModel>
+    {
+        public DocumentsModel DocumentsModel { get; private set; }
+        public GetUpdateExpiryDateField(DocumentsModel documentsModel)
+        {
+            this.DocumentsModel = documentsModel;
+        }
+    }
+    public class GetUpdateDocumentRename : PagedRequest, IRequest<DocumentsModel>
+    {
+        public DocumentsModel DocumentsModel { get; private set; }
+        public GetUpdateDocumentRename(DocumentsModel documentsModel)
+        {
+            this.DocumentsModel = documentsModel;
+        }
+    }
+    public class GetSelectedFilePermission : PagedRequest, IRequest<DocumentPermissionModel>
+    {
+        public long? DocumentId { get; private set; }
+        public long? FileProfileTypeID { get; private set; }
+        public GetSelectedFilePermission(long? documentId, long? fileProfileTypeID)
+        {
+            this.DocumentId = documentId;
+            this.FileProfileTypeID = fileProfileTypeID;
+        }
+    }
+    public class GetUserGroups : PagedRequest, IRequest<List<UserGroup>>
+    {
+        
+    }
+    public class GetDocumentRoles : PagedRequest, IRequest<List<DocumentRole>>
+    {
 
+    }
 }

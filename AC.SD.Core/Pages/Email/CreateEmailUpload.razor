@@ -1,0 +1,193 @@
+﻿@page "/createEmailUpload"
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using System.Text;
+@using global::Core.Repositories.Query;
+@using DevExpress.Blazor.ComboBox;
+@using DevExpress.Export;
+@using MediatR
+@inject NavigationManager NavigationManager
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using System.ComponentModel.DataAnnotations
+@using DevExpress.Blazor.Internal
+@inject IJSRuntime JSRuntime;
+@using System.Collections.Generic
+@using System.Reflection;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration;
+@inject HttpClient httpClient;
+@inject AC.SD.Core.Services.ToastService toastService
+@using System.IO;
+@using System.ComponentModel;
+@using System;
+@using System.Linq;
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@AddFile" Enabled= "@AddEnabled"/>
+               
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<div class="cw-880">
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+
+
+        <DxGrid @ref="Grid" Data="@_documents" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+       
+                PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20" CustomizeElement="Grid_CustomizeElement" style="height: calc(100vh - 250px);"
+                CssClass="w-100" AutoExpandAllGroupRows="true"
+                SelectionMode="GridSelectionMode.Multiple"
+                AllowSelectRowByClick="true"
+                EditModelSaving="@OnEditModelSaving"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"  FocusedRowEnabled="false">
+            <Columns>
+              
+                <DxGridDataColumn FieldName="FileName" MinWidth="150" />
+                <DxGridDataColumn FieldName="ContentType" MinWidth="250" />
+                <DxGridDataColumn FieldName="FileSize" MinWidth="150" />
+
+            </Columns>
+            <EditFormTemplate Context="EditFormContext">
+                @{
+                    var documents = (Documents)EditFormContext.EditModel;
+                }
+                <DxFormLayout CssClass="w-100">
+                   
+                    <DxFormLayoutItem>
+                         <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+                        <div class="">
+                        <DxUpload @ref="uploadComponent" Name="files"
+                        Visible="@AttachmentUploadVisible"
+                        AcceptedFileTypes=@AcceptedFileTypes
+                        UploadMode="@UploadMode.OnButtonClick"
+                        UploadUrl="@GetUploadUrl()"
+                        AllowMultiFileUpload="true"
+                        ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                        SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                        FileUploaded="@isUploadSuccess"
+                        FileUploadError="@OnUploadError">
+                        </DxUpload>
+                        <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
+                        </div>
+
+                      
+                    </DxFormLayoutItem>
+                    <ValidationSummary />
+                </DxFormLayout>
+            </EditFormTemplate>
+        </DxGrid>
+    </DxLoadingPanel>
+</div>
+@code {
+    bool AddEnabled { get; set; } = false;
+    private List<Documents> _documents;
+    bool PanelVisible { get; set; }
+    IGrid Grid { get; set; }
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    string MessageHeader = "Error";
+    string MessageBody = "";
+    bool MessageVisible { get; set; }
+    string MyError { get; set; }
+    bool ErrorVisible { get; set; } = false;
+    private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
+    private List<ApplicationUser> _applicationUsers;
+    bool isFileUpload = false;
+    private bool loading;
+    private string MyIDs = "myidwew";
+    EmailTopics Datas = new EmailTopics();
+    private DxUpload uploadComponent;
+    long? AppUserId;
+    bool AttachmentUploadVisible { get; set; } = false;
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
+    public ApplicationUser? applicationUser { get; private set; }
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        if (SessionId.HasValue)
+        {
+            AddEnabled = true;
+        }
+        _documents = await Mediator.Send(new CreateEmailUploadQuery(SessionId));
+        applicationUser = await  _localStorageService.GetItem<ApplicationUser>("user");
+        AppUserId = applicationUser.UserID;
+      
+        PanelVisible = false;
+    }
+    public  string GetUploadUrl()
+    {
+        
+        string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + SessionId + "&addedByUserId=" + AppUserId;
+        return url.ToString();
+    }
+    protected async void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        AttachmentUploadVisible = files.ToList().Count > 0;
+        SelectedFiles.AddRange(files);
+    }
+    private async Task isUploadSuccess()
+    {
+        //uploadComponent.RemoveAllFiles();
+        //uploadComponent.CancelAllFilesUpload();
+        isFileUpload = false;
+        //await LoadData();
+    }
+    void OnUploadError(FileUploadErrorEventArgs e)
+    {
+        MyError = e.RequestInfo.ResponseText;
+        ErrorVisible = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+   
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+        uploadComponent.UploadAllFiles();
+        await Task.Delay(5000); // Delay for 2 seconds
+        toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+    }
+    public void AddFile()
+    {
+        Grid.StartEditNewRowAsync();
+    }
+}

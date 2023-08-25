@@ -1,0 +1,44 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Core.EntityModels
+{
+    public class FileProfileTypeModel : BaseModel
+    {
+        public long FileProfileTypeId { get; set; }
+        public long ProfileId { get; set; }
+        public string Name { get; set; }
+        public string Label { get; set; }
+        public string Description { get; set; }
+        public long? ParentId { get; set; }
+        public string ParentName { get; set; }
+        public bool? IsExpiryDate { get; set; }
+        public string ProfileName { get; set; }
+        public bool? IsAllowMobileUpload { get; set; }
+        public bool? IsDocumentAccess { get; set; }
+        public List<FileProfileTypeModel> Children { get; set; }
+        public DocumentPermissionModel DocumentPermissionData { get; set; }
+        public long TotalDocuments { get; set; }
+        public string FileProfilePath { get; set; }
+        public string Hints { get; set; }
+        public bool? IsEnableCreateTask { get; set; }
+        public long? Id { get; set; }
+        public List<string> FileProfilePaths { get; set; } = new List<string>();
+        public List<string> FileProfileNames { get; set; } = new List<string>();
+        public int? ShelfLifeDuration { get; set; }
+        public string ShelfLifeDurationStatus { get; set; }
+        public int? ShelfLifeDurationId { get; set; }
+        public string ProfileTypeInfo { get; set; }
+        public bool? IsCreateByYear { get; set; }
+        public bool? IsCreateByMonth { get; set; }
+        public bool? IsHidden { get; set; }
+        public long? FileProfileTypeParentId { get; set; }
+        public long? FileProfileTypeMainId { get; set; }
+        public string ProfileInfo { get; set; }
+        public bool? IsTemplateCaseNo { get; set; }
+        public long? TemplateTestCaseId { get; set; }
+    }
+}

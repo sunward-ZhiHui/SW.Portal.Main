@@ -20,10 +20,10 @@
         </div>
     </div>
 </div>
-<div class="cw-880">
+<div style="width:100%;">
     <EditForm Model="@Datas" id="@MyIDs" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem ColSpanMd="8">
+            <DxFormLayoutItem ColSpanMd="12">
                 <DxRichEdit DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Datas.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
 
             </DxFormLayoutItem>

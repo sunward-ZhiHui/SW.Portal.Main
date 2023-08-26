@@ -158,7 +158,7 @@ namespace Core.EntityModels
 
         [Key]
         public long CCFDImplementationDetailsID { get; set; }
-        public long CCFDImplementationID { get; set; }
+        //public long CCFDImplementationID { get; set; }
         public bool? IsRequired { get; set; }
         public long? ResponsibiltyTo { get; set; }
         public long? DoneBy { get; set; }

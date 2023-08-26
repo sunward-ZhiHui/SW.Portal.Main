@@ -806,11 +806,11 @@
                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                     DisplayMode="MenuDisplayMode.Desktop">
                                     <Items>
-                                       @* @if(IsValidUser)
-                                        {*@
+                                        @if(IsFileValidUser)
+                                        {
                                             <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="((e) => onPreview(_selectlst.DocumentId))" Enabled=PreviewEnabled />
                                             @*<DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectlst.DocumentId))" Enabled=docEnabled />*@
-                                        @*} *@                                      
+                                        }                                       
                                         
                                     </Items>
                                     </DxMenu>
@@ -1216,6 +1216,7 @@
     private TopicTags? RefTopicTagList { get; set; }
     private UserToDo? RefTopicTodo { get; set; }
     private bool IsValidUser { get; set; } = false;
+    private bool IsFileValidUser { get; set; } = false;
     [Parameter]
     public EventCallback<string> Participent { get; set; }
     private async Task OnWindowResizeCompleted(WindowResizeCompletedEventArgs args) {
@@ -2253,6 +2254,7 @@
 
         var ck_validuser = await Mediator.Send(new GetEmailValidUserList(long.Parse(@SelectedGroup), applicationUser.UserID));
         IsValidUser = false;
+        IsFileValidUser = false;
         //if(ck_validuser.Count > 0)
         //{
         //    IsValidUser = true;
@@ -2335,9 +2337,9 @@
     }
     private async Task LoadReplyData()
     {
-        await JSRuntime.InvokeAsync<string>("showLoading");       
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        IsFileValidUser = true;
 
-      
         //var rTopicId =@RTopicId;
         Cid = long.Parse(@SelectedReplyId);
         Tid = RTopicId;

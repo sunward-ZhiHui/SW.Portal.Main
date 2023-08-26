@@ -1,0 +1,697 @@
+﻿@page "/changecontrolform"
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@using global::Core.EntityModels;
+
+
+<EditForm Model="@Data" Context="EditFormContext">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION A:CHANGE INFORMATION(To be filled by Initiator/PIC)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
+              
+                <DxCheckBox @bind-Checked="@Data.IsInternalChanges" LabelPosition="LabelPosition.Right" >Internal Changes</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanMd="6">
+
+                <DxCheckBox @bind-Checked="@Data.IsAuthorityDirectedChanges" LabelPosition="LabelPosition.Right">Authority Directed Changes</DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="Initiator
+                                       /PIC:" >
+                <DxComboBox Data="@applicationUsers"
+                            NullText="Select PIC..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                             @bind-Value="@Data.PIC"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Date:" >
+
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Department:" >
+                <DxComboBox Data="@_departmentItems"
+                            NullText="Select Department..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="DepartmentName"
+                            ValueFieldName="DepartmentId"
+                           
+                            @bind-Value="@Data.DepartmentID"
+                            ShowValidationIcon="true" CssClass="cw-480">
+                            
+                </DxComboBox>
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Responsible Person/PIA:" >
+                <DxComboBox Data="@applicationUsers"
+                            NullText="Select PIA..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                            @bind-Value="@Data.PIA"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Change Related To:" ColSpanLg="4" ColSpanMd="12" >
+                
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsSiteTransfer" LabelPosition="LabelPosition.Right" CssClass="w-100">Site Transfer</DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsProduct" LabelPosition="LabelPosition.Right">Product</DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsEquipment" LabelPosition="LabelPosition.Right">Equipment</DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsComposition" LabelPosition="LabelPosition.Right" >Composition</DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsFacility" LabelPosition="LabelPosition.Right">Facility</DxCheckBox>
+                    </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsLayout" LabelPosition="LabelPosition.Right">Layout</DxCheckBox>
+                    </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsDocument" LabelPosition="LabelPosition.Right">Document</DxCheckBox>
+                 </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsProcess" LabelPosition="LabelPosition.Right">Process</DxCheckBox>
+            </DxFormLayoutItem>
+             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+
+                <DxCheckBox @bind-Checked="@Data.IsControlParameter" LabelPosition="LabelPosition.Right">Control Paramenter</DxCheckBox>
+                  </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsBatchSize">Batch Size</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsHoldingTime" LabelPosition="LabelPosition.Right">Holding Time</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsRawMeterial" LabelPosition="LabelPosition.Right">Raw Material</DxCheckBox>
+                </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsArtwork" LabelPosition="LabelPosition.Right">ArtWork/Labelling</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsPackagingMaterial" LabelPosition="LabelPosition.Right" >Packaging Material</DxCheckBox>
+                </DxFormLayoutItem>
+                 <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsVendor" LabelPosition="LabelPosition.Right">Vendor</DxCheckBox>
+                  </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsShelfLife" LabelPosition="LabelPosition.Right">Shelf Life</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsRegulatory" LabelPosition="LabelPosition.Right">Regulatory</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsReTestPeriod" LabelPosition="LabelPosition.Right">Re- Test Period</DxCheckBox>
+                  </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Others:"  ColSpanMd="12">
+                <DxTextBox @bind-Text="@Data.Others"  />
+            </DxFormLayoutItem>
+
+
+            <DxFormLayoutItem Caption="Description of Proposed Change:" ColSpanMd="12">
+
+                <DxMemo @bind-Text="@Data.DescriptionOfProposedChange" Rows="5" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Justification:" ColSpanMd="12">
+                  <DxMemo @bind-Text = "@Data.Justification" Rows="5"/>
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Proposed Implementation Action:" ColSpanMd="12">
+                <DxMemo @bind-Text="@Data.ProposedImplementationAction" Rows="5" />
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Related Deviation to be Attached(if Any):" ColSpanMd="12">
+                <DxMemo @bind-Text="@Data.RelatedDeviation" Rows="5" />
+
+            </DxFormLayoutItem>
+        </DxFormLayoutGroup>
+   
+
+        <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION B:CHANGE EVALUATION" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+            <DxFormLayoutItem Caption="Status:" ColSpanMd="12">
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                 <DxCheckBox @bind-Checked="@Data.IsAcceptable" LabelPosition="LabelPosition.Right">Acceptable </DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+               
+                <DxCheckBox @bind-Checked="@Data.IsNotAcceptable" LabelPosition="LabelPosition.Right"> Not Acceptable</DxCheckBox>
+            </DxFormLayoutItem>
+               
+           
+            <DxFormLayoutItem Caption="Quality Assurance Classification Of Change:" ColSpanMd="12">
+
+             </DxFormLayoutItem>
+             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsMinor" LabelPosition="LabelPosition.Right">Minor </DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                 <DxCheckBox @bind-Checked="@Data.IsMajor" LabelPosition="LabelPosition.Right"> Major</DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsCritical" LabelPosition="LabelPosition.Right">Critical </DxCheckBox>
+            </DxFormLayoutItem>
+                
+              
+               
+               
+          
+            <DxFormLayoutItem Caption="Comments:" ColSpanMd="12">
+                <DxMemo @bind-Text="Data.Comments" Rows="5"></DxMemo>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Releated Department For Evaluation:" ColSpanMd="12">
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsProduction" LabelPosition="LabelPosition.Right">Production</DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsEAndM" LabelPosition="LabelPosition.Right">IsEAndM</DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsRequlatory" LabelPosition="LabelPosition.Right">Requlatory</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsQA" LabelPosition="LabelPosition.Right">QA</DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsQC" LabelPosition="LabelPosition.Right">QC</DxCheckBox>
+            </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="@Data.IsStore" LabelPosition="LabelPosition.Right">Store</DxCheckBox>
+            </DxFormLayoutItem>
+              <DxFormLayoutItem Caption="Others"  ColSpanMd="12">
+                <DxMemo @bind-Text="@Data.RelatedDeparmentOthers" Rows="5"></DxMemo>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Evaluated By:" ColSpanMd="6">
+                <DxComboBox Data="@applicationUsers"
+                            NullText="Select Verified By..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                @bind-Value="Data.EvaluatedBy"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+             @*   <DxDateEdit @bind-Date="@EvaluatedData.Eva"></DxDateEdit>*@
+
+            </DxFormLayoutItem>
+            <DxFormLayoutGroup Caption="*Section(s) below is to be filled is Proposed Change is Acceptable" ColSpanMd="12">
+                <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+                    <DxFormLayoutTabPage Caption="REGULATORY">
+                        <DxFormLayoutItem Caption="The Proposed Change Impact To:" ColSpanMd="12">
+                        </DxFormLayoutItem>
+                              <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                                      <DxCheckBox @bind-Checked="@Data.IsRequlatoryApproval" LabelPosition="LabelPosition.Right">Regulatory Reporting Category </DxCheckBox>
+                              </DxFormLayoutItem>
+
+                             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+               
+                                <DxCheckBox @bind-Checked="@Data.IsNotificationRequired" LabelPosition="LabelPosition.Right"> Regulatory Approval/Notification Required</DxCheckBox>
+                             </DxFormLayoutItem>
+               
+                       
+                         <DxFormLayoutItem Caption="Others:" ColSpanMd="12">
+                             <DxMemo @bind-Text="@Data.RegulatoryOthers" Rows="5"></DxMemo>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Details:" ColSpanMd="12">
+                             <DxMemo @bind-Text="@Data.RegulatoryDetails" Rows="5"></DxMemo>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Evaluated By:" ColSpanMd="6">
+                             <DxComboBox Data="@applicationUsers"
+                            NullText="Select Verified By..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                            @bind-Value="Data.RequlatoryEvaluatedBy"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+                            <DxDateEdit @bind-Date="@Data.RegulatoryDate"></DxDateEdit>
+
+                        </DxFormLayoutItem>
+                    </DxFormLayoutTabPage>
+                    <DxFormLayoutTabPage Caption="QUALITY CONTROL(QC)">
+                             <DxFormLayoutItem Caption="The Proposed Change Impact To:" ColSpanMd="12">
+
+                             </DxFormLayoutItem>
+
+                             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                                      <DxCheckBox @bind-Checked="@Data.IsAnalyticalInstrument" LabelPosition="LabelPosition.Right">Analytical Instrument</DxCheckBox>
+                              </DxFormLayoutItem>
+
+                             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+               
+                                <DxCheckBox @bind-Checked="@Data.IsValidation" LabelPosition="LabelPosition.Right">Validation/Qualification</DxCheckBox>
+                             </DxFormLayoutItem>
+                              <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                                      <DxCheckBox @bind-Checked="@Data.IsEnvironmentalMonitoring" LabelPosition="LabelPosition.Right">Environmental Monitoring</DxCheckBox>
+                              </DxFormLayoutItem>
+
+                             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+               
+                                <DxCheckBox @bind-Checked="@Data.IsRawMeterialSpec" LabelPosition="LabelPosition.Right">Raw Meterial Spec</DxCheckBox>
+                             </DxFormLayoutItem>
+                             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                                      <DxCheckBox @bind-Checked="@Data.IsFinishedProductSpec" LabelPosition="LabelPosition.Right">Finished Product Spec</DxCheckBox>
+                              </DxFormLayoutItem>
+
+                             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+               
+                                <DxCheckBox @bind-Checked="@Data.IsPackagingMaterialSpec" LabelPosition="LabelPosition.Right">Packaging Material Spec</DxCheckBox>
+                             </DxFormLayoutItem>
+                              <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                                      <DxCheckBox @bind-Checked="@Data.IsCalibration" LabelPosition="LabelPosition.Right">Calibration</DxCheckBox>
+                              </DxFormLayoutItem>
+
+                               <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                                      <DxCheckBox @bind-Checked="@Data.IsAnalyticalTestMethod" LabelPosition="LabelPosition.Right">Analytical Test Method</DxCheckBox>
+                              </DxFormLayoutItem>
+                             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+               
+                                <DxCheckBox @bind-Checked="@Data.IsSamplingMethod" LabelPosition="LabelPosition.Right">Sampling Method</DxCheckBox>
+                             </DxFormLayoutItem>
+                               <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                                      <DxCheckBox @bind-Checked="@Data.EvaluationIsVendor" LabelPosition="LabelPosition.Right">Vendor</DxCheckBox>
+                              </DxFormLayoutItem>
+
+                             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+               
+                                <DxCheckBox @bind-Checked="@Data.IsStabilityStudy" LabelPosition="LabelPosition.Right">Stability Study</DxCheckBox>
+                             </DxFormLayoutItem>
+                              <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                                      <DxCheckBox @bind-Checked="@Data.IsInProcess" LabelPosition="LabelPosition.Right">In Process</DxCheckBox>
+                              </DxFormLayoutItem>
+
+                           
+                       
+                          <DxFormLayoutItem Caption="Others:"  ColSpanMd="12">
+                                      <DxMemo @bind-Text ="@Data.QualityControlOthers"></DxMemo>
+                          </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="Details:" ColSpanMd="12">
+                             <DxMemo @bind-Text ="@Data.QualityControlDetails"></DxMemo>
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="Evaluated By:" ColSpanMd="6">
+                           <DxComboBox Data="@applicationUsers"
+                            NullText="Select Verified By..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                            @bind-Value="Data.QualityControlEvaluatedBy"
+                            ShowValidationIcon="true">
+                          </DxComboBox>
+
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+                             <DxDateEdit @bind-Date="@Data.QualityControlDate"></DxDateEdit>
+
+                        </DxFormLayoutItem>
+                    </DxFormLayoutTabPage>
+
+                    <DxFormLayoutTabPage Caption="PRODUCTION">
+                        <DxFormLayoutItem Caption="The Proposed Change Impact To:" ColSpanMd="12">
+
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsProductionProcess" LabelPosition="LabelPosition.Right">Process/Procedure</DxCheckBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsProductionValidation" LabelPosition="LabelPosition.Right">Validation/Qualification</DxCheckBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsControlParameter" LabelPosition="LabelPosition.Right">Control Parameter</DxCheckBox>
+                        </DxFormLayoutItem>
+
+
+
+                        <DxFormLayoutItem Caption="Others:" ColSpanMd="12">
+
+                            <DxMemo @bind-Text="@Data.ProductionOthers"></DxMemo>
+                        </DxFormLayoutItem>
+
+                       
+                        <DxFormLayoutItem Caption="Details:" ColSpanMd="12">
+                            <DxMemo @bind-Text="@Data.ProductionDetails"></DxMemo>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Evaluated By:" ColSpanMd="6">
+                            <DxComboBox Data="@applicationUsers"
+                                        NullText="Select Verified By..."
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="UserName"
+                                        ValueFieldName="UserID"
+                                        @bind-Value="Data.ProductionEvaluatedBy"
+                                        ShowValidationIcon="true">
+                            </DxComboBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+                             <DxDateEdit @bind-Date="@Data.ProductionDate"></DxDateEdit>
+                        </DxFormLayoutItem>
+                        </DxFormLayoutTabPage>
+
+                    <DxFormLayoutTabPage Caption="ENGINEERING & MAINTENANCE">
+                        <DxFormLayoutItem Caption="The Proposed Change Impact To:" ColSpanMd="12">
+
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsPiping" LabelPosition="LabelPosition.Right">Piping/Duct/Facility Layout</DxCheckBox>
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+
+                            <DxCheckBox @bind-Checked="@Data.EvaluationIsEquipment" LabelPosition="LabelPosition.Right">Equipment</DxCheckBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsEngineeringCalibration" LabelPosition="LabelPosition.Right">Calibration</DxCheckBox>
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+
+                            <DxCheckBox @bind-Checked="@Data.IsPreventiveMaintenance" LabelPosition="LabelPosition.Right">Preventive Maintenance</DxCheckBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsUtilityParameter" LabelPosition="LabelPosition.Right">Utility Parameter</DxCheckBox>
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+
+                            <DxCheckBox @bind-Checked="@Data.IsEngineeringFacility" LabelPosition="LabelPosition.Right">Facility</DxCheckBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsQualificationOfEquipment" LabelPosition="LabelPosition.Right">Qualification Of Equipment</DxCheckBox>
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsQualificationOfUtility" LabelPosition="LabelPosition.Right">Qualification Of Utility</DxCheckBox>
+                        </DxFormLayoutItem>
+                         <DxFormLayoutItem Caption="Others:" ColSpanMd="12">
+                             <DxMemo @bind-Text ="@Data.EngineeringOthers" Rows ="5"></DxMemo>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Details:" ColSpanMd="12">
+                            <DxMemo @bind-Text="@Data.EngineeringDetails" Rows="5"></DxMemo>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Evaluated By:" ColSpanMd="6">
+                            <DxComboBox Data="@applicationUsers"
+                                        NullText="Select Verified By..."
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="UserName"
+                                        ValueFieldName="UserID"
+                                        @bind-Value="Data.EngineeringEvaluatedBy"
+                                        ShowValidationIcon="true">
+                            </DxComboBox>
+
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+                            <DxDateEdit @bind-Date="@Data.EngineeringMaintenanceDate"></DxDateEdit>
+
+                        </DxFormLayoutItem>
+                     </DxFormLayoutTabPage>
+                    <DxFormLayoutTabPage Caption="QUALITY ASSURANCE(QA)">
+                        <DxFormLayoutItem Caption="The Proposed Change Impact To:" ColSpanMd="12">
+
+                        </DxFormLayoutItem>
+                          <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsQAQualification" LabelPosition="LabelPosition.Right">Qualification</DxCheckBox>
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+
+                            <DxCheckBox @bind-Checked="@Data.IsQAValidation" LabelPosition="LabelPosition.Right">Validation</DxCheckBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsQAVendor" LabelPosition="LabelPosition.Right">Vendor</DxCheckBox>
+                        </DxFormLayoutItem>
+
+                          <DxFormLayoutItem Caption="Others:" ColSpanMd="12">
+                             <DxMemo @bind-Text ="@Data.QAOthers" Rows ="5"></DxMemo>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Details:" ColSpanMd="12">
+                             <DxMemo @bind-Text ="@Data.QADetails" Rows ="5"></DxMemo>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Evaluated By:" ColSpanMd="6">
+                             <DxComboBox Data="@applicationUsers"
+                                        NullText="Select Verified By..."
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="UserName"
+                                        ValueFieldName="UserID"
+                                        @bind-Value="Data.QAEvaluatedBy"
+                                        ShowValidationIcon="true">
+                            </DxComboBox>
+
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+
+                            <DxDateEdit @bind-Date="@Data.QADate"></DxDateEdit>
+                        </DxFormLayoutItem>
+                    </DxFormLayoutTabPage>
+
+                    <DxFormLayoutTabPage Caption="STORE">
+                        <DxFormLayoutItem Caption="The Proposed Change Impact To:" ColSpanMd="12">
+
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsStoreRawMaterial" LabelPosition="LabelPosition.Right">Raw Material</DxCheckBox>
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+
+                            <DxCheckBox @bind-Checked="@Data.IsStorePackagingMaterial" LabelPosition="LabelPosition.Right">Packaging Material</DxCheckBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsStoreLabel" LabelPosition="LabelPosition.Right">Label/Leaflet</DxCheckBox>
+                        </DxFormLayoutItem>
+
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+
+                            <DxCheckBox @bind-Checked="@Data.IsStorageCondition" LabelPosition="LabelPosition.Right">Storage Condition</DxCheckBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsStoreFinishProduct" LabelPosition="LabelPosition.Right">Finish Product</DxCheckBox>
+                        </DxFormLayoutItem>
+                         <DxFormLayoutItem Caption="Others:" ColSpanMd="12">
+                             <DxMemo @bind-Text ="@Data.StoreOthers" Rows ="5"></DxMemo>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Details:" ColSpanMd="12">
+                             <DxMemo @bind-Text ="@Data.StoreDetails" Rows ="5"></DxMemo>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Evaluated By:" ColSpanMd="6">
+
+                             <DxComboBox Data="@applicationUsers"
+                                        NullText="Select Verified By..."
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="UserName"
+                                        ValueFieldName="UserID"
+                                        @bind-Value="Data.StoreEvaluatedBy"
+                                        ShowValidationIcon="true">
+                            </DxComboBox>
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+
+                             <DxDateEdit @bind-Date="@Data.StoreDate"></DxDateEdit>
+                        </DxFormLayoutItem>
+                    </DxFormLayoutTabPage>
+
+                    <DxFormLayoutTabPage Caption="OTHERS">
+                        <DxFormLayoutItem Caption="The Proposed Change Impact To:" ColSpanMd="12">
+                            <DxMemo @bind-Text="@Data.ProposedChangeImpactTo" Rows="5"></DxMemo>
+                            
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Details:" ColSpanMd="12">
+                            <DxMemo @bind-Text="@Data.OthersDetails" Rows="5"></DxMemo>
+                            
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Evaluated By:" ColSpanMd="6">
+                            <DxComboBox Data="@applicationUsers"
+                                        NullText="Select Verified By..."
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        TextFieldName="UserName"
+                                        ValueFieldName="UserID"
+                                       @bind-Value="Data.OthersEvaluatedBy"
+                                        ShowValidationIcon="true">
+                            </DxComboBox>
+
+                        </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+                            <DxDateEdit @bind-Date="@Data.OthersDate"></DxDateEdit>
+
+                        </DxFormLayoutItem>
+
+                    </DxFormLayoutTabPage>
+
+                </DxFormLayoutTabPages>
+               
+            </DxFormLayoutGroup>
+
+        </DxFormLayoutGroup>
+  
+
+        <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION C:CHANGE APPROVAL(To be filled by QA)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+            <DxFormLayoutItem Caption="Change Approval:" ColSpanMd="12">
+                <DxCheckBox @bind-Checked ="@Data.IsApproved" LabelPosition="LabelPosition.Right"> Approved</DxCheckBox>
+                <DxCheckBox @bind-Checked="@Data.IsNotApproved" LabelPosition="LabelPosition.Right"> Not Approved</DxCheckBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Comments(if Any):" ColSpanMd="12">
+                <DxMemo @bind-Text="@Data.ApprovalComments" Rows="5"></DxMemo>
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Verified By(Pharmacist):" ColSpanMd="6">
+                <DxComboBox Data="@applicationUsers"
+                            NullText="Select Verified By..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                            @bind-Value="Data.VerifiedBy"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+                <DxDateEdit @bind-Date="@Data.ApprovalDate"></DxDateEdit>
+
+            </DxFormLayoutItem>
+         
+        </DxFormLayoutGroup>
+  
+
+        <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION D:CHANGE IMPLEMENTATION(* Attach Document Copy)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+
+
+            <DxFormLayoutTabPages >
+                <DxFormLayoutTabPage Caption="DISCONTINUE OF IMPLEMENTATION (if Applicable)">
+
+                    <DxFormLayoutItem Caption="HOD Comments:" ColSpanMd="12">
+
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="HOD Signature:" ColSpanMd="6">
+
+                    </DxFormLayoutItem>
+                   
+                    <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+
+
+                    </DxFormLayoutItem>
+                </DxFormLayoutTabPage>
+
+                <DxFormLayoutTabPage Caption="QA VERIFICATION">
+                    <DxFormLayoutItem Caption="Status:" ColSpanMd="12">
+
+                    </DxFormLayoutItem>
+                  
+                    <DxFormLayoutItem Caption="Verified By:" ColSpanMd="6">
+
+
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+
+
+                    </DxFormLayoutItem>
+                </DxFormLayoutTabPage>
+
+            </DxFormLayoutTabPages>
+        </DxFormLayoutGroup>
+  
+
+        <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION E:CHANGE CLOSURE(To be filled By QA)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
+
+            <DxFormLayoutItem Caption="All Completed:" ColSpanMd="12">
+
+             </DxFormLayoutItem>
+                  <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+
+                            <DxCheckBox @bind-Checked="@Data.IsSatisfactory" LabelPosition="LabelPosition.Right">Satisfactory</DxCheckBox>
+                  </DxFormLayoutItem>
+                        <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                            <DxCheckBox @bind-Checked="@Data.IsNotSatisfactory" LabelPosition="LabelPosition.Right">Not Satisfactory</DxCheckBox>
+                        </DxFormLayoutItem>
+
+          
+            <DxFormLayoutItem Caption="Activities Found Comments(if Any):" ColSpanMd="12">
+
+                <DxMemo @bind-Text="@Data.ClosureComments" Rows="5"></DxMemo>
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Closed By(Pharmacist):" ColSpanMd="6">
+                <DxComboBox Data="@applicationUsers"
+                            NullText="Select Closed By..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                            @bind-Value="Data.ClosedBy"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+                <DxDateEdit @bind-Date="@Data.Date"></DxDateEdit>
+
+            </DxFormLayoutItem>
+            <DxFormLayoutGroup Caption="*To be filled Completed Activities Not Satisfactory initially" ColSpanMd="12">
+                <DxFormLayoutItem Caption="All Completed:" ColSpanMd="12">
+                    <DxCheckBox @bind-Checked="@Data.IsSatisfactoryForNotSatisfactory" LabelPosition="LabelPosition.Right">Satisfactory</DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Activities Found Closed By(Pharmacist):" ColSpanMd="6">
+                    <DxComboBox Data="@applicationUsers"
+                            NullText="Select Closed By..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="UserName"
+                            ValueFieldName="UserID"
+                    @bind-Value="Data.NotSatisfactoryClosedBy"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
+                    <DxDateEdit @bind-Date="@Data.NotSatisfactoryDate"></DxDateEdit>
+                </DxFormLayoutItem>
+            </DxFormLayoutGroup>
+        </DxFormLayoutGroup>
+    </DxFormLayout>
+</EditForm>
+@code {
+    int ActiveTabIndex { get; set; } = 1;
+    CCFInformationModels Data = new CCFInformationModels();
+   
+    private List<ViewDepartment> _departmentItems;
+    private List<ApplicationUser> applicationUsers;
+    protected override async Task OnInitializedAsync()
+    {
+
+        _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
+        applicationUsers = await Mediator.Send(new GetAllApplicationUserQuery());
+
+    
+    }
+}

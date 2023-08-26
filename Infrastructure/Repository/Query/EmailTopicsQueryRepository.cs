@@ -47,8 +47,9 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT * FROM EmailTopics TS
+                var query = @"SELECT CONCAT(EB.FirstName,EB.LastName) AS OnBehalfName,* FROM EmailTopics TS
                             INNER JOIN Employee E ON TS.TopicFrom = E.UserID
+                            LEFT JOIN Employee EB ON TS.OnBehalf = EB.UserID
                             WHERE ID = @Id";
                 //var query = @"SELECT * FROM EmailTopics TS 
                 //                INNER JOIN EmailTypes TP ON TS.TypeId = TP.ID                                
@@ -567,7 +568,7 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("id", id);
 
-                            var query = "UPDATE EmailTopics SET PinStatus = 'NULL' WHERE ID = @id";
+                            var query = "UPDATE EmailTopics SET PinStatus = 0 WHERE ID = @id";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

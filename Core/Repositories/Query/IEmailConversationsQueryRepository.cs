@@ -40,7 +40,7 @@ namespace Core.Repositories.Query
         Task<List<ViewEmployee>> GetAllConvAssignToListAsync(long TopicId);
         Task<List<EmailTopicTo>> GetTopicToListAsync(long TopicId);
         Task<List<EmailConversationAssignTo>> GetConversationAssignToList(long ConversationId);
-        Task<List<EmailConversationAssignTo>> GetConversationTopicIdList(long TopicId);        
+        Task<List<EmailConversations>> GetConversationTopicIdList(long TopicId);        
         Task<List<EmailConversationAssignTo>> GetConversationAssignCCList(long ConversationId);
 
 

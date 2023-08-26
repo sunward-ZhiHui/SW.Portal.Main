@@ -718,13 +718,13 @@ else
                 ActAddedDate = actItem[0].AddedDate;
 
 
-               // string replyboxHtml = @"<div class=""replybox"">
-               //                             <div> <i class=""fa fa-reply"" aria-hidden=""true""></i> Reply</div>
-               //                             <text>@ActComment</text>
-               //                             <div>@ActUserName , @ActAddedDate</div>
-               //                         </div>";
+                // string replyboxHtml = @"<div class=""replybox"">
+                //                             <div> <i class=""fa fa-reply"" aria-hidden=""true""></i> Reply</div>
+                //                             <text>@ActComment</text>
+                //                             <div>@ActUserName , @ActAddedDate</div>
+                //                         </div>";
 
-               //replyboxHhtmlArray = Encoding.UTF8.GetBytes(replyboxHtml);
+                //replyboxHhtmlArray = Encoding.UTF8.GetBytes(replyboxHtml);
 
 
                 if(actItem[0].DocumentSessionId != null)
@@ -823,6 +823,13 @@ else
 
         participantIds.Add(applicationUser.UserID);
 
+        if(Data.OnBehalf != null)
+        {
+            participantIds.Add(Data.OnBehalf.Value);
+        }
+
+
+
         foreach(var itm in sToIds)
         {
             var ls = _Allparticipant.Where(c => c.Name + "-" + c.NickName == itm).ToList();
@@ -889,8 +896,8 @@ else
             return;
         }
 
-        //var slsls = participantIds.Distinct().ToList();
-        string participantidsString = string.Join(",", participantIds); // convert the array to a comma-separated string
+        var plistuniquevalue = participantIds.Distinct().ToList();
+        string participantidsString = string.Join(",", plistuniquevalue); // convert the array to a comma-separated string
         string toidsString = string.Join(",", selectedToIds); // convert the array to a comma-separated string
         string ccidsString = string.Join(",", SelectedCCIds); // convert the array to a comma-separated string
 

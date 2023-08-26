@@ -36,7 +36,10 @@
                     <div style="width:100%">
                         <strong>
                             @item.FirstName
-                            <text class="notificationCount">@item.NotificationCount</text>
+                            @if (item.NotificationCount != 0)
+                            {
+                                <span class="notificationCount">@item.NotificationCount</span>
+                            }
                         </strong>
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
@@ -70,7 +73,10 @@
         _forumTopicTo = await Mediator.Send(new GetSubEmailTopicTo(Items.ID, applicationUser.UserID));
         PanelVisible = false;
     }
-
+    public async Task onSubAssignToGridRefresh(long id)
+    {
+        _forumTopicTo = await Mediator.Send(new GetSubEmailTopicTo(id,applicationUser.UserID));
+    }
     async Task OnEmailToRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ReplyId");

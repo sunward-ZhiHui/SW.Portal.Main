@@ -129,21 +129,21 @@
                             <AllEmail GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId ="onSubViewEmailAllClick"></AllEmail>
                         }
                         else if (isLeftMenuvisible == "AssignTo")
-                        {                           
-                               <AssignToEmail GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId ="onSubViewEmailToClick"></AssignToEmail>
-                            }
-                            else if (isLeftMenuvisible == "AssignCC")
-                            {
-                                <CCEmail GridSearchText="@GridSearchText" CCTopicId="onViewEmailCCClick" SubViewCCTopicId="onSubViewEmailCCClick"></CCEmail>
-                            }
-                            else if(isLeftMenuvisible == "Sent")
-                            {
-                                <SentEmail sentTopicId="onViewEmailSentClick" SubViewSentTopicId="onSubViewEmailSentClick"></SentEmail>
-                            }  
-                            else if(isLeftMenuvisible == "Library")
-                            {
-                                <MasterSearch GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailAllClick"></MasterSearch>
-                            }  
+                        {
+                                <AssignToEmail @ref=RefAssignTo GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId="onSubViewEmailToClick"></AssignToEmail>
+                        }
+                        else if (isLeftMenuvisible == "AssignCC")
+                        {
+                            <CCEmail GridSearchText="@GridSearchText" CCTopicId="onViewEmailCCClick" SubViewCCTopicId="onSubViewEmailCCClick"></CCEmail>
+                        }
+                        else if(isLeftMenuvisible == "Sent")
+                        {
+                            <SentEmail sentTopicId="onViewEmailSentClick" SubViewSentTopicId="onSubViewEmailSentClick"></SentEmail>
+                        }  
+                        else if(isLeftMenuvisible == "Library")
+                        {
+                            <MasterSearch GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailAllClick"></MasterSearch>
+                        }  
                             
 
                             
@@ -199,7 +199,14 @@
                                                     <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
 
                                                         <div class="mailbox-read-info">
-                                                            <h3>@item.TopicName</h3>
+                                                            <h3>  @item.TopicName  
+                                                            @if(item.OnBehalf != null)
+                                                            {                                                                
+                                                                <span style="font-weight:bold; font-size:12px; margin-left:10px;">OnBehalf : </span>
+                                                                <span style="font-size:12px;"> @item.OnBehalfName </span>
+                                                                <span style="font-size:12px;">( @item.Follow )</span>
+                                                            }
+                                                            </h3>
                                                             @if (_headTopic_Tag != null && _headTopic_Tag.Any())
                                                             {
                                                                 @foreach (var Tagitem in _headTopic_Tag)
@@ -396,7 +403,7 @@
                                                         </div>                                                                                                            
                                                     </div>
                                                 </div>
-                                                @if (item.ReplyId == 0 && @item.ActUserName != null)
+                                                @if (!string.IsNullOrEmpty(item.ActCommentName) && !string.IsNullOrEmpty(item.ActUserName))
                                                 {    
                                                     <div class="replybox">
                                                         <div style="font-weight: bold;">Activity Comment</div>
@@ -471,7 +478,7 @@
                                                                 {
                                                                     @foreach (var items in @item.ReplyConversation)
                                                                     {
-                                                                        <div class="lstcoversationrply @((items.IsRead.GetValueOrDefault(false) ? "markasread" : "markasunread"))">
+                                                                        <div class="lstcoversationrply @((items.IsRead.GetValueOrDefault(false) || items.IsRead == null ? "markasread" : "markasunread"))">
                                                                             <div class="mailbox-read-info" style="border-bottom:1px solid #f4f4f4">
                                                                                 @*<h3>@items.Name</h3>*@
                                                                                 <h5>                                                                                   
@@ -1205,6 +1212,7 @@
     public string MyHeight { get; set; } = "200px";
     string width = "800px", height = "800px";
     private ParticipantList? RefTopicAddPList { get; set; }
+    private AssignToEmail? RefAssignTo { get; set; }
     private TopicTags? RefTopicTagList { get; set; }
     private UserToDo? RefTopicTodo { get; set; }
     private bool IsValidUser { get; set; } = false;
@@ -1236,6 +1244,12 @@
         {
             await LoadReplyData();
         }
+
+        if(isLeftMenuvisible == "AssignTo")
+        {
+            await RefAssignTo.onAssignToGridRefresh(long.Parse(@SelectedGroup));
+        }
+
     }
     async Task onMarkasunRead(long Id)
     {
@@ -1249,6 +1263,14 @@
         {
             await LoadReplyData();
         }
+
+        if (isLeftMenuvisible == "AssignTo")
+        {
+            await RefAssignTo.onAssignToGridRefresh(long.Parse(@SelectedGroup));
+        }
+
+
+
     }
     private void ToggleButtonClick()
     {
@@ -2129,7 +2151,14 @@
             await LoadReplyData();
         }
 
-        isOpenSubjectPop = false;
+        isOpenSubjectPop = false;        
+
+        if(isLeftMenuvisible == "AssignTo")
+        {
+            await RefAssignTo.onAssignToGridRefresh(long.Parse(@SelectedGroup));
+        }
+
+
         StateHasChanged();
     }
     private void ToggleDocItemVisibility(int id)
@@ -2306,13 +2335,16 @@
     }
     private async Task LoadReplyData()
     {
-        await JSRuntime.InvokeAsync<string>("showLoading");
-        IsValidUser = true;
+        await JSRuntime.InvokeAsync<string>("showLoading");       
+
+      
         //var rTopicId =@RTopicId;
         Cid = long.Parse(@SelectedReplyId);
         Tid = RTopicId;
         _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
+
+        IsValidUser = _discussionList[0].AddedByUserID == applicationUser.UserID ? true : false;
 
         _assigntoItems = await Mediator.Send(new GetEmailAssignToList(RTopicId));        
         var topicToList = await Mediator.Send(new GetEmailTopicToList(RTopicId));
@@ -2570,52 +2602,138 @@
     }
     private async Task onWindowVisible()
     {
-        var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
-        _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        //var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
+        //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
         if(long.Parse(@SelectedGroup) > 0)
         {
+
+            var _replyComment = await Mediator.Send(new GetEmailConversationTId(long.Parse(@SelectedGroup)));
             
-            var getplllst = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));
-            var parttcc = getplllst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+            //var getplllst = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));
+            //var parttcc = getplllst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+            //#region AssignTo
+            //    /*Assignto*/            
+            //var _convListss = await Mediator.Send(new GetEmailConversationTId(long.Parse(@SelectedGroup)));
+            //    var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_convListss[0].ID));
+            //    var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+            //    Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+
+            //    List<long> updatedList = Data.AssigntoIds.ToList();
+            //    long fromUserId = _convListss[0].AddedByUserID.Value;
+
+            //    if (fromUserId != applicationUser.UserID)
+            //    {
+            //        updatedList.Add(fromUserId);
+            //    }
+
+            //    //Data.AssigntoIds = updatedList;
+
+            //    Data.AssigntoIds = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
+
+            //    #endregion
+            //#region AssignCC
+            ///*AssignCC*/
+            //var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_convListss[0].ID));
+            //var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+            ////Data.AssignccIds = concc.Select(s => s.UserId).ToList();
 
 
-            #region AssignTo
-                /*Assignto*/            
-            var _convListss = await Mediator.Send(new GetEmailConversationTId(long.Parse(@SelectedGroup)));
-                var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_convListss[0].ID));
+
+            ////var parttcc = getplllst.Select(p => p.UserID).ToList();
+            ////Data.AssigntoIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+
+            //Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+            //#endregion
+
+
+            if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
+            {
+                var plist = await Mediator.Send(new GetAllEmployeeListQuery());
+                _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+
+
+                var gettids = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));
+               // var getplllst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
+                var parttcc = gettids.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+
+
+                #region AssignTo
+                /*Assignto*/
+                var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
                 var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
                 Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
 
                 List<long> updatedList = Data.AssigntoIds.ToList();
-                long fromUserId = _convListss[0].UserId;
+                long fromUserId = _replyComment[0].AddedByUserID.Value;
 
                 if (fromUserId != applicationUser.UserID)
                 {
                     updatedList.Add(fromUserId);
                 }
-
-                //Data.AssigntoIds = updatedList;
-
+               
                 Data.AssigntoIds = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
 
                 #endregion
 
-            #region AssignCC
-            /*AssignCC*/
-            var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_convListss[0].ID));
-            var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
-            //Data.AssignccIds = concc.Select(s => s.UserId).ToList();
+                #region AssignCC
+                /*AssignCC*/
+                var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();
+                Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+                #endregion
+
+            }
+            else
+            {
+                var gettid = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));                
+                //_allparticipant = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettid[0].TopicID));
+                _allparticipant = gettid;
+
+
+                var gettids = await Mediator.Send(new GetByConvasationTIDPList(long.Parse(@SelectedGroup)));
+                //var getplsst = await Mediator.Send(new GetByConvasationTopicIDPList(id, gettids[0].TopicID));
+                var getpatlist = gettids.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+
+                #region AssignTo
+                /*Assignto*/
+                var convlistTo = await Mediator.Send(new GetEmailConversationAssignTo(_replyComment[0].ID));
+                var conto = convlistTo.Where(c => c.UserId != applicationUser.UserID).ToList();
+                
+                Data.AssigntoIds = conto.Select(s => s.UserId).ToList();
+
+                List<long> updatedList = Data.AssigntoIds.ToList();
+                long fromUserId = _replyComment[0].AddedByUserID.Value;
+
+                if (fromUserId != applicationUser.UserID)
+                {
+                    updatedList.Add(fromUserId);
+                }
+                                
+                Data.AssigntoIds = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                #endregion
+
+
+                #region AssignCC
+                var convlistCC = await Mediator.Send(new GetEmailConversationAssignCC(_replyComment[0].ID));
+                var concc = convlistCC.Where(c => c.UserId != applicationUser.UserID).ToList();                
+                Data.AssignccIds = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+                #endregion
+            }
 
 
 
-            //var parttcc = getplllst.Select(p => p.UserID).ToList();
-            //Data.AssigntoIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
 
 
-            Data.AssignccIds = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
 
-            #endregion
+
+
+
+
         }
 
 
@@ -2636,6 +2754,8 @@
         if (id > 0)
         {           
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
+
+
             Data.IsAllowParticipants = false;
             Data.DueDate = null;
             newSubjectreply = 0;

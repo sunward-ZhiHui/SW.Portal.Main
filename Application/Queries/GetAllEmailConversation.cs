@@ -185,7 +185,7 @@ namespace Application.Queries
             this.ConversationId = Id;
         }
     }
-    public class GetEmailConversationTId : PagedRequest, IRequest<List<EmailConversationAssignTo>>
+    public class GetEmailConversationTId : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long TopicId { get; set; }
         public GetEmailConversationTId(long topicId)

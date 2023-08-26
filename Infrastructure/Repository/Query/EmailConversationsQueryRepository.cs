@@ -477,15 +477,15 @@ namespace Infrastructure.Repository.Query
                             LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
                             WHERE K.ReplyId = FC.ID AND FC.ReplyId = 0
 
-                            UNION
+                            --UNION
 
-                            SELECT EETT.ID AS TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
-                                '' AS ActCommentName, '' AS ActUserName, '' AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants
-                            FROM EmailTopics EETT
-                            INNER JOIN EmailConversations FC ON FC.TopicID = EETT.ID
-                            INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                            INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
-                            WHERE OnBehalf = @UserId AND EETT.ID = @TopicId
+ --                           SELECT EETT.ID AS TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
+ --                               '' AS ActCommentName, '' AS ActUserName, '' AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants
+ --                           FROM EmailTopics EETT
+ --                           INNER JOIN EmailConversations FC ON FC.TopicID = EETT.ID
+ --                           INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+ --                           INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
+ --                           WHERE OnBehalf = @UserId AND EETT.ID = @TopicId
                         ) AS CombinedResult
                         ORDER BY CombinedResult.AddedDate DESC";
 
@@ -722,7 +722,7 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,
+                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.AddedByUserID,
                                 AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants FROM EmailConversations FC  
                                 LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
@@ -985,7 +985,7 @@ namespace Infrastructure.Repository.Query
             }
         }
         
-        public async Task<List<EmailConversationAssignTo>> GetConversationTopicIdList(long TopicId)
+        public async Task<List<EmailConversations>> GetConversationTopicIdList(long TopicId)
         {
             try
             {
@@ -996,7 +996,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     connection.Open();
-                    var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
+                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
                     return res;                   
                 }
             }

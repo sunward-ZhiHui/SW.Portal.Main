@@ -139,8 +139,8 @@ namespace Core.EntityModels
         public string? HODComments { get; set; }
         public string? HODSignature { get; set; }
         public DateTime HODDate { get; set; }
-        public bool? ImplementationIsAcceptable { get; set; }
-        public bool? ImplementationIsNotAcceptable { get; set; }
+        public bool ImplementationIsAcceptable { get; set; }
+        public bool ImplementationIsNotAcceptable { get; set; }
         public long? ImplementationVerifiedBy { get; set; }
         public DateTime VerifiedDate { get; set; }
 
@@ -158,8 +158,8 @@ namespace Core.EntityModels
 
         [Key]
         public long CCFDImplementationDetailsID { get; set; }
-        public long CCFDImplementationID { get; set; }
-        public bool? IsRequired { get; set; }
+        public long DetailCCFDImplementationID { get; set; }
+        public bool IsRequired { get; set; }
         public long? ResponsibiltyTo { get; set; }
         public long? DoneBy { get; set; }
         public DateTime? DoneByDate { get; set; }

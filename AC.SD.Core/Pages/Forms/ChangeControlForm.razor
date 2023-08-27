@@ -6,7 +6,17 @@
 @using MediatR
 @using global::Core.EntityModels;
 
-
+<div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
+    <div class="card-body p-0">
+        <div class="save_hover" style="float: left;  line-height: 38px; margin-left: 10px; z-index: 9999; width:100px;">
+            <button type="submit"  form="@MyID" class="btnSubmitForm" @onclick="@HandleValidSubmit" style="font-weight:bold; ">
+               
+                <i class="fa fa-save"></i>
+                Save
+            </button>
+        </div>
+    </div>
+</div>
 <EditForm Model="@Data" Context="EditFormContext">
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION A:CHANGE INFORMATION(To be filled by Initiator/PIC)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
@@ -589,19 +599,39 @@
 
         <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION D:CHANGE IMPLEMENTATION(* Attach Document Copy)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
 
-
+         
             <DxFormLayoutTabPages >
+                 <DxFormLayoutTabPage Caption="Details">
+                      <DxGrid @ref="Grid"
+                            Data="_CCFDImplementation"
+                        PageSize="12"
+                        ValidationEnabled="false"
+                            CustomizeElement="Grid_CustomizeElement"
+                        EditMode="GridEditMode.EditForm"
+                       EditorRenderMode="GridEditorRenderMode.Integrated">
+                        <Columns>
+                            <DxGridDataColumn FieldName="ClassOfDocumentID" Caption = "Class Of Document" MinWidth="80" />
+                            <DxGridDataColumn FieldName="IsRequired" MinWidth="80" />
+                            <DxGridDataColumn FieldName="ResponsibiltyTo" MinWidth="80" />
+                            <DxGridDataColumn FieldName="DoneBy" MinWidth="100" />
+                            <DxGridDataColumn FieldName="DoneByDate" MinWidth="120" />
+     
+                        </Columns>
+                           
+                        </DxGrid>
+                
+                </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="DISCONTINUE OF IMPLEMENTATION (if Applicable)">
 
                     <DxFormLayoutItem Caption="HOD Comments:" ColSpanMd="12">
-
+                          <DxMemo @bind-Text="@Data.HODComments" Rows="5"></DxMemo>
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="HOD Signature:" ColSpanMd="6">
-
+                        <DxMemo @bind-Text="@Data.HODSignature" Rows="5"></DxMemo>
                     </DxFormLayoutItem>
                    
                     <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
-
+                        <DxDateEdit @bind-Date="@Data.HODDate"></DxDateEdit>
 
                     </DxFormLayoutItem>
                 </DxFormLayoutTabPage>
@@ -610,14 +640,27 @@
                     <DxFormLayoutItem Caption="Status:" ColSpanMd="12">
 
                     </DxFormLayoutItem>
-                  
-                    <DxFormLayoutItem Caption="Verified By:" ColSpanMd="6">
+                    <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
 
+                        <DxCheckBox @bind-Checked="@Data.ImplementationIsAcceptable" LabelPosition="LabelPosition.Right">Acceptable</DxCheckBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="@Data.ImplementationIsNotAcceptable" LabelPosition="LabelPosition.Right">NotAcceptable</DxCheckBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Verified By:" ColSpanMd="6">
+                        <DxComboBox Data="@applicationUsers"
+                                    NullText="Select Verified By..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="UserName"
+                                    ValueFieldName="UserID"
+                                    @bind-Value="Data.ImplementationVerifiedBy"
+                                    ShowValidationIcon="true">
+                        </DxComboBox>
 
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
 
-
+                        <DxDateEdit @bind-Date="@Data.VerifiedDate"></DxDateEdit>
                     </DxFormLayoutItem>
                 </DxFormLayoutTabPage>
 
@@ -681,17 +724,48 @@
     </DxFormLayout>
 </EditForm>
 @code {
+    private string MyID = "myForm";
     int ActiveTabIndex { get; set; } = 1;
     CCFInformationModels Data = new CCFInformationModels();
-   
+    IGrid Grid { get; set; }
     private List<ViewDepartment> _departmentItems;
     private List<ApplicationUser> applicationUsers;
+     private List<CCFDImplementation> _CCFDImplementation;
+    
     protected override async Task OnInitializedAsync()
     {
 
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
         applicationUsers = await Mediator.Send(new GetAllApplicationUserQuery());
+        _CCFDImplementation = await Mediator.Send(new GetAllImplementationQuery());
 
-    
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            var newEmployee = (CCFInformationModels)e.EditModel;
+           
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+       
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+       
+    }
+
+    async void HandleValidSubmit()
+    {
+
     }
 }

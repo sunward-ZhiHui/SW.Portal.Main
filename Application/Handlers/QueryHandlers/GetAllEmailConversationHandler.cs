@@ -393,16 +393,16 @@ namespace Application.Handlers.QueryHandlers
         }
     }
 
-    public class GetEmailConversationTIdHandler : IRequestHandler<GetEmailConversationTId, List<EmailConversationAssignTo>>
+    public class GetEmailConversationTIdHandler : IRequestHandler<GetEmailConversationTId, List<EmailConversations>>
     {
         private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
         public GetEmailConversationTIdHandler(IEmailConversationsQueryRepository conversationQueryRepository)
         {
             _conversationQueryRepository = conversationQueryRepository;
         }
-        public async Task<List<EmailConversationAssignTo>> Handle(GetEmailConversationTId request, CancellationToken cancellationToken)
+        public async Task<List<EmailConversations>> Handle(GetEmailConversationTId request, CancellationToken cancellationToken)
         {
-            return (List<EmailConversationAssignTo>)await _conversationQueryRepository.GetConversationTopicIdList(request.TopicId);
+            return (List<EmailConversations>)await _conversationQueryRepository.GetConversationTopicIdList(request.TopicId);
         }
     }
     public class GetEmailConversationAssignCCHandler : IRequestHandler<GetEmailConversationAssignCC, List<EmailConversationAssignTo>>

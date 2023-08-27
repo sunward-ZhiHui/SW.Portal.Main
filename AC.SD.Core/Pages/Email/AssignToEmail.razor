@@ -38,9 +38,14 @@
                 @{
                     var item = (EmailTopics)context.DataItem;
                 }
-                <div style="width:100%; padding-right: 6px;" @oncontextmenu="((e) => { ContextMenu.ShowAsync(e); } )" @oncontextmenu:preventDefault>
+                <div style="width:100%; padding-right: 6px;" class="@((item.NotificationCount > 0 ? "markasTextColor" : "unmarkasTextColor"))" @oncontextmenu="((e) => { ContextMenu.ShowAsync(e); } )" @oncontextmenu:preventDefault>
                     <strong>
                         @item.FirstName
+                        @if(item.NotificationCount !=0)
+                        {
+                             <span class="notificationCount">@item.NotificationCount</span>
+                        }
+                       
                         @if (item.PinStatus == "Lock")
                         {
                             <span class="primary_color_icon handline" @onclick="@(() => onUnPin(item.ID))"><i class="fa fa-thumb-tack pinrotated" aria-hidden="true"></i></span>
@@ -71,7 +76,7 @@
                 </DxContextMenu>
             </CellDisplayTemplate>
         </DxGridDataColumn>       
-        <DxGridDataColumn FieldName="PinStatus" Caption=" " SortOrder="GridColumnSortOrder.Ascending" GroupIndex="0" Width="10%">
+        <DxGridDataColumn FieldName="PinStatus" Caption=" " SortOrder="GridColumnSortOrder.Descending" GroupIndex="0" Width="10%">
         <GroupRowTemplate>
                 @*<text>@context.DataColumn.FieldName =  @context.GroupValue</text>  *@               
                 
@@ -83,7 +88,7 @@
         </DxGridDataColumn>
     </Columns>
     <DetailRowTemplate>
-        <SubViewEmail Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
+        <SubViewEmail @ref=RefSubAssignTo Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
     </DetailRowTemplate>
     <TotalSummary>
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
@@ -100,7 +105,7 @@
     public long RTopicId = 0;
     string SelectedReplyId = "none";
     public string filterrowname { get; set; }
-
+    private SubViewEmail? RefSubAssignTo { get; set; }
     [Parameter]
     public string? GridSearchText { get; set; }
 
@@ -126,6 +131,11 @@
         }
 
     }   
+    public async Task onAssignToGridRefresh(long tid)
+    {
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+        await RefSubAssignTo.onSubAssignToGridRefresh(tid);
+    }
     async Task onGridRefresh()
     {
         _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));

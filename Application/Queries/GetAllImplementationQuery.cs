@@ -18,6 +18,11 @@ namespace Application.Queries
     public class EditImplementationQuery : CCFDImplementationDetails, IRequest<long>
     {
     }
+    public class SaveImplementationQuery : CCFDImplementationDetails, IRequest<long>
+    {
+
+    }
+
     public class CreateCCFInformationModels : CCFInformationModels, IRequest<long>
     {
     }

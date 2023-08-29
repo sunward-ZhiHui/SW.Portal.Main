@@ -830,8 +830,26 @@
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editModel = (View_GetCCFImplementation)e.EditModel;
-
-        var UpdateReq = new EditImplementationQuery
+        if (editModel.ApplicationMasterDetailID == _selectedItems.ApplicationMasterDetailID)
+        {
+            var UpdateReq = new SaveImplementationQuery
+            {
+                
+                ClassOFDocumentID = _selectedItems.ApplicationMasterDetailID,
+                IsRequired = editModel.IsRequired,
+                DoneBy = editModel.DoneBy,
+                DoneByDate = editModel.DoneByDate,
+                ResponsibiltyTo = editModel.ResponsibiltyTo,
+                 AddedDate = DateTime.Now,
+                  SessionId = Guid.NewGuid(),
+                   AddedByUserID= applicationUser.UserID,
+                StatusCodeID = 1,
+            };
+               var ans = await Mediator.Send(UpdateReq);
+        }
+        else
+        {
+            var UpdateReq = new EditImplementationQuery
             {
                 
                 ClassOFDocumentID = _selectedItems.ApplicationMasterDetailID,
@@ -847,11 +865,13 @@
 
         var ans = await Mediator.Send(UpdateReq);
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+       
       //  _CCFDImplementation = await Mediator.Send(new GetAllImplementationSaveQuery(editModel.CCFDImplementationDetailsID));
 
     }
    
-      void OnRowDoubleClick(GridRowClickEventArgs e)
+    void OnRowDoubleClick(GridRowClickEventArgs e)
     {
 
 

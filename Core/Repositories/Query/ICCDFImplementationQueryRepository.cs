@@ -13,7 +13,8 @@ namespace Core.Repositories.Query
     public interface ICCDFImplementationQueryRepository : IQueryRepository <View_GetCCFImplementation>
     {
         long Insert(CCFInformationModels _CCFInformationModels);
-        Task<long> Update(CCFDImplementationDetails cCFDImplementation);
+        Task<long> InsertDetail(CCFDImplementationDetails cCFDImplementation);
+        Task<long> UpdateDetail(CCFDImplementationDetails cCFDImplementation);
         Task<IReadOnlyList<View_GetCCFImplementation>> GetAllAsync();
         Task<IReadOnlyList<View_GetCCFImplementation>> GetAllSaveAsync(long id);
     }

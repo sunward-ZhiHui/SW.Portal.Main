@@ -49,7 +49,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(EditImplementationQuery request, CancellationToken cancellationToken)
         {
-            var req = await _topicTodoListQueryRepository.Update(request);
+            var req = await _topicTodoListQueryRepository.InsertDetail(request);
             return req;
         }
     }
@@ -69,6 +69,21 @@ namespace Application.Handlers.QueryHandlers
             var newTopics = _emailTopicsQueryRepository.Insert(request);
           
             return newTopics;
+        }
+    }
+
+    public class EditCCFInformationHandler : IRequestHandler<SaveImplementationQuery, long>
+    {
+        private readonly ICCDFImplementationQueryRepository _impelementationQueryRepository;
+        public EditCCFInformationHandler(ICCDFImplementationQueryRepository impelementationQueryRepository, IQueryRepository<TopicToDoList> queryRepository)
+        {
+            _impelementationQueryRepository = impelementationQueryRepository;
+        }
+
+        public async Task<long> Handle(SaveImplementationQuery request, CancellationToken cancellationToken)
+        {
+            var req = await _impelementationQueryRepository.UpdateDetail(request);
+            return req;
         }
     }
 }

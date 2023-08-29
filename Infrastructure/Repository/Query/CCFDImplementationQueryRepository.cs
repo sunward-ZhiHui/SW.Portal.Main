@@ -3,6 +3,7 @@ using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
+using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -54,7 +55,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<long> Update(CCFDImplementationDetails cCFDImplementation)
+        public async Task<long> InsertDetail(CCFDImplementationDetails cCFDImplementation)
         {
             try
             {
@@ -299,6 +300,53 @@ namespace Infrastructure.Repository.Query
                     catch (Exception exp)
                     {
                         throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public  async Task<long> UpdateDetail(CCFDImplementationDetails cCFDImplementation)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("ClassOFDocumentID", cCFDImplementation.ClassOFDocumentID);
+                            parameters.Add("IsRequired", cCFDImplementation.IsRequired);
+                            parameters.Add("DoneBy", cCFDImplementation.DoneBy);
+                            parameters.Add("DoneByDate", cCFDImplementation.DoneByDate);
+                            parameters.Add("ResponsibiltyTo", cCFDImplementation.ResponsibiltyTo);
+                          
+                            parameters.Add("ModifiedDate", cCFDImplementation.ModifiedDate);
+                            parameters.Add("SessionId", cCFDImplementation.SessionId);
+                            parameters.Add("ModifiedByUserID", cCFDImplementation.ModifiedByUserID);
+                            parameters.Add("StatusCodeID", cCFDImplementation.StatusCodeID);
+                            var query = " UPDATE CCFDImplementationDetails SET IsRequired = @IsRequired,DoneBy =@DoneBy,DoneByDate =@DoneByDate,ResponsibiltyTo =@ResponsibiltyTo,ModifiedDate =@ModifiedDate,SessionId =@SessionId,StatusCodeID =@StatusCodeID, ModifiedByUserID =@ModifiedByUserID WHERE ClassOFDocumentID = @ClassOFDocumentID";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
                     }
                 }
 

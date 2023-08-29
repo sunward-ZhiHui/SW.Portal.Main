@@ -1,24 +1,23 @@
-﻿using Core.Entities.Base;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Entities
+namespace Core.Entities.Views
 {
-    public class CCFDImplementationDetails :BaseEntity
+    public class View_GetCCFImplementation
     {
-        [Key]
+        public long ApplicationMasterID { get; set; }
+        public long ApplicationMasterDetailID { get; set; }
+        public string Value { get; set; }   
+        public string description { get; set; }
+        public long ClassOFDocumentID { get; set; }
         public long CCFDImplementationDetailsID { get; set; }
         public long CCFDImplementationID { get; set; }
-        public long ClassOFDocumentID { get; set; }
         public bool? IsRequired { get; set; }
         public long? ResponsibiltyTo { get; set; }
         public long? DoneBy { get; set; }
         public DateTime? DoneByDate { get; set; }
-
-
     }
 }

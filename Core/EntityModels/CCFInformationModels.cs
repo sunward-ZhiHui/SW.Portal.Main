@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities.Base;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Core.EntityModels
 {
-    public class CCFInformationModels
+    public class CCFInformationModels:BaseEntity
     {
         [Key]
         public long CCFAInformationID { get; set; }
@@ -138,11 +139,11 @@ namespace Core.EntityModels
         public long? ClassOfDocumentID { get; set; }
         public string? HODComments { get; set; }
         public string? HODSignature { get; set; }
-        public DateTime HODDate { get; set; }
+        public DateTime? HODDate { get; set; }
         public bool ImplementationIsAcceptable { get; set; }
         public bool ImplementationIsNotAcceptable { get; set; }
         public long? ImplementationVerifiedBy { get; set; }
-        public DateTime VerifiedDate { get; set; }
+        public DateTime? VerifiedDate { get; set; }
 
         [Key]
         public long? CCFEClosureID { get; set; }
@@ -150,7 +151,7 @@ namespace Core.EntityModels
         public bool IsNotSatisfactory { get; set; }
         public string? ClosureComments { get; set; }
         public long? ClosedBy { get; set; }
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
         public bool IsSatisfactoryForNotSatisfactory { get; set; }
         public long? NotSatisfactoryClosedBy { get; set; }
         public DateTime? NotSatisfactoryDate { get; set; }

@@ -1,6 +1,9 @@
-﻿using Application.Queries;
+﻿using Application.Common.Mapper;
+using Application.Queries;
 using Core.Entities;
+using Core.Entities.Views;
 using Core.Repositories.Query;
+using Core.Repositories.Query.Base;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -10,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Application.Handlers.QueryHandlers
 {
-    public class GetAllCCFImplementationQueryHandler : IRequestHandler<GetAllImplementationQuery, List<CCFDImplementation>>
+    public class GetAllCCFImplementationQueryHandler : IRequestHandler<GetAllImplementationQuery, List<View_GetCCFImplementation>>
     {
 
         private readonly ICCDFImplementationQueryRepository _queryRepository;
@@ -18,10 +21,54 @@ namespace Application.Handlers.QueryHandlers
         {
             _queryRepository = queryRepository;
         }
-        public async Task<List<CCFDImplementation>> Handle(GetAllImplementationQuery request, CancellationToken cancellationToken)
+        public async Task<List<View_GetCCFImplementation>> Handle(GetAllImplementationQuery request, CancellationToken cancellationToken)
         {
-            return (List<CCFDImplementation>)await _queryRepository.GetListAsync();
+            return (List<View_GetCCFImplementation>)await _queryRepository.GetAllAsync();
         }
     }
-   
+    public class GetAllCCFImplementationSaveQueryHandler : IRequestHandler<GetAllImplementationSaveQuery, List<View_GetCCFImplementation>>
+    {
+
+        private readonly ICCDFImplementationQueryRepository _queryRepository;
+        public GetAllCCFImplementationSaveQueryHandler(ICCDFImplementationQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<View_GetCCFImplementation>> Handle(GetAllImplementationSaveQuery request, CancellationToken cancellationToken)
+        {
+            return (List<View_GetCCFImplementation>)await _queryRepository.GetAllSaveAsync(request.ID);
+        }
+    }
+    public class EditCCFImplementationQueryHandler : IRequestHandler<EditImplementationQuery, long>
+    {
+        private readonly ICCDFImplementationQueryRepository _topicTodoListQueryRepository;
+        public EditCCFImplementationQueryHandler(ICCDFImplementationQueryRepository topicTodoListQueryRepository)
+        {
+            _topicTodoListQueryRepository = topicTodoListQueryRepository;
+        }
+
+        public async Task<long> Handle(EditImplementationQuery request, CancellationToken cancellationToken)
+        {
+            var req = await _topicTodoListQueryRepository.Update(request);
+            return req;
+        }
+    }
+
+    public class CreateCCFInformationHandler : IRequestHandler<CreateCCFInformationModels, long>
+    {
+        private readonly ICCDFImplementationQueryRepository _emailTopicsQueryRepository;
+
+        public CreateCCFInformationHandler(ICCDFImplementationQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<long> Handle(CreateCCFInformationModels request, CancellationToken cancellationToken)
+        {
+           
+
+            var newTopics = _emailTopicsQueryRepository.Insert(request);
+          
+            return newTopics;
+        }
+    }
 }

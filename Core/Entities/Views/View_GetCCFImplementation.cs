@@ -19,5 +19,8 @@ namespace Core.Entities.Views
         public long? ResponsibiltyTo { get; set; }
         public long? DoneBy { get; set; }
         public DateTime? DoneByDate { get; set; }
+        public string ResponsibilityName { get; set; }
+        public string DoneByName { get; set; }
+        public Guid SessionID { get; set; }
     }
 }

@@ -12,10 +12,11 @@ namespace Core.Repositories.Query
 {
     public interface ICCDFImplementationQueryRepository : IQueryRepository <View_GetCCFImplementation>
     {
+        Task<CCFInformationModels> GetAllBySessionAsync(Guid? SessionId);
         long Insert(CCFInformationModels _CCFInformationModels);
         Task<long> InsertDetail(CCFDImplementationDetails cCFDImplementation);
         Task<long> UpdateDetail(CCFDImplementationDetails cCFDImplementation);
-        Task<IReadOnlyList<View_GetCCFImplementation>> GetAllAsync();
-        Task<IReadOnlyList<View_GetCCFImplementation>> GetAllSaveAsync(long id);
-    }
+        Task<IReadOnlyList<View_GetCCFImplementation>> GetAllAsync(Guid? sessionId);
+    
+    } 
 }

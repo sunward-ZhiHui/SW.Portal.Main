@@ -21,33 +21,17 @@ namespace Infrastructure.Repository.Query
         {
         }
 
-        public async Task<IReadOnlyList<View_GetCCFImplementation>> GetAllAsync()
-        {
-            try
-            {
-                var query = "select  * from View_GetCCFImplementation";
-
-                using (var connection = CreateConnection())
-                {
-                    return (await connection.QueryAsync<View_GetCCFImplementation>(query)).ToList();
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<IReadOnlyList<View_GetCCFImplementation>> GetAllSaveAsync(long id)
+        public async Task<IReadOnlyList<View_GetCCFImplementation>> GetAllAsync(Guid? sessionId)
         {
             try
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("CCFDImplementationDetailsID", id);
-                var query = "select  * from View_GetCCFImplementation where CCFDImplementationDetailsID = @id";
+                parameters.Add("SessionID", sessionId);
+                var query = "SELECT * FROM View_GetCCFImplementation WHERE (SessionID = @SessionID) OR (SessionID IS NULL)";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<View_GetCCFImplementation>(query)).ToList();
+                    return (await connection.QueryAsync<View_GetCCFImplementation>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -55,6 +39,32 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<CCFInformationModels> GetAllBySessionAsync(Guid? SessionId)
+        {
+            try
+            {
+                var query = @"select * from ChangeControlForm  CCF 
+                    Inner join CCFAInformation CCFA on CCFA.SessionID =CCF.SessionID
+                    Inner Join CCFBEvaluation CCFB on CCFB.SessionID = CCF.SessionID
+                    inner join CCFCAPproval CCFC on CCFC.SessionID = CCF.SessionID
+                    Inner Join CCFDImplementation CCFD on CCFD.SessionID = CCF.SessionID
+                    Inner Join CCFDImplementationDetails CCFCD on CCFCD.SessionID = CCF.SessionID
+                    Inner Join CCFEClosure CCFE on CCFE.SessionID = CCF.SessionID
+                    where CCF.SessionId = @SessionId";
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<CCFInformationModels>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<long> InsertDetail(CCFDImplementationDetails cCFDImplementation)
         {
             try

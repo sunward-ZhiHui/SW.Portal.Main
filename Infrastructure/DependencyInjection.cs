@@ -146,6 +146,7 @@ namespace Infrastructure
             services.AddTransient<INewEmailUploadQueryRepository, NewEmailUploadQueryRepository>();
             services.AddTransient<ICreateEmailTopicEditQueryRepository, CreateEmailTopicEditQueryRepository>();
             services.AddTransient<ICCDFImplementationQueryRepository,CCFDImplementationQueryRepository>();
+            services.AddTransient<IChangeControlFormQueryRepository, ChangeControlFormQueryRepository>();
             return services;
         }
     }

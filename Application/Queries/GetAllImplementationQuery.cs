@@ -14,6 +14,11 @@ namespace Application.Queries
 {
     public class GetAllImplementationQuery : PagedRequest, IRequest<List<View_GetCCFImplementation>>
     {
+        public Guid? SesionId { get; set; }
+        public GetAllImplementationQuery(Guid? SessionId)
+        {
+            this.SesionId = SessionId;
+        }
     }
     public class EditImplementationQuery : CCFDImplementationDetails, IRequest<long>
     {
@@ -26,14 +31,14 @@ namespace Application.Queries
     public class CreateCCFInformationModels : CCFInformationModels, IRequest<long>
     {
     }
-    public class GetAllImplementationSaveQuery : PagedRequest, IRequest<List<View_GetCCFImplementation>>
+    public class GetAllChangeControlBySession : PagedRequest, IRequest<CCFInformationModels> 
     {
-        public long ID { get; set; }
-
-        public GetAllImplementationSaveQuery(long Id)
+     
+        public Guid? SesionId { get; set; }
+        public GetAllChangeControlBySession(Guid? SessionId)
         {
-            this.ID = Id;
+            this.SesionId = SessionId;
         }
     }
-    
+
 }

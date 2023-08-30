@@ -2,6 +2,7 @@
 using Application.Queries;
 using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
 using MediatR;
@@ -23,20 +24,19 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<View_GetCCFImplementation>> Handle(GetAllImplementationQuery request, CancellationToken cancellationToken)
         {
-            return (List<View_GetCCFImplementation>)await _queryRepository.GetAllAsync();
+            return (List<View_GetCCFImplementation>)await _queryRepository.GetAllAsync(request.SesionId);
         }
     }
-    public class GetAllCCFImplementationSaveQueryHandler : IRequestHandler<GetAllImplementationSaveQuery, List<View_GetCCFImplementation>>
+    public class GetAllSoOrderBySessionHandler : IRequestHandler<GetAllChangeControlBySession, CCFInformationModels>
     {
-
         private readonly ICCDFImplementationQueryRepository _queryRepository;
-        public GetAllCCFImplementationSaveQueryHandler(ICCDFImplementationQueryRepository queryRepository)
+        public GetAllSoOrderBySessionHandler(ICCDFImplementationQueryRepository queryRepository)
         {
             _queryRepository = queryRepository;
         }
-        public async Task<List<View_GetCCFImplementation>> Handle(GetAllImplementationSaveQuery request, CancellationToken cancellationToken)
+        public async Task<CCFInformationModels> Handle(GetAllChangeControlBySession request, CancellationToken cancellationToken)
         {
-            return (List<View_GetCCFImplementation>)await _queryRepository.GetAllSaveAsync(request.ID);
+            return await _queryRepository.GetAllBySessionAsync(request.SesionId);
         }
     }
     public class EditCCFImplementationQueryHandler : IRequestHandler<EditImplementationQuery, long>

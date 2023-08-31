@@ -47,21 +47,21 @@ namespace Application.Handlers.CommandHandler
 
         public async Task<string> Handle(DeleteFmGlobalLineCommand request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var data = new FmglobalLine
-                {
-                    FmglobalLineId = request.Id,
-                };
+            //try
+            //{
+            //    var data = new FmglobalLine
+            //    {
+            //        FmglobalLineId = request.Id,
+            //    };
 
-                await _commandRepository.DeleteAsync(data);
-            }
-            catch (Exception exp)
-            {
-                throw (new ApplicationException(exp.Message));
-            }
-
-            return "FM Global Line information has been deleted!";
+            //    await _commandRepository.DeleteAsync(data);
+            //}
+            //catch (Exception exp)
+            //{
+            //    throw (new ApplicationException(exp.Message));
+            //}
+            var result = _commandRepository.DeleteFMGlobal(request.Id);
+            return result;
         }
     }
     public class DeleteFmGlobalLineItemHandler : IRequestHandler<DeleteFmGlobalLineItemCommand, String>

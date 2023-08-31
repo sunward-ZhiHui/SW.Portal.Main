@@ -458,8 +458,10 @@ namespace Infrastructure.Repository.Query
 
                 var query = @"SELECT * FROM (
                             SELECT FC.TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
-                                AET.Comment AS ActCommentName, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants
+                                AET.Comment AS ActCommentName, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
+                                ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent
                             FROM EmailConversations FC
+                            LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf
                             LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                             INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = FC.ID AND ECP.UserId = @UserId
                             CROSS APPLY (
@@ -723,7 +725,10 @@ namespace Infrastructure.Repository.Query
             {
 
                 var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.AddedByUserID,
-                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants FROM EmailConversations FC  
+                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
+                                ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent
+                                FROM EmailConversations FC  
+                                LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf                                
                                 LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID      
@@ -1078,8 +1083,9 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("Name", forumConversations.Name);
                             parameters.Add("DueDate", forumConversations.DueDate);
                             parameters.Add("IsAllowParticipants", forumConversations.IsAllowParticipants);
+                            parameters.Add("Urgent", forumConversations.Urgent);
 
-                            var query = "INSERT INTO EmailConversations(DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
+                            var query = "INSERT INTO EmailConversations(Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

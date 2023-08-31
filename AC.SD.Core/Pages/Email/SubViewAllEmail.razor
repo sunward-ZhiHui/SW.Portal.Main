@@ -13,7 +13,7 @@
 
     .dxbl-grid-detail-cell
     {
-        padding:5px !important;
+        padding: 10px 5px 10px 20px !important;
     }
 </style>
 <DxLoadingPanel @bind-Visible="PanelVisible" IsContentBlocked="true" ApplyBackgroundShading="true" IndicatorAreaVisible="false" Text="Fetching Data...">
@@ -34,7 +34,21 @@
                         var item = (EmailTopics)context.DataItem;
                     }                    
                     <div style="width:100%">
-                        <strong>@item.FirstName</strong>
+                        <strong>
+                            @item.FirstName
+                            @if (item.NotificationCount != 0)
+                            {
+                                <span class="notificationCount">@item.NotificationCount</span>
+                            }
+                            @if (item.Urgent.GetValueOrDefault(false))
+                            {
+                                <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
+                            }
+                            @if (item.IsAllowParticipants.GetValueOrDefault(false))
+                            {
+                                <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+                            }
+                        </strong>
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
                             <text>@item.TopicName</text>
@@ -69,7 +83,10 @@
         _forumTopicTo = await Mediator.Send(new GetSubEmailTopicTo(Items.ID, applicationUser.UserID));
         PanelVisible = false;
     }
-
+    public async Task onSubAssignAllGridRefresh(long id)
+    {
+        _forumTopicTo = await Mediator.Send(new GetSubEmailTopicTo(id, applicationUser.UserID));
+    }
     async Task OnEmailAllRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ReplyId");

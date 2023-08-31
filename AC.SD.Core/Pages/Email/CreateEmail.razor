@@ -63,7 +63,7 @@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover" @onclick="@(() => addNew(0))" style="float: left; margin-top: -41px; line-height: 38px; margin-left:200px; z-index: 9999; width:100px;">
+            <div class="save_hover" @onclick="@(() => addNew(0))" style="float: left; margin-top: -41px; line-height: 38px; margin-left:214px; z-index: 9999; width:100px;">
                 <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
                     @if (loading)
                     {
@@ -222,14 +222,14 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
-                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
+                            @*<DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
                                         @bind-Checked="@Data.OverDue"
                                         Alignment="default"
                                         LabelPosition="LabelPosition.Right">
                                     Allow OverDue
                                 </DxCheckBox>
-                            </DxFormLayoutItem>
+                            </DxFormLayoutItem>*@
 
                             <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
@@ -432,6 +432,23 @@ else
         //    _CCparticipant = _Toparticipant.Where(c => c.FirstName != itm).ToList();
         //}       
     }
+    void onCcChanged(IEnumerable<string> newTags)
+    {
+        sCCIds = newTags.ToList();
+
+
+        List<string> concatList = sCCIds.Concat(sToIds).ToList();
+
+        //_Toparticipant = _CCparticipant.Where(c => !newTags.Contains(c.FirstName)).ToList();
+        _participant = _Toparticipant.Where(c => !concatList.Contains(c.Name + "-" + c.NickName)).ToList();
+
+
+
+        //foreach (var itm in Tags)
+        //{
+        //    _Toparticipant = _CCparticipant.Where(c => c.FirstName != itm).ToList();
+        //}
+    }
     public string GetUploadUrl()
     {
         string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
@@ -460,23 +477,7 @@ else
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
     }
-    void onCcChanged(IEnumerable<string> newTags)
-    {
-        sCCIds = newTags.ToList();
-
-
-        List<string> concatList = sCCIds.Concat(sToIds).ToList();
-
-        //_Toparticipant = _CCparticipant.Where(c => !newTags.Contains(c.FirstName)).ToList();
-        _participant = _Toparticipant.Where(c => !concatList.Contains(c.Name + "-" + c.NickName)).ToList();
-
-
-
-        //foreach (var itm in Tags)
-        //{
-        //    _Toparticipant = _CCparticipant.Where(c => c.FirstName != itm).ToList();
-        //}
-    }
+   
     private async Task SubmitForm()
     {
         //myForm.OnSubmit();    
@@ -639,6 +640,9 @@ else
         };
 
         Data.Follow = Follow[1];
+        Data.OverDue = false;
+        Data.Urgent = false;
+        Data.IsAllowParticipants = false;
 
     }
     private void onSubmit()

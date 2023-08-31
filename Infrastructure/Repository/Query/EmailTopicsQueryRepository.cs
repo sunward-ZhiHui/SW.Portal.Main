@@ -836,8 +836,7 @@ namespace Infrastructure.Repository.Query
                                 TS.SeqNo,
                                 TS.Status,
                                 TS.Follow,
-                                TS.OnBehalf,
-                                TS.Urgent,
+                                TS.OnBehalf,                                
                                 TS.OverDue,
                                 TS.DueDate,
                                 EC.AddedDate as StartDate,
@@ -845,6 +844,8 @@ namespace Infrastructure.Repository.Query
                                 TS.SessionId,
                                 E.FirstName,
                                 E.LastName,
+                                EC.Urgent,
+                                EC.IsAllowParticipants,
                                 COALESCE(FN.NotificationCount, 0) AS NotificationCount
                             FROM
                                 EmailTopics TS
@@ -902,8 +903,7 @@ namespace Infrastructure.Repository.Query
                                 TS.SeqNo,
                                 TS.Status,
                                 TS.Follow,
-                                TS.OnBehalf,
-                                TS.Urgent,
+                                TS.OnBehalf,                               
                                 TS.OverDue,
                                 TS.DueDate,
                                 EC.AddedDate as StartDate,
@@ -911,6 +911,8 @@ namespace Infrastructure.Repository.Query
                                 TS.SessionId,
                                 E.FirstName,
                                 E.LastName,
+                                EC.Urgent,
+                                EC.IsAllowParticipants,
                                 COALESCE(FN.NotificationCount, 0) AS NotificationCount
                             FROM
                                 EmailTopics TS
@@ -931,16 +933,14 @@ namespace Infrastructure.Repository.Query
 							           )K
                             INNER JOIN
                                 Employee E ON TS.TopicFrom = E.UserId
-                            LEFT JOIN
-                                (
-                                    SELECT
-                                        TopicId,
-                                        COUNT(*) AS NotificationCount
-                                    FROM
-                                       EmailNotifications WHERE UserId = @UserId
-                                    GROUP BY
-                                        TopicId
-                                ) FN ON TS.ID = FN.TopicId
+                             OUTER APPLY
+							(
+								SELECT									
+									COUNT(*) AS NotificationCount
+								FROM  EmailConversations ECC
+								INNER JOIN EmailNotifications EN ON ECC.ID=EN.ConversationId and EN.IsRead = 0
+								WHERE EN.TopicId=EC.TopicID AND EN.UserId=ECP.UserId AND EC.ID=ECC.ReplyId
+							) FN 
                             WHERE
                                 TS.OnDraft = 0 and EC.ID=K.ReplyId  /*and EC.ReplyId = 0*/
                             ORDER BY

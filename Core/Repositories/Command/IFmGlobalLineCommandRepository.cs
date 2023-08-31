@@ -10,7 +10,7 @@ namespace Core.Repositories.Command
 {
     public interface IFmGlobalLineCommandRepository : ICommandRepository<FmglobalLine>
     {
-
+        string DeleteFMGlobal(long Id);
     }
     public interface IFmGlobalMoveCommandRepository : ICommandRepository<FmglobalMove>
     {

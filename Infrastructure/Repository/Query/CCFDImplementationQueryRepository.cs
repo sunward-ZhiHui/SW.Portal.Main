@@ -123,14 +123,20 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         var parameterss = new DynamicParameters();
+                        parameterss.Add("CCFAInformationID", _CCFInformationModels.CCFAInformationID);
+                        parameterss.Add("CCFBEvaluationID", _CCFInformationModels.CCFBEvaluationID);
+                        parameterss.Add("CCFCAPprovalID", _CCFInformationModels.CCFCAPprovalID);
+                        parameterss.Add("CCFDImplementationID", _CCFInformationModels.CCFDImplementationID);
+                        parameterss.Add("CCFEClosureID", _CCFInformationModels.CCFEClosureID);
+
                         parameterss.Add("IsInternalChanges", _CCFInformationModels.IsInternalChanges);
                         parameterss.Add("IsAuthorityDirectedChanges", _CCFInformationModels.IsAuthorityDirectedChanges);
                         parameterss.Add("PIC", _CCFInformationModels.PIC);
                         parameterss.Add("PIA", _CCFInformationModels.PIA);
                         parameterss.Add("DepartmentID", _CCFInformationModels.DepartmentID);
                         parameterss.Add("IsSiteTransfer", _CCFInformationModels.IsSiteTransfer);
-                        //parameterss.Add("EndDate", EmailTopics.EndDate);
-                        //parameterss.Add("DueDate", EmailTopics.DueDate);
+                       parameterss.Add("EvaluationDate", _CCFInformationModels.EvaluationDate);
+                  
                         parameterss.Add("IsProduct", _CCFInformationModels.IsProduct);
                         parameterss.Add("IsEquipment", _CCFInformationModels.IsEquipment);
                         parameterss.Add("IsComposition", _CCFInformationModels.IsComposition);
@@ -161,8 +167,8 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("ProposedImplementationAction", _CCFInformationModels.ProposedImplementationAction);
                         parameterss.Add("RelatedDeviation", _CCFInformationModels.RelatedDeviation);
                         parameterss.Add("IsAcceptable", _CCFInformationModels.IsAcceptable);
-                        //parameterss.Add("EndDate", EmailTopics.EndDate);
-                        //parameterss.Add("DueDate", EmailTopics.DueDate);
+                       parameterss.Add("InitiatorDate", _CCFInformationModels.InitiatorDate);
+                       
                         parameterss.Add("IsNotAcceptable", _CCFInformationModels.IsNotAcceptable);
                         parameterss.Add("IsMinor", _CCFInformationModels.IsMinor);
                         parameterss.Add("IsMajor", _CCFInformationModels.IsMajor);

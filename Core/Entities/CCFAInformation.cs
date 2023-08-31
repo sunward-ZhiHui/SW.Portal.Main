@@ -37,7 +37,7 @@ namespace Core.Entities
         public bool? IsRegulatory { get; set; }
         public bool? IsReTestPeriod { get; set; }
         public string?  Others { get; set; }
-
+        public DateTime? InitiatorDate { get; set; }
         public string? DescriptionOfProposedChange { set; get; }
         public string? Description { get; set; }
         public string? Justification { get; set;}

@@ -50,8 +50,7 @@
 
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Date:" >
-
-
+              <DxDateEdit @bind-Date="@Data.InitiatorDate"></DxDateEdit>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Department:" >
                 <DxComboBox Data="@_departmentItems"
@@ -239,7 +238,7 @@
 
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
-             @*   <DxDateEdit @bind-Date="@EvaluatedData.Eva"></DxDateEdit>*@
+             <DxDateEdit @bind-Date="@Data.EvaluationDate"></DxDateEdit>
 
             </DxFormLayoutItem>
             <DxFormLayoutGroup Caption="*Section(s) below is to be filled is Proposed Change is Acceptable" ColSpanMd="12">
@@ -855,7 +854,8 @@
 
                      Data.RelatedDeparmentOthers = DataBySession.RelatedDeparmentOthers;
                   Data.   EvaluatedBy = DataBySession.EvaluatedBy;
-                  //  EvaluatedDate = Data.EvaluatedDate,
+                Data.EvaluationDate = DataBySession.EvaluationDate;
+                   Data.InitiatorDate = DataBySession.InitiatorDate;
                     Data. IsRequlatoryApproval = DataBySession.IsRequlatoryApproval;
                     Data. IsNotificationRequired  = DataBySession.IsNotificationRequired ;
                     Data. RegulatoryOthers = DataBySession.RegulatoryOthers;
@@ -1030,6 +1030,12 @@
     {
         var createReq = new CreateCCFInformationModels
                 {
+
+                  CCFAInformationID = Data.CCFAInformationID,
+                  CCFBEvaluationID = Data.CCFBEvaluationID,
+                  CCFCAPprovalID = Data.CCFCAPprovalID,
+                  CCFDImplementationID =Data.CCFDImplementationID,
+                  CCFEClosureID = Data.CCFEClosureID,
                     IsInternalChanges = Data.IsInternalChanges,
                     IsAuthorityDirectedChanges = Data.IsAuthorityDirectedChanges,
                     PIC = Data.PIC,
@@ -1043,7 +1049,7 @@
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
                 SessionId = SessionIds,
-                   
+                   InitiatorDate = Data.InitiatorDate,
                     IsFacility = Data.IsFacility,
                     IsLayout = Data.IsLayout,
                     IsDocument = Data.IsDocument,
@@ -1082,7 +1088,7 @@
 
                     RelatedDeparmentOthers = Data.RelatedDeparmentOthers,
                     EvaluatedBy = Data.EvaluatedBy,
-                  //  EvaluatedDate = Data.EvaluatedDate,
+                EvaluationDate = Data.EvaluationDate,
                     IsRequlatoryApproval = Data.IsRequlatoryApproval,
                     IsNotificationRequired  = Data.IsNotificationRequired ,
                     RegulatoryOthers = Data.RegulatoryOthers,

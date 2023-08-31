@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace Core.EntityModels
 {
-    public class CCFInformationModels:BaseEntity
+    public class CCFInformationModels : BaseEntity
     {
         [Key]
         public long CCFAInformationID { get; set; }
-       
+
         public bool IsInternalChanges { get; set; }
-     
+        public DateTime? InitiatorDate { get; set; }
         public bool IsAuthorityDirectedChanges { get; set; }
         public long? PIC { get; set; }
         public long? PIA { get; set; }
@@ -47,6 +47,7 @@ namespace Core.EntityModels
         public string? RelatedDeviation { get; set; }
         [Key]
         public long CCFBEvaluationID { get; set; }
+        public  DateTime? EvaluationDate {get; set;}
         public bool IsAcceptable { get; set; }
         public bool IsNotAcceptable { get; set; }
         public bool IsMinor { get; set; }

@@ -67,7 +67,7 @@ namespace Core.Entities
         public string? EngineeringOthers { get; set; }
         public string? EngineeringDetails { get; set; }
         public long? EngineeringEvaluatedBy { get;set; }
-
+        public  DateTime? EvaluationDate { get; set; }
         public DateTime? EngineeringMaintenanceDate { get;set; }
         public bool? IsQAQualification { get; set;  }
         public bool? IsQAValidation { get; set; }

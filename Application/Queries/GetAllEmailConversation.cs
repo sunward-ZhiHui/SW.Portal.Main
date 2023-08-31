@@ -152,6 +152,15 @@ namespace Application.Queries
             this.ConvasationId = convId;
         }
     }
+
+    public class GetByConvasationTIDPList : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+        public long TopicId { get; set; }        
+        public GetByConvasationTIDPList(long topicId)
+        {
+            this.TopicId = topicId;            
+        }
+    }
     public class GetAllConvAssToListQuery : PagedRequest, IRequest<List<ViewEmployee>>
     {
         public long EmployeeID { get; set; }
@@ -176,8 +185,16 @@ namespace Application.Queries
             this.ConversationId = Id;
         }
     }
+    public class GetEmailConversationTId : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public long TopicId { get; set; }
+        public GetEmailConversationTId(long topicId)
+        {
+            this.TopicId = topicId;
+        }
+    }
 
-	public class GetEmailConversationAssignCC : PagedRequest, IRequest<List<EmailConversationAssignTo>>
+    public class GetEmailConversationAssignCC : PagedRequest, IRequest<List<EmailConversationAssignTo>>
 	{
 		public long ConversationId { get; set; }
 		public GetEmailConversationAssignCC(long Id)

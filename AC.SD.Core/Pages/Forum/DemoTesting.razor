@@ -1,0 +1,232 @@
+﻿@page "/testing"
+
+<style scoped>
+    .template-container {
+        display: flex;
+        align-items: center;
+        width: 100%
+    }
+
+    .template-icon {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.375rem;
+        -webkit-mask-image: url("_content/AC.SD.Core/images/icons/theme-icon.svg");
+        mask-image: url("_content/AC.SD.Core/images/icons/theme-icon.svg");
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        background-color: currentColor;
+        border: 1px solid white;
+    }
+
+    .dxbl-sm .template-icon {
+        margin-right: 0.25rem;
+    }
+
+    .dxbl-lg .template-icon {
+        margin-right: 0.5rem;
+    }
+
+    .template-container > .blazing-berry {
+        color: #5c2d91;
+    }
+
+    .template-container > .blazing-dark {
+        color: #46444a;
+    }
+
+    .template-container > .office-white {
+        color: #fe7109;
+    }
+
+    .template-container > .purple {
+        color: #7989ff;
+    }
+
+    .template-container > .default {
+        color: #007bff;
+    }
+
+    .template-container > .cerulean {
+        color: #2fa4e7;
+    }
+
+    .template-container > .cyborg {
+        color: #060606;
+    }
+
+    .template-container > .flatly {
+        color: #dce4ec;
+    }
+
+    .template-container > .journal {
+        color: #eb6864;
+    }
+
+    .template-container > .litera {
+        color: #4582ec;
+    }
+
+    .template-container > .lumen {
+        color: #158cba;
+    }
+
+    .template-container > .lux {
+        color: #1a1a1a;
+    }
+
+    .template-container > .pulse {
+        color: #593196;
+    }
+
+    .template-container > .simplex {
+        color: #d9230f;
+    }
+
+    .template-container > .solar {
+        color: #b58900;
+    }
+
+    .template-container > .superhero {
+        color: #df691a;
+    }
+
+    .template-container > .united {
+        color: #e95420;
+    }
+
+    .template-container > .yeti {
+        color: #008cba;
+    }
+</style>
+
+<DxComboBox Data="@Themes"
+            @bind-Value="@CurrentTheme"
+            NullText="Select a theme..."
+            FilteringMode="DataGridFilteringMode.StartsWith"
+            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+            CssClass="cw-480">
+    <EditBoxTemplate>
+        @GetEditBoxTemplateContent(context)
+    </EditBoxTemplate>
+    <ItemTemplate>
+        @GetItemTemplateContent(context)
+    </ItemTemplate>
+</DxComboBox>
+
+@code {
+    string CurrentTheme { get; set; } = "Blazing-berry";
+    IEnumerable<string> Themes = new List<string>() {
+        "Blazing-berry", "Blazing-dark", "Purple", "Office-white",
+        "Default", "Cerulean", "Cyborg", "Flatly", "Journal", "Litera", "Lumen", "Lux", "Pulse", "Simplex", "Solar", "Superhero", "United", "Yeti"
+        };
+    RenderFragment GetEditBoxTemplateContent(string item)
+    {
+        return @<div class="template-container">
+        @GetTemplateIcon(item)
+        <DxInputBox />
+    </div>;
+    }
+    RenderFragment GetItemTemplateContent(string item)
+    {
+        return @<div class="template-container">
+        @GetTemplateIcon(item)
+        @item
+    </div>;
+    }
+    RenderFragment GetTemplateIcon(string item)
+    {
+        if (string.IsNullOrEmpty(item))
+            return @<text></text>;
+        return @<span class="@GetIconCssClass(item)"></span>;
+    }
+    string GetIconCssClass(string item)
+    {
+        return $"template-icon {item.ToLower()}";
+    }
+}
+
+
+
+
+
+<div id="dropdown-overview-target-container">
+    <DxButton Click="() => _isOpen = !_isOpen"
+              RenderStyle="ButtonRenderStyle.None"
+              CssClass="color-choose-button">
+        <div class="combobox-item-template">
+            <div class="combobox-item-template-colorbox" style="background-color:@SelectedColor"></div>
+            <div class="combobox-item-template-text">@SelectedColor</div>
+        </div>
+    </DxButton>
+</div>
+<DxDropDown @bind-IsOpen="@_isOpen"
+            Width="max(25vw, 250px)"
+            PositionMode="DropDownPositionMode.Bottom"
+            PositionTarget="#dropdown-overview-target-container"
+            RestrictionTarget="#Navigation-DropDown-Overview"
+            CloseMode="DropDownCloseMode.Close">
+    <BodyTemplate>
+        <ul class="list-unstyled m-0">
+            <li role="separator" class="separator dropdown-divider"></li>
+            <li>
+                <div class="color-picker-container">
+                    @foreach (var color in _colors)
+                    {
+                        <div class="color-picker-cell @CssClassSelectedCell(color)" style="background-color:@color" @onclick="() => ChangeColor(color)"></div>
+                    }
+                </div>
+            </li>
+            <li role="separator" class="separator dropdown-divider"></li>
+            <li>
+                <div class="color-picker-container color-picker-container-reset" @onclick="ResetColor">
+                    <div class="color-picker-cell"></div>
+                    <span class="ms-2 mt-1-5">No color</span>
+                </div>
+            </li>
+        </ul>
+    </BodyTemplate>
+</DxDropDown>
+
+@code {
+    private bool _isOpen { get; set; } = false;
+
+    private readonly string[] _colors = new[]
+    {
+            "#000000",
+            "#c0c0c0",
+            "#808080",
+            "#808000",
+            "#800000",
+            "#800080",
+            "#008000",
+            "#008080",
+            "#000080",
+            "#ff0000",
+            "#0000ff",
+            "#ff00ff",
+            "#00ffff",
+            "#00ff00",
+            "#ffff00"
+    };
+    [Parameter]
+    public EventCallback<string> SelectedColorChanged { get; set; }
+    [Parameter]
+    public string SelectedColor { get; set; }
+
+    private void ChangeColor(string color)
+    {
+        SelectedColor = color;
+        SelectedColorChanged.InvokeAsync(color);
+        _isOpen = false;
+    }
+
+    private void ResetColor()
+    {
+        SelectedColor = "unset";
+        SelectedColorChanged.InvokeAsync("unset");
+        _isOpen = false;
+    }
+
+    private string CssClassSelectedCell(string color) => color == SelectedColor ? "selected" : string.Empty;
+}

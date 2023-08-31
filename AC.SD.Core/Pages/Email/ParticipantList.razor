@@ -41,15 +41,18 @@
             <DxGridDataColumn FieldName="SubjectName" MinWidth="100" />
             <DxGridDataColumn FieldName="UserName" MinWidth="100" />
             <DxGridDataColumn FieldName="UserCode" />
-            <DxGridDataColumn FieldName="ID" Caption="Action" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (EmailParticipant)context.DataItem;
-                    }
-                    <DxButton IconCssClass="btnDelete fas fa-trash" style=" background: transparent; border: none;" Click="() => onDeletePlist((long)context.Value)" Enabled=@(item.IsEnabled) />
+            @if (IsValidUser)
+            {
+                <DxGridDataColumn FieldName="ID" Caption="Action" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (EmailParticipant)context.DataItem;
+                        }
+                        <DxButton IconCssClass="btnDelete fas fa-trash" style=" background: transparent; border: none;" Click="() => onDeletePlist((long)context.Value)" Enabled=@(item.IsEnabled) />
                     @*<button class="btnDelete fas fa-trash" Enabled=@(item.IsEnabled) @onclick="() => onDeletePlist((long)context.Value)"></button>*@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
+            }
         </Columns>
     </DxGrid>
 </div>
@@ -92,8 +95,8 @@
                 <DxDataGridCheckBoxColumn Field="@nameof(ViewEmployee.UserID)" Caption="Selected" />
                 </DxDataGridColumn>*@
                 <DxGridSelectionColumn Width="104px" />
-                <DxGridDataColumn FieldName="FirstName" MinWidth="100" />
-                <DxGridDataColumn FieldName="LastName" />
+                <DxGridDataColumn FieldName="Name" MinWidth="100" />
+                <DxGridDataColumn FieldName="NickName" />
             </Columns>
         </DxGrid>
 

@@ -38,6 +38,8 @@ namespace Core.Entities
         public byte[] FileData { get; set; }      
         public string? Follow { get; set; }        
         public long? OnBehalf { get; set; }
+        [NotMapped]
+        public string? OnBehalfName { get; set; }
         public bool? Urgent { get; set; }
         public bool? OverDue { get; set; }
         public bool? IsArchive { get; set; }

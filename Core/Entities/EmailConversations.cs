@@ -42,7 +42,7 @@ namespace Core.Entities
         [NotMapped]
         public string? AllowPlistids { get; set; }        
         [NotMapped]
-        public IEnumerable<long> AssigntoIds { get; set; }
+        public IEnumerable<long>? AssigntoIds { get; set; }
         [NotMapped]
         public IEnumerable<long> AssignccIds { get; set; }
         [NotMapped]
@@ -67,6 +67,11 @@ namespace Core.Entities
         public bool? IsRead { get; set; }
         [NotMapped]
         public long EmailNotificationId { get; set; }
+        [NotMapped]
+        public string? OnBehalfName { get; set; }
+        [NotMapped]
+        public string? Follow { get; set; }
+        public bool? Urgent { get; set; } = false; 
 
     }
 }

@@ -47,8 +47,9 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT * FROM EmailTopics TS
+                var query = @"SELECT CONCAT(EB.FirstName,EB.LastName) AS OnBehalfName,* FROM EmailTopics TS
                             INNER JOIN Employee E ON TS.TopicFrom = E.UserID
+                            LEFT JOIN Employee EB ON TS.OnBehalf = EB.UserID
                             WHERE ID = @Id";
                 //var query = @"SELECT * FROM EmailTopics TS 
                 //                INNER JOIN EmailTypes TP ON TS.TypeId = TP.ID                                
@@ -567,7 +568,7 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("id", id);
 
-                            var query = "UPDATE EmailTopics SET PinStatus = 'NULL' WHERE ID = @id";
+                            var query = "UPDATE EmailTopics SET PinStatus = 0 WHERE ID = @id";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
@@ -835,8 +836,7 @@ namespace Infrastructure.Repository.Query
                                 TS.SeqNo,
                                 TS.Status,
                                 TS.Follow,
-                                TS.OnBehalf,
-                                TS.Urgent,
+                                TS.OnBehalf,                                
                                 TS.OverDue,
                                 TS.DueDate,
                                 EC.AddedDate as StartDate,
@@ -844,6 +844,8 @@ namespace Infrastructure.Repository.Query
                                 TS.SessionId,
                                 E.FirstName,
                                 E.LastName,
+                                EC.Urgent,
+                                EC.IsAllowParticipants,
                                 COALESCE(FN.NotificationCount, 0) AS NotificationCount
                             FROM
                                 EmailTopics TS
@@ -901,8 +903,7 @@ namespace Infrastructure.Repository.Query
                                 TS.SeqNo,
                                 TS.Status,
                                 TS.Follow,
-                                TS.OnBehalf,
-                                TS.Urgent,
+                                TS.OnBehalf,                               
                                 TS.OverDue,
                                 TS.DueDate,
                                 EC.AddedDate as StartDate,
@@ -910,6 +911,8 @@ namespace Infrastructure.Repository.Query
                                 TS.SessionId,
                                 E.FirstName,
                                 E.LastName,
+                                EC.Urgent,
+                                EC.IsAllowParticipants,
                                 COALESCE(FN.NotificationCount, 0) AS NotificationCount
                             FROM
                                 EmailTopics TS
@@ -930,16 +933,14 @@ namespace Infrastructure.Repository.Query
 							           )K
                             INNER JOIN
                                 Employee E ON TS.TopicFrom = E.UserId
-                            LEFT JOIN
-                                (
-                                    SELECT
-                                        TopicId,
-                                        COUNT(*) AS NotificationCount
-                                    FROM
-                                       EmailNotifications WHERE UserId = @UserId
-                                    GROUP BY
-                                        TopicId
-                                ) FN ON TS.ID = FN.TopicId
+                             OUTER APPLY
+							(
+								SELECT									
+									COUNT(*) AS NotificationCount
+								FROM  EmailConversations ECC
+								INNER JOIN EmailNotifications EN ON ECC.ID=EN.ConversationId and EN.IsRead = 0
+								WHERE EN.TopicId=EC.TopicID AND EN.UserId=ECP.UserId AND EC.ID=ECC.ReplyId
+							) FN 
                             WHERE
                                 TS.OnDraft = 0 and EC.ID=K.ReplyId  /*and EC.ReplyId = 0*/
                             ORDER BY
@@ -1423,6 +1424,46 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ID", EmailTopics.ID);                           
 
                             var query = " UPDATE EmailTopics SET DueDate = @DueDate WHERE ID = @ID";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<long> UpdateSubjectDueDate(EmailConversations emailConversations)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DueDate", emailConversations.DueDate);
+                            parameters.Add("ID", emailConversations.ID);
+
+                            var query = " UPDATE EmailConversations SET DueDate = @DueDate WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 

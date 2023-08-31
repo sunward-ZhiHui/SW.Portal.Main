@@ -1,0 +1,129 @@
+﻿@page "/createEmailEdit"
+@using Application.Queries;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using MediatR
+@inject IJSRuntime JSRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+
+<div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
+    <div class="card-body p-0">
+        <div class="save_hover" style="float: left;  line-height: 38px; margin-left: 10px; z-index: 9999; width:100px;">
+            <button type="submit" disabled="@SaveDisable" form="@MyIDs" class="btnSubmitForm" @onclick="@HandleValidSubmit" style="font-weight:bold; ">
+                @if (loading)
+                {
+                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                }
+                <i class="fa fa-save"></i>
+                Save
+            </button>
+        </div>
+    </div>
+</div>
+<div style="width:100%;">
+    <EditForm Model="@Datas" id="@MyIDs" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem ColSpanMd="12">
+                <DxRichEdit DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Datas.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </EditForm>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    private bool loading;
+    bool SaveDisable = false;
+    DxRichEdit msgrichEdit { get; set; }
+    EmailTopics Datas = new EmailTopics();
+    private string MyIDs = "myidwew";
+    [Parameter]
+    public string ActiveSessionId { get; set; }
+    private List<ActivityEmailTopics>? activityEmailTopics;
+    protected override async Task OnInitializedAsync()
+    {
+        if(SessionId.HasValue)
+        {
+            SaveDisable = true;
+        }
+    }
+    async void OnCustomizeToolbar(IToolbar toolbar)
+    {
+        BarGroupCollection groups = toolbar.Groups;
+        toolbar.Groups.Clear();
+
+        // Inserts the File group at the first position in the group collection
+        //toolbar.Groups.Add(0, RichEditToolbarGroupNames.File);
+        toolbar.Groups.Add(0, RichEditToolbarGroupNames.Undo);
+        toolbar.Groups.Add(1, RichEditToolbarGroupNames.Font);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Table);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Picture);
+        toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
+
+
+        //AddFormattingGroup(groups);
+
+
+        IBarGroup fontGroup = toolbar.Groups[RichEditToolbarGroupNames.Font];
+      
+
+        IBarGroup undoRedoGroup = toolbar.Groups[0];
+        undoRedoGroup.Items.Add(0, RichEditBarItemNames.FullScreen);
+
+        if (ActiveSessionId != null)
+        {
+            var acttopics = await Mediator.Send(new GetActivityEmailTopics());
+            activityEmailTopics = acttopics;
+            //string sessionIdString = ActiveSessionId;
+            Guid activeSessionId = Guid.Parse(ActiveSessionId);
+            var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
+
+
+
+        }
+    }
+
+    async void HandleValidSubmit()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+      
+
+        byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+
+        if (fileContent.Length == 480)
+        {
+            toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+            loading = false;
+            return;
+        }
+
+       
+
+        var createReq = new CreateEmailTopicsEditQuery
+            {
+               
+                FileData = fileContent,
+               
+                SessionId = SessionId,
+               
+            };
+       
+            //_sessionId = createReq.SessionId;
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+               
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+            
+           
+    }
+  
+
+
+
+
+}

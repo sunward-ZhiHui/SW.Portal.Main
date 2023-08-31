@@ -26,8 +26,8 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("SessionID", sessionId);
-                var query = "SELECT * FROM View_GetCCFImplementation WHERE (SessionID = @SessionID) OR (SessionID IS NULL)";
+                parameters.Add("SessionId", sessionId);
+                var query = "SELECT * FROM View_GetCCFImplementation WHERE (SessionId = @SessionId) ";
 
                 using (var connection = CreateConnection())
                 {
@@ -44,12 +44,12 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = @"select * from ChangeControlForm  CCF 
-                    Inner join CCFAInformation CCFA on CCFA.SessionID =CCF.SessionID
-                    Inner Join CCFBEvaluation CCFB on CCFB.SessionID = CCF.SessionID
-                    inner join CCFCAPproval CCFC on CCFC.SessionID = CCF.SessionID
-                    Inner Join CCFDImplementation CCFD on CCFD.SessionID = CCF.SessionID
-                    Inner Join CCFDImplementationDetails CCFCD on CCFCD.SessionID = CCF.SessionID
-                    Inner Join CCFEClosure CCFE on CCFE.SessionID = CCF.SessionID
+                    Inner join CCFAInformation CCFA on CCFA.SessionId =CCF.SessionId
+                    Inner Join CCFBEvaluation CCFB on CCFB.SessionId = CCF.SessionId
+                    inner join CCFCAPproval CCFC on CCFC.SessionId = CCF.SessionId
+                    Inner Join CCFDImplementation CCFD on CCFD.SessionId = CCF.SessionId
+                    Inner Join CCFDImplementationDetails CCFCD on CCFCD.SessionId = CCF.SessionId
+                    Inner Join CCFEClosure CCFE on CCFE.SessionId = CCF.SessionId
                     where CCF.SessionId = @SessionId";
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
@@ -74,12 +74,12 @@ namespace Infrastructure.Repository.Query
 
                     connection.Open();
                     using (var transaction = connection.BeginTransaction())
-                    { var parameters = new DynamicParameters();
-                            parameters.Add("ClassOFDocumentID", cCFDImplementation.ClassOFDocumentID);
+                    { 
+                          
 
                         try
                         {
-                           
+                            var parameters = new DynamicParameters();
                             parameters.Add("IsRequired", cCFDImplementation.IsRequired);
                             parameters.Add("DoneBy", cCFDImplementation.DoneBy);
                             parameters.Add("DoneByDate", cCFDImplementation.DoneByDate);
@@ -90,8 +90,14 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedByUserID", cCFDImplementation.AddedByUserID);
                             parameters.Add("StatusCodeID", cCFDImplementation.StatusCodeID);
 
-                            var query = " Insert into  CCFDImplementationDetails (ClassOFDocumentID,IsRequired,DoneBy,DoneByDate,ResponsibiltyTo,AddedDate,SessionId,AddedByUserID,StatusCodeID)Values(@ClassOFDocumentID,@IsRequired,@DoneBy,@DoneByDate,@ResponsibiltyTo,@AddedDate,@SessionId,@AddedByUserID,@StatusCodeID)";
-
+                            // var query = " Insert into  CCFDImplementationDetails (ClassOFDocumentID,IsRequired,DoneBy,DoneByDate,ResponsibiltyTo,AddedDate,SessionId,AddedByUserID,StatusCodeID)Values(@ClassOFDocumentID,@IsRequired,@DoneBy,@DoneByDate,@ResponsibiltyTo,@AddedDate,@SessionId,@AddedByUserID,@StatusCodeID)";
+                            var query = @"insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(79,@SessionId,@AddedByUserID,@StatusCodeID)
+                                        insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(80,@SessionId,@AddedByUserID,@StatusCodeID)
+                                        insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(81,@SessionId,@AddedByUserID,@StatusCodeID)
+                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(82,@SessionId,@AddedByUserID,@StatusCodeID)
+                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(83,@SessionId,@AddedByUserID,@StatusCodeID)
+                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(84,@SessionId,@AddedByUserID,@StatusCodeID)
+                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(85,@SessionId,@AddedByUserID,@StatusCodeID)";
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
                             transaction.Commit();

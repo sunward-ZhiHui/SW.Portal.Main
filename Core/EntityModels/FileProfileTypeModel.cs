@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,9 @@ namespace Core.EntityModels
     public class FileProfileTypeModel : BaseModel
     {
         public long FileProfileTypeId { get; set; }
-        public long ProfileId { get; set; }
+        [Required(ErrorMessage = "Profile is Required")]
+        public long? ProfileId { get; set; }
+        [Required(ErrorMessage = "Name is Required")]
         public string Name { get; set; }
         public string Label { get; set; }
         public string Description { get; set; }

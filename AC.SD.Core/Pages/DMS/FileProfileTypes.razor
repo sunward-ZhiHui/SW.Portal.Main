@@ -28,6 +28,12 @@
 
                 <Items>
                     <DxMenuItem Position="ItemPosition.Start" IconCssClass="fa fa-reply " Click="onBack" />
+                    <DxMenuItem Text="Profile Type" Position="ItemPosition.Start" >
+                        <Items>
+                            <DxMenuItem Text="Add New" IconCssClass="fa fa-add" Click="onAddFileProfileType" />
+                            <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@onEditFileProfileType"/>
+                                </Items>
+                    </DxMenuItem>
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-file-excel" Click="onDownload" Enabled="@ondownloadEnabled" />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" />
@@ -112,7 +118,7 @@
                 Text="Fetching Data...">
     <DxGrid @ref="Grid"
             Data="fileProfileTypeDocuments"
-            KeyFieldName="DocumentID"
+            KeyFieldName="UniqueNo"
             EditMode="GridEditMode.EditForm"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             EditorRenderMode="GridEditorRenderMode.Integrated"
@@ -137,7 +143,7 @@
             >
         <Columns>
 @*            <DxGridSelectionColumn FixedPosition="GridColumnFixedPosition.Left" Width="60px" />
-*@            <DxGridDataColumn FieldName="DocumentID"  Visible="false" />
+*@            <DxGridDataColumn FieldName="UniqueNo"  Visible="false" />
             <DxGridDataColumn FieldName="FileName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="270">
                 <CellDisplayTemplate>
 
@@ -395,6 +401,7 @@
     private DocumentsModel _selectedItems;
     DocumentsModel _selectedDescriptionItems=new DocumentsModel();
     public string Name;
+    public Guid? SelectSessionId { get; set; }
     public string isVisibleMore { get; set; } = "display:none;";
     public bool DownloadEnabled { get; set; } = false;
     public bool uploadEnabled { get; set; } = false;
@@ -593,8 +600,8 @@
     }
     async Task OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentID");
-        _selectedItems = fileProfileTypeDocuments.FirstOrDefault(f => f.DocumentID == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UniqueNo");
+        _selectedItems = fileProfileTypeDocuments.FirstOrDefault(f => f.UniqueNo == (long?)UniqueId);
         if (_selectedItems != null)
         {
             permissionEnabled();
@@ -650,6 +657,41 @@
         //    e.Style = "background-color: rgba(0, 0, 0, 0.08)";
         //    e.CssClass = "header-bold";
         //}
+    }
+    void onAddFileProfileType()
+    {
+        NavigationManager.NavigateTo($"AddFileProfileTypes/Add/"+SessionId);
+    }
+    void onEditFileProfileType()
+    {
+        SelectSessionId = null;
+        if(SessionId==null)
+        {
+            if (_selectedItems != null)
+            {
+                SelectSessionId = _selectedItems.SessionID;
+            }
+        }
+        else
+        {
+            if (_selectedItems != null)
+            {
+                if (_selectedItems.FileProfileTypeId == null)
+                {
+                    SelectSessionId=fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == _selectedItems.FilterProfileTypeId)?.SessionID;
+                }
+                else
+                {
+                    SelectSessionId = _selectedItems.SessionID;
+                }
+            }
+            else
+            {
+                SelectSessionId = SessionId;
+            }
+        }
+         NavigationManager.NavigateTo($"AddFileProfileTypes/Edit/"+SelectSessionId);
+       
     }
     void onBack()
     {

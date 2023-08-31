@@ -1,0 +1,167 @@
+﻿@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using Microsoft.Extensions.Configuration;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+
+<div class="" style="margin-top: 10px;margin-left: 11px;">
+    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;padding:10px;">
+        <div class="cw-480" style="margin-top:10px;">
+            <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />
+                    <DxFormLayoutItem Caption="Profile" ColSpanMd="6">
+                        <DxComboBox Data="@_documentProfileNoList"
+                                    NullText="Select Profile..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="ProfileID"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        @bind-Value="@Data.ProfileId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Name)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(DocumentProfileNoSeriesModel.Abbreviation)"
+                                                    Caption="Abbreviation" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.ProfileId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Name" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.Name)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Enable Expiry Date" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="@Data.IsExpiryDate" />
+                    </DxFormLayoutItem>
+                    @*  <DxFormLayoutItem Caption="Enable Document Status" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@Data.IsDocumentAccess" />
+                    </DxFormLayoutItem> *@
+                    @*  <DxFormLayoutItem Caption="Enable Create Task" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@Data.IsEnableCreateTask" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Create By Year" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@Data.IsCreateByYear" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Create By Month" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@Data.IsCreateByMonth" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Allow Mobile Upload" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@Data.IsAllowMobileUpload" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Is Hidden" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@Data.IsHidden" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Hints" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@Data.Hints" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Profile Info" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@Data.ProfileInfo" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Is Template Case No" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@Data.IsTemplateCaseNo" />
+                    </DxFormLayoutItem>*@
+                    <DxFormLayoutItem Caption="Archive Duration Type" ColSpanMd="6">
+                        <DxComboBox Data="@_shelfLifeDurationItems"
+                                    NullText="Select Archive Duration Type..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="CodeValue"
+                                    ValueFieldName="CodeId"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        @bind-Value="@Data.ShelfLifeDurationId" ShowValidationIcon="true">
+                        </DxComboBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Archive Duration" ColSpanMd="6">
+                        <DxSpinEdit @bind-Value="@Data.ShelfLifeDuration" ShowSpinButtons="false" MinValue="1" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                        <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
+
+                </DxFormLayout>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    [Parameter]
+    public string Type { get; set; }
+    public ApplicationUser _applicationUser { get; private set; }
+    private bool loading;
+    private string MyID = "myid";
+    public FileProfileTypeModel _fileProfileTypeData { get; private set; }
+    FileProfileTypeModel Data = new FileProfileTypeModel();
+    public List<CodeMaster> _shelfLifeDurationItems { get; set; }
+    public List<DocumentProfileNoSeriesModel> _documentProfileNoList { get; set; }
+    public long? FileProfileTypeId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
+        _shelfLifeDurationItems = await Mediator.Send(new GetAllCodeMasterQuery("RecurrenceType"));
+       _fileProfileTypeData = await Mediator.Send(new GetFileProfileTypeBySession(SessionId));
+        if (Type == "Add")
+        {
+            if (_fileProfileTypeData != null)
+            {
+                Data.ParentId = _fileProfileTypeData.FileProfileTypeId;
+            }
+        }
+        else
+        {
+            if (_fileProfileTypeData != null)
+            {
+                Data = _fileProfileTypeData;
+            }
+        }
+    }
+    public void onsubmitClick()
+    {
+    }
+    public async Task HandleValidSubmit()
+    {
+        loading = true;
+        Data.AddedByUserID = Data.FileProfileTypeId > 0 ? Data.AddedByUserID : _applicationUser.UserID;
+        Data.AddedDate = Data.FileProfileTypeId > 0 ? Data.AddedDate : DateTime.Now;
+        Data.ModifiedByUserID = _applicationUser.UserID;
+        Data.ModifiedDate = DateTime.Now;
+        var fileProfileTypeId = Data.FileProfileTypeId;
+        var response = await Mediator.Send(new InsertOrUpdateFileProfileType(Data));
+        if (fileProfileTypeId > 0)
+        {
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            loading = false;
+            Data.FileProfileTypeId = response.FileProfileTypeId;
+            Data.SessionId = response.SessionId;
+            SessionId = response.SessionId;
+            NavigationManager.NavigateTo("AddFileProfileTypes/Edit/" + SessionId);
+            StateHasChanged();
+        }
+        else
+        {
+            toastService.ShowToast("Record added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            loading = false;
+            Data.FileProfileTypeId = response.FileProfileTypeId;
+            Data.SessionId = response.SessionId;
+            SessionId = response.SessionId;
+            NavigationManager.NavigateTo("AddFileProfileTypes/Edit/" + SessionId);
+            StateHasChanged();
+        }
+    }
+}

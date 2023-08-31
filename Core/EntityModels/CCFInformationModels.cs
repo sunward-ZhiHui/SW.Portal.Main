@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities.Base;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -8,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace Core.EntityModels
 {
-    public class CCFInformationModels
+    public class CCFInformationModels : BaseEntity
     {
         [Key]
         public long CCFAInformationID { get; set; }
-       
+
         public bool IsInternalChanges { get; set; }
-     
+        public DateTime? InitiatorDate { get; set; }
         public bool IsAuthorityDirectedChanges { get; set; }
         public long? PIC { get; set; }
         public long? PIA { get; set; }
@@ -46,6 +47,7 @@ namespace Core.EntityModels
         public string? RelatedDeviation { get; set; }
         [Key]
         public long CCFBEvaluationID { get; set; }
+        public  DateTime? EvaluationDate {get; set;}
         public bool IsAcceptable { get; set; }
         public bool IsNotAcceptable { get; set; }
         public bool IsMinor { get; set; }
@@ -138,11 +140,11 @@ namespace Core.EntityModels
         public long? ClassOfDocumentID { get; set; }
         public string? HODComments { get; set; }
         public string? HODSignature { get; set; }
-        public DateTime HODDate { get; set; }
-        public bool? ImplementationIsAcceptable { get; set; }
-        public bool? ImplementationIsNotAcceptable { get; set; }
+        public DateTime? HODDate { get; set; }
+        public bool ImplementationIsAcceptable { get; set; }
+        public bool ImplementationIsNotAcceptable { get; set; }
         public long? ImplementationVerifiedBy { get; set; }
-        public DateTime VerifiedDate { get; set; }
+        public DateTime? VerifiedDate { get; set; }
 
         [Key]
         public long? CCFEClosureID { get; set; }
@@ -150,7 +152,7 @@ namespace Core.EntityModels
         public bool IsNotSatisfactory { get; set; }
         public string? ClosureComments { get; set; }
         public long? ClosedBy { get; set; }
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
         public bool IsSatisfactoryForNotSatisfactory { get; set; }
         public long? NotSatisfactoryClosedBy { get; set; }
         public DateTime? NotSatisfactoryDate { get; set; }
@@ -158,8 +160,8 @@ namespace Core.EntityModels
 
         [Key]
         public long CCFDImplementationDetailsID { get; set; }
-        //public long CCFDImplementationID { get; set; }
-        public bool? IsRequired { get; set; }
+        public long DetailCCFDImplementationID { get; set; }
+        public bool IsRequired { get; set; }
         public long? ResponsibiltyTo { get; set; }
         public long? DoneBy { get; set; }
         public DateTime? DoneByDate { get; set; }

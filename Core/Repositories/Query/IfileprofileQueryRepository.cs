@@ -13,6 +13,7 @@ namespace Core.Repositories.Query
     public interface IFileprofileQueryRepository : IQueryRepository<Fileprofiletype>
     {
         Task<IReadOnlyList<Fileprofiletype>> GetAllAsync(long FileProfileTypeID);
+        Task<FileProfileTypeModel> GetFileProfileTypeBySession(Guid? SessionId);
         Task<DocumentTypeModel> GetAllSelectedFileAsync(long? selectedFileProfileTypeID);
         Task<DocumentTypeModel> GetFileProfileTypeDocumentByHistory(SearchModel searchModel);
         Task<DocumentsModel> GetFileProfileTypeDelete(DocumentsModel documentsModel);
@@ -29,8 +30,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<UserGroup>> GetUserGroups();
         Task<IReadOnlyList<DocumentRole>> GetDocumentRole();
 
-
-
+        Task<IReadOnlyList<DocumentProfileNoSeriesModel>> GetDocumentProfiles();
+        Task<FileProfileTypeModel> InsertOrUpdateFileProfileType(FileProfileTypeModel fileProfileTypeModel);
 
     }
 }

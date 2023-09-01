@@ -39,8 +39,10 @@
             </DxDataGridColumn>*@
             <DxGridDataColumn FieldName="RowIndex" Width="30" Caption="#" />
             <DxGridDataColumn FieldName="SubjectName" MinWidth="100" />
-            <DxGridDataColumn FieldName="UserName" MinWidth="100" />
-            <DxGridDataColumn FieldName="UserCode" />
+            <DxGridDataColumn FieldName="Name" MinWidth="100" />
+            <DxGridDataColumn FieldName="NickName" />
+            <DxGridDataColumn FieldName="DesignationName" />
+            <DxGridDataColumn FieldName="CompanyName" />
             @if (IsValidUser)
             {
                 <DxGridDataColumn FieldName="ID" Caption="Action" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
@@ -69,7 +71,7 @@
     </div>
 </DxPopup>
 
-<DxPopup @bind-Visible="@isAllPlistVisible" HeaderText="Add Participants">
+<DxPopup @bind-Visible="@isAllPlistVisible" HeaderText="Add Participants" Width="50%">
     <BodyTemplate Context="PopupContext">
         <div>
             <button class="btn btn-excel" style="float: right; margin-right: 10px; margin-top: 10px; margin-bottom: 10px;" @onclick="onSubmitPList">
@@ -97,6 +99,8 @@
                 <DxGridSelectionColumn Width="104px" />
                 <DxGridDataColumn FieldName="Name" MinWidth="100" />
                 <DxGridDataColumn FieldName="NickName" />
+                <DxGridDataColumn FieldName="DesignationName" />
+                <DxGridDataColumn FieldName="CompanyName" />
             </Columns>
         </DxGrid>
 

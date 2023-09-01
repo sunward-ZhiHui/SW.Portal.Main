@@ -250,4 +250,43 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetDocumentProfilesHandler : IRequestHandler<GetDocumentProfiles, List<DocumentProfileNoSeriesModel>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetDocumentProfilesHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<DocumentProfileNoSeriesModel>> Handle(GetDocumentProfiles request, CancellationToken cancellationToken)
+        {
+            return (List<DocumentProfileNoSeriesModel>)await _fileprofileQueryRepository.GetDocumentProfiles();
+        }
+
+    }
+    public class InsertOrUpdateFileProfileTypeHandler : IRequestHandler<InsertOrUpdateFileProfileType, FileProfileTypeModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public InsertOrUpdateFileProfileTypeHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<FileProfileTypeModel> Handle(InsertOrUpdateFileProfileType request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.InsertOrUpdateFileProfileType(request.FileProfileTypeModel);
+        }
+
+    }
+    public class GetFileProfileTypeBySessionHandler : IRequestHandler<GetFileProfileTypeBySession, FileProfileTypeModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetFileProfileTypeBySessionHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<FileProfileTypeModel> Handle(GetFileProfileTypeBySession request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.GetFileProfileTypeBySession(request.SessionId);
+        }
+
+    }
 }

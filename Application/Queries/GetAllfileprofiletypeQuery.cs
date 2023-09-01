@@ -136,10 +136,32 @@ namespace Application.Queries
     }
     public class GetUserGroups : PagedRequest, IRequest<List<UserGroup>>
     {
-        
+
     }
     public class GetDocumentRoles : PagedRequest, IRequest<List<DocumentRole>>
     {
 
     }
+    public class GetDocumentProfiles : PagedRequest, IRequest<List<DocumentProfileNoSeriesModel>>
+    {
+
+    }
+    public class InsertOrUpdateFileProfileType : PagedRequest, IRequest<FileProfileTypeModel>
+    {
+        public FileProfileTypeModel FileProfileTypeModel { get; private set; }
+        public InsertOrUpdateFileProfileType(FileProfileTypeModel fileProfileTypeModel)
+        {
+            this.FileProfileTypeModel = fileProfileTypeModel;
+        }
+    }
+    public class GetFileProfileTypeBySession : PagedRequest, IRequest<FileProfileTypeModel>
+    {
+        public Guid? SessionId { get; private set; }
+        public GetFileProfileTypeBySession(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+
+
 }

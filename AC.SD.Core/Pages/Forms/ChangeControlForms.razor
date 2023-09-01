@@ -800,7 +800,7 @@
 
         if (SessionIds != null)
         {
-           DataBySession = await Mediator.Send(new GetAllChangeControlBySession(SessionIds));
+            DataBySession = await Mediator.Send(new GetAllChangeControlBySession(SessionIds));
             if (DataBySession != null)
             {
                 Data.IsInternalChanges = DataBySession.IsInternalChanges;
@@ -809,145 +809,156 @@
                 Data.PIC = DataBySession.PIC;
                 Data.IsSiteTransfer = DataBySession.IsSiteTransfer;
                 Data.IsFacility = DataBySession.IsFacility;
-               
+
                 Data.DepartmentID = DataBySession.DepartmentID;
-                  
-                  Data.   IsProduct = DataBySession.IsProduct;
-                   Data.  IsEquipment = DataBySession.IsEquipment;
-                    Data. IsComposition = DataBySession.IsComposition;                
-                  
-                   
-                  Data.   IsLayout = DataBySession.IsLayout;
-                   Data.  IsDocument = DataBySession.IsDocument;
-                   Data.  IsProcess = DataBySession.IsProcess;
-                    Data. IsControlParameter = DataBySession.IsControlParameter;
-                   Data.  IsBatchSize = DataBySession.IsBatchSize;
 
-                    Data. IsHoldingTime = DataBySession.IsHoldingTime;
-                    Data. IsRawMeterial = DataBySession.IsRawMeterial;
-                    Data. IsArtwork = DataBySession.IsArtwork;
-                   Data.  IsPackagingMaterial = DataBySession.IsPackagingMaterial;
-                   Data.  IsVendor  = DataBySession.IsVendor ;
-                    Data. IsShelfLife = DataBySession.IsShelfLife;
-                    Data. IsRegulatory = DataBySession.IsRegulatory;
-                    Data. IsReTestPeriod = DataBySession.IsReTestPeriod;
-                   Data.  Others = DataBySession.Others;                
-               Data.  Justification = DataBySession.Justification;
-                   Data.  DescriptionOfProposedChange  = DataBySession.DescriptionOfProposedChange ;
-                   Data.  ProposedImplementationAction = DataBySession.ProposedImplementationAction;
-                   Data.  RelatedDeviation = DataBySession.RelatedDeviation;
-                   
-                    Data. IsAcceptable = DataBySession.IsAcceptable;
-                    Data. IsNotAcceptable = DataBySession.IsNotAcceptable;
-                    Data. IsMinor = DataBySession.IsMinor;
-                    Data. IsMajor = DataBySession.IsMajor;
-                   Data.  IsCritical = DataBySession.IsCritical;
-                    Data. Comments = DataBySession.Comments;
+                Data.   IsProduct = DataBySession.IsProduct;
+                Data.  IsEquipment = DataBySession.IsEquipment;
+                Data. IsComposition = DataBySession.IsComposition;                
 
 
-                    Data.  IsProduction  = DataBySession.IsProduction ;
-                    Data. IsEAndM = DataBySession.IsEAndM;
-                    Data. IsRequlatory = DataBySession.IsRequlatory;
-                    Data. IsQA = DataBySession.IsQA;
-                    Data. IsQC = DataBySession.IsQC;
-                    Data. IsStore = DataBySession.IsStore;
+                Data.   IsLayout = DataBySession.IsLayout;
+                Data.  IsDocument = DataBySession.IsDocument;
+                Data.  IsProcess = DataBySession.IsProcess;
+                Data. IsControlParameter = DataBySession.IsControlParameter;
+                Data.  IsBatchSize = DataBySession.IsBatchSize;
 
-                     Data.RelatedDeparmentOthers = DataBySession.RelatedDeparmentOthers;
-                  Data.   EvaluatedBy = DataBySession.EvaluatedBy;
+                Data. IsHoldingTime = DataBySession.IsHoldingTime;
+                Data. IsRawMeterial = DataBySession.IsRawMeterial;
+                Data. IsArtwork = DataBySession.IsArtwork;
+                Data.  IsPackagingMaterial = DataBySession.IsPackagingMaterial;
+                Data.  IsVendor  = DataBySession.IsVendor ;
+                Data. IsShelfLife = DataBySession.IsShelfLife;
+                Data. IsRegulatory = DataBySession.IsRegulatory;
+                Data. IsReTestPeriod = DataBySession.IsReTestPeriod;
+                Data.  Others = DataBySession.Others;                
+                Data.  Justification = DataBySession.Justification;
+                Data.  DescriptionOfProposedChange  = DataBySession.DescriptionOfProposedChange ;
+                Data.  ProposedImplementationAction = DataBySession.ProposedImplementationAction;
+                Data.  RelatedDeviation = DataBySession.RelatedDeviation;
+
+                Data. IsAcceptable = DataBySession.IsAcceptable;
+                Data. IsNotAcceptable = DataBySession.IsNotAcceptable;
+                Data. IsMinor = DataBySession.IsMinor;
+                Data. IsMajor = DataBySession.IsMajor;
+                Data.  IsCritical = DataBySession.IsCritical;
+                Data. Comments = DataBySession.Comments;
+
+
+                Data.  IsProduction  = DataBySession.IsProduction ;
+                Data. IsEAndM = DataBySession.IsEAndM;
+                Data. IsRequlatory = DataBySession.IsRequlatory;
+                Data. IsQA = DataBySession.IsQA;
+                Data. IsQC = DataBySession.IsQC;
+                Data. IsStore = DataBySession.IsStore;
+
+                Data.RelatedDeparmentOthers = DataBySession.RelatedDeparmentOthers;
+                Data.   EvaluatedBy = DataBySession.EvaluatedBy;
                 Data.EvaluationDate = DataBySession.EvaluationDate;
-                   Data.InitiatorDate = DataBySession.InitiatorDate;
-                    Data. IsRequlatoryApproval = DataBySession.IsRequlatoryApproval;
-                    Data. IsNotificationRequired  = DataBySession.IsNotificationRequired ;
-                    Data. RegulatoryOthers = DataBySession.RegulatoryOthers;
-                   Data.  RegulatoryDetails = DataBySession.RegulatoryDetails;
-                   Data.  RequlatoryEvaluatedBy = DataBySession.RequlatoryEvaluatedBy;
-                    Data. RegulatoryDate = DataBySession.RegulatoryDate;                
-                   Data.  IsAnalyticalInstrument = DataBySession.IsAnalyticalInstrument;
-                   Data.  IsValidation  = DataBySession.IsValidation ;
-                  Data.   IsEnvironmentalMonitoring = DataBySession.IsEnvironmentalMonitoring;
-                   Data.  IsRawMeterialSpec = DataBySession.IsRawMeterialSpec;
-                   
-                  Data.   IsFinishedProductSpec = DataBySession.IsFinishedProductSpec;
-                   Data.  IsPackagingMaterialSpec = DataBySession.IsPackagingMaterialSpec;
-                   Data.  IsCalibration = DataBySession.IsCalibration;
-                    Data. IsAnalyticalTestMethod = DataBySession.IsAnalyticalTestMethod;
-                   Data.  IsSamplingMethod = DataBySession.IsSamplingMethod;
-                   Data.  EvaluationIsVendor = DataBySession.EvaluationIsVendor;
+                Data.InitiatorDate = DataBySession.InitiatorDate;
+                Data. IsRequlatoryApproval = DataBySession.IsRequlatoryApproval;
+                Data. IsNotificationRequired  = DataBySession.IsNotificationRequired ;
+                Data. RegulatoryOthers = DataBySession.RegulatoryOthers;
+                Data.  RegulatoryDetails = DataBySession.RegulatoryDetails;
+                Data.  RequlatoryEvaluatedBy = DataBySession.RequlatoryEvaluatedBy;
+                Data. RegulatoryDate = DataBySession.RegulatoryDate;                
+                Data.  IsAnalyticalInstrument = DataBySession.IsAnalyticalInstrument;
+                Data.  IsValidation  = DataBySession.IsValidation ;
+                Data.   IsEnvironmentalMonitoring = DataBySession.IsEnvironmentalMonitoring;
+                Data.  IsRawMeterialSpec = DataBySession.IsRawMeterialSpec;
+
+                Data.   IsFinishedProductSpec = DataBySession.IsFinishedProductSpec;
+                Data.  IsPackagingMaterialSpec = DataBySession.IsPackagingMaterialSpec;
+                Data.  IsCalibration = DataBySession.IsCalibration;
+                Data. IsAnalyticalTestMethod = DataBySession.IsAnalyticalTestMethod;
+                Data.  IsSamplingMethod = DataBySession.IsSamplingMethod;
+                Data.  EvaluationIsVendor = DataBySession.EvaluationIsVendor;
 
 
 
 
-                     Data.   IsStabilityStudy  = DataBySession.IsStabilityStudy ;
-                    Data. IsInProcess = DataBySession.IsInProcess;
-                    Data. QualityControlOthers = DataBySession.QualityControlOthers;
-                    Data. QualityControlDetails = DataBySession.QualityControlDetails;
-                   Data.  QualityControlEvaluatedBy = DataBySession.QualityControlEvaluatedBy;
-                  Data.   QualityControlDate = DataBySession.QualityControlDate;
+                Data.   IsStabilityStudy  = DataBySession.IsStabilityStudy ;
+                Data. IsInProcess = DataBySession.IsInProcess;
+                Data. QualityControlOthers = DataBySession.QualityControlOthers;
+                Data. QualityControlDetails = DataBySession.QualityControlDetails;
+                Data.  QualityControlEvaluatedBy = DataBySession.QualityControlEvaluatedBy;
+                Data.   QualityControlDate = DataBySession.QualityControlDate;
 
-                   Data.  IsProductionProcess = DataBySession.IsProductionProcess;
-                    Data. IsProductionValidation = DataBySession.IsProductionValidation;
-                    Data. EvaluationIsControlParameter = DataBySession.EvaluationIsControlParameter;
-                    Data. ProductionOthers = DataBySession.ProductionOthers;
-                    Data. ProductionEvaluatedBy  = DataBySession.ProductionEvaluatedBy ;
-                    Data. ProductionDate = DataBySession.ProductionDate;
-                    Data. IsPiping = DataBySession.IsPiping;
-                   Data.  EvaluationIsEquipment = DataBySession.EvaluationIsEquipment;
-                    Data. IsEngineeringCalibration = DataBySession.IsEngineeringCalibration;               
-                    Data. IsPreventiveMaintenance = DataBySession.IsPreventiveMaintenance;
-                    Data. IsUtilityParameter  = DataBySession.IsUtilityParameter ;
-                    Data. IsEngineeringFacility = DataBySession.IsEngineeringFacility;
-                   Data.  IsQualificationOfEquipment = DataBySession.IsQualificationOfEquipment;
-                   
-                    Data. IsQualificationOfUtility  = DataBySession.IsQualificationOfUtility ;
-                   Data.  EngineeringOthers = DataBySession.EngineeringOthers;
-                  Data.  EngineeringDetails = DataBySession.EngineeringDetails;
-                   Data.  EngineeringEvaluatedBy  = DataBySession.EngineeringEvaluatedBy ;
-                    Data. EngineeringMaintenanceDate = DataBySession.EngineeringMaintenanceDate;
-                   Data.  IsQAQualification = DataBySession.IsQAQualification;
+                Data.  IsProductionProcess = DataBySession.IsProductionProcess;
+                Data. IsProductionValidation = DataBySession.IsProductionValidation;
+                Data. EvaluationIsControlParameter = DataBySession.EvaluationIsControlParameter;
+                Data. ProductionOthers = DataBySession.ProductionOthers;
+                Data. ProductionEvaluatedBy  = DataBySession.ProductionEvaluatedBy ;
+                Data. ProductionDate = DataBySession.ProductionDate;
+                Data. IsPiping = DataBySession.IsPiping;
+                Data.  EvaluationIsEquipment = DataBySession.EvaluationIsEquipment;
+                Data. IsEngineeringCalibration = DataBySession.IsEngineeringCalibration;               
+                Data. IsPreventiveMaintenance = DataBySession.IsPreventiveMaintenance;
+                Data. IsUtilityParameter  = DataBySession.IsUtilityParameter ;
+                Data. IsEngineeringFacility = DataBySession.IsEngineeringFacility;
+                Data.  IsQualificationOfEquipment = DataBySession.IsQualificationOfEquipment;
 
-                     Data. IsQAValidation = DataBySession.IsQAValidation;
-                    Data. IsQAVendor = DataBySession.IsQAVendor;
-                   Data.  QAOthers = DataBySession.QAOthers;
-                    Data. QADetails = DataBySession.QADetails;
-                    Data. QAEvaluatedBy  = DataBySession.QAEvaluatedBy;
-                    Data. QADate = DataBySession.QADate;
-                  Data.   IsStoreRawMaterial = DataBySession.IsStoreRawMaterial;
-                    Data. IsStorePackagingMaterial = DataBySession.IsStorePackagingMaterial;
-                    Data. IsStoreLabel = DataBySession.IsStoreLabel;               
-                   Data.  IsStorageCondition = DataBySession.IsStorageCondition;
+                Data. IsQualificationOfUtility  = DataBySession.IsQualificationOfUtility ;
+                Data.  EngineeringOthers = DataBySession.EngineeringOthers;
+                Data.  EngineeringDetails = DataBySession.EngineeringDetails;
+                Data.  EngineeringEvaluatedBy  = DataBySession.EngineeringEvaluatedBy ;
+                Data. EngineeringMaintenanceDate = DataBySession.EngineeringMaintenanceDate;
+                Data.  IsQAQualification = DataBySession.IsQAQualification;
+
+                Data. IsQAValidation = DataBySession.IsQAValidation;
+                Data. IsQAVendor = DataBySession.IsQAVendor;
+                Data.  QAOthers = DataBySession.QAOthers;
+                Data. QADetails = DataBySession.QADetails;
+                Data. QAEvaluatedBy  = DataBySession.QAEvaluatedBy;
+                Data. QADate = DataBySession.QADate;
+                Data.   IsStoreRawMaterial = DataBySession.IsStoreRawMaterial;
+                Data. IsStorePackagingMaterial = DataBySession.IsStorePackagingMaterial;
+                Data. IsStoreLabel = DataBySession.IsStoreLabel;               
+                Data.  IsStorageCondition = DataBySession.IsStorageCondition;
                 Data. IsStoreFinishProduct = DataBySession.IsStoreFinishProduct;
-                 
-                    Data. StoreOthers  = DataBySession.StoreOthers;
-                   
-                    Data. StoreDetails  = DataBySession.StoreDetails;
-                     Data.StoreEvaluatedBy  = DataBySession.StoreEvaluatedBy;
-                   Data. StoreDate = DataBySession.StoreDate;
-                    Data. ProposedChangeImpactTo  = DataBySession.ProposedChangeImpactTo;
-                    Data. OthersDetails = DataBySession.OthersDetails;
-                    Data. OthersEvaluatedBy = DataBySession.OthersEvaluatedBy;
 
-                       Data. OthersDate = DataBySession.OthersDate;
-                    Data. IsApproved = DataBySession.IsApproved;
-                    Data. IsNotApproved = DataBySession.IsNotApproved;
-                    Data. ApprovalComments = DataBySession.ApprovalComments;
-                    Data. VerifiedBy  = DataBySession.VerifiedBy;
-                    Data. ApprovalDate = DataBySession.ApprovalDate;
-                   Data.  HODComments = DataBySession.HODComments;
-                   Data.  HODSignature = DataBySession.HODSignature;
-                    Data. HODDate = DataBySession.HODDate;                
-                    Data. ImplementationIsAcceptable = DataBySession.ImplementationIsAcceptable;
-                    Data. ImplementationIsNotAcceptable   = DataBySession.ImplementationIsNotAcceptable;
-                  Data.ImplementationVerifiedBy = DataBySession.ImplementationVerifiedBy;
-                    Data.VerifiedDate  = DataBySession.VerifiedDate;
-                   
-                    Data. IsSatisfactory  = DataBySession.IsSatisfactory;
-                   Data.  IsNotSatisfactory  = DataBySession.IsNotSatisfactory;
-                   Data. ClosureComments = DataBySession.ClosureComments;
-                    Data. ClosedBy  = DataBySession.ClosedBy;
-                   Data.Date = DataBySession.Date;
-                   Data.IsSatisfactoryForNotSatisfactory = DataBySession.IsSatisfactoryForNotSatisfactory;
-                   Data.NotSatisfactoryClosedBy = DataBySession.NotSatisfactoryClosedBy;
-                   Data.NotSatisfactoryDate = DataBySession.NotSatisfactoryDate;
+                Data. StoreOthers  = DataBySession.StoreOthers;
+
+                Data. StoreDetails  = DataBySession.StoreDetails;
+                Data.StoreEvaluatedBy  = DataBySession.StoreEvaluatedBy;
+                Data. StoreDate = DataBySession.StoreDate;
+                Data. ProposedChangeImpactTo  = DataBySession.ProposedChangeImpactTo;
+                Data. OthersDetails = DataBySession.OthersDetails;
+                Data. OthersEvaluatedBy = DataBySession.OthersEvaluatedBy;
+
+                Data. OthersDate = DataBySession.OthersDate;
+                Data. IsApproved = DataBySession.IsApproved;
+                Data. IsNotApproved = DataBySession.IsNotApproved;
+                Data. ApprovalComments = DataBySession.ApprovalComments;
+                Data. VerifiedBy  = DataBySession.VerifiedBy;
+                Data. ApprovalDate = DataBySession.ApprovalDate;
+                Data.  HODComments = DataBySession.HODComments;
+                Data.  HODSignature = DataBySession.HODSignature;
+                Data. HODDate = DataBySession.HODDate;                
+                Data. ImplementationIsAcceptable = DataBySession.ImplementationIsAcceptable;
+                Data. ImplementationIsNotAcceptable   = DataBySession.ImplementationIsNotAcceptable;
+                Data.ImplementationVerifiedBy = DataBySession.ImplementationVerifiedBy;
+                Data.VerifiedDate  = DataBySession.VerifiedDate;
+
+                Data. IsSatisfactory  = DataBySession.IsSatisfactory;
+                Data.  IsNotSatisfactory  = DataBySession.IsNotSatisfactory;
+                Data. ClosureComments = DataBySession.ClosureComments;
+                Data. ClosedBy  = DataBySession.ClosedBy;
+                Data.Date = DataBySession.Date;
+                Data.IsSatisfactoryForNotSatisfactory = DataBySession.IsSatisfactoryForNotSatisfactory;
+                Data.NotSatisfactoryClosedBy = DataBySession.NotSatisfactoryClosedBy;
+                Data.NotSatisfactoryDate = DataBySession.NotSatisfactoryDate;
+            }
+            else
+            {
+                var UpdateReq = new EditImplementationQuery
+                    {
+
+                        SessionId = SessionIds,
+                        AddedByUserID = applicationUser.UserID,
+                        StatusCodeID = 1,
+                    };
+                var ans = await Mediator.Send(UpdateReq);
             }
         }
 
@@ -976,8 +987,8 @@
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editModel = (View_GetCCFImplementation)e.EditModel;
-        if (editModel.ClassOFDocumentID == _selectedItems.ApplicationMasterDetailID)
-        {
+        //if (editModel.ClassOFDocumentID == _selectedItems.ApplicationMasterDetailID)
+        //{
             var UpdateReq = new SaveImplementationQuery
             {
                 
@@ -992,27 +1003,27 @@
                 StatusCodeID = 1,
             };
                var ans = await Mediator.Send(UpdateReq);
-                 toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        }
-        else
-        {
-            var UpdateReq = new EditImplementationQuery
-            {
+               toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+       // }
+        //else
+        //{
+        //    var UpdateReq = new EditImplementationQuery
+        //    {
                 
-                ClassOFDocumentID = _selectedItems.ApplicationMasterDetailID,
-                IsRequired = editModel.IsRequired,
-                DoneBy = editModel.DoneBy,
-                DoneByDate = editModel.DoneByDate,
-                ResponsibiltyTo = editModel.ResponsibiltyTo,
-                 AddedDate = DateTime.Now,
-                    SessionId = SessionIds,
-                   AddedByUserID= applicationUser.UserID,
-                StatusCodeID = 1,
-            };
+        //        ClassOFDocumentID = _selectedItems.ApplicationMasterDetailID,
+        //        IsRequired = editModel.IsRequired,
+        //        DoneBy = editModel.DoneBy,
+        //        DoneByDate = editModel.DoneByDate,
+        //        ResponsibiltyTo = editModel.ResponsibiltyTo,
+        //         AddedDate = DateTime.Now,
+        //            SessionId = SessionIds,
+        //           AddedByUserID= applicationUser.UserID,
+        //        StatusCodeID = 1,
+        //    };
 
-        var ans = await Mediator.Send(UpdateReq);
-        toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        }
+        //var ans = await Mediator.Send(UpdateReq);
+        //toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        
        
         await UpdateDataAsync();
 

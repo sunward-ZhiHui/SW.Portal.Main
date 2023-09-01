@@ -131,13 +131,13 @@ else
                                 <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="To" ColSpanMd="12">
-                                <DxTagBox  Data="_participant"
+                                <DxTagBox Data="_Toparticipant"
                                      @bind-Values="Data.ToIds"
                                      NullText="Select To..."                                     
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                       ValueFieldName="UserID"
-                                      TextFieldName="Name"                                     
-                                      TagsChanged="@onToChanged"
+                                      TextFieldName="Name"                                    
+                                      SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
                                       EditFormat="{0}-{1}"
                                       ListRenderMode="ListRenderMode.Virtual"                                     
                                       CssClass="cw-480">                                    
@@ -150,14 +150,13 @@ else
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="CC" ColSpanMd="12">
                                 <DxTagBox NullText="Select Cc..."
-                                      Data="_participant"
+                                      Data="_CCparticipant"
                                       @bind-Values="@Data.CCIds"
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                       ListRenderMode="ListRenderMode.Virtual"
                                       ValueFieldName="UserID"
-                                      TextFieldName="Name"
-                                      TagsChanged="@onCcChanged"
-                                      
+                                      TextFieldName="Name"                                      
+                                      SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedCCItemsChanged(values))"
                                       EditFormat="{0}-{1}"
                                       CssClass="cw-480">
                                           
@@ -176,14 +175,15 @@ else
                                 </DxTagBox>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="12">
-                                <DxComboBox Data="@_Allparticipant"
+                                <DxComboBox Data="@_OnBehalfparticipant"
                                         NullText="Select OnBehalf..."
                                         FilteringMode="DataGridFilteringMode.Contains"
                                         ListRenderMode="ListRenderMode.Virtual"
                                         TextFieldName="Name"
-                                        ValueFieldName="UserID"
+                                        ValueFieldName="UserID"                                        
+                                        SelectedItemChanged="@((ViewEmployee viewEmployee) => onSelectedOnBehalfItemsChanged(viewEmployee))"
                                         ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                            EditFormat="{0}-{1}"
+                                        EditFormat="{0}-{1}"
                                         @bind-Value="@Data.OnBehalf" ShowValidationIcon="true">
                                         <Columns>
                                                
@@ -334,6 +334,48 @@ else
 
 
 @code {
+    void onSelectedToItemsChanged(IEnumerable<ViewEmployee> values)
+    {
+        if (values != null)
+        {
+            // Update _CCparticipant based on selected values from _Toparticipant
+            _CCparticipant = _participant.Except(values).ToList();
+        }
+        else
+        {
+            // Reset _CCparticipant to all participants if nothing is selected in _Toparticipant
+            _CCparticipant = _participant.ToList();
+        }
+    }
+
+    void onSelectedCCItemsChanged(IEnumerable<ViewEmployee> values)
+    {
+        if (values != null)
+        {
+            // Update _Toparticipant based on selected values from _CCparticipant
+            _Toparticipant = _participant.Except(values).ToList();
+        }
+        else
+        {
+            // Reset _Toparticipant to all participants if nothing is selected in _CCparticipant
+            _Toparticipant = _participant.ToList();
+        }
+    }
+    void onSelectedOnBehalfItemsChanged(ViewEmployee values)
+    {
+        //if (values != null)
+        //{
+        //    // Update _OnBehalfparticipant based on selected values
+        //    _OnBehalfparticipant = _participant.Where(c => c.UserID != values.UserID).ToList();
+        //   //_OnBehalfparticipant
+        //}
+        //else
+        //{
+        //    // Reset _OnBehalfparticipant to all participants if nothing is selected
+        //    _OnBehalfparticipant = _participant.ToList();
+        //}
+    }
+
     bool IsDraftEnabled { get; set; } = false;
     [Parameter]
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
@@ -378,6 +420,7 @@ else
     long? AppUserId;
     private List<ViewEmployee>? _Toparticipant;
     private List<ViewEmployee>? _CCparticipant;
+    private List<ViewEmployee>? _OnBehalfparticipant;
     IEnumerable<ForumTypes>? _OnBehalf;
     string? ActComment = "";
     string? ActUserName = "";
@@ -477,7 +520,7 @@ else
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
     }
-   
+
     private async Task SubmitForm()
     {
         //myForm.OnSubmit();    
@@ -695,6 +738,7 @@ else
 
         _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
         _CCparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        _OnBehalfparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
 
         //var topicmodel = await Mediator.Send(new GetListCategory(1));
         //_category = topicmodel;        
@@ -762,18 +806,20 @@ else
                 var filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
 
                 //Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
-                IEnumerable<string> Totags = filteredToList.Select(s => s.Name + "-" + s.NickName).ToList();
+                IEnumerable<long> Totags = filteredToList.Select(s => (long)s.UserID).ToList();
 
                 List<long?> CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
                 var filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
 
                 //Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
-                IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
+                IEnumerable<long> CCtags = filteredCCList.Select(s => (long)s.UserID).ToList();
 
                 Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
-                sToIds = Totags.ToList();
+                //v
+                //sToIds = Totags.ToList();
                 Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
-                sCCIds = CCtags.ToList();
+                //v
+                //sCCIds = CCtags.ToList();
             }
             else
             {
@@ -799,6 +845,8 @@ else
 
         var lslsl = Data.ToIds;
 
+        var sToIds = Data.ToIds;
+        var sCCIds = Data.CCIds;
         //if (@SelectedDataItems == null)
         //{
         //    onShowPopupMessage("Error", "Please Select Participant");
@@ -813,11 +861,11 @@ else
 
 
 
-        List<string> concatList = sToIds.Concat(sCCIds).ToList();
+        List<long> concatList = sToIds.Concat(sCCIds).ToList();
 
         foreach (var itm in concatList)
         {
-            var ls = _Allparticipant.Where(c => c.Name + "-" + c.NickName == itm).ToList();
+            var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
 
             for(var i=0;i<ls.Count;i++)
             {
@@ -827,7 +875,7 @@ else
 
         participantIds.Add(applicationUser.UserID);
 
-        if(Data.OnBehalf != null)
+        if (Data.OnBehalf != null && Data.Follow == "Follow Up")
         {
             participantIds.Add(Data.OnBehalf.Value);
         }
@@ -836,7 +884,7 @@ else
 
         foreach(var itm in sToIds)
         {
-            var ls = _Allparticipant.Where(c => c.Name + "-" + c.NickName == itm).ToList();
+            var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
 
             for (var i = 0; i < ls.Count; i++)
             {
@@ -846,49 +894,14 @@ else
 
         foreach (var itm in sCCIds)
         {
-            var ls = _Allparticipant.Where(c => c.Name + "-" + c.NickName == itm).ToList();
+            var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
 
             for (var i = 0; i < ls.Count; i++)
             {
                 SelectedCCIds.Add(ls[i].UserID.Value);
             }
         }
-
-
-
-        //if (@SelectedDataItems.Count > 0)
-        //{
-        //    foreach (object item in SelectedDataItems)
-        //    {
-        //        if (item is ViewEmployee employee)
-        //        {
-        //            //ids.Add(employee);
-        //            participantIds.Add((long)employee.UserID);
-        //        }
-        //    }            
-        //}    
-
-
-        //participantIds.Add(applicationUser.UserID);
-
-        //foreach (object item in SelectedToDataItems)
-        //{
-        //    if (item is ViewEmployee employee)
-        //    {               
-        //        selectedToIds.Add((long)employee.UserID);
-        //    }
-        //}
-        //if(SelectedCCDataItems !=null)
-        //{
-        //    foreach (object item in SelectedCCDataItems)
-        //    {
-        //        if (item is ViewEmployee employee)
-        //        {
-        //            SelectedCCIds.Add((long)employee.UserID);
-        //        }
-        //    }
-        //}
-
+     
 
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
 

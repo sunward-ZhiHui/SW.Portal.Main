@@ -23,5 +23,13 @@ namespace Core.Entities
         public long? RowIndex { get; set; }
         [NotMapped]
         public string? SubjectName { get; set; }
+        [NotMapped]
+        public String? DesignationName { get; set; }
+        [NotMapped]
+        public String? CompanyName { get; set; }
+        [NotMapped]
+        public String? Name { get; set; }
+        [NotMapped]
+        public String? NickName { get; set; }
     }    
 }

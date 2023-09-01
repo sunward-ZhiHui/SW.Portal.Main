@@ -706,14 +706,14 @@
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
                                                                             <DxTagBox NullText="Select Assign To..."
-                                                                          Data="@_Toparticipant"
+                                                                                      Data="@_Toparticipant"
                                                                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                                                                       ValueFieldName="UserID"
                                                                                       TextFieldName="Name"                                                                                      
                                                                                       ListRenderMode="ListRenderMode.Virtual"                                                                                      
                                                                                       EditFormat="{0}-{1}"
                                                                                       @bind-Values="@Data.AssigntoIds"
-                                                                          SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
+                                                                                      SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
                                                                                       CssClass="cw-480">
                                                                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
                                                                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />

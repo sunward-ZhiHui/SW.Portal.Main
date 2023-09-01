@@ -11,6 +11,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
 
 
 <div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
@@ -235,7 +236,7 @@
                 @bind-Value="Data.EvaluatedBy"
                             ShowValidationIcon="true">
                 </DxComboBox>
-
+                <ValidationMessage For="@(() => Data.EvaluatedBy)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
              <DxDateEdit @bind-Date="@Data.EvaluationDate"></DxDateEdit>
@@ -776,6 +777,8 @@
                 </DxFormLayoutItem>
             </DxFormLayoutGroup>
         </DxFormLayoutGroup>
+
+        <ValidationSummary />
     </DxFormLayout>
 </EditForm>
 @code {
@@ -807,6 +810,7 @@
                 Data.IsAuthorityDirectedChanges = DataBySession.IsAuthorityDirectedChanges;
                 Data.PIA = DataBySession.PIA;
                 Data.PIC = DataBySession.PIC;
+               
                 Data.IsSiteTransfer = DataBySession.IsSiteTransfer;
                 Data.IsFacility = DataBySession.IsFacility;
 
@@ -948,6 +952,7 @@
                 Data.IsSatisfactoryForNotSatisfactory = DataBySession.IsSatisfactoryForNotSatisfactory;
                 Data.NotSatisfactoryClosedBy = DataBySession.NotSatisfactoryClosedBy;
                 Data.NotSatisfactoryDate = DataBySession.NotSatisfactoryDate;
+                await UpdateDataAsync();
             }
             else
             {
@@ -998,7 +1003,7 @@
                 DoneByDate = editModel.DoneByDate,
                 ResponsibiltyTo = editModel.ResponsibiltyTo,
                  AddedDate = DateTime.Now,
-                    SessionId = editModel.SessionID,
+                   
                    AddedByUserID= applicationUser.UserID,
                 StatusCodeID = 1,
             };
@@ -1039,28 +1044,34 @@
     }
     async void HandleValidSubmit()
     {
-        var createReq = new CreateCCFInformationModels
+        
+      if(DataBySession != null)
+        {
+            var createReq = new CreateCCFInformationModels
                 {
-
-                  CCFAInformationID = Data.CCFAInformationID,
-                  CCFBEvaluationID = Data.CCFBEvaluationID,
-                  CCFCAPprovalID = Data.CCFCAPprovalID,
-                  CCFDImplementationID =Data.CCFDImplementationID,
-                  CCFEClosureID = Data.CCFEClosureID,
+                   
+                  CCFAInformationID = DataBySession.CCFAInformationID,
+                  CCFBEvaluationID = DataBySession.CCFBEvaluationID,
+                  CCFCAPprovalID = DataBySession.CCFCAPprovalID,
+                 CCFDImplementationID =DataBySession.CCFDImplementationID,
+                 CCFEClosureID = DataBySession.CCFEClosureID,
+                   
                     IsInternalChanges = Data.IsInternalChanges,
                     IsAuthorityDirectedChanges = Data.IsAuthorityDirectedChanges,
                     PIC = Data.PIC,
                     DepartmentID = Data.DepartmentID,
-                    PIA  = Data.PIA ,
+                    PIA = Data.PIA,
                     IsSiteTransfer = Data.IsSiteTransfer,
                     IsProduct = Data.IsProduct,
                     IsEquipment = Data.IsEquipment,
-                    IsComposition = Data.IsComposition,                
+                    IsComposition = Data.IsComposition,
                     StatusCodeID = 1,
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
-                SessionId = SessionIds,
-                   InitiatorDate = Data.InitiatorDate,
+                    SessionId = SessionIds,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                    InitiatorDate = Data.InitiatorDate,
                     IsFacility = Data.IsFacility,
                     IsLayout = Data.IsLayout,
                     IsDocument = Data.IsDocument,
@@ -1072,16 +1083,16 @@
                     IsRawMeterial = Data.IsRawMeterial,
                     IsArtwork = Data.IsArtwork,
                     IsPackagingMaterial = Data.IsPackagingMaterial,
-                    IsVendor  = Data.IsVendor ,
+                    IsVendor = Data.IsVendor,
                     IsShelfLife = Data.IsShelfLife,
                     IsRegulatory = Data.IsRegulatory,
                     IsReTestPeriod = Data.IsReTestPeriod,
-                    Others = Data.Others,                
+                    Others = Data.Others,
                     Justification = Data.Justification,
-                    DescriptionOfProposedChange  = Data.DescriptionOfProposedChange ,
+                    DescriptionOfProposedChange = Data.DescriptionOfProposedChange,
                     ProposedImplementationAction = Data.ProposedImplementationAction,
                     RelatedDeviation = Data.RelatedDeviation,
-                   
+
                     IsAcceptable = Data.IsAcceptable,
                     IsNotAcceptable = Data.IsNotAcceptable,
                     IsMinor = Data.IsMinor,
@@ -1090,7 +1101,7 @@
                     Comments = Data.Comments,
 
 
-                     IsProduction  = Data.IsProduction ,
+                    IsProduction = Data.IsProduction,
                     IsEAndM = Data.IsEAndM,
                     IsRequlatory = Data.IsRequlatory,
                     IsQA = Data.IsQA,
@@ -1099,18 +1110,18 @@
 
                     RelatedDeparmentOthers = Data.RelatedDeparmentOthers,
                     EvaluatedBy = Data.EvaluatedBy,
-                EvaluationDate = Data.EvaluationDate,
+                    EvaluationDate = Data.EvaluationDate,
                     IsRequlatoryApproval = Data.IsRequlatoryApproval,
-                    IsNotificationRequired  = Data.IsNotificationRequired ,
+                    IsNotificationRequired = Data.IsNotificationRequired,
                     RegulatoryOthers = Data.RegulatoryOthers,
                     RegulatoryDetails = Data.RegulatoryDetails,
                     RequlatoryEvaluatedBy = Data.RequlatoryEvaluatedBy,
-                    RegulatoryDate = Data.RegulatoryDate,                
+                    RegulatoryDate = Data.RegulatoryDate,
                     IsAnalyticalInstrument = Data.IsAnalyticalInstrument,
-                    IsValidation  = Data.IsValidation ,
+                    IsValidation = Data.IsValidation,
                     IsEnvironmentalMonitoring = Data.IsEnvironmentalMonitoring,
                     IsRawMeterialSpec = Data.IsRawMeterialSpec,
-                   
+
                     IsFinishedProductSpec = Data.IsFinishedProductSpec,
                     IsPackagingMaterialSpec = Data.IsPackagingMaterialSpec,
                     IsCalibration = Data.IsCalibration,
@@ -1121,7 +1132,7 @@
 
 
 
-                       IsStabilityStudy  = Data.IsStabilityStudy ,
+                    IsStabilityStudy = Data.IsStabilityStudy,
                     IsInProcess = Data.IsInProcess,
                     QualityControlOthers = Data.QualityControlOthers,
                     QualityControlDetails = Data.QualityControlDetails,
@@ -1132,71 +1143,236 @@
                     IsProductionValidation = Data.IsProductionValidation,
                     EvaluationIsControlParameter = Data.EvaluationIsControlParameter,
                     ProductionOthers = Data.ProductionOthers,
-                    ProductionEvaluatedBy  = Data.ProductionEvaluatedBy ,
+                    ProductionEvaluatedBy = Data.ProductionEvaluatedBy,
                     ProductionDate = Data.ProductionDate,
                     IsPiping = Data.IsPiping,
                     EvaluationIsEquipment = Data.EvaluationIsEquipment,
-                    IsEngineeringCalibration = Data.IsEngineeringCalibration,                
+                    IsEngineeringCalibration = Data.IsEngineeringCalibration,
                     IsPreventiveMaintenance = Data.IsPreventiveMaintenance,
-                    IsUtilityParameter  = Data.IsUtilityParameter ,
+                    IsUtilityParameter = Data.IsUtilityParameter,
                     IsEngineeringFacility = Data.IsEngineeringFacility,
                     IsQualificationOfEquipment = Data.IsQualificationOfEquipment,
-                   
-                    IsQualificationOfUtility  = Data.IsQualificationOfUtility ,
+
+                    IsQualificationOfUtility = Data.IsQualificationOfUtility,
                     EngineeringOthers = Data.EngineeringOthers,
-                   EngineeringDetails = Data.EngineeringDetails,
-                    EngineeringEvaluatedBy  = Data.EngineeringEvaluatedBy ,
+                    EngineeringDetails = Data.EngineeringDetails,
+                    EngineeringEvaluatedBy = Data.EngineeringEvaluatedBy,
                     EngineeringMaintenanceDate = Data.EngineeringMaintenanceDate,
                     IsQAQualification = Data.IsQAQualification,
 
-                     IsQAValidation = Data.IsQAValidation,
+                    IsQAValidation = Data.IsQAValidation,
                     IsQAVendor = Data.IsQAVendor,
                     QAOthers = Data.QAOthers,
                     QADetails = Data.QADetails,
-                    QAEvaluatedBy  = Data.QAEvaluatedBy ,
+                    QAEvaluatedBy = Data.QAEvaluatedBy,
                     QADate = Data.QADate,
                     IsStoreRawMaterial = Data.IsStoreRawMaterial,
                     IsStorePackagingMaterial = Data.IsStorePackagingMaterial,
-                    IsStoreLabel = Data.IsStoreLabel,                
+                    IsStoreLabel = Data.IsStoreLabel,
                     IsStorageCondition = Data.IsStorageCondition,
-                IsStoreFinishProduct = Data.IsStoreFinishProduct,
-                 
-                    StoreOthers  = Data.StoreOthers ,
-                   
-                    StoreDetails  = Data.StoreDetails ,
-                    StoreEvaluatedBy  = Data.StoreEvaluatedBy ,
-                   StoreDate = Data.StoreDate,
-                    ProposedChangeImpactTo  = Data.ProposedChangeImpactTo ,
+                    IsStoreFinishProduct = Data.IsStoreFinishProduct,
+
+                    StoreOthers = Data.StoreOthers,
+
+                    StoreDetails = Data.StoreDetails,
+                    StoreEvaluatedBy = Data.StoreEvaluatedBy,
+                    StoreDate = Data.StoreDate,
+                    ProposedChangeImpactTo = Data.ProposedChangeImpactTo,
                     OthersDetails = Data.OthersDetails,
                     OthersEvaluatedBy = Data.OthersEvaluatedBy,
 
-                       OthersDate = Data.OthersDate,
+                    OthersDate = Data.OthersDate,
                     IsApproved = Data.IsApproved,
                     IsNotApproved = Data.IsNotApproved,
                     ApprovalComments = Data.ApprovalComments,
-                    VerifiedBy  = Data.VerifiedBy ,
+                    VerifiedBy = Data.VerifiedBy,
                     ApprovalDate = Data.ApprovalDate,
                     HODComments = Data.HODComments,
                     HODSignature = Data.HODSignature,
-                    HODDate = Data.HODDate,                
+                    HODDate = Data.HODDate,
                     ImplementationIsAcceptable = Data.ImplementationIsAcceptable,
-                    ImplementationIsNotAcceptable   = Data.ImplementationIsNotAcceptable  ,
+                    ImplementationIsNotAcceptable = Data.ImplementationIsNotAcceptable,
                     ImplementationVerifiedBy = Data.ImplementationVerifiedBy,
-                    VerifiedDate  = Data.VerifiedDate ,
-                   
-                    IsSatisfactory  = Data.IsSatisfactory ,
-                    IsNotSatisfactory  = Data.IsNotSatisfactory ,
-                   ClosureComments = Data.ClosureComments,
-                    ClosedBy  = Data.ClosedBy ,
+                    VerifiedDate = Data.VerifiedDate,
+
+                    IsSatisfactory = Data.IsSatisfactory,
+                    IsNotSatisfactory = Data.IsNotSatisfactory,
+                    ClosureComments = Data.ClosureComments,
+                    ClosedBy = Data.ClosedBy,
                     Date = Data.Date,
                     IsSatisfactoryForNotSatisfactory = Data.IsSatisfactoryForNotSatisfactory,
-                     NotSatisfactoryClosedBy = Data.NotSatisfactoryClosedBy,
+                    NotSatisfactoryClosedBy = Data.NotSatisfactoryClosedBy,
                     NotSatisfactoryDate = Data.NotSatisfactoryDate
                 };
-          
-                //_sessionId = createReq.SessionId;
-                var result = await Mediator.Send(createReq);
-            toastService.ShowToast("The Form Submitted Successfully.", AC.SD.Core.Services.ToastLevel.Error);
-        await JSRuntime.InvokeAsync<string>("ReloadUrl");
+
+            //_sessionId = createReq.SessionId;
+            var result = await Mediator.Send(createReq);
+             toastService.ShowToast("The Form Updated Successfully.", AC.SD.Core.Services.ToastLevel.Success);
+            NavigationManager.NavigateTo("changeControlsetupForm");
+      }
+        else
+        {
+            var createReq = new CreateCCFInformationModels
+                {
+                    
+
+                    IsInternalChanges = Data.IsInternalChanges,
+                    IsAuthorityDirectedChanges = Data.IsAuthorityDirectedChanges,
+                    PIC = Data.PIC,
+                    DepartmentID = Data.DepartmentID,
+                    PIA = Data.PIA,
+                    IsSiteTransfer = Data.IsSiteTransfer,
+                    IsProduct = Data.IsProduct,
+                    IsEquipment = Data.IsEquipment,
+                    IsComposition = Data.IsComposition,
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    SessionId = SessionIds,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                    InitiatorDate = Data.InitiatorDate,
+                    IsFacility = Data.IsFacility,
+                    IsLayout = Data.IsLayout,
+                    IsDocument = Data.IsDocument,
+                    IsProcess = Data.IsProcess,
+                    IsControlParameter = Data.IsControlParameter,
+                    IsBatchSize = Data.IsBatchSize,
+
+                    IsHoldingTime = Data.IsHoldingTime,
+                    IsRawMeterial = Data.IsRawMeterial,
+                    IsArtwork = Data.IsArtwork,
+                    IsPackagingMaterial = Data.IsPackagingMaterial,
+                    IsVendor = Data.IsVendor,
+                    IsShelfLife = Data.IsShelfLife,
+                    IsRegulatory = Data.IsRegulatory,
+                    IsReTestPeriod = Data.IsReTestPeriod,
+                    Others = Data.Others,
+                    Justification = Data.Justification,
+                    DescriptionOfProposedChange = Data.DescriptionOfProposedChange,
+                    ProposedImplementationAction = Data.ProposedImplementationAction,
+                    RelatedDeviation = Data.RelatedDeviation,
+
+                    IsAcceptable = Data.IsAcceptable,
+                    IsNotAcceptable = Data.IsNotAcceptable,
+                    IsMinor = Data.IsMinor,
+                    IsMajor = Data.IsMajor,
+                    IsCritical = Data.IsCritical,
+                    Comments = Data.Comments,
+
+
+                    IsProduction = Data.IsProduction,
+                    IsEAndM = Data.IsEAndM,
+                    IsRequlatory = Data.IsRequlatory,
+                    IsQA = Data.IsQA,
+                    IsQC = Data.IsQC,
+                    IsStore = Data.IsStore,
+
+                    RelatedDeparmentOthers = Data.RelatedDeparmentOthers,
+                    EvaluatedBy = Data.EvaluatedBy,
+                    EvaluationDate = Data.EvaluationDate,
+                    IsRequlatoryApproval = Data.IsRequlatoryApproval,
+                    IsNotificationRequired = Data.IsNotificationRequired,
+                    RegulatoryOthers = Data.RegulatoryOthers,
+                    RegulatoryDetails = Data.RegulatoryDetails,
+                    RequlatoryEvaluatedBy = Data.RequlatoryEvaluatedBy,
+                    RegulatoryDate = Data.RegulatoryDate,
+                    IsAnalyticalInstrument = Data.IsAnalyticalInstrument,
+                    IsValidation = Data.IsValidation,
+                    IsEnvironmentalMonitoring = Data.IsEnvironmentalMonitoring,
+                    IsRawMeterialSpec = Data.IsRawMeterialSpec,
+
+                    IsFinishedProductSpec = Data.IsFinishedProductSpec,
+                    IsPackagingMaterialSpec = Data.IsPackagingMaterialSpec,
+                    IsCalibration = Data.IsCalibration,
+                    IsAnalyticalTestMethod = Data.IsAnalyticalTestMethod,
+                    IsSamplingMethod = Data.IsSamplingMethod,
+                    EvaluationIsVendor = Data.EvaluationIsVendor,
+
+
+
+
+                    IsStabilityStudy = Data.IsStabilityStudy,
+                    IsInProcess = Data.IsInProcess,
+                    QualityControlOthers = Data.QualityControlOthers,
+                    QualityControlDetails = Data.QualityControlDetails,
+                    QualityControlEvaluatedBy = Data.QualityControlEvaluatedBy,
+                    QualityControlDate = Data.QualityControlDate,
+
+                    IsProductionProcess = Data.IsProductionProcess,
+                    IsProductionValidation = Data.IsProductionValidation,
+                    EvaluationIsControlParameter = Data.EvaluationIsControlParameter,
+                    ProductionOthers = Data.ProductionOthers,
+                    ProductionEvaluatedBy = Data.ProductionEvaluatedBy,
+                    ProductionDate = Data.ProductionDate,
+                    IsPiping = Data.IsPiping,
+                    EvaluationIsEquipment = Data.EvaluationIsEquipment,
+                    IsEngineeringCalibration = Data.IsEngineeringCalibration,
+                    IsPreventiveMaintenance = Data.IsPreventiveMaintenance,
+                    IsUtilityParameter = Data.IsUtilityParameter,
+                    IsEngineeringFacility = Data.IsEngineeringFacility,
+                    IsQualificationOfEquipment = Data.IsQualificationOfEquipment,
+
+                    IsQualificationOfUtility = Data.IsQualificationOfUtility,
+                    EngineeringOthers = Data.EngineeringOthers,
+                    EngineeringDetails = Data.EngineeringDetails,
+                    EngineeringEvaluatedBy = Data.EngineeringEvaluatedBy,
+                    EngineeringMaintenanceDate = Data.EngineeringMaintenanceDate,
+                    IsQAQualification = Data.IsQAQualification,
+
+                    IsQAValidation = Data.IsQAValidation,
+                    IsQAVendor = Data.IsQAVendor,
+                    QAOthers = Data.QAOthers,
+                    QADetails = Data.QADetails,
+                    QAEvaluatedBy = Data.QAEvaluatedBy,
+                    QADate = Data.QADate,
+                    IsStoreRawMaterial = Data.IsStoreRawMaterial,
+                    IsStorePackagingMaterial = Data.IsStorePackagingMaterial,
+                    IsStoreLabel = Data.IsStoreLabel,
+                    IsStorageCondition = Data.IsStorageCondition,
+                    IsStoreFinishProduct = Data.IsStoreFinishProduct,
+
+                    StoreOthers = Data.StoreOthers,
+
+                    StoreDetails = Data.StoreDetails,
+                    StoreEvaluatedBy = Data.StoreEvaluatedBy,
+                    StoreDate = Data.StoreDate,
+                    ProposedChangeImpactTo = Data.ProposedChangeImpactTo,
+                    OthersDetails = Data.OthersDetails,
+                    OthersEvaluatedBy = Data.OthersEvaluatedBy,
+
+                    OthersDate = Data.OthersDate,
+                    IsApproved = Data.IsApproved,
+                    IsNotApproved = Data.IsNotApproved,
+                    ApprovalComments = Data.ApprovalComments,
+                    VerifiedBy = Data.VerifiedBy,
+                    ApprovalDate = Data.ApprovalDate,
+                    HODComments = Data.HODComments,
+                    HODSignature = Data.HODSignature,
+                    HODDate = Data.HODDate,
+                    ImplementationIsAcceptable = Data.ImplementationIsAcceptable,
+                    ImplementationIsNotAcceptable = Data.ImplementationIsNotAcceptable,
+                    ImplementationVerifiedBy = Data.ImplementationVerifiedBy,
+                    VerifiedDate = Data.VerifiedDate,
+
+                    IsSatisfactory = Data.IsSatisfactory,
+                    IsNotSatisfactory = Data.IsNotSatisfactory,
+                    ClosureComments = Data.ClosureComments,
+                    ClosedBy = Data.ClosedBy,
+                    Date = Data.Date,
+                    IsSatisfactoryForNotSatisfactory = Data.IsSatisfactoryForNotSatisfactory,
+                    NotSatisfactoryClosedBy = Data.NotSatisfactoryClosedBy,
+                    NotSatisfactoryDate = Data.NotSatisfactoryDate
+                };
+
+            //_sessionId = createReq.SessionId;
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("The Form Submitted Successfully.", AC.SD.Core.Services.ToastLevel.Success);
+             NavigationManager.NavigateTo("changeControlsetupForm");
+        }
+      
+           
+      //  await JSRuntime.InvokeAsync<string>("ReloadUrl");
+       
     }
 }

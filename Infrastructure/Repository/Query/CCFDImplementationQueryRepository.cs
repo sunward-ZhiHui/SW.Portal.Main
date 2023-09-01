@@ -311,7 +311,8 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("StatusCodeID", _CCFInformationModels.StatusCodeID);
                         parameterss.Add("AddedByUserID", _CCFInformationModels.AddedByUserID);
                         parameterss.Add("AddedDate", _CCFInformationModels.AddedDate);
-
+                        parameterss.Add("ModifiedByUserID", _CCFInformationModels.ModifiedByUserID);
+                        parameterss.Add("ModifiedDate", _CCFInformationModels.ModifiedDate);
                         parameterss.Add("SessionId", _CCFInformationModels.SessionId);
                        
                         connection.Open();
@@ -353,10 +354,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ResponsibiltyTo", cCFDImplementation.ResponsibiltyTo);
                           
                             parameters.Add("ModifiedDate", cCFDImplementation.ModifiedDate);
-                            parameters.Add("SessionId", cCFDImplementation.SessionId);
+                           // parameters.Add("SessionId", cCFDImplementation.SessionId);
                             parameters.Add("ModifiedByUserID", cCFDImplementation.ModifiedByUserID);
                             parameters.Add("StatusCodeID", cCFDImplementation.StatusCodeID);
-                            var query = " UPDATE CCFDImplementationDetails SET IsRequired = @IsRequired,DoneBy =@DoneBy,DoneByDate =@DoneByDate,ResponsibiltyTo =@ResponsibiltyTo,ModifiedDate =@ModifiedDate,SessionId =@SessionId,StatusCodeID =@StatusCodeID, ModifiedByUserID =@ModifiedByUserID WHERE ClassOFDocumentID = @ClassOFDocumentID";
+                            var query = " UPDATE CCFDImplementationDetails SET IsRequired = @IsRequired,DoneBy =@DoneBy,DoneByDate =@DoneByDate,ResponsibiltyTo =@ResponsibiltyTo,ModifiedDate =@ModifiedDate,StatusCodeID =@StatusCodeID, ModifiedByUserID =@ModifiedByUserID WHERE ClassOFDocumentID = @ClassOFDocumentID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 

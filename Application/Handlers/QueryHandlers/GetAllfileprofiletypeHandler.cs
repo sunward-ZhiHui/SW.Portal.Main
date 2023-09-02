@@ -289,4 +289,30 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetDocumentPermissionByRoleIDHandler : IRequestHandler<GetDocumentPermissionByRoleID, DocumentPermissionModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetDocumentPermissionByRoleIDHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<DocumentPermissionModel> Handle(GetDocumentPermissionByRoleID request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.GetDocumentPermissionByRoleID(request.Id);
+        }
+
+    }
+    public class InsertFileProfileTypeAccessHandler : IRequestHandler<InsertFileProfileTypeAccess, DocumentUserRoleModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public InsertFileProfileTypeAccessHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<DocumentUserRoleModel> Handle(InsertFileProfileTypeAccess request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.InsertFileProfileTypeAccess(request.DocumentUserRole);
+        }
+
+    }
 }

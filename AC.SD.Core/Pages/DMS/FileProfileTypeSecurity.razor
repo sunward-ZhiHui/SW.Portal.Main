@@ -1,0 +1,379 @@
+﻿@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+<div style="width:100%;">
+    <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabSecIndex" TabsPosition="TabsPosition.Left" TabClick="OnTabClick">
+        <DxTabPage Text="User" TabIconCssClass="tabs-icon-home tabs-icon">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <EditForm Model="@Data" id="User1"
+                                  OnValidSubmit="@HandleValidSubmit"
+                                  OnInvalidSubmit="@HandleInvalidSubmit"
+                                  Context="EditFormContext">
+                            <DataAnnotationsValidator />
+                            <DxFormLayout>
+                                <DxFormLayoutItem Caption="User Role" ColSpanMd="3">
+                                    <DxComboBox Data="@_documentRoleList"
+                                                NullText="Select User Role..."
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="DocumentRoleName"
+                                                ValueFieldName="DocumentRoleId"
+                                    @bind-Value="@Data.RoleID"
+                                                SelectedItemChanged="@((DocumentRole depSelect) => SelectedItemRoleChanged(depSelect))"
+                                                ShowValidationIcon="true">
+                                        <Buttons>
+                                            <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container-User")
+                                                            Tooltip="Role Permission"
+                                                            Click="@(_ => OnButtonClick())" />
+                                        </Buttons>
+                                    </DxComboBox>
+                                    <ValidationMessage For="@(() => Data.RoleID)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Users" ColSpanMd="7">
+                                    <DxTagBox Data="_usersList"
+                                    @bind-Values="Data.SelectUserIDs"
+                                              NullText="Select To..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="UserID"
+                                              TextFieldName="Name"
+                                              EditFormat="{0}-{1}"
+                                              SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedUserItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual">
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                    </DxTagBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem ColSpanMd="2">
+                                    <DxButton SubmitFormOnClick="true"
+                                              Text="Save"
+                                              style="margin-bottom: 20px;"
+                                              RenderStyle="ButtonRenderStyle.Secondary" />
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+
+        </DxTabPage>
+        <DxTabPage Text="User Group" TabIconCssClass="tabs-icon-products tabs-icon">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <EditForm Model="@Data" id="User2"
+                                  OnValidSubmit="@HandleValidSubmit"
+                                  OnInvalidSubmit="@HandleInvalidSubmit"
+                                  Context="EditFormContext">
+                            <DataAnnotationsValidator />
+                            <DxFormLayout>
+                                <DxFormLayoutItem Caption="User Role" ColSpanMd="3">
+                                    <DxComboBox Data="@_documentRoleList"
+                                                NullText="Select User Role..."
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="DocumentRoleName"
+                                                ValueFieldName="DocumentRoleId"
+                                    @bind-Value="@Data.UserGroupRoleID"
+                                                SelectedItemChanged="@((DocumentRole depSelect) => SelectedItemRoleChanged(depSelect))"
+                                                ShowValidationIcon="true">
+                                        <Buttons>
+                                            <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container-UserGroup")
+                                                            Tooltip="Role Permission"
+                                                            Click="@(_ => OnUserGroupButtonClick())" />
+                                        </Buttons>
+                                    </DxComboBox>
+                                    <ValidationMessage For="@(() => Data.UserGroupRoleID)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="User Group" ColSpanMd="7">
+                                    <DxTagBox Data="_userGroupsList"
+                                    @bind-Values="Data.SelectUserGroupIDs"
+                                              NullText="Select To..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="UserGroupId"
+                                              TextFieldName="Name"
+                                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedUserGroupItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual">
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+                                    </DxTagBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem ColSpanMd="2">
+                                    <DxButton SubmitFormOnClick="true"
+                                              Text="Save"
+                                              style="margin-bottom: 20px;"
+                                              RenderStyle="ButtonRenderStyle.Secondary" />
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </DxTabPage>
+        <DxTabPage Text="Level" TabIconCssClass="tabs-icon-support tabs-icon">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                       
+                            <EditForm Model="@Data" id="User3"
+                                      OnValidSubmit="@HandleValidSubmit"
+                                      OnInvalidSubmit="@HandleInvalidSubmit"
+                                      Context="EditFormContext">
+                                <DataAnnotationsValidator />
+                                 <DxFormLayout>
+                                <DxFormLayoutItem Caption="User Role" ColSpanMd="3">
+                                    <DxComboBox Data="@_documentRoleList"
+                                                NullText="Select User Role..."
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="DocumentRoleName"
+                                                ValueFieldName="DocumentRoleId"
+                                    @bind-Value="@Data.LevelRoleID"
+                                                SelectedItemChanged="@((DocumentRole depSelect) => SelectedItemRoleChanged(depSelect))"
+                                                ShowValidationIcon="true">
+                                        <Buttons>
+                                            <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container-Level")
+                                                            Tooltip="Role Permission"
+                                                            Click="@(_ => OnLevelButtonClick())" />
+                                        </Buttons>
+                                    </DxComboBox>
+                                    <ValidationMessage For="@(() => Data.LevelRoleID)" />
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="Level Master" ColSpanMd="6">
+                                    <DxTagBox Data="_levelMasterLists"
+                                    @bind-Values="Data.SelectLevelMasterIDs"
+                                              NullText="Select To..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="LevelID"
+                                              TextFieldName="Name"
+                                              SelectedItemsChanged="@((IEnumerable<ViewLevel> values) => onSelectedLevelItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual">
+                                        <DxListEditorColumn FieldName="@nameof(ViewLevel.Name)" Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
+                                    </DxTagBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem ColSpanMd="2">
+                                    <DxButton SubmitFormOnClick="true"
+                                              Text="Save"
+                                              style="margin-bottom: 20px;"
+                                              RenderStyle="ButtonRenderStyle.Secondary" />
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+
+                            </EditForm>
+                        
+                    </div>
+                </div>
+            </div>
+        </DxTabPage>
+    </DxTabs>
+</div>
+<DxFlyout @bind-IsOpen=IsOpen
+          PositionTarget=@($"#flyout-overview-target-container-User")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          CloseOnOutsideClick=true
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DocumentPermissionDataView documentPermissionData="@documentPermissionData"></DocumentPermissionDataView>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+<DxFlyout @bind-IsOpen=IsOpenUserGroup
+          PositionTarget=@($"#flyout-overview-target-container-UserGroup")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          CloseOnOutsideClick=true
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DocumentPermissionDataView documentPermissionData="@documentPermissionData"></DocumentPermissionDataView>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsOpenUserGroup = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+<DxFlyout @bind-IsOpen=IsOpenLevel
+          PositionTarget=@($"#flyout-overview-target-container-Level")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          CloseOnOutsideClick=true
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+            <DocumentPermissionDataView documentPermissionData="@documentPermissionData"></DocumentPermissionDataView>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsOpenLevel = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+@code {
+    [Parameter]
+    public long? FileProfileTypeId { get; set; }
+    public ApplicationUser _applicationUser { get; private set; }
+    private List<UserGroup> _userGroupsList { get; set; }
+    public List<DocumentRole> _documentRoleList { get; set; }
+    public List<ViewLevel> _levelMasterLists { get; set; }
+    private List<ViewEmployee>? _usersList;
+    DocumentUserRoleModel Data = new DocumentUserRoleModel();
+    bool IsOpen { get; set; } = false;
+    bool IsOpenUserGroup { get; set; } = false;
+    bool IsOpenLevel { get; set; } = false;
+    public DocumentPermissionModel? documentPermissionData { get; set; }
+    int ActiveTabSecIndex { get; set; } = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        Data.FileProfileTypeId = FileProfileTypeId;
+        _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _userGroupsList = await Mediator.Send(new GetUserGroups());
+        _documentRoleList = await Mediator.Send(new GetDocumentRoles());
+        _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
+        _usersList = await Mediator.Send(new GetAllEmployeeListQuery());
+        Data.Type = "User";
+        Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+        Data.LevelRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+    }
+    public void loadData(long? fileProfileTypeId)
+    {
+        FileProfileTypeId = fileProfileTypeId;
+        Data.FileProfileTypeId = fileProfileTypeId;
+        Data.Type = "User";
+        Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+        Data.LevelRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+    }
+    async void OnTabClick(TabClickEventArgs e)
+    {
+        if (e.TabIndex == 0)
+        {
+            Data.RoleID = Data.RoleID > 0 ? Data.RoleID : null;
+            Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+            Data.LevelRoleID = Data.LevelRoleID > 0 ? Data.LevelRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+            Data.Type = "User";
+            await OnSelectRoleItems(Data.RoleID,"No");
+        }
+        if (e.TabIndex == 1)
+        {
+            Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : null;
+            Data.RoleID = Data.RoleID > 0 ? Data.RoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+            Data.LevelRoleID = Data.LevelRoleID > 0 ? Data.LevelRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+            Data.Type = "UserGroup";
+            await OnSelectRoleItems(Data.UserGroupRoleID, "No");
+        }
+        if (e.TabIndex == 2)
+        {
+            Data.LevelRoleID = Data.LevelRoleID > 0 ? Data.LevelRoleID : null;
+            Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+            Data.RoleID = Data.RoleID > 0 ? Data.RoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+            Data.Type = "Level";
+            await OnSelectRoleItems(Data.LevelRoleID, "No");
+        }
+        StateHasChanged();
+    }
+    void onSelectedUserItemsChanged(IEnumerable<ViewEmployee> values)
+    {
+        ActiveTabSecIndex = 0;
+        StateHasChanged();
+    }
+    void onSelectedUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    {
+        ActiveTabSecIndex = 1;
+        StateHasChanged();
+    }
+    void onSelectedLevelItemsChanged(IEnumerable<ViewLevel> values)
+    {
+        ActiveTabSecIndex = 2;
+        StateHasChanged();
+    }
+    async Task HandleValidSubmit()
+    {
+        var response = await Mediator.Send(new InsertFileProfileTypeAccess(Data));
+        toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+    }
+    void HandleInvalidSubmit()
+    {
+    }
+    async Task SelectedItemRoleChanged(DocumentRole documentRole)
+    {
+        if (documentRole != null && documentRole.DocumentRoleId > 0)
+        {
+            await OnSelectRoleItems(documentRole.DocumentRoleId,"Yes");
+        }
+    }
+    // async Task SelectedItemUserGroupRoleChanged(DocumentRole documentRole)
+    // {
+    //     if (documentRole != null && documentRole.DocumentRoleId > 0)
+    //     {
+    //         await OnSelectRoleItems(documentRole.DocumentRoleId);
+    //     }
+    // }
+
+    async Task OnSelectRoleItems(long? documentRoleId,string types)
+    {
+        documentPermissionData = await Mediator.Send(new GetDocumentPermissionByRoleID(documentRoleId));
+        if (types == "Yes")
+        {
+            if (Data.Type == "User")
+            {
+                OnButtonClick();
+            }
+            if (Data.Type == "UserGroup")
+            {
+                OnUserGroupButtonClick();
+            }
+            if (Data.Type == "Level")
+            {
+                OnLevelButtonClick();
+            }
+        }
+    }
+    void OnUserGroupButtonClick()
+    {
+        IsOpenUserGroup = true;
+    }
+    void OnButtonClick()
+    {
+        IsOpen = true;
+    }
+    void OnLevelButtonClick()
+    {
+        IsOpenLevel = true;
+    }
+}

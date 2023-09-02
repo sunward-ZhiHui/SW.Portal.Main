@@ -69,18 +69,18 @@
 </div>
 <div class="row align-items-end" style="border-top: 1px solid #d5d4d4; margin-top:10px;">
     <div class="cw-480 ch-220" style="margin-top:10px;">
-        <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
-            <DxTabPage Text="File Profile Type">
-                <AddOrEditFileProfileType @ref="refAddOrEditFileProfileType" SessionId="@SessionId" Type="@Type"></AddOrEditFileProfileType>
-            </DxTabPage>
-            <DxTabPage Text="Security Access">
-
-            </DxTabPage>
-            <DxTabPage Text="Upload Details Form">
-
-            </DxTabPage>
-
-        </DxTabs>
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex" RenderMode="TabsRenderMode.OnDemand" TabClick="OnTabClick">
+                <DxFormLayoutTabPage Caption="File Profile Type">
+                    <AddOrEditFileProfileType @ref="refAddOrEditFileProfileType" SessionId="@SessionId" Type="@Type"></AddOrEditFileProfileType>
+                </DxFormLayoutTabPage>
+                <DxFormLayoutTabPage Caption="Security Access" Visible=@IsFileProfileTypeId>
+                    <FileProfileTypeSecurity FileProfileTypeId="@FileProfileTypeId"></FileProfileTypeSecurity>
+                </DxFormLayoutTabPage>
+                <DxFormLayoutTabPage Caption="Upload Details Form" Visible=@IsFileProfileTypeId>
+                </DxFormLayoutTabPage>
+            </DxFormLayoutTabPages>
+        </DxFormLayout>
     </div>
 </div>
 
@@ -90,9 +90,12 @@
     [Parameter]
     public string Type { get; set; }
     private AddOrEditFileProfileType? refAddOrEditFileProfileType;
+    private FileProfileTypeSecurity? refFileProfileTypeSecurity;
     int ActiveTabIndex { get; set; } = 0;
     public ApplicationUser _applicationUser { get; private set; }
     private bool loading;
+    bool IsFileProfileTypeId { get; set; } = false;
+
     private string MyID = "myid";
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
@@ -100,16 +103,22 @@
     string IsdisplayButton = "float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;";
     protected override async Task OnInitializedAsync()
     {
-        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        
         _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
     protected override async Task OnParametersSetAsync()
     {
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         FolderPathLists = new List<DocumentsModel>();
         FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == SessionId)?.FileProfileTypeId;
-
+        if (Type == "Edit")
+        {
+            IsFileProfileTypeId = true;
+        }
         if (FileProfileTypeId > 0)
         {
+
             var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
             if (fileType != null)
             {
@@ -118,6 +127,7 @@
                 FolderPathLists.Add(fileType);
             }
         }
+        
         base.OnParametersSet();
     }
     private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)

@@ -36,7 +36,9 @@
 @using System.Net.Http;
 @using System.Threading.Tasks
 @using System.Threading
-@using System.Timers
+@using System.Timers;
+@using DevExpress.Blazor.RichEdit;
+
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 <div class="">
     <div class="main-container">
@@ -650,8 +652,9 @@
                                       HeaderText="Post"
                                       HorizontalAlignment="HorizontalAlignment.Right"
                                       VerticalAlignment="DevExpress.Blazor.VerticalAlignment.Bottom"
-                                      CloseOnEscape="true"
+                                      CloseOnEscape="true"                                      
                                       ResizeCompleted="OnWindowResizeCompleted"
+                                      DragCompleted="OnWindowDragCompleted"                                          
                                       ShowFooter=false
                                       AllowResize="true"
                                       Closing="EulaClosing"
@@ -762,7 +765,7 @@
                                                                          }
                                                                             <DxFormLayoutItem ColSpanMd="12">
                                                                                 <div class="">
-                                                                                    <DxRichEdit @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 h-100 txtEditorMsg editor-box-height" Id="editor-box-height" ViewType="ViewType.Simple" />
+                                                                                    <DxRichEdit DocumentLoaded="OnDocumentLoaded" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 h-100 txtEditorMsg editor-box-height" Id="editor-box-height" ViewType="ViewType.Simple" />
                                                                                 </div>
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem ColSpanMd="12">
@@ -1509,7 +1512,7 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {            
+        {   
             await JSRuntime.InvokeVoidAsync("window.addEventListener", "scroll", DotNetObjectReference.Create(this).Value, "HandleScroll");
         }
 
@@ -2564,7 +2567,27 @@
         SelectedGroup = UniqueId.ToString();
         await LoadData();
         StateHasChanged();
+    }   
+
+    async Task OnDocumentLoaded(DevExpress.Blazor.RichEdit.Document document)
+    {
+        await document.ChangeDefaultCharacterPropertiesAsync(properties =>
+        {
+            // properties.FontName = "Times New Roman";
+            properties.FontSize = 14;
+        });
     }
+    private void OnWindowDragCompleted()
+    {
+        // Handle drag completed event if needed
+        msgrichEdit.NewDocumentAsync();
+    }
+
+    async Task onRichTxtChangeFontsize()
+    {
+        await msgrichEdit.NewDocumentAsync();
+    }
+
     protected override async Task OnInitializedAsync()
     {
         var sss = ActiveSessionId;
@@ -3063,14 +3086,15 @@
             }
 
 
-
-
-
-
             WindowVisible = true;
             Data.Name = _replyComment[0].Name;
             Data.From = applicationUser.UserName;
             IsReadOnly = false;
+
+           StateHasChanged(); // Force a UI update
+           await Task.Delay(2700);
+           await onRichTxtChangeFontsize(); // Call your other function here
+           
         }        
     }  
     void EulaClosing(WindowClosingEventArgs args) {

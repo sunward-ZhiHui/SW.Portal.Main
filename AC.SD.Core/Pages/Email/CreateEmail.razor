@@ -173,7 +173,7 @@ else
                                           
                                            
                                 </DxTagBox>
-                            </DxFormLayoutItem>
+                            </DxFormLayoutItem>                            
                             <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="12">
                                 <DxComboBox Data="@_OnBehalfparticipant"
                                         NullText="Select OnBehalf..."
@@ -260,7 +260,7 @@ else
                                 </DxFormLayoutItem>
                             }
                             <DxFormLayoutItem ColSpanMd="8">
-                                <DxRichEdit DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Data.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                                <DxRichEdit DocumentLoaded=OnDocumentLoaded DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" CustomizeToolbar=OnCustomizeToolbar DocumentContent="@Data.FileData" BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
                                   
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="4">
@@ -346,6 +346,8 @@ else
             // Reset _CCparticipant to all participants if nothing is selected in _Toparticipant
             _CCparticipant = _participant.ToList();
         }
+
+        UpdateOnBehalfParticipant();
     }
 
     void onSelectedCCItemsChanged(IEnumerable<ViewEmployee> values)
@@ -360,20 +362,50 @@ else
             // Reset _Toparticipant to all participants if nothing is selected in _CCparticipant
             _Toparticipant = _participant.ToList();
         }
+
+        UpdateOnBehalfParticipant();
     }
+
+    void UpdateOnBehalfParticipant()
+    {
+
+        IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
+        IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
+
+        // Update _OnBehalfparticipant based on the combined selected values
+        _OnBehalfparticipant = _participant.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();       
+    }
+
+
+
     void onSelectedOnBehalfItemsChanged(ViewEmployee values)
     {
+
         //if (values != null)
-        //{
-        //    // Update _OnBehalfparticipant based on selected values
-        //    _OnBehalfparticipant = _participant.Where(c => c.UserID != values.UserID).ToList();
-        //   //_OnBehalfparticipant
+        //{   
+        //    var onbehalfitem = _participant.Where(c => c.UserID != values.UserID).ToList();
+
+        //    IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
+        //    IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);   
+
+        //    _Toparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
+        //    _CCparticipant = onbehalfitem.Except(selectedTopParticipants).Except(selectedCCParticipants).ToList();
+
+
         //}
         //else
         //{
-        //    // Reset _OnBehalfparticipant to all participants if nothing is selected
-        //    _OnBehalfparticipant = _participant.ToList();
+
+        //    IEnumerable<ViewEmployee> selectedTopParticipants = _Toparticipant.Except(_CCparticipant);
+        //    IEnumerable<ViewEmployee> selectedCCParticipants = _CCparticipant.Except(_Toparticipant);
+
+
+        //    _Toparticipant = _participant.Except(selectedCCParticipants).ToList();
+        //    _CCparticipant = _participant.Except(selectedTopParticipants).ToList();            
         //}
+
+
+
     }
 
     bool IsDraftEnabled { get; set; } = false;
@@ -536,6 +568,8 @@ else
     {
         if (firstRender)
         {
+            await msgrichEdit.NewDocumentAsync();
+
             await JSRuntime.InvokeVoidAsync("eval", @"
                 window.submitForm = function () {
                     document.getElementById('myForm').submit();
@@ -665,7 +699,7 @@ else
             }
         }      
     }
-    private void onRestText()
+    private async void onRestText()
     {
         Data = new EmailTopics();
         SelectedDataItems = null;
@@ -686,6 +720,8 @@ else
         Data.OverDue = false;
         Data.Urgent = false;
         Data.IsAllowParticipants = false;
+       await Task.Delay(3000); // Delay for 2 seconds
+       await msgrichEdit.NewDocumentAsync();
 
     }
     private void onSubmit()
@@ -704,8 +740,15 @@ else
         Console.WriteLine($"Selected items count: {SelectedDataItems.Count}");
     }
 
-
-    protected override async Task OnInitializedAsync() {
+    async Task OnDocumentLoaded(Document document)
+    {
+        await document.ChangeDefaultCharacterPropertiesAsync(properties =>
+        {
+            // properties.FontName = "Times New Roman";
+            properties.FontSize = 14;
+        });
+    }
+    protected override async Task OnInitializedAsync() {       
 
         onloadSession();
 
@@ -875,10 +918,15 @@ else
 
         participantIds.Add(applicationUser.UserID);
 
-        if (Data.OnBehalf != null && Data.Follow == "Follow Up")
+        if (Data.OnBehalf != null)
         {
             participantIds.Add(Data.OnBehalf.Value);
         }
+        
+        //if (Data.OnBehalf != null && Data.Follow == "Follow Up")
+        //{
+        //    participantIds.Remove(applicationUser.UserID);
+        //}
 
 
 
@@ -963,16 +1011,18 @@ else
                 {                
                    
                     uploadComponent.UploadAllFiles();                  
-                await Task.Delay(5000); // Delay for 5 seconds
+                    await Task.Delay(5000); // Delay for 5 seconds
                     //   onShowPopupMessage("success", "Topic have been saved successully");
                     ActivityEmailTopicId = 0;
                     toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
                     if (ActiveSessionId != null)
                     {
+                        BackEnabled = false;
                         NavigationManager.NavigateTo($"CreateEmail");
                     }
                     else
                     {
+                        BackEnabled = false;
                         await JSRuntime.InvokeAsync<string>("ReloadUrl");
                     }
 

@@ -61,12 +61,13 @@ namespace Core.EntityModels
         public bool IsQC { get; set; }
         public bool IsStore { get; set; }
         public string? RelatedDeparmentOthers { get; set; }
-        public long EvaluatedBy { get; set; }
+        [Required]
+        public long? EvaluatedBy { get; set; }
         public bool IsRequlatoryApproval { get; set; }
         public bool IsNotificationRequired { get; set; }
         public string? RegulatoryOthers { get; set; }
         public string? RegulatoryDetails { get; set; }
-        public long RequlatoryEvaluatedBy { get; set; }
+        public long? RequlatoryEvaluatedBy { get; set; }
         public DateTime? RegulatoryDate { get; set; }
         public bool IsAnalyticalInstrument { get; set; }
         public bool IsValidation { get; set; }
@@ -82,7 +83,7 @@ namespace Core.EntityModels
         public bool IsInProcess { get; set; }
         public string? QualityControlOthers { get; set; }
         public string? QualityControlDetails { get; set; }
-        public long QualityControlEvaluatedBy { get; set; }
+        public long? QualityControlEvaluatedBy { get; set; }
         public DateTime? QualityControlDate { get; set; }
         public bool IsProductionProcess { get; set; }
         public bool IsProductionValidation { get; set; }
@@ -136,7 +137,7 @@ namespace Core.EntityModels
         public DateTime? ApprovalDate { get; set; }
 
         [Key]
-        public long? CCFDImplementationID { get; set; }
+        public long CCFDImplementationID { get; set; }
         public long? ClassOfDocumentID { get; set; }
         public string? HODComments { get; set; }
         public string? HODSignature { get; set; }
@@ -147,7 +148,7 @@ namespace Core.EntityModels
         public DateTime? VerifiedDate { get; set; }
 
         [Key]
-        public long? CCFEClosureID { get; set; }
+        public long CCFEClosureID { get; set; }
         public bool IsSatisfactory { get; set; }
         public bool IsNotSatisfactory { get; set; }
         public string? ClosureComments { get; set; }

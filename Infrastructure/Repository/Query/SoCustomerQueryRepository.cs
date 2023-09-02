@@ -39,12 +39,8 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from SoCustomer where type=" + "'" + Type + "'";
-                //if (Type == "So Customer")
-                //{
-                //    query = "select  * from SoCustomer where type='So Customer' or type is null";
-                //}
-
+                string newList = string.Join(",", Type.Split(',').Select(x => string.Format("'{0}'", x)).ToList());
+                var query = "select  * from SoCustomer where type in(" + newList + ")";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<SoCustomer>(query)).ToList();

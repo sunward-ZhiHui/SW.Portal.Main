@@ -118,6 +118,8 @@
                                                     Caption="Ship Code" />
                                 <DxListEditorColumn FieldName="@nameof(SoCustomer.AssignToRep)"
                                                     Caption="AssignTo Rep" />
+                                <DxListEditorColumn FieldName="@nameof(SoCustomer.Type)"
+                                                    Caption="Type" />
                             </Columns>
                         </DxComboBox>
                     </DxFormLayoutItem>
@@ -221,7 +223,7 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("Clinic"));
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("Clinic,Customer"));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         if (SessionIds != null)
         {

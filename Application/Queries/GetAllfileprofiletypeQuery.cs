@@ -162,6 +162,20 @@ namespace Application.Queries
             this.SessionId = sessionId;
         }
     }
-
-
+    public class GetDocumentPermissionByRoleID : PagedRequest, IRequest<DocumentPermissionModel>
+    {
+        public long? Id { get; private set; }
+        public GetDocumentPermissionByRoleID(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class InsertFileProfileTypeAccess : PagedRequest, IRequest<DocumentUserRoleModel>
+    {
+        public DocumentUserRoleModel DocumentUserRole { get; private set; }
+        public InsertFileProfileTypeAccess(DocumentUserRoleModel documentUserRole)
+        {
+            this.DocumentUserRole = documentUserRole;
+        }
+    }
 }

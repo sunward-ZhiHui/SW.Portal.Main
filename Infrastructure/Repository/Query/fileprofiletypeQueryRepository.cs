@@ -1675,5 +1675,63 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DocumentUserRoleModel>> GetDocumentUserRoleList(long? Id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("FileProfileTypeId", Id);
+                var query = "select t1.*,t2.DocumentRoleName,t2.DocumentRoleDescription,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt4.Name as FileProfileType,\r\nt5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\nt8.Name as DesignationName,\r\nCONCAT(case when t6.NickName is NULL\r\n then  t6.FirstName\r\n ELSE\r\n  t6.NickName END,' | ',t6.LastName) as FullName\r\n" +
+                    "from DocumentUserRole t1\r\n" +
+                    "JOIN DocumentRole t2 ON t1.RoleID=t2.DocumentRoleID\r\n" +
+                    "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n" +
+                    "LEFT JOIN FileProfileType t4 ON t4.FileProfileTypeID=t1.FileProfileTypeID\r\n" +
+                    "LEFT JOIN LevelMaster t5 ON t1.LevelID=t5.LevelID\r\n" +
+                    "JOIN Employee t6 ON t1.UserID=t6.UserID\r\n" +
+                    "LEFT JOIN Department t7 ON t6.DepartmentID=t7.DepartmentID\r\n" +
+                    "LEFT JOIN Designation t8 ON t8.DesignationID=t6.DesignationID\r\n\r\n WHERE t1.FileProfileTypeID=@FileProfileTypeId";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentUserRoleModel>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentUserRoleModel> DeleteDocumentUserRole(DocumentUserRoleModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentUserRoleID", value.DocumentUserRoleID);
+                            var query = "DELETE FROM DocumentUserRole WHERE " +
+                                "DocumentUserRoleID= @DocumentUserRoleID";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

@@ -58,10 +58,13 @@
                                     <DxButton SubmitFormOnClick="true"
                                               Text="Save"
                                               style="margin-bottom: 20px;"
-                                              RenderStyle="ButtonRenderStyle.Secondary" />
+                                              RenderStyle="ButtonRenderStyle.Primary" />
                                 </DxFormLayoutItem>
                             </DxFormLayout>
                         </EditForm>
+                        <div class="col-md-12">
+                            <DocumentUserRoleLists @ref="refDocumentUserRoleListsUser" FileProfileTypeId="@FileProfileTypeId"></DocumentUserRoleLists>
+                           </div>
                     </div>
                 </div>
             </div>
@@ -111,10 +114,13 @@
                                     <DxButton SubmitFormOnClick="true"
                                               Text="Save"
                                               style="margin-bottom: 20px;"
-                                              RenderStyle="ButtonRenderStyle.Secondary" />
+                                              RenderStyle="ButtonRenderStyle.Primary" />
                                 </DxFormLayoutItem>
                             </DxFormLayout>
                         </EditForm>
+                    </div>
+                    <div class="col-md-12">
+                        <DocumentUserRoleLists @ref="refDocumentUserRoleListsUserGroup" FileProfileTypeId="@FileProfileTypeId"></DocumentUserRoleLists>
                     </div>
                 </div>
             </div>
@@ -164,12 +170,15 @@
                                     <DxButton SubmitFormOnClick="true"
                                               Text="Save"
                                               style="margin-bottom: 20px;"
-                                              RenderStyle="ButtonRenderStyle.Secondary" />
+                                              RenderStyle="ButtonRenderStyle.Primary" />
                                 </DxFormLayoutItem>
                             </DxFormLayout>
 
                             </EditForm>
                         
+                    </div>
+                    <div class="col-md-12">
+                        <DocumentUserRoleLists @ref="refDocumentUserRoleListsLevel" FileProfileTypeId="@FileProfileTypeId"></DocumentUserRoleLists>
                     </div>
                 </div>
             </div>
@@ -246,6 +255,9 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    private DocumentUserRoleLists? refDocumentUserRoleListsUser;
+    private DocumentUserRoleLists? refDocumentUserRoleListsUserGroup;
+    private DocumentUserRoleLists? refDocumentUserRoleListsLevel;
     [Parameter]
     public long? FileProfileTypeId { get; set; }
     public ApplicationUser _applicationUser { get; private set; }
@@ -271,14 +283,7 @@
         Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
         Data.LevelRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
     }
-    public void loadData(long? fileProfileTypeId)
-    {
-        FileProfileTypeId = fileProfileTypeId;
-        Data.FileProfileTypeId = fileProfileTypeId;
-        Data.Type = "User";
-        Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
-        Data.LevelRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
-    }
+
     async void OnTabClick(TabClickEventArgs e)
     {
         if (e.TabIndex == 0)
@@ -288,6 +293,7 @@
             Data.LevelRoleID = Data.LevelRoleID > 0 ? Data.LevelRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
             Data.Type = "User";
             await OnSelectRoleItems(Data.RoleID,"No");
+            await refDocumentUserRoleListsUser.loadData(FileProfileTypeId);
         }
         if (e.TabIndex == 1)
         {
@@ -296,6 +302,7 @@
             Data.LevelRoleID = Data.LevelRoleID > 0 ? Data.LevelRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
             Data.Type = "UserGroup";
             await OnSelectRoleItems(Data.UserGroupRoleID, "No");
+            await refDocumentUserRoleListsUserGroup.loadData(FileProfileTypeId);
         }
         if (e.TabIndex == 2)
         {
@@ -304,7 +311,9 @@
             Data.RoleID = Data.RoleID > 0 ? Data.RoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
             Data.Type = "Level";
             await OnSelectRoleItems(Data.LevelRoleID, "No");
+            await refDocumentUserRoleListsLevel.loadData(FileProfileTypeId);
         }
+        
         StateHasChanged();
     }
     void onSelectedUserItemsChanged(IEnumerable<ViewEmployee> values)
@@ -326,6 +335,19 @@
     {
         var response = await Mediator.Send(new InsertFileProfileTypeAccess(Data));
         toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        if (Data.Type == "User")
+        {
+            await refDocumentUserRoleListsUser.loadData(FileProfileTypeId);
+        }
+        if (Data.Type == "UserGroup")
+        {
+            await refDocumentUserRoleListsUserGroup.loadData(FileProfileTypeId);
+        }
+        if (Data.Type == "Level")
+        {
+            await refDocumentUserRoleListsLevel.loadData(FileProfileTypeId);
+        }
+        
     }
     void HandleInvalidSubmit()
     {

@@ -44,6 +44,17 @@ namespace Core.EntityModels
         public IEnumerable<long> SelectLevelMasterIDs { get; set; }
         public long? LevelRoleID { get; set; }
         public string? Type { get; set; }
+
+        public string? DocumentRoleName { get; set; }
+        public string? DocumentRoleDescription { get; set; }
+        public string? UserGroup { get; set; }
+        public string? UserGroupDescription { get; set; }
+        public string? FileProfileType { get; set; }
+        public string? LevelName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? DesignationName { get; set; }
+        public string? FullName { get; set; }
     }
     public class LeveMasterUsersModel
     {

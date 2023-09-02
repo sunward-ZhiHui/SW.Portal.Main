@@ -34,6 +34,9 @@ namespace Core.Repositories.Query
         Task<FileProfileTypeModel> InsertOrUpdateFileProfileType(FileProfileTypeModel fileProfileTypeModel);
         Task<DocumentPermissionModel> GetDocumentPermissionByRoleID(long? Id);
         Task<DocumentUserRoleModel> InsertFileProfileTypeAccess(DocumentUserRoleModel documentUserRole);
+        Task<IReadOnlyList<DocumentUserRoleModel>> GetDocumentUserRoleList(long? Id);
+        Task<DocumentUserRoleModel> DeleteDocumentUserRole(DocumentUserRoleModel value);
+
 
     }
 }

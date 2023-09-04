@@ -198,7 +198,7 @@
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
       
-            _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
+        _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
        
 
         PanelVisible = false;

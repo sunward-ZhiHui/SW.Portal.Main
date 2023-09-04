@@ -27,7 +27,7 @@ namespace Core.Entities
         public string AddedBy { get; set; }
 
         public string Status { get; set; }
-        public string ColourCode {get;set;}
+        public string? ColourCode {get;set;}
     }
 }
  

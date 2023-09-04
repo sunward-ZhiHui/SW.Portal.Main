@@ -262,7 +262,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailTopics>> GetTopicMasterSearchList(long UserId, string searchtxt)
+        public async Task<List<EmailTopics>> GetTopicMasterSearchList(EmailSearch emailSearch)
         {
             try
             {
@@ -271,8 +271,19 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         var parameters = new DynamicParameters();
-                        parameters.Add("UserId", UserId);
-                        parameters.Add("searchtxt", searchtxt);
+                        parameters.Add("UserId", emailSearch.UserID);
+                        parameters.Add("searchtxt", emailSearch.MSearchText);
+                        parameters.Add("fromids", emailSearch.ByFrom);
+                        parameters.Add("subject", emailSearch.BySubject);
+                        parameters.Add("tag", emailSearch.ByTag);
+
+                        parameters.Add("GroupTag", emailSearch.GroupTag);
+                        parameters.Add("CategoryTag", emailSearch.CategoryTag);
+                        parameters.Add("ActionTag", emailSearch.ActionTag);
+                        parameters.Add("Name", emailSearch.Name);
+
+                        parameters.Add("filterFrom", emailSearch.FilterFrom);
+                        parameters.Add("filterTo", emailSearch.FilterTo);
                         parameters.Add("Option", "SELECT");
 
                         connection.Open();

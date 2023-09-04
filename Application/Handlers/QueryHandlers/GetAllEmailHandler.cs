@@ -163,7 +163,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetEmailMasterSearchAll request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicMasterSearchList(request.UserId,request.MasterSearch);
+            return await _emailTopicsQueryRepository.GetTopicMasterSearchList(request);
 
         }
     }

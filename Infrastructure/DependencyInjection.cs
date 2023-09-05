@@ -131,6 +131,8 @@ namespace Infrastructure
             services.AddTransient<IFmGlobalLineCommandRepository, FmGlobalLineCommandRepository>();
             services.AddTransient<IFmGlobalLineItemCommandRepository, FmGlobalLineItemCommandRepository>();
             services.AddTransient<ISoCustomerCommandRepository, SoCustomerCommandRepository>();
+            services.AddTransient<IAttributeHeaderCommandRepository, AttributeHeaderCommandRepository>();
+            services.AddTransient<IAttributeQueryRepository, AttributeHeaderQueryRepository>();
 
             services.AddTransient<INavProductionInformationCommandRepository, NavProductionInformationCommandRepository>();
             services.AddTransient<INavCrossReferenceCommandRepository, NavCrossReferenceCommandRepository>();

@@ -115,7 +115,7 @@
         _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
         _shelfLifeDurationItems = await Mediator.Send(new GetAllCodeMasterQuery("RecurrenceType"));
-       _fileProfileTypeData = await Mediator.Send(new GetFileProfileTypeBySession(SessionId));
+        _fileProfileTypeData = await Mediator.Send(new GetFileProfileTypeBySession(SessionId));
         if (Type == "Add")
         {
             if (_fileProfileTypeData != null)
@@ -145,23 +145,29 @@
         var response = await Mediator.Send(new InsertOrUpdateFileProfileType(Data));
         if (fileProfileTypeId > 0)
         {
-            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            loading = false;
-            Data.FileProfileTypeId = response.FileProfileTypeId;
-            Data.SessionId = response.SessionId;
-            SessionId = response.SessionId;
-            NavigationManager.NavigateTo("AddFileProfileTypes/Edit/" + SessionId);
-            StateHasChanged();
+            if (response.FileProfileTypeId > 0)
+            {
+                toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                loading = false;
+                Data.FileProfileTypeId = response.FileProfileTypeId;
+                Data.SessionId = response.SessionId;
+                SessionId = response.SessionId;
+                NavigationManager.NavigateTo("AddFileProfileTypes/Edit/" + SessionId);
+                StateHasChanged();
+            }
         }
         else
         {
-            toastService.ShowToast("Record added Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            loading = false;
-            Data.FileProfileTypeId = response.FileProfileTypeId;
-            Data.SessionId = response.SessionId;
-            SessionId = response.SessionId;
-            NavigationManager.NavigateTo("AddFileProfileTypes/Edit/" + SessionId);
-            StateHasChanged();
+            if (response.FileProfileTypeId > 0)
+            {
+                toastService.ShowToast("Record added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                loading = false;
+                Data.FileProfileTypeId = response.FileProfileTypeId;
+                Data.SessionId = response.SessionId;
+                SessionId = response.SessionId;
+                NavigationManager.NavigateTo("AddFileProfileTypes/Edit/" + SessionId);
+                StateHasChanged();
+            }
         }
     }
 }

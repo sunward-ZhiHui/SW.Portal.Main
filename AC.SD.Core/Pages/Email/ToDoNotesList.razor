@@ -11,6 +11,113 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 
+
+<style scoped>
+    .template-container {
+        display: flex;
+        align-items: center;
+        width: 100%
+    }
+
+    .template-icon {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.375rem;
+        -webkit-mask-image: url("_content/AC.SD.Core/images/icons/theme-icon.svg");
+        mask-image: url("_content/AC.SD.Core/images/icons/theme-icon.svg");
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        background-color: currentColor;
+        border: 1px solid white;
+    }
+
+    .dxbl-sm .template-icon {
+        margin-right: 0.25rem;
+    }
+
+    .dxbl-lg .template-icon {
+        margin-right: 0.5rem;
+    }
+
+    .template-container > .blazing-berry {
+        color: #5c2d91;
+    }
+
+    .template-container > .blazing-dark {
+        color: #46444a;
+    }
+
+    .template-container > .office-white {
+        color: #fe7109;
+    }
+
+    .template-container > .purple {
+        color: #7989ff;
+    }
+
+    .template-container > .default {
+        color: #007bff;
+    }
+
+    .template-container > .cerulean {
+        color: #2fa4e7;
+    }
+
+    .template-container > .cyborg {
+        color: #060606;
+    }
+
+    .template-container > .flatly {
+        color: #dce4ec;
+    }
+
+    .template-container > .journal {
+        color: #eb6864;
+    }
+
+    .template-container > .litera {
+        color: #4582ec;
+    }
+
+    .template-container > .lumen {
+        color: #158cba;
+    }
+
+    .template-container > .lux {
+        color: #1a1a1a;
+    }
+
+    .template-container > .pulse {
+        color: #593196;
+    }
+
+    .template-container > .simplex {
+        color: #d9230f;
+    }
+
+    .template-container > .solar {
+        color: #b58900;
+    }
+
+    .template-container > .superhero {
+        color: #df691a;
+    }
+
+    .template-container > .united {
+        color: #e95420;
+    }
+
+    .template-container > .yeti {
+        color: #008cba;
+    }
+</style>
+
+
+
+
+
+
+
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -119,6 +226,23 @@
                                  ShowValidationIcon="true" />
                             <ValidationMessage For="@(() => types.Status)" />
                         </DxFormLayoutItem>
+              @*  <DxFormLayoutItem Caption="ColourCode" ColSpanMd="6">
+                   <DxComboBox Data="@Themes"
+                                @bind-Value="@types.ColourCode"
+                                NullText="Select a theme..."
+                                FilteringMode="DataGridFilteringMode.StartsWith"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                CssClass="cw-480">
+                        <EditBoxTemplate>
+                            @GetEditBoxTemplateContent(types.)
+                        </EditBoxTemplate>
+                       <ItemTemplate>
+                            @GetItemTemplateContent(types)
+                        </ItemTemplate>
+                    </DxComboBox>
+
+                    <ValidationMessage For="@(() => types.Status)" />
+                </DxFormLayoutItem>*@
 
                 <ValidationSummary />
             </DxFormLayout>
@@ -298,7 +422,8 @@
                         AddedDate = DateTime.Now,
                         ModifiedDate = DateTime.Now,
                         Status=editModel.Status,
-                        SessionId = Guid.NewGuid()
+                        SessionId = Guid.NewGuid(),
+                        ColourCode = editModel.ColourCode
                     };
 
                 try
@@ -336,6 +461,7 @@
                         AddedDate = editModel.AddedDate,                        
                         SessionId = editModel.SessionId,
                         Status = editModel.Status,
+                        ColourCode   = editModel.ColourCode
                       };
 
                 var ans = await Mediator.Send(UpdateReq);
@@ -474,5 +600,35 @@
     public async Task LoadRightTodoData(long TopicId)
     {
         _ToDoNotesHistory = null;
+    }
+
+    string CurrentTheme { get; set; } = "Blazing-berry";
+    IEnumerable<string> Themes = new List<string>() {
+        "Blazing-berry", "Blazing-dark", "Purple", "Office-white",
+        "Default", "Cerulean", "Cyborg", "Flatly", "Journal", "Litera", "Lumen", "Lux", "Pulse", "Simplex", "Solar", "Superhero", "United", "Yeti"
+            };
+    RenderFragment GetEditBoxTemplateContent(string item)
+    {
+        return @<div class="template-container">
+        @GetTemplateIcon(item)
+        <DxInputBox />
+    </div>;
+    }
+    RenderFragment GetItemTemplateContent(string item)
+    {
+        return @<div class="template-container">
+        @GetTemplateIcon(item)
+        @item
+    </div>;
+    }
+    RenderFragment GetTemplateIcon(string item)
+    {
+        if (string.IsNullOrEmpty(item))
+            return @<text></text>;
+        return @<span class="@GetIconCssClass(item)"></span>;
+    }
+    string GetIconCssClass(string item)
+    {
+        return $"template-icon {item.ToLower()}";
     }
 }

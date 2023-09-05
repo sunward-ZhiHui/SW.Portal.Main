@@ -134,7 +134,10 @@
     public async Task onAssignToGridRefresh(long tid)
     {
         _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-        await RefSubAssignTo.onSubAssignToGridRefresh(tid);
+        if(RefSubAssignTo != null)
+        {
+            await RefSubAssignTo.onSubAssignToGridRefresh(tid);
+        }
     }
     async Task onGridRefresh()
     {

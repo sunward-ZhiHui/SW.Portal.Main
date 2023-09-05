@@ -8,13 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Core.Entities
-{   
+{
     public class ToDoNotesHistory : BaseEntity
     {
         [Key]
         public long ID { get; set; }
         public long NotesId { get; set; }
-        [Required(ErrorMessage = "Please Enter Description.")]       
+        [Required(ErrorMessage = "Please Enter Description.")]
         public string? Description { get; set; }
         public DateTime? DueDate { get; set; }
         public DateTime? RemainDate { get; set; }
@@ -25,8 +25,9 @@ namespace Core.Entities
         public string ModifiedBy { get; set; }
         [NotMapped]
         public string AddedBy { get; set; }
-       
-        public string Status{ get; set; }
+
+        public string Status { get; set; }
+        public string? ColourCode {get;set;}
     }
 }
  

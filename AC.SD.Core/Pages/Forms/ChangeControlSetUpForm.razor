@@ -1,0 +1,156 @@
+﻿
+@page "/changeControlsetupForm"
+
+@using global::Core.Entities.Views;
+
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                
+               
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data..."
+               >
+<DxGrid @ref="Grid" Data="@_changeControlForm" EditModelSaving="@Grid_EditModelSaving" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+       
+    @oncontextmenu:preventDefault
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        style="height: calc(100vh - 220px);"
+        CssClass="ch-360"
+        FocusedRowEnabled="true"
+        RowClick="OnRowClick"
+        AllowSelectRowByClick="true"
+        CustomizeElement="Grid_CustomizeElement"
+        AutoExpandAllGroupRows="true"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages" 
+        RowDoubleClick="OnRowDoubleClick">
+
+    <Columns>
+        <DxGridDataColumn FieldName="VersionNo" Caption="Version No" MinWidth="80" />
+        <DxGridDataColumn FieldName="CCNumber" MinWidth="80" Caption="CC Number" />
+        <DxGridDataColumn FieldName="DocNo" MinWidth="80" Caption="Doc No"/>
+       
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var controlform = (ChangeControlForm)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Version No" ColSpanMd="6">
+                <DxTextBox @bind-Text="@controlform.VersionNo"></DxTextBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="CC Number:" ColSpanMd="6">
+                <DxTextBox @bind-Text="@controlform.CCNumber"></DxTextBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Doc No:" ColSpanMd="6">
+                <DxTextBox @bind-Text="@controlform.DocNo"></DxTextBox>
+            </DxFormLayoutItem>
+            
+
+        </DxFormLayout>
+    </EditFormTemplate>
+</DxGrid>
+</DxLoadingPanel>
+@code {
+
+
+    bool PanelVisible { get; set; }
+    IGrid Grid { get; set; }
+    private List<ChangeControlForm> _changeControlForm;
+    public ApplicationUser? applicationUser { get; private set; }
+    private ChangeControlForm _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+
+        PanelVisible = true;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await UpdateDataAsync();
+        PanelVisible = false;
+    }
+    async Task UpdateDataAsync()
+    {
+        _changeControlForm = await Mediator.Send(new GetAllChangeFormQuery());
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ChangeControlFormID");
+        _selectedItems = _changeControlForm.FirstOrDefault(f => f.ChangeControlFormID == (long?)UniqueId);
+        NavigationManager.NavigateTo("changecontrolforms/" + _selectedItems.SessionId);
+
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        //var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        //_selectedItems = _types.FirstOrDefault(f => f.ID == (long?)UniqueId);
+
+        //StateHasChanged();
+
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (ChangeControlForm)e.EditModel;
+        var createReq = new CreateChangeControlQuery
+            {
+                VersionNo = editModel.VersionNo,
+                DocNo = editModel.DocNo,
+                CCNumber =editModel.CCNumber,
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID,
+               
+                AddedDate = DateTime.Now,
+               
+                SessionId = Guid.NewGuid()
+            };
+
+      
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        await UpdateDataAsync();
+    }
+
+}

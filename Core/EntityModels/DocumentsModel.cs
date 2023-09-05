@@ -9,6 +9,7 @@ namespace Core.EntityModels
 {
     public class DocumentsModel : BaseModel
     {
+        public long UniqueNo { get; set; }
         public long DocumentID { get; set; }
         public long? DepartmentID { get; set; }
         public long? ParentId { get; set; }

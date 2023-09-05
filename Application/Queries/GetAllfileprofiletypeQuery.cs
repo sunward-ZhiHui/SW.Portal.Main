@@ -136,10 +136,64 @@ namespace Application.Queries
     }
     public class GetUserGroups : PagedRequest, IRequest<List<UserGroup>>
     {
-        
+
     }
     public class GetDocumentRoles : PagedRequest, IRequest<List<DocumentRole>>
     {
 
     }
+    public class GetDocumentProfiles : PagedRequest, IRequest<List<DocumentProfileNoSeriesModel>>
+    {
+
+    }
+    public class InsertOrUpdateFileProfileType : PagedRequest, IRequest<FileProfileTypeModel>
+    {
+        public FileProfileTypeModel FileProfileTypeModel { get; private set; }
+        public InsertOrUpdateFileProfileType(FileProfileTypeModel fileProfileTypeModel)
+        {
+            this.FileProfileTypeModel = fileProfileTypeModel;
+        }
+    }
+    public class GetFileProfileTypeBySession : PagedRequest, IRequest<FileProfileTypeModel>
+    {
+        public Guid? SessionId { get; private set; }
+        public GetFileProfileTypeBySession(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+    public class GetDocumentPermissionByRoleID : PagedRequest, IRequest<DocumentPermissionModel>
+    {
+        public long? Id { get; private set; }
+        public GetDocumentPermissionByRoleID(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class InsertFileProfileTypeAccess : PagedRequest, IRequest<DocumentUserRoleModel>
+    {
+        public DocumentUserRoleModel DocumentUserRole { get; private set; }
+        public InsertFileProfileTypeAccess(DocumentUserRoleModel documentUserRole)
+        {
+            this.DocumentUserRole = documentUserRole;
+        }
+    }
+    public class GetDocumentUserRoleList : PagedRequest, IRequest<List<DocumentUserRoleModel>>
+    {
+        public long? Id { get; private set; }
+        public GetDocumentUserRoleList(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class DeleteDocumentUserRole : PagedRequest, IRequest<DocumentUserRoleModel>
+    {
+        public DocumentUserRoleModel DocumentUserRole { get; private set; }
+        public DeleteDocumentUserRole(DocumentUserRoleModel documentUserRole)
+        {
+            this.DocumentUserRole = documentUserRole;
+        }
+    }
+    
+
 }

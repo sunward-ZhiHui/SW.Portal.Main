@@ -5,13 +5,21 @@
 @using Microsoft.AspNetCore.Http;
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
 @using MediatR
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 
 <div class="d-flex py-2">
-    <DxTextBox @bind-Text="MSearchText" style="width: 100%;    margin-left: 5px;" />
+    <DxTextBox @bind-Text="MSearchText" style="width: 100%; margin-left: 5px;">
+        <Buttons>
+            <DxEditorButton IconCssClass="fa fa-filter" Id=@($"flyout-overview-target-container-Filter-info")
+                            Tooltip="Filter Info"
+                            Click="@(_ => OnSearchInfoClick())" />
+        </Buttons>
+    </DxTextBox>
     <DxButton Text="Apply" Click="ApplySearch" CssClass="mx-2" />
 </div>
 
@@ -92,7 +100,154 @@
     </TotalSummary>
 </DxGrid>
 
+<DxFlyout @bind-IsOpen=IsSearchInfoOpen
+          PositionTarget=@($"#flyout-overview-target-container-Filter-info")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
+             <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />                   
+                    <DxFormLayoutItem Caption="From" ColSpanMd="12">
+                        <DxTagBox Data="_Allparticipant"
+                                  @bind-Values="Data.FromIds"
+                                  NullText="Select To..."
+                                  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                  ValueFieldName="UserID"
+                                  TextFieldName="Name"                                  
+                                  EditFormat="{0}-{1}"
+                                  ListRenderMode="ListRenderMode.Virtual"
+                                  CssClass="cw-480">
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                        </DxTagBox>
+                        <ValidationMessage For="@(() => Data.FromIds)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Subject" ColSpanMd="12">
+                        <DxTextBox @bind-Text="@Data.BySubject" ShowValidationIcon="true"/>
+                    </DxFormLayoutItem>
+                    @*<DxFormLayoutItem Caption="Tag" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.ByTag" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>   *@  
+                    
+                    <DxFormLayoutItem Caption="Group" ColSpanMd="12">
+                        <DxComboBox Data="@_groupTagItemss"
+                                    NullText="Select Group..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Value"
+                                    ValueFieldName="Value"
+                                    Enabled="@isEnabled"
+                                    @bind-Value="@Data.GroupTag"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChangeddd(applicationMasterChildModel))"
+                                    ShowValidationIcon="true">
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.GroupTag)" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Category" ColSpanMd="12">
+                        <DxComboBox Data="@_categoryTagItemss"
+                                    NullText="Select Category..."
+                                    Enabled="@isEnabled"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Value"
+                                    ValueFieldName="Value"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@Data.CategoryTag"
+                                    SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChangedd(applicationMasterChildModel))">
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.CategoryTag)" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Action" ColSpanMd="12">
+                        <DxComboBox Data="@_actionTagItemss"
+                                    NullText="Select Action..."
+                                    Enabled="@isEnabled"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Value"
+                                    ValueFieldName="Value"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@Data.ActionTag">
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.ActionTag)" />
+                    </DxFormLayoutItem>
+
+                    
+
+                    <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="12">
+                        <DxComboBox Data="@_AllCategory"
+                                    AllowUserInput="true"
+                                    NullText="Select Others Tag..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="Name"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@Data.Name"
+                                    @bind-Text="@Data.Name" ShowValidationIcon="true">
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.Name)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="From" ColSpanMd="12">                        
+                        @*<DxDateEdit Date="@Date" DateExpression="@(() => Date)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>*@
+                        <DxDateEdit Date="@DateRange" DateExpression="@(() => DateRange)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
+                        <ValidationMessage For="@(() => Data.FilterFrom)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="To" ColSpanMd="12">
+                        <DxDateEdit NullText="Select To Date..." @bind-Date="@Data.FilterTo" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinDateFrom" />
+                        @*<DxDateEdit NullText="Select To..." @bind-Date="@Data.FilterTo" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true" MinDate="@MinFilterFrom" MaxDate="MaxFilterTo" />
+                        <ValidationMessage For="@(() => Data.FilterTo)" />*@
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditForm>
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSearchInfoOpen = false) />
+                <button style="float:right;" type="submit" form="@MyID" disabled="@loading" class="dxbl-btn dxbl-btn-primary popup-button">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    } Apply
+                </button>
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+
 @code {
+    private EmailSearch Data = new EmailSearch();
+    DateTime Date = DateTime.Today;
+    private string MyID = "myid";
+
+    DateTime MinDateFrom;
+    DateTime MaxDateTo;
+    DateTime DateRange = DateTime.Today;
+
+
+    DateTime MinFilterFrom;
+    DateTime MaxFilterTo;
+    private bool loading;
+    private List<ViewEmployee>? _Allparticipant;
+
+    private List<EmailActivityCatgorys> _AllCategory;
+    private List<ApplicationMasterChildModel> _groupTagItemss;
+    private List<ApplicationMasterChildModel> _categoryTagItemss;
+    private List<ApplicationMasterChildModel> _actionTagItemss;
+    bool isEnabled { get; set; } = true;
+
+    bool IsSearchInfoOpen { get; set; } = false;
     public string? MSearchText { get; set; }
     IGrid AllEmailGrid { get; set; }
     private List<EmailTopics>? _emailTopicAll;
@@ -108,10 +263,124 @@
     [Parameter]
     public Action<string> SubViewAllTopicId { get; set; }
 
+    async void selectedGroupTagChangeddd(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+        if (applicationMasterChildModel != null)
+        {
+            GroupTagChangedd(applicationMasterChildModel.ApplicationMasterChildId);
+            //_categoryTagItemss = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(applicationMasterChildModel.ApplicationMasterChildId));
+        }
+        else
+        {
+            GroupTagChangedd(-1);
+            CategoryTagChanges(-1);
+        }
+
+        StateHasChanged();
+    }
+    async void GroupTagChangedd(long? ApplicationMasterChildId)
+    {
+        if (ApplicationMasterChildId != null)
+        {
+            _categoryTagItemss = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+        }
+
+        StateHasChanged();
+    }
+    async void selectedCategoryChangedd(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+        if (applicationMasterChildModel != null)
+        {
+            // _actionTagItemss = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+            CategoryTagChanges(applicationMasterChildModel.ApplicationMasterChildId);
+        }
+        else
+        {
+            CategoryTagChanges(-1);
+        }
+
+        StateHasChanged();
+    }
+    async void CategoryTagChanges(long? ApplicationMasterChildID)
+    {
+        if (ApplicationMasterChildID != null)
+        {
+            _actionTagItemss = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+        }
+
+        StateHasChanged();
+    }
+    
+    async Task HandleValidSubmit()
+    {
+        string toidsString = null;
+        if(Data.FromIds != null)
+        {
+            toidsString = string.Join(",", Data.FromIds);
+        }
+
+        Data.ByFrom = toidsString;
+
+        var data = Data;
+
+        var request = new GetEmailMasterSearchAll
+        {
+                UserID = applicationUser.UserID,
+                MSearchText = MSearchText,
+                ByFrom = Data.ByFrom,
+                BySubject = Data.BySubject,
+                ByTag = Data.ByTag,
+                GroupTag = Data.GroupTag,
+                CategoryTag = Data.CategoryTag,
+                ActionTag = Data.ActionTag,
+                Name = Data.Name,
+                FilterFrom = Data.FilterFrom,
+                FilterTo = Data.FilterTo
+        };
+
+        _emailTopicAll = await Mediator.Send(request);
+
+        IsSearchInfoOpen = false;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         //_emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID));
+        //OnDateChanged(DateTime.Now);
+
+        _Allparticipant = await Mediator.Send(new GetAllEmployeeListQuery());
+        _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());   
+        _groupTagItemss = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105"));
+
+
+
+        Data.FilterTo = DateTime.Today.AddMonths(1);
+        var now = DateTime.Now;
+        DateRange = new DateTime(now.Year, now.Month, 1);
+        Data.FilterFrom = DateRange;
+        MinDateFrom = DateRange;
+
+    }
+    void OnDateChanged(DateTime newValue)
+    {
+        DateRange = newValue;
+        MinDateFrom = newValue;
+        Data.FilterFrom = newValue;
+
+        if (DateRange > Data.FilterTo)
+        {
+            Data.FilterTo = DateRange;
+        }
+
+    }
+    void OnDateChanged_old(DateTime newValue)
+    {
+        Date = newValue;
+        Data.FilterFrom = Date;
+        MinFilterFrom = newValue.AddMonths(1);
+        MaxFilterTo = MinFilterFrom.AddMonths(12);
+        Data.FilterTo = MaxFilterTo;
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -140,9 +409,22 @@
                                 //await LoadReplyData();
         StateHasChanged();
     }
-   async void ApplySearch()
+    async void ApplySearch()
     {        
-        _emailTopicAll = await Mediator.Send(new GetEmailMasterSearchAll(applicationUser.UserID, MSearchText));
-        
+        var request = new GetEmailMasterSearchAll
+            {
+                UserID = applicationUser.UserID,
+                MSearchText = MSearchText,
+                ByFrom = null,
+                BySubject = null,
+                ByTag = null,
+                FilterFrom = null,
+                FilterTo = null
+            };
+        _emailTopicAll = await Mediator.Send(request);
+    }
+    void OnSearchInfoClick()
+    {
+        IsSearchInfoOpen = true;
     }
 }

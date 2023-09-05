@@ -1,12 +1,30 @@
-﻿@page "/changecontrolform"
+﻿@page "/changecontrolforms"
+@page "/changecontrolforms/{SessionIds:guid}"
+
 @using global::Core.Entities.Views;
 @using global::Core.Entities;
 @inject IMediator Mediator
 @using Application.Queries;
 @using MediatR
 @using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
 
 
+<div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
+    <div class="card-body p-0">
+        <div class="save_hover" style="float: left;  line-height: 38px; margin-left: 10px; z-index: 9999; width:100px;">
+            <button type="submit"  form="@MyID" class="btnSubmitForm" @onclick="@HandleValidSubmit" style="font-weight:bold; ">
+               
+                <i class="fa fa-save"></i>
+                Save
+            </button>
+        </div>
+    </div>
+</div>
 <EditForm Model="@Data" Context="EditFormContext">
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION A:CHANGE INFORMATION(To be filled by Initiator/PIC)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
@@ -33,8 +51,7 @@
 
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Date:" >
-
-
+              <DxDateEdit @bind-Date="@Data.InitiatorDate"></DxDateEdit>
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Department:" >
                 <DxComboBox Data="@_departmentItems"
@@ -219,10 +236,10 @@
                 @bind-Value="Data.EvaluatedBy"
                             ShowValidationIcon="true">
                 </DxComboBox>
-
+                <ValidationMessage For="@(() => Data.EvaluatedBy)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
-             @*   <DxDateEdit @bind-Date="@EvaluatedData.Eva"></DxDateEdit>*@
+             <DxDateEdit @bind-Date="@Data.EvaluationDate"></DxDateEdit>
 
             </DxFormLayoutItem>
             <DxFormLayoutGroup Caption="*Section(s) below is to be filled is Proposed Change is Acceptable" ColSpanMd="12">
@@ -353,7 +370,7 @@
                             <DxCheckBox @bind-Checked="@Data.IsProductionValidation" LabelPosition="LabelPosition.Right">Validation/Qualification</DxCheckBox>
                         </DxFormLayoutItem>
                         <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
-                            <DxCheckBox @bind-Checked="@Data.IsControlParameter" LabelPosition="LabelPosition.Right">Control Parameter</DxCheckBox>
+                            <DxCheckBox @bind-Checked="@Data.EvaluationIsControlParameter" LabelPosition="LabelPosition.Right">Control Parameter</DxCheckBox>
                         </DxFormLayoutItem>
 
 
@@ -589,19 +606,88 @@
 
         <DxFormLayoutGroup ColSpanMd="12" Caption="SECTION D:CHANGE IMPLEMENTATION(* Attach Document Copy)" ExpandButtonDisplayMode="GroupExpandButtonDisplayMode.End" Expanded="false" AnimationType="LayoutAnimationType.Slide">
 
-
+         
             <DxFormLayoutTabPages >
+                 <DxFormLayoutTabPage Caption="Details">
+
+                   @*  <div class="card w-100" style="margin-bottom:10px;">
+                            <div class="card-body p-0">
+                                <DxMenu CollapseItemsToHamburgerMenu="true"
+                                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                        DisplayMode="MenuDisplayMode.Desktop">
+                                    <Items>
+               
+                                        <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@AddEdit/>
+                
+                                    </Items>
+                                </DxMenu>
+                            </div>
+                    </div>*@
+                      <DxGrid @ref="Grid"
+                            Data="_CCFDImplementation"
+                        PageSize="12"
+                        ValidationEnabled="false"
+                            CustomizeElement="Grid_CustomizeElement"
+                        EditMode="GridEditMode.EditForm"
+                            EditModelSaving="@Grid_EditModelSaving"
+                       EditorRenderMode="GridEditorRenderMode.Integrated"
+                            RowDoubleClick="OnRowDoubleClick">
+                        <Columns>
+                            <DxGridDataColumn FieldName="Value" Caption="Class Of Document" MinWidth="80" />
+                            <DxGridDataColumn FieldName="IsRequired" MinWidth="80" />
+                            <DxGridDataColumn FieldName="ResponsibilityName" MinWidth="80" />
+                            <DxGridDataColumn FieldName="DoneByName" MinWidth="100" />
+                            <DxGridDataColumn FieldName="DoneByDate" MinWidth="120" />
+     
+                        </Columns>
+                              <EditFormTemplate Context="EditFormContext1">
+                                   @{
+                                       var implementation = (View_GetCCFImplementation)EditFormContext1.EditModel;
+                                    }
+                                    <DxFormLayout CssClass="w-100">
+                                        <DxFormLayoutItem Caption="" ColSpanMd="6">
+                                         <DxCheckBox @bind-Checked ="@implementation.IsRequired" LabelPosition="LabelPosition.Right"> Approved</DxCheckBox>
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Responsibilty To:" ColSpanMd="6">
+                                              <DxComboBox Data="@applicationUsers"
+                                                        NullText="Select Responsibilty To..."
+                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                        TextFieldName="UserName"
+                                                        ValueFieldName="UserID"
+                                                        @bind-Value="implementation.ResponsibiltyTo"
+                                                        ShowValidationIcon="true">
+                                            </DxComboBox>
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Done By:" ColSpanMd="6">
+                                                <DxComboBox Data="@applicationUsers"
+                                                        NullText="Select Done By..."
+                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                        TextFieldName="UserName"
+                                                        ValueFieldName="UserID"
+                                                        @bind-Value="implementation.DoneBy"
+                                                        ShowValidationIcon="true">
+                                            </DxComboBox>
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Done By Date:" ColSpanMd="6">
+                                            <DxDateEdit @bind-Date ="implementation.DoneByDate"  Mask="dd MMMM yyyy"/>
+                                        </DxFormLayoutItem>
+           
+                                    </DxFormLayout>
+                                    </EditFormTemplate>
+                        </DxGrid>
+                
+                </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="DISCONTINUE OF IMPLEMENTATION (if Applicable)">
 
                     <DxFormLayoutItem Caption="HOD Comments:" ColSpanMd="12">
-
+                          <DxMemo @bind-Text="@Data.HODComments" Rows="5"></DxMemo>
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="HOD Signature:" ColSpanMd="6">
-
+                        <DxMemo @bind-Text="@Data.HODSignature" Rows="5"></DxMemo>
                     </DxFormLayoutItem>
                    
                     <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
-
+                        <DxDateEdit @bind-Date="@Data.HODDate"></DxDateEdit>
 
                     </DxFormLayoutItem>
                 </DxFormLayoutTabPage>
@@ -610,14 +696,27 @@
                     <DxFormLayoutItem Caption="Status:" ColSpanMd="12">
 
                     </DxFormLayoutItem>
-                  
-                    <DxFormLayoutItem Caption="Verified By:" ColSpanMd="6">
+                    <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
 
+                        <DxCheckBox @bind-Checked="@Data.ImplementationIsAcceptable" LabelPosition="LabelPosition.Right">Acceptable</DxCheckBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="@Data.ImplementationIsNotAcceptable" LabelPosition="LabelPosition.Right">NotAcceptable</DxCheckBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Verified By:" ColSpanMd="6">
+                        <DxComboBox Data="@applicationUsers"
+                                    NullText="Select Verified By..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="UserName"
+                                    ValueFieldName="UserID"
+                                    @bind-Value="Data.ImplementationVerifiedBy"
+                                    ShowValidationIcon="true">
+                        </DxComboBox>
 
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
 
-
+                        <DxDateEdit @bind-Date="@Data.VerifiedDate"></DxDateEdit>
                     </DxFormLayoutItem>
                 </DxFormLayoutTabPage>
 
@@ -678,20 +777,602 @@
                 </DxFormLayoutItem>
             </DxFormLayoutGroup>
         </DxFormLayoutGroup>
+
+        <ValidationSummary />
     </DxFormLayout>
 </EditForm>
 @code {
+    [Parameter]
+    public Guid? SessionIds { get; set; }
+    private string MyID = "myForm";
     int ActiveTabIndex { get; set; } = 1;
     CCFInformationModels Data = new CCFInformationModels();
-   
+    IGrid Grid { get; set; }
     private List<ViewDepartment> _departmentItems;
     private List<ApplicationUser> applicationUsers;
+    private List<View_GetCCFImplementation> _CCFDImplementation;
+    private View_GetCCFImplementation _selectedItems;
+    public ApplicationUser? applicationUser { get; private set; }
+    CCFInformationModels DataBySession = new CCFInformationModels();
     protected override async Task OnInitializedAsync()
     {
 
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _departmentItems = await Mediator.Send(new GetAllDepartmentQuery());
         applicationUsers = await Mediator.Send(new GetAllApplicationUserQuery());
 
-    
+        if (SessionIds != null)
+        {
+            DataBySession = await Mediator.Send(new GetAllChangeControlBySession(SessionIds));
+            if (DataBySession != null)
+            {
+                Data.IsInternalChanges = DataBySession.IsInternalChanges;
+                Data.IsAuthorityDirectedChanges = DataBySession.IsAuthorityDirectedChanges;
+                Data.PIA = DataBySession.PIA;
+                Data.PIC = DataBySession.PIC;
+               
+                Data.IsSiteTransfer = DataBySession.IsSiteTransfer;
+                Data.IsFacility = DataBySession.IsFacility;
+
+                Data.DepartmentID = DataBySession.DepartmentID;
+
+                Data.   IsProduct = DataBySession.IsProduct;
+                Data.  IsEquipment = DataBySession.IsEquipment;
+                Data. IsComposition = DataBySession.IsComposition;                
+
+
+                Data.   IsLayout = DataBySession.IsLayout;
+                Data.  IsDocument = DataBySession.IsDocument;
+                Data.  IsProcess = DataBySession.IsProcess;
+                Data. IsControlParameter = DataBySession.IsControlParameter;
+                Data.  IsBatchSize = DataBySession.IsBatchSize;
+
+                Data. IsHoldingTime = DataBySession.IsHoldingTime;
+                Data. IsRawMeterial = DataBySession.IsRawMeterial;
+                Data. IsArtwork = DataBySession.IsArtwork;
+                Data.  IsPackagingMaterial = DataBySession.IsPackagingMaterial;
+                Data.  IsVendor  = DataBySession.IsVendor ;
+                Data. IsShelfLife = DataBySession.IsShelfLife;
+                Data. IsRegulatory = DataBySession.IsRegulatory;
+                Data. IsReTestPeriod = DataBySession.IsReTestPeriod;
+                Data.  Others = DataBySession.Others;                
+                Data.  Justification = DataBySession.Justification;
+                Data.  DescriptionOfProposedChange  = DataBySession.DescriptionOfProposedChange ;
+                Data.  ProposedImplementationAction = DataBySession.ProposedImplementationAction;
+                Data.  RelatedDeviation = DataBySession.RelatedDeviation;
+
+                Data. IsAcceptable = DataBySession.IsAcceptable;
+                Data. IsNotAcceptable = DataBySession.IsNotAcceptable;
+                Data. IsMinor = DataBySession.IsMinor;
+                Data. IsMajor = DataBySession.IsMajor;
+                Data.  IsCritical = DataBySession.IsCritical;
+                Data. Comments = DataBySession.Comments;
+
+
+                Data.  IsProduction  = DataBySession.IsProduction ;
+                Data. IsEAndM = DataBySession.IsEAndM;
+                Data. IsRequlatory = DataBySession.IsRequlatory;
+                Data. IsQA = DataBySession.IsQA;
+                Data. IsQC = DataBySession.IsQC;
+                Data. IsStore = DataBySession.IsStore;
+
+                Data.RelatedDeparmentOthers = DataBySession.RelatedDeparmentOthers;
+                Data.   EvaluatedBy = DataBySession.EvaluatedBy;
+                Data.EvaluationDate = DataBySession.EvaluationDate;
+                Data.InitiatorDate = DataBySession.InitiatorDate;
+                Data. IsRequlatoryApproval = DataBySession.IsRequlatoryApproval;
+                Data. IsNotificationRequired  = DataBySession.IsNotificationRequired ;
+                Data. RegulatoryOthers = DataBySession.RegulatoryOthers;
+                Data.  RegulatoryDetails = DataBySession.RegulatoryDetails;
+                Data.  RequlatoryEvaluatedBy = DataBySession.RequlatoryEvaluatedBy;
+                Data. RegulatoryDate = DataBySession.RegulatoryDate;                
+                Data.  IsAnalyticalInstrument = DataBySession.IsAnalyticalInstrument;
+                Data.  IsValidation  = DataBySession.IsValidation ;
+                Data.   IsEnvironmentalMonitoring = DataBySession.IsEnvironmentalMonitoring;
+                Data.  IsRawMeterialSpec = DataBySession.IsRawMeterialSpec;
+
+                Data.   IsFinishedProductSpec = DataBySession.IsFinishedProductSpec;
+                Data.  IsPackagingMaterialSpec = DataBySession.IsPackagingMaterialSpec;
+                Data.  IsCalibration = DataBySession.IsCalibration;
+                Data. IsAnalyticalTestMethod = DataBySession.IsAnalyticalTestMethod;
+                Data.  IsSamplingMethod = DataBySession.IsSamplingMethod;
+                Data.  EvaluationIsVendor = DataBySession.EvaluationIsVendor;
+
+
+
+
+                Data.   IsStabilityStudy  = DataBySession.IsStabilityStudy ;
+                Data. IsInProcess = DataBySession.IsInProcess;
+                Data. QualityControlOthers = DataBySession.QualityControlOthers;
+                Data. QualityControlDetails = DataBySession.QualityControlDetails;
+                Data.  QualityControlEvaluatedBy = DataBySession.QualityControlEvaluatedBy;
+                Data.   QualityControlDate = DataBySession.QualityControlDate;
+
+                Data.  IsProductionProcess = DataBySession.IsProductionProcess;
+                Data. IsProductionValidation = DataBySession.IsProductionValidation;
+                Data. EvaluationIsControlParameter = DataBySession.EvaluationIsControlParameter;
+                Data. ProductionOthers = DataBySession.ProductionOthers;
+                Data. ProductionEvaluatedBy  = DataBySession.ProductionEvaluatedBy ;
+                Data. ProductionDate = DataBySession.ProductionDate;
+                Data. IsPiping = DataBySession.IsPiping;
+                Data.  EvaluationIsEquipment = DataBySession.EvaluationIsEquipment;
+                Data. IsEngineeringCalibration = DataBySession.IsEngineeringCalibration;               
+                Data. IsPreventiveMaintenance = DataBySession.IsPreventiveMaintenance;
+                Data. IsUtilityParameter  = DataBySession.IsUtilityParameter ;
+                Data. IsEngineeringFacility = DataBySession.IsEngineeringFacility;
+                Data.  IsQualificationOfEquipment = DataBySession.IsQualificationOfEquipment;
+
+                Data. IsQualificationOfUtility  = DataBySession.IsQualificationOfUtility ;
+                Data.  EngineeringOthers = DataBySession.EngineeringOthers;
+                Data.  EngineeringDetails = DataBySession.EngineeringDetails;
+                Data.  EngineeringEvaluatedBy  = DataBySession.EngineeringEvaluatedBy ;
+                Data. EngineeringMaintenanceDate = DataBySession.EngineeringMaintenanceDate;
+                Data.  IsQAQualification = DataBySession.IsQAQualification;
+
+                Data. IsQAValidation = DataBySession.IsQAValidation;
+                Data. IsQAVendor = DataBySession.IsQAVendor;
+                Data.  QAOthers = DataBySession.QAOthers;
+                Data. QADetails = DataBySession.QADetails;
+                Data. QAEvaluatedBy  = DataBySession.QAEvaluatedBy;
+                Data. QADate = DataBySession.QADate;
+                Data.   IsStoreRawMaterial = DataBySession.IsStoreRawMaterial;
+                Data. IsStorePackagingMaterial = DataBySession.IsStorePackagingMaterial;
+                Data. IsStoreLabel = DataBySession.IsStoreLabel;               
+                Data.  IsStorageCondition = DataBySession.IsStorageCondition;
+                Data. IsStoreFinishProduct = DataBySession.IsStoreFinishProduct;
+
+                Data. StoreOthers  = DataBySession.StoreOthers;
+
+                Data. StoreDetails  = DataBySession.StoreDetails;
+                Data.StoreEvaluatedBy  = DataBySession.StoreEvaluatedBy;
+                Data. StoreDate = DataBySession.StoreDate;
+                Data. ProposedChangeImpactTo  = DataBySession.ProposedChangeImpactTo;
+                Data. OthersDetails = DataBySession.OthersDetails;
+                Data. OthersEvaluatedBy = DataBySession.OthersEvaluatedBy;
+
+                Data. OthersDate = DataBySession.OthersDate;
+                Data. IsApproved = DataBySession.IsApproved;
+                Data. IsNotApproved = DataBySession.IsNotApproved;
+                Data. ApprovalComments = DataBySession.ApprovalComments;
+                Data. VerifiedBy  = DataBySession.VerifiedBy;
+                Data. ApprovalDate = DataBySession.ApprovalDate;
+                Data.  HODComments = DataBySession.HODComments;
+                Data.  HODSignature = DataBySession.HODSignature;
+                Data. HODDate = DataBySession.HODDate;                
+                Data. ImplementationIsAcceptable = DataBySession.ImplementationIsAcceptable;
+                Data. ImplementationIsNotAcceptable   = DataBySession.ImplementationIsNotAcceptable;
+                Data.ImplementationVerifiedBy = DataBySession.ImplementationVerifiedBy;
+                Data.VerifiedDate  = DataBySession.VerifiedDate;
+
+                Data. IsSatisfactory  = DataBySession.IsSatisfactory;
+                Data.  IsNotSatisfactory  = DataBySession.IsNotSatisfactory;
+                Data. ClosureComments = DataBySession.ClosureComments;
+                Data. ClosedBy  = DataBySession.ClosedBy;
+                Data.Date = DataBySession.Date;
+                Data.IsSatisfactoryForNotSatisfactory = DataBySession.IsSatisfactoryForNotSatisfactory;
+                Data.NotSatisfactoryClosedBy = DataBySession.NotSatisfactoryClosedBy;
+                Data.NotSatisfactoryDate = DataBySession.NotSatisfactoryDate;
+                await UpdateDataAsync();
+            }
+            else
+            {
+                var UpdateReq = new EditImplementationQuery
+                    {
+
+                        SessionId = SessionIds,
+                        AddedByUserID = applicationUser.UserID,
+                        StatusCodeID = 1,
+                    };
+                var ans = await Mediator.Send(UpdateReq);
+            }
+        }
+
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        _CCFDImplementation = await Mediator.Send(new GetAllImplementationQuery(SessionIds));
+       
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            var newEmployee = (CCFInformationModels)e.EditModel;
+           
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (View_GetCCFImplementation)e.EditModel;
+        //if (editModel.ClassOFDocumentID == _selectedItems.ApplicationMasterDetailID)
+        //{
+            var UpdateReq = new SaveImplementationQuery
+            {
+                
+                ClassOFDocumentID = _selectedItems.ApplicationMasterDetailID,
+                IsRequired = editModel.IsRequired,
+                DoneBy = editModel.DoneBy,
+                DoneByDate = editModel.DoneByDate,
+                ResponsibiltyTo = editModel.ResponsibiltyTo,
+                 AddedDate = DateTime.Now,
+                   
+                   AddedByUserID= applicationUser.UserID,
+                StatusCodeID = 1,
+            };
+               var ans = await Mediator.Send(UpdateReq);
+               toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+       // }
+        //else
+        //{
+        //    var UpdateReq = new EditImplementationQuery
+        //    {
+                
+        //        ClassOFDocumentID = _selectedItems.ApplicationMasterDetailID,
+        //        IsRequired = editModel.IsRequired,
+        //        DoneBy = editModel.DoneBy,
+        //        DoneByDate = editModel.DoneByDate,
+        //        ResponsibiltyTo = editModel.ResponsibiltyTo,
+        //         AddedDate = DateTime.Now,
+        //            SessionId = SessionIds,
+        //           AddedByUserID= applicationUser.UserID,
+        //        StatusCodeID = 1,
+        //    };
+
+        //var ans = await Mediator.Send(UpdateReq);
+        //toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        
+       
+        await UpdateDataAsync();
+
+    }
+   
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ApplicationMasterDetailID");
+        _selectedItems = _CCFDImplementation.FirstOrDefault(f => f.ApplicationMasterDetailID == (long?)UniqueId);
+        Grid.StartEditDataItemAsync(_selectedItems);
+    }
+    async void HandleValidSubmit()
+    {
+        
+      if(DataBySession != null)
+        {
+            var createReq = new CreateCCFInformationModels
+                {
+                   
+                  CCFAInformationID = DataBySession.CCFAInformationID,
+                  CCFBEvaluationID = DataBySession.CCFBEvaluationID,
+                  CCFCAPprovalID = DataBySession.CCFCAPprovalID,
+                 CCFDImplementationID =DataBySession.CCFDImplementationID,
+                 CCFEClosureID = DataBySession.CCFEClosureID,
+                   
+                    IsInternalChanges = Data.IsInternalChanges,
+                    IsAuthorityDirectedChanges = Data.IsAuthorityDirectedChanges,
+                    PIC = Data.PIC,
+                    DepartmentID = Data.DepartmentID,
+                    PIA = Data.PIA,
+                    IsSiteTransfer = Data.IsSiteTransfer,
+                    IsProduct = Data.IsProduct,
+                    IsEquipment = Data.IsEquipment,
+                    IsComposition = Data.IsComposition,
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    SessionId = SessionIds,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                    InitiatorDate = Data.InitiatorDate,
+                    IsFacility = Data.IsFacility,
+                    IsLayout = Data.IsLayout,
+                    IsDocument = Data.IsDocument,
+                    IsProcess = Data.IsProcess,
+                    IsControlParameter = Data.IsControlParameter,
+                    IsBatchSize = Data.IsBatchSize,
+
+                    IsHoldingTime = Data.IsHoldingTime,
+                    IsRawMeterial = Data.IsRawMeterial,
+                    IsArtwork = Data.IsArtwork,
+                    IsPackagingMaterial = Data.IsPackagingMaterial,
+                    IsVendor = Data.IsVendor,
+                    IsShelfLife = Data.IsShelfLife,
+                    IsRegulatory = Data.IsRegulatory,
+                    IsReTestPeriod = Data.IsReTestPeriod,
+                    Others = Data.Others,
+                    Justification = Data.Justification,
+                    DescriptionOfProposedChange = Data.DescriptionOfProposedChange,
+                    ProposedImplementationAction = Data.ProposedImplementationAction,
+                    RelatedDeviation = Data.RelatedDeviation,
+
+                    IsAcceptable = Data.IsAcceptable,
+                    IsNotAcceptable = Data.IsNotAcceptable,
+                    IsMinor = Data.IsMinor,
+                    IsMajor = Data.IsMajor,
+                    IsCritical = Data.IsCritical,
+                    Comments = Data.Comments,
+
+
+                    IsProduction = Data.IsProduction,
+                    IsEAndM = Data.IsEAndM,
+                    IsRequlatory = Data.IsRequlatory,
+                    IsQA = Data.IsQA,
+                    IsQC = Data.IsQC,
+                    IsStore = Data.IsStore,
+
+                    RelatedDeparmentOthers = Data.RelatedDeparmentOthers,
+                    EvaluatedBy = Data.EvaluatedBy,
+                    EvaluationDate = Data.EvaluationDate,
+                    IsRequlatoryApproval = Data.IsRequlatoryApproval,
+                    IsNotificationRequired = Data.IsNotificationRequired,
+                    RegulatoryOthers = Data.RegulatoryOthers,
+                    RegulatoryDetails = Data.RegulatoryDetails,
+                    RequlatoryEvaluatedBy = Data.RequlatoryEvaluatedBy,
+                    RegulatoryDate = Data.RegulatoryDate,
+                    IsAnalyticalInstrument = Data.IsAnalyticalInstrument,
+                    IsValidation = Data.IsValidation,
+                    IsEnvironmentalMonitoring = Data.IsEnvironmentalMonitoring,
+                    IsRawMeterialSpec = Data.IsRawMeterialSpec,
+
+                    IsFinishedProductSpec = Data.IsFinishedProductSpec,
+                    IsPackagingMaterialSpec = Data.IsPackagingMaterialSpec,
+                    IsCalibration = Data.IsCalibration,
+                    IsAnalyticalTestMethod = Data.IsAnalyticalTestMethod,
+                    IsSamplingMethod = Data.IsSamplingMethod,
+                    EvaluationIsVendor = Data.EvaluationIsVendor,
+
+
+
+
+                    IsStabilityStudy = Data.IsStabilityStudy,
+                    IsInProcess = Data.IsInProcess,
+                    QualityControlOthers = Data.QualityControlOthers,
+                    QualityControlDetails = Data.QualityControlDetails,
+                    QualityControlEvaluatedBy = Data.QualityControlEvaluatedBy,
+                    QualityControlDate = Data.QualityControlDate,
+
+                    IsProductionProcess = Data.IsProductionProcess,
+                    IsProductionValidation = Data.IsProductionValidation,
+                    EvaluationIsControlParameter = Data.EvaluationIsControlParameter,
+                    ProductionOthers = Data.ProductionOthers,
+                    ProductionEvaluatedBy = Data.ProductionEvaluatedBy,
+                    ProductionDate = Data.ProductionDate,
+                    IsPiping = Data.IsPiping,
+                    EvaluationIsEquipment = Data.EvaluationIsEquipment,
+                    IsEngineeringCalibration = Data.IsEngineeringCalibration,
+                    IsPreventiveMaintenance = Data.IsPreventiveMaintenance,
+                    IsUtilityParameter = Data.IsUtilityParameter,
+                    IsEngineeringFacility = Data.IsEngineeringFacility,
+                    IsQualificationOfEquipment = Data.IsQualificationOfEquipment,
+
+                    IsQualificationOfUtility = Data.IsQualificationOfUtility,
+                    EngineeringOthers = Data.EngineeringOthers,
+                    EngineeringDetails = Data.EngineeringDetails,
+                    EngineeringEvaluatedBy = Data.EngineeringEvaluatedBy,
+                    EngineeringMaintenanceDate = Data.EngineeringMaintenanceDate,
+                    IsQAQualification = Data.IsQAQualification,
+
+                    IsQAValidation = Data.IsQAValidation,
+                    IsQAVendor = Data.IsQAVendor,
+                    QAOthers = Data.QAOthers,
+                    QADetails = Data.QADetails,
+                    QAEvaluatedBy = Data.QAEvaluatedBy,
+                    QADate = Data.QADate,
+                    IsStoreRawMaterial = Data.IsStoreRawMaterial,
+                    IsStorePackagingMaterial = Data.IsStorePackagingMaterial,
+                    IsStoreLabel = Data.IsStoreLabel,
+                    IsStorageCondition = Data.IsStorageCondition,
+                    IsStoreFinishProduct = Data.IsStoreFinishProduct,
+
+                    StoreOthers = Data.StoreOthers,
+
+                    StoreDetails = Data.StoreDetails,
+                    StoreEvaluatedBy = Data.StoreEvaluatedBy,
+                    StoreDate = Data.StoreDate,
+                    ProposedChangeImpactTo = Data.ProposedChangeImpactTo,
+                    OthersDetails = Data.OthersDetails,
+                    OthersEvaluatedBy = Data.OthersEvaluatedBy,
+
+                    OthersDate = Data.OthersDate,
+                    IsApproved = Data.IsApproved,
+                    IsNotApproved = Data.IsNotApproved,
+                    ApprovalComments = Data.ApprovalComments,
+                    VerifiedBy = Data.VerifiedBy,
+                    ApprovalDate = Data.ApprovalDate,
+                    HODComments = Data.HODComments,
+                    HODSignature = Data.HODSignature,
+                    HODDate = Data.HODDate,
+                    ImplementationIsAcceptable = Data.ImplementationIsAcceptable,
+                    ImplementationIsNotAcceptable = Data.ImplementationIsNotAcceptable,
+                    ImplementationVerifiedBy = Data.ImplementationVerifiedBy,
+                    VerifiedDate = Data.VerifiedDate,
+
+                    IsSatisfactory = Data.IsSatisfactory,
+                    IsNotSatisfactory = Data.IsNotSatisfactory,
+                    ClosureComments = Data.ClosureComments,
+                    ClosedBy = Data.ClosedBy,
+                    Date = Data.Date,
+                    IsSatisfactoryForNotSatisfactory = Data.IsSatisfactoryForNotSatisfactory,
+                    NotSatisfactoryClosedBy = Data.NotSatisfactoryClosedBy,
+                    NotSatisfactoryDate = Data.NotSatisfactoryDate
+                };
+
+            //_sessionId = createReq.SessionId;
+            var result = await Mediator.Send(createReq);
+             toastService.ShowToast("The Form Updated Successfully.", AC.SD.Core.Services.ToastLevel.Success);
+            NavigationManager.NavigateTo("changeControlsetupForm");
+      }
+        else
+        {
+            var createReq = new CreateCCFInformationModels
+                {
+                    
+
+                    IsInternalChanges = Data.IsInternalChanges,
+                    IsAuthorityDirectedChanges = Data.IsAuthorityDirectedChanges,
+                    PIC = Data.PIC,
+                    DepartmentID = Data.DepartmentID,
+                    PIA = Data.PIA,
+                    IsSiteTransfer = Data.IsSiteTransfer,
+                    IsProduct = Data.IsProduct,
+                    IsEquipment = Data.IsEquipment,
+                    IsComposition = Data.IsComposition,
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    SessionId = SessionIds,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                    InitiatorDate = Data.InitiatorDate,
+                    IsFacility = Data.IsFacility,
+                    IsLayout = Data.IsLayout,
+                    IsDocument = Data.IsDocument,
+                    IsProcess = Data.IsProcess,
+                    IsControlParameter = Data.IsControlParameter,
+                    IsBatchSize = Data.IsBatchSize,
+
+                    IsHoldingTime = Data.IsHoldingTime,
+                    IsRawMeterial = Data.IsRawMeterial,
+                    IsArtwork = Data.IsArtwork,
+                    IsPackagingMaterial = Data.IsPackagingMaterial,
+                    IsVendor = Data.IsVendor,
+                    IsShelfLife = Data.IsShelfLife,
+                    IsRegulatory = Data.IsRegulatory,
+                    IsReTestPeriod = Data.IsReTestPeriod,
+                    Others = Data.Others,
+                    Justification = Data.Justification,
+                    DescriptionOfProposedChange = Data.DescriptionOfProposedChange,
+                    ProposedImplementationAction = Data.ProposedImplementationAction,
+                    RelatedDeviation = Data.RelatedDeviation,
+
+                    IsAcceptable = Data.IsAcceptable,
+                    IsNotAcceptable = Data.IsNotAcceptable,
+                    IsMinor = Data.IsMinor,
+                    IsMajor = Data.IsMajor,
+                    IsCritical = Data.IsCritical,
+                    Comments = Data.Comments,
+
+
+                    IsProduction = Data.IsProduction,
+                    IsEAndM = Data.IsEAndM,
+                    IsRequlatory = Data.IsRequlatory,
+                    IsQA = Data.IsQA,
+                    IsQC = Data.IsQC,
+                    IsStore = Data.IsStore,
+
+                    RelatedDeparmentOthers = Data.RelatedDeparmentOthers,
+                    EvaluatedBy = Data.EvaluatedBy,
+                    EvaluationDate = Data.EvaluationDate,
+                    IsRequlatoryApproval = Data.IsRequlatoryApproval,
+                    IsNotificationRequired = Data.IsNotificationRequired,
+                    RegulatoryOthers = Data.RegulatoryOthers,
+                    RegulatoryDetails = Data.RegulatoryDetails,
+                    RequlatoryEvaluatedBy = Data.RequlatoryEvaluatedBy,
+                    RegulatoryDate = Data.RegulatoryDate,
+                    IsAnalyticalInstrument = Data.IsAnalyticalInstrument,
+                    IsValidation = Data.IsValidation,
+                    IsEnvironmentalMonitoring = Data.IsEnvironmentalMonitoring,
+                    IsRawMeterialSpec = Data.IsRawMeterialSpec,
+
+                    IsFinishedProductSpec = Data.IsFinishedProductSpec,
+                    IsPackagingMaterialSpec = Data.IsPackagingMaterialSpec,
+                    IsCalibration = Data.IsCalibration,
+                    IsAnalyticalTestMethod = Data.IsAnalyticalTestMethod,
+                    IsSamplingMethod = Data.IsSamplingMethod,
+                    EvaluationIsVendor = Data.EvaluationIsVendor,
+
+
+
+
+                    IsStabilityStudy = Data.IsStabilityStudy,
+                    IsInProcess = Data.IsInProcess,
+                    QualityControlOthers = Data.QualityControlOthers,
+                    QualityControlDetails = Data.QualityControlDetails,
+                    QualityControlEvaluatedBy = Data.QualityControlEvaluatedBy,
+                    QualityControlDate = Data.QualityControlDate,
+
+                    IsProductionProcess = Data.IsProductionProcess,
+                    IsProductionValidation = Data.IsProductionValidation,
+                    EvaluationIsControlParameter = Data.EvaluationIsControlParameter,
+                    ProductionOthers = Data.ProductionOthers,
+                    ProductionEvaluatedBy = Data.ProductionEvaluatedBy,
+                    ProductionDate = Data.ProductionDate,
+                    IsPiping = Data.IsPiping,
+                    EvaluationIsEquipment = Data.EvaluationIsEquipment,
+                    IsEngineeringCalibration = Data.IsEngineeringCalibration,
+                    IsPreventiveMaintenance = Data.IsPreventiveMaintenance,
+                    IsUtilityParameter = Data.IsUtilityParameter,
+                    IsEngineeringFacility = Data.IsEngineeringFacility,
+                    IsQualificationOfEquipment = Data.IsQualificationOfEquipment,
+
+                    IsQualificationOfUtility = Data.IsQualificationOfUtility,
+                    EngineeringOthers = Data.EngineeringOthers,
+                    EngineeringDetails = Data.EngineeringDetails,
+                    EngineeringEvaluatedBy = Data.EngineeringEvaluatedBy,
+                    EngineeringMaintenanceDate = Data.EngineeringMaintenanceDate,
+                    IsQAQualification = Data.IsQAQualification,
+
+                    IsQAValidation = Data.IsQAValidation,
+                    IsQAVendor = Data.IsQAVendor,
+                    QAOthers = Data.QAOthers,
+                    QADetails = Data.QADetails,
+                    QAEvaluatedBy = Data.QAEvaluatedBy,
+                    QADate = Data.QADate,
+                    IsStoreRawMaterial = Data.IsStoreRawMaterial,
+                    IsStorePackagingMaterial = Data.IsStorePackagingMaterial,
+                    IsStoreLabel = Data.IsStoreLabel,
+                    IsStorageCondition = Data.IsStorageCondition,
+                    IsStoreFinishProduct = Data.IsStoreFinishProduct,
+
+                    StoreOthers = Data.StoreOthers,
+
+                    StoreDetails = Data.StoreDetails,
+                    StoreEvaluatedBy = Data.StoreEvaluatedBy,
+                    StoreDate = Data.StoreDate,
+                    ProposedChangeImpactTo = Data.ProposedChangeImpactTo,
+                    OthersDetails = Data.OthersDetails,
+                    OthersEvaluatedBy = Data.OthersEvaluatedBy,
+
+                    OthersDate = Data.OthersDate,
+                    IsApproved = Data.IsApproved,
+                    IsNotApproved = Data.IsNotApproved,
+                    ApprovalComments = Data.ApprovalComments,
+                    VerifiedBy = Data.VerifiedBy,
+                    ApprovalDate = Data.ApprovalDate,
+                    HODComments = Data.HODComments,
+                    HODSignature = Data.HODSignature,
+                    HODDate = Data.HODDate,
+                    ImplementationIsAcceptable = Data.ImplementationIsAcceptable,
+                    ImplementationIsNotAcceptable = Data.ImplementationIsNotAcceptable,
+                    ImplementationVerifiedBy = Data.ImplementationVerifiedBy,
+                    VerifiedDate = Data.VerifiedDate,
+
+                    IsSatisfactory = Data.IsSatisfactory,
+                    IsNotSatisfactory = Data.IsNotSatisfactory,
+                    ClosureComments = Data.ClosureComments,
+                    ClosedBy = Data.ClosedBy,
+                    Date = Data.Date,
+                    IsSatisfactoryForNotSatisfactory = Data.IsSatisfactoryForNotSatisfactory,
+                    NotSatisfactoryClosedBy = Data.NotSatisfactoryClosedBy,
+                    NotSatisfactoryDate = Data.NotSatisfactoryDate
+                };
+
+            //_sessionId = createReq.SessionId;
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("The Form Submitted Successfully.", AC.SD.Core.Services.ToastLevel.Success);
+             NavigationManager.NavigateTo("changeControlsetupForm");
+        }
+      
+           
+      //  await JSRuntime.InvokeAsync<string>("ReloadUrl");
+       
     }
 }

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace Infrastructure.Repository.Command
 {
@@ -27,6 +28,41 @@ namespace Infrastructure.Repository.Command
             : base(configuration)
         {
 
+        }
+
+        public string DeleteFMGlobal(long Id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("Id", Id, DbType.Int64);         
+
+                        connection.Open();
+                        var task = connection.ExecuteAsync("sp_Del_FMGlobal", parameters, commandType: CommandType.StoredProcedure);
+                        task.Wait(); // Synchronously wait for the task to complete
+                        var rowsAffected = "FM Global Line information has been deleted!"; // Retrieve the result
+
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
 
     }

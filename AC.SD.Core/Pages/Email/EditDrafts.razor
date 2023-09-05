@@ -215,14 +215,14 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
-                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
+                            @*<DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
                                         @bind-Checked="@Data.OverDue"
                                         Alignment="default"
                                         LabelPosition="LabelPosition.Right">
                                     Allow OverDue
                                 </DxCheckBox>
-                            </DxFormLayoutItem>
+                            </DxFormLayoutItem>*@
 
                             <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                 <DxCheckBox CssClass="w-100"
@@ -242,7 +242,7 @@ else
                                 <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="8">
-                                <DxRichEdit DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" DocumentContent="@Data.FileData" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                                <DxRichEdit DocumentLoaded=OnDocumentLoaded DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" DocumentContent="@Data.FileData" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
                                   
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="4">
@@ -469,6 +469,8 @@ else
     {
         if (firstRender)
         {
+            await msgrichEdit.NewDocumentAsync();
+
             await JSRuntime.InvokeVoidAsync("eval", @"
                 window.submitForm = function () {
                     document.getElementById('myForm').submit();
@@ -590,7 +592,14 @@ else
         // Perform any necessary logic when the selection changes
         Console.WriteLine($"Selected items count: {SelectedDataItems.Count}");
     }
-
+    async Task OnDocumentLoaded(Document document)
+    {
+        await document.ChangeDefaultCharacterPropertiesAsync(properties =>
+        {
+            // properties.FontName = "Times New Roman";
+            properties.FontSize = 14;
+        });
+    }
 
     protected override async Task OnInitializedAsync()
     {

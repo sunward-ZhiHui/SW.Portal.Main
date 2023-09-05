@@ -101,15 +101,9 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
-    public class GetEmailMasterSearchAll : PagedRequest, IRequest<List<EmailTopics>>
-    {
-        public long UserId { get; private set; }
-        public string? MasterSearch { get; private set; }
-        public GetEmailMasterSearchAll(long UserId, string masterSearch)
-        {
-            this.UserId = UserId;
-            MasterSearch = masterSearch;
-        }
+    public class GetEmailMasterSearchAll : EmailSearch, IRequest<List<EmailTopics>>
+    {       
+       
     }
     public class GetEmailTopicCC : PagedRequest, IRequest<List<EmailTopics>>
     {

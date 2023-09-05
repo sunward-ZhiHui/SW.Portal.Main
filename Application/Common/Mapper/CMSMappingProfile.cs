@@ -29,6 +29,8 @@ using Application.Command.SalesOrderMasterPricingLine;
 using Application.Command.SalesOrderMasterPricingLineSellingMethods;
 using Application.Command.FmGlobals;
 using Application.Command.SoCustomer;
+using Application.Command;
+using Application.Command.AttributeHeader;
 
 namespace Application.Common.Mapper
 {
@@ -79,7 +81,7 @@ namespace Application.Common.Mapper
             CreateMap<SoCustomer, SoCustomerResponse>().ReverseMap();
 
             CreateMap<ApplicationUser, ApplicationUserResponse>().ReverseMap();
-            CreateMap<ForumTypes, ForumTypeResponse>().ReverseMap();
+            CreateMap<ForumTypes, AttributeHeaderResponse>().ReverseMap();
 
 
             CreateMap<LevelMaster, CreateLevelMasterCommand>().ReverseMap();
@@ -194,6 +196,11 @@ namespace Application.Common.Mapper
             CreateMap<NavCrossReference, CreateNavCrossReferenceCommand>().ReverseMap();
             CreateMap<NavCrossReference, EditNavCrossReferenceCommand>().ReverseMap();
             CreateMap<NavCrossReference, DeleteNavCrossReference>().ReverseMap();
+
+
+            CreateMap<AttributeHeader, CreateAttributeHeaderCommand>().ReverseMap();
+            CreateMap<AttributeHeader, EditAttributeHeaderCommand>().ReverseMap();
+            CreateMap<AttributeHeader, DeleteAttributeHeaderCommand>().ReverseMap();
         }
     }
 }

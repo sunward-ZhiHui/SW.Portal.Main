@@ -15,7 +15,7 @@ namespace Application.Queries
 
     }
 
-    public class CreateAttributeHeader : AttributeHeader, IRequest<AttributeHeader>
+    public class CreateAttributeHeader : AttributeHeader, IRequest<long>
     {
     }
     public class EditAttributeHeader : AttributeHeader, IRequest<long>

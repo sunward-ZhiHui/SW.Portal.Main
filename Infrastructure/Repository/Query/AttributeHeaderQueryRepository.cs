@@ -21,6 +21,11 @@ namespace Infrastructure.Repository.Query
 
         }
 
+        public Task<long> DeleteAsync(long id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<IReadOnlyList<AttributeHeader>> GetAllAsync()
         {
             try
@@ -55,6 +60,16 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }
+
+        public Task<long> Insert(AttributeHeader attributeHeader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<long> UpdateAsync(AttributeHeader attributeHeader)
+        {
+            throw new NotImplementedException();
         }
     }
 }

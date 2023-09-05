@@ -1,5 +1,6 @@
 ﻿using Application.Queries;
 using Core.Entities;
+using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
 using MediatR;
 using System;
@@ -14,9 +15,11 @@ namespace Application.Handlers.QueryHandlers
     {
 
         private readonly IQueryRepository<AttributeHeader> _queryRepository;
-        public GetAllAttributeHandler(IQueryRepository<AttributeHeader> queryRepository)
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetAllAttributeHandler(IQueryRepository<AttributeHeader> queryRepository, IAttributeQueryRepository attrubutequeryRepository)
         {
             _queryRepository = queryRepository;
+            _attrubutequeryRepository=attrubutequeryRepository;
         }
         public async Task<List<AttributeHeader>> Handle(GetAllAttributeHeader request, CancellationToken cancellationToken)
         {
@@ -24,17 +27,19 @@ namespace Application.Handlers.QueryHandlers
         }
     }
 
-    public class CreateAttributeHandler : IRequestHandler<CreateAttributeHeader, AttributeHeader>
+    public class CreateAttributeHandler : IRequestHandler<CreateAttributeHeader, long>
     {
 
         private readonly IQueryRepository<AttributeHeader> _queryRepository;
-        public CreateAttributeHandler(IQueryRepository<AttributeHeader> queryRepository)
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public CreateAttributeHandler(IQueryRepository<AttributeHeader> queryRepository, IAttributeQueryRepository attrubutequeryRepository)
         {
             _queryRepository = queryRepository;
+            _attrubutequeryRepository = attrubutequeryRepository;
         }
-        public async Task<AttributeHeader> Handle(CreateAttributeHeader request, CancellationToken cancellationToken)
+        public async Task<long> Handle(CreateAttributeHeader request, CancellationToken cancellationToken)
         {
-            return (AttributeHeader)_queryRepository.Add(request);
+            return (long) await _attrubutequeryRepository.Insert(request);
         }
     }
 }

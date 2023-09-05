@@ -232,6 +232,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("ProductionOthers", _CCFInformationModels.ProductionOthers);
                         parameterss.Add("ProductionEvaluatedBy", _CCFInformationModels.ProductionEvaluatedBy);
                         parameterss.Add("ProductionDate", _CCFInformationModels.ProductionDate);
+                        parameterss.Add("ProductionDetails", _CCFInformationModels.ProductionDetails);
                         parameterss.Add("IsPiping", _CCFInformationModels.IsPiping);
                         parameterss.Add("EvaluationIsEquipment", _CCFInformationModels.EvaluationIsEquipment);
 

@@ -12,6 +12,7 @@ namespace Core.Entities
     {
         [Key]
         public long ChangeControlFormID { get; set; }
+        [Required]
         public string VersionNo { get; set; }
         public string CCNumber { get; set; }
         public string DocNo { get; set; }

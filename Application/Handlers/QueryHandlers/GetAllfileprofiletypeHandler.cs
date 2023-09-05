@@ -289,4 +289,57 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetDocumentPermissionByRoleIDHandler : IRequestHandler<GetDocumentPermissionByRoleID, DocumentPermissionModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetDocumentPermissionByRoleIDHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<DocumentPermissionModel> Handle(GetDocumentPermissionByRoleID request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.GetDocumentPermissionByRoleID(request.Id);
+        }
+
+    }
+    public class InsertFileProfileTypeAccessHandler : IRequestHandler<InsertFileProfileTypeAccess, DocumentUserRoleModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public InsertFileProfileTypeAccessHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<DocumentUserRoleModel> Handle(InsertFileProfileTypeAccess request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.InsertFileProfileTypeAccess(request.DocumentUserRole);
+        }
+
+    }
+    public class GetDocumentUserRoleListHandler : IRequestHandler<GetDocumentUserRoleList, List<DocumentUserRoleModel>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetDocumentUserRoleListHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<DocumentUserRoleModel>> Handle(GetDocumentUserRoleList request, CancellationToken cancellationToken)
+        {
+            return (List<DocumentUserRoleModel>)await _fileprofileQueryRepository.GetDocumentUserRoleList(request.Id);
+        }
+
+    }
+    public class DeleteDocumentUserRoleHandler : IRequestHandler<DeleteDocumentUserRole, DocumentUserRoleModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public DeleteDocumentUserRoleHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<DocumentUserRoleModel> Handle(DeleteDocumentUserRole request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.DeleteDocumentUserRole(request.DocumentUserRole);
+        }
+
+    }
+    
 }

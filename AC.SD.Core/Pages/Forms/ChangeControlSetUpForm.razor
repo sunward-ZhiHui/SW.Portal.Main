@@ -68,6 +68,7 @@
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Version No" ColSpanMd="6">
                 <DxTextBox @bind-Text="@controlform.VersionNo"></DxTextBox>
+                    <ValidationMessage For="@(() => controlform.VersionNo)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="CC Number:" ColSpanMd="6">
                 <DxTextBox @bind-Text="@controlform.CCNumber"></DxTextBox>
@@ -75,7 +76,7 @@
             <DxFormLayoutItem Caption="Doc No:" ColSpanMd="6">
                 <DxTextBox @bind-Text="@controlform.DocNo"></DxTextBox>
             </DxFormLayoutItem>
-            
+                <ValidationSummary />
 
         </DxFormLayout>
     </EditFormTemplate>
@@ -83,7 +84,7 @@
 </DxLoadingPanel>
 @code {
 
-  
+
     bool PanelVisible { get; set; }
     IGrid Grid { get; set; }
     private List<ChangeControlForm> _changeControlForm;
@@ -91,11 +92,16 @@
     private ChangeControlForm _selectedItems;
     protected override async Task OnInitializedAsync()
     {
-       
+
         PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _changeControlForm = await Mediator.Send(new GetAllChangeFormQuery());
+        await UpdateDataAsync();
         PanelVisible = false;
+    }
+    async Task UpdateDataAsync()
+    {
+        _changeControlForm = await Mediator.Send(new GetAllChangeFormQuery());
+
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -129,22 +135,35 @@
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editModel = (ChangeControlForm)e.EditModel;
-        var createReq = new CreateChangeControlQuery
-            {
-                VersionNo = editModel.VersionNo,
-                DocNo = editModel.DocNo,
-                CCNumber =editModel.CCNumber,
-                StatusCodeID = 1,
-                AddedByUserID = applicationUser.UserID,
-               
-                AddedDate = DateTime.Now,
-               
-                SessionId = Guid.NewGuid()
-            };
 
-      
+          var ex = _changeControlForm.Where(x => x.VersionNo == editModel.VersionNo);
+            if (ex.Any())
+            {
+                // onShowPopupMessage("Error", "The entered value Already exists.");
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+    
+            {
+            var createReq = new CreateChangeControlQuery
+                {
+                    VersionNo = editModel.VersionNo,
+                    DocNo = editModel.DocNo,
+                    CCNumber = editModel.CCNumber,
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+
+                    AddedDate = DateTime.Now,
+
+                    SessionId = Guid.NewGuid()
+                };
+
+
             var result = await Mediator.Send(createReq);
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+       
+        await UpdateDataAsync();
     }
 
 }

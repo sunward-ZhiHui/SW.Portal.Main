@@ -15,7 +15,7 @@ namespace Core.Entities.Views
         public long ClassOFDocumentID { get; set; }
         public long CCFDImplementationDetailsID { get; set; }
         public long CCFDImplementationID { get; set; }
-        public bool? IsRequired { get; set; }
+        public bool IsRequired { get; set; }
         public long? ResponsibiltyTo { get; set; }
         public long? DoneBy { get; set; }
         public DateTime? DoneByDate { get; set; }

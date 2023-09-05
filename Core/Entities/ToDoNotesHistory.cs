@@ -28,6 +28,9 @@ namespace Core.Entities
 
         public string Status { get; set; }
         public string? ColourCode {get;set;}
+        public string? Users { get; set; }
+        [NotMapped]
+        public IEnumerable<long> UserIds { get; set; }
     }
 }
  

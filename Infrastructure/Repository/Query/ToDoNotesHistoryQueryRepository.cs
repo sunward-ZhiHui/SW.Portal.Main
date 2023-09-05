@@ -81,8 +81,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("SessionId", ToDoNotesHistory.SessionId);
                             parameters.Add("Status", ToDoNotesHistory.Status);
                             parameters.Add("ColourCode", ToDoNotesHistory.ColourCode);
+                            parameters.Add("Users", ToDoNotesHistory.Users);
+                            
 
-                            var query = "INSERT INTO ToDoNotesHistory(NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status,ColourCode) VALUES (@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status,@ColourCode)";
+                            var query = "INSERT INTO ToDoNotesHistory(Users,NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status,ColourCode) VALUES (@Users,@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status,@ColourCode)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -130,8 +132,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", ToDoNotesHistory.ModifiedDate);
                             parameters.Add("Status", ToDoNotesHistory.Status);
                             parameters.Add("ColourCode", ToDoNotesHistory.ColourCode);
+                            parameters.Add("Users", ToDoNotesHistory.Users);
+                            
 
-                            var query = @"Update ToDoNotesHistory SET Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Status = @Status,ColourCode = @ColourCode WHERE ID = @ID";
+                            var query = @"Update ToDoNotesHistory SET Users = @Users,Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Status = @Status,ColourCode = @ColourCode WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
                             transaction.Commit();

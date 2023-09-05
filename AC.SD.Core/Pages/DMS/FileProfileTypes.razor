@@ -15,12 +15,20 @@
 @using global::Core.Repositories.Query;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+<style>
+    .dxbl-wait-indicator {
+    --dxbl-wait-indicator-color: white;
+}
+ .dxbl-btn.dxbl-lg {
+    --dxbl-btn-line-height: 1.5rem;
+}
+</style>
 <div class="menu-bar-content-container col-md-12">
     <div class="card w-100" style="margin-bottom:1px;">
 
 
 
-        <div class="card-body p-0">
+        <div class="card-body p-0" style="@onShowMain">
 
             <DxMenu CollapseItemsToHamburgerMenu="true"
                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
@@ -36,19 +44,18 @@
                     </DxMenuItem>
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-file-excel" Click="onDownload" Enabled="@ondownloadEnabled" />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
+                        <Items>
+                            <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" />
+                                </Items>
+                    </DxMenuItem>
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info-circle " Click="onInfo" Enabled=@informationEnabled />
 
                     <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                         <Items>
                             <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Visible="@DownloadEnabled" />
-                            <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Visible="@uploadEnabled">
-                                <TextTemplate>
-                                    <label for="input-file" style="cursor:pointer;">
-                                        Upload
-                                    </label>
-                                </TextTemplate>
-                            </DxMenuItem>
+                            <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Visible="@uploadEnabled"/>
+                               
                             <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
                             <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Visible="@copylinkEnabled" />
                              <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Visible="@renameEnabled" >
@@ -110,7 +117,7 @@
         </div>
     </div>
 </div>
-
+<div style="@onShowMain">
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -243,6 +250,7 @@
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
+</div>
 <DxPopup @bind-Visible="@PopupVisible"
          ShowFooter="true"
          HeaderText="Document History"
@@ -378,7 +386,13 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSecurityAccessPopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<div style="@onUploadVisible">
+
+<UploadDoumentFiles @ref="refUploadDoumentFiles" UploadDocFormID="UploadDocFormID"   RevokeBack="BackUpload"></UploadDoumentFiles>
+
+</div>
 @code {
+    private UploadDoumentFiles refUploadDoumentFiles;
     IGrid Grid { get; set; }
     [Parameter]
     public Guid? SessionId { get; set; }
@@ -386,10 +400,14 @@
     public Guid? DocSessionId { get; set; }
     bool IsDescriptionOpen { get; set; } = false;
     bool IsRenameOpen { get; set; } = false;
+    public bool PopupUpload { get; set; } = false;
     public bool PopupVisible { get; set; } = false;
     public bool PopupVisibleLinkDocument { get; set; } = false;
     public bool PopupVisibleSecurityAccess { get; set; } = false;
     public bool IsExpiryDateOpen { get; set; } = false;
+    public bool loading { get; set; } = false;
+    string onShowMain = "";
+    string onUploadVisible = "display:none;";
     public DocumentsModel selectedFiles { get; set; }
     public long? FileProfileTypeId { get; set; }
     private List<DocumentsModel> fileProfileTypeDocuments { get; set; }
@@ -399,9 +417,11 @@
     DocumentLinkModel LinkProfileSelectedFiles = new DocumentLinkModel();
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     private DocumentsModel _selectedItems;
+    private DocumentsModel _ParentselectedItems;
     DocumentsModel _selectedDescriptionItems=new DocumentsModel();
     public string Name;
     public Guid? SelectSessionId { get; set; }
+    public string isVisibleParentMore { get; set; } = "display:none;";
     public string isVisibleMore { get; set; } = "display:none;";
     public bool DownloadEnabled { get; set; } = false;
     public bool uploadEnabled { get; set; } = false;
@@ -436,7 +456,7 @@
     }
     protected override async Task OnParametersSetAsync()
     {
-        isVisibleMore = "display:none;";
+        isVisibleMore = "display:none;";isVisibleParentMore = "display:none;";
         ondownloadEnabled = false; moreEnabled = false; informationEnabled = false; securityEnabled = false;
 
         FolderPathLists = new List<DocumentsModel>();
@@ -447,7 +467,9 @@
             var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
             if (fileType != null)
             {
-
+                isVisibleParentMore = "";
+                _ParentselectedItems = fileType;
+                Name = fileType.FileName;
                 FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
                 FolderPathLists.Add(fileType);
             }
@@ -690,8 +712,8 @@
                 SelectSessionId = SessionId;
             }
         }
-         NavigationManager.NavigateTo($"AddFileProfileTypes/Edit/"+SelectSessionId);
-       
+        NavigationManager.NavigateTo($"AddFileProfileTypes/Edit/"+SelectSessionId);
+
     }
     void onBack()
     {
@@ -734,6 +756,19 @@
             //  Trigger file download
             await jsRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
         }
+    }
+    async Task CloseUploadPopup()
+    {
+        PopupUpload = false;
+        await loadFileProfileData();
+    }
+    async Task onUploadFileProfileType()
+    {
+        await refUploadDoumentFiles.loadData(_ParentselectedItems,applicationUser);
+        onShowMain = "display:none;";
+        onUploadVisible = "";
+        StateHasChanged();
+        // PopupUpload = true;
     }
     void onUpload()
     {
@@ -880,5 +915,13 @@
     void CloseSecurityAccessPopup()
     {
         PopupVisibleSecurityAccess = false;
+    }
+    async void BackUpload()
+    {
+        onShowMain = "";
+        onUploadVisible = "display:none;";
+        await loadFileProfileData();
+        StateHasChanged();
+
     }
 }

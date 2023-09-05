@@ -170,6 +170,15 @@ namespace Application.Queries
             this.Id = id;
         }
     }
+    public class GetDocumentProfileNoSeriesById : PagedRequest, IRequest<DocumentProfileNoSeriesModel>
+    {
+        public long? Id { get; private set; }
+        public GetDocumentProfileNoSeriesById(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    
     public class InsertFileProfileTypeAccess : PagedRequest, IRequest<DocumentUserRoleModel>
     {
         public DocumentUserRoleModel DocumentUserRole { get; private set; }
@@ -194,6 +203,20 @@ namespace Application.Queries
             this.DocumentUserRole = documentUserRole;
         }
     }
-    
-
+    public class GetFileProfileSetupFormList : PagedRequest, IRequest<List<FileProfileSetupFormModel>>
+    {
+        public long? Id { get; private set; }
+        public GetFileProfileSetupFormList(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class InsertCreateDocument : PagedRequest, IRequest<DocumentsUploadModel>
+    {
+        public DocumentsUploadModel DocumentsUploadModel { get; private set; }
+        public InsertCreateDocument(DocumentsUploadModel documentsUploadModel)
+        {
+            this.DocumentsUploadModel = documentsUploadModel;
+        }
+    }
 }

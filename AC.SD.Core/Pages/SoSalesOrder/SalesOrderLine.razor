@@ -655,7 +655,7 @@
                     ModifiedDate = DateTime.Now,
                     IsManual = editModel.IsManual,
                     ManualPrice = editModel.ManualPrice,
-                    PricingType = PricingType,
+                    PricingType = string.IsNullOrEmpty(PricingType)?editModel.PricingType:PricingType,
                     OrderBounsQty = BounsFocQty,
                 };
 
@@ -686,6 +686,8 @@
                     SellingMethodId = editModel.SellingMethodId,
                     Qty = OrderQty,
                     UnitPrice = UnitPrice,
+                    AddedByUserId = editModel.AddedByUserId == null ? applicationUser.UserID : editModel.AddedByUserId,
+                    AddedDate = editModel.AddedDate == null ? DateTime.Now : editModel.AddedDate,
                     StatusCodeId = 1,
                     ModifiedByUserId = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,

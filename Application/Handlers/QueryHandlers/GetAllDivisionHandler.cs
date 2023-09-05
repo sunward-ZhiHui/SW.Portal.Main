@@ -23,4 +23,16 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<ViewDivision>)await _queryRepository.GetAllAsync();
         }
     }
+    public class GetDivisionByCompanyHandler : IRequestHandler<GetDivisionByCompany, List<ViewDivision>>
+    {
+        private readonly IDivisionQueryRepository _queryRepository;
+        public GetDivisionByCompanyHandler(IDivisionQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ViewDivision>> Handle(GetDivisionByCompany request, CancellationToken cancellationToken)
+        {
+            return (List<ViewDivision>)await _queryRepository.GetDivisionByCompanyAsync(request.CompanyId);
+        }
+    }
 }

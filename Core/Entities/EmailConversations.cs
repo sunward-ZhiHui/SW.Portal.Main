@@ -71,7 +71,8 @@ namespace Core.Entities
         public string? OnBehalfName { get; set; }
         [NotMapped]
         public string? Follow { get; set; }
-        public bool? Urgent { get; set; } = false; 
+        public bool? Urgent { get; set; } = false;
+        public long? OnBehalf { get; set; }
 
     }
 }

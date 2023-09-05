@@ -178,7 +178,7 @@
                                                 <DxMenuItem Text="" IconCssClass="fa fa-th-list" Click="@(() => ToggleButtonClick())" />
                                                 <DxMenuItem Text="Posts" class="@((isMenuvisible == "Posts" ? "tActive": "tfiles"))" IconCssClass="menu-icon-products menu-icon" Click="@(() => OnMenuItemClick("Posts"))" />
                                                 <DxMenuItem Text="Files" Enabled="@isEnabled" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
-                                                <DxMenuItem Text="Todo" Enabled="@isEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
+                                                <DxMenuItem Text="Todo" Enabled="@isTodoEnabled" class="@((isMenuvisible == "Todo" ? "tActive": "ttodo"))" IconCssClass="menu-icon-about menu-icon" Click="@(() => OnMenuItemClick("Todo"))" />
                                                 <DxMenuItem Text="Participants List" Enabled="@isEnabled" class="@((isMenuvisible == "AddParticipants" ? "tActive": "taddparticipants"))" IconCssClass="dxbl-image menu-icon-support menu-icon dx-menu-item-image" Click="@(() => OnMenuItemClick("AddParticipants"))" />
                                                 <DxMenuItem Text="Tags" Enabled="@isEnabled" class="@((isMenuvisible == "Tags" ? "tActive": "ttags"))" IconCssClass="fa fa-tags" Click="@(() => OnMenuItemClick("Tags"))" />
                                             
@@ -900,7 +900,7 @@
                         else if (isMenuvisible == "Todo")
                         {
                            @* <ToDoList Tid="@Tid"></ToDoList>*@
-                            <UserToDo @ref=RefTopicTodo Tid="@Tid" > </UserToDo>
+                            <UserToDo @ref=RefTopicTodo Tid="@Cid"> </UserToDo>
                         }
                         else if (isMenuvisible == "Tags")
                         {
@@ -1359,6 +1359,7 @@
     bool isAssignToVisible = false;
     bool isComponentVisible = true;
     bool isEnabled { get; set; } = false;
+    bool isTodoEnabled { get; set; } = false;
     bool isAddParticipant = false;
     bool isTags = false;
     bool isCommand = false;
@@ -2405,6 +2406,7 @@
             isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
             isEnabled = true;
+            isTodoEnabled = false;
             isEllipsis = true;
             isCommand = true;
             //_participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
@@ -2428,7 +2430,7 @@
         _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
 
-        IsValidUser = _discussionList[0].AddedByUserID == applicationUser.UserID ? true : false;
+        IsValidUser = (_discussionList[0].AddedByUserID == applicationUser.UserID || _discussionList[0].OnBehalf == applicationUser.UserID) ? true : false;
 
         _assigntoItems = await Mediator.Send(new GetEmailAssignToList(RTopicId));        
         var topicToList = await Mediator.Send(new GetEmailTopicToList(RTopicId));
@@ -2482,6 +2484,7 @@
         isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
         isEnabled = true;
+        isTodoEnabled = true;
         isEllipsis = true;
         isCommand = true;
         // _participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
@@ -2518,6 +2521,7 @@
                 isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
                 isEnabled = true;
+                isTodoEnabled = false;
                 isEllipsis = true;
                 isCommand = true;
                 //_participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
@@ -2549,6 +2553,7 @@
         isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
         isEnabled = true;
+        isTodoEnabled = true;
         isEllipsis = true;
         isCommand = true;
         //_participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
@@ -3196,7 +3201,16 @@
     }
     async Task loadTodo_Data()
     {
-        await RefTopicTodo.leftTodoLst(Tid);
+        if(Cid > 0)
+        {
+            await RefTopicTodo.leftTodoLst(Cid);
+        }
+        else
+        {
+            await RefTopicTodo.leftTodoLst(-1);
+            
+        }
+        
     }
    
     async Task LoadMainTopicPlist_Data()

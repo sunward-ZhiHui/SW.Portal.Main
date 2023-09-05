@@ -923,10 +923,10 @@ else
             participantIds.Add(Data.OnBehalf.Value);
         }
         
-        //if (Data.OnBehalf != null && Data.Follow == "Follow Up")
-        //{
-        //    participantIds.Remove(applicationUser.UserID);
-        //}
+        if (Data.OnBehalf != null && Data.Follow == "No Follow Up")
+        {
+            participantIds.Remove(applicationUser.UserID);
+        }
 
 
 

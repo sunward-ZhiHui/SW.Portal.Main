@@ -14,9 +14,16 @@
 @inject NavigationManager NavigationManager
 
 
-<div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
+@*<div class="card w-100" style="margin-bottom:10px;margin-top:10px;">
     <div class="card-body p-0">
-        <div class="save_hover" style="float: left;  line-height: 38px; margin-left: 10px; z-index: 9999; width:100px;">
+        <div class="save_hover" style="float: left;  line-height: 38px; margin-left: 1px; z-index: 9999; width:100px;">
+            <button type="submit" form="@MyID" class="btnSubmitForm" @onclick="@BackUrl" style="font-weight:bold; ">
+
+                <i class="fa fa-reply"></i>
+                Back
+            </button>
+        </div>
+        <div class="save_hover" style="float: left;  line-height: 38px; margin-left: 1px; z-index: 9999; width:100px;">
             <button type="submit"  form="@MyID" class="btnSubmitForm" @onclick="@HandleValidSubmit" style="font-weight:bold; ">
                
                 <i class="fa fa-save"></i>
@@ -24,6 +31,61 @@
             </button>
         </div>
     </div>
+</div>*@
+<div class="card w-100 tooltips" style="margin-bottom:10px;">
+    <div class="card-body p-0 tooltiptops">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@((e) => BackUrl())"  />
+                       
+                       @* <DxMenuItem Text="Draft" IconCssClass="fa fa-save" Enabled="@IsDraftEnabled"  Click="@((e) => addNew(1))" />
+                        <DxMenuItem Text="Sent" IconCssClass="fa fa-save" Click="@((e) => addNew(0))" />*@
+                    </Items>
+                </DxMenu>
+            </div>
+            <div class="save_hover" @onclick="@HandleValidSubmit" style="float: left; margin-top: -41px; line-height: 38px; margin-left:100px; z-index: 9999; width:100px;">
+                <button type="submit" form="@MyID"  class="btnSubmitForm" style="">
+                    <i class="fa fa-save"></i>
+                    Save
+                </button>
+             </div>
+          
+            
+        </div>
+    </div>
+</div>
+
+
+
+<div class="" style="    margin-bottom: 10px;">
+    @if (_changeControlForm != null && _changeControlForm.Any())
+    {
+        @foreach (var item in _changeControlForm)
+        {
+            <div class="card">
+                <div class="card-body">
+                    <article class="media">
+                        <div class="media-body">
+                            <div class="content">
+                              <table style = "Width:100%">
+                                <tr>
+                                       <td>Doc No: @item.DocNo</td>
+                                       
+                                      <td>Version No: @item.VersionNo</td>
+                                        <td>CC No: @item.CCNumber</td> 
+                                </tr>
+                              </table>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        }
+    }
 </div>
 <EditForm Model="@Data" Context="EditFormContext">
     <DxFormLayout CssClass="w-100">
@@ -207,7 +269,7 @@
             </DxFormLayoutItem>
 
             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
-                <DxCheckBox @bind-Checked="@Data.IsEAndM" LabelPosition="LabelPosition.Right">IsEAndM</DxCheckBox>
+                <DxCheckBox @bind-Checked="@Data.IsEAndM" LabelPosition="LabelPosition.Right">E And M</DxCheckBox>
             </DxFormLayoutItem>
 
             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
@@ -236,7 +298,7 @@
                 @bind-Value="Data.EvaluatedBy"
                             ShowValidationIcon="true">
                 </DxComboBox>
-                <ValidationMessage For="@(() => Data.EvaluatedBy)" />
+              
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
              <DxDateEdit @bind-Date="@Data.EvaluationDate"></DxDateEdit>
@@ -791,7 +853,9 @@
     private List<ViewDepartment> _departmentItems;
     private List<ApplicationUser> applicationUsers;
     private List<View_GetCCFImplementation> _CCFDImplementation;
+    private List<View_GetCCFImplementation> sessionIdLst;
     private View_GetCCFImplementation _selectedItems;
+     private List<ChangeControlForm> _changeControlForm;
     public ApplicationUser? applicationUser { get; private set; }
     CCFInformationModels DataBySession = new CCFInformationModels();
     protected override async Task OnInitializedAsync()
@@ -803,6 +867,8 @@
 
         if (SessionIds != null)
         {
+            var changecontrollst = await Mediator.Send(new GetAllChangeFormQuery());
+            _changeControlForm = changecontrollst.Where(x => x.SessionId == SessionIds).ToList();
             DataBySession = await Mediator.Send(new GetAllChangeControlBySession(SessionIds));
             if (DataBySession != null)
             {
@@ -810,7 +876,7 @@
                 Data.IsAuthorityDirectedChanges = DataBySession.IsAuthorityDirectedChanges;
                 Data.PIA = DataBySession.PIA;
                 Data.PIC = DataBySession.PIC;
-               
+
                 Data.IsSiteTransfer = DataBySession.IsSiteTransfer;
                 Data.IsFacility = DataBySession.IsFacility;
 
@@ -876,7 +942,7 @@
                 Data.  IsCalibration = DataBySession.IsCalibration;
                 Data. IsAnalyticalTestMethod = DataBySession.IsAnalyticalTestMethod;
                 Data.  IsSamplingMethod = DataBySession.IsSamplingMethod;
-                Data.  EvaluationIsVendor = DataBySession.EvaluationIsVendor;
+                Data.  EvaluationIsVendor = DataBySession.IsVendor;
 
 
 
@@ -890,12 +956,15 @@
 
                 Data.  IsProductionProcess = DataBySession.IsProductionProcess;
                 Data. IsProductionValidation = DataBySession.IsProductionValidation;
-                Data. EvaluationIsControlParameter = DataBySession.EvaluationIsControlParameter;
+                Data. EvaluationIsControlParameter = DataBySession.IsControlParameter;
                 Data. ProductionOthers = DataBySession.ProductionOthers;
+                Data.ProductionDetails = DataBySession.ProductionDetails;
+
                 Data. ProductionEvaluatedBy  = DataBySession.ProductionEvaluatedBy ;
+
                 Data. ProductionDate = DataBySession.ProductionDate;
                 Data. IsPiping = DataBySession.IsPiping;
-                Data.  EvaluationIsEquipment = DataBySession.EvaluationIsEquipment;
+                Data.  EvaluationIsEquipment = DataBySession.IsEquipment;
                 Data. IsEngineeringCalibration = DataBySession.IsEngineeringCalibration;               
                 Data. IsPreventiveMaintenance = DataBySession.IsPreventiveMaintenance;
                 Data. IsUtilityParameter  = DataBySession.IsUtilityParameter ;
@@ -933,20 +1002,20 @@
                 Data. OthersDate = DataBySession.OthersDate;
                 Data. IsApproved = DataBySession.IsApproved;
                 Data. IsNotApproved = DataBySession.IsNotApproved;
-                Data. ApprovalComments = DataBySession.ApprovalComments;
+                Data. ApprovalComments = DataBySession.Comments;
                 Data. VerifiedBy  = DataBySession.VerifiedBy;
                 Data. ApprovalDate = DataBySession.ApprovalDate;
                 Data.  HODComments = DataBySession.HODComments;
                 Data.  HODSignature = DataBySession.HODSignature;
                 Data. HODDate = DataBySession.HODDate;                
-                Data. ImplementationIsAcceptable = DataBySession.ImplementationIsAcceptable;
-                Data. ImplementationIsNotAcceptable   = DataBySession.ImplementationIsNotAcceptable;
-                Data.ImplementationVerifiedBy = DataBySession.ImplementationVerifiedBy;
+                Data. ImplementationIsAcceptable = DataBySession.IsAcceptable;
+                Data. ImplementationIsNotAcceptable   = DataBySession.IsNotAcceptable;
+                Data.ImplementationVerifiedBy = DataBySession.VerifiedBy;
                 Data.VerifiedDate  = DataBySession.VerifiedDate;
 
                 Data. IsSatisfactory  = DataBySession.IsSatisfactory;
                 Data.  IsNotSatisfactory  = DataBySession.IsNotSatisfactory;
-                Data. ClosureComments = DataBySession.ClosureComments;
+                Data.ClosureComments = DataBySession.Comments;
                 Data. ClosedBy  = DataBySession.ClosedBy;
                 Data.Date = DataBySession.Date;
                 Data.IsSatisfactoryForNotSatisfactory = DataBySession.IsSatisfactoryForNotSatisfactory;
@@ -954,25 +1023,27 @@
                 Data.NotSatisfactoryDate = DataBySession.NotSatisfactoryDate;
                 await UpdateDataAsync();
             }
-            else
+            _CCFDImplementation = await Mediator.Send(new GetAllImplementationQuery(SessionIds));
+
+            if (_CCFDImplementation.Count == 0)
             {
                 var UpdateReq = new EditImplementationQuery
-                    {
+                {
 
                         SessionId = SessionIds,
                         AddedByUserID = applicationUser.UserID,
                         StatusCodeID = 1,
-                    };
+                };
                 var ans = await Mediator.Send(UpdateReq);
             }
         }
 
-        await UpdateDataAsync();
+
     }
     async Task UpdateDataAsync()
     {
         _CCFDImplementation = await Mediator.Send(new GetAllImplementationQuery(SessionIds));
-       
+
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -986,7 +1057,7 @@
         if (e.IsNew)
         {
             var newEmployee = (CCFInformationModels)e.EditModel;
-           
+
         }
     }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
@@ -994,27 +1065,27 @@
         var editModel = (View_GetCCFImplementation)e.EditModel;
         //if (editModel.ClassOFDocumentID == _selectedItems.ApplicationMasterDetailID)
         //{
-            var UpdateReq = new SaveImplementationQuery
+        var UpdateReq = new SaveImplementationQuery
             {
-                
+
                 ClassOFDocumentID = _selectedItems.ApplicationMasterDetailID,
                 IsRequired = editModel.IsRequired,
                 DoneBy = editModel.DoneBy,
                 DoneByDate = editModel.DoneByDate,
                 ResponsibiltyTo = editModel.ResponsibiltyTo,
                  AddedDate = DateTime.Now,
-                   
+
                    AddedByUserID= applicationUser.UserID,
                 StatusCodeID = 1,
             };
-               var ans = await Mediator.Send(UpdateReq);
-               toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-       // }
+        var ans = await Mediator.Send(UpdateReq);
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        // }
         //else
         //{
         //    var UpdateReq = new EditImplementationQuery
         //    {
-                
+
         //        ClassOFDocumentID = _selectedItems.ApplicationMasterDetailID,
         //        IsRequired = editModel.IsRequired,
         //        DoneBy = editModel.DoneBy,
@@ -1028,12 +1099,12 @@
 
         //var ans = await Mediator.Send(UpdateReq);
         //toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        
-       
+
+
         await UpdateDataAsync();
 
     }
-   
+
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
 
@@ -1044,18 +1115,19 @@
     }
     async void HandleValidSubmit()
     {
-        
-      if(DataBySession != null)
+
+
+        if(DataBySession != null)
         {
             var createReq = new CreateCCFInformationModels
                 {
-                   
+
                   CCFAInformationID = DataBySession.CCFAInformationID,
                   CCFBEvaluationID = DataBySession.CCFBEvaluationID,
                   CCFCAPprovalID = DataBySession.CCFCAPprovalID,
                  CCFDImplementationID =DataBySession.CCFDImplementationID,
                  CCFEClosureID = DataBySession.CCFEClosureID,
-                   
+
                     IsInternalChanges = Data.IsInternalChanges,
                     IsAuthorityDirectedChanges = Data.IsAuthorityDirectedChanges,
                     PIC = Data.PIC,
@@ -1143,6 +1215,7 @@
                     IsProductionValidation = Data.IsProductionValidation,
                     EvaluationIsControlParameter = Data.EvaluationIsControlParameter,
                     ProductionOthers = Data.ProductionOthers,
+                    ProductionDetails = Data.ProductionDetails,
                     ProductionEvaluatedBy = Data.ProductionEvaluatedBy,
                     ProductionDate = Data.ProductionDate,
                     IsPiping = Data.IsPiping,
@@ -1207,14 +1280,23 @@
 
             //_sessionId = createReq.SessionId;
             var result = await Mediator.Send(createReq);
-             toastService.ShowToast("The Form Updated Successfully.", AC.SD.Core.Services.ToastLevel.Success);
+            toastService.ShowToast("The Form Updated Successfully.", AC.SD.Core.Services.ToastLevel.Success);
             NavigationManager.NavigateTo("changeControlsetupForm");
-      }
+        }
         else
         {
+            //var UpdateReq = new EditImplementationQuery
+            //{
+
+            //             SessionId = SessionIds,
+            //             AddedByUserID = applicationUser.UserID,
+            //             StatusCodeID = 1,
+            //};
+            //var ans = await Mediator.Send(UpdateReq);
+
             var createReq = new CreateCCFInformationModels
                 {
-                    
+
 
                     IsInternalChanges = Data.IsInternalChanges,
                     IsAuthorityDirectedChanges = Data.IsAuthorityDirectedChanges,
@@ -1304,6 +1386,7 @@
                     EvaluationIsControlParameter = Data.EvaluationIsControlParameter,
                     ProductionOthers = Data.ProductionOthers,
                     ProductionEvaluatedBy = Data.ProductionEvaluatedBy,
+                    ProductionDetails = Data.ProductionDetails,
                     ProductionDate = Data.ProductionDate,
                     IsPiping = Data.IsPiping,
                     EvaluationIsEquipment = Data.EvaluationIsEquipment,
@@ -1368,11 +1451,15 @@
             //_sessionId = createReq.SessionId;
             var result = await Mediator.Send(createReq);
             toastService.ShowToast("The Form Submitted Successfully.", AC.SD.Core.Services.ToastLevel.Success);
-             NavigationManager.NavigateTo("changeControlsetupForm");
+            NavigationManager.NavigateTo("changeControlsetupForm");
         }
-      
-           
-      //  await JSRuntime.InvokeAsync<string>("ReloadUrl");
-       
+
+
+        //  await JSRuntime.InvokeAsync<string>("ReloadUrl");
+
+    }
+    void BackUrl()
+    {
+        NavigationManager.NavigateTo("changeControlsetupForm");
     }
 }

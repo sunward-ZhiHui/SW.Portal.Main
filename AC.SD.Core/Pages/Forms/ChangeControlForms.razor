@@ -207,7 +207,7 @@
             </DxFormLayoutItem>
 
             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
-                <DxCheckBox @bind-Checked="@Data.IsEAndM" LabelPosition="LabelPosition.Right">IsEAndM</DxCheckBox>
+                <DxCheckBox @bind-Checked="@Data.IsEAndM" LabelPosition="LabelPosition.Right">E And M</DxCheckBox>
             </DxFormLayoutItem>
 
             <DxFormLayoutItem Caption="" ColSpanLg="4" ColSpanMd="12">
@@ -236,7 +236,7 @@
                 @bind-Value="Data.EvaluatedBy"
                             ShowValidationIcon="true">
                 </DxComboBox>
-                <ValidationMessage For="@(() => Data.EvaluatedBy)" />
+              
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Date:" ColSpanMd="6">
              <DxDateEdit @bind-Date="@Data.EvaluationDate"></DxDateEdit>
@@ -791,6 +791,7 @@
     private List<ViewDepartment> _departmentItems;
     private List<ApplicationUser> applicationUsers;
     private List<View_GetCCFImplementation> _CCFDImplementation;
+    private List<View_GetCCFImplementation> sessionIdLst;
     private View_GetCCFImplementation _selectedItems;
     public ApplicationUser? applicationUser { get; private set; }
     CCFInformationModels DataBySession = new CCFInformationModels();
@@ -810,7 +811,7 @@
                 Data.IsAuthorityDirectedChanges = DataBySession.IsAuthorityDirectedChanges;
                 Data.PIA = DataBySession.PIA;
                 Data.PIC = DataBySession.PIC;
-               
+
                 Data.IsSiteTransfer = DataBySession.IsSiteTransfer;
                 Data.IsFacility = DataBySession.IsFacility;
 
@@ -876,7 +877,7 @@
                 Data.  IsCalibration = DataBySession.IsCalibration;
                 Data. IsAnalyticalTestMethod = DataBySession.IsAnalyticalTestMethod;
                 Data.  IsSamplingMethod = DataBySession.IsSamplingMethod;
-                Data.  EvaluationIsVendor = DataBySession.EvaluationIsVendor;
+                Data.  EvaluationIsVendor = DataBySession.IsVendor;
 
 
 
@@ -890,12 +891,15 @@
 
                 Data.  IsProductionProcess = DataBySession.IsProductionProcess;
                 Data. IsProductionValidation = DataBySession.IsProductionValidation;
-                Data. EvaluationIsControlParameter = DataBySession.EvaluationIsControlParameter;
+                Data. EvaluationIsControlParameter = DataBySession.IsControlParameter;
                 Data. ProductionOthers = DataBySession.ProductionOthers;
+                Data.ProductionDetails = DataBySession.ProductionDetails;
+
                 Data. ProductionEvaluatedBy  = DataBySession.ProductionEvaluatedBy ;
+
                 Data. ProductionDate = DataBySession.ProductionDate;
                 Data. IsPiping = DataBySession.IsPiping;
-                Data.  EvaluationIsEquipment = DataBySession.EvaluationIsEquipment;
+                Data.  EvaluationIsEquipment = DataBySession.IsEquipment;
                 Data. IsEngineeringCalibration = DataBySession.IsEngineeringCalibration;               
                 Data. IsPreventiveMaintenance = DataBySession.IsPreventiveMaintenance;
                 Data. IsUtilityParameter  = DataBySession.IsUtilityParameter ;
@@ -933,20 +937,20 @@
                 Data. OthersDate = DataBySession.OthersDate;
                 Data. IsApproved = DataBySession.IsApproved;
                 Data. IsNotApproved = DataBySession.IsNotApproved;
-                Data. ApprovalComments = DataBySession.ApprovalComments;
+                Data. ApprovalComments = DataBySession.Comments;
                 Data. VerifiedBy  = DataBySession.VerifiedBy;
                 Data. ApprovalDate = DataBySession.ApprovalDate;
                 Data.  HODComments = DataBySession.HODComments;
                 Data.  HODSignature = DataBySession.HODSignature;
                 Data. HODDate = DataBySession.HODDate;                
-                Data. ImplementationIsAcceptable = DataBySession.ImplementationIsAcceptable;
-                Data. ImplementationIsNotAcceptable   = DataBySession.ImplementationIsNotAcceptable;
-                Data.ImplementationVerifiedBy = DataBySession.ImplementationVerifiedBy;
+                Data. ImplementationIsAcceptable = DataBySession.IsAcceptable;
+                Data. ImplementationIsNotAcceptable   = DataBySession.IsNotAcceptable;
+                Data.ImplementationVerifiedBy = DataBySession.VerifiedBy;
                 Data.VerifiedDate  = DataBySession.VerifiedDate;
 
                 Data. IsSatisfactory  = DataBySession.IsSatisfactory;
                 Data.  IsNotSatisfactory  = DataBySession.IsNotSatisfactory;
-                Data. ClosureComments = DataBySession.ClosureComments;
+                Data.ClosureComments = DataBySession.Comments;
                 Data. ClosedBy  = DataBySession.ClosedBy;
                 Data.Date = DataBySession.Date;
                 Data.IsSatisfactoryForNotSatisfactory = DataBySession.IsSatisfactoryForNotSatisfactory;
@@ -954,20 +958,22 @@
                 Data.NotSatisfactoryDate = DataBySession.NotSatisfactoryDate;
                 await UpdateDataAsync();
             }
-            else
+            _CCFDImplementation = await Mediator.Send(new GetAllImplementationQuery(SessionIds));
+           
+            if (_CCFDImplementation.Count == 0)
             {
                 var UpdateReq = new EditImplementationQuery
-                    {
+                {
 
                         SessionId = SessionIds,
                         AddedByUserID = applicationUser.UserID,
                         StatusCodeID = 1,
-                    };
+                };
                 var ans = await Mediator.Send(UpdateReq);
             }
         }
 
-        await UpdateDataAsync();
+      
     }
     async Task UpdateDataAsync()
     {
@@ -1044,6 +1050,7 @@
     }
     async void HandleValidSubmit()
     {
+        
         
       if(DataBySession != null)
         {
@@ -1143,6 +1150,7 @@
                     IsProductionValidation = Data.IsProductionValidation,
                     EvaluationIsControlParameter = Data.EvaluationIsControlParameter,
                     ProductionOthers = Data.ProductionOthers,
+                    ProductionDetails = Data.ProductionDetails,
                     ProductionEvaluatedBy = Data.ProductionEvaluatedBy,
                     ProductionDate = Data.ProductionDate,
                     IsPiping = Data.IsPiping,
@@ -1212,6 +1220,15 @@
       }
         else
         {
+           //var UpdateReq = new EditImplementationQuery
+           //{
+
+           //             SessionId = SessionIds,
+           //             AddedByUserID = applicationUser.UserID,
+           //             StatusCodeID = 1,
+           //};
+           //var ans = await Mediator.Send(UpdateReq);
+
             var createReq = new CreateCCFInformationModels
                 {
                     
@@ -1304,6 +1321,7 @@
                     EvaluationIsControlParameter = Data.EvaluationIsControlParameter,
                     ProductionOthers = Data.ProductionOthers,
                     ProductionEvaluatedBy = Data.ProductionEvaluatedBy,
+                    ProductionDetails = Data.ProductionDetails,
                     ProductionDate = Data.ProductionDate,
                     IsPiping = Data.IsPiping,
                     EvaluationIsEquipment = Data.EvaluationIsEquipment,

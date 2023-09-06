@@ -12,5 +12,6 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<ViewSection>> GetAllAsync();
         Task<ViewSection> GetByIdAsync(Int64 id);
+        Task<IReadOnlyList<ViewSection>> GetSectionByDepartment(long? Id);
     }
 }

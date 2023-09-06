@@ -263,6 +263,19 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetDocumentProfileNoSeriesByIdHandler : IRequestHandler<GetDocumentProfileNoSeriesById, DocumentProfileNoSeriesModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetDocumentProfileNoSeriesByIdHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<DocumentProfileNoSeriesModel> Handle(GetDocumentProfileNoSeriesById request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.GetDocumentProfileNoSeriesById(request.Id);
+        }
+
+    }
     public class InsertOrUpdateFileProfileTypeHandler : IRequestHandler<InsertOrUpdateFileProfileType, FileProfileTypeModel>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
@@ -341,5 +354,31 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    
+    public class GetFileProfileSetupFormListHandler : IRequestHandler<GetFileProfileSetupFormList, List<FileProfileSetupFormModel>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetFileProfileSetupFormListHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<FileProfileSetupFormModel>> Handle(GetFileProfileSetupFormList request, CancellationToken cancellationToken)
+        {
+            return (List<FileProfileSetupFormModel>)await _fileprofileQueryRepository.GetFileProfileSetupFormList(request.Id);
+        }
+
+    }
+    public class InsertCreateDocumentHandler : IRequestHandler<InsertCreateDocument, DocumentsUploadModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public InsertCreateDocumentHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<DocumentsUploadModel> Handle(InsertCreateDocument request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.InsertCreateDocument(request.DocumentsUploadModel);
+        }
+
+    }
+
 }

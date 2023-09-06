@@ -1,0 +1,38 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Core.EntityModels
+{
+    public class DocumentsUploadModel
+    {
+
+        public long? DocumentId { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+        public long? UserId { get; set; }
+        public long? ProfileId { get; set; }
+        public string? Type { get; set; }
+        public Guid? UserSession { get; set; }
+        public string? Description { get; set; }
+        public long? FileProfileTypeId { get; set; }
+        [Required(ErrorMessage = "Company is Required")]
+        public long? PlantId { get; set; } = 0;
+        [Required(ErrorMessage = "Department is Required")]
+        public long? DepartmentId { get; set; } = 0;
+        [Required(ErrorMessage = "Section is Required")]
+        public long? SectionId { get; set; } = 0;
+        [Required(ErrorMessage = "SubSection is Required")]
+        public long? SubSectionId { get; set; } = 0;
+        [Required(ErrorMessage = "Division is Required")]
+        public long? DivisionId { get; set; } = 0;
+        public string? CompanyCode { get; set; }
+        public string? SectionName { get; set; }
+        public string? SubSectionName { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? ProfileNo { get; set; }
+        public Guid? SessionId { get; set; }
+    }
+}

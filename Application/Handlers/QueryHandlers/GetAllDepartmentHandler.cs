@@ -22,4 +22,16 @@ namespace Application.Handlers.QueryHandlers
             return (List<ViewDepartment>)await _queryRepository.GetAllAsync();
         }
     }
+    public class GetDepartmentByDivisionHandler : IRequestHandler<GetDepartmentByDivision, List<ViewDepartment>>
+    {
+        private readonly IDepartmentQueryRepository _queryRepository;
+        public GetDepartmentByDivisionHandler(IDepartmentQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ViewDepartment>> Handle(GetDepartmentByDivision request, CancellationToken cancellationToken)
+        {
+            return (List<ViewDepartment>)await _queryRepository.GetDepartmentByDivisionAsync(request.DivisionId);
+        }
+    }
 }

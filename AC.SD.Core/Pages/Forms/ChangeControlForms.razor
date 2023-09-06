@@ -956,7 +956,7 @@
 
                 Data.  IsProductionProcess = DataBySession.IsProductionProcess;
                 Data. IsProductionValidation = DataBySession.IsProductionValidation;
-                Data.EvaluationIsControlParameter = DataBySession.EvaluationIsControlParameter;
+                Data. EvaluationIsControlParameter = DataBySession.EvaluationIsControlParameter;
                 Data. ProductionOthers = DataBySession.ProductionOthers;
                 Data.ProductionDetails = DataBySession.ProductionDetails;
 
@@ -964,7 +964,7 @@
 
                 Data. ProductionDate = DataBySession.ProductionDate;
                 Data. IsPiping = DataBySession.IsPiping;
-                Data.EvaluationIsEquipment = DataBySession.EvaluationIsEquipment;
+                Data.  EvaluationIsEquipment = DataBySession.EvaluationIsEquipment;
                 Data. IsEngineeringCalibration = DataBySession.IsEngineeringCalibration;               
                 Data. IsPreventiveMaintenance = DataBySession.IsPreventiveMaintenance;
                 Data. IsUtilityParameter  = DataBySession.IsUtilityParameter ;
@@ -1008,7 +1008,7 @@
                 Data.  HODComments = DataBySession.HODComments;
                 Data.  HODSignature = DataBySession.HODSignature;
                 Data. HODDate = DataBySession.HODDate;                
-                Data.ImplementationIsAcceptable = DataBySession.ImplementationIsAcceptable;
+                Data. ImplementationIsAcceptable = DataBySession.ImplementationIsAcceptable;
                 Data. ImplementationIsNotAcceptable   = DataBySession.ImplementationIsNotAcceptable;
                 Data.ImplementationVerifiedBy = DataBySession.ImplementationVerifiedBy;
                 Data.VerifiedDate  = DataBySession.VerifiedDate;
@@ -1035,9 +1035,7 @@
                         StatusCodeID = 1,
                 };
                 var ans = await Mediator.Send(UpdateReq);
-
             }
-
         }
         await UpdateDataAsync();
 

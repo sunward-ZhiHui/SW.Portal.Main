@@ -29,14 +29,15 @@ namespace Core.Repositories.Query
         Task<DocumentsModel> UpdateDocumentRename(DocumentsModel value);
         Task<IReadOnlyList<UserGroup>> GetUserGroups();
         Task<IReadOnlyList<DocumentRole>> GetDocumentRole();
-
+        Task<DocumentProfileNoSeriesModel> GetDocumentProfileNoSeriesById(long? Id);
         Task<IReadOnlyList<DocumentProfileNoSeriesModel>> GetDocumentProfiles();
         Task<FileProfileTypeModel> InsertOrUpdateFileProfileType(FileProfileTypeModel fileProfileTypeModel);
         Task<DocumentPermissionModel> GetDocumentPermissionByRoleID(long? Id);
         Task<DocumentUserRoleModel> InsertFileProfileTypeAccess(DocumentUserRoleModel documentUserRole);
         Task<IReadOnlyList<DocumentUserRoleModel>> GetDocumentUserRoleList(long? Id);
         Task<DocumentUserRoleModel> DeleteDocumentUserRole(DocumentUserRoleModel value);
-
+        Task<IReadOnlyList<FileProfileSetupFormModel>> GetFileProfileSetupFormList(long? Id);
+        Task<DocumentsUploadModel> InsertCreateDocument(DocumentsUploadModel value);
 
     }
 }

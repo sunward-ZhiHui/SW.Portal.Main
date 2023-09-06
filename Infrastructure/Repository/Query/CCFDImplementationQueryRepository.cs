@@ -104,13 +104,11 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("StatusCodeID", cCFDImplementation.StatusCodeID);
 
                             // var query = " Insert into  CCFDImplementationDetails (ClassOFDocumentID,IsRequired,DoneBy,DoneByDate,ResponsibiltyTo,AddedDate,SessionId,AddedByUserID,StatusCodeID)Values(@ClassOFDocumentID,@IsRequired,@DoneBy,@DoneByDate,@ResponsibiltyTo,@AddedDate,@SessionId,@AddedByUserID,@StatusCodeID)";
-                            var query = @"insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(79,@SessionId,@AddedByUserID,@StatusCodeID)
-                                        insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(80,@SessionId,@AddedByUserID,@StatusCodeID)
-                                        insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(81,@SessionId,@AddedByUserID,@StatusCodeID)
-                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(82,@SessionId,@AddedByUserID,@StatusCodeID)
-                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(83,@SessionId,@AddedByUserID,@StatusCodeID)
-                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(84,@SessionId,@AddedByUserID,@StatusCodeID)
-                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(85,@SessionId,@AddedByUserID,@StatusCodeID)";
+                            var query = @"insert into CCFDImplementationDetails (ClassOFDocumentID,SessionId ,AddedByUserID,StatusCodeID) 
+                                        select ApplicationMasterDetailID ,@SessionId ,@AddedByUserID,@StatusCodeID from ApplicationMasterDetail
+                                        WHERE  ApplicationMasterID in (select ApplicationMasterID from ApplicationMaster WHERE ApplicationMasterCodeID = 350 )";
+
+                                        
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
                             transaction.Commit();

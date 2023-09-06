@@ -136,7 +136,7 @@
     {
         var editModel = (ChangeControlForm)e.EditModel;
 
-          var ex = _changeControlForm.Where(x => x.VersionNo == editModel.VersionNo);
+          var ex = _changeControlForm.Where(x => x.CCNumber == editModel.CCNumber || x.DocNo == editModel.DocNo);
             if (ex.Any())
             {
                 // onShowPopupMessage("Error", "The entered value Already exists.");

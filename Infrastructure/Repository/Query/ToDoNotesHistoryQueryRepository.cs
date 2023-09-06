@@ -254,5 +254,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<IReadOnlyList<ViewEmployee>> GetUserLst(string Userid)
+        {
+            try
+            {
+                var query = "SELECT * From View_Employee where UserID In (@Userid)";
+                var parameters = new DynamicParameters();
+                parameters.Add("Userid", Userid);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+       
     }
 }

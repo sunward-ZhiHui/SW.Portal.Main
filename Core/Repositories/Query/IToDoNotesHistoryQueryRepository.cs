@@ -19,5 +19,6 @@ namespace Core.Repositories.Query
         Task<long> Insert(ToDoNotesHistory ToDoNotesHistory);
         Task<long> UpdateAsync(ToDoNotesHistory ToDoNotesHistory);
         Task<long> DeleteAsync(long id);
+        Task<IReadOnlyList<ViewEmployee>> GetUserLst(string Userid);
     }
 }

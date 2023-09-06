@@ -66,5 +66,14 @@ namespace Application.Queries
         {
             this.ID = ID;
         }
-    }    
+    }
+    public class GetUserList : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+
+        public string UserId { get; set; }
+        public GetUserList(string userID)
+        {
+            this.UserId = userID;
+        }
+    }
 }

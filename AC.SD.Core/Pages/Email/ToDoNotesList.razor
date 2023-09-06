@@ -1,7 +1,9 @@
 ﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
+@using Dapper;
 @using MediatR
+@using Microsoft.Data.SqlClient;
 @using global::Core.Entities;
 @using global::Core.EntityModels;
 @using global::Core.Entities.Views;
@@ -279,7 +281,7 @@
             AutoExpandAllGroupRows="true"
             CssClass="w-100" style="@gridHeight"
             RowClick="OnRowClick"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn" CustomizeEditModel="Grid_CustomizeEditModel"
             AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged">
         <Columns>
             <DxGridDataColumn FieldName="Description" Caption="">
@@ -294,6 +296,7 @@
                         <div style="float: right; font-size: 11px;">
                             @item.Status
                         </div>
+                      
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)</span>
                             @if(item.DueDate != null)
@@ -327,12 +330,12 @@
             @{
                 var types = (ToDoNotesHistory)EditFormContext.EditModel;
 
-                if(types.Users != null)
-                {
-                    string userIdsString = types.Users; // Assuming UserIds is a string
-                    // Split the comma-separated string and parse into an IEnumerable<long>
-                    types.UserIds = userIdsString.Split(',').Select(long.Parse);
-                }
+                // if(types.Users != null)
+                // {
+                //     string userIdsString = types.Users; // Assuming UserIds is a string
+                //     // Split the comma-separated string and parse into an IEnumerable<long>
+                //     UserIds = userIdsString.Split(',').Select(long.Parse);
+                // }
                               
             }
             <DxFormLayout CssClass="w-100">
@@ -346,7 +349,7 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Users" ColSpanMd="12">
                     <DxTagBox Data="_participant"
-                              @bind-Values="types.UserIds"
+                              @bind-Values="UserIds"
                               NullText="Select Users..."
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="UserID"
@@ -359,7 +362,7 @@
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
                     </DxTagBox>
-                    <ValidationMessage For="@(() => types.UserIds)" />
+                    <ValidationMessage For="@(() => UserIds)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="DueDate:" ColSpanMd="6">
                     <DxDateEdit @bind-Date="@types.DueDate" TimeSectionVisible="true" />
@@ -448,6 +451,8 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private List<ViewEmployee> _userList;
+    public IEnumerable<long> UserIds { get; set; }
     private DxUpload uploadComponent;
     bool TodoAttachmentUploadVisible { get; set; } = false;
     bool isOpenDocPop { get; set; } = false;
@@ -506,7 +511,7 @@
     {
         uploadComponent.RemoveAllFiles();
         isTodoFileUpload = false;
-       // await LoadData();
+        // await LoadData();
     }
     void OnUploadError(FileUploadErrorEventArgs e)
     {
@@ -517,7 +522,7 @@
     private void ShowDocFlyout(ToDoNotesHistory toDoNotesHistory)
     {
         CurrentTodoNotes = toDoNotesHistory;
-       // _DocumentsList = Mediator.Send(new GetByToDoDocuments(toDoNotesHistory.SessionId));
+        // _DocumentsList = Mediator.Send(new GetByToDoDocuments(toDoNotesHistory.SessionId));
         isOpenDocPop = true;
     }
     protected override async Task OnInitializedAsync()
@@ -618,11 +623,11 @@
 
         var editModel = (ToDoNotesHistory)e.EditModel;
         string useridsString = null;
-        if(editModel.UserIds != null)
+        if(UserIds != null)
         {
-            useridsString = string.Join(",", editModel.UserIds);
+            useridsString = string.Join(",", UserIds);
         }
-       
+
 
         if (e.IsNew)
         {
@@ -745,8 +750,22 @@
         else
         {
             var editModel = (ToDoNotesHistory)e.EditModel;
+            var types = (ToDoNotesHistory)e.EditModel;
+
+            if (types.Users != null)
+            {
+                string userIdsString = types.Users; // Assuming UserIds is a string
+                                                    // Split the comma-separated string and parse into an IEnumerable<long>
+                UserIds = userIdsString.Split(',').Select(long.Parse);
+            }
         }
     }
+    async Task UserList(string userid)
+    {
+        _userList = await Mediator.Send(new GetUserList(userid));
+       
+    }
+  
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -865,4 +884,6 @@
     {
         return $"template-icon {item.ToLower()}";
     }
+
+   
 }

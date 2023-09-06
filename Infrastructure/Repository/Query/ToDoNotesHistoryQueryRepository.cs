@@ -35,6 +35,60 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ToDoNotesHistory>> GetTodoDueAsync(long UserId)
+        {
+            try
+            {
+                var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(DueDate AS DATE) = CAST(GETDATE() AS DATE)";
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ToDoNotesHistory>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<ToDoNotesHistory>> GetTodoRemainderAsync(long UserId)
+        {
+            try
+            {
+                var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(RemainDate AS DATE) = CAST(GETDATE() AS DATE)";
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ToDoNotesHistory>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
+        public async Task<IReadOnlyList<Documents>> GetToDoDocumentsAsync(Guid SessionId)
+        {
+            try
+            {
+                var query = @"SELECT * FROM Documents WHERE SessionId = @SessionId";
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId);                
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Documents>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<ToDoNotesHistory>> GetAllToDoNotesHistoryAsync(long NotesId,long UserId)
         {
             try
@@ -82,9 +136,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("Status", ToDoNotesHistory.Status);
                             parameters.Add("ColourCode", ToDoNotesHistory.ColourCode);
                             parameters.Add("Users", ToDoNotesHistory.Users);
-                            
+                            parameters.Add("TopicId", ToDoNotesHistory.TopicId);
 
-                            var query = "INSERT INTO ToDoNotesHistory(Users,NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status,ColourCode) VALUES (@Users,@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status,@ColourCode)";
+
+                            var query = "INSERT INTO ToDoNotesHistory(TopicId,Users,NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status,ColourCode) VALUES (@TopicId,@Users,@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status,@ColourCode)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -133,9 +188,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("Status", ToDoNotesHistory.Status);
                             parameters.Add("ColourCode", ToDoNotesHistory.ColourCode);
                             parameters.Add("Users", ToDoNotesHistory.Users);
-                            
+                            parameters.Add("TopicId", ToDoNotesHistory.TopicId);
 
-                            var query = @"Update ToDoNotesHistory SET Users = @Users,Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Status = @Status,ColourCode = @ColourCode WHERE ID = @ID";
+
+                            var query = @"Update ToDoNotesHistory SET TopicId = @TopicId, Users = @Users,Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Status = @Status,ColourCode = @ColourCode WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
                             transaction.Commit();

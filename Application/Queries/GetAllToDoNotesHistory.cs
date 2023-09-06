@@ -14,6 +14,25 @@ namespace Application.Queries
     public class GetAllToDoNotesHistory : PagedRequest, IRequest<List<ToDoNotesHistory>>
     {
     }
+    public class GetMyToDoDueDate : PagedRequest, IRequest<List<ToDoNotesHistory>>
+    {
+        public long UserId { get; set; }
+        public GetMyToDoDueDate(long userID)
+        {
+            this.UserId = userID;
+        }
+    }
+
+    public class GetMyToDoRemainderDate : PagedRequest, IRequest<List<ToDoNotesHistory>>
+    {
+   
+        public long UserId { get; set; }
+        public GetMyToDoRemainderDate(long userID)
+        {            
+            this.UserId = userID;
+        }
+    }
+
     public class GetByToDoNotesHistory : PagedRequest, IRequest<List<ToDoNotesHistory>>
     {
         public long NotesId { get; set; }
@@ -22,6 +41,14 @@ namespace Application.Queries
         {
             this.NotesId = notesId;
             this.UserId = userID;
+        }
+    }
+    public class GetByToDoDocuments : PagedRequest, IRequest<List<Documents>>
+    {       
+        public Guid SessionId { get; set; }
+        public GetByToDoDocuments(Guid SessionId)
+        {
+            this.SessionId = SessionId;            
         }
     }
 

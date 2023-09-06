@@ -121,4 +121,18 @@ namespace Application.Handlers.QueryHandlers
             return newlist;
         }
     }
+    public class GetUserListHandler : IRequestHandler<GetUserList, List<ViewEmployee>>
+    {
+
+        private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
+        public GetUserListHandler(IToDoNotesHistoryQueryRepository ToDoNotesHistoryQueryRepository)
+        {
+            _ToDoNotesHistoryQueryRepository = ToDoNotesHistoryQueryRepository;
+        }
+        public async Task<List<ViewEmployee>> Handle(GetUserList request, CancellationToken cancellationToken)
+        {
+            return (List<ViewEmployee>)await _ToDoNotesHistoryQueryRepository.GetUserLst(request.UserId);
+
+        }
+    }
 }

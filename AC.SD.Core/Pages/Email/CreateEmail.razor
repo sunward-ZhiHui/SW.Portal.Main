@@ -720,8 +720,8 @@ else
         Data.OverDue = false;
         Data.Urgent = false;
         Data.IsAllowParticipants = false;
-       await Task.Delay(3000); // Delay for 2 seconds
-       await msgrichEdit.NewDocumentAsync();
+        await Task.Delay(3000); // Delay for 2 seconds
+        await msgrichEdit.NewDocumentAsync();
 
     }
     private void onSubmit()
@@ -902,9 +902,17 @@ else
         //    return;
         //}
 
+        List<long> concatList = null;
+        if(sCCIds != null)
+        {
+            concatList = sToIds.Concat(sCCIds).ToList();
+        }
+        else
+        {
+            concatList = sToIds.ToList();
+        }
 
-
-        List<long> concatList = sToIds.Concat(sCCIds).ToList();
+        //concatList = sToIds.Concat(sCCIds).ToList();
 
         foreach (var itm in concatList)
         {
@@ -922,7 +930,7 @@ else
         {
             participantIds.Add(Data.OnBehalf.Value);
         }
-        
+
         if (Data.OnBehalf != null && Data.Follow == "No Follow Up")
         {
             participantIds.Remove(applicationUser.UserID);
@@ -939,16 +947,19 @@ else
                 selectedToIds.Add(ls[i].UserID.Value);
             }
         }
-
-        foreach (var itm in sCCIds)
+        if(sCCIds != null)
         {
-            var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
-
-            for (var i = 0; i < ls.Count; i++)
+            foreach (var itm in sCCIds)
             {
-                SelectedCCIds.Add(ls[i].UserID.Value);
+                var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
+
+                for (var i = 0; i < ls.Count; i++)
+                {
+                    SelectedCCIds.Add(ls[i].UserID.Value);
+                }
             }
         }
+        
      
 
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);

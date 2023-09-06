@@ -45,8 +45,8 @@ namespace Application.Queries
     }
     public class GetByToDoDocuments : PagedRequest, IRequest<List<Documents>>
     {       
-        public Guid SessionId { get; set; }
-        public GetByToDoDocuments(Guid SessionId)
+        public string SessionId { get; set; }
+        public GetByToDoDocuments(string SessionId)
         {
             this.SessionId = SessionId;            
         }

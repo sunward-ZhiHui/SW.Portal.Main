@@ -71,7 +71,7 @@ namespace Infrastructure.Repository.Query
             }
         }
         
-        public async Task<IReadOnlyList<Documents>> GetToDoDocumentsAsync(Guid SessionId)
+        public async Task<IReadOnlyList<Documents>> GetToDoDocumentsAsync(string SessionId)
         {
             try
             {

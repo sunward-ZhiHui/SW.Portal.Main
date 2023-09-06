@@ -406,6 +406,18 @@
           FooterVisible="false">
     <BodyTextTemplate>
        
+        <div style=" height: 300px; overflow-y: scroll; width: 300px; z-index: 9999;">
+            @if (_DocumentsList != null && _DocumentsList.Any())
+            {
+                @foreach (var item in _DocumentsList)
+                {
+                    <div style="border-bottom: 2px solid #e8e6e6ee; margin-bottom: 10px;margin-top: 10px;">
+                        <strong style="width:100%;display:inline-block">@item.FileName</strong>
+                        <span>@item.ContentType</span> <span>@item.FileSize</span>
+                    </div>
+                }
+            }
+        </div>
 
         <div style="display:flex;" class="attmode">
             <div id="attachmentSelectButton" class="fa fa-paperclip handline cdspcc" aria-hidden="true"></div>
@@ -455,7 +467,7 @@
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
     private List<ToDoNotesHistory>? _ToDoNotesHistory;
-    private List<Document> _DocumentsList;
+    private List<Documents> _DocumentsList;
     IGrid? Grid { get; set; }
     private ToDoNotesHistory _selectedItems;
     private ToDoNotesHistory CurrentTodoNotes { get; set; }
@@ -506,7 +518,7 @@
     {
         uploadComponent.RemoveAllFiles();
         isTodoFileUpload = false;
-       // await LoadData();
+        // await LoadData();
     }
     void OnUploadError(FileUploadErrorEventArgs e)
     {
@@ -514,12 +526,14 @@
         TodoErrorVisible = true;
         InvokeAsync(StateHasChanged);
     }
-    private void ShowDocFlyout(ToDoNotesHistory toDoNotesHistory)
+    private async void ShowDocFlyout(ToDoNotesHistory toDoNotesHistory)
     {
         CurrentTodoNotes = toDoNotesHistory;
-       // _DocumentsList = Mediator.Send(new GetByToDoDocuments(toDoNotesHistory.SessionId));
+        System.Guid? guidValue = toDoNotesHistory.SessionId;
+        string stringValue = guidValue?.ToString(); 
+        _DocumentsList = await Mediator.Send(new GetByToDoDocuments(stringValue));
         isOpenDocPop = true;
-    }
+    }    
     protected override async Task OnInitializedAsync()
     {
         //var tId = TopicId;

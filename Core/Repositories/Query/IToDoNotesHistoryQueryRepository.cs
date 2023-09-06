@@ -15,7 +15,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<ToDoNotesHistory>> GetTodoDueAsync(long UserId);
         Task<IReadOnlyList<ToDoNotesHistory>> GetTodoRemainderAsync(long UserId);        
         Task<IReadOnlyList<ToDoNotesHistory>> GetAllToDoNotesHistoryAsync(long NotesId,long UserId);
-        Task<IReadOnlyList<Documents>> GetToDoDocumentsAsync(Guid SessionId);        
+        Task<IReadOnlyList<Documents>> GetToDoDocumentsAsync(string SessionId);        
         Task<long> Insert(ToDoNotesHistory ToDoNotesHistory);
         Task<long> UpdateAsync(ToDoNotesHistory ToDoNotesHistory);
         Task<long> DeleteAsync(long id);

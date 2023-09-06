@@ -942,7 +942,7 @@
                 Data.  IsCalibration = DataBySession.IsCalibration;
                 Data. IsAnalyticalTestMethod = DataBySession.IsAnalyticalTestMethod;
                 Data.  IsSamplingMethod = DataBySession.IsSamplingMethod;
-                Data.  EvaluationIsVendor = DataBySession.IsVendor;
+                Data.  EvaluationIsVendor = DataBySession.EvaluationIsVendor;
 
 
 
@@ -956,7 +956,7 @@
 
                 Data.  IsProductionProcess = DataBySession.IsProductionProcess;
                 Data. IsProductionValidation = DataBySession.IsProductionValidation;
-                Data. EvaluationIsControlParameter = DataBySession.IsControlParameter;
+                Data. EvaluationIsControlParameter = DataBySession.EvaluationIsControlParameter;
                 Data. ProductionOthers = DataBySession.ProductionOthers;
                 Data.ProductionDetails = DataBySession.ProductionDetails;
 
@@ -964,7 +964,7 @@
 
                 Data. ProductionDate = DataBySession.ProductionDate;
                 Data. IsPiping = DataBySession.IsPiping;
-                Data.  EvaluationIsEquipment = DataBySession.IsEquipment;
+                Data.  EvaluationIsEquipment = DataBySession.EvaluationIsEquipment;
                 Data. IsEngineeringCalibration = DataBySession.IsEngineeringCalibration;               
                 Data. IsPreventiveMaintenance = DataBySession.IsPreventiveMaintenance;
                 Data. IsUtilityParameter  = DataBySession.IsUtilityParameter ;
@@ -1002,26 +1002,26 @@
                 Data. OthersDate = DataBySession.OthersDate;
                 Data. IsApproved = DataBySession.IsApproved;
                 Data. IsNotApproved = DataBySession.IsNotApproved;
-                Data. ApprovalComments = DataBySession.Comments;
+                Data. ApprovalComments = DataBySession.ApprovalComments;
                 Data. VerifiedBy  = DataBySession.VerifiedBy;
                 Data. ApprovalDate = DataBySession.ApprovalDate;
                 Data.  HODComments = DataBySession.HODComments;
                 Data.  HODSignature = DataBySession.HODSignature;
                 Data. HODDate = DataBySession.HODDate;                
-                Data. ImplementationIsAcceptable = DataBySession.IsAcceptable;
-                Data. ImplementationIsNotAcceptable   = DataBySession.IsNotAcceptable;
-                Data.ImplementationVerifiedBy = DataBySession.VerifiedBy;
+                Data. ImplementationIsAcceptable = DataBySession.ImplementationIsAcceptable;
+                Data. ImplementationIsNotAcceptable   = DataBySession.ImplementationIsNotAcceptable;
+                Data.ImplementationVerifiedBy = DataBySession.ImplementationVerifiedBy;
                 Data.VerifiedDate  = DataBySession.VerifiedDate;
 
                 Data. IsSatisfactory  = DataBySession.IsSatisfactory;
                 Data.  IsNotSatisfactory  = DataBySession.IsNotSatisfactory;
-                Data.ClosureComments = DataBySession.Comments;
+                Data.ClosureComments = DataBySession.ClosureComments;
                 Data. ClosedBy  = DataBySession.ClosedBy;
                 Data.Date = DataBySession.Date;
                 Data.IsSatisfactoryForNotSatisfactory = DataBySession.IsSatisfactoryForNotSatisfactory;
                 Data.NotSatisfactoryClosedBy = DataBySession.NotSatisfactoryClosedBy;
                 Data.NotSatisfactoryDate = DataBySession.NotSatisfactoryDate;
-                await UpdateDataAsync();
+               
             }
             _CCFDImplementation = await Mediator.Send(new GetAllImplementationQuery(SessionIds));
 
@@ -1037,7 +1037,7 @@
                 var ans = await Mediator.Send(UpdateReq);
             }
         }
-
+        await UpdateDataAsync();
 
     }
     async Task UpdateDataAsync()

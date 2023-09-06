@@ -54,6 +54,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ViewSection>> GetSectionByDepartment(long? Id)
+        {
+            try
+            {
+                var query = "SELECT * FROM view_Section WHERE departmentId = @Id";
+                var parameters = new DynamicParameters();
+                parameters.Add("Id", Id, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewSection>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
     }
 }

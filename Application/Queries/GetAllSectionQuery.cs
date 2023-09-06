@@ -13,4 +13,13 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetSectionByDepartment : PagedRequest, IRequest<List<ViewSection>>
+    {
+        public long? Id { get; set; }
+        public GetSectionByDepartment(long? id)
+        {
+            this.Id = id;
+        }
+    }
+
 }

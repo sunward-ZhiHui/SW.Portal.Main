@@ -22,4 +22,17 @@ namespace Application.Handlers.QueryHandlers
             return (List<ViewSubSection>)await _queryRepository.GetAllAsync();
         }
     }
+    public class GetSubSectionBySectionHandler : IRequestHandler<GetSubSectionBySection, List<ViewSubSection>>
+    {
+        private readonly ISubSectionQueryRepository _queryRepository;
+        public GetSubSectionBySectionHandler(ISubSectionQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<ViewSubSection>> Handle(GetSubSectionBySection request, CancellationToken cancellationToken)
+        {
+            return (List<ViewSubSection>)await _queryRepository.GetSubSectionBySection(request.Id);
+        }
+    }
+    
 }

@@ -1,0 +1,18 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.EntityModels;
+
+@code {
+    [Parameter]
+    public long? FileProfileTypeId { get; set; }
+    private List<FileProfileSetupFormModel> _fileProfileSetupFormItems;
+    IGrid Grid { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _fileProfileSetupFormItems = await Mediator.Send(new GetFileProfileSetupFormList(FileProfileTypeId));
+    }
+}

@@ -1,1 +1,39 @@
-﻿@page "/MyDay"
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@page "/MyDay"
+
+<div class="">
+    <div class="main-container">
+        <div class="content-container row">
+            <div class="@leftTodoDisplay" style="@styleTreeDisplay overflow-x: hidden;">
+                <div class="mini-menu-bar-top">
+                    <MyDueTodo></MyDueTodo>
+                </div>
+            </div>
+            <div class="@RighttodoDisplay">
+                <MyRemainderTodo></MyRemainderTodo>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+
+    
+    string leftTodoDisplay = "col-md-6";
+    string RighttodoDisplay = "col-md-6";
+    string styleTreeDisplay = "height: calc(100vh - 190px); padding:10px";
+    protected override async Task OnInitializedAsync()
+    {
+       
+    }
+}

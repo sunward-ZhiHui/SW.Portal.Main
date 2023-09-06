@@ -316,7 +316,7 @@
                             }
                             <div id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)">
                                 <span class="fa fa-paperclip"> </span>
-                                <span style="font-size:11px; margin-left: 8px; margin-right: 15px;"> Add file</span>
+                                <span style="font-size:11px; margin-left: 8px; margin-right: 15px;"> Add file</span> 
                             </div>
                         </div>
                     </div>
@@ -402,7 +402,7 @@
     </DxGrid>
 </DxLoadingPanel>
 
-<DxFlyout @bind-IsOpen="@isOpenDocPop"
+@* <DxFlyout @bind-IsOpen="@isOpenDocPop"
           PositionTarget=@($"#showOpenDoc_{CurrentTodoNotes?.ID}")
           Position="FlyoutPosition.Left"
           CloseOnOutsideClick="true"
@@ -445,8 +445,51 @@
     <FooterTextTemplate>
         <DxButton Text="close" Click="@context.CloseCallback" />
     </FooterTextTemplate>
-</DxFlyout>
+</DxFlyout> *@
+<DxPopup @bind-Visible="@UploadPopupVisible"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="500px">
+    <BodyContentTemplate>
+        <div style=" height: 200px; overflow-y: scroll; width: 500px; z-index: 9999;">
+            @if (_DocumentsList != null && _DocumentsList.Any())
+            {
+                @foreach (var item in _DocumentsList)
+                {
+                    <div style="border-bottom: 2px solid #e8e6e6ee; margin-bottom: 10px;margin-top: 10px;">
+                        <strong style="width:100%;display:inline-block">@item.FileName</strong>
+                        <span>@item.ContentType</span> <span>@item.FileSize</span>
+                        <button class="dxbl-btn fa fa-remove" @onclick="@(() => onDocDelete(item.DocumentId))"> </button>
+                    </div>
+                }
+            }
+        </div>
 
+        <div style="display:flex;" class="attmode">
+            <div id="attachmentSelectButton" class="fa fa-paperclip handline cdspcc" aria-hidden="true"></div>
+
+            <div class="">
+                <DxUpload @ref="uploadComponent" Name="files"
+                          Visible="@TodoAttachmentUploadVisible"
+                          UploadMode="@UploadMode.OnButtonClick"
+                          UploadUrl="@GetUploadUrl()"
+                          AllowMultiFileUpload="true"
+                          ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                          SelectedFilesChanged="@TodoAttachmentSelectedFilesChanged"
+                          FileUploaded="@isTodoUploadSuccess"
+                          FileUploadError="@OnUploadError">
+                </DxUpload>
+                <div class="alert alert-danger @(TodoErrorVisible? " visible" : " invisible")">@TodoMyError</div>
+            </div>
+        </div>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="close" Click="Context.CloseCallback" />
+      
+    </FooterContentTemplate>
+</DxPopup>
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
          HeaderText="CRT"
@@ -463,11 +506,12 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    Documents _documents { get; set; }
     private List<ViewEmployee> _userList;
     public IEnumerable<long> UserIds { get; set; }
     private DxUpload uploadComponent;
     bool TodoAttachmentUploadVisible { get; set; } = false;
-    bool isOpenDocPop { get; set; } = false;
+   // bool isOpenDocPop { get; set; } = false;
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
@@ -483,6 +527,7 @@
     string styleClass = "";
     private bool loading;
     bool Blukdeletepopup { get; set; } = false;
+    bool UploadPopupVisible { get; set; } = false;
     bool AddEnabled { get; set; } = false;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
@@ -533,12 +578,14 @@
     }
     private async void ShowDocFlyout(ToDoNotesHistory toDoNotesHistory)
     {
+       
         CurrentTodoNotes = toDoNotesHistory;
         // _DocumentsList = Mediator.Send(new GetByToDoDocuments(toDoNotesHistory.SessionId));
         System.Guid? guidValue = toDoNotesHistory.SessionId;
         string stringValue = guidValue?.ToString(); 
         _DocumentsList = await Mediator.Send(new GetByToDoDocuments(stringValue));
-        isOpenDocPop = true;
+        UploadPopupVisible = true;
+       
     }    
     protected override async Task OnInitializedAsync()
     {
@@ -900,5 +947,14 @@
         return $"template-icon {item.ToLower()}";
     }
 
-   
+    public async Task onDocDelete(long Id)
+    {
+       // _documents = _DocumentsList.FirstOrDefault(a => a.DocumentId == Id);
+        var request = new DeleteDocumentFileQuery(Id);
+        await Mediator.Send(request);
+       
+        toastService.ShowToast("File deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+       
+      
+    }
 }

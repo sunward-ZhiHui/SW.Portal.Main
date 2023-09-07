@@ -24,6 +24,30 @@ namespace Application.Handlers.QueryHandlers
             return (List<ToDoNotesHistory>)await _ToDoNotesHistoryQueryRepository.GetAllAsync();
         }
     }
+    public class GetToDoDueDateHandler : IRequestHandler<GetMyToDoDueDate, List<ToDoNotesHistory>>
+    {
+        private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
+        public GetToDoDueDateHandler(IToDoNotesHistoryQueryRepository ToDoNotesHistoryQueryRepository)
+        {
+            _ToDoNotesHistoryQueryRepository = ToDoNotesHistoryQueryRepository;
+        }
+        public async Task<List<ToDoNotesHistory>> Handle(GetMyToDoDueDate request, CancellationToken cancellationToken)
+        {
+            return (List<ToDoNotesHistory>)await _ToDoNotesHistoryQueryRepository.GetTodoDueAsync(request.UserId);
+        }
+    }
+    public class GetToDoRemainderDateHandler : IRequestHandler<GetMyToDoRemainderDate, List<ToDoNotesHistory>>
+    {
+        private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
+        public GetToDoRemainderDateHandler(IToDoNotesHistoryQueryRepository ToDoNotesHistoryQueryRepository)
+        {
+            _ToDoNotesHistoryQueryRepository = ToDoNotesHistoryQueryRepository;
+        }
+        public async Task<List<ToDoNotesHistory>> Handle(GetMyToDoRemainderDate request, CancellationToken cancellationToken)
+        {
+            return (List<ToDoNotesHistory>)await _ToDoNotesHistoryQueryRepository.GetTodoRemainderAsync(request.UserId);
+        }
+    }
     public class GetByToDoNotesHistoryHandler : IRequestHandler<GetByToDoNotesHistory, List<ToDoNotesHistory>>
     {
 
@@ -38,6 +62,21 @@ namespace Application.Handlers.QueryHandlers
             
         }
     }
+    public class GetByToDoDocumentsHandler : IRequestHandler<GetByToDoDocuments, List<Documents>>
+    {
+
+        private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
+        public GetByToDoDocumentsHandler(IToDoNotesHistoryQueryRepository ToDoNotesHistoryQueryRepository)
+        {
+            _ToDoNotesHistoryQueryRepository = ToDoNotesHistoryQueryRepository;
+        }
+        public async Task<List<Documents>> Handle(GetByToDoDocuments request, CancellationToken cancellationToken)
+        {
+            return (List<Documents>)await _ToDoNotesHistoryQueryRepository.GetToDoDocumentsAsync(request.SessionId);
+
+        }
+    }
+    
     public class CreateToDoNotesHistoryHandler : IRequestHandler<CreateToDoNotesHistoryQuery, long>
     {
         private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
@@ -80,6 +119,20 @@ namespace Application.Handlers.QueryHandlers
         {
             var newlist = await _ToDoNotesHistoryQueryRepository.DeleteAsync(request.ID);
             return newlist;
+        }
+    }
+    public class GetUserListHandler : IRequestHandler<GetUserList, List<ViewEmployee>>
+    {
+
+        private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
+        public GetUserListHandler(IToDoNotesHistoryQueryRepository ToDoNotesHistoryQueryRepository)
+        {
+            _ToDoNotesHistoryQueryRepository = ToDoNotesHistoryQueryRepository;
+        }
+        public async Task<List<ViewEmployee>> Handle(GetUserList request, CancellationToken cancellationToken)
+        {
+            return (List<ViewEmployee>)await _ToDoNotesHistoryQueryRepository.GetUserLst(request.UserId);
+
         }
     }
 }

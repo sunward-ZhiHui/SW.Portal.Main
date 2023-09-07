@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Base;
+using Core.Entities.Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -20,7 +21,8 @@ namespace Core.Entities
         public DateTime? RemainDate { get; set; }
         public bool Completed { get; set; }
         public long? TopicId { get; set; }
-
+        [NotMapped]
+        public List<ViewEmployee>? participant { get; set; }
         [NotMapped]
         public string ModifiedBy { get; set; }
         [NotMapped]

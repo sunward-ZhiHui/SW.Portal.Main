@@ -1,7 +1,9 @@
 ﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
+@using Dapper;
 @using MediatR
+@using Microsoft.Data.SqlClient;
 @using global::Core.Entities;
 @using global::Core.EntityModels;
 @using global::Core.Entities.Views;
@@ -11,7 +13,132 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration;
+@using System;
+@using System.IO;
 
+<style scoped>
+    .details .section {
+        z-index: 5;
+        position: relative;
+        background: #fff;        
+        margin: 8px 0;
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-width: 245px;
+        flex: 1;
+    }
+
+    .details .section-item.file-item {
+        border-radius: 1px;
+        padding: 8px 16px px 8px 14px;
+    }
+
+        .details .section-item.file-item .thumbnail-wrapper {
+            width: 36px;
+            height: 36px;
+            border-radius: 3px;
+            background-color: #2564cf;            
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+            .details .section-item.file-item .thumbnail-wrapper .thumbnail {
+                max-width: 36px;
+                height: 24px;
+                text-align: center;
+                line-height: 2.4rem;
+            }
+
+        .details .section-item.file-item .file-content {
+            margin-left: 16px;
+        }
+
+        .details .section-item.file-item .file-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 0px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #797775;            
+        }
+
+            .details .section-item.file-item .file-content .file-title {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: 1.4rem;
+                line-height: 20px;
+            }
+
+            .details .section-item.file-item .file-content .file-metadata {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                line-height: 16px;
+            }
+
+                .details .section-item.file-item .file-content .file-metadata span {
+                    height: 16px;
+                    font-size: 1.2rem;
+                    line-height: 1.6rem;
+                    color: #797775;                    
+                }
+
+    .root-37 {
+        display: inline-block;
+    }
+
+    .details .section-item.file-item .section-delete {
+        width: 16px;
+        opacity: 0;
+        margin: 0 -6px 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        height: 24px;
+        cursor: pointer;
+        box-sizing: content-box;
+    }
+
+    .details .section-item .section-delete .fontIcon, .details .section-item .section-icon .fontIcon {
+        color: #797775;
+        
+    }
+
+    .iconSize-16 {
+        font-size: 1.2rem;
+        vertical-align: -1px;
+    }
+
+    .fontIcon {
+        text-align: center;
+        color: #797775;        
+    }
+
+    .details .section-item.file-item {
+        border-radius: 1px;
+        padding: 8px 16px 8px 14px;
+    }
+
+    .details .section-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        box-shadow: 0px 0.5px 0px 0px #edebe9;
+        box-shadow: 0px 0.5px 0px 0px var(#797775);
+    }
+</style>
 
 <style scoped>
     .template-container {
@@ -113,12 +240,6 @@
     }
 </style>
 
-
-
-
-
-
-
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -162,7 +283,7 @@
             AutoExpandAllGroupRows="true"
             CssClass="w-100" style="@gridHeight"
             RowClick="OnRowClick"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn" CustomizeEditModel="Grid_CustomizeEditModel"
             AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged">
         <Columns>
             <DxGridDataColumn FieldName="Description" Caption="">
@@ -177,6 +298,18 @@
                         <div style="float: right; font-size: 11px;">
                             @item.Status
                         </div>
+
+                        <div style="margin-top: 10px; margin-bottom: 10px;">
+                            @if (item.participant != null && item.participant.Any())
+                            {
+                                @foreach (var items in item.participant)
+                                {
+                                    <span class="ptagtodo">
+                                        @items.Name,@items.NickName
+                                    </span>
+                                }
+                            }
+                        </div>                      
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)</span>
                             @if(item.DueDate != null)
@@ -191,7 +324,19 @@
 
                                 <span style="font-size:11px; margin-left: 8px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.RemainDate)</span>
                             }
-                           
+
+
+
+
+
+
+                            @{
+                               string dynamicShowSubject = "showOpenDoc_" + item.ID;
+                            }
+                            <div id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)">
+                                <span class="fa fa-paperclip"> </span>
+                                <span style="font-size:11px; margin-left: 8px; margin-right: 15px;"> Add file</span> 
+                            </div>
                         </div>
                     </div>
                 </CellDisplayTemplate>
@@ -204,12 +349,12 @@
             @{
                 var types = (ToDoNotesHistory)EditFormContext.EditModel;
 
-                if(types.Users != null)
-                {
-                    string userIdsString = types.Users; // Assuming UserIds is a string
-                    // Split the comma-separated string and parse into an IEnumerable<long>
-                    types.UserIds = userIdsString.Split(',').Select(long.Parse);
-                }
+                // if(types.Users != null)
+                // {
+                //     string userIdsString = types.Users; // Assuming UserIds is a string
+                //     // Split the comma-separated string and parse into an IEnumerable<long>
+                //     UserIds = userIdsString.Split(',').Select(long.Parse);
+                // }
                               
             }
             <DxFormLayout CssClass="w-100">
@@ -223,7 +368,7 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Users" ColSpanMd="12">
                     <DxTagBox Data="_participant"
-                              @bind-Values="types.UserIds"
+                              @bind-Values="UserIds"
                               NullText="Select Users..."
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="UserID"
@@ -236,12 +381,12 @@
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
                     </DxTagBox>
-                    <ValidationMessage For="@(() => types.UserIds)" />
+                    <ValidationMessage For="@(() => UserIds)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="DueDate:" ColSpanMd="6">
                     <DxDateEdit @bind-Date="@types.DueDate" TimeSectionVisible="true" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Remain Date:" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Remainder Date:" ColSpanMd="6">
                     <DxDateEdit @bind-Date="@types.RemainDate" TimeSectionVisible="true" />
                 </DxFormLayoutItem>
 
@@ -276,6 +421,129 @@
     </DxGrid>
 </DxLoadingPanel>
 
+@* <DxFlyout @bind-IsOpen="@isOpenDocPop"
+          PositionTarget=@($"#showOpenDoc_{CurrentTodoNotes?.ID}")
+          Position="FlyoutPosition.Left"
+          CloseOnOutsideClick="true"
+          FooterVisible="false">
+    <BodyTextTemplate>
+       
+        <div style=" height: 300px; overflow-y: scroll; width: 300px; z-index: 9999;">
+            @if (_DocumentsList != null && _DocumentsList.Any())
+            {
+                @foreach (var item in _DocumentsList)
+                {
+                    <div style="border-bottom: 2px solid #e8e6e6ee; margin-bottom: 10px;margin-top: 10px;">
+                        <strong style="width:100%;display:inline-block">@item.FileName</strong>
+                        <span>@item.ContentType</span> <span>@item.FileSize</span>
+                    </div>
+                }
+            }
+        </div>
+
+        <div style="display:flex;" class="attmode">
+            <div id="attachmentSelectButton" class="fa fa-paperclip handline cdspcc" aria-hidden="true"></div>
+
+            <div class="">
+                <DxUpload @ref="uploadComponent" Name="files"
+                          Visible="@TodoAttachmentUploadVisible"                          
+                          UploadMode="@UploadMode.OnButtonClick"
+                          UploadUrl="@GetUploadUrl()"
+                          AllowMultiFileUpload="true"
+                          ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                          SelectedFilesChanged="@TodoAttachmentSelectedFilesChanged"
+                          FileUploaded="@isTodoUploadSuccess"
+                          FileUploadError="@OnUploadError">
+                </DxUpload>
+                <div class="alert alert-danger @(TodoErrorVisible? " visible" : " invisible")">@TodoMyError</div>
+            </div>
+        </div>
+
+
+    </BodyTextTemplate>
+    <FooterTextTemplate>
+        <DxButton Text="close" Click="@context.CloseCallback" />
+    </FooterTextTemplate>
+</DxFlyout> *@
+<DxPopup @bind-Visible="@UploadPopupVisible"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="500px">
+    <BodyContentTemplate>
+        <div style="max-height: 200px; overflow-y: auto;overflow-x:hidden;">
+            @if (_DocumentsList != null && _DocumentsList.Any())
+            {
+                @foreach (var item in _DocumentsList)
+                {
+                    <div style="border-bottom: 2px solid #e8e6e6ee; margin-bottom: 10px;margin-top: 10px;">
+
+                        <table style="width:100%;">
+                            <tbody>
+                                <tr>
+                                    @{
+                                        string fileExtension = Path.GetExtension(item.FileName);
+                                    }
+                                    <td rowspan="3" class="icon-first-name">@fileExtension</td>
+                                </tr>
+
+                                <tr>
+                                    <td> 
+                                        @{
+                                            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(item.FileName);
+
+                                        }
+                                        <strong style="width:100%;display:inline-block;margin-left:10px;">@fileNameWithoutExtension</strong>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>
+                                        @{
+                                            string formattedFileSize = FormatFileSize(item.FileSize.Value);
+                                        }
+                                        <span style="font-size: 11px; margin-left:10px;">  @formattedFileSize</span>
+                                        <button style="color:red;float:right;" class="dxbl-btn fa fa-remove" @onclick="@(() => onDocDelete(item.DocumentId))"> </button>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        
+                                              
+                       
+                    </div>
+                }
+            }
+        </div>
+
+        <div style="display:flex;" class="attmode">
+           
+            <div id="attachmentSelectButton" style="margin-top:22px;" class="fa fa-paperclip handline cdspcc" aria-hidden="true">
+                <span style="margin-left:7px;"> Select File</span>
+            </div>           
+            <div class="" style="margin-top:10px;">
+                <DxUpload @ref="uploadComponent" Name="files"
+                          Visible="@TodoAttachmentUploadVisible"
+                          UploadMode="@UploadMode.OnButtonClick"
+                          UploadUrl="@GetUploadUrl()"
+                          AllowMultiFileUpload="true"
+                          ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                          SelectedFilesChanged="@TodoAttachmentSelectedFilesChanged"
+                          FileUploaded="@isTodoUploadSuccess"
+                          FileUploadError="@OnUploadError">
+                </DxUpload>
+                <div class="alert alert-danger @(TodoErrorVisible? " visible" : " invisible")">@TodoMyError</div>
+            </div>
+        </div>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Upload" Click="((e) => onUploadClick())" />
+      
+    </FooterContentTemplate>
+</DxPopup>
 <DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
          HeaderText="CRT"
@@ -292,13 +560,20 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-
+    Documents _documents { get; set; }
+    private List<ViewEmployee> _userList;
+    public IEnumerable<long> UserIds { get; set; }
+    private DxUpload uploadComponent;
+    bool TodoAttachmentUploadVisible { get; set; } = false;
+    // bool isOpenDocPop { get; set; } = false;
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
     private List<ToDoNotesHistory>? _ToDoNotesHistory;
+    private List<Documents> _DocumentsList;
     IGrid? Grid { get; set; }
     private ToDoNotesHistory _selectedItems;
+    private ToDoNotesHistory CurrentTodoNotes { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
@@ -306,6 +581,7 @@
     string styleClass = "";
     private bool loading;
     bool Blukdeletepopup { get; set; } = false;
+    bool UploadPopupVisible { get; set; } = false;
     bool AddEnabled { get; set; } = false;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
@@ -325,6 +601,64 @@
     public long Topicid { get; set; }
     private List<ViewEmployee>? _participant;
 
+    private List<UploadFileInfo> TodoSelectedFiles { get; set; } = new List<UploadFileInfo>();
+    bool isTodoFileUpload = false;
+    bool TodoErrorVisible { get; set; } = false;
+    string TodoMyError { get; set; }
+    async Task onUploadClick()
+    {
+        uploadComponent.UploadAllFiles();
+    }
+    public static string FormatFileSize(long bytes)
+    {
+        var unit = 1024;
+        if (bytes < unit) { return $"{bytes} B"; }
+
+        var exp = (int)(Math.Log(bytes) / Math.Log(unit));
+        return $"{bytes / Math.Pow(unit, exp):F2} {("KMGTPE")[exp - 1]}B";
+    }
+    public string GetUploadUrl()
+    {
+        //var sessionId = Guid.NewGuid();
+
+        string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + CurrentTodoNotes.SessionId + "&addedByUserId=" + applicationUser.UserID;
+        return url.ToString();
+    }
+    protected async void TodoAttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        TodoAttachmentUploadVisible = files.ToList().Count > 0;
+        TodoSelectedFiles.AddRange(files);
+    }
+    private async Task isTodoUploadSuccess()
+    {
+        uploadComponent.RemoveAllFiles();
+        isTodoFileUpload = false;
+        await getdoclist();
+    }
+    void OnUploadError(FileUploadErrorEventArgs e)
+    {
+        TodoMyError = e.RequestInfo.ResponseText;
+        TodoErrorVisible = true;
+        InvokeAsync(StateHasChanged);
+    }
+    private async void ShowDocFlyout(ToDoNotesHistory toDoNotesHistory)
+    {
+
+        CurrentTodoNotes = toDoNotesHistory;
+        // _DocumentsList = Mediator.Send(new GetByToDoDocuments(toDoNotesHistory.SessionId));
+        System.Guid? guidValue = toDoNotesHistory.SessionId;
+        string stringValue = guidValue?.ToString(); 
+        _DocumentsList = await Mediator.Send(new GetByToDoDocuments(stringValue));
+        UploadPopupVisible = true;
+
+    }    
+    async Task getdoclist()
+    {
+        System.Guid? guidValue = CurrentTodoNotes.SessionId;
+        string stringValue = guidValue?.ToString();
+        _DocumentsList = await Mediator.Send(new GetByToDoDocuments(stringValue));        
+    }
     protected override async Task OnInitializedAsync()
     {
         //var tId = TopicId;
@@ -423,11 +757,11 @@
 
         var editModel = (ToDoNotesHistory)e.EditModel;
         string useridsString = null;
-        if(editModel.UserIds != null)
+        if(UserIds != null)
         {
-            useridsString = string.Join(",", editModel.UserIds);
+            useridsString = string.Join(",", UserIds);
         }
-       
+
 
         if (e.IsNew)
         {
@@ -447,6 +781,7 @@
                 var createReq = new CreateToDoNotesHistoryQuery
                     {
                         NotesId = SelectedNoteId,
+                        TopicId = Topicid,
                         Description = editModel.Description,
                         DueDate = editModel.DueDate,
                         RemainDate = editModel.RemainDate,
@@ -485,7 +820,8 @@
             {
                 var UpdateReq = new EditToDoNotesHistoryQuery
                     {
-                        ID = editModel.ID,                       
+                        ID = editModel.ID,  
+                        TopicId = Topicid,
                         Description = editModel.Description,
                         DueDate  = editModel.DueDate,
                         RemainDate = editModel.RemainDate,
@@ -548,8 +884,22 @@
         else
         {
             var editModel = (ToDoNotesHistory)e.EditModel;
+            var types = (ToDoNotesHistory)e.EditModel;
+
+            if (types.Users != null)
+            {
+                string userIdsString = types.Users; // Assuming UserIds is a string
+                                                    // Split the comma-separated string and parse into an IEnumerable<long>
+                UserIds = userIdsString.Split(',').Select(long.Parse);
+            }
         }
     }
+    async Task UserList(string userid)
+    {
+        _userList = await Mediator.Send(new GetUserList(userid));
+       
+    }
+  
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -667,5 +1017,15 @@
     string GetIconCssClass(string item)
     {
         return $"template-icon {item.ToLower()}";
+    }
+
+    public async Task onDocDelete(long Id)
+    {
+       // _documents = _DocumentsList.FirstOrDefault(a => a.DocumentId == Id);
+        var request = new DeleteDocumentFileQuery(Id);
+        await Mediator.Send(request);       
+        toastService.ShowToast("File deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        await getdoclist();
+
     }
 }

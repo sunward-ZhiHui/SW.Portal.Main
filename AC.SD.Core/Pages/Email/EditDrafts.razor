@@ -670,9 +670,9 @@ else
                 Data.StartDate = actItem[0].StartDate;
                 Data.DueDate = actItem[0].DueDate;
                 Data.FileData = actItem[0].FileData;
-               // Data.IsAllowParticipants = actItem[0].IsAllowParticipants;
+                // Data.IsAllowParticipants = actItem[0].IsAllowParticipants;
                 _sessionId = actItem[0].SessionId;
-              
+
                 // ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
 
                 //List<long?> ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
@@ -727,9 +727,17 @@ else
         //    return;
         //}
 
+        List<string> concatList = null;
 
+        if(sCCIds != null)
+        {
+            concatList = sToIds.Concat(sCCIds).ToList();
+        }
+        else
+        {
+            concatList = sToIds.ToList();
+        }
 
-        List<string> concatList = sToIds.Concat(sCCIds).ToList();
 
         foreach (var itm in concatList)
         {
@@ -753,17 +761,18 @@ else
             }
         }
 
-        foreach (var itm in sCCIds)
+        if(sCCIds != null)
         {
-            var ls = _Allparticipant.Where(c => c.Name +"-"+ c.NickName == itm).ToList();
-
-            for (var i = 0; i < ls.Count; i++)
+            foreach (var itm in sCCIds)
             {
-                SelectedCCIds.Add(ls[i].UserID.Value);
+                var ls = _Allparticipant.Where(c => c.Name + "-" + c.NickName == itm).ToList();
+
+                for (var i = 0; i < ls.Count; i++)
+                {
+                    SelectedCCIds.Add(ls[i].UserID.Value);
+                }
             }
         }
-
-
 
         //if (@SelectedDataItems.Count > 0)
         //{

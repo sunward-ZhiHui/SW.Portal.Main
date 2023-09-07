@@ -1,0 +1,617 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+<style scoped>
+    .template-container {
+        display: flex;
+        align-items: center;
+        width: 100%
+    }
+
+    .template-icon {
+        width: 1rem;
+        height: 1rem;
+        margin-right: 0.375rem;
+        -webkit-mask-image: url("_content/AC.SD.Core/images/icons/theme-icon.svg");
+        mask-image: url("_content/AC.SD.Core/images/icons/theme-icon.svg");
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        background-color: currentColor;
+        border: 1px solid white;
+    }
+
+    .dxbl-sm .template-icon {
+        margin-right: 0.25rem;
+    }
+
+    .dxbl-lg .template-icon {
+        margin-right: 0.5rem;
+    }
+
+    .template-container > .blazing-berry {
+        color: #5c2d91;
+    }
+
+    .template-container > .blazing-dark {
+        color: #46444a;
+    }
+
+    .template-container > .office-white {
+        color: #fe7109;
+    }
+
+    .template-container > .purple {
+        color: #7989ff;
+    }
+
+    .template-container > .default {
+        color: #007bff;
+    }
+
+    .template-container > .cerulean {
+        color: #2fa4e7;
+    }
+
+    .template-container > .cyborg {
+        color: #060606;
+    }
+
+    .template-container > .flatly {
+        color: #dce4ec;
+    }
+
+    .template-container > .journal {
+        color: #eb6864;
+    }
+
+    .template-container > .litera {
+        color: #4582ec;
+    }
+
+    .template-container > .lumen {
+        color: #158cba;
+    }
+
+    .template-container > .lux {
+        color: #1a1a1a;
+    }
+
+    .template-container > .pulse {
+        color: #593196;
+    }
+
+    .template-container > .simplex {
+        color: #d9230f;
+    }
+
+    .template-container > .solar {
+        color: #b58900;
+    }
+
+    .template-container > .superhero {
+        color: #df691a;
+    }
+
+    .template-container > .united {
+        color: #e95420;
+    }
+
+    .template-container > .yeti {
+        color: #008cba;
+    }
+</style>
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" Data="@_ToDoNotesHistory" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="false" ShowGroupedColumns="false" ShowSearchBox="false"
+            VirtualScrollingEnabled="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            KeyFieldName="ID"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="w-100" style="@gridHeight"
+            RowClick="OnRowClick"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+        <Columns>
+            <DxGridDataColumn FieldName="Description" Caption="My ToDo Remainder Date">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ToDoNotesHistory)context.DataItem;
+                    }
+                    <div style="width:100%">
+                        <strong>
+                            @item.Description
+                        </strong>
+                        <div style="float: right; font-size: 11px;">
+                            @item.Status
+                        </div>
+                        <div style="margin-top: 10px; margin-bottom: 10px;">
+                            @if (item.participant != null && item.participant.Any())
+                            {
+                                @foreach (var items in item.participant)
+                                {
+                                    <span class="ptagtodo">
+                                        @items.Name,@items.NickName
+                                    </span>
+                                }
+                            }
+                        </div>
+                        <div>
+                            <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)</span>
+                            @if (item.DueDate != null)
+                            {
+                                <span class="fa fa-calendar"> </span>
+                                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.DueDate)</span>
+                            }
+
+                            @if (item.RemainDate != null)
+                            {
+                                <span class="fa fa-bell"> </span>
+
+                                <span style="font-size:11px; margin-left: 8px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.RemainDate)</span>
+                            }
+
+                        </div>
+                    </div>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        @*  @bind-SelectedDataItems="SelectedDataItems"*@
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (ToDoNotesHistory)EditFormContext.EditModel;
+
+                if (types.Users != null)
+                {
+                    string userIdsString = types.Users; // Assuming UserIds is a string
+                                                        // Split the comma-separated string and parse into an IEnumerable<long>
+                    types.UserIds = userIdsString.Split(',').Select(long.Parse);
+                }
+
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Description:" ColSpanMd="12">
+                    @*<DxTextBox @bind-Text="@types.Description" />*@
+                    <DxMemo @bind-Text="@types.Description"
+                            NullText="Description text..."
+                            CssClass="cw-480"
+                            Rows="5" />
+                    <ValidationMessage For="@(() => types.Description)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Users" ColSpanMd="12">
+                    <DxTagBox Data="_participant"
+                              @bind-Values="types.UserIds"
+                              NullText="Select Users..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="UserID"
+                              TextFieldName="Name"
+                              EditFormat="{0}-{1}"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                    </DxTagBox>
+                    <ValidationMessage For="@(() => types.UserIds)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="DueDate:" ColSpanMd="6">
+                    <DxDateEdit @bind-Date="@types.DueDate" TimeSectionVisible="true" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Remain Date:" ColSpanMd="6">
+                    <DxDateEdit @bind-Date="@types.RemainDate" TimeSectionVisible="true" />
+                </DxFormLayoutItem>
+
+                <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                    <DxComboBox Data="@StatusList" @bind-Value="@types.Status"
+                                NullText="Select Status..."
+                                @bind-Text="@Text"
+                                ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.Status)" />
+                </DxFormLayoutItem>
+                @*  <DxFormLayoutItem Caption="ColourCode" ColSpanMd="6">
+                <DxComboBox Data="@Themes"
+                @bind-Value="@types.ColourCode"
+                NullText="Select a theme..."
+                FilteringMode="DataGridFilteringMode.StartsWith"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                CssClass="cw-480">
+                <EditBoxTemplate>
+                @GetEditBoxTemplateContent(types.)
+                </EditBoxTemplate>
+                <ItemTemplate>
+                @GetItemTemplateContent(types)
+                </ItemTemplate>
+                </DxComboBox>
+
+                <ValidationMessage For="@(() => types.Status)" />
+                </DxFormLayoutItem>*@
+
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+    </DxGrid>
+</DxLoadingPanel>
+
+@code {
+    bool PanelVisible { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
+    private List<ToDoNotesHistory>? _ToDoNotesHistory;
+    IGrid? Grid { get; set; }
+    private ToDoNotesHistory _selectedItems;
+    bool ExportSelectedRowsOnly { get; set; }
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? DeleteerrorMessage;
+    string styleClass = "";
+    private bool loading;
+    bool Blukdeletepopup { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    string SelectedGroup = "none";
+    //[Parameter]
+    //public long TopicId { get; set; } = 94;
+    private ToDoNotesHistory _selectlst;
+    public ApplicationUser? applicationUser { get; private set; }
+    bool isEnabled { get; set; } = true;
+    public long SelectedNoteId { get; set; }
+    //  List<string> StatusList { get; set; }
+
+    List<string> StatusList = new List<string>() { "Open", "Close" };
+
+    string Text { get; set; } = "Open";
+    [Parameter]
+    public long Topicid { get; set; }
+    private List<ViewEmployee>? _participant;
+
+    protected override async Task OnInitializedAsync()
+    {      
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _ToDoNotesHistory = await Mediator.Send(new GetMyToDoRemainderDate(applicationUser.UserID));        
+        _participant = await Mediator.Send(new GetAllEmployeeListQuery());
+    }
+    public async Task LoadHistoryData(long NotesId)
+    {
+        SelectedNoteId = NotesId;
+        if (SelectedNoteId > 0)
+        {
+            AddEnabled = true;
+        }
+        _ToDoNotesHistory = await Mediator.Send(new GetByToDoNotesHistory(NotesId, applicationUser.UserID));
+        StateHasChanged();
+    }
+    public async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        _ToDoNotesHistory = await Mediator.Send(new GetByToDoNotesHistory(SelectedNoteId, applicationUser.UserID));
+        PanelVisible = false;
+
+        if (_ToDoNotesHistory.Count > 0)
+        {
+
+            EditEnabled = true;
+            DeleteEnabled = true;
+        }
+        else
+        {
+
+            EditEnabled = false;
+            DeleteEnabled = false;
+        }
+
+        //if (_ToDoNotesHistory.Count > 0)
+        //{
+        //    _selectedItems = _ToDoNotesHistory.FirstOrDefault();
+        //    DeleteEnabled = true;
+        //    StateHasChanged();
+        //}
+
+        StateHasChanged();
+
+    }
+    async Task ExportToExcel()
+    {
+        if (SelectedDataItems != null)
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                    {
+                        ExportSelectedRowsOnly = true,
+                        CustomizeCell = OnCustomizeCell
+
+                    });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                    {
+                        ExportSelectedRowsOnly = false,
+                        CustomizeCell = OnCustomizeCell
+                    });
+        }
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
+
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editModel = (ToDoNotesHistory)e.EditModel;
+        string useridsString = null;
+        if (editModel.UserIds != null)
+        {
+            useridsString = string.Join(",", editModel.UserIds);
+        }
+
+
+        if (e.IsNew)
+        {
+            var ex = _ToDoNotesHistory.Where(x => x.Description == editModel.Description);
+            if (ex.Any())
+            {
+                toastService.ShowToast("The entered value Already exists Description.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                //if (_ToDoNotesHistory.Count > 0)
+                //{
+                //    toastService.ShowToast("Applicable Total 1 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
+                //    return;
+                //}
+
+                var createReq = new CreateToDoNotesHistoryQuery
+                        {
+                            NotesId = SelectedNoteId,
+                            Description = editModel.Description,
+                            DueDate = editModel.DueDate,
+                            RemainDate = editModel.RemainDate,
+                            Users = useridsString,
+                            StatusCodeID = 1,
+                            AddedByUserID = applicationUser.UserID,
+                            ModifiedByUserID = applicationUser.UserID,
+                            AddedDate = DateTime.Now,
+                            ModifiedDate = DateTime.Now,
+                            Status = editModel.Status,
+                            SessionId = Guid.NewGuid(),
+                            ColourCode = editModel.ColourCode
+                        };
+
+                try
+                {
+                    var result = await Mediator.Send(createReq);
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                }
+                catch (Exception eq)
+                {
+                    toastService.ShowToast(eq.Message, AC.SD.Core.Services.ToastLevel.Error);
+                }
+
+                await UpdateDataAsync();
+            }
+        }
+        else
+        {
+            var ex = _ToDoNotesHistory.Where(x => x.Description == editModel.Description && x.ID != editModel.ID);
+            if (ex.Any())
+            {
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                var UpdateReq = new EditToDoNotesHistoryQuery
+                        {
+                            ID = editModel.ID,
+                            Description = editModel.Description,
+                            DueDate = editModel.DueDate,
+                            RemainDate = editModel.RemainDate,
+                            AddedByUserID = editModel.AddedByUserID,
+                            StatusCodeID = editModel.StatusCodeID,
+                            Users = useridsString,
+                            ModifiedByUserID = applicationUser.UserID,
+                            ModifiedDate = DateTime.Now,
+                            AddedDate = editModel.AddedDate,
+                            SessionId = editModel.SessionId,
+                            Status = editModel.Status,
+                            ColourCode = editModel.ColourCode
+                        };
+
+                var ans = await Mediator.Send(UpdateReq);
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+
+            }
+
+        }
+
+    }
+
+    async void ClosePopup()
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
+    }
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+
+        var editModel = (ToDoNotesHistory)e.DataItem;
+
+        //  string result = string.Empty;
+        //  result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
+        // Console.WriteLine(result);
+        // await UpdateDataAsync();
+
+        var request = new DeleteToDoNotesHistoryQuery(editModel.ID);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+
+        }
+        else
+        {
+            var editModel = (ToDoNotesHistory)e.EditModel;
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedItems = _ToDoNotesHistory.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        DeleteEnabled = true;
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+        Text = "Open";
+
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+        Text = _selectedItems.Status;
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is ToDoNotesHistory ToDoNotesHistory)
+                    {
+                        var request = new DeleteToDoNotesHistoryQuery(ToDoNotesHistory.ID);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+            await UpdateDataAsync();
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+
+        }
+        else
+        {
+            EditEnabled = true;
+
+        }
+    }
+    public async Task LoadRightTodoData(long TopicId)
+    {
+        _ToDoNotesHistory = null;
+    }
+
+    string CurrentTheme { get; set; } = "Blazing-berry";
+    IEnumerable<string> Themes = new List<string>() {
+        "Blazing-berry", "Blazing-dark", "Purple", "Office-white",
+        "Default", "Cerulean", "Cyborg", "Flatly", "Journal", "Litera", "Lumen", "Lux", "Pulse", "Simplex", "Solar", "Superhero", "United", "Yeti"
+                    };
+    RenderFragment GetEditBoxTemplateContent(string item)
+    {
+        return
+    @<div class="template-container">
+        @GetTemplateIcon(item)
+        <DxInputBox />
+    </div>;
+    }
+    RenderFragment GetItemTemplateContent(string item)
+    {
+        return @<div class="template-container">
+        @GetTemplateIcon(item)
+        @item
+    </div>;
+    }
+    RenderFragment GetTemplateIcon(string item)
+    {
+        if (string.IsNullOrEmpty(item))
+            return @<text></text>;
+        return @<span class="@GetIconCssClass(item)"></span>;
+    }
+    string GetIconCssClass(string item)
+    {
+        return $"template-icon {item.ToLower()}";
+    }
+}

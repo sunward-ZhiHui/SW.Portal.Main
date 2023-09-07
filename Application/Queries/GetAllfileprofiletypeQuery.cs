@@ -91,13 +91,9 @@ namespace Application.Queries
     public class GetFileDownload : PagedRequest, IRequest<DocumentsModel>
     {
         public long? DocumentId { get; private set; }
-        public string? FileName { get; private set; }
-        public string? FilePath { get; private set; }
-        public GetFileDownload(long? documentId, string? fileName, string? filePath)
+        public GetFileDownload(long? documentId)
         {
             this.DocumentId = documentId;
-            this.FileName = fileName;
-            this.FilePath = filePath;
         }
     }
     public class GetUpdateDescriptionField : PagedRequest, IRequest<DocumentsModel>

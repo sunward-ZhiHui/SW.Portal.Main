@@ -171,8 +171,8 @@ namespace DocumentApi.Controllers
             return "OK";
         }
         [HttpPost]
-        [Route("uploadchunkfile")]
-        public ActionResult UploadChunkFile(IFormFile files, Guid? SessionId, long? DocumentId)
+        [Route("uploadchunkfileById")]
+        public ActionResult uploadchunkfileById(IFormFile files, Guid? SessionId, long? DocumentId)
         {
             // Handling Upload with Chunks
             string chunkMetadata = Request.Form["chunkMetadata"];

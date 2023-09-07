@@ -37,7 +37,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DocumentUserRoleModel>> GetDocumentUserRoleList(long? Id);
         Task<DocumentUserRoleModel> DeleteDocumentUserRole(DocumentUserRoleModel value);
         Task<IReadOnlyList<FileProfileSetupFormModel>> GetFileProfileSetupFormList(long? Id);
-        Task<DocumentsUploadModel> InsertCreateDocument(DocumentsUploadModel value);
+        
 
     }
 }

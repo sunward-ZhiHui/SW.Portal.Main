@@ -76,19 +76,56 @@
 
                     @{
                         var item = (DocumentsModel)context.DataItem;
+                        var contentType = item.ContentType != null ? item.ContentType.Split("/").First().ToLower() : "";
                     }
                     @if (item.Type == "Document")
                     {
+                        @if (item.Extension == "xlsx" || item.Extension == "xls")
+                        {
+                            <i class="fa fa-file-excel" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "ppt" || item.Extension == "pptx")
+                        {
+                            <i class="fa fa-file-powerpoint" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "doc" || item.Extension == "docx")
+                        {
+                            <i class="fa fa-file-word" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "pdf")
+                        {
+                            <i class="fa fa-file-pdf" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "txt")
+                        {
+                            <i class="fa fa-file-text" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else
+                        {
+                            if (contentType == "image")
+                            {
+                                <i class="fa fa-file-image" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                            }
+                            else if (contentType == "video")
+                            {
+                                <i class="fa fa-file-video" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                            }
+                            else
+                            {
+                                <i class="fa fa-file" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                            }
+                        }
                         @if (item.IsLocked == true)
                         {
-                            <i class="fa fa-lock" aria-hidden="true" style="margin-right: 5px;"></i>
+                            <i class="fa fa-lock" aria-hidden="true" style="margin-right: 5px;" title="@item.LockedByUser"></i>
                         }
+
                     }
                     else
                     {
-                        <i class="fa fa-folder" aria-hidden="true" style="margin-right: 5px;"></i>
+                        <i class="fa fa-folder" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
                     }
-                    @item.FileName
+                    <span id=@($"flyout-overview-target-container-RenameFilename-{item.DocumentID}")>@item.FileName</span>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="ProfileNo" Caption="Profile" MinWidth="80" />
@@ -156,7 +193,10 @@
         PanelVisibleLink = true;
         _fileProfileselectedlstItemsList = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
         fileProfileTypeDocumentsLink = _fileProfileselectedlstItemsList.DocumentsData;
-
+        if (fileProfileTypeDocumentsLink.Count > 0 && ParentSelectedFiles!=null && ParentSelectedFiles.Type=="Document")
+        {
+            fileProfileTypeDocumentsLink = fileProfileTypeDocumentsLink.Where(w => w.DocumentID != ParentSelectedFiles.DocumentID).ToList();
+        }
         if (fileProfileTypeDocumentsLink.Count > 0)
         {
             _selectedItemsList = fileProfileTypeDocumentsLink.FirstOrDefault();

@@ -35,13 +35,16 @@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
+            <div class="" style="float: left; margin-top: -40px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
+                <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+            </div>
+            <div class="" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 8px; z-index: 9999; width:100px;">
                 <button type="submit" form="@UploadDocFormID" disabled="@loading" class="btn border-primary btn-primary m-1 handline" onclick="@onsubmitUploadFromClick">
                     @if (loading)
                     {
                         <span class="spinner-border spinner-border-sm mr-1"></span>
                     }
-                    <i class="fa fa-save"></i>
+                    <i class="fa fa-upload"></i>
                     @Message
                 </button>
             </div>
@@ -54,151 +57,149 @@
 <div class="" style="margin-left:10px;">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
         <div class="cw-480" style="margin-top:10px;">
-<EditForm Model="@Data" id="@UploadDocFormID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+            <EditForm Model="@Data" id="@UploadDocFormID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
 
-    <DxFormLayout CssClass="w-100">
-        <DataAnnotationsValidator />
-        <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-            <DxComboBox Data="@_plantItems"
-                        NullText="Select Company..."
-                        ListRenderMode="ListRenderMode.Virtual"
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="PlantCode"
-                        ValueFieldName="PlantID"
-                        SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
-                        Enabled="isPlant"
-            @bind-Value="@Data.PlantId" ShowValidationIcon="true">
-                <Columns>
-                    <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
-                                        Caption="Plant Code"
-                                        Width="180px" />
-                    <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
-                                        Caption="Description" />
-                    <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
-                                        Caption="Nav Company" />
-                </Columns>
-            </DxComboBox>
-            <ValidationMessage For="@(() => Data.PlantId)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Division" ColSpanMd="6">
-            <DxComboBox Data="@_divisionItems"
-                        NullText="Select Division..."
-                        ListRenderMode="ListRenderMode.Virtual"
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Name"
-                        ValueFieldName="DivisionID"
-                        Enabled="isDivision"
-                        SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
-            @bind-Value="@Data.DivisionId" ShowValidationIcon="true">
-                <Columns>
-                    <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
-                                        Caption="Name"
-                                        Width="180px" />
-                    <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
-                                        Caption="Code" />
-                    <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
-                                        Caption="Description" />
-                </Columns>
-            </DxComboBox>
-            <ValidationMessage For="@(() => Data.DivisionId)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Department" ColSpanMd="6">
-            <DxComboBox Data="@_departmentItems"
-                        NullText="Select Department..."
-                        ListRenderMode="ListRenderMode.Virtual"
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="DepartmentName"
-                        ValueFieldName="DepartmentId"
-                        Enabled="isDepartment"
-                        SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
-            @bind-Value="@Data.DepartmentId" ShowValidationIcon="true">
-                <Columns>
-                    <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
-                                        Caption="Name"
-                                        Width="180px" />
-                    <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
-                                        Caption="Code" />
-                    <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
-                                        Caption="Description" />
-                </Columns>
-            </DxComboBox>
-            <ValidationMessage For="@(() => Data.DepartmentId)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Section" ColSpanMd="6">
-            <DxComboBox Data="@_sectionItems"
-                        NullText="Select Section..."
-                        ListRenderMode="ListRenderMode.Virtual"
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="SectionName"
-                        ValueFieldName="SectionId"
-                        Enabled="isSection"
-                        SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
-            @bind-Value="@Data.SectionId" ShowValidationIcon="true">
-                <Columns>
-                    <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
-                                        Caption="Name"
-                                        Width="180px" />
-                    <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
-                                        Caption="Code" />
-                    <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
-                                        Caption="Description" />
-                </Columns>
-            </DxComboBox>
-            <ValidationMessage For="@(() => Data.SectionId)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
-            <DxComboBox Data="@_subSectionItems"
-                        NullText="Select SubSection..."
-                        ListRenderMode="ListRenderMode.Virtual"
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="SubSectionName"
-                        ValueFieldName="SubSectionId"
-                        Enabled="isSubSection"
-            @bind-Value="@Data.SubSectionId" ShowValidationIcon="true">
-                <Columns>
-                    <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
-                                        Caption="Name"
-                                        Width="180px" />
-                    <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
-                                        Caption="Code" />
-                    <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
-                                        Caption="Description" />
-                </Columns>
-            </DxComboBox>
-            <ValidationMessage For="@(() => Data.SubSectionId)" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="6" Visible="@isExpiryDate">
-            <DxDateEdit NullText="Select a Expiry Date..." MinDate="DateTime.Now" @bind-Date="@Data.ExpiryDate" CssClass="cw-320" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-            <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="" ColSpanMd="12">
-            <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="PlantCode"
+                                    ValueFieldName="PlantID"
+                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
+                                    Enabled="isPlant"
+                        @bind-Value="@Data.PlantId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                    Caption="Plant Code"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                    Caption="Nav Company" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.PlantId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                        <DxComboBox Data="@_divisionItems"
+                                    NullText="Select Division..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="DivisionID"
+                                    Enabled="isDivision"
+                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
+                        @bind-Value="@Data.DivisionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.DivisionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                        <DxComboBox Data="@_departmentItems"
+                                    NullText="Select Department..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="DepartmentName"
+                                    ValueFieldName="DepartmentId"
+                                    Enabled="isDepartment"
+                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
+                        @bind-Value="@Data.DepartmentId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.DepartmentId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                        <DxComboBox Data="@_sectionItems"
+                                    NullText="Select Section..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SectionName"
+                                    ValueFieldName="SectionId"
+                                    Enabled="isSection"
+                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
+                        @bind-Value="@Data.SectionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.SectionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
+                        <DxComboBox Data="@_subSectionItems"
+                                    NullText="Select SubSection..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SubSectionName"
+                                    ValueFieldName="SubSectionId"
+                                    Enabled="isSubSection"
+                        @bind-Value="@Data.SubSectionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.SubSectionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="6" Visible="@isExpiryDate">
+                        <DxDateEdit NullText="Select a Expiry Date..." MinDate="DateTime.Now" @bind-Date="@Data.ExpiryDate" CssClass="cw-320" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                        <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="" ColSpanMd="12">
+
                         <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
-                <DxUpload @ref="uploadComponent" Name="files"
-                          Visible="@AttachmentUploadVisible"
-                          AcceptedFileTypes=@AcceptedFileTypes  
-                          ChunkSize="200000"
-                          UploadMode="@UploadMode.OnButtonClick"
-                          FileUploadStart="OnFileUploadStart"
-                          AllowMultiFileUpload="true"
-                          ExternalSelectButtonCssSelector="#attachmentSelectButton"
-                          SelectedFilesChanged="@AttachmentSelectedFilesChanged"
-                          FileUploaded="@isUploadSuccess"
-                          FileUploadProgressChanged="@OnUploadProgressChanged"
-                          FileUploadStarted="@OnFileUploadStarted"
-                          FileUploadError="@OnUploadError">
-                </DxUpload>
-                <div class="alert alert-info @(MessageVisible? " visible" : " invisible")">@MyMessage</div>
+                            <DxUpload @ref="uploadComponent" Name="files"
+                                      Visible="@AttachmentUploadVisible"
+                                      AcceptedFileTypes=@AcceptedFileTypes
+                                      ChunkSize="200000"
+                                      UploadMode="@UploadMode.OnButtonClick"
+                                      FileUploadStart="OnFileUploadStart"
+                                      AllowMultiFileUpload="true"
+                                      ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                                      SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                                      FileUploaded="@isUploadSuccess"
+                                      FileUploadProgressChanged="@OnUploadProgressChanged"
+                                      FileUploadStarted="@OnFileUploadStarted"
+                                      FileUploadError="@OnUploadError">
+                            </DxUpload>
 
-                <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
-            </div>
-        </DxFormLayoutItem>
-    </DxFormLayout>
-</EditForm>
-</div>
-</div>
+                        </div>
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditForm>
+        </div>
+    </div>
 </div>
 @code {
     public DocumentsModel selectedFiles { get; set; }
@@ -208,7 +209,7 @@
     [Parameter]
     public string UploadDocFormID { get; set; }
     public bool loading { get; set; } = false;
-    string Message => loading ? "Uploading..." : "Upload";
+    string Message = "Upload";
     private List<ViewPlants>? _plantItems;
     private List<ViewDivision>? _divisionItems;
     private List<ViewDepartment>? _departmentItems;
@@ -216,29 +217,41 @@
     private List<ViewSubSection>? _subSectionItems;
     bool AttachmentUploadVisible { get; set; } = false;
     DocumentsUploadModel Data = new DocumentsUploadModel();
+    public List<DocumentsUploadModel> TempSetIds = new List<DocumentsUploadModel>();
     public DocumentProfileNoSeriesModel documentProfileNoSeriesData { get; set; }
     private DxUpload uploadComponent;
     string MyError { get; set; }
-    bool ErrorVisible { get; set; } = false;
     string MyMessage { get; set; }
-    bool MessageVisible { get; set; } = false;
     private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
     bool isExpiryDate { get; set; } = false;
     bool isPlant { get; set; } = false;
     bool isDivision { get; set; } = false; bool isDepartment { get; set; } = false;
     bool isSection { get; set; } = false; bool isSubSection { get; set; } = false;
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
+    int SelectedFilesCount { get; set; }
+    int CurrentUplodCount { get; set; }
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
 
     }
-    public async Task loadData(DocumentsModel _selectedFiles,ApplicationUser _applicationUser)
+    public async Task loadData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser)
     {
+        isPlant = false;
+        isDivision = false; isDepartment = false;
+        isSection = false; isSubSection = false;
+        Data.PlantId = 0; Data.DepartmentId = 0;
+        Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
+        TempSetIds = new List<DocumentsUploadModel>();
+        loading = false;
+        Message = "Upload";
         uploadComponent.RemoveAllFiles();
-        MessageVisible = false;
+        CurrentUplodCount = 0;
+        SelectedFilesCount = 0;
+        SelectedFiles = new List<UploadFileInfo>();
+        MyError = ""; MyMessage = "";
         if (_selectedFiles != null)
         {
-            selectedFiles=_selectedFiles;
+            selectedFiles = _selectedFiles;
             applicationUser = _applicationUser;
             documentProfileNoSeriesData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedFiles.ProfileID));
 
@@ -293,22 +306,27 @@
     }
     async Task OnFileUploadStart(FileUploadStartEventArgs e)
     {
+        Message = "Uploading...";
         loading = true;
         var SessionId = new Guid(e.FileInfo.Guid);
         Data.SessionId = SessionId;
         var response = await Mediator.Send(new InsertCreateDocument(Data));
         if (response.DocumentId > 0)
         {
-            string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-            string url = BaseUrl + "Upload/uploadchunkfile?SessionId=" + SessionId + "&DocumentId=" + response.DocumentId;
+            DocumentsUploadModel TempSetId = new DocumentsUploadModel();
+            TempSetId.SessionId = SessionId;
+            TempSetId.DocumentId = response.DocumentId;
+            TempSetIds.Add(TempSetId);
+            string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
+            string url = BaseUrl + "UploadDocumentsChunkFileById?SessionId=" + selectedFiles.SessionID + "&DocumentId=" + response.DocumentId;
             e.UploadUrl = url;
-            loading = false;
+
         }
     }
     void OnFileUploadStarted(FileUploadEventArgs e)
     {
         MyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
-        MessageVisible = true;
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
         InvokeAsync(StateHasChanged);
     }
     void OnUploadProgressChanged(FileUploadEventArgs e)
@@ -357,15 +375,35 @@
     {
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
+        SelectedFilesCount = files.ToList().Count; //Count current files
+        InvokeAsync(StateHasChanged);
     }
-    private void isUploadSuccess()
+    private void isUploadSuccess(FileUploadEventArgs e)
     {
-        //backUrl();
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        CurrentUplodCount++;
+        if (CurrentUplodCount >= SelectedFilesCount)
+        {
+            Message = "Upload";
+            loading = false;
+            backUrl();
+        }
+        InvokeAsync(StateHasChanged);
+
     }
-    void OnUploadError(FileUploadErrorEventArgs e)
+    async Task OnUploadError(FileUploadErrorEventArgs e)
     {
+        var filesessionIds = new Guid(e.FileInfo.Guid);
+        var docId = TempSetIds.FirstOrDefault(o => o.SessionId == filesessionIds)?.DocumentId;
+        if (docId > 0)
+        {
+            await Mediator.Send(new DeleteDoc(docId.Value));
+        }
         MyError = e.RequestInfo.ResponseText;
-        ErrorVisible = true;
+        toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
+        Message = "Upload";
+        loading = false;
         InvokeAsync(StateHasChanged);
     }
     public void onsubmitUploadFromClick()

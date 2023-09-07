@@ -1,6 +1,7 @@
 ﻿
 using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using Core.Repositories.Query.Base;
 using System;
 using System.Collections.Generic;
@@ -16,5 +17,9 @@ namespace Core.Repositories.Query
         Task<Documents> GetByIdAsync(long? Id);
         Task<long> Delete(long? DocumentId);
         Task<byte[]> GetByteFromUrl(string Url);
+        Documents GetByOneAsync(long? DocumentId);
+        Task<DocumentsUploadModel> InsertCreateDocument(DocumentsUploadModel value);
+        Task<Documents> UpdateDocumentAfterUpload(Documents value);
+        Task<Documents> InsertCreateDocumentBySession(Documents value);
     }
 }

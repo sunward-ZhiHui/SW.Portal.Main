@@ -15,7 +15,7 @@
 @inject ClipboardService ClipboardService
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-
+@inject AC.SD.Core.Services.ToastService toastService
 <div class="menu-bar-content-container col-md-12">
     <div class="card w-100" style="margin-bottom:1px;">
 
@@ -239,18 +239,19 @@
     public bool securityEnabled { get; set; } = false;
     public bool moreEnabled { get; set; } = false;
     public bool informationEnabled { get; set; } = false;
-   
+    private string? FileUrl;
     private string? DocumentViewUrl;
     private string? ServerUrl;
 
-   
+
     public ApplicationUser applicationUser { get; private set; }
-   
+
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _TreeData = await Mediator.Send(new GetAllfileprofiletypeQuery(FileProfileTypeId));
         await loadFileProfileData();
@@ -274,7 +275,7 @@
         }
 
     }
-  
+
     private async Task loadFileProfileData()
     {
 
@@ -284,7 +285,7 @@
             PanelVisible = true;
             _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
             _fileProfileselectedlst = _fileProfileselectedlstItems.DocumentsData;
-           
+
 
             if (_fileProfileselectedlst.Count > 0)
             {
@@ -368,16 +369,24 @@
     {
         NavigationManager.NavigateTo($"fileprofiletypedocument/");
     }
-   
+
 
     private async Task onCopy()
     {
-        if (_selectedItems.DocumentID > 0)
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
-           // var url = ServerUrl + "id=" + _selectedItems.DocumentID + "&&type=latest";
-            await ClipboardService.WriteTextAsync(url);
-         
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
         }
     }
     private void LoadFiles(InputFileChangeEventArgs e)
@@ -404,9 +413,16 @@
     {
         if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID,_selectedItems.FileName,_selectedItems.FilePath));
-            //  Trigger file download
-            await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID));
+            if (response.StatusCodeID == 0)
+            {
+                toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                //  Trigger file download
+                await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+            }
         }
     }
     void onUpload()
@@ -417,8 +433,16 @@
     {
         if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
-            await OpenDocumentPreview(url);
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                await OpenDocumentPreview(url);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                await OpenDocumentPreview(url);
+            }
         }
     }
     private async Task OpenDocumentPreview(string url)

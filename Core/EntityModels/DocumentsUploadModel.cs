@@ -34,5 +34,10 @@ namespace Core.EntityModels
         public string? DepartmentName { get; set; }
         public string? ProfileNo { get; set; }
         public Guid? SessionId { get; set; }
+        public long? DocumentParentId { get; set; }
+        public long? DocumentMainParentId { get; set; }
+        public bool? IsCheckOut { get; set; } = false;
+        
+        public string? FileName { get; set; }
     }
 }

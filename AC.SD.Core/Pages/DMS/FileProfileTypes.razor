@@ -64,12 +64,8 @@
                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Visible="@deleteEnabled" />
                             <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Visible="@historyEnabled" />
                             <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Visible="@checkoutEnabled" />
-                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Visible="@checkInEnabled">
-                                <TextTemplate>
-                                    <label for="input-file" style="cursor:pointer;">
-                                        Check In
-                                    </label>
-                                </TextTemplate>
+                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Visible="@checkInEnabled" Click="onCheckin">
+                               
                             </DxMenuItem>
                             <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Visible="@NotifyEnabled" />
                             <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Visible="@shareEnabled" />
@@ -391,8 +387,19 @@
 <UploadDoumentFiles @ref="refUploadDoumentFiles" UploadDocFormID="UploadDocFormID"   RevokeBack="BackUpload"></UploadDoumentFiles>
 
 </div>
+ <DxPopup @bind-Visible="@PopupUpload"
+         HeaderText="Upload Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter ="false"
+         Width="1000px">
+     <BodyContentTemplate> 
+        <UploadDocumentUpdateFiles @ref="refUploadDocumentUpdateFiles"  selectedItems="@_selectedItems" applicationUser="@applicationUser" FileProfileSessionId="@SessionId" RevokeBack="BackUpload"></UploadDocumentUpdateFiles>
+     </BodyContentTemplate> 
+ </DxPopup> 
 @code {
     private UploadDoumentFiles refUploadDoumentFiles;
+    private UploadDocumentUpdateFiles refUploadDocumentUpdateFiles;
     IGrid Grid { get; set; }
     [Parameter]
     public Guid? SessionId { get; set; }
@@ -447,15 +454,18 @@
     public string? NewRename { get; set; }
     private string? DocumentViewUrl;
     private string? ServerUrl;
+    private string? FileUrl;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
-        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+
     }
     protected override async Task OnParametersSetAsync()
     {
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         isVisibleMore = "display:none;";isVisibleParentMore = "display:none;";
         ondownloadEnabled = false; moreEnabled = false; informationEnabled = false; securityEnabled = false;
 
@@ -479,27 +489,34 @@
     }
     async Task loadFileProfileData()
     {
-        PanelVisible = true;
-        _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
-        fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
-        if (DocSessionId != null)
+        if (FileProfileTypeId == null && SessionId != null)
         {
-            fileProfileTypeDocuments = fileProfileTypeDocuments.Where(w => w.SessionID == DocSessionId).ToList();
-        }
-        if (fileProfileTypeDocuments.Count > 0)
-        {
-
-            _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
-
-            permissionEnabled();
-            Grid.SetFocusedRowIndex(0);
+            NavigationManager.NavigateTo("fileprofiletype");
         }
         else
         {
-            PermiisionMain();
+            PanelVisible = true;
+            _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
+            fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
+            if (DocSessionId != null)
+            {
+                fileProfileTypeDocuments = fileProfileTypeDocuments.Where(w => w.SessionID == DocSessionId).ToList();
+            }
+            if (fileProfileTypeDocuments.Count > 0)
+            {
+
+                _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
+
+                permissionEnabled();
+                Grid.SetFocusedRowIndex(0);
+            }
+            else
+            {
+                PermiisionMain();
+            }
+            PanelVisible = false;
+            StateHasChanged();
         }
-        PanelVisible = false;
-        StateHasChanged();
     }
     void PermiisionMain()
     {
@@ -508,7 +525,7 @@
         deleteEnabled = false; historyEnabled = false; checkoutEnabled = false; checkInEnabled = false;
         shareEnabled = false; NotifyEnabled = false; formdetailsEnabled = false; linkdownloadEnabled = false; formdetailsEnabled = false;
         renameEnabled = false; releasewikiEnabled = false; viewParentEnabled = false;
-        if (_selectedItems != null)
+        if (_selectedItems != null || FileProfileTypeId>0)
         {
             ondownloadEnabled = true;
             moreEnabled = true;
@@ -531,9 +548,10 @@
 
             if (_selectedItems.IsLocked == true)
             {
-                uploadEnabled = false; deleteEnabled = false; DownloadEnabled = false;
-                viewfileEnabled = false; historyEnabled = false; checkoutEnabled = false; checkInEnabled = true;
-                NotifyEnabled = false; releasewikiEnabled = false; copylinkEnabled = false;
+                uploadEnabled = false; deleteEnabled = false; DownloadEnabled = true;
+                viewfileEnabled = true; historyEnabled = true; checkoutEnabled = false; checkInEnabled = true;
+                NotifyEnabled = true; releasewikiEnabled = true; copylinkEnabled = true;viewParentEnabled = true;
+                linkdownloadEnabled = true; shareEnabled = true;formdetailsEnabled = true;
             }
             else
             {
@@ -606,10 +624,16 @@
     }
     public void openFileProfileLink(DocumentsModel documentsModel)
     {
+        onShowMain = "";
+        onUploadVisible = "display:none;";
+        StateHasChanged();
         NavigationManager.NavigateTo("fileprofiletype/" + documentsModel.SessionID);
     }
     public void openFileProfileMainLink()
-    {
+    { 
+        onShowMain = "";
+        onUploadVisible = "display:none;";
+        StateHasChanged();
         NavigationManager.NavigateTo("fileprofiletype");
     }
     void onCopyLink()
@@ -721,11 +745,20 @@
     }
     private async Task onCopy()
     {
-        if (_selectedItems != null && _selectedItems.DocumentID > 0)
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
-            await ClipboardService.WriteTextAsync(url);
-
+            if(_selectedItems.IsNewPath==true)
+            {
+                var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
         }
     }
     private void LoadFiles(InputFileChangeEventArgs e)
@@ -752,9 +785,16 @@
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID, _selectedItems.FileName, _selectedItems.FilePath));
-            //  Trigger file download
-            await jsRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID));
+            if (response.StatusCodeID == 0)
+            {
+                toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                //  Trigger file download
+                await jsRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+            }
         }
     }
     async Task CloseUploadPopup()
@@ -768,18 +808,26 @@
         onShowMain = "display:none;";
         onUploadVisible = "";
         StateHasChanged();
-        // PopupUpload = true;
     }
     void onUpload()
     {
-
+        PopupUpload = true;
     }
     async void onView()
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
-            await OpenDocumentPreview(url);
+            if(_selectedItems.IsNewPath==true)
+            {
+                 var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                await OpenDocumentPreview(url);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                await OpenDocumentPreview(url);
+            }
+
         }
     }
     private async Task OpenDocumentPreview(string url)
@@ -807,14 +855,19 @@
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0)
         {
+
             await Mediator.Send(new GetFileProfileTypeCheckOut(_selectedItems));
-            await loadFileProfileData();
+            //await loadFileProfileData();
+            _selectedItems.IsLocked=true;
+            _selectedItems.LockedByUserId=applicationUser.UserID;
+            _selectedItems.LockedByUser = applicationUser.UserName;
+            permissionEnabled();
             await Download();
         }
     }
-    async Task onCheckin()
+    void onCheckin()
     {
-
+        PopupUpload = true;
     }
     void onNotify()
     {
@@ -920,6 +973,7 @@
     {
         onShowMain = "";
         onUploadVisible = "display:none;";
+        PopupUpload = false;
         await loadFileProfileData();
         StateHasChanged();
 

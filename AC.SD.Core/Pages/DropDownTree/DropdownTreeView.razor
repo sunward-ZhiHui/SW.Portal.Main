@@ -1,0 +1,45 @@
+﻿@using System.Collections
+
+<DxTreeView @ref="_treeView"
+@bind-FilterString="FilterString"
+            Data="@Data"
+            AllowSelectNodes="true"
+            AfterExpand="@AfterExpand"
+            SelectionChanged="@SelectionChanged">
+    <DataMappings>
+        <DxTreeViewDataMapping Text="FileName"
+                               Key="DocumentID"
+                               ParentKey="ParentId" />
+    </DataMappings>
+</DxTreeView>
+
+@code {
+    private DxTreeView _treeView;
+    string FilterString { get; set; }
+    [Parameter] public IEnumerable Data { get; set; }
+
+    [Parameter] public Action<TreeViewNodeEventArgs> SelectionChanged { get; set; }
+
+    [Parameter] public string SelectedItemName { get; set; }
+
+    private void AfterExpand(TreeViewNodeEventArgs e)
+    {
+        if (!e.CausedByAPI)
+        {
+            _treeView.ExpandAll();
+        }
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _treeView.ExpandAll();
+            if (!string.IsNullOrEmpty(SelectedItemName))
+            {
+                _treeView.SelectNode(n => n.Text == SelectedItemName);
+            }
+        }
+        return base.OnAfterRenderAsync(firstRender);
+    }
+}

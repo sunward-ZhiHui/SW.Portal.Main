@@ -23,6 +23,11 @@
         </DxMenu>
     </div>
 </div>
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <span style="font-weight: bold;padding: 10px;line-height: 30px;color:green;">Parent Link Document Name:  @selectedFiles.LinkDocumentName</span>
+    </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -49,7 +54,7 @@
             RowClick="OnRowClick"
             AllowSelectRowByClick="true">
         <Columns>
-            <DxGridDataColumn FieldName="DocumentName" Caption="Document Name" MinWidth="80" />
+            @* <DxGridDataColumn FieldName="DocumentName" Caption="Document Name" MinWidth="80" /> *@
             <DxGridDataColumn FieldName="LinkDocumentName" Caption="Link Document Name" MinWidth="80" />
             <DxGridDataColumn FieldName="DocumentPath" Caption="Link From" MinWidth="80" />
             <DxGridDataColumn FieldName="FullPath" Caption="Document Path" MinWidth="80" />
@@ -71,11 +76,12 @@
     private string? DocumentViewUrl;
     private string? ServerUrl;
     public string LinkType = "Profile Type";
+    private string? FileUrl;
     protected override async Task OnInitializedAsync()
     {
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
-
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         await loadTableItems();
     }
@@ -166,17 +172,32 @@
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID, _selectedItems.LinkDocumentName, _selectedItems.FilePath));
-            //  Trigger file download
-            await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.LinkDocumentName, response.ImageData, "");
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID));
+            if (response.StatusCodeID == 0)
+            {
+                toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                //  Trigger file download
+                await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.LinkDocumentName, response.ImageData, "");
+            }
         }
     }
     async void onView()
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
-            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
         }
     }
 }

@@ -175,23 +175,43 @@ namespace Application.Handlers.QueryHandlers
     public class GetFileDownloadHandler : IRequestHandler<GetFileDownload, DocumentsModel>
     {
         private readonly IConfiguration _configuration;
-        public GetFileDownloadHandler(IConfiguration configuration)
+        private readonly IDocumentsQueryRepository _documentsQueryRepository;
+        public GetFileDownloadHandler(IConfiguration configuration, IDocumentsQueryRepository documentsQueryRepository)
         {
             _configuration = configuration;
+            _documentsQueryRepository = documentsQueryRepository;
         }
         public Task<DocumentsModel> Handle(GetFileDownload request, CancellationToken cancellationToken)
         {
             var response = new DocumentsModel
             {
                 DocumentID = request.DocumentId.Value,
-                FileName = request.FileName,
+
             };
-            if (request.FilePath != null)
+            var documents = _documentsQueryRepository.GetByOneAsync(request.DocumentId);
+            if (documents != null && documents.FilePath != null)
             {
-                var url = _configuration["DocumentsUrl:ServerUrl"] + request.FilePath;
-                var webClient = new WebClient();
+                response.FileName = documents.FileName;
+                if (documents.IsNewPath == true)
                 {
-                    response.ImageData = webClient.DownloadData(new Uri(url));
+                    var filePath = "AppUpload/" + documents.FilePath;
+                    if (File.Exists(filePath))
+                    {
+                        response.ImageData = File.ReadAllBytes(filePath);
+                    }
+                    else
+                    {
+                        response.StatusCodeID = 0;
+                    }
+                }
+                else
+                {
+                    var url = _configuration["DocumentsUrl:ServerUrl"] + documents.FilePath;
+                    var webClient = new WebClient();
+                    {
+                        response.ImageData = webClient.DownloadData(new Uri(url));
+                    }
+
                 }
             }
             return Task.FromResult(response);
@@ -369,14 +389,14 @@ namespace Application.Handlers.QueryHandlers
     }
     public class InsertCreateDocumentHandler : IRequestHandler<InsertCreateDocument, DocumentsUploadModel>
     {
-        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
-        public InsertCreateDocumentHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        public InsertCreateDocumentHandler(IDocumentsQueryRepository documentsqueryrepository)
         {
-            _fileprofileQueryRepository = fileprofileQueryRepository;
+            _documentsqueryrepository = documentsqueryrepository;
         }
         public async Task<DocumentsUploadModel> Handle(InsertCreateDocument request, CancellationToken cancellationToken)
         {
-            return await _fileprofileQueryRepository.InsertCreateDocument(request.DocumentsUploadModel);
+            return await _documentsqueryrepository.InsertCreateDocument(request.DocumentsUploadModel);
         }
 
     }

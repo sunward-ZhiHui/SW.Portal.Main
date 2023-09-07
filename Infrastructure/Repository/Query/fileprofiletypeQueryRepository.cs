@@ -3,6 +3,7 @@ using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
+using DevExpress.Internal;
 using Infrastructure.Repository.Query.Base;
 using Infrastructure.Service;
 using Microsoft.EntityFrameworkCore;
@@ -23,13 +24,13 @@ namespace Infrastructure.Repository.Query
     public class FileprofiletypeQueryRepository : QueryRepository<Fileprofiletype>, IFileprofileQueryRepository
     {
         private readonly ILocalStorageService<ApplicationUser> _localStorageService;
-        private readonly IGenerateDocumentNoSeriesSeviceQueryRepository _generateDocumentNoSeriesSeviceQueryRepository;
+
         private IJSRuntime _jsRuntime;
-        public FileprofiletypeQueryRepository(IConfiguration configuration, ILocalStorageService<ApplicationUser> localStorageService, IJSRuntime jsRuntime, IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository) : base(configuration)
+        public FileprofiletypeQueryRepository(IConfiguration configuration, ILocalStorageService<ApplicationUser> localStorageService, IJSRuntime jsRuntime) : base(configuration)
         {
             _localStorageService = localStorageService;
             _jsRuntime = jsRuntime;
-            _generateDocumentNoSeriesSeviceQueryRepository = generateDocumentNoSeriesSeviceQueryRepository;
+
         }
         public async Task<IReadOnlyList<DocumentsModel>> GetAllFileProfileDocumentAsync()
         {
@@ -506,9 +507,13 @@ namespace Infrastructure.Repository.Query
                     var documetsparent = await connection.QueryFirstOrDefaultAsync<DocumentsModel>(query, parameters);
                     if (documetsparent != null)
                     {
-                        var fileName = documetsparent.FileName.Split('.');
+                        if (documetsparent.FileName != null)
+                        {
+                            var fileName = documetsparent.FileName.Split('.');
+
+                            documentsModel.FileName = documetsparent.FileName != null && documetsparent.FileIndex > 0 ? fileName[0] + "_V0" + documetsparent.FileIndex + "." + fileName[1] : documetsparent.FileName;
+                        }
                         documentsModel.DocumentID = documetsparent.DocumentID;
-                        documentsModel.FileName = documetsparent.FileName != null && documetsparent.FileIndex > 0 ? fileName[0] + "_V0" + documetsparent.FileIndex + "." + fileName[1] : documetsparent.FileName;
                         documentsModel.ContentType = documetsparent.ContentType;
                         documentsModel.FileSize = (long)Math.Round(Convert.ToDouble(documetsparent.FileSize / 1024));
                         documentsModel.UploadDate = documetsparent.UploadDate;
@@ -1114,7 +1119,18 @@ namespace Infrastructure.Repository.Query
                 var fileProfileList = await GetFileprofiletypeAsync();
                 var parameters = new DynamicParameters();
                 parameters.Add("DocumentID", id, DbType.Int64);
-                var query = "select\r\nt1.DocumentLinkId,\r\nt1.DocumentID,\r\nt1.FileProfieTypeID,\r\nt1.LinkDocumentId,\r\nt1.DocumentPath,\r\nt1.FolderID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.AddedDate,\r\nt2.SessionID,\r\nt2.FileSize, \r\nt2.FileName as Title,\r\nt2.ContentType, \r\nt2.FileName as LinkDocumentName,\r\nt2.FilterProfileTypeID as PathFileProfieTypeId,\r\nt2.FolderID as LinkFolderID,\r\nt2.FilePath,\r\nt3.TableName as Type,\r\nt3.FileName as DocumentName,\r\nt4.UserName as AddedByUser,\r\nt5.UserName as ModifiedByUser,\r\nt6.CodeValue as StatusCode\r\nfrom DocumentLink t1 \r\nJOIN Documents t2 ON t1.LinkDocumentId=t2.DocumentID\r\nJOIN Documents t3 ON t1.DocumentID=t3.DocumentID \r\nLEFT JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID\r\nLEFT JOIN CodeMaster t6 ON t6.CodeID=t1.StatusCodeID where t1.DocumentID=@DocumentID";
+                var query = "select\r\nt1.DocumentLinkId,\r\nt1.DocumentID,\r\nt1.FileProfieTypeID,\r\n" +
+                    "t1.LinkDocumentId,\r\nt1.DocumentPath,\r\nt1.FolderID,\r\n" +
+                    "t1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.ModifiedByUserID,\r\n" +
+                    "t1.ModifiedDate,\r\nt1.AddedDate,\r\nt2.SessionID,\r\nt2.FileSize, \r\n" +
+                    "t2.FileName as Title,\r\nt2.ContentType, \r\nt2.FileName as LinkDocumentName,\r\n" +
+                    "t2.FilterProfileTypeID as PathFileProfieTypeId,\r\nt2.FolderID as LinkFolderID,\r\n" +
+                    "t2.FilePath,\r\nt3.TableName as Type,\r\nt3.FileName as DocumentName,\r\nt4.UserName as AddedByUser,\r\nt3.IsNewPath as IsNewPath,\r\n" +
+
+                    "t5.UserName as ModifiedByUser,\r\nt6.CodeValue as StatusCode\r\nfrom DocumentLink t1 \r\n" +
+                    "JOIN Documents t2 ON t1.LinkDocumentId=t2.DocumentID\r\nJOIN Documents t3 ON t1.DocumentID=t3.DocumentID \r\n" +
+                    "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID\r\n" +
+                    "LEFT JOIN CodeMaster t6 ON t6.CodeID=t1.StatusCodeID where t1.DocumentID=@DocumentID";
                 using (var connection = CreateConnection())
                 {
                     var DocumentLink = (await connection.QueryAsync<DocumentLinkModel>(query, parameters)).ToList();
@@ -1144,6 +1160,7 @@ namespace Infrastructure.Repository.Query
                             DocumentLinkModel.FileSize = filesize;
                             DocumentLinkModel.Title = s.Title;
                             DocumentLinkModel.Type = s.Type;
+                            DocumentLinkModel.IsNewPath = s.IsNewPath;
                             DocumentLinkModel.ContentType = s.ContentType;
                             DocumentLinkModel.DocumentName = s.DocumentName;
                             DocumentLinkModel.LinkDocumentName = s.LinkDocumentName;
@@ -1177,6 +1194,7 @@ namespace Infrastructure.Repository.Query
                     "t1.FolderID,\r\nt1.StatusCodeID,\r\nt1.AddedByUserID,\r\n" +
                     "t1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.AddedDate,\r\n" +
                     "t3.SessionID,\r\n" +
+                    "t2.IsNewPath,\r\n" +
                     "t3.FileSize, \r\n" +
                     "t3.FileName as Title,\r\n" +
                     "t3.ContentType, \r\nt3.FileName as LinkDocumentName,\r\n" +
@@ -1222,6 +1240,7 @@ namespace Infrastructure.Repository.Query
                             DocumentLinkModel.Title = s.Title;
                             DocumentLinkModel.Type = s.Type;
                             DocumentLinkModel.ContentType = s.ContentType;
+                            DocumentLinkModel.IsNewPath = s.IsNewPath;
                             DocumentLinkModel.DocumentName = s.DocumentName;
                             DocumentLinkModel.LinkDocumentName = s.LinkDocumentName;
                             var FileProfileTypeId = s.PathFileProfieTypeId;
@@ -1810,69 +1829,6 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<string> GenerateDocumentProfileAutoNumber(DocumentsUploadModel value)
-        {
-            DocumentNoSeriesModel documentNoSeriesModel = new DocumentNoSeriesModel();
-            documentNoSeriesModel.AddedByUserID = value.UserId;
-            documentNoSeriesModel.StatusCodeID = 710;
-            documentNoSeriesModel.ProfileID = value.ProfileId;
-            documentNoSeriesModel.PlantID = value.PlantId;
-            documentNoSeriesModel.DepartmentId = value.DepartmentId;
-            documentNoSeriesModel.SectionId = value.SectionId;
-            documentNoSeriesModel.SubSectionId = value.SubSectionId;
-            documentNoSeriesModel.DivisionId = value.DivisionId;
-            documentNoSeriesModel.CompanyCode = value.CompanyCode;
-            documentNoSeriesModel.SectionName = value.SectionName;
-            documentNoSeriesModel.SubSectionName = value.SubSectionName;
-            documentNoSeriesModel.DepartmentName = value.DepartmentName;
-            return await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
-        }
-        public async Task<DocumentsUploadModel> InsertCreateDocument(DocumentsUploadModel value)
-        {
-            try
-            {
-                using (var connection = CreateConnection())
-                {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
 
-                            var parameters = new DynamicParameters();
-                            var profileNo = await GenerateDocumentProfileAutoNumber(value);
-                            parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
-                            parameters.Add("Description", value.Description);
-                            parameters.Add("ExpiryDate", value.ExpiryDate);
-                            parameters.Add("IsTemp", 1);
-                            parameters.Add("SessionId", value.SessionId, DbType.Guid);
-                            parameters.Add("StatusCodeID", 1);
-                            parameters.Add("ProfileNo", profileNo);
-                            parameters.Add("AddedByUserId", value.UserId);
-                            parameters.Add("IsLatest", 1);
-                            parameters.Add("IsNewPath", 1);
-                            parameters.Add("AddedDate", DateTime.Now);
-                            parameters.Add("UploadDate", DateTime.Now);
-                            var query = "INSERT INTO [Documents](FilterProfileTypeID,Description,ExpiryDate,StatusCodeID,IsTemp,SessionId,ProfileNo,AddedByUserId,IsLatest,AddedDate,UploadDate,IsNewPath) " +
-                                "OUTPUT INSERTED.DocumentId VALUES " +
-                               "(@FileProfileTypeId,@Description,@ExpiryDate,@StatusCodeID,@IsTemp,@SessionId,@ProfileNo,@AddedByUserId,@IsLatest,@AddedDate,@UploadDate,@IsNewPath)";
-                            value.DocumentId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                            transaction.Commit();
-                            return value;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-                    }
-                }
-
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
     }
 }

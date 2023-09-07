@@ -16,7 +16,7 @@ namespace Core.EntityModels
         public long? FileProfileTypeId { get; set; }
         public long? WikiID { get; set; }
         public long? CategoryID { get; set; }
-        public string FileName { get; set; }
+        public string? FileName { get; set; }
         public string DocumentName { get; set; }
         public string DisplayName { get; set; }
         public string Extension { get; set; }
@@ -184,6 +184,7 @@ namespace Core.EntityModels
         public string? FileSizes { get; set; }
         public string? FileCounts { get; set; }
         public bool? IsNewPath { get; set; } 
+
         
     }
     public class DocumentListModel : BaseModel
@@ -197,6 +198,10 @@ namespace Core.EntityModels
         public string FileName { get; set; }
         public string ContentType { get; set; }
         public string Extension { get; set; }
+    }
+    public class FormDropDownModel
+    {
+        public DocumentsModel FormEntity { get; set; }
     }
     public class DocumentTypeModel : BaseModel
     {

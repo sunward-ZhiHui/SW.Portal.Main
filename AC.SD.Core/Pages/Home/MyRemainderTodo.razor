@@ -144,14 +144,21 @@
                     @{
                         var item = (ToDoNotesHistory)context.DataItem;
                     }
-                    <div style="width:100%">                     
-                        <strong>
-                            @item.Description
-                        </strong>
-                        <div style="float: right; font-size: 11px;">
-                            <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox>
-                            <span style="float: right; margin-right: 10px;    margin-top: 7px;">@item.Status</span>
+                    <div style="width:100%">
+                       
+                        <div style=" font-size: 14px;">
+                            @item.SubjectName
+                            <div style="float: right; font-size: 11px;">
+                                <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox>
+                                <span style="float: right; margin-right: 10px;    margin-top: 7px;">@item.Status</span>
+                            </div>
                         </div>
+                       
+                          <strong>
+                            @item.Description
+                            </strong>
+                   
+                       
                        @* <div style="font-size: 11px; height:22px;">
                             <span style="float:left;">welcome</span>
                             <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox>

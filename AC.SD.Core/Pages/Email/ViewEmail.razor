@@ -2164,9 +2164,9 @@
         var result = await Mediator.Send(UpdateReq);   
 
         isArchiveClosed = false;
-        await LoadData();
+        //await LoadData();
         toastService.ShowToast("Archive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
-
+        await JSRuntime.InvokeAsync<string>("ReloadUrl");
 
     }
     private async Task SubmitDocDelete(long Id)

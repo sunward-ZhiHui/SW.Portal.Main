@@ -148,6 +148,17 @@
                         <div style="float: right; font-size: 11px;">
                             @item.Status
                         </div>
+                        <div style="margin-top: 10px; margin-bottom: 10px;">
+                            @if (item.participant != null && item.participant.Any())
+                            {
+                                @foreach (var items in item.participant)
+                                {
+                                    <span class="ptagtodo">
+                                        @items.Name,@items.NickName
+                                    </span>
+                                }
+                            }
+                        </div>
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)</span>
                             @if (item.DueDate != null)

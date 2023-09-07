@@ -45,7 +45,24 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ToDoNotesHistory>(query,parameters)).ToList();
+                    //return (await connection.QueryAsync<ToDoNotesHistory>(query,parameters)).ToList();
+                    connection.Open();
+                    var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
+
+                    foreach (var items in res)
+                    {
+                        if (items.Users != null)
+                        {
+                            string[] userArray = items.Users.Split(',');
+                            var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
+                            var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
+                            items.participant = subQueryResults;
+
+                        }
+
+                    }
+
+                    return res;
                 }
             }
             catch (Exception exp)
@@ -62,7 +79,24 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("UserId", UserId);
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ToDoNotesHistory>(query,parameters)).ToList();
+                    //return (await connection.QueryAsync<ToDoNotesHistory>(query,parameters)).ToList();
+                    connection.Open();
+                    var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
+
+                    foreach (var items in res)
+                    {
+                        if (items.Users != null)
+                        {
+                            string[] userArray = items.Users.Split(',');
+                            var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
+                            var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
+                            items.participant = subQueryResults;
+
+                        }
+
+                    }
+
+                    return res;
                 }
             }
             catch (Exception exp)
@@ -102,7 +136,25 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ToDoNotesHistory>(query, parameters)).ToList();                    
+                    //return (await connection.QueryAsync<ToDoNotesHistory>(query, parameters)).ToList();
+                    //
+                    connection.Open();
+                    var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
+
+                    foreach (var items in res)
+                    {
+                        if(items.Users != null)
+                        {
+                            string[] userArray = items.Users.Split(',');
+                            var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
+                            var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
+                            items.participant = subQueryResults;
+
+                        }
+                                              
+                    }
+
+                    return res;
                 }
             }
             catch (Exception exp)

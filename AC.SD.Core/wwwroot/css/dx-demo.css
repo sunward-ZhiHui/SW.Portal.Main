@@ -10,6 +10,24 @@ body,
     overflow: hidden;
     overscroll-behavior: none;
 }
+.ptagtodo {
+    margin-right: 5px;
+    background: #e5e5e5;
+    padding: 3px;
+    border-radius: 4px;
+    font-style: oblique;
+    font-size: 12px;
+}
+.icon-first-name {
+    background: #324d6a;
+    border-radius: 22px;
+    height: 42px;
+    width: 45px; 
+    color: white;
+    font-size: 12px;
+    line-height: 42px;
+    text-align: center;
+}
 .dxbl-loading-panel
 {
     width:100%;

@@ -39,7 +39,13 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(DueDate AS DATE) = CAST(GETDATE() AS DATE)";
+                //var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(DueDate AS DATE) = CAST(GETDATE() AS DATE)";
+                var query = @"SELECT TNH.*,EC.Name AS SubjectName FROM ToDoNotesHistory TNH
+                                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
+                                WHERE TNH.AddedByUserID = @UserId
+                                AND TNH.TopicId IS NOT NULL  AND TNH.TopicId > 0 AND TNH.Status = 'Open'
+                                AND CAST(TNH.DueDate AS DATE) <= CAST(GETDATE() AS DATE)
+                                ORDER BY TNH.DueDate DESC";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId);
 
@@ -51,7 +57,7 @@ namespace Infrastructure.Repository.Query
 
                     foreach (var items in res)
                     {
-                        if (items.Users != null)
+                        if (items.Users != null && items.Users.Length != 0)
                         {
                             string[] userArray = items.Users.Split(',');
                             var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
@@ -74,7 +80,13 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(RemainDate AS DATE) = CAST(GETDATE() AS DATE)";
+                //var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(RemainDate AS DATE) = CAST(GETDATE() AS DATE)";
+                var query = @"SELECT TNH.*,EC.Name AS SubjectName FROM ToDoNotesHistory TNH
+                                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
+                                WHERE TNH.AddedByUserID = @UserId
+                                AND TNH.TopicId IS NOT NULL  AND TNH.TopicId > 0 AND TNH.Status = 'Open'
+                                AND CAST(TNH.RemainDate AS DATE) <= CAST(GETDATE() AS DATE)
+                                ORDER BY TNH.RemainDate DESC";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId);
                 using (var connection = CreateConnection())
@@ -85,7 +97,7 @@ namespace Infrastructure.Repository.Query
 
                     foreach (var items in res)
                     {
-                        if (items.Users != null)
+                        if (items.Users != null && items.Users.Length != 0)
                         {
                             string[] userArray = items.Users.Split(',');
                             var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
@@ -143,7 +155,7 @@ namespace Infrastructure.Repository.Query
 
                     foreach (var items in res)
                     {
-                        if(items.Users != null)
+                        if(items.Users != null && items.Users.Length != 0)
                         {
                             string[] userArray = items.Users.Split(',');
                             var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";

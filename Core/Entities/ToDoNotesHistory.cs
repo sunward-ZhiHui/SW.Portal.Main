@@ -33,6 +33,8 @@ namespace Core.Entities
         public string? Users { get; set; }
         [NotMapped]
         public IEnumerable<long> UserIds { get; set; }
+        [NotMapped]
+        public string SubjectName { get;set; }
     }
 }
  

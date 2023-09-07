@@ -332,11 +332,8 @@
 
                             @{
                                string dynamicShowSubject = "showOpenDoc_" + item.ID;
-                            }
-                            <div id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)">
-                                <span class="fa fa-paperclip"> </span>
-                                <span style="font-size:11px; margin-left: 8px; margin-right: 15px;"> Add file</span> 
-                            </div>
+                            }                           
+                            <span class="fa fa-paperclip" id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)"> </span>
                         </div>
                     </div>
                 </CellDisplayTemplate>
@@ -886,7 +883,7 @@
             var editModel = (ToDoNotesHistory)e.EditModel;
             var types = (ToDoNotesHistory)e.EditModel;
 
-            if (types.Users != null)
+            if (types.Users != null && types.Users.Length != 0)
             {
                 string userIdsString = types.Users; // Assuming UserIds is a string
                                                     // Split the comma-separated string and parse into an IEnumerable<long>

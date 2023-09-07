@@ -20,5 +20,7 @@ namespace Core.Repositories.Query
         Task<long> UpdateAsync(ToDoNotesHistory ToDoNotesHistory);
         Task<long> DeleteAsync(long id);
         Task<IReadOnlyList<ViewEmployee>> GetUserLst(string Userid);
+        Task<long> StatusUpdateAsync(long ID);
+        
     }
 }

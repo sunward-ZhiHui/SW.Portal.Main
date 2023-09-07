@@ -325,7 +325,46 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
        
+
+        public async Task<long> StatusUpdateAsync(long ID)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("ID", ID);
+
+                            var query = "update TodoNotesHistory Set Status = 'close' Where ID =@ID";
+
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

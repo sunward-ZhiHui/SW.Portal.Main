@@ -12,6 +12,8 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
 
 
 <style scoped>
@@ -286,6 +288,7 @@
                                 <tr>
                                     @{
                                         string fileExtension = Path.GetExtension(item.FileName);
+                                       
                                     }
                                     <td rowspan="3" class="icon-first-name">@fileExtension</td>
                                 </tr>
@@ -296,7 +299,7 @@
                                             string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(item.FileName);
 
                                         }
-                                        <strong style="width:100%;display:inline-block;margin-left:10px;">@fileNameWithoutExtension</strong>
+                                        <strong style="width:100%;display:inline-block;margin-left:10px;"><span @onclick="@(() => onPreview(item.DocumentId))">@fileNameWithoutExtension</span></strong>
                                     </td>
 
                                 </tr>
@@ -306,7 +309,7 @@
                                             string formattedFileSize = FormatFileSize(item.FileSize.Value);
                                         }
                                         <span style="font-size: 11px; margin-left:10px;">  @formattedFileSize</span>
-                               @*          <button style="color:red;float:right;" class="dxbl-btn fa fa-remove" @onclick="@(() => onDocDelete(item.DocumentId))"> </button> *@
+                                        <button style="color:red;float:right;" class="dxbl-btn fa fa-eye" @onclick="@(() => onPreview(item.DocumentId))"> </button>
                                     </td>
 
                                 </tr>
@@ -327,6 +330,10 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private string? BaseUrl;
+    private string? FileUrl;
+    private string? DocumentViewUrl;
+    Documents _documents { get; set; }
     private ToDoNotesHistory CurrentTodoNotes { get; set; }
     private List<Documents> _DocumentsList;
     bool UploadPopupVisible { get; set; } = false;
@@ -367,7 +374,10 @@
     {       
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _ToDoNotesHistory = await Mediator.Send(new GetMyToDoDueDate(applicationUser.UserID));
-        _participant = await Mediator.Send(new GetAllEmployeeListQuery());                    
+        _participant = await Mediator.Send(new GetAllEmployeeListQuery());  
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
     }
     public static string FormatFileSize(long bytes)
     {
@@ -722,5 +732,15 @@
     void ClosePopUP()
     {
         UploadPopupVisible = false;
+    }
+    public async Task onPreview(long Id)
+    {
+        _documents = _DocumentsList.FirstOrDefault(a => a.DocumentId == Id);
+        var url = DocumentViewUrl + "?url=" + FileUrl + _documents.FilePath;
+        await OpenDocumentPreview(url);
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
 }

@@ -400,5 +400,18 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class UpdateCreateDocumentBySessionHandler : IRequestHandler<UpdateCreateDocumentBySession, DocumentsUploadModel>
+    {
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        public UpdateCreateDocumentBySessionHandler(IDocumentsQueryRepository documentsqueryrepository)
+        {
+            _documentsqueryrepository = documentsqueryrepository;
+        }
+        public async Task<DocumentsUploadModel> Handle(UpdateCreateDocumentBySession request, CancellationToken cancellationToken)
+        {
+            return await _documentsqueryrepository.UpdateCreateDocumentBySession(request.DocumentsUploadModel);
+        }
+
+    }
 
 }

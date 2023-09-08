@@ -252,7 +252,7 @@ namespace Infrastructure.Repository.Query
                                 }
                                 else
                                 {
-                                    value.DocumentMainParentId=value.DocumentParentId;
+                                    value.DocumentMainParentId = value.DocumentParentId;
                                     fileIndex = 1;
                                 }
                                 await UpdateDocumentIsLastet(value.DocumentParentId);
@@ -316,12 +316,13 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedByUserId", value.AddedByUserId);
                             parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
                             parameters.Add("SessionId", value.SessionId, DbType.Guid);
-                            parameters.Add("IsLatest", value.IsLatest == true ? 1 : 0, DbType.Boolean);
+                            parameters.Add("IsLatest", 1);
                             parameters.Add("FilePath", value.FilePath, DbType.String);
                             parameters.Add("IsNewPath", 1);
-                            var query = "INSERT INTO [Documents](FileName,ContentType,FileSize,UploadDate,AddedByUserId,AddedDate,SessionId,IsLatest,FilePath,IsNewPath) " +
+                            parameters.Add("IsTemp", value.IsTemp);
+                            var query = "INSERT INTO [Documents](FileName,ContentType,FileSize,UploadDate,AddedByUserId,AddedDate,SessionId,IsLatest,FilePath,IsNewPath,IsTemp) " +
                                 "OUTPUT INSERTED.DocumentId VALUES " +
-                               "(@FileName,@ContentType,@FileSize,@UploadDate,@AddedByUserId,@AddedDate,@SessionId,@IsLatest,@FilePath,@IsNewPath)";
+                               "(@FileName,@ContentType,@FileSize,@UploadDate,@AddedByUserId,@AddedDate,@SessionId,@IsLatest,@FilePath,@IsNewPath,@IsTemp)";
                             value.DocumentId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             transaction.Commit();
                             return value;
@@ -340,6 +341,83 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DocumentsUploadModel> UpdateCreateDocumentBySession(DocumentsUploadModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            Nullable<long> fileIndex = null;
+                            var parameters = new DynamicParameters();
+                            var profileNo = value.ProfileNo;
+                            if (value.IsCheckOut == true && value.DocumentParentId > 0)
+                            {
+                                if (value.DocumentMainParentId > 0)
+                                {
+                                    fileIndex = await GetDocumentParentCount(value.DocumentMainParentId);
+                                    fileIndex = fileIndex > 0 ? (fileIndex.Value + 1) : 1;
+                                }
+                                else
+                                {
+                                    value.DocumentMainParentId = value.DocumentParentId;
+                                    fileIndex = 1;
+                                }
+                                await UpdateDocumentIsLastet(value.DocumentParentId);
+                            }
+                            else
+                            {
+                                profileNo = await GenerateDocumentProfileAutoNumber(value);
+                            }
+                            parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
+                            parameters.Add("Description", value.Description);
+                            parameters.Add("ExpiryDate", value.ExpiryDate);
+                            parameters.Add("StatusCodeID", 1);
+                            parameters.Add("AddedByUserId", value.UserId);
+                            parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                            parameters.Add("ProfileNo", profileNo);
+                            parameters.Add("DocumentParentId", value.DocumentMainParentId);
+                            parameters.Add("TableName", "Document");
+                            parameters.Add("FileIndex", fileIndex);
+                            parameters.Add("FileSessionId", value.FileSessionId);
+                            parameters.Add("IsTemp", 0);
+                            parameters.Add("FilePath", value.FilePath, DbType.String);
+                            var query = "Update Documents SET " +
+                                "FilterProfileTypeId=@FileProfileTypeId, " +
+                                "Description=@Description, " +
+                                "ExpiryDate=@ExpiryDate, " +
+                                "StatusCodeID=@StatusCodeID, " +
+                                "ProfileNo=@ProfileNo, " +
+                                "DocumentParentId=@DocumentParentId, " +
+                                "TableName=@TableName, " +
+                                "FileIndex=@FileIndex, " +
+                                "IsTemp=@IsTemp, " +
+                                "SessionId=@SessionId " +
+                                "WHERE " +
+                                 "AddedByUserId=@AddedByUserId AND " +
+                                 "SessionId=@FileSessionId AND " +
+                                "FilePath= @FilePath";
+                            value.DocumentId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
 
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

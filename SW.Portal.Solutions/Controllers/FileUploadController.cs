@@ -22,7 +22,7 @@ namespace SW.Portal.Solutions.Controllers
         }
         [HttpPost]
         [Route("UploadDocumentsBySession")]
-        public async Task<ActionResult> UploadDocumentsBySession(IFormFile files, Guid? SessionId, long? addedByUserId)
+        public async Task<ActionResult> UploadDocumentsBySession(IFormFile files, Guid? SessionId, long? addedByUserId,bool? IsFileSession)
         {
             long documentId = 0;
             // Handling Upload with Chunks
@@ -63,12 +63,13 @@ namespace SW.Portal.Solutions.Controllers
                         // Upload finished - overwrite/copy file and remove tempFile
                         System.IO.File.Copy(tempFilePath, Path.Combine(serverPaths, serverPath), true);
                         System.IO.File.Delete(tempFilePath);
-                        Documents documents = new Documents();                       
+                        Documents documents = new Documents();
                         documents.UploadDate = DateTime.Now;
                         documents.AddedByUserId = addedByUserId;
                         documents.AddedDate = DateTime.Now;
-                        documents.SessionId = SessionId;
+                        documents.SessionId = IsFileSession == true?metaDataObject.FileGuid: SessionId;
                         documents.IsLatest = true;
+                        documents.IsTemp = true;
                         documents.FileName = metaDataObject.FileName;
                         documents.ContentType = metaDataObject.FileType;
                         documents.FileSize = metaDataObject.FileSize;

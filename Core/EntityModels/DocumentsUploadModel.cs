@@ -37,7 +37,8 @@ namespace Core.EntityModels
         public long? DocumentParentId { get; set; }
         public long? DocumentMainParentId { get; set; }
         public bool? IsCheckOut { get; set; } = false;
-        
+        public string? FilePath { get; set; }
         public string? FileName { get; set; }
+        public Guid? FileSessionId { get; set; }
     }
 }

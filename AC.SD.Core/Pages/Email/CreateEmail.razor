@@ -65,7 +65,7 @@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover" @onclick="@(() => addNew(0))" style="float: left; margin-top: -41px; line-height: 38px; margin-left:214px; z-index: 9999; width:100px;">
+            <div class="save_hover" @onclick="@(() => addNew(0))" style="float: left; margin-top: -41px; line-height: 38px; margin-left:214px; z-index: 9999; width:110px;">
                 <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
                     @if (loading)
                     {
@@ -78,8 +78,8 @@
             @* @if(IsDraftEnabled)
             {*@
                 <div class="save_hover" @onclick="@(() => addNew(1))" style="float: left; margin-top: -41px; line-height: 38px; margin-left: -12px; z-index: 9999; width:100px;">
-                    <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
-                        @if (loading)
+                <button type="submit" form="@MyID" disabled="@loadingdraft" class="btnSubmitForm" style="">
+                        @if (loadingdraft)
                         {
                             <span class="spinner-border spinner-border-sm mr-1"></span>
                         }
@@ -347,10 +347,19 @@ else
     async Task OnFileUploadStart(FileUploadStartEventArgs e)
     {
         Message = "Uploading...";
-        loading = true;
+        if(draftId == 0)
+        {
+            loading = true;
+        }
+        else
+        {
+            loadingdraft = true;
+        }
+
+
         var SessionId = _sessionId;        
         string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";            
-        string url = BaseUrl + "UploadDocumentsChunkFile?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
         e.UploadUrl = url;
     }
     void OnFileUploadStarted(FileUploadEventArgs e)
@@ -457,6 +466,7 @@ else
     List<int> selectedValues = new List<int>();
     IGrid? Grid { get; set; }
     private bool loading;
+    private bool loadingdraft;
     bool MessageVisible { get; set; }
     string styleClass = "";
     string MessageHeader = "Error";
@@ -578,16 +588,44 @@ else
         MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
         CurrentUplodCount++;
+        var draftIdsss = draftId;
         if (CurrentUplodCount >= SelectedFilesCount)
         {
             Message = "Upload";
-            loading = false;
-            //backUrl();
-            onRestText();
+           
+          
+            onCompletedUpload();
         }      
         InvokeAsync(StateHasChanged);
 
     }
+    void onCompletedUpload()
+    {
+        if (draftId == 0)
+        {
+            loading = false;
+        }
+        else
+        {
+            loadingdraft = false;
+        }
+
+        if (ActiveSessionId != null)
+        {
+            BackEnabled = false;
+            NavigationManager.NavigateTo($"CreateEmail");
+        }
+        else
+        {
+            BackEnabled = false;
+            JSRuntime.InvokeAsync<string>("ReloadUrl");
+        }     
+
+        onRestText();
+        InvokeAsync(StateHasChanged);
+    }
+
+
     void OnUploadError(FileUploadErrorEventArgs e)
     {
         MyError = e.RequestInfo.ResponseText;
@@ -1017,7 +1055,14 @@ else
         {
             toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
             await JSRuntime.InvokeAsync<string>("hideLoading");
-            loading = false;
+            if (draftId == 0)
+            {
+                loading = false;
+            }
+            else
+            {
+                loadingdraft = false;
+            }
             return;
         }
 
@@ -1069,13 +1114,13 @@ else
             var result = await Mediator.Send(createReq);
             if (result != null)
             {                
-               
 
-                    ///await Task.Delay(5000); // Delay for 5 seconds
-                    //   onShowPopupMessage("success", "Topic have been saved successully");
-                    ActivityEmailTopicId = 0;
-                    toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
-                   
+
+                ///await Task.Delay(5000); // Delay for 5 seconds
+                //   onShowPopupMessage("success", "Topic have been saved successully");
+                ActivityEmailTopicId = 0;
+                toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+
 
                 if (SelectedFilesCount > 0)
                 {
@@ -1083,6 +1128,15 @@ else
                 }
                 else
                 {
+                    if (draftId == 0)
+                    {
+                        loading = false;
+                    }
+                    else
+                    {
+                        loadingdraft = false;
+                    }
+
                     if (ActiveSessionId != null)
                     {
                         BackEnabled = false;
@@ -1093,28 +1147,26 @@ else
                         BackEnabled = false;
                         await JSRuntime.InvokeAsync<string>("ReloadUrl");
                     }
-                }
-                    
-                   
 
-
-
-                    //onRestText();
+                    onRestText();
                     await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
-                else
-                {
-                    onShowPopupMessage("Error", result.ToString());
-                    await JSRuntime.InvokeAsync<string>("hideLoading");
-                }
+
+               
             }
-            catch (Exception eq)
+            else
             {
-                onShowPopupMessage("Error", eq.Message);
+                onShowPopupMessage("Error", result.ToString());
                 await JSRuntime.InvokeAsync<string>("hideLoading");
             }
+        }
+        catch (Exception eq)
+        {
+            onShowPopupMessage("Error", eq.Message);
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+        }
 
-        
+
     }
     private async void onShowPopupMessage(string headerText, string bodyText)
     {
@@ -1122,6 +1174,7 @@ else
         MessageBody = bodyText;
         MessageHeader = headerText;
         loading = false;
+        loadingdraft = false;
         StateHasChanged();
     }
     void onClickParticipant()

@@ -65,7 +65,7 @@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover" @onclick="@(() => addNew(0))" style="float: left; margin-top: -41px; line-height: 38px; margin-left:214px; z-index: 9999; width:100px;">
+            <div class="save_hover" @onclick="@(() => addNew(0))" style="float: left; margin-top: -41px; line-height: 38px; margin-left:214px; z-index: 9999; width:110px;">
                 <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
                     @if (loading)
                     {
@@ -588,6 +588,7 @@ else
         MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
         CurrentUplodCount++;
+        var draftIdsss = draftId;
         if (CurrentUplodCount >= SelectedFilesCount)
         {
             Message = "Upload";
@@ -1146,10 +1147,12 @@ else
                         BackEnabled = false;
                         await JSRuntime.InvokeAsync<string>("ReloadUrl");
                     }
+
+                    onRestText();
+                    await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
 
-                onRestText();
-                await JSRuntime.InvokeAsync<string>("hideLoading");
+               
             }
             else
             {

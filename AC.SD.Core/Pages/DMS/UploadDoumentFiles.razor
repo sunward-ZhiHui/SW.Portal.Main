@@ -304,24 +304,45 @@
     {
         RevokeBack?.Invoke();
     }
-    async Task OnFileUploadStart(FileUploadStartEventArgs e)
+    void OnFileUploadStart(FileUploadStartEventArgs e)
     {
         Message = "Uploading...";
         loading = true;
         var SessionId = new Guid(e.FileInfo.Guid);
-        Data.SessionId = SessionId;
-        var response = await Mediator.Send(new InsertCreateDocument(Data));
-        if (response.DocumentId > 0)
-        {
-            DocumentsUploadModel TempSetId = new DocumentsUploadModel();
-            TempSetId.SessionId = SessionId;
-            TempSetId.DocumentId = response.DocumentId;
-            TempSetIds.Add(TempSetId);
-            string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
-            string url = BaseUrl + "UploadDocumentsById?SessionId=" + selectedFiles.SessionID + "&DocumentId=" + response.DocumentId;
-            e.UploadUrl = url;
+        DocumentsUploadModel TempSetId = new DocumentsUploadModel();
+        TempSetId.SessionId = SessionId;
+        TempSetIds.Add(TempSetId);
+        string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + selectedFiles.SessionID + "&addedByUserId=" + applicationUser.UserID + "&IsFileSession=true";
+        e.UploadUrl = url;
+    }
+    async Task isUploadSuccess(FileUploadEventArgs e)
+    {
 
+        CurrentUplodCount++;
+        var filesessionIds = new Guid(e.FileInfo.Guid);
+        Data.SessionId = filesessionIds;
+        Data.FileSessionId = filesessionIds;
+        var ext = e.FileInfo.Name.Split(".").Last();
+        Data.FilePath = @"Documents\" + selectedFiles.SessionID + @"\" + filesessionIds + "." + ext;
+        var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        if (CurrentUplodCount >= SelectedFilesCount)
+        {
+            Message = "Upload";
+            loading = false;
+            backUrl();
         }
+
+    }
+    void OnUploadError(FileUploadErrorEventArgs e)
+    {
+        MyError = e.RequestInfo.ResponseText;
+        toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
+        Message = "Upload";
+        loading = false;
+        InvokeAsync(StateHasChanged);
     }
     void OnFileUploadStarted(FileUploadEventArgs e)
     {
@@ -331,7 +352,7 @@
     }
     void OnUploadProgressChanged(FileUploadEventArgs e)
     {
-        var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
+        // var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
     }
     async Task SelectedItemChanged(long? plantID)
     {
@@ -371,45 +392,18 @@
             _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
         }
     }
-    protected async void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
         SelectedFilesCount = files.ToList().Count; //Count current files
         InvokeAsync(StateHasChanged);
     }
-    private void isUploadSuccess(FileUploadEventArgs e)
-    {
-        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
-        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
-        CurrentUplodCount++;
-        if (CurrentUplodCount >= SelectedFilesCount)
-        {
-            Message = "Upload";
-            loading = false;
-            backUrl();
-        }
-        InvokeAsync(StateHasChanged);
 
-    }
-    async Task OnUploadError(FileUploadErrorEventArgs e)
-    {
-        var filesessionIds = new Guid(e.FileInfo.Guid);
-        var docId = TempSetIds.FirstOrDefault(o => o.SessionId == filesessionIds)?.DocumentId;
-        if (docId > 0)
-        {
-            await Mediator.Send(new DeleteDoc(docId.Value));
-        }
-        MyError = e.RequestInfo.ResponseText;
-        toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
-        Message = "Upload";
-        loading = false;
-        InvokeAsync(StateHasChanged);
-    }
     public void onsubmitUploadFromClick()
     {
     }
-    public async Task HandleValidSubmit()
+    void HandleValidSubmit()
     {
         uploadComponent.UploadAllFiles();
     }

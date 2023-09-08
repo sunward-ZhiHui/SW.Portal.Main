@@ -26,7 +26,7 @@ namespace AC.SD.Core.Shared {
             }
 #else
             builder.OpenComponent<NavMenu>(0);
-            builder.AddAttribute(1, "Pagess", Configuration.AppPermissionModels);
+            builder.AddAttribute(3, "Pages", Configuration.RootPages);
             builder.CloseComponent();
 #endif
         }

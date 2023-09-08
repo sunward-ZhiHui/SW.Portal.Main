@@ -14,6 +14,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
+@inject NavigationManager NavigationManager
 
 
 <style scoped>
@@ -313,7 +314,7 @@
                                             string formattedFileSize = FormatFileSize(item.FileSize.Value);
                                         }
                                         <span style="font-size: 11px; margin-left:10px;">  @formattedFileSize</span>
-                                        <button style="color:red;float:right;" class="dxbl-btn fa fa-eye" @onclick="@(() => onPreview(item.DocumentId))"> </button>
+                                        <button style="color:#009eff;float:right;" class="dxbl-btn fa fa-eye" @onclick="@(() => onPreview(item.DocumentId))"> </button>
                                     </td>
 
                                 </tr>
@@ -334,6 +335,8 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    [Parameter]
+    public Action NotesId { get; set; }
     private string? BaseUrl;
     private string? FileUrl;
     private string? DocumentViewUrl;
@@ -346,6 +349,7 @@
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
     private List<ToDoNotesHistory>? _ToDoNotesHistory;
+    private List<ToDoNotesHistory>? _ToDoNotesHistoryReminder;
     IGrid? Grid { get; set; }
     private ToDoNotesHistory _selectedItems;
     bool ExportSelectedRowsOnly { get; set; }
@@ -662,9 +666,10 @@
     {
         var ststusupdate = await Mediator.Send(new StatusChangedQuery(id));
 
-        
+
         _ToDoNotesHistory = await Mediator.Send(new GetMyToDoDueDate(applicationUser.UserID));
-       
+        NotesId?.Invoke();
+
     }
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {

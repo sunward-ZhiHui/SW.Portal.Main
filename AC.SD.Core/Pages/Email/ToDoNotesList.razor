@@ -283,6 +283,7 @@
             AutoExpandAllGroupRows="true"
             CssClass="w-100" style="@gridHeight"
             RowClick="OnRowClick"
+            
             ColumnResizeMode="GridColumnResizeMode.NextColumn" CustomizeEditModel="Grid_CustomizeEditModel"
             AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged">
         <Columns>
@@ -501,7 +502,7 @@
                                         }
                                         <span style="font-size: 11px; margin-left:10px;">  @formattedFileSize</span>
                                         <button style="color:red;float:right;" class="dxbl-btn fa fa-remove" @onclick="@(() => onDocDelete(item.DocumentId))"> </button>
-                                        <button style="color:red;float:right;" class="dxbl-btn fa fa-eye" @onclick="@(() => onPreview(item.DocumentId))"> </button>
+                                        <button style="color:#009eff;float:right;" class="dxbl-btn fa fa-eye" @onclick="@(() => onPreview(item.DocumentId))"> </button>
                                     </td>
 
                                 </tr>

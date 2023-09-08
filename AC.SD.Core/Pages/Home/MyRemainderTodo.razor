@@ -2,6 +2,7 @@
 @using Application.Queries;
 @using Application.Response;
 @using MediatR
+@using System.IO;
 @using global::Core.Entities;
 @using global::Core.EntityModels;
 @using global::Core.Entities.Views;
@@ -11,6 +12,8 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
 
 
 <style scoped>
@@ -142,12 +145,24 @@
                         var item = (ToDoNotesHistory)context.DataItem;
                     }
                     <div style="width:100%">
-                        <strong>
-                            @item.Description
-                        </strong>
-                        <div style="float: right; font-size: 11px;">
-                            @item.Status
+                       
+                        <div style=" font-size: 14px;">
+                            @item.SubjectName
+                            <div style="float: right; font-size: 11px;">
+                                <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox>
+                                <span style="float: right; margin-right: 10px;    margin-top: 7px;">@item.Status</span>
+                            </div>
                         </div>
+                       
+                          <strong>
+                            @item.Description
+                            </strong>
+                   
+                       
+                       @* <div style="font-size: 11px; height:22px;">
+                            <span style="float:left;">welcome</span>
+                            <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox>
+                        </div>*@
                         <div style="margin-top: 10px; margin-bottom: 10px;">
                             @if (item.participant != null && item.participant.Any())
                             {
@@ -158,8 +173,8 @@
                                     </span>
                                 }
                             }
-                        </div>
-                        <div>
+                        </div>                        
+                        <div style="margin-top: 15px;">
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)</span>
                             @if (item.DueDate != null)
                             {
@@ -173,7 +188,10 @@
 
                                 <span style="font-size:11px; margin-left: 8px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.RemainDate)</span>
                             }
-
+                            @{
+                                string dynamicShowSubject = "showOpenDoc_" + item.ID;
+                            }
+                            <span class="fa fa-paperclip" id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)"> </span>
                         </div>
                     </div>
                 </CellDisplayTemplate>
@@ -257,8 +275,73 @@
         </EditFormTemplate>
     </DxGrid>
 </DxLoadingPanel>
+<DxPopup @bind-Visible="@UploadPopupVisible"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Width="500px">
+    <BodyContentTemplate>
+        <div style="max-height: 200px; overflow-y: auto;overflow-x:hidden;">
+            @if (_DocumentsList != null && _DocumentsList.Any())
+            {
+                @foreach (var item in _DocumentsList)
+                {
+                    <div style="border-bottom: 2px solid #e8e6e6ee; margin-bottom: 10px;margin-top: 10px;">
 
+                        <table style="width:100%;">
+                            <tbody>
+                                <tr>
+                                    @{
+                                        string fileExtension = Path.GetExtension(item.FileName);
+                                    }
+                                    <td rowspan="3" class="icon-first-name">@fileExtension</td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        @{
+                                            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(item.FileName);
+
+                                        }
+                                        <strong style="width:100%;display:inline-block;margin-left:10px;"><span @onclick="@(() => onPreview(item.DocumentId))">@fileNameWithoutExtension</span></strong>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>
+                                        @{
+                                            string formattedFileSize = FormatFileSize(item.FileSize.Value);
+                                        }
+                                        <span style="font-size: 11px; margin-left:10px;">  @formattedFileSize</span>
+                                        <button style="color:red;float:right;" class="dxbl-btn fa fa-eye" @onclick="@(() => onPreview(item.DocumentId))"> </button>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+
+
+                    </div>
+                }
+            }
+        </div>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="@((e) => ClosePopUP())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+
+    private string? BaseUrl;
+    private string? FileUrl;
+    private string? DocumentViewUrl;
+    Documents _documents { get; set; }
+    private ToDoNotesHistory CurrentTodoNotes { get; set; }
+    private List<Documents> _DocumentsList;
+    bool UploadPopupVisible { get; set; } = false;
+    bool Checked { get; set; } = false;
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
@@ -296,6 +379,17 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _ToDoNotesHistory = await Mediator.Send(new GetMyToDoRemainderDate(applicationUser.UserID));        
         _participant = await Mediator.Send(new GetAllEmployeeListQuery());
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+    }
+    public static string FormatFileSize(long bytes)
+    {
+        var unit = 1024;
+        if (bytes < unit) { return $"{bytes} B"; }
+
+        var exp = (int)(Math.Log(bytes) / Math.Log(unit));
+        return $"{bytes / Math.Pow(unit, exp):F2} {("KMGTPE")[exp - 1]}B";
     }
     public async Task LoadHistoryData(long NotesId)
     {
@@ -583,7 +677,14 @@
     {
         _ToDoNotesHistory = null;
     }
+    async Task StatusUpdate(long id)
+    {
+        var ststusupdate = await Mediator.Send(new StatusChangedQuery(id));
 
+
+        _ToDoNotesHistory = await Mediator.Send(new GetMyToDoDueDate(applicationUser.UserID));
+
+    }
     string CurrentTheme { get; set; } = "Blazing-berry";
     IEnumerable<string> Themes = new List<string>() {
         "Blazing-berry", "Blazing-dark", "Purple", "Office-white",
@@ -613,5 +714,36 @@
     string GetIconCssClass(string item)
     {
         return $"template-icon {item.ToLower()}";
+    }
+    async Task getdoclist()
+    {
+        System.Guid? guidValue = CurrentTodoNotes.SessionId;
+        string stringValue = guidValue?.ToString();
+        _DocumentsList = await Mediator.Send(new GetByToDoDocuments(stringValue));
+    }
+    private async void ShowDocFlyout(ToDoNotesHistory toDoNotesHistory)
+    {
+
+        CurrentTodoNotes = toDoNotesHistory;
+        // _DocumentsList = Mediator.Send(new GetByToDoDocuments(toDoNotesHistory.SessionId));
+        System.Guid? guidValue = toDoNotesHistory.SessionId;
+        string stringValue = guidValue?.ToString();
+        _DocumentsList = await Mediator.Send(new GetByToDoDocuments(stringValue));
+        UploadPopupVisible = true;
+
+    }
+    void ClosePopUP()
+    {
+        UploadPopupVisible = false;
+    }
+    public async Task onPreview(long Id)
+    {
+        _documents = _DocumentsList.FirstOrDefault(a => a.DocumentId == Id);
+        var url = DocumentViewUrl + "?url=" + FileUrl + _documents.FilePath;
+        await OpenDocumentPreview(url);
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
 }

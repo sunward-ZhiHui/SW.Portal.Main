@@ -76,4 +76,14 @@ namespace Application.Queries
             this.UserId = userID;
         }
     }
+    public class StatusChangedQuery : PagedRequest, IRequest<long>
+    {
+        public long ID { get; set; }
+        public StatusChangedQuery(long ID)
+        {
+            this.ID = ID;
+        }
+    }
+
+    
 }

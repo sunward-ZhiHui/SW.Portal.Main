@@ -332,11 +332,8 @@
 
                             @{
                                string dynamicShowSubject = "showOpenDoc_" + item.ID;
-                            }
-                            <div id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)">
-                                <span class="fa fa-paperclip"> </span>
-                                <span style="font-size:11px; margin-left: 8px; margin-right: 15px;"> Add file</span> 
-                            </div>
+                            }                           
+                            <span class="fa fa-paperclip" id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)"> </span>
                         </div>
                     </div>
                 </CellDisplayTemplate>
@@ -493,7 +490,7 @@
                                             string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(item.FileName);
 
                                         }
-                                        <strong style="width:100%;display:inline-block;margin-left:10px;">@fileNameWithoutExtension</strong>
+                                        <strong style="width:100%;display:inline-block;margin-left:10px;"><span @onclick="@(() => onPreview(item.DocumentId))">@fileNameWithoutExtension</span></strong>
                                     </td>
 
                                 </tr>
@@ -504,6 +501,7 @@
                                         }
                                         <span style="font-size: 11px; margin-left:10px;">  @formattedFileSize</span>
                                         <button style="color:red;float:right;" class="dxbl-btn fa fa-remove" @onclick="@(() => onDocDelete(item.DocumentId))"> </button>
+                                        <button style="color:red;float:right;" class="dxbl-btn fa fa-eye" @onclick="@(() => onPreview(item.DocumentId))"> </button>
                                     </td>
 
                                 </tr>
@@ -560,6 +558,10 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
+    private string? BaseUrl;
+    private string? FileUrl;
+    private string? DocumentViewUrl;
+  
     Documents _documents { get; set; }
     private List<ViewEmployee> _userList;
     public IEnumerable<long> UserIds { get; set; }
@@ -672,7 +674,9 @@
         //_ToDoNotesHistory = await Mediator.Send(new GetAllToDoNotesHistory());
         PanelVisible = false;
         _participant = await Mediator.Send(new GetAllEmployeeListQuery());
-
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         if(Topicid >0)
         {
             gridHeight ="height: calc(100vh - 351px);";
@@ -886,7 +890,7 @@
             var editModel = (ToDoNotesHistory)e.EditModel;
             var types = (ToDoNotesHistory)e.EditModel;
 
-            if (types.Users != null)
+            if (types.Users != null && types.Users.Length != 0)
             {
                 string userIdsString = types.Users; // Assuming UserIds is a string
                                                     // Split the comma-separated string and parse into an IEnumerable<long>
@@ -1027,5 +1031,15 @@
         toastService.ShowToast("File deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
         await getdoclist();
 
+    }
+    public async Task onPreview(long Id)
+    {
+        _documents = _DocumentsList.FirstOrDefault(a => a.DocumentId == Id);
+        var url = DocumentViewUrl + "?url=" + FileUrl + _documents.FilePath;
+        await OpenDocumentPreview(url);
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
 }

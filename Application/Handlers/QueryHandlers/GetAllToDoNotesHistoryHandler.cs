@@ -135,4 +135,19 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+
+    public class StatusChangedToDoNotesHistoryHandler : IRequestHandler<StatusChangedQuery, long>
+    {
+        private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
+        public StatusChangedToDoNotesHistoryHandler(IToDoNotesHistoryQueryRepository ToDoNotesHistoryQueryRepository)
+        {
+            _ToDoNotesHistoryQueryRepository = ToDoNotesHistoryQueryRepository;
+        }
+
+        public async Task<long> Handle(StatusChangedQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _ToDoNotesHistoryQueryRepository.StatusUpdateAsync(request.ID);
+            return newlist;
+        }
+    }
 }

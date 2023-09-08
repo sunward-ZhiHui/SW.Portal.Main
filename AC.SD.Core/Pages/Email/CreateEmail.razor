@@ -582,12 +582,29 @@ else
         {
             Message = "Upload";
             loading = false;
-            //backUrl();
-            onRestText();
+            onCompletedUpload();
         }      
         InvokeAsync(StateHasChanged);
 
     }
+    void onCompletedUpload()
+    {
+        if (ActiveSessionId != null)
+        {
+            BackEnabled = false;
+            NavigationManager.NavigateTo($"CreateEmail");
+        }
+        else
+        {
+            BackEnabled = false;
+            JSRuntime.InvokeAsync<string>("ReloadUrl");
+        }     
+
+        onRestText();
+       InvokeAsync(StateHasChanged);
+    }
+
+
     void OnUploadError(FileUploadErrorEventArgs e)
     {
         MyError = e.RequestInfo.ResponseText;
@@ -1077,29 +1094,25 @@ else
                     toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
                    
 
-                if (SelectedFilesCount > 0)
-                {
-                    uploadComponent.UploadAllFiles();
-                }
-                else
-                {
-                    if (ActiveSessionId != null)
+                    if (SelectedFilesCount > 0)
                     {
-                        BackEnabled = false;
-                        NavigationManager.NavigateTo($"CreateEmail");
+                        uploadComponent.UploadAllFiles();
                     }
                     else
                     {
-                        BackEnabled = false;
-                        await JSRuntime.InvokeAsync<string>("ReloadUrl");
+                        if (ActiveSessionId != null)
+                        {
+                            BackEnabled = false;
+                            NavigationManager.NavigateTo($"CreateEmail");
+                        }
+                        else
+                        {
+                            BackEnabled = false;
+                            await JSRuntime.InvokeAsync<string>("ReloadUrl");
+                        }
                     }
-                }
-                    
-                   
 
-
-
-                    //onRestText();
+                    onRestText();
                     await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
                 else

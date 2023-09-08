@@ -26,6 +26,8 @@
 @using System.Linq;
 @page "/CreateEmail"
 @page "/CreateEmail/{ActiveSessionId}"
+
+@using global::Core.EntityModels;
 <style>
     .txtEditorMsg {
         height: calc(100vh - 477px);
@@ -272,11 +274,14 @@ else
                                                   Visible="@AttachmentUploadVisible"
                                                   AcceptedFileTypes=@AcceptedFileTypes
                                                   UploadMode="@UploadMode.OnButtonClick"
-                                                  UploadUrl="@GetUploadUrl()"
+                                                  FileUploadStart="OnFileUploadStart"
+                                                  ChunkSize="200000"
                                                   AllowMultiFileUpload="true"
                                                   ExternalSelectButtonCssSelector="#attachmentSelectButton"
                                                   SelectedFilesChanged="@AttachmentSelectedFilesChanged"
                                                   FileUploaded="@isUploadSuccess"
+                                                  FileUploadProgressChanged="@OnUploadProgressChanged"
+                                                  FileUploadStarted="@OnFileUploadStarted"
                                                   FileUploadError="@OnUploadError">
                                             </DxUpload>
                                             <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
@@ -312,7 +317,7 @@ else
                                         </div>
                                     </DxFormLayoutGroup>
                                 </DxFormLayout>
-                            </DxFormLayoutItem>
+                            </DxFormLayoutItem>                           
                         </DxFormLayout>
                     </div>
                 </div>
@@ -334,6 +339,31 @@ else
 
 
 @code {
+    int SelectedFilesCount { get; set; }
+    int CurrentUplodCount { get; set; }
+    string MyMessage { get; set; }
+    string Message = "Upload";
+
+    async Task OnFileUploadStart(FileUploadStartEventArgs e)
+    {
+        Message = "Uploading...";
+        loading = true;
+        var SessionId = _sessionId;        
+        string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";            
+        string url = BaseUrl + "UploadDocumentsChunkFile?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
+        e.UploadUrl = url;
+    }
+    void OnFileUploadStarted(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
+        InvokeAsync(StateHasChanged);
+    }
+    void OnUploadProgressChanged(FileUploadEventArgs e)
+    {
+        var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
+    }
+
     void onSelectedToItemsChanged(IEnumerable<ViewEmployee> values)
     {
         if (values != null)
@@ -419,6 +449,7 @@ else
     int draftId = 0;
     private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
     bool AttachmentUploadVisible { get; set; } = false;
+    bool newAttachmentUploadVisible { get; set; } = false;
     List<string> Follow { get; set; }
     string SelectedFollow { get; set; }
     private EditForm myForm;
@@ -526,20 +557,36 @@ else
     }
     public string GetUploadUrl()
     {
-        string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
-        string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
-        return url.ToString();
+        string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
+        //string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        string url = BaseUrl + "UploadDocumentsChunkFile?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
+        return url.ToString();       
     }
     void onloadSession()
     {
         _sessionId = Guid.NewGuid();
     }
-    private async Task isUploadSuccess()
+    private async Task isUploadSuccess_old()
     {
         //uploadComponent.RemoveAllFiles();
         //uploadComponent.CancelAllFilesUpload();
         isFileUpload = false;
         //await LoadData();
+    }
+    private void isUploadSuccess(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        CurrentUplodCount++;
+        if (CurrentUplodCount >= SelectedFilesCount)
+        {
+            Message = "Upload";
+            loading = false;
+            //backUrl();
+            onRestText();
+        }      
+        InvokeAsync(StateHasChanged);
+
     }
     void OnUploadError(FileUploadErrorEventArgs e)
     {
@@ -548,9 +595,11 @@ else
         InvokeAsync(StateHasChanged);
     }
     protected async void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
-    {
+    {      
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
+        SelectedFilesCount = files.ToList().Count; //Count current files
+        InvokeAsync(StateHasChanged);
     }
 
     private async Task SubmitForm()
@@ -729,8 +778,6 @@ else
 
     }
 
-
-
     private void HandleSelectedRowsChanged(IEnumerable<ViewEmployee> selectedRows)
     {
         // Update the selected data items list
@@ -751,6 +798,8 @@ else
     protected override async Task OnInitializedAsync() {       
 
         onloadSession();
+        CurrentUplodCount = 0;
+        SelectedFilesCount = 0;
 
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
@@ -959,8 +1008,8 @@ else
                 }
             }
         }
-        
-     
+
+
 
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
 
@@ -986,12 +1035,12 @@ else
         //if (ex.Any())
         //{
 
-            //addNew();
-            //onShowPopupMessage("Error", "The Subject Name Already exists.");
-            //toastService.ShowToast("The Subject Name Already exists.", AC.SD.Core.Services.ToastLevel.Error);
-            //await JSRuntime.InvokeAsync<string>("hideLoading");
+        //addNew();
+        //onShowPopupMessage("Error", "The Subject Name Already exists.");
+        //toastService.ShowToast("The Subject Name Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+        //await JSRuntime.InvokeAsync<string>("hideLoading");
 
-            var createReq = new CreateEmailTopics
+        var createReq = new CreateEmailTopics
                 {
                     TopicName = Data.TopicName,
                     StartDate = DateTime.Now,
@@ -1014,18 +1063,26 @@ else
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
                 };
-            try
-            {
-                //_sessionId = createReq.SessionId;
-                var result = await Mediator.Send(createReq);
-                if (result != null)
-                {                
-                   
-                    uploadComponent.UploadAllFiles();                  
-                    await Task.Delay(5000); // Delay for 5 seconds
+        try
+        {
+            //_sessionId = createReq.SessionId;
+            var result = await Mediator.Send(createReq);
+            if (result != null)
+            {                
+               
+
+                    ///await Task.Delay(5000); // Delay for 5 seconds
                     //   onShowPopupMessage("success", "Topic have been saved successully");
                     ActivityEmailTopicId = 0;
                     toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+                   
+
+                if (SelectedFilesCount > 0)
+                {
+                    uploadComponent.UploadAllFiles();
+                }
+                else
+                {
                     if (ActiveSessionId != null)
                     {
                         BackEnabled = false;
@@ -1036,10 +1093,13 @@ else
                         BackEnabled = false;
                         await JSRuntime.InvokeAsync<string>("ReloadUrl");
                     }
+                }
+                    
+                   
 
 
 
-                    onRestText();
+                    //onRestText();
                     await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
                 else

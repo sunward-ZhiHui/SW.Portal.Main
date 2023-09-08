@@ -112,15 +112,15 @@ namespace SW.Portal.Solutions.Controllers
                         // Upload finished - overwrite/copy file and remove tempFile
                         System.IO.File.Copy(tempFilePath, Path.Combine(serverPaths, filePath), true);
                         System.IO.File.Delete(tempFilePath);
-                        Documents documents = new Documents();
-                        documents.FileName = files.FileName;
-                        documents.ContentType = files.ContentType;
-                        documents.FileSize = files.Length;
+                        Documents documents = new Documents();                       
                         documents.UploadDate = DateTime.Now;
                         documents.AddedByUserId = addedByUserId;
                         documents.AddedDate = DateTime.Now;
                         documents.SessionId = SessionId;
                         documents.IsLatest = true;
+                        documents.FileName = metaDataObject.FileName;
+                        documents.ContentType = metaDataObject.FileType;
+                        documents.FileSize = metaDataObject.FileSize;
                         documents.FilePath = filePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                         var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
                         documentId = response.DocumentId;

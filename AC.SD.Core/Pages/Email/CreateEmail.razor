@@ -350,7 +350,7 @@ else
         loading = true;
         var SessionId = _sessionId;        
         string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";            
-        string url = BaseUrl + "UploadDocumentsChunkFile?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
         e.UploadUrl = url;
     }
     void OnFileUploadStarted(FileUploadEventArgs e)

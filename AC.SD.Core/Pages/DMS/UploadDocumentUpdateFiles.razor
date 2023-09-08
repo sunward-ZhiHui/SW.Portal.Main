@@ -203,7 +203,7 @@
             TempSetId.DocumentId = response.DocumentId;
             TempSetIds.Add(TempSetId);
             string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
-            string url = BaseUrl + "UploadDocumentsChunkFileById?SessionId=" + newSessionId + "&DocumentId=" + response.DocumentId;
+            string url = BaseUrl + "UploadDocumentsById?SessionId=" + newSessionId + "&DocumentId=" + response.DocumentId;
             e.UploadUrl = url;
 
         }

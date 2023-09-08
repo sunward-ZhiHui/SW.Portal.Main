@@ -15,6 +15,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration;
+@inject NavigationManager NavigationManager
 @using System;
 @using System.IO;
 
@@ -526,10 +527,13 @@
                 <DxUpload @ref="uploadComponent" Name="files"
                           Visible="@TodoAttachmentUploadVisible"
                           UploadMode="@UploadMode.OnButtonClick"
-                          UploadUrl="@GetUploadUrl()"
+                          FileUploadStart="OnFileUploadStart"
+                          ChunkSize="200000"
                           AllowMultiFileUpload="true"
                           ExternalSelectButtonCssSelector="#attachmentSelectButton"
                           SelectedFilesChanged="@TodoAttachmentSelectedFilesChanged"
+                          FileUploadProgressChanged="@OnUploadProgressChanged"
+                          FileUploadStarted="@OnFileUploadStarted"
                           FileUploaded="@isTodoUploadSuccess"
                           FileUploadError="@OnUploadError">
                 </DxUpload>
@@ -562,7 +566,7 @@
     private string? BaseUrl;
     private string? FileUrl;
     private string? DocumentViewUrl;
-  
+
     Documents _documents { get; set; }
     private List<ViewEmployee> _userList;
     public IEnumerable<long> UserIds { get; set; }
@@ -608,6 +612,34 @@
     bool isTodoFileUpload = false;
     bool TodoErrorVisible { get; set; } = false;
     string TodoMyError { get; set; }
+
+
+
+    int SelectedFilesCount { get; set; }
+    int CurrentUplodCount { get; set; }
+    string MyMessage { get; set; }
+    string Message = "Upload";
+
+    async Task OnFileUploadStart(FileUploadStartEventArgs e)
+    {
+        Message = "Uploading...";
+        loading = true;
+        var SessionId = CurrentTodoNotes.SessionId;
+        string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + CurrentTodoNotes.SessionId + "&addedByUserId=" + applicationUser.UserID;
+        e.UploadUrl = url;
+    }
+    void OnFileUploadStarted(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
+        InvokeAsync(StateHasChanged);
+    }
+    void OnUploadProgressChanged(FileUploadEventArgs e)
+    {
+        var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
+    }
+
     async Task onUploadClick()
     {
         uploadComponent.UploadAllFiles();
@@ -632,12 +664,29 @@
     {
         TodoAttachmentUploadVisible = files.ToList().Count > 0;
         TodoSelectedFiles.AddRange(files);
+        SelectedFilesCount = files.ToList().Count; //Count current files
+        InvokeAsync(StateHasChanged);
     }
-    private async Task isTodoUploadSuccess()
+    private async Task isTodoUploadSuccess_old()
     {
         uploadComponent.RemoveAllFiles();
         isTodoFileUpload = false;
         await getdoclist();
+    }
+    private void isTodoUploadSuccess(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        CurrentUplodCount++;
+        if (CurrentUplodCount >= SelectedFilesCount)
+        {
+            Message = "Upload";
+            loading = false;
+            getdoclist();
+        }
+        uploadComponent.RemoveFile(e.FileInfo);
+        InvokeAsync(StateHasChanged);
+
     }
     void OnUploadError(FileUploadErrorEventArgs e)
     {
@@ -660,7 +709,8 @@
     {
         System.Guid? guidValue = CurrentTodoNotes.SessionId;
         string stringValue = guidValue?.ToString();
-        _DocumentsList = await Mediator.Send(new GetByToDoDocuments(stringValue));        
+        _DocumentsList = await Mediator.Send(new GetByToDoDocuments(stringValue));
+        StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
     {

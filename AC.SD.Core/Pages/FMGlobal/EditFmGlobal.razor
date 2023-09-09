@@ -15,8 +15,8 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
-@page "/EditFmGlobal"
-@page "/EditFmGlobal/{SessionIds:guid}"
+@page "/FmGlobal/EditFmGlobal"
+@page "/FmGlobal/EditFmGlobal/{SessionIds:guid}"
 
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
@@ -273,7 +273,7 @@
         {
             if (BackSessionId1 != null && BackSessionId2 != null)
             {
-                NavigationManager.NavigateTo("EditFmGlobalItem/" + BackSessionId1 + "/" + BackSessionId2);
+                NavigationManager.NavigateTo("FmGlobal/EditFmGlobalItem/" + BackSessionId1 + "/" + BackSessionId2);
             }
         }
     }
@@ -353,7 +353,7 @@
 
         FmglobalId = -1;
         ActiveSubTabIndex = 0;
-        NavigationManager.NavigateTo("AddFmGlobal");
+        NavigationManager.NavigateTo("FmGlobal/AddFmGlobal");
     }
 
     void onsubmitClick()

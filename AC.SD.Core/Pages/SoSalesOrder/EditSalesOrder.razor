@@ -15,8 +15,8 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
-@page "/EditSalesOrder"
-@page "/EditSalesOrder/{SessionIds:guid}"
+@page "/SalesOrder/EditSalesOrder"
+@page "/SalesOrder/EditSalesOrder/{SessionIds:guid}"
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -263,7 +263,7 @@
     {
         SoSalesOrderId = -1;
         ActiveSubTabIndex = 0;
-        NavigationManager.NavigateTo("AddSalesOrder");
+        NavigationManager.NavigateTo("SalesOrder/AddSalesOrder");
     }
     void onsubmitClick()
     {
@@ -328,7 +328,7 @@
             SoSalesOrderId = result.SoSalesOrderId;
             ActiveSubTabIndex = 0;
             loading = false;
-            NavigationManager.NavigateTo("AddSalesOrder/" + createReq.SessionId + "");
+            NavigationManager.NavigateTo("SalesOrder/AddSalesOrder/" + createReq.SessionId + "");
             StateHasChanged();
         }
     }

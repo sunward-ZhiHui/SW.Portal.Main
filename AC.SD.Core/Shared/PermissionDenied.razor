@@ -1,0 +1,16 @@
+﻿@page "/PermissionDenied"
+@using global::Core.EntityModels;
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+<h1>Access Denied, You Don’t Have Permission To Access on This Page</h1>
+
+@code {
+    [Parameter]
+    public PortalMenuModel _portalMenuModelData { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+        NavigationManager.NavigateTo("PermissionDenied");
+        // await jsRuntime.InvokeVoidAsync("eval", @"document.addEventListener('contextmenu', event => event.preventDefault());");
+    }
+}

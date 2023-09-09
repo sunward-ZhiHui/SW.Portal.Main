@@ -1,6 +1,5 @@
 ﻿@implements IDisposable
 @inject DemoConfiguration Configuration
-@inject NavigationManager NavManager
 @inject NavigationManager NavigationManager
 @using global::Core.EntityModels;
 @using Application.Queries;
@@ -26,9 +25,23 @@
         <span class="separator"></span>
     }
 </div>
-
+<DxPopup HeaderText="Access Denied"
+@bind-Visible="@PopupVisible"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         ShowFooter="true"
+         ShowCloseButton="false">
+    <BodyContentTemplate>
+        <PermissionDenied _portalMenuModelData="@portalMenuModelData"></PermissionDenied>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Dashboard" Click="@(() => goDashBoard())" />
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() =>PopupVisible=false)" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
-
+    bool PopupVisible { get; set; } = false;
+    public PortalMenuModel portalMenuModelData { get; set; }
     [Parameter]
     public PortalMenuModel _appPermissionListItems { get; set; }
     private List<PortalMenuModel> _appPermissionItems;
@@ -37,12 +50,12 @@
     List<Tuple<string, string>> Items { get; set; } = new List<Tuple<string, string>>();
     protected override async Task OnInitializedAsync()
     {
-        //page navigation 
+        //page navigation
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         if (applicationUser == null)
         {
-            NavManager.NavigateTo($"Login",forceLoad:true);
-        }      
+            NavigationManager.NavigateTo($"Login", forceLoad: true);
+        }
         else
         {
             _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
@@ -53,7 +66,13 @@
         //UpdateItems(NavigationManager.Uri)dashboard;
 
     }
+    void goDashBoard()
+    {
 
+        PopupVisible = false;
+        NavigationManager.NavigateTo("dashboard");
+        // await jsRuntime.InvokeVoidAsync("eval", @"window.oncontextmenu = null");
+    }
     void BreadcrumbsGenerate()
     {
         string str = NavigationManager.Uri;
@@ -78,16 +97,17 @@
                     Items.Add(new(list1.Title, ""));
 
                 }
-                //else
-                //{
-                   
-                //    var list5 = UrlList[0];
-                //    Items.Add(new(list5, ""));
+                else
+                {
+                    portalMenuModelData = list1;
+                    PopupVisible = true;
+                    //    var list5 = UrlList[0];
+                    //    Items.Add(new(list5, ""));
 
-                //}
+                }
             }
         }
-       
+
     }
     void OnLocationChanged(object sender, LocationChangedEventArgs args)
     {

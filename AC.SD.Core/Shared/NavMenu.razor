@@ -26,7 +26,10 @@
                                ParentKey="ParentID" />
     </DataMappings>
 </DxTreeView>
+
+
 @code {
+
     private DxTreeView treeView;
     string? FilterString { get; set; }
     public List<PortalMenuModel> portalMenuModel { get; set; }
@@ -42,21 +45,21 @@
     }
     void UpdateSelection(string currentUri, bool expandNodesToSelection)
     {
-            string uri = NavigationManager.Uri;
-            string baseUri = NavigationManager.BaseUri;
-            treeView.SelectNode(n =>
+        string uri = NavigationManager.Uri;
+        string baseUri = NavigationManager.BaseUri;
+        treeView.SelectNode(n =>
+        {
+            var dataItem = n.DataItem as PortalMenuModel;
+            string rep1 = uri.Replace(baseUri, "").ToLower();
+            string[] UrlList = rep1.Split("/");
+            if (dataItem != null && UrlList.Length > 0 && UrlList[0] != null && dataItem.Component != null && dataItem.Component.ToLower() == UrlList[0])
             {
-                var dataItem = n.DataItem as PortalMenuModel;
-                string rep1 = uri.Replace(baseUri, "").ToLower();
-                string[] UrlList = rep1.Split("/");
-                if (dataItem != null && UrlList.Length > 0 && UrlList[0] != null && dataItem.Component != null && dataItem.Component.ToLower() == UrlList[0])
-                {
-                    if (expandNodesToSelection)
-                        ExpandToSelectedNode(n);
-                    return true;
-                }
-                return false;
-            });
+                if (expandNodesToSelection)
+                    ExpandToSelectedNode(n);
+                return true;
+            }
+            return false;
+        });
     }
     void ExpandToSelectedNode(ITreeViewNodeInfo selectedNode)
     {
@@ -89,12 +92,11 @@
                     NavigationManager.NavigateTo(url);
                 }
             }
-           var nodes = treeView.GetNodesInfo(n => true);
-           foreach (var node in nodes)
-           {
-               treeView.SetNodeExpanded(n => n == node, IsParentNode(node, e.NodeInfo));
-           }
-           
+            var nodes = treeView.GetNodesInfo(n => true);
+            foreach (var node in nodes)
+            {
+                treeView.SetNodeExpanded(n => n == node, IsParentNode(node, e.NodeInfo));
+            }
         }
     }
 }

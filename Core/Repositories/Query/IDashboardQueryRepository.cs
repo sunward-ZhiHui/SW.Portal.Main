@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 namespace Core.Repositories.Query
 {
     public interface IDashboardQueryRepository : IQueryRepository<EmailScheduler>
-    {                
+    {
+        
+            Task<IReadOnlyList<EmailTopics>> GetEailDashboard();
         Task<IReadOnlyList<EmailScheduler>> GetAllEmailSchedulerAsync();
+        Task <IReadOnlyList<EmailTopics>> GetCountAsync();
     }
 }

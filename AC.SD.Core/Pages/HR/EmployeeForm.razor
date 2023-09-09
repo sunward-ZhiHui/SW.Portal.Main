@@ -13,8 +13,8 @@
 @using System.Reflection;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
-@page "/EmployeeForm/{SessionIds:guid}"
-@page "/EmployeeForm"
+@page "/Employees/EmployeeForm/{SessionIds:guid}"
+@page "/Employees/EmployeeForm"
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <div class="row">
@@ -334,7 +334,7 @@
         EmployeeIds = null;
         ActiveTabIndex = 0;
         ActiveSubTabIndex = 0;
-        NavigationManager.NavigateTo("EmployeeForm");
+        NavigationManager.NavigateTo("Employees/EmployeeForm");
     }
 
     async Task loadEmployeeData(ViewEmployee _employeeData)
@@ -491,7 +491,7 @@
                 employee.UserID = response.UserID;
                 employee.SessionId = response.SessionId;
                 EmployeeIds = response.EmployeeID;
-                NavigationManager.NavigateTo("EmployeeForm/" + response.SessionId + "");
+                NavigationManager.NavigateTo("Employees/EmployeeForm/" + response.SessionId + "");
             }
             loading = false;
         }

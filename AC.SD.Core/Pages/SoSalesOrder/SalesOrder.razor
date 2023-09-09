@@ -120,11 +120,11 @@
     }
     void addNew()
     {
-        NavigationManager.NavigateTo("AddSalesOrder");
+        NavigationManager.NavigateTo("SalesOrder/AddSalesOrder");
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("EditSalesOrder/" + _selectedItems.SessionId + "");
+        NavigationManager.NavigateTo("SalesOrder/EditSalesOrder/" + _selectedItems.SessionId + "");
 
     }
     void addDelete()

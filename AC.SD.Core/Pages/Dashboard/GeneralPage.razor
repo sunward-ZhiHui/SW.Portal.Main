@@ -67,126 +67,230 @@
 @* <div class="card w-100 tooltips" style="margin-bottom:10px;">
     <div class="card-body p-0 tooltiptops"> *@
 <div class="col-md-12" style="padding:10px;">
-<div class="row">
-  <div class="column">
-    <div class="card">
-      <p><i class="fa fa-user"></i>
-          <h3>@_EmailCount</h3>
-          <p>Partners</p>
-            </p>
-                
-    </div>
-  </div>
-
-  <div class="column">
-    <div class="card">
-      <p><i class="fa fa-check"></i>
-                    <h3>@_EmailCount</h3>
-                <p>Projects</p>
-      </p>
-               
-    </div>
-  </div>
-  
-  <div class="column">
-    <div class="card">
-      <p><i class="fa fa-smile"></i>
-                    <h3>@_EmailCount</h3>
-                <p>Happy Clients</p>
-      </p>
-               
-    </div>
-  </div>
- 
-  <div class="column">
-    <div class="card">
-      <p><i class="fa fa-coffee"></i>
-                    <h3>@_EmailCount</h3>
-                <p>Meetings</p>
-                </p>
-               
-    </div>
-  </div>
- </div>
-</div>
-<div class="col-md-12" style="padding:10px;">
-<div class="row">
-  <div class="column">
-   <div class="card" style="">
-                <DxPieChart Data="@_types"
-                Diameter="diameter"
-                InnerDiameter="innerDiameter"
-                T="EmailTopics"
-                SeriesClick="OnClick">
-        <DxPieChartSeries T="EmailTopics"
-                          TArgument="long"
-                          TValue="double"
-                          ValueField="si => si.ID"
-                          ArgumentField="si => si.TopicFrom"
-                          SummaryMethod="Enumerable.Sum">
-            <DxChartSeriesLabel Visible="showLabels"
-                                Position="labelPosition"
-                                ValueFormat="ChartElementFormat.Thousands(1)">
-                            <DxChartSeriesLabelConnector Visible="true" />
-            </DxChartSeriesLabel>
-        </DxPieChartSeries>
-       @*  <DxChartTooltip Enabled="true"
-                        Position="RelativePosition.Outside">
-            <div style="margin: 0.75rem">
-                <div class="fw-bold">@context.Point.Argument</div>
-                <div>Sales: @($"${context.Point.Value:#,0.}")</div>
-            </div>
-        </DxChartTooltip> *@
-        <DxChartTitle Text="Email Counts" >
-            <DxChartSubTitle Text="Chart" />
-        </DxChartTitle>
-        <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
-                       VerticalAlignment="VerticalEdge.Bottom"
-                       Position="RelativePosition.Outside"
-                       Orientation="Orientation.Horizontal" />
-    </DxPieChart>
-            </div>
-            </div>
-
-
-        <div class="column" style="">
+    <div class="row">
+     
+           <div class="col-md-3" >
             <div class="card">
-               
-                <DxPieChart Data="@_types"
-                            Diameter="diameter"
-                            InnerDiameter="innerDiameter"
-                            T="EmailTopics"
-                            SeriesClick="OnClick">
-                    <DxPieChartSeries T="EmailTopics"
-                                      TArgument="long"
-                                      TValue="double"
-                                      ValueField="si => si.ID"
-                                      ArgumentField="si => si.TopicFrom"
-                                      SummaryMethod="Enumerable.Sum">
-                        <DxChartSeriesLabel Visible="showLabels"
-                                            Position="labelPosition"
-                                            ValueFormat="ChartElementFormat.Thousands(1)">
-                            <DxChartSeriesLabelConnector Visible="true" />
-                        </DxChartSeriesLabel>
-                    </DxPieChartSeries>
-                   @*  <DxChartTooltip Enabled="true"
-                                    Position="RelativePosition.Outside">
-                        <div style="margin: 0.75rem">
-                            <div class="fw-bold">@context.Point.Argument</div>
-                            <div>Sales: @($"${context.Point.Value:#,0.}")</div>
-                        </div>
-                    </DxChartTooltip> *@
-                    <DxChartTitle Text="Email Counts">
-                        <DxChartSubTitle Text="Chart" />
-                    </DxChartTitle>
-                    <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
-                                   VerticalAlignment="VerticalEdge.Bottom"
-                                   Position="RelativePosition.Outside"
-                                   Orientation="Orientation.Horizontal" />
-                </DxPieChart>
+              <p><i class="fa fa-user"></i>
+                  <h3>@_EmailCount</h3>
+                  <p>Partners</p>
+                    </p>
+              </div>  
+ 
+           </div>
+ 
+
+ 
+           <div class="col-md-3">
+            <div class="card">
+              <p><i class="fa fa-check"></i>
+                            <h3>@_EmailCount</h3>
+                        <p>Projects</p>
+              </p>
             </div>
-        </div>
+   
+               </div>
+  
+
+              <div class="col-md-3">
+                <div class="card">
+                  <p><i class="fa fa-smile"></i>
+                                <h3>@_EmailCount</h3>
+                            <p>Happy Clients</p>
+                  </p>
+
+                </div>
+
+              </div>
+ 
+  
+           <div class="col-md-3">
+                    <div class="card">
+              <p><i class="fa fa-coffee"></i>
+                            <h3>@_EmailCount</h3>
+                        <p>Meetings</p>
+              </p>
+                    </div>
+            </div>
+       
+      </div>
+    
 </div>
+
+
+<div class="col-md-12" style="padding:10px;">
+    <div class="row">
+        <div class="col-md-3">
+
+
+            <div style="height: 440px">
+                    <DxPieChart Data="@_types"
+                                Diameter="diameter" Height="50%" Width="100%"
+                                InnerDiameter="innerDiameter"
+                                T="EmailTopics"
+                                SeriesClick="OnClick">
+                        <DxPieChartSeries T="EmailTopics"
+                                          TArgument="long"
+                                          TValue="double"
+                                          ValueField="si => si.ID"
+                                          ArgumentField="si => si.TopicFrom"
+                                          SummaryMethod="Enumerable.Sum">
+                            <DxChartSeriesLabel Visible="showLabels"
+                                                Position="labelPosition"
+                                                ValueFormat="ChartElementFormat.Thousands(1)">
+                                <DxChartSeriesLabelConnector Visible="false" />
+                            </DxChartSeriesLabel>
+                        </DxPieChartSeries>
+                        <DxChartTooltip Enabled="true"
+                                        Position="RelativePosition.Outside">
+                            <div style="margin: 0.75rem">
+                                <div class="fw-bold">@context.Point.Argument</div>
+                                <div>Sales: @($"${context.Point.Value:#,0.}")</div>
+                            </div>
+                        </DxChartTooltip>
+                        <DxChartTitle Text="Email Counts">
+                            <DxChartSubTitle Text="" />
+                        </DxChartTitle>
+                        <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
+                                       VerticalAlignment="VerticalEdge.Bottom"
+                                       Orientation="Orientation.Horizontal"
+                                       AllowToggleSeries="true"
+                                       Position="RelativePosition.Outside" />
+                    </DxPieChart>
+
+                </div>
+            </div>
+       
+
+
+        <div class="col-md-3">
+           
+
+                <div style="width: 100%; height: 100%">
+                    <DxPieChart Data="@_types" Height="50%" Width="100%"
+                                Diameter="diameter"
+                                InnerDiameter="innerDiameter"
+                                T="EmailTopics"
+                                SeriesClick="OnClick">
+                        <DxPieChartSeries T="EmailTopics"
+                                          TArgument="long"
+                                          TValue="double"
+                                          ValueField="si => si.ID"
+                                          ArgumentField="si => si.TopicFrom"
+                                          SummaryMethod="Enumerable.Sum">
+                            <DxChartSeriesLabel Visible="showLabels"
+                                                Position="labelPosition"
+                                                ValueFormat="ChartElementFormat.Thousands(1)">
+                                <DxChartSeriesLabelConnector Visible="false" />
+                            </DxChartSeriesLabel>
+                        </DxPieChartSeries>
+                        <DxChartTooltip Enabled="true"
+                                        Position="RelativePosition.Outside">
+                            <div style="margin: 0.75rem">
+                                <div class="fw-bold">@context.Point.Argument</div>
+                                <div>Sales: @($"${context.Point.Value:#,0.}")</div>
+                            </div>
+                        </DxChartTooltip>
+                        <DxChartTitle Text="Email Counts">
+                            <DxChartSubTitle Text="" />
+                        </DxChartTitle>
+                        <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
+                                       VerticalAlignment="VerticalEdge.Bottom"
+                                       Orientation="Orientation.Horizontal" AllowToggleSeries="true"
+                                       Position="RelativePosition.Outside" />
+                    </DxPieChart>
+                </div>
+            
+        </div>
+
+
+        <div class="col-md-3">
+           
+
+                <div style=" height: 100%">
+                    <DxPieChart Data="@_types"
+                                Diameter="diameter" Height="50%" Width="100%"
+                                InnerDiameter="innerDiameter"
+                                T="EmailTopics"
+                                SeriesClick="OnClick">
+                        <DxPieChartSeries T="EmailTopics"
+                                          TArgument="long"
+                                          TValue="double"
+                                          ValueField="si => si.ID"
+                                          ArgumentField="si => si.TopicFrom"
+                                          SummaryMethod="Enumerable.Sum">
+                            <DxChartSeriesLabel Visible="showLabels"
+                                                Position="labelPosition"
+                                                ValueFormat="ChartElementFormat.Thousands(1)">
+                                <DxChartSeriesLabelConnector Visible="false" />
+                            </DxChartSeriesLabel>
+                        </DxPieChartSeries>
+                        <DxChartTooltip Enabled="true"
+                                        Position="RelativePosition.Outside">
+                            <div style="margin: 0.75rem">
+                                <div class="fw-bold">@context.Point.Argument</div>
+                                <div>Sales: @($"${context.Point.Value:#,0.}")</div>
+                            </div>
+                        </DxChartTooltip>
+                        <DxChartTitle Text="Email Counts">
+                            <DxChartSubTitle Text="" />
+                        </DxChartTitle>
+                        <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
+                                       VerticalAlignment="VerticalEdge.Bottom"
+                                       Orientation="Orientation.Horizontal"
+                                       AllowToggleSeries="true"
+                                       Position="RelativePosition.Outside" />
+                    </DxPieChart>
+
+                </div>
+           
+        </div>
+
+
+        <div class="col-md-3">
+          
+
+                <div style=" height:  100%">
+                    <DxPieChart Data="@_types"
+                                Diameter="diameter" Height="50%" Width="100%"
+                                InnerDiameter="innerDiameter"
+                                T="EmailTopics"
+                                SeriesClick="OnClick">
+                        <DxPieChartSeries T="EmailTopics"
+                                          TArgument="long"
+                                          TValue="double"
+                                          ValueField="si => si.ID"
+                                          ArgumentField="si => si.TopicFrom"
+                                          SummaryMethod="Enumerable.Sum">
+                            <DxChartSeriesLabel Visible="showLabels"
+                                                Position="labelPosition"
+                                                ValueFormat="ChartElementFormat.Thousands(1)">
+                                <DxChartSeriesLabelConnector Visible="false" />
+                            </DxChartSeriesLabel>
+                        </DxPieChartSeries>
+                        <DxChartTooltip Enabled="true"
+                                        Position="RelativePosition.Outside">
+                            <div style="margin: 0.75rem">
+                                <div class="fw-bold">@context.Point.Argument</div>
+                                <div>Sales: @($"${context.Point.Value:#,0.}")</div>
+                            </div>
+                        </DxChartTooltip>
+                        <DxChartTitle Text="Email Counts">
+                            <DxChartSubTitle Text="" />
+                        </DxChartTitle>
+                        <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
+                                       VerticalAlignment="VerticalEdge.Bottom"
+                                       Orientation="Orientation.Horizontal"
+                                       AllowToggleSeries="true"
+                                       Position="RelativePosition.Outside" />
+                    </DxPieChart>
+
+                </div>
+           
+        </div>
+
+
+    </div>
 </div>
 
 <DxPopup @bind-Visible="@ChartPopUp"

@@ -30,7 +30,7 @@
 @using RtfPipe;
 @inject Application.Common.Helper.Helper dateformathelper
 @using System.Net.Http;
-@page "/EmailDrafts"
+@page "/Email/EmailDrafts"
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -163,7 +163,7 @@
     }
     void addNew()
     {
-        NavigationManager.NavigateTo("CreateEmail");
+        NavigationManager.NavigateTo("Email/CreateEmail");
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
@@ -172,7 +172,7 @@
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("EditEmailDraft/" + SelectedGroup + "");
+        NavigationManager.NavigateTo("Email/EmailDrafts/EditEmailDraft/" + SelectedGroup + "");
     }
   
 }

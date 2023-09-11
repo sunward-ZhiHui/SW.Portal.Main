@@ -24,8 +24,8 @@
 @using System.ComponentModel;
 @using System;
 @using System.Linq;
-@page "/CreateEmail"
-@page "/CreateEmail/{ActiveSessionId}"
+@page "/Email/CreateEmail"
+@page "/Email/CreateEmail/{ActiveSessionId}"
 
 @using global::Core.EntityModels;
 <style>
@@ -613,7 +613,7 @@ else
         if (ActiveSessionId != null)
         {
             BackEnabled = false;
-            NavigationManager.NavigateTo($"CreateEmail");
+            NavigationManager.NavigateTo($"Eamil/CreateEmail");
         }
         else
         {
@@ -1140,7 +1140,7 @@ else
                     if (ActiveSessionId != null)
                     {
                         BackEnabled = false;
-                        NavigationManager.NavigateTo($"CreateEmail");
+                        NavigationManager.NavigateTo($"Email/CreateEmail");
                     }
                     else
                     {

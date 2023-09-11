@@ -23,7 +23,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @using System.IO;
 @using System.ComponentModel;
-@page "/EditEmailDraft/{ActiveSessionId}"
+@page "/Email/EmailDrafts/EditEmailDraft/{ActiveSessionId}"
 <style scoped>
     .txtEditorMsg {
         height: calc(100vh - 477px);
@@ -424,7 +424,7 @@ else
     }
     void backUrl()
     {
-        NavigationManager.NavigateTo("EmailDrafts");
+        NavigationManager.NavigateTo("Email/EmailDrafts");
     }
     private async Task isUploadSuccess_old()
     {
@@ -759,7 +759,7 @@ else
         toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
         if (ActiveSessionId != null)
         {
-            NavigationManager.NavigateTo($"CreateEmail");
+            NavigationManager.NavigateTo($"Email/CreateEmail");
         }
         else
         {
@@ -933,11 +933,11 @@ else
                     {
                         if(draftId == 0)
                         {
-                           NavigationManager.NavigateTo($"CreateEmail");
+                           NavigationManager.NavigateTo($"Email/CreateEmail");
                         }
                         else
                         {
-                            NavigationManager.NavigateTo($"EmailDrafts");
+                            NavigationManager.NavigateTo($"Email/EmailDrafts");
                         }
                        
                     }

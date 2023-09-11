@@ -445,7 +445,7 @@
                 employee.UserID = response.UserID;
                 employee.SessionId = response.SessionId;
                 EmployeeIds = response.EmployeeID;
-                NavigationManager.NavigateTo("EmployeeForm/" + response.SessionId + "");
+                NavigationManager.NavigateTo("Employees/EmployeeForm/" + response.SessionId + "");
             }
             loading = false;
         }

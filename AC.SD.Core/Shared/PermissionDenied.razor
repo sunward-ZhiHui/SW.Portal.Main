@@ -31,10 +31,14 @@
 	</div>
 </body>
 @code {
-    [Parameter]
-    public PortalMenuModel _portalMenuModelData { get; set; }
-    protected override async Task OnInitializedAsync()
-    {
-        NavigationManager.NavigateTo("PermissionDenied");
+	[Parameter]
+	public PortalMenuModel _portalMenuModelData { get; set; }
+	[Parameter]
+	public Action? RevokeBackPermission { get; set; }
+	protected override async Task OnInitializedAsync()
+	{
+		RevokeBackPermission?.Invoke();
+		//await Task.Delay(500);
+		NavigationManager.NavigateTo("PermissionDenied");
     }
 }

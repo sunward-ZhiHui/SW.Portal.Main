@@ -97,7 +97,7 @@
                
     </div>
   </div>
- </div>
+ 
   <div class="column">
     <div class="card">
       <p><i class="fa fa-coffee"></i>
@@ -107,11 +107,13 @@
                
     </div>
   </div>
-
+ </div>
+</div>
+<div class="col-md-12" style="padding:10px;">
 <div class="row">
   <div class="column">
-    <div class="card">
-    <DxPieChart Data="@_types"
+   <div class="card" style="">
+                <DxPieChart Data="@_types"
                 Diameter="diameter"
                 InnerDiameter="innerDiameter"
                 T="EmailTopics"
@@ -125,17 +127,17 @@
             <DxChartSeriesLabel Visible="showLabels"
                                 Position="labelPosition"
                                 ValueFormat="ChartElementFormat.Thousands(1)">
-                <DxChartSeriesLabelConnector Visible="true" />
+                            <DxChartSeriesLabelConnector Visible="true" />
             </DxChartSeriesLabel>
         </DxPieChartSeries>
-        <DxChartTooltip Enabled="true"
+       @*  <DxChartTooltip Enabled="true"
                         Position="RelativePosition.Outside">
             <div style="margin: 0.75rem">
                 <div class="fw-bold">@context.Point.Argument</div>
                 <div>Sales: @($"${context.Point.Value:#,0.}")</div>
             </div>
-        </DxChartTooltip>
-        <DxChartTitle Text="Email Counts">
+        </DxChartTooltip> *@
+        <DxChartTitle Text="Email Counts" >
             <DxChartSubTitle Text="Chart" />
         </DxChartTitle>
         <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
@@ -145,6 +147,45 @@
     </DxPieChart>
             </div>
             </div>
+
+
+        <div class="column" style="">
+            <div class="card">
+               
+                <DxPieChart Data="@_types"
+                            Diameter="diameter"
+                            InnerDiameter="innerDiameter"
+                            T="EmailTopics"
+                            SeriesClick="OnClick">
+                    <DxPieChartSeries T="EmailTopics"
+                                      TArgument="long"
+                                      TValue="double"
+                                      ValueField="si => si.ID"
+                                      ArgumentField="si => si.TopicFrom"
+                                      SummaryMethod="Enumerable.Sum">
+                        <DxChartSeriesLabel Visible="showLabels"
+                                            Position="labelPosition"
+                                            ValueFormat="ChartElementFormat.Thousands(1)">
+                            <DxChartSeriesLabelConnector Visible="true" />
+                        </DxChartSeriesLabel>
+                    </DxPieChartSeries>
+                   @*  <DxChartTooltip Enabled="true"
+                                    Position="RelativePosition.Outside">
+                        <div style="margin: 0.75rem">
+                            <div class="fw-bold">@context.Point.Argument</div>
+                            <div>Sales: @($"${context.Point.Value:#,0.}")</div>
+                        </div>
+                    </DxChartTooltip> *@
+                    <DxChartTitle Text="Email Counts">
+                        <DxChartSubTitle Text="Chart" />
+                    </DxChartTitle>
+                    <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
+                                   VerticalAlignment="VerticalEdge.Bottom"
+                                   Position="RelativePosition.Outside"
+                                   Orientation="Orientation.Horizontal" />
+                </DxPieChart>
+            </div>
+        </div>
 </div>
 </div>
 
@@ -169,9 +210,9 @@
     IEnumerable<EmailTopics>? _types;
     long _EmailCount;
     double? diameter = null;
-    double innerDiameter = 0.5;
+    double innerDiameter = 0;
     bool showLabels = true;
-    RelativePosition labelPosition = RelativePosition.Outside;
+    RelativePosition labelPosition = RelativePosition.Inside;
     protected override async Task OnInitializedAsync()
     {
         _types = await Mediator.Send(new GetEmailDasboard());

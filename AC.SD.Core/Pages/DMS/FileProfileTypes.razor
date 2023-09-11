@@ -421,7 +421,7 @@
     private DocumentsModel _selectedItems;
     private DocumentsModel _ParentselectedItems;
     DocumentsModel _selectedDescriptionItems=new DocumentsModel();
-    public string Name;
+    public string? Name;
     public Guid? SelectSessionId { get; set; }
     public string isVisibleParentMore { get; set; } = "display:none;";
     public string isVisibleMore { get; set; } = "display:none;";
@@ -474,9 +474,12 @@
             {
                 isVisibleParentMore = "";
                 _ParentselectedItems = fileType;
-                Name = fileType.FileName;
-                FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
-                FolderPathLists.Add(fileType);
+                if (fileType != null)
+                {
+                    Name = fileType?.FileName;
+                    FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
+                    FolderPathLists.Add(fileType);
+                }
             }
         }
         await loadFileProfileData();
@@ -814,7 +817,7 @@
         {
             if(_selectedItems.IsNewPath==true)
             {
-                 var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
                 await OpenDocumentPreview(url);
             }
             else
@@ -837,7 +840,7 @@
             await loadFileProfileData();
         }
     }
-    async Task onHistory()
+    void onHistory()
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0)
         {
@@ -872,7 +875,7 @@
     {
 
     }
-    async Task onLinkDocuments()
+    void onLinkDocuments()
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0)
         {
@@ -885,7 +888,7 @@
     {
 
     }
-    async Task CloseLinkParentDocumentPopup()
+    void CloseLinkParentDocumentPopup()
     {
         PopupVisibleLinkParentDocument = false;
     }
@@ -908,8 +911,9 @@
     {
         PopupVisible = false;
     }
-    void CloseLinkDocumentPopup()
+    async Task CloseLinkDocumentPopup()
     {
+        await loadFileProfileData();
         PopupVisibleLinkDocument = false;
     }
     void OnButtonDescriptionClick(DocumentsModel items)

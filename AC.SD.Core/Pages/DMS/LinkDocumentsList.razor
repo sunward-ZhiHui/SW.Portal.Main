@@ -18,7 +18,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Enabled="@uploadEnabled"></DxMenuItem>
+                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onClickUpload" Enabled="@uploadEnabled"></DxMenuItem>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@OnAddNew" />
                 <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="OnDownload" Enabled="@DownloadEnabled" />
                 <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewEnabled" />
@@ -123,9 +123,23 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@isLinkDocumentsUpload"
+         ShowFooter="true"
+         HeaderText="Security Access"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <UploadLinkDoumentFiles @ref="refUploadLinkDoumentFiles" selectedFiles="@selectedFiles" applicationUser="@applicationUser" FileProfileSessionId="@SessionId" RevokeLinkDocBack="CloseLinkDocumentsUploadPopup"></UploadLinkDoumentFiles>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLinkDocumentsUploadPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     [Parameter]
     public DocumentsModel selectedFiles { get; set; }
+    private UploadLinkDoumentFiles refUploadLinkDoumentFiles;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public List<DocumentLinkModel> _documentLinkModel { get; set; }
     public DocumentLinkModel _selectedItems { get; set; }
@@ -133,6 +147,7 @@
     public bool PopupVisibleLinkParentDocument { get; set; } = false;
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
+    public bool isLinkDocumentsUpload { get; set; } = false;
     public bool uploadEnabled { get; set; } = false;
     public bool DownloadEnabled { get; set; } = false;
     public bool viewEnabled { get; set; } = false;
@@ -145,17 +160,22 @@
     bool Blukdeletepopup { get; set; } = false;
     string? DeleteerrorMessage;
     private string? FileUrl;
+    public Guid? SessionId{ get; set; }
+    public ApplicationUser applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         await loadTableItems();
     }
     async Task loadTableItems()
     {
         PanelVisible = true;
+        uploadEnabled = true;
+        SessionId = selectedFiles.SessionId;
         _documentLinkModel = await Mediator.Send(new GetFileProfileTypeLinkDocument(selectedFiles.DocumentID));
         if (_documentLinkModel != null && _documentLinkModel.Count > 0)
         {
@@ -170,24 +190,38 @@
             PermissionEnabled();
         }
         PanelVisible = false;
+        StateHasChanged();
     }
     async Task CloseLinkDocumentPopup()
     {
         await loadTableItems();
         PopupVisibleLinkDocument = false;
     }
-    async Task CloseLinkParentDocumentPopup()
+    void onClickUpload()
+    {
+        isLinkDocumentsUpload = true;
+    }
+    void CloseLinkDocumentsUploadPopup()
+    {
+        InvokeAsync(loadTableItems);
+        // await loadTableItems();
+        isLinkDocumentsUpload = false;
+        StateHasChanged();
+    }
+    void CloseLinkParentDocumentPopup()
     {
         PopupVisibleLinkParentDocument = false;
     }
     void PermissionEnabled()
     {
-        uploadEnabled = false; DownloadEnabled = false;
+       // uploadEnabled = false; 
+        DownloadEnabled = false;
         viewEnabled = false; deletelinkEnabled = false;
         ViewParentDocumentsEnabled = false; NotifyEnabled = false;
         if (_selectedItems != null)
         {
-            uploadEnabled = true; DownloadEnabled = true;
+            
+            DownloadEnabled = true;
             viewEnabled = true; deletelinkEnabled = true;
             ViewParentDocumentsEnabled = true; NotifyEnabled = true;
         }

@@ -194,7 +194,6 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("IsLatest", 0);
                             var query = "Update Documents SET IsLatest=@IsLatest WHERE DocumentId= @DocumentId";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                            transaction.Commit();
                             return DocumentId;
                         }
                         catch (Exception exp)
@@ -222,6 +221,26 @@ namespace Infrastructure.Repository.Query
                 {
                     var result = (await connection.QueryAsync<Documents>(query, parameters)).ToList();
                     return result.Count();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<Documents> GetDocumentIdByPathName(DocumentsUploadModel value)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("AddedByUserId", value.UserId);
+                parameters.Add("SessionId", value.FileSessionId, DbType.Guid);
+                parameters.Add("FilePath", value.FilePath, DbType.String);
+                using (var connection = CreateConnection())
+                {
+                    var query = "SELECT documentId FROM Documents WHERE AddedByUserId = @AddedByUserId AND SessionId=@SessionId AND FilePath=@FilePath";
+                    var result = await connection.QueryFirstAsync<Documents>(query, parameters);
+                    return result;
                 }
             }
             catch (Exception exp)
@@ -343,6 +362,7 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<DocumentsUploadModel> UpdateCreateDocumentBySession(DocumentsUploadModel value)
         {
+
             try
             {
                 using (var connection = CreateConnection())
@@ -401,8 +421,59 @@ namespace Infrastructure.Repository.Query
                                  "AddedByUserId=@AddedByUserId AND " +
                                  "SessionId=@FileSessionId AND " +
                                 "FilePath= @FilePath";
-                            value.DocumentId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            await connection.ExecuteAsync(query, parameters, transaction);
                             transaction.Commit();
+                            connection.Close();
+                            if (value.Type == "Document Link")
+                            {
+                                await InsertDocumentLink(value);
+                            }
+
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsUploadModel> InsertDocumentLink(DocumentsUploadModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var DocuId = await GetDocumentIdByPathName(value);
+                            if (DocuId != null)
+                            {
+                                var LinkDocparameters = new DynamicParameters();
+                                LinkDocparameters.Add("FileProfieTypeId", value.FileProfileTypeId);
+                                LinkDocparameters.Add("AddedByUserId", value.UserId);
+                                LinkDocparameters.Add("AddedDate", DateTime.Now);
+                                LinkDocparameters.Add("DocumentPath", value.Type);
+                                LinkDocparameters.Add("LinkDocumentId", DocuId.DocumentId);
+                                LinkDocparameters.Add("DocumentId", value.DocumentId);
+                                var linkquery = "INSERT INTO [DocumentLink](FileProfieTypeId,AddedByUserId,AddedDate,DocumentPath,LinkDocumentId,DocumentId) " +
+                               "OUTPUT INSERTED.DocumentLinkId VALUES " +
+                              "(@FileProfieTypeId,@AddedByUserId,@AddedDate,@DocumentPath,@LinkDocumentId,@DocumentId)";
+                                await connection.ExecuteAsync(linkquery, LinkDocparameters, transaction);
+                            }
+                            transaction.Commit();
+                            connection.Close();
                             return value;
                         }
                         catch (Exception exp)

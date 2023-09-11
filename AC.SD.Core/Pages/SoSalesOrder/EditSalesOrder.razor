@@ -107,6 +107,7 @@
                                     TextFieldName="CustomerName"
                                     ValueFieldName="SoCustomerId"
                                     Enabled="false"
+                                    EditFormat="{0}-{1}"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                     @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true"
                                     SelectedItemChanged="@((SoCustomer soCustomer) => SelectedItemChanged(soCustomer))">

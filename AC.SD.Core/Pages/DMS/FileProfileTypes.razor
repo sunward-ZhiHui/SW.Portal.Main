@@ -54,27 +54,21 @@
 
                     <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                         <Items>
+                             <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
                             <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Visible="@DownloadEnabled" />
-                            <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Visible="@uploadEnabled"/>
-                               
-                            <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
-                            <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Visible="@copylinkEnabled" />
-                             <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Visible="@renameEnabled" >
-                                
-                             </DxMenuItem>
+                           @*  <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Visible="@uploadEnabled"/> *@
+                            <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Visible="@renameEnabled" />
                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDelete" Visible="@deleteEnabled" />
+                             <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Visible="@checkoutEnabled" />
+                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Visible="@checkInEnabled" Click="onCheckin"/>
                             <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Visible="@historyEnabled" />
-                            <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Visible="@checkoutEnabled" />
-                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Visible="@checkInEnabled" Click="onCheckin">
-                               
-                            </DxMenuItem>
-                            <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Visible="@NotifyEnabled" />
-                            <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Visible="@shareEnabled" />
+                            <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Visible="@copylinkEnabled" />
+                           @*  <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Visible="@NotifyEnabled" /> *@
+                           @*  <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Visible="@shareEnabled" /> *@
                             <DxMenuItem Text="Link Document" IconCssClass="fa fa-link" Click="onLinkDocuments" Visible="@linkdownloadEnabled" />
                             <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Visible="@formdetailsEnabled" />
                             <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewparentDocuments" Visible="@viewParentEnabled" />
-                           
-                            <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" Click="onReleaseforwiki" Visible="@releasewikiEnabled" />
+                           @*  <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" Click="onReleaseforwiki" Visible="@releasewikiEnabled" /> *@
                         </Items>
                     </DxMenuItem>
 

@@ -7,7 +7,8 @@
 <DxPieChart Data="@_types"
             Diameter="diameter"
             InnerDiameter="innerDiameter"
-            T="EmailTopics">
+            T="EmailTopics"
+SeriesClick="OnClick">
     <DxPieChartSeries T="EmailTopics"
                       TArgument="long"
                       TValue="double"
@@ -116,5 +117,9 @@ body {
         _types = await Mediator.Send(new GetEmailDasboard());
         var lst = await Mediator.Send(new GetAllCount());
         _EmailCount = lst[0].EmailCount;
+    }
+    void OnClick()
+    {
+        
     }
 }

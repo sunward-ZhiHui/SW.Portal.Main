@@ -1,0 +1,26 @@
+﻿@page "/mainTab"
+
+
+<div class="cw-480 ch-220">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+         
+            <DxFormLayoutTabPage Caption="General">
+               <GeneralPage></GeneralPage>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="Calender">
+               <Dashboard></Dashboard>
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="">
+               
+            </DxFormLayoutTabPage>
+            <DxFormLayoutTabPage Caption="">
+               
+            </DxFormLayoutTabPage>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+</div>
+
+@code {
+    public int ActiveTabIndex { get; set; } = 0;
+}

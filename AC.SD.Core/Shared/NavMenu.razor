@@ -34,6 +34,7 @@
     string? FilterString { get; set; }
     public List<PortalMenuModel> portalMenuModel { get; set; }
     public ApplicationUser applicationUser { get; private set; }
+    int count = 0;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -41,7 +42,12 @@
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        UpdateSelection(NavigationManager.Uri, true);
+
+        // if (firstRender == true && count == 0)
+        // {
+        //     UpdateSelection(NavigationManager.Uri, true);
+        // }
+        // count++;
     }
     void UpdateSelection(string currentUri, bool expandNodesToSelection)
     {
@@ -86,7 +92,7 @@
             var dataItem = e.NodeInfo.DataItem as PortalMenuModel;
             if (dataItem != null && dataItem.Component != null || dataItem.Name != null)
             {
-                var url = dataItem.Name != null ? dataItem.Name : dataItem.Component;
+                var url = dataItem.Name;
                 if (url != null)
                 {
                     NavigationManager.NavigateTo(url);

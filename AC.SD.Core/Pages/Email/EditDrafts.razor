@@ -23,7 +23,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @using System.IO;
 @using System.ComponentModel;
-@page "/Email/EmailDrafts/EditEmailDraft/{ActiveSessionId}"
+@page "/EmailDrafts/EditEmailDraft/{ActiveSessionId}"
 <style scoped>
     .txtEditorMsg {
         height: calc(100vh - 477px);
@@ -424,7 +424,7 @@ else
     }
     void backUrl()
     {
-        NavigationManager.NavigateTo("Email/EmailDrafts");
+        NavigationManager.NavigateTo("EmailDrafts");
     }
     private async Task isUploadSuccess_old()
     {

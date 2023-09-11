@@ -10,6 +10,10 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetEmailDasboard : IRequest<List<EmailTopics>>
+    {
+        public string SearchString { get; set; }
+    }
 
     public class GetEmailSchedulerList : PagedRequest, IRequest<List<EmailScheduler>>
     {
@@ -18,5 +22,11 @@ namespace Application.Queries
         {
             this.UserId = UserId;
         }
-    } 
+    }
+    public class GetAllCount : PagedRequest, IRequest<List<EmailTopics>>
+    {
+
+    }
+
+  
 }

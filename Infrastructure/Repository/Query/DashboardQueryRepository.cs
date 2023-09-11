@@ -14,6 +14,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Application.Queries;
 using Microsoft.AspNetCore.Http;
 using DevExpress.Data.Filtering.Helpers;
+using IdentityModel.Client;
 
 namespace Infrastructure.Repository.Query
 {
@@ -40,5 +41,41 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public  async Task<IReadOnlyList<EmailTopics>> GetCountAsync()
+        {
+            try
+            {
+                var query = @"select  Count(*) as EmailCount from EmailTopics ";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailTopics>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<EmailTopics>> GetEailDashboard()
+        {
+            try
+            {
+                var query = @"select CC,TopicFrom from EmailTopics";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailTopics>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        
     }
 }

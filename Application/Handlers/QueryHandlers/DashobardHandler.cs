@@ -26,7 +26,20 @@ namespace CMS.Application.Handlers.QueryHandlers
             //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
         }
     }
+    public class EmailDashobardHandler : IRequestHandler<GetEmailDasboard, List<EmailTopics>>
+    {
 
+        private readonly IDashboardQueryRepository _queryRepository;
+        public EmailDashobardHandler(IDashboardQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetEmailDasboard request, CancellationToken cancellationToken)
+        {
+            return (List<EmailTopics>)await _queryRepository.GetEailDashboard();
+            //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
+        }
+    }
     public class GetEmailSchedulerListHandler : IRequestHandler<GetEmailSchedulerList, List<EmailScheduler>>
     {   
         private readonly IDashboardQueryRepository _dashboardQueryRepository;
@@ -156,6 +169,21 @@ namespace CMS.Application.Handlers.QueryHandlers
             //    }
             //};
             //return dataSource;
+        }
+
+        public class EmailTopicCountHandler : IRequestHandler<GetAllCount, List<EmailTopics>>
+        {
+
+            private readonly IDashboardQueryRepository _queryRepository;
+            public EmailTopicCountHandler(IDashboardQueryRepository queryRepository)
+            {
+                _queryRepository = queryRepository;
+            }
+            public async Task<List<EmailTopics>> Handle(GetAllCount request, CancellationToken cancellationToken)
+            {
+               
+                return (List<EmailTopics>)await _queryRepository.GetCountAsync();
+            }
         }
     }
 }

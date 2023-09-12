@@ -139,6 +139,8 @@ namespace Infrastructure.Repository.Query
             documentNoSeriesModel.SectionName = value.SectionName;
             documentNoSeriesModel.SubSectionName = value.SubSectionName;
             documentNoSeriesModel.DepartmentName = value.DepartmentName;
+            documentNoSeriesModel.FileProfileTypeId = value.FileProfileTypeId;
+            documentNoSeriesModel.SessionId=value.FileSessionId;
             return await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
         }
         public async Task<Documents> UpdateDocumentAfterUpload(Documents value)

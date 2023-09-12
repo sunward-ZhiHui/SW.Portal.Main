@@ -144,6 +144,7 @@
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="ItemSerialNo"
                                 ValueFieldName="ItemId"
+                                EditFormat="{0}-{1}-{2}"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@types.ItemId" ShowValidationIcon="true"
                                 SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">

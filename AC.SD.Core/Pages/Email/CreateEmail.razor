@@ -343,7 +343,7 @@ else
     int CurrentUplodCount { get; set; }
     string MyMessage { get; set; }
     string Message = "Upload";
-
+    long applicationAddedByUserID { get; set; }
     async Task OnFileUploadStart(FileUploadStartEventArgs e)
     {
         Message = "Uploading...";
@@ -592,8 +592,8 @@ else
         if (CurrentUplodCount >= SelectedFilesCount)
         {
             Message = "Upload";
-           
-          
+
+
             onCompletedUpload();
         }      
         InvokeAsync(StateHasChanged);
@@ -1021,6 +1021,12 @@ else
         if (Data.OnBehalf != null && Data.Follow == "No Follow Up")
         {
             participantIds.Remove(applicationUser.UserID);
+            applicationAddedByUserID = Data.OnBehalf.Value;
+            Data.OnBehalf = applicationUser.UserID;
+        }
+        else
+        {
+            applicationAddedByUserID = applicationUser.UserID;
         }
 
 
@@ -1097,7 +1103,7 @@ else
                     IsAllowParticipants = Data.IsAllowParticipants,
                     FileData = fileContent,                
                     StatusCodeID = 1,
-                    AddedByUserID = applicationUser.UserID,
+                    AddedByUserID = applicationAddedByUserID,
                     AddedDate = DateTime.Now,
                     // SessionId = Guid.NewGuid(),
                     SessionId = _sessionId,

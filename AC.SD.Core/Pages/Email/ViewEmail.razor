@@ -425,7 +425,13 @@
                                                 @if (!string.IsNullOrEmpty(item.ActCommentName) && !string.IsNullOrEmpty(item.ActUserName))
                                                 {    
                                                     <div class="replybox">
-                                                        <div style="font-weight: bold;">Activity Comment</div>
+                                                        <div style="font-weight: bold;">Activity Comment
+                                                            <div style="float:right; line-height:16px">
+                                                                <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                    <i class="fa fa-arrow-left"></i> Back
+                                                            </button>
+                                                            </div>
+                                                        </div>
                                                         <text>@item.ActCommentName</text>
                                                         <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
                                                     </div>
@@ -1199,7 +1205,7 @@
 
     private string toggleButtonVisible = "ActiveToggle";
     private string hiddenButtonCssClass = "col-md-9";
-
+    private string? ProductActivityBaseUrl;
     public int ActiveTabIndex { get; set; } = 1;
     string? SearchText { get; set; }
     string? GridSearchText { get; set; }
@@ -1612,7 +1618,7 @@
         {
             Message = "Upload";
             //loading = false;
-           afterUploadClosed();
+            afterUploadClosed();
         }
         InvokeAsync(StateHasChanged);
 
@@ -2660,6 +2666,7 @@
     protected override async Task OnInitializedAsync()
     {
         var sss = ActiveSessionId;
+        ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         cancellationTokenSource = new CancellationTokenSource();
         StartAutoRefresh();
 
@@ -2981,6 +2988,11 @@
 
         //await Task.Delay(2700);
         //await onRichTxtChangeFontsize(); // Call your other function here
+    }
+    async void onBackActivity(string Url)
+    {
+        var url = ProductActivityBaseUrl + Url;
+        NavigationManager.NavigateTo(url);
     }
     private async Task onreply(long id)
     {

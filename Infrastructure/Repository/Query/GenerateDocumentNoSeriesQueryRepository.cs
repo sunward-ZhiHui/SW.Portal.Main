@@ -146,11 +146,12 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("SessionId", documentNoSeries.SessionId);
                             parameters.Add("RequestorId", documentNoSeries.RequestorId);
                             parameters.Add("ModifiedDate", documentNoSeries.ModifiedDate);
+                            parameters.Add("FileProfileTypeId", documentNoSeries.FileProfileTypeId);
                             parameters.Add("ModifiedByUserId", documentNoSeries.ModifiedByUserId);
 
-                            var query = "INSERT INTO [DocumentNoSeries](ProfileId,DocumentNo,AddedDate,AddedByUserID,StatusCodeId,SessionId,RequestorId,ModifiedDate,ModifiedByUserId) " +
+                            var query = "INSERT INTO [DocumentNoSeries](ProfileId,DocumentNo,AddedDate,AddedByUserID,StatusCodeId,SessionId,RequestorId,ModifiedDate,ModifiedByUserId,FileProfileTypeId) " +
                                 "OUTPUT INSERTED.NumberSeriesId VALUES " +
-                               "(@ProfileId,@DocumentNo,@AddedDate,@AddedByUserID,@StatusCodeId,@SessionId,@RequestorId,@ModifiedDate,@ModifiedByUserId)";
+                               "(@ProfileId,@DocumentNo,@AddedDate,@AddedByUserID,@StatusCodeId,@SessionId,@RequestorId,@ModifiedDate,@ModifiedByUserId,@FileProfileTypeId)";
                             documentNoSeries.NumberSeriesId = connection.QueryFirstOrDefault<long>(query, parameters, transaction);
 
                             transaction.Commit();

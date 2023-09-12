@@ -199,5 +199,20 @@ namespace CMS.Application.Handlers.QueryHandlers
                 return (List<GenderRatio>)await _queryRepository.GetGenderRatioAsync();
             }
         }
+
+        public class EmailRatioHandler : IRequestHandler<GetEmailRatio, List<EmailRatio>>
+        {
+
+            private readonly IDashboardQueryRepository _queryRepository;
+            public EmailRatioHandler(IDashboardQueryRepository queryRepository)
+            {
+                _queryRepository = queryRepository;
+            }
+            public async Task<List<EmailRatio>> Handle(GetEmailRatio request, CancellationToken cancellationToken)
+            {
+
+                return (List<EmailRatio>)await _queryRepository.GetEmailRatioAsync(request.UserId);
+            }
+        }
     }
 }

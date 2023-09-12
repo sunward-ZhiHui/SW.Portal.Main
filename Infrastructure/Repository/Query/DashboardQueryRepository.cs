@@ -15,6 +15,7 @@ using Application.Queries;
 using Microsoft.AspNetCore.Http;
 using DevExpress.Data.Filtering.Helpers;
 using IdentityModel.Client;
+using System.Security.Cryptography;
 
 namespace Infrastructure.Repository.Query
 {
@@ -46,10 +47,14 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT Gender AS region, COUNT(*) AS val
-                                FROM View_Employee
-                                GROUP BY Gender;";
+                //var query = @"SELECT Gender AS region, COUNT(*) AS val
+                //                FROM View_Employee
+                //                GROUP BY Gender;";
 
+
+                var query = @"SELECT Gender AS region, COUNT(*) AS val
+                                FROM View_Employee where Gender Is NOT NULL
+                                GROUP BY Gender";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<GenderRatio>(query)).ToList();
@@ -95,6 +100,42 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        
+        public  async Task<IReadOnlyList<EmailRatio>> GetEmailRatioAsync(long id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("id", id);
+                var query = @"declare @UserId int = @id
+
+                     SELECT SUM(FN.NotificationCount) AS ToCount,SUM(FN.NotificationCount) AS CCCount,SUM(FN.NotificationCount) AS AllCount FROM EmailConversations EC
+			         INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = EC.ID AND ECP.UserId = @UserId
+			         Cross APPLY(SELECT DISTINCT ReplyId = CASE WHEN ECC.ReplyId >0 THEN ECC.ReplyId ELSE ECC.ID END
+				     FROM EmailConversations ECC 
+				     WHERE --ECC.TopicID=TS.ID
+				        --AND 
+				        EXISTS(SELECT * FROM EmailConversationAssignTo TP WHERE ECC.ID = TP.ConversationId AND (TP.UserId = @UserId or TP.AddedByUserID = @UserId))
+				        )K
+				         OUTER APPLY
+				        (
+					        SELECT									
+						        COUNT(*) AS NotificationCount
+					        FROM  EmailConversations ECC
+					        INNER JOIN EmailNotifications EN ON ECC.ID=EN.ConversationId and EN.IsRead = 0
+					        WHERE EN.TopicId=EC.TopicID AND EN.UserId=ECP.UserId AND EC.ID=ECC.ReplyId
+				        ) FN 
+			        WHERE EC.ID=K.ReplyId ";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailRatio>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
     }
 }

@@ -30,6 +30,14 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetEmailRatio: PagedRequest, IRequest<List<EmailRatio>>
+    {
+        public long UserId { get; private set; }
+    public GetEmailRatio(long UserId)
+    {
+        this.UserId = UserId;
+    }
+}
 
 
 

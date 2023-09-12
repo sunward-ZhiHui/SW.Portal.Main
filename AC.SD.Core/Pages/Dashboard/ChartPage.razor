@@ -115,8 +115,8 @@ body {
     protected override async Task OnInitializedAsync()
     {
         _types = await Mediator.Send(new GetEmailDasboard());
-        var lst = await Mediator.Send(new GetAllCount());
-        _EmailCount = lst[0].EmailCount;
+        var lst = await Mediator.Send(new GetEmployeeCount());
+        _EmailCount = lst[0].HeadCount.Value;
     }
     void OnClick()
     {

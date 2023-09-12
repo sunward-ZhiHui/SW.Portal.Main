@@ -11,8 +11,9 @@ namespace Core.Repositories.Query
     public interface IDashboardQueryRepository : IQueryRepository<EmailScheduler>
     {
         
-            Task<IReadOnlyList<EmailTopics>> GetEailDashboard();
+        Task<IReadOnlyList<EmailTopics>> GetEailDashboard();
         Task<IReadOnlyList<EmailScheduler>> GetAllEmailSchedulerAsync();
-        Task <IReadOnlyList<EmailTopics>> GetCountAsync();
+        Task <IReadOnlyList<GeneralDashboard>> GetEmployeeCountAsync();
+        Task<List<GenderRatio>> GetGenderRatioAsync();
     }
 }

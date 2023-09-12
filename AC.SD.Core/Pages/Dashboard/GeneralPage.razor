@@ -60,10 +60,6 @@
 </style>
 
 
-
-
-
-
 @* <div class="card w-100 tooltips" style="margin-bottom:10px;">
     <div class="card-body p-0 tooltiptops"> *@
 <div class="col-md-12" style="padding:10px;">
@@ -71,17 +67,15 @@
      
            <div class="col-md-3" >
             <div class="card">
-              <p><i class="fa fa-user"></i>
+                <p>
+                    <i class="fa fa-user" style="color:#00b5b8"></i>
                   <h3>@_EmailCount</h3>
-                  <p>Partners</p>
-                    </p>
-              </div>  
- 
+                  <p>Head Count</p>
+              </p>
+              </div>
            </div>
  
-
- 
-           <div class="col-md-3">
+          @* <div class="col-md-3">
             <div class="card">
               <p><i class="fa fa-check"></i>
                             <h3>@_EmailCount</h3>
@@ -92,7 +86,7 @@
                </div>
   
 
-              <div class="col-md-3">
+            <div class="col-md-3">
                 <div class="card">
                   <p><i class="fa fa-smile"></i>
                                 <h3>@_EmailCount</h3>
@@ -111,7 +105,7 @@
                         <p>Meetings</p>
               </p>
                     </div>
-            </div>
+            </div>*@
        
       </div>
     
@@ -121,19 +115,17 @@
 <div class="col-md-12" style="padding:10px;">
     <div class="row">
         <div class="col-md-3">
-
-
             <div style="height: 440px">
-                    <DxPieChart Data="@_types"
+                    <DxPieChart Data="@_GenderRatio"
                                 Diameter="diameter" Height="50%" Width="100%"
                                 InnerDiameter="innerDiameter"
-                                T="EmailTopics"
+                                T="GenderRatio"
                             SeriesClick="OnSeriesClick">
-                        <DxPieChartSeries T="EmailTopics"
+                    <DxPieChartSeries T="GenderRatio"
                                           TArgument="long"
                                           TValue="double"
-                                          ValueField="si => si.ID"
-                                          ArgumentField="si => si.TopicFrom"
+                                          ValueField="si => si.val"
+                                          ArgumentField="si => si.val"
                                           SummaryMethod="Enumerable.Sum">
                             <DxChartSeriesLabel Visible="showLabels"
                                                 Position="labelPosition"
@@ -148,7 +140,7 @@
                                 <div>Sales: @($"${context.Point.Value:#,0.}")</div>
                             </div>
                         </DxChartTooltip>
-                        <DxChartTitle Text="Email Counts">
+                    <DxChartTitle Text="Gender Ratio">
                             <DxChartSubTitle Text="" />
                         </DxChartTitle>
                         <DxChartLegend HorizontalAlignment="HorizontalAlignment.Center"
@@ -164,24 +156,22 @@
 
 
         <div class="col-md-3">
-           
-
                 <div style="width: 100%; height: 100%">
-                    <DxPieChart Data="@_types" Height="50%" Width="100%"
+                    <DxPieChart Data="@_GenderRatio" Height="50%" Width="100%"
                                 Diameter="diameter"
                                 InnerDiameter="innerDiameter"
-                                T="EmailTopics"
+                            T="GenderRatio"
                             SeriesClick="OnSeriesClick">
-                        <DxPieChartSeries T="EmailTopics"
-                                          TArgument="long"
-                                          TValue="double"
-                                          ValueField="si => si.ID"
-                                          ArgumentField="si => si.TopicFrom"
-                                          SummaryMethod="Enumerable.Sum">
+                            <DxPieChartSeries T="GenderRatio"
+                                TArgument="long"
+                                TValue="double"
+                                ValueField="si => si.val"
+                                ArgumentField="si => si.val"
+                            SummaryMethod="Enumerable.Sum">
                             <DxChartSeriesLabel Visible="showLabels"
-                                                Position="labelPosition"
-                                                ValueFormat="ChartElementFormat.Thousands(1)">
-                                <DxChartSeriesLabelConnector Visible="false" />
+                                Position="labelPosition"
+                                ValueFormat="ChartElementFormat.Thousands(1)">
+                            <DxChartSeriesLabelConnector Visible="false" />
                             </DxChartSeriesLabel>
                         </DxPieChartSeries>
                         <DxChartTooltip Enabled="true"
@@ -204,11 +194,9 @@
         </div>
 
 
-        <div class="col-md-3">
-           
-
+       @* <div class="col-md-3">
                 <div style=" height: 100%">
-                    <DxPieChart Data="@_types"
+                    <DxPieChart Data="@_GenderRatio"
                                 Diameter="diameter" Height="50%" Width="100%"
                                 InnerDiameter="innerDiameter"
                                 T="EmailTopics"
@@ -244,14 +232,12 @@
 
                 </div>
            
-        </div>
+        </div>*@
 
 
-        <div class="col-md-3">
-          
-
+       @* <div class="col-md-3">
                 <div style=" height:  100%">
-                    <DxPieChart Data="@_types"
+                    <DxPieChart Data="@_GenderRatio"
                                 Diameter="diameter" Height="50%" Width="100%"
                                 InnerDiameter="innerDiameter"
                                 T="EmailTopics"
@@ -288,7 +274,7 @@
                 </div>
            
         </div>
-
+*@
 
     </div>
 </div>
@@ -311,7 +297,7 @@
 
 @code {
     bool ChartPopUp { get; set; } = false;
-    IEnumerable<EmailTopics>? _types;
+    IEnumerable<GenderRatio>? _GenderRatio;
     long _EmailCount;
     double? diameter = null;
     double innerDiameter = 0;
@@ -319,9 +305,9 @@
     RelativePosition labelPosition = RelativePosition.Inside;
     protected override async Task OnInitializedAsync()
     {
-        _types = await Mediator.Send(new GetEmailDasboard());
-        var lst = await Mediator.Send(new GetAllCount());
-        _EmailCount = lst[0].EmailCount;
+        _GenderRatio = await Mediator.Send(new GetGenderRatio());
+        var lst = await Mediator.Send(new GetEmployeeCount());
+        _EmailCount = lst[0].HeadCount.Value;
     }
     void OnSeriesClick(PieChartSeriesClickEventArgs seriesArgs)
     {

@@ -41,11 +41,12 @@ namespace Infrastructure.Service
                 DepartmentId = noSeriesModel.DepartmentId > 0 ? noSeriesModel.DepartmentId : null,
                 PlantID = noSeriesModel.PlantID > 0 ? noSeriesModel.PlantID : null,
                 SectionId = noSeriesModel.SectionId > 0 ? noSeriesModel.SectionId : null,
-                SubSectionId = noSeriesModel.SubSectionId>0? noSeriesModel.SubSectionId:null,
+                SubSectionId = noSeriesModel.SubSectionId > 0 ? noSeriesModel.SubSectionId : null,
                 ScreenID = noSeriesModel.ScreenID,
                 ScreenAutoNumberId = noSeriesModel.ScreenAutoNumberId,
                 CompanyId = noSeriesModel.PlantID > 0 ? noSeriesModel.PlantID : null,
-
+                SessionId= noSeriesModel.SessionId,
+                FileProfileTypeId=noSeriesModel.FileProfileTypeId,
             });
 
             return documentNo;
@@ -92,11 +93,11 @@ namespace Infrastructure.Service
                 var profileSettings = masterList.DocumentProfileNoSeries.FirstOrDefault(s => s.ProfileId == noSeriesModel.ProfileID);
                 var profileAutoNumbers = _generateDocumentNoSeriesQueryRepository.GetProfileAutoNumber(profileSettings.ProfileId).ToList();
 
-                if (profileSettings!=null && profileSettings.CompanyId > 0 &&  masterList.Plants != null && masterList.Plants.Count > 0 && (noSeriesModel.CompanyId == null || noSeriesModel.PlantID == null))
+                if (profileSettings != null && profileSettings.CompanyId > 0 && masterList.Plants != null && masterList.Plants.Count > 0 && (noSeriesModel.CompanyId == null || noSeriesModel.PlantID == null))
                 {
                     noSeriesModel.CompanyCode = masterList.Plants.Where(s => s.PlantID == profileSettings.CompanyId).FirstOrDefault().PlantCode;
                 }
-                if (profileSettings!=null && profileSettings.DeparmentId > 0 && noSeriesModel.DepartmentId == null && masterList.Departments != null && masterList.Departments.Count > 0)
+                if (profileSettings != null && profileSettings.DeparmentId > 0 && noSeriesModel.DepartmentId == null && masterList.Departments != null && masterList.Departments.Count > 0)
                 {
                     var department = masterList.Departments.Where(s => s.DepartmentId == profileSettings.DeparmentId)?.FirstOrDefault();
                     if (department != null)
@@ -285,7 +286,7 @@ namespace Infrastructure.Service
                     _generateDocumentNoSeriesQueryRepository.UpdateDocumentProfileNoSeriesLastCreateDate(profileSettings);
                 }
 
-                var SessionId = Guid.NewGuid();
+                var SessionId = noSeriesModel.SessionId == null ? Guid.NewGuid() : noSeriesModel.SessionId;
                 if (noSeriesModel.RequestorId == null)
                 {
                     noSeriesModel.RequestorId = noSeriesModel.AddedByUserID;
@@ -302,6 +303,7 @@ namespace Infrastructure.Service
                     Title = noSeriesModel.Title,
                     ModifiedDate = DateTime.Now,
                     ModifiedByUserId = noSeriesModel.AddedByUserID,
+                    FileProfileTypeId=noSeriesModel.FileProfileTypeId,
                 };
                 _generateDocumentNoSeriesQueryRepository.InsertDocumentNoSeries(documentNoSeries);
                 return documentNo;
@@ -309,7 +311,7 @@ namespace Infrastructure.Service
         }
         private string GenerateProfileAuto(DocumentNoSeriesModel noSeriesModel, ProfileAutoNumber profileAutonumber, DocumentProfileNoSeries profilesettings, string documentNo)
         {
-           
+
             string LastNoUsed = "";
             if (profileAutonumber == null)
             {

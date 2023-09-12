@@ -2,7 +2,10 @@
 @using Application.Queries;
 @using MediatR;
 @using global::Core.Entities;
+@using global::Core.Repositories.Query;
 @inject IMediator Mediator
+ @inject ILocalStorageService<ApplicationUser> _localStorageService
+ 
 
 <style>
     * {
@@ -122,10 +125,10 @@
                                 T="GenderRatio"
                             SeriesClick="OnSeriesClick">
                     <DxPieChartSeries T="GenderRatio"
-                                          TArgument="long"
+                                          TArgument="string"
                                           TValue="double"
                                           ValueField="si => si.val"
-                                          ArgumentField="si => si.val"
+                                          ArgumentField="si => si.region"
                                           SummaryMethod="Enumerable.Sum">
                             <DxChartSeriesLabel Visible="showLabels"
                                                 Position="labelPosition"
@@ -137,7 +140,7 @@
                                         Position="RelativePosition.Outside">
                             <div style="margin: 0.75rem">
                                 <div class="fw-bold">@context.Point.Argument</div>
-                                <div>Sales: @($"${context.Point.Value:#,0.}")</div>
+                            <div>@context.Point.Argument: @($"{context.Point.Value:#,0.}")</div>
                             </div>
                         </DxChartTooltip>
                     <DxChartTitle Text="Gender Ratio">
@@ -157,28 +160,52 @@
 
         <div class="col-md-3">
                 <div style="width: 100%; height: 100%">
-                    <DxPieChart Data="@_GenderRatio" Height="50%" Width="100%"
+                <DxPieChart Data="@_EmailRatios" Height="50%" Width="100%"
                                 Diameter="diameter"
                                 InnerDiameter="innerDiameter"
-                            T="GenderRatio"
+                            T="EmailRatio"
                             SeriesClick="OnSeriesClick">
-                            <DxPieChartSeries T="GenderRatio"
-                                TArgument="long"
-                                TValue="double"
-                                ValueField="si => si.val"
-                                ArgumentField="si => si.val"
+                    <DxPieChartSeries T="EmailRatio"
+                                TArgument="string"
+                                TValue="long"
+                                      ValueField="si => si.Val"
+                                ArgumentField="si => si.AllCount"
                             SummaryMethod="Enumerable.Sum">
                             <DxChartSeriesLabel Visible="showLabels"
                                 Position="labelPosition"
-                                ValueFormat="ChartElementFormat.Thousands(1)">
-                            <DxChartSeriesLabelConnector Visible="false" />
+                               >
+                            <DxChartSeriesLabelConnector Visible="true" />
                             </DxChartSeriesLabel>
                         </DxPieChartSeries>
+
+                    <DxPieChartSeries T="EmailRatio"
+                                      TArgument="string"
+                                      TValue="long"
+                                      ValueField="si => si.Val"
+                                      ArgumentField="si => si.ToCount"
+                                      SummaryMethod="Enumerable.Sum">
+                        <DxChartSeriesLabel Visible="showLabels"
+                                            Position="labelPosition">
+                            <DxChartSeriesLabelConnector Visible="true" />
+                        </DxChartSeriesLabel>
+                    </DxPieChartSeries>
+
+                    @*  <DxPieChartSeries T="EmailRatio"
+                                      TArgument="string"
+                                      TValue="long"
+                                      ValueField="si => si.Val"
+                                      ArgumentField="si => si.CCCount"
+                                      SummaryMethod="Enumerable.Sum">
+                        <DxChartSeriesLabel Visible="showLabels"
+                                            Position="labelPosition">
+                            <DxChartSeriesLabelConnector Visible="true" />
+                        </DxChartSeriesLabel>
+                    </DxPieChartSeries> *@
                         <DxChartTooltip Enabled="true"
                                         Position="RelativePosition.Outside">
                             <div style="margin: 0.75rem">
                                 <div class="fw-bold">@context.Point.Argument</div>
-                                <div>Sales: @($"${context.Point.Value:#,0.}")</div>
+                            <div>@context.Point.Argument: @($"{context.Point.Value:#,0.}")</div>
                             </div>
                         </DxChartTooltip>
                         <DxChartTitle Text="Email Counts">
@@ -298,14 +325,19 @@
 @code {
     bool ChartPopUp { get; set; } = false;
     IEnumerable<GenderRatio>? _GenderRatio;
+    IEnumerable<EmailRatio>? _EmailRatios;
     long _EmailCount;
     double? diameter = null;
     double innerDiameter = 0;
-    bool showLabels = true;
-    RelativePosition labelPosition = RelativePosition.Inside;
+    bool showLabels = false;
+    RelativePosition labelPosition = RelativePosition.Outside;
+    public ApplicationUser? applicationUser { get; private set; }
     protected override async Task OnInitializedAsync()
     {
+       
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _GenderRatio = await Mediator.Send(new GetGenderRatio());
+        _EmailRatios = await Mediator.Send(new GetEmailRatio(applicationUser.UserID));
         var lst = await Mediator.Send(new GetEmployeeCount());
         _EmailCount = lst[0].HeadCount.Value;
     }

@@ -9,12 +9,7 @@ namespace Application.Queries
     public class Dashboard : IRequest<List<EmailScheduler>>
     {
         public string SearchString { get; set; }
-    }
-    public class GetEmailDasboard : IRequest<List<EmailTopics>>
-    {
-        public string SearchString { get; set; }
-    }
-
+    }   
     public class GetEmailSchedulerList : PagedRequest, IRequest<List<EmailScheduler>>
     {
         public long UserId { get; private set; }
@@ -23,10 +18,20 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
-    public class GetAllCount : PagedRequest, IRequest<List<EmailTopics>>
+    public class GetEmployeeCount : PagedRequest, IRequest<List<GeneralDashboard>>
     {
 
     }
+    public class GetGenderRatio : PagedRequest, IRequest<List<GenderRatio>>
+    {
 
-  
+    }
+    public class GetEmailDasboard : IRequest<List<EmailTopics>>
+    {
+        public string SearchString { get; set; }
+    }
+
+
+
+
 }

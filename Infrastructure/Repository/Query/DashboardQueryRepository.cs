@@ -42,15 +42,34 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public  async Task<IReadOnlyList<EmailTopics>> GetCountAsync()
+        public async Task<List<GenderRatio>> GetGenderRatioAsync()
         {
             try
             {
-                var query = @"select  Count(*) as EmailCount from EmailTopics ";
+                var query = @"SELECT Gender AS region, COUNT(*) AS val
+                                FROM View_Employee
+                                GROUP BY Gender;";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<EmailTopics>(query)).ToList();
+                    return (await connection.QueryAsync<GenderRatio>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public  async Task<IReadOnlyList<GeneralDashboard>> GetEmployeeCountAsync()
+        {
+            try
+            {
+                var query = @"select Count(*) as HeadCount from View_Employee where StatusName!='Resign' or StatusName is null";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<GeneralDashboard>(query)).ToList();
                 }
             }
             catch (Exception exp)

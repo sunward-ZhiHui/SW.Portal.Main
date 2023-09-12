@@ -101,9 +101,10 @@
                     <DxComboBox Data="@_AllNavitems"
                                 NullText="Select Item..."
                                 ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                FilteringMode="DataGridFilteringMode.StartsWith"
                                 TextFieldName="Description"
                                 ValueFieldName="ItemId"
+                                EditFormat="{0}-{1}-{2}"
                                 ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                 @bind-Value="@types.ItemId" ShowValidationIcon="true"
                                 SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
@@ -128,7 +129,7 @@
                 <DxFormLayoutItem Caption="Batch Info" ColSpanMd="6">
                     <DxComboBox Data="@navItemBatchNoItems"
                                 NullText="Select Batch Info..."
-                                FilteringMode="DataGridFilteringMode.Contains"
+                                FilteringMode="DataGridFilteringMode.StartsWith"
                                 TextFieldName="BatchNo"
                                 ValueFieldName="ItemBatchId"
                                 @bind-Value="@types.ItemBatchInfoId"

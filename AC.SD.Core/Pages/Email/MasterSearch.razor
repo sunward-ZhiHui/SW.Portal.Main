@@ -233,7 +233,7 @@
 
     DateTime MinDateFrom;
     DateTime MaxDateTo;
-    DateTime DateRange = DateTime.Today.AddYears(-1);
+    DateTime DateRange = DateTime.Now.AddYears(-1);
 
 
     DateTime MinFilterFrom;
@@ -356,7 +356,7 @@
 
 
         Data.FilterTo = DateTime.Today.AddMonths(1);
-        var now = DateTime.Now;
+        var now = DateTime.Now.AddYears(-1);
         DateRange = new DateTime(now.Year, now.Month, 1);
         Data.FilterFrom = DateRange;
         MinDateFrom = DateRange;

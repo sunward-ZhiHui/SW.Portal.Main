@@ -14,4 +14,6 @@ namespace Core.Entities
         public long val { get; set; }
         public string region { get; set; }
     }
+
+    
 }

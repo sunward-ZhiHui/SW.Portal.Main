@@ -17,6 +17,7 @@ namespace Core.EntityModels
         public string? Type { get; set; }
         public Guid? UserSession { get; set; }
         public string? Description { get; set; }
+        [Required(ErrorMessage = "FileProfile Type is Required")]
         public long? FileProfileTypeId { get; set; }
         [Required(ErrorMessage = "Company is Required")]
         public long? PlantId { get; set; } = 0;

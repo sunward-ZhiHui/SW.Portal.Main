@@ -337,7 +337,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId from FileProfileType";
+                var query = "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId from FileProfileType";
 
                 using (var connection = CreateConnection())
                 {

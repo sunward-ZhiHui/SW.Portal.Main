@@ -1310,7 +1310,7 @@ main {
 .pinrotated {
     transform: rotate(65deg);
     margin-right: 3px;
-    color: #158cba;
+    color: #111111;
 }
 
 .card-body {

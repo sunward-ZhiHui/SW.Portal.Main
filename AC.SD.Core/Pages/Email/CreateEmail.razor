@@ -1018,16 +1018,25 @@ else
             participantIds.Add(Data.OnBehalf.Value);
         }
 
-        if (Data.OnBehalf != null && Data.Follow == "No Follow Up")
+        if(draftId == 0)
         {
-            participantIds.Remove(applicationUser.UserID);
-            applicationAddedByUserID = Data.OnBehalf.Value;
-            Data.OnBehalf = applicationUser.UserID;
+            if (Data.OnBehalf != null && Data.Follow == "No Follow Up")
+            {
+                participantIds.Remove(applicationUser.UserID);
+                applicationAddedByUserID = Data.OnBehalf.Value;
+                Data.OnBehalf = applicationUser.UserID;
+            }
+            else
+            {
+                applicationAddedByUserID = applicationUser.UserID;
+            }
         }
         else
         {
-            applicationAddedByUserID = applicationUser.UserID;
+             applicationAddedByUserID = applicationUser.UserID;
         }
+
+      
 
 
 

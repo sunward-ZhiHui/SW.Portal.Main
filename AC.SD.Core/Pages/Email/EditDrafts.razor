@@ -317,6 +317,7 @@ else
 
 @code {
     int CurrentUplodCount { get; set; }
+    long applicationAddedByUserID { get; set; }
     string MyMessage { get; set; }
     string Message = "Upload";
     int SelectedFilesCount { get; set; }
@@ -823,6 +824,11 @@ else
 
         participantIds.Add(applicationUser.UserID);
 
+        if (Data.OnBehalf != null)
+        {
+            participantIds.Add(Data.OnBehalf.Value);
+        }
+
         foreach(var itm in sToIds)
         {
             var ls = _Allparticipant.Where(c => c.Name +"-"+ c.NickName == itm).ToList();
@@ -880,6 +886,26 @@ else
         //}
 
 
+        if (draftId == 0)
+        {
+            if (Data.OnBehalf != null && Data.Follow == "No Follow Up")
+            {
+                participantIds.Remove(applicationUser.UserID);
+                applicationAddedByUserID = Data.OnBehalf.Value;
+                Data.OnBehalf = applicationUser.UserID;
+            }
+            else
+            {
+                applicationAddedByUserID = applicationUser.UserID;
+            }
+        }
+        else
+        {
+            applicationAddedByUserID = applicationUser.UserID;
+        }
+
+
+
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
 
         if (fileContent.Length == 480)
@@ -909,7 +935,7 @@ else
                     OverDue = Data.OverDue,
                     FileData = fileContent,
                     StatusCodeID = 1,
-                    AddedByUserID = applicationUser.UserID,
+                    AddedByUserID = applicationAddedByUserID,
                     AddedDate = DateTime.Now,
                     // SessionId = Guid.NewGuid(),
                     SessionId = _sessionId,

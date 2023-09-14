@@ -148,10 +148,20 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", documentNoSeries.ModifiedDate);
                             parameters.Add("FileProfileTypeId", documentNoSeries.FileProfileTypeId);
                             parameters.Add("ModifiedByUserId", documentNoSeries.ModifiedByUserId);
-
-                            var query = "INSERT INTO [DocumentNoSeries](ProfileId,DocumentNo,AddedDate,AddedByUserID,StatusCodeId,SessionId,RequestorId,ModifiedDate,ModifiedByUserId,FileProfileTypeId) " +
+                            parameters.Add("IsUpload", documentNoSeries.IsUpload == null ? null : documentNoSeries.IsUpload, (DbType?)SqlDbType.Bit);
+                            parameters.Add("VersionNo", documentNoSeries.VersionNo);
+                            parameters.Add("EffectiveDate", documentNoSeries.EffectiveDate);
+                            parameters.Add("NextReviewDate", documentNoSeries.NextReviewDate);
+                            parameters.Add("Date", documentNoSeries.Date);
+                            parameters.Add("Link", documentNoSeries.Link);
+                            parameters.Add("ReasonToVoid", documentNoSeries.ReasonToVoid);
+                            parameters.Add("Title", documentNoSeries.Title);
+                            parameters.Add("Description", documentNoSeries.Description);
+                            var query = "INSERT INTO [DocumentNoSeries](ProfileId,DocumentNo,AddedDate,AddedByUserID,StatusCodeId," +
+                                "SessionId,RequestorId,ModifiedDate,ModifiedByUserId,FileProfileTypeId,IsUpload,VersionNo,EffectiveDate,NextReviewDate,Date,Link,ReasonToVoid,Description,Title) " +
                                 "OUTPUT INSERTED.NumberSeriesId VALUES " +
-                               "(@ProfileId,@DocumentNo,@AddedDate,@AddedByUserID,@StatusCodeId,@SessionId,@RequestorId,@ModifiedDate,@ModifiedByUserId,@FileProfileTypeId)";
+                               "(@ProfileId,@DocumentNo,@AddedDate,@AddedByUserID,@StatusCodeId,@SessionId,@RequestorId," +
+                               "@ModifiedDate,@ModifiedByUserId,@FileProfileTypeId,@IsUpload,@VersionNo,@EffectiveDate,@NextReviewDate,@Date,@Link,@ReasonToVoid,@Description,@Title)";
                             documentNoSeries.NumberSeriesId = connection.QueryFirstOrDefault<long>(query, parameters, transaction);
 
                             transaction.Commit();

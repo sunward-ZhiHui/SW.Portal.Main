@@ -140,7 +140,7 @@ namespace Infrastructure.Repository.Query
             documentNoSeriesModel.SubSectionName = value.SubSectionName;
             documentNoSeriesModel.DepartmentName = value.DepartmentName;
             documentNoSeriesModel.FileProfileTypeId = value.FileProfileTypeId;
-            documentNoSeriesModel.SessionId=value.FileSessionId;
+            documentNoSeriesModel.SessionId = value.FileSessionId;
             return await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
         }
         public async Task<Documents> UpdateDocumentAfterUpload(Documents value)
@@ -474,6 +474,110 @@ namespace Infrastructure.Repository.Query
                               "(@FileProfieTypeId,@AddedByUserId,@AddedDate,@DocumentPath,@LinkDocumentId,@DocumentId)";
                                 await connection.ExecuteAsync(linkquery, LinkDocparameters, transaction);
                             }
+                            transaction.Commit();
+                            connection.Close();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentNoSeriesModel> InsertOrUpdateReserveProfileNumberSeries(DocumentNoSeriesModel documentNoSeries)
+        {
+            documentNoSeries.DocumentNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeries);
+            return documentNoSeries;
+        }
+        public async Task<DocumentNoSeriesModel> UpdateCreateDocumentBySessionReserveSeries(DocumentNoSeriesModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            Nullable<long> fileIndex = null;
+                            var parameters = new DynamicParameters();
+                            parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
+                            parameters.Add("Description", value.Description);
+                            parameters.Add("StatusCodeID", value.StatusCodeID);
+                            parameters.Add("AddedByUserId", value.AddedByUserID);
+                            parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                            parameters.Add("ProfileNo", value.DocumentNo);
+                            parameters.Add("TableName", "Document");
+                            parameters.Add("FileIndex", fileIndex);
+                            parameters.Add("IsTemp", 0);
+                            parameters.Add("FilePath", value.FilePath, DbType.String);
+                            var query = "Update Documents SET " +
+                                "FilterProfileTypeId=@FileProfileTypeId, " +
+                                "Description=@Description, " +
+                                "StatusCodeID=@StatusCodeID, " +
+                                "ProfileNo=@ProfileNo, " +
+                                "TableName=@TableName, " +
+                                "FileIndex=@FileIndex, " +
+                                "IsTemp=@IsTemp " +
+                                "WHERE " +
+                                 "AddedByUserId=@AddedByUserId AND " +
+                                 "SessionId=@SessionId AND " +
+                                 "FilePath= @FilePath;";
+
+                            parameters.Add("ModifiedByUserID", value.AddedByUserID);
+                            parameters.Add("ModifiedDate", DateTime.Now);
+                            parameters.Add("IsUpload", 1);
+                            parameters.Add("NumberSeriesId", value.NumberSeriesId);
+                            query += "Update DocumentNoSeries SET FileProfileTypeID=@FileProfileTypeID,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,IsUpload=@IsUpload WHERE NumberSeriesId= @NumberSeriesId;";
+                            await connection.ExecuteAsync(query, parameters, transaction);
+                            transaction.Commit();
+                            connection.Close();
+                            // await UpdateDocumentNoSeries(value);
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentNoSeriesModel> UpdateReserveNumberDescriptionField(DocumentNoSeriesModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+
+                            var LinkDocparameters = new DynamicParameters();
+                            LinkDocparameters.Add("Description", value.Description);
+                            LinkDocparameters.Add("ModifiedByUserID", value.AddedByUserID);
+                            LinkDocparameters.Add("ModifiedDate", DateTime.Now);
+                            LinkDocparameters.Add("NumberSeriesId", value.NumberSeriesId);
+                            var query = "Update DocumentNoSeries SET Description=@Description,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate WHERE NumberSeriesId= @NumberSeriesId";
+                            await connection.ExecuteAsync(query, LinkDocparameters, transaction);
                             transaction.Commit();
                             connection.Close();
                             return value;

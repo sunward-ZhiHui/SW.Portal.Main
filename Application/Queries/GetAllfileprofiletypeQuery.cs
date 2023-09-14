@@ -23,6 +23,15 @@ namespace Application.Queries
     {
 
     }
+    public class DeleteFileProfileType : PagedRequest, IRequest<long?>
+    {
+        public long? FileProfileTypeID { get; private set; }
+        public DeleteFileProfileType(long? fileProfileTypeID)
+        {
+            this.FileProfileTypeID = fileProfileTypeID;
+        }
+    }
+    
     public class GetAllSelectedfileprofiletypeQuery : PagedRequest, IRequest<DocumentTypeModel>
     {
         public long? selectedFileProfileTypeID { get; private set; }
@@ -207,6 +216,17 @@ namespace Application.Queries
             this.Id = id;
         }
     }
+    public class GetReserveProfileNumberSeries : PagedRequest, IRequest<List<DocumentNoSeriesModel>>
+    {
+        public long? Id { get; private set; }
+        public long? ProfileId { get; private set; }
+        public GetReserveProfileNumberSeries(long? id, long? profileId)
+        {
+            this.Id = id;
+            this.ProfileId = profileId;
+        }
+    }
+    
     public class InsertCreateDocument : PagedRequest, IRequest<DocumentsUploadModel>
     {
         public DocumentsUploadModel DocumentsUploadModel { get; private set; }
@@ -223,5 +243,28 @@ namespace Application.Queries
             this.DocumentsUploadModel = documentsUploadModel;
         }
     }
-    
+    public class InsertOrUpdateReserveProfileNumberSeries : PagedRequest, IRequest<DocumentNoSeriesModel>
+    {
+        public DocumentNoSeriesModel DocumentNoSeriesModel { get; private set; }
+        public InsertOrUpdateReserveProfileNumberSeries(DocumentNoSeriesModel documentNoSeriesModel)
+        {
+            this.DocumentNoSeriesModel = documentNoSeriesModel;
+        }
+    }
+    public class UpdateCreateDocumentBySessionReserveSeries : PagedRequest, IRequest<DocumentNoSeriesModel>
+    {
+        public DocumentNoSeriesModel DocumentNoSeriesModel { get; private set; }
+        public UpdateCreateDocumentBySessionReserveSeries(DocumentNoSeriesModel documentNoSeriesModel)
+        {
+            this.DocumentNoSeriesModel = documentNoSeriesModel;
+        }
+    }
+    public class UpdateReserveNumberDescriptionField : PagedRequest, IRequest<DocumentNoSeriesModel>
+    {
+        public DocumentNoSeriesModel DocumentNoSeriesModel { get; private set; }
+        public UpdateReserveNumberDescriptionField(DocumentNoSeriesModel documentNoSeriesModel)
+        {
+            this.DocumentNoSeriesModel = documentNoSeriesModel;
+        }
+    }
 }

@@ -80,7 +80,7 @@
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
                                     SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemLinkDocChanged(plantSelect?.PlantID))"
-                                    Enabled="isPlant"
+                                    Enabled="isPlantLinkDoc"
                         @bind-Value="@Data.PlantId" ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
@@ -281,7 +281,7 @@
     string linkDocMyMessage { get; set; }
     private List<UploadFileInfo> LinkDocSelectedFiles { get; set; } = new List<UploadFileInfo>();
     bool linkDocisExpiryDate { get; set; } = false;
-    bool isPlant { get; set; } = false;
+    bool isPlantLinkDoc { get; set; } = false;
     bool isDivisionLinkDoc { get; set; } = false; bool isDepartmentLinkDoc { get; set; } = false;
     bool isSectionLinkDoc { get; set; } = false; bool isSubSectionLinkDoc { get; set; } = false;
     int LinkDocSelectedFilesCount { get; set; }
@@ -296,7 +296,7 @@
     {
         IsFileProfileTypeLinkDocShow = true;
         fileProfileTypeLinkDocDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
-        isPlant = false;
+        isPlantLinkDoc = false;
         isDivisionLinkDoc = false; isDepartmentLinkDoc = false;
         isSectionLinkDoc = false; isSubSectionLinkDoc = false;
         Data.PlantId = 0; Data.DepartmentId = 0;
@@ -309,7 +309,7 @@
         LinkDocSelectedFilesCount = 0;
         LinkDocSelectedFiles = new List<UploadFileInfo>();
         linkDocMyError = ""; linkDocMyMessage = ""; LinkDocFileprofiletypeName = "";
-        if (_selectedFiles != null && selectedFiles.ProfileID > 0)
+        if (_selectedFiles != null && _selectedFiles.ProfileID > 0)
         {
             selectedFiles = _selectedFiles;
             applicationUser = _applicationUser;
@@ -323,7 +323,7 @@
                     var itemsId = item.Id;
                     if (itemsId == 1)
                     {
-                        isPlant = true;
+                        isPlantLinkDoc = true;
                         Data.PlantId = null;
                     }
                     if (itemsId == 2)

@@ -47,6 +47,20 @@ namespace Infrastructure.Service
                 CompanyId = noSeriesModel.PlantID > 0 ? noSeriesModel.PlantID : null,
                 SessionId= noSeriesModel.SessionId,
                 FileProfileTypeId=noSeriesModel.FileProfileTypeId,
+
+                RequestorId=noSeriesModel.RequestorId,
+                Title=noSeriesModel.Title,
+                Description=noSeriesModel.Description,
+                IsUpload=noSeriesModel.IsUpload,
+                ModifiedByUserID = noSeriesModel.ModifiedByUserID,
+                ModifiedDate=noSeriesModel.ModifiedDate,
+                VersionNo=noSeriesModel.VersionNo,
+                EffectiveDate=noSeriesModel.EffectiveDate,
+                NextReviewDate=noSeriesModel.NextReviewDate,
+                Date=noSeriesModel.Date,
+                Link=noSeriesModel.Link,
+                ReasonToVoid=noSeriesModel.ReasonToVoid,
+
             });
 
             return documentNo;
@@ -304,6 +318,14 @@ namespace Infrastructure.Service
                     ModifiedDate = DateTime.Now,
                     ModifiedByUserId = noSeriesModel.AddedByUserID,
                     FileProfileTypeId=noSeriesModel.FileProfileTypeId,
+                    Description = noSeriesModel.Description,
+                    IsUpload = noSeriesModel.IsUpload,
+                    VersionNo = noSeriesModel.VersionNo,
+                    EffectiveDate = noSeriesModel.EffectiveDate,
+                    NextReviewDate = noSeriesModel.NextReviewDate,
+                    Date = noSeriesModel.Date,
+                    Link = noSeriesModel.Link,
+                    ReasonToVoid = noSeriesModel.ReasonToVoid,
                 };
                 _generateDocumentNoSeriesQueryRepository.InsertDocumentNoSeries(documentNoSeries);
                 return documentNo;

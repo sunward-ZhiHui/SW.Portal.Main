@@ -191,18 +191,40 @@
     }
     void OnFileUploadStart(FileUploadStartEventArgs e)
     {
-        Message = "Uploading...";
-        checkInloading = true;
-        //var newSessionId = FileProfileSessionId == null ? selectedItems.SessionId : FileProfileSessionId;
-        string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
-        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + FileProfileSessionId + "&addedByUserId=" + applicationUser.UserID + "&IsNewSession=true";
-        e.UploadUrl = url;
+        if (SelectedFilesCount > 0)
+        {
+            if (SelectedFilesCount == 1)
+            {
+                Message = "Uploading...";
+                checkInloading = true;
+                string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
+                string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + FileProfileSessionId + "&addedByUserId=" + applicationUser.UserID + "&IsNewSession=true";
+                e.UploadUrl = url;
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
     }
     void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
         AttachmentCheckInUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
         SelectedFilesCount = files.ToList().Count; //Count current files
+        if (SelectedFilesCount > 0)
+        {
+            if (SelectedFilesCount == 1)
+            {
+
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
         InvokeAsync(StateHasChanged);
     }
     void OnFileUploadStarted(FileUploadEventArgs e)
@@ -247,7 +269,19 @@
     }
     void onSubmitCheckInUploadFormClick()
     {
-        uploadCheckInComponent.UploadAllFiles();
+        if (SelectedFilesCount > 0)
+        {
+            if (SelectedFilesCount == 1)
+            {
+                uploadCheckInComponent.UploadAllFiles();
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+
     }
     void HandleValidCheckInSubmit()
     {

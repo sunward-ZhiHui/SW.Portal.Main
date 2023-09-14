@@ -61,6 +61,39 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<long?> DeleteFileProfileType(long? fileProfileTypeId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("FileProfileTypeID", fileProfileTypeId);
+                            parameters.Add("IsDelete", 1);
+                            var query = "Update FileProfileType SET IsDelete=@IsDelete WHERE FileProfileTypeID= @FileProfileTypeID";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return fileProfileTypeId;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<FileProfileTypeModel> GetFileProfileTypeBySession(Guid? SessionId)
         {
             try
@@ -651,7 +684,7 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("DocumentID", documentsModel.DocumentID);
-                            parameters.Add("IsLatest", 1, (DbType?)SqlDbType.Bit);
+                            parameters.Add("IsLatest", 0, (DbType?)SqlDbType.Bit);
                             var Addquerys = "UPDATE Documents SET IsLatest = @IsLatest WHERE  DocumentID = @DocumentID";
                             await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters, transaction);
 
@@ -1372,12 +1405,11 @@ namespace Infrastructure.Repository.Query
                     {
                         try
                         {
-                            var userData = await _localStorageService.GetItem<ApplicationUser>("user");
                             var parameters = new DynamicParameters();
                             parameters.Add("DocumentId", value.DocumentID);
                             parameters.Add("FilterProfileTypeId", value.FilterProfileTypeId);
                             parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
-                            parameters.Add("ModifiedByUserId", userData.UserID);
+                            parameters.Add("ModifiedByUserId", value.ModifiedByUserID);
                             parameters.Add("ExpiryDate", value.ExpiryDate, DbType.DateTime);
                             var query = "Update Documents SET ExpiryDate=@ExpiryDate,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE " +
                                 "DocumentId= @DocumentId AND FilterProfileTypeId=@FilterProfileTypeId";
@@ -1829,6 +1861,37 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DocumentNoSeriesModel>> GetReserveProfileNumberSeries(long? Id, long? ProfileId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("FileProfileTypeID", Id);
+                parameters.Add("ProfileId", ProfileId);
+                var query = "SELECT tt1.* From(select t1.*,\r\n" +
+                    "t2.UserName as AddedByUser,\r\n" +
+                    "t3.UserName as RequestorName,\r\n" +
+                    "t4.Name as ProfileName,\r\n" +
+                    "t5.Name as FileProfileTypeName,\r\n" +
+                    "t6.UserName as ModifiedByUser\r\nfrom DocumentNoSeries t1\r\n" +
+                    "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
+                    "JOIN ApplicationUser t3 ON t3.UserID=t1.RequestorId\r\n" +
+                    "JOIN DocumentProfileNoSeries t4 ON t4.ProfileID=t1.ProfileID\r\n" +
+                    "LEFT JOIN FileProfileType t5 ON t5.FileProfileTypeID=t1.FileProfileTypeID\r\n" +
+                    "LEFT JOIN ApplicationUser t6 ON t6.UserID=t1.ModifiedByUserID\r\n" +
+                    "WHERE  (t1.IsUpload=0 OR t1.FileProfileTypeID=@FileProfileTypeID) AND t1.ProfileId=@ProfileId)tt1 \r\n" +
+                    "WHERE  tt1.IsUpload!=1 AND tt1.FileProfileTypeID=@FileProfileTypeID OR tt1.FileProfileTypeID is NULL\r\n";
 
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentNoSeriesModel>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
     }
 }

@@ -43,6 +43,15 @@ namespace Application.Queries
             this.UserId = userID;
         }
     }
+    public class GetByToDoSessionId : PagedRequest, IRequest<List<ToDoNotesHistory>>
+    {
+        public Guid SessionId { get; set; }
+        
+        public GetByToDoSessionId(Guid SessionId)
+        {
+            this.SessionId = SessionId;            
+        }
+    }
     public class GetByToDoDocuments : PagedRequest, IRequest<List<Documents>>
     {       
         public string SessionId { get; set; }

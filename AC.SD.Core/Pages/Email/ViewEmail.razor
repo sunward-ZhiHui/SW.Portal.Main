@@ -14,6 +14,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/ViewEmail"
 @page "/ViewEmail/{ActiveSessionId}"
+@page "/ViewEmail/{TodoSessionId:guid}/{Page}"
 @using DevExpress.Blazor.RichEdit
 @using DevExpress.Blazor.Office
 @using System.Globalization
@@ -128,23 +129,23 @@
 
                         @if(isLeftMenuvisible == "All")
                         {                                
-                            <AllEmail @ref=RefAssignAll GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId ="onSubViewEmailAllClick"></AllEmail>
+                            <AllEmail @ref=RefAssignAll GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId ="onSubViewEmailClick"></AllEmail>
                         }
                         else if (isLeftMenuvisible == "AssignTo")
                         {
-                                <AssignToEmail @ref=RefAssignTo GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId="onSubViewEmailToClick"></AssignToEmail>
+                                <AssignToEmail @ref=RefAssignTo GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId="onSubViewEmailClick"></AssignToEmail>
                         }
                         else if (isLeftMenuvisible == "AssignCC")
                         {
-                            <CCEmail GridSearchText="@GridSearchText" CCTopicId="onViewEmailCCClick" SubViewCCTopicId="onSubViewEmailCCClick"></CCEmail>
+                            <CCEmail GridSearchText="@GridSearchText" CCTopicId="onViewEmailCCClick" SubViewCCTopicId="onSubViewEmailClick"></CCEmail>
                         }
                         else if(isLeftMenuvisible == "Sent")
                         {
-                            <SentEmail sentTopicId="onViewEmailSentClick" SubViewSentTopicId="onSubViewEmailSentClick"></SentEmail>
+                            <SentEmail sentTopicId="onViewEmailSentClick" SubViewSentTopicId="onSubViewEmailClick"></SentEmail>
                         }  
                         else if(isLeftMenuvisible == "Library")
                         {
-                            <MasterSearch GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailAllClick"></MasterSearch>
+                            <MasterSearch GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch>
                         }  
                             
 
@@ -1217,6 +1218,10 @@
     private Documents _selectlst;
     [Parameter]
     public string ActiveSessionId { get; set; }
+    [Parameter]
+    public Guid TodoSessionId { get; set; }    
+    [Parameter]
+    public string Page {get;set;}
     public string filterrowname { get; set; }
     private bool IsConHistory = false;
     [Parameter]
@@ -1870,6 +1875,16 @@
             await LoadData();
         }
     } 
+    private async void onSubViewEmailClick(string RId)
+    {
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
+        await Task.Delay(1000); // Example asynchronous operation
+        await LoadReplyData();
+        StateHasChanged();
+    }    
     private async void onSubViewEmailSentClick(string RId)
     {
         SelectedReplyId = RId;
@@ -1934,7 +1949,7 @@
         await LoadData();
         StateHasChanged();
     }   
-    private async void onSubViewEmailClick(string RId)
+    private async void onSubViewEmailClick_old(string RId)
     {
         SelectedReplyId = RId;
         var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
@@ -2561,7 +2576,7 @@
 
 
         IsConHistory = false;
-        await JSRuntime.InvokeAsync<string>("hideLoading");
+        await JSRuntime.InvokeAsync<string>("hideLoading");      
 
     }
     private async Task LoadDataPosts()
@@ -2666,6 +2681,7 @@
     protected override async Task OnInitializedAsync()
     {
         var sss = ActiveSessionId;
+
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         cancellationTokenSource = new CancellationTokenSource();
         StartAutoRefresh();
@@ -2680,47 +2696,61 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
 
         filterrowname = "";
-        if (ActiveSessionId != null)
+        if(Page != null)
         {
-            var lsts = await Mediator.Send(new GetListBySession(ActiveSessionId));
-            if(lsts.Count > 0)
+            var page = Page;
+            var todolist = await Mediator.Send(new GetByToDoSessionId(TodoSessionId));
+            if(todolist.Count > 0)
             {
-                SelectedGroup = lsts[0].ID.ToString();
-                RTopicId = 0;
-                filterrowname = ActiveSessionId;
+                string ridds = todolist[0].TopicId.ToString();
+                onSubViewEmailClick(ridds);
+            }
+        }
+        else
+        {
+            if (ActiveSessionId != null)
+            {
+                var lsts = await Mediator.Send(new GetListBySession(ActiveSessionId));
+                if (lsts.Count > 0)
+                {
+                    SelectedGroup = lsts[0].ID.ToString();
+                    RTopicId = 0;
+                    filterrowname = ActiveSessionId;
 
-                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-                _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-                _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
-                _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+                    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+                    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+                    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                    _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
 
-                await LoadData();
+                    await LoadData();
+
+                }
+                else
+                {
+                    RTopicId = 0;
+                    SelectedGroup = "0";
+                    await LoadData();
+
+                    //if (long.Parse(@SelectedGroup) > 0)
+                    //{
+                    //    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+                    //    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+                    //    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                    //    _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+                    //}
+
+                }
 
             }
             else
             {
-                RTopicId = 0;
-                SelectedGroup = "0";
-                await LoadData();
-
-                //if (long.Parse(@SelectedGroup) > 0)
-                //{
-                //    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-                //    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-                //    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
-                //    _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
-                //}
-
+                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+                _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+                _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
             }
-
         }
-        else
-        {
-            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-            _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-            _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
-            _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
-        }
+        
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));

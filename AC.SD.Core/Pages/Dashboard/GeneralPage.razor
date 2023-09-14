@@ -123,6 +123,7 @@
                                 Diameter="diameter" Height="50%" Width="100%"
                                 InnerDiameter="innerDiameter"
                                 T="GenderRatio"
+                            CustomizeSeriesPoint="@CustomizeSeriesPoint"
                             SeriesClick="OnSeriesClick">
                     <DxPieChartSeries T="GenderRatio"
                                           TArgument="string"
@@ -351,5 +352,13 @@
     void ClosePopup()
     {
         ChartPopUp = false;
+    }
+
+    protected void CustomizeSeriesPoint(ChartSeriesPointCustomizationSettings settings)
+    {
+        if (settings.Point.Argument.ToString() == "Female")
+            settings.PointAppearance.Color = System.Drawing.Color.LightPink;
+        if (settings.Point.Argument.ToString() == "Male")
+            settings.PointAppearance.Color = System.Drawing.Color.LightSkyBlue;
     }
 }

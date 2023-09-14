@@ -7,6 +7,7 @@
 <DxPieChart Data="@_types"
             Diameter="diameter"
             InnerDiameter="innerDiameter"
+            CustomizeSeriesPoint="@CustomizeSeriesPoint"
             T="EmailTopics"
 SeriesClick="OnClick">
     <DxPieChartSeries T="EmailTopics"
@@ -14,6 +15,7 @@ SeriesClick="OnClick">
                       TValue="double"
                       ValueField="si => si.ID"
                       ArgumentField="si => si.TopicFrom"
+                     
                       SummaryMethod="Enumerable.Sum">
         <DxChartSeriesLabel Visible="showLabels"
                             Position="labelPosition"
@@ -121,5 +123,10 @@ body {
     void OnClick()
     {
         
+    }
+    protected void CustomizeSeriesPoint(ChartSeriesPointCustomizationSettings settings)
+    {
+        if (settings.Point.Argument.ToString() == "Denver")
+            settings.PointAppearance.Color = System.Drawing.Color.Yellow;
     }
 }

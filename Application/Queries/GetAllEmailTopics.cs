@@ -14,6 +14,9 @@ namespace Application.Queries
     public class UpdateTopicArchive : EmailTopics, IRequest<long>
     {
     }
+    public class UpdateTopicUnArchive : EmailTopics, IRequest<long>
+    {
+    }
 
     public class GetActivityEmailTopics : PagedRequest, IRequest<List<ActivityEmailTopics>>
     {

@@ -1705,7 +1705,46 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        public async Task<long> UpdateTopicUnArchive(EmailTopics EmailTopics)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
 
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("ID", EmailTopics.ID);
+                            parameters.Add("ModifiedByUserID", EmailTopics.ModifiedByUserID);
+                            parameters.Add("ModifiedDate", EmailTopics.ModifiedDate);
+
+                            var query = " UPDATE EmailConversationParticipant SET IsArchive = 0 where TopicId = @ID and UserId = @ModifiedByUserID";
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
         public async Task<List<ActivityEmailTopics>> GetByActivityEmailSessionList(Guid sessionId)
         {
             try

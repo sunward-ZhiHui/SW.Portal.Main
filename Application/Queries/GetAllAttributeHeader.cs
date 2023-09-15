@@ -1,5 +1,6 @@
 ﻿using Application.Queries.Base;
 using Core.Entities;
+using Core.Repositories.Query;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -20,19 +21,19 @@ namespace Application.Queries
     }
     public class EditAttributeHeader : AttributeHeader, IRequest<long>
     {
-        public AttributeHeader AttributeHeaderItem { get; set; }
-        public EditAttributeHeader(AttributeHeader AttributeHeaderItem)
+        public AttributeHeader AttributeDetailsItem { get; set; }
+        public EditAttributeHeader(AttributeHeader AttributeDetailsItem)
         {
-            this.AttributeHeaderItem = AttributeHeaderItem;
+            this.AttributeDetailsItem = AttributeDetailsItem;
         }
     }
 
     public class DeleteAttributeHeader : PagedRequest, IRequest<long>
     {
-        public long ID { get; set; }
-        public DeleteAttributeHeader(long ID)
+        public long AttributeID { get; set; }
+        public DeleteAttributeHeader(long AttributeID)
         {
-            this.ID = ID;
+            this.AttributeID = AttributeID;
         }
     }
 }

@@ -39,7 +39,24 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<long> Handle(CreateAttributeHeader request, CancellationToken cancellationToken)
         {
-            return (long) await _attrubutequeryRepository.Insert(request);
+            return (long)await _attrubutequeryRepository.Insert(request);
+
+        }
+    }
+    public class EditAttributeHandler : IRequestHandler<EditAttributeHeader, long>
+    {
+        private readonly IAttributeQueryRepository _conversationQueryRepository;
+
+        public EditAttributeHandler(IAttributeQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+
+        }
+
+        public async Task<long> Handle(EditAttributeHeader request, CancellationToken cancellationToken)
+        {
+            var req = await _conversationQueryRepository.UpdateAsync(request);
+            return req;
         }
     }
 }

@@ -1,6 +1,10 @@
 ﻿@using Application.Commands;
+@using Application.Handlers.CommandHandler.AttributeDetail;
 @using Application.Queries;
 @using Application.Response;
+@using Infrastructure.Repository.Query;
+@using Application.Handlers.QueryHandlers;
+@using Application.Handlers.CommandHandler;
 @using MediatR
 @using global::Core.Entities;
 @inject IMediator Mediator
@@ -8,9 +12,9 @@
 @using global::Core.Repositories.Query;
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
-@page "/Attributes"
+@page "/AttributeDetails"
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@using AC.SD.Core.Pages.Forum
+
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -60,7 +64,7 @@
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-            KeyFieldName="ID"
+            KeyFieldName="AttributeDetailID"
     @oncontextmenu:preventDefault
             PageSizeSelectorVisible="true"
             PageSizeSelectorAllRowsItemVisible="true"
@@ -74,78 +78,40 @@
             CustomizeElement="Grid_CustomizeElement"
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"            
+       
             RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
 
 
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-            @* <DxGridDataColumn FieldName="Index" Caption="#" Width="35px"></DxGridDataColumn>*@
-            @* <DxGridDataColumn FieldName="ID"  Caption="#" Width="35px"></DxGridDataColumn>*@
-            <DxGridDataColumn FieldName="RowIndex" Caption="#" Width="35px" Visible="false"></DxGridDataColumn>
-            <DxGridDataColumn FieldName="Name" />
-            <DxGridDataColumn FieldName="Description" />
-            <DxGridDataColumn FieldName="AddedDate">
+          
+          
+            <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180">
                 <CellDisplayTemplate>
                     @{
-                        var item = (AttributeHeader)context.DataItem;
-                    }
-                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="AddedByUserID" Caption="AddedBy" TextAlignment="GridTextAlignment.Left">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (AttributeHeader)context.DataItem;
-                    }
-                    <div> @item.AddedBy</div>
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="ModifiedDate" TextAlignment="GridTextAlignment.Left">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (AttributeHeader)context.DataItem;
+                        var item = (AttributeDetails)context.DataItem;
                     }
                     @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="ModifiedByUserID" Caption="ModifiedBy" TextAlignment="GridTextAlignment.Left">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (AttributeHeader)context.DataItem;
-                    }
-                    <div> @item.ModifiedBy</div>
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
+         
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
-        @*  @bind-SelectedDataItems="SelectedDataItems"*@
+    
         <EditFormTemplate Context="EditFormContext">
             @{
-                var types = (AttributeHeader)EditFormContext.EditModel;
+                var types = (AttributeDetails)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
                 <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@types.Description" />
                     <ValidationMessage For="@(() => types.Description)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Control Type:" ColSpanMd="6">
-                    <DxComboBox Data="@_stausItems"
-                                NullText="Select ControlType..."
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="CodeValue"
-                                ValueFieldName="CodeId"
-                    @bind-Value="@types.ControlType"
-                                ShowValidationIcon="true">
-                    </DxComboBox>
-                    <ValidationMessage For="@(() => types.ControlType)" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Entry Mask:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@types.EntryMask" />
-                </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Regular Expression:" ColSpanMd="6">
-                    <DxTextBox @bind-Text="@types.RegExp" />
-                </DxFormLayoutItem>
+               
+               
+               
 
 
                 <ValidationSummary />
@@ -153,7 +119,7 @@
         </EditFormTemplate>
 
     </DxGrid>
-    <ContextMenuContainer Grid="Grid" @ref="ContextMenuContainer" />
+   
 </DxLoadingPanel>
 @*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  Width="350px" @bind-Visible="@Blukdeletepopup">
     <div class="text-center">
@@ -185,14 +151,14 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-    ContextMenuContainer ContextMenuContainer { get; set; }
+
     bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
-    private List<AttributeHeader>? _attributes;
+    private List<AttributeDetails>? _attributes;
     IGrid? Grid { get; set; }
-    private AttributeHeader _selectedItems;
+    private AttributeDetails _selectedItems;
     private List<CodeMaster> _stausItems;
     //bool EditEnabled { get; set; } = true;
     //bool DeleteEnabled { get; set; } = true;
@@ -209,16 +175,16 @@
     bool Blukdeletepopup { get; set; } = false;
     bool EditEnabled { get; set; } = true;
     string SelectedGroup = "none";
-    private AttributeHeader _selectlst;
+    private AttributeDetails _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
 
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
         // await jsRuntime.InvokeAsync<string>("showLoading");
-        var models = await Mediator.Send(new GetAllAttributeHeader());
+        var models = await Mediator.Send(new GetAllAttributeDetailsQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
-        //  var model = await Mediator.Send(new GetAllAttribute());
+        //  var model = await Mediator.Send(new GetAllAttributeDetailsQuery());
         // _attributes = model;
 
         //for (int i = 0; i < models.Count; i++)
@@ -235,8 +201,8 @@
     {
         PanelVisible = true;
         //await jsRuntime.InvokeAsync<string>("showLoading");
-        //  var model = await Mediator.Send(new GetAllAttribute());
-        var models = await Mediator.Send(new GetAllAttributeHeader());
+        //  var model = await Mediator.Send(new GetAllAttributeDetailsQuery());
+        var models = await Mediator.Send(new GetAllAttributeDetailsQuery());
 
         //for (int i = 0; i < models.Count; i++)
         //{
@@ -317,9 +283,7 @@
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
-        var editModel = (AttributeHeader)e.EditModel;
-
-       
+        var editModel = (AttributeDetails)e.EditModel;
 
         if (e.IsNew)
         {
@@ -333,7 +297,7 @@
             {
                 try
                 {
-                    var result = await Mediator.Send(new CreateAttributeHeader());
+                    var result = await Mediator.Send(new CreateAttributeDetails());
                     toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
                     //  onShowPopupMessage("Success", "Record save Successfully");
                 }
@@ -349,15 +313,15 @@
             }
 
 
-            var entity = new CreateAttributeHeader
-                {
+            var  entity = new CreateAttributeDetails
+                    {
 
-                    Description = editModel.Description,
-                    AddedDate = DateTime.Now,
-                    SessionId = Guid.NewGuid(),
-                    StatusCodeID = 1,
-                    AddedByUserID = 1,
-                };
+                        Description = editModel.Description,
+                        AddedDate = DateTime.Now,
+                        SessionId = Guid.NewGuid(),
+                        StatusCodeID = 1,
+                        AddedByUserID = 1,
+                    };
             var request = await Mediator.Send(entity);
 
 
@@ -367,25 +331,25 @@
         {
 
 
-            var UpdateReq = new EditAttributeHeader(editModel)
-                {
+            var UpdateReq = new EditAttributeDetails(editModel)
+            {
+                
+                        AttributeDetailID = editModel.AttributeDetailID,                       
+                        Description = editModel.Description,
+                        StatusCodeID = editModel.StatusCodeID,
+                        AddedByUserID = editModel.AddedByUserID,
+                        AddedDate = editModel.AddedDate,
+                        SessionId = editModel.SessionId,
+                        ModifiedByUserID = editModel.ModifiedByUserID,
+                        ModifiedDate = DateTime.Now,
+                    
 
-                    AttributeID = editModel.AttributeID,
-                    Description = editModel.Description,
-                    StatusCodeID = editModel.StatusCodeID,
-                    AddedByUserID = editModel.AddedByUserID,
-                    AddedDate = editModel.AddedDate,
-                    SessionId = editModel.SessionId,
-                    ModifiedByUserID = editModel.ModifiedByUserID,
-                    ModifiedDate = DateTime.Now,
+            };
 
-
-                };
-
-            var ans = await Mediator.Send(UpdateReq);
-            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            await UpdateDataAsync();
-
+                var ans = await Mediator.Send(UpdateReq);
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            
 
         }
 
@@ -416,14 +380,14 @@
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
 
-        var editModel = (AttributeHeader)e.DataItem;
+        var editModel = (AttributeDetails)e.DataItem;
 
         //  string result = string.Empty;
         //  result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
         // Console.WriteLine(result);
         // await UpdateDataAsync();
 
-        var request = new DeleteAttributeHeader(editModel.AttributeID);
+        var request = new DeleteAttributeDetails(editModel.AttributeDetailID);
         await Mediator.Send(request);
         await UpdateDataAsync();
         Grid.SetFocusedRowIndex(0);
@@ -437,15 +401,9 @@
         {
             e.CssClass = "alt-item";
         }
-        if (GridContextMenuHelper.IsContextMenuElement(e.ElementType))
-        {
-            e.Attributes["oncontextmenu"] = EventCallback.Factory.Create<MouseEventArgs>(
-                 this,
-                async mArgs => await ContextMenuContainer.Grid_ContextMenu(e, mArgs)
-            );
-        }
+       
     }
-    void Onclick(DataGridSelection<AttributeHeader> e)
+    void Onclick(DataGridSelection<AttributeDetails> e)
     {
 
 
@@ -454,8 +412,8 @@
 
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "AttributeID");
-        _selectedItems = _attributes.FirstOrDefault(f => f.AttributeID == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "AttributeDetailID");
+        _selectedItems = _attributes.FirstOrDefault(f => f.AttributeDetailID == (long)UniqueId);
 
         StateHasChanged();
 
@@ -479,10 +437,10 @@
             foreach (object item in SelectedDataItems)
             {
 
-                if (item is AttributeHeader AttributeHeader)
+                if (item is AttributeDetails AttributeDetails)
                 {
 
-                    _selectlst = _attributes.FirstOrDefault(f => f.AttributeID == AttributeHeader.AttributeID);
+                    _selectlst = _attributes.FirstOrDefault(f => f.AttributeDetailID == AttributeDetails.AttributeDetailID);
 
 
                 }
@@ -511,10 +469,10 @@
                 foreach (object item in SelectedDataItems)
                 {
 
-                    if (item is AttributeHeader AttributeHeader)
+                    if (item is AttributeDetails AttributeDetails)
                     {
 
-                        var request = new DeleteForumTypeCommand(AttributeHeader.AttributeID);
+                        var request = new DeleteAttributeDetails(AttributeDetails.AttributeDetailID);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -549,6 +507,4 @@
 
     }
 }
-
-
 

@@ -117,7 +117,7 @@
          ShowFooter="true"
          Width="1000px">
     <BodyContentTemplate>
-        <AddReserveProfileNumberSeries selectedItems="@_selectedItems" applicationUser="@applicationUser" SessionId="@SessionId" FileProfileTypeId="@FileProfileTypeId" RevokeBack="ClosePopupReserveSeries"></AddReserveProfileNumberSeries>
+        <AddReserveProfileNumberSeries selectedItems="@_ParentselectedItems" applicationUser="@applicationUser" SessionId="@SessionId" FileProfileTypeId="@FileProfileTypeId" RevokeBack="ClosePopupReserveSeries"></AddReserveProfileNumberSeries>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopupReserveSeries())" />

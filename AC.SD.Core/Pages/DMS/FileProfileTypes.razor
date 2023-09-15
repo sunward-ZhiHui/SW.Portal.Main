@@ -233,9 +233,9 @@
                     }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
-            <DxGridDataColumn FieldName="AddedBy" Caption="AddedBy"  MinWidth="170" />
+            <DxGridDataColumn FieldName="AddedBy" Caption="Added By"  MinWidth="170" />
             <DxGridDataColumn FieldName="AddedDate"   Caption="Added" MinWidth="170" />
-            <DxGridDataColumn FieldName="ModifiedBy"  Caption="ModifiedBy" MinWidth="170" />
+            <DxGridDataColumn FieldName="ModifiedBy"  Caption="Modified By" MinWidth="170" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified" MinWidth="170" />
         </Columns>
         <TotalSummary>
@@ -300,13 +300,9 @@
             </DxFormLayoutItem>
         </DxFormLayout>
     </BodyContentTemplate>
-    <FooterContentTemplate>
-        <div class="w-100">
-            <div class="custom-flyout-footer">
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
-            </div>
-        </div>
+    <FooterContentTemplate Context="Context">
+       <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
+        <DxButton  RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
     </FooterContentTemplate>
 </DxFlyout>
 <DxFlyout @bind-IsOpen=IsExpiryDateOpen
@@ -328,13 +324,11 @@
             </DxFormLayoutItem>
         </DxFormLayout>
     </BodyContentTemplate>
-    <FooterContentTemplate>
-        <div class="w-100">
-            <div class="custom-flyout-footer">
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateExpiryDate()) />
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsExpiryDateOpen = false) />
-            </div>
-        </div>
+    <FooterContentTemplate Context="Context">
+         <DxButton   style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsExpiryDateOpen = false) />
+          <DxButton  RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateExpiryDate()) />
+               
+           
     </FooterContentTemplate>
 </DxFlyout>
 <DxFlyout
@@ -359,13 +353,11 @@
             </DxFormLayoutItem>
         </DxFormLayout>
     </BodyContentTemplate>
-    <FooterContentTemplate>
-        <div class="w-100">
-            <div class="custom-flyout-footer">
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDocumentRename()) />
-                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsRenameOpen = false) />
-            </div>
-        </div>
+    <FooterContentTemplate  Context="Context">
+         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsRenameOpen = false) />
+                <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDocumentRename()) />
+               
+          
     </FooterContentTemplate>
 </DxFlyout>
 <DxPopup @bind-Visible="@PopupVisibleSecurityAccess"
@@ -408,8 +400,9 @@
         <strong>@DeleteProfileTypeName</strong>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
+         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="deleteFileProfileTypes" />
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+       
     </FooterContentTemplate>
 </DxPopup>
 
@@ -425,8 +418,9 @@
         <strong>@DeleteDocumentName</strong>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
+         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="onDelete" />
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+       
     </FooterContentTemplate>
 </DxPopup>
 @code {
@@ -882,7 +876,7 @@
         if (_selectedItems != null && _selectedItems.DocumentID > 0)
         {
             BlukdeleteDocument = false;
-            await Mediator.Send(new GetFileProfileTypeDelete(_selectedItems));
+            await Mediator.Send(new GetFileProfileTypeDocumentDelete(_selectedItems));
             toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await loadFileProfileData();
         }

@@ -183,9 +183,7 @@ namespace Core.EntityModels
         public string FilePath { get; set; }
         public string? FileSizes { get; set; }
         public string? FileCounts { get; set; }
-        public bool? IsNewPath { get; set; } 
-
-        
+        public bool? IsNewPath { get; set; }
     }
     public class DocumentListModel : BaseModel
     {

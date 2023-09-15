@@ -514,7 +514,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("Description", value.Description);
                             parameters.Add("StatusCodeID", value.StatusCodeID);
                             parameters.Add("AddedByUserId", value.AddedByUserID);
-                            parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                            parameters.Add("SessionId", value.SessionID, DbType.Guid);
                             parameters.Add("ProfileNo", value.DocumentNo);
                             parameters.Add("TableName", "Document");
                             parameters.Add("FileIndex", fileIndex);
@@ -530,7 +530,7 @@ namespace Infrastructure.Repository.Query
                                 "IsTemp=@IsTemp " +
                                 "WHERE " +
                                  "AddedByUserId=@AddedByUserId AND " +
-                                 "SessionId=@SessionId AND " +
+                                 "SessionId=@SessionID AND " +
                                  "FilePath= @FilePath;";
 
                             parameters.Add("ModifiedByUserID", value.AddedByUserID);

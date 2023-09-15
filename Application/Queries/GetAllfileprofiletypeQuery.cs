@@ -49,10 +49,10 @@ namespace Application.Queries
             this.SearchModel = searchModel;
         }
     }
-    public class GetFileProfileTypeDelete : PagedRequest, IRequest<DocumentsModel>
+    public class GetFileProfileTypeDocumentDelete : PagedRequest, IRequest<DocumentsModel>
     {
         public DocumentsModel DocumentsModel { get; private set; }
-        public GetFileProfileTypeDelete(DocumentsModel documentsModel)
+        public GetFileProfileTypeDocumentDelete(DocumentsModel documentsModel)
         {
             this.DocumentsModel = documentsModel;
         }
@@ -267,4 +267,17 @@ namespace Application.Queries
             this.DocumentNoSeriesModel = documentNoSeriesModel;
         }
     }
+    public class GetAllDocumentDelete : PagedRequest, IRequest<DocumentTypeModel>
+    {
+    }
+    public class ReStoreFileProfileTypeAndDocument : PagedRequest, IRequest<DocumentsModel>
+    {
+        public DocumentsModel DocumentsModel { get; private set; }
+        public ReStoreFileProfileTypeAndDocument(DocumentsModel documentsModel)
+        {
+            this.DocumentsModel = documentsModel;
+        }
+    }
+    
+
 }

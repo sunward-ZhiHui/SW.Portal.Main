@@ -181,7 +181,7 @@
 
 @code {
     [Parameter]
-    public DocumentNoSeriesModel? selectedItems { get; set; }
+    public DocumentsModel? selectedItems { get; set; }
     [Parameter]
     public long? FileProfileTypeId { get; set; }
     [Parameter]
@@ -191,7 +191,7 @@
     [Parameter]
     public Action RevokeBack { get; set; }
     DocumentNoSeriesModel Data = new DocumentNoSeriesModel();
-    
+
     private List<ViewPlants>? _plantItems;
     private List<ViewDivision>? _divisionItems;
     private List<ViewDepartment>? _departmentItems;
@@ -215,7 +215,7 @@
         Data.StatusCodeID = 710;
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         _statusItems = await Mediator.Send(new GetAllCodeMasterQuery("NoSeriesStatus"));
-        if (selectedItems != null && selectedItems.ProfileID > 0)
+        if (selectedItems != null && selectedItems.ProfileID > 0 && FileProfileTypeId>0)
         {
             documentProfileNoSeriesLinkDocData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedItems.ProfileID));
             if (documentProfileNoSeriesLinkDocData != null)
@@ -250,18 +250,19 @@
                     }
                 }
             }
-            Data.NumberSeriesId = selectedItems.NumberSeriesId;
-            Data.SessionId = Guid.NewGuid();
-            Data.IsUpload = false;
-            Data.AddedByUserID = applicationUser.UserID;
-            Data.ModifiedByUserID = applicationUser.UserID;
             Data.ProfileID = selectedItems.ProfileID;
             Data.FileProfileTypeId = FileProfileTypeId;
-            Data.AddedDate = DateTime.Now;
-            Data.ModifiedDate = DateTime.Now;
-            Data.AddedByUser = applicationUser.UserName;
-            Data.RequestorId = applicationUser.UserID;
         }
+        Data.NumberSeriesId = 0;
+        Data.SessionId = Guid.NewGuid();
+        Data.IsUpload = false;
+        Data.AddedByUserID = applicationUser.UserID;
+        Data.ModifiedByUserID = applicationUser.UserID;
+        
+        Data.AddedDate = DateTime.Now;
+        Data.ModifiedDate = DateTime.Now;
+        Data.AddedByUser = applicationUser.UserName;
+        Data.RequestorId = applicationUser.UserID;
         await SelectedItemLinkDocChanged(0);
         await SelectedItemDivisionLinkDocChanged(0);
         await SelectedItemDepartementLinkDocChanged(0);
@@ -316,15 +317,20 @@
     async Task HandleValidSubmit()
     {
         loadingLinkDoc = true;
-        var response = await Mediator.Send(new InsertOrUpdateReserveProfileNumberSeries(Data));
-        if (response.NumberSeriesId > 0)
+        if (Data.ProfileID > 0)
         {
+            var response = await Mediator.Send(new InsertOrUpdateReserveProfileNumberSeries(Data));
             Data.NumberSeriesId = response.NumberSeriesId;
             Data.DocumentNo = response.DocumentNo;
             toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
             loadingLinkDoc = false;
             LinkDocbackUrl();
             StateHasChanged();
+        }
+        else
+        {
+            loadingLinkDoc = false;
+            toastService.ShowToast("Invaild Profile", AC.SD.Core.Services.ToastLevel.Error);
         }
     }
 }

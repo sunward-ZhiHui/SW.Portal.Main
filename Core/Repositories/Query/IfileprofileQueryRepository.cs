@@ -12,12 +12,11 @@ namespace Core.Repositories.Query
 {
     public interface IFileprofileQueryRepository : IQueryRepository<Fileprofiletype>
     {
-        Task<IReadOnlyList<Fileprofiletype>> GetAllAsync(long FileProfileTypeID);
         Task<long?> DeleteFileProfileType(long? fileProfileTypeId);
         Task<FileProfileTypeModel> GetFileProfileTypeBySession(Guid? SessionId);
         Task<DocumentTypeModel> GetAllSelectedFileAsync(long? selectedFileProfileTypeID);
         Task<DocumentTypeModel> GetFileProfileTypeDocumentByHistory(SearchModel searchModel);
-        Task<DocumentsModel> GetFileProfileTypeDelete(DocumentsModel documentsModel);
+        Task<DocumentsModel> GetFileProfileTypeDocumentDelete(DocumentsModel documentsModel);
         Task<DocumentsModel> GetFileProfileTypeCheckOut(DocumentsModel documentsModel);
         Task<IReadOnlyList<DocumentsModel>> GetAllFileProfileDocumentAsync();
         Task<IReadOnlyList<DocumentLinkModel>> GetDocumentLinkByDocumentId(long? id);
@@ -39,6 +38,8 @@ namespace Core.Repositories.Query
         Task<DocumentUserRoleModel> DeleteDocumentUserRole(DocumentUserRoleModel value);
         Task<IReadOnlyList<FileProfileSetupFormModel>> GetFileProfileSetupFormList(long? Id);
         Task<IReadOnlyList<DocumentNoSeriesModel>> GetReserveProfileNumberSeries(long? Id,long? ProfileId);
+        Task<DocumentTypeModel> GetAllDocumentDeleteAsync();
+        Task<DocumentsModel> ReStoreFileProfileTypeAndDocument(DocumentsModel documentsModel);
 
     }
 }

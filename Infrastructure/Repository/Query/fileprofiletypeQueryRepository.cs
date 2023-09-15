@@ -72,10 +72,13 @@ namespace Infrastructure.Repository.Query
                     {
                         try
                         {
+                            var userData = await _localStorageService.GetItem<ApplicationUser>("user");
                             var parameters = new DynamicParameters();
                             parameters.Add("FileProfileTypeID", fileProfileTypeId);
                             parameters.Add("IsDelete", 1);
-                            var query = "Update FileProfileType SET IsDelete=@IsDelete WHERE FileProfileTypeID= @FileProfileTypeID";
+                            parameters.Add("DeleteByUserID", userData.UserID);
+                            parameters.Add("DeleteByDate", DateTime.Now, DbType.DateTime);
+                            var query = "Update FileProfileType SET IsDelete=@IsDelete,DeleteByDate=@DeleteByDate,DeleteByUserID=@DeleteByUserID WHERE FileProfileTypeID= @FileProfileTypeID";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             transaction.Commit();
                             return fileProfileTypeId;
@@ -112,136 +115,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<Fileprofiletype>> GetAllAsync(long fileProfileTypeID)
-        {
-            List<Fileprofiletype> fileprofiletype = new List<Fileprofiletype>();
-            try
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("FileProfileTypeId", fileProfileTypeID);
-
-                var query = @"WITH RecursiveHierarchy AS(
-                                SELECT
-                                    FileProfileTypeID,
-                                    ParentID,
-                                    Name,
-                                    FileProfileTypeID AS RootID
-
-                                FROM
-                                    FileProfileType
-                                WHERE
-                                    ParentID IS NULL
-
-                                UNION ALL
-
-                                SELECT
-                                    t.FileProfileTypeID,
-                                    t.ParentID,
-                                    t.Name,
-                                    rh.RootID
-
-                                FROM
-                                    FileProfileType t
-                                JOIN
-                                    RecursiveHierarchy rh ON t.ParentID = rh.FileProfileTypeID
-                            )
-                            SELECT
-                                FileProfileTypeID,
-                                ParentID,
-                                Name,
-                                RootID
-
-
-                            FROM
-                                RecursiveHierarchy
-                            WHERE
-                                RootID = @FileProfileTypeId";
-
-
-                using (var connection = CreateConnection())
-                {
-                    var result = (await connection.QueryAsync<Fileprofiletype>(query, parameters)).ToList();
-                    result.ForEach(s =>
-                    {
-                        if (!s.ParentId.HasValue)
-                        {
-                            Fileprofiletype applicationChildDataResponse = new Fileprofiletype
-                            {
-                                FileProfileTypeId = s.FileProfileTypeId,
-                                ProfileId = s.ProfileId,
-                                ParentId = s.ParentId,
-                                Name = s.Name,
-                                Label = s.Name,
-                            };
-                            fileprofiletype.Add(applicationChildDataResponse);
-                        }
-                        else
-                        {
-                            var applicationChild = fileprofiletype.FirstOrDefault(a => a.FileProfileTypeId == s.ParentId);
-                            if (applicationChild != null)
-                            {
-                                applicationChild.Children.Add(new Fileprofiletype
-                                {
-                                    FileProfileTypeId = s.FileProfileTypeId,
-                                    ProfileId = s.ProfileId,
-                                    ParentId = s.ParentId,
-                                    Name = s.Name,
-                                    Label = s.Name,
-                                });
-                            }
-                            else
-                            {
-                                fileprofiletype.ToList().ForEach(applicationChildModel =>
-                                {
-                                    AddChildLevelData(applicationChildModel, s);
-                                });
-                            }
-                        }
-                    });
-                }
-
-
-                return fileprofiletype;
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-
-        private void AddChildLevelData(Fileprofiletype applicationChildModel, Fileprofiletype childData)
-        {
-            applicationChildModel.Children.ToList().ForEach(parent =>
-            {
-                if (parent.FileProfileTypeId == childData.ParentId)
-                {
-                    parent.Children.Add(new Fileprofiletype
-                    {
-                        FileProfileTypeId = childData.FileProfileTypeId,
-                        ProfileId = childData.ProfileId,
-                        ParentId = childData.ParentId,
-                        Name = childData.Name,
-                        Label = childData.Name,
-                    });
-                }
-                else
-                {
-                    AddChildLevelData(parent, childData);
-                }
-            });
-        }
         public async Task<IReadOnlyList<DocumentsModel>> GetAllFileProfileDocumentIdAsync(long? selectedFileProfileTypeID)
         {
             try
             {
-                var query = "select  *,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\nFileProfileTypeID as DocumentID,\r\nProfile as ProfileNo,\r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\nCONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\nCONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\nAND IsLatest=1  \r\nAND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\nOR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\nfrom view_FileProfileTypeDocument t2";
+                var query = "select  *,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\n" +
+                    "FileProfileTypeID as DocumentID,\r\n" +
+                    "Profile as ProfileNo,\r\n" +
+                    "CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n" +
+                    "CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\n" +
+                    "CONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\n" +
+                    "CONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\nAND IsLatest=1  \r\nAND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\nOR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n" +
+                    "from view_FileProfileTypeDocument t2";
                 if (selectedFileProfileTypeID == null)
                 {
-                    query += "\r\nwhere parentid is null";
+                    query += "\r\nWhere parentid is null AND IsDelete is null or IsDelete=0";
                 }
                 else
                 {
-                    query += "\r\nwhere parentid=" + selectedFileProfileTypeID;
+                    query += "\r\nwhere parentid=" + selectedFileProfileTypeID + " AND IsDelete is null or IsDelete = 0";
                 }
                 using (var connection = CreateConnection())
                 {
@@ -485,7 +377,10 @@ namespace Infrastructure.Repository.Query
                     "IsWikiDraft," +
                     "IsWiki," +
                     "FilePath, " +
-                    "IsNewPath " +
+                    "IsNewPath, " +
+                    "IsDelete, " +
+                    "DeleteByUserID, " +
+                    "DeleteByDate " +
                     "from Documents ";
             return query;
         }
@@ -533,7 +428,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("FilterProfileTypeId", searchModel.MasterTypeID);
                 parameters.Add("DocumentId", searchModel.ParentID);
                 parameters.Add("SessionID", searchModel.SessionID, DbType.Guid);
-                var query = DocumentQueryString() + " where FilterProfileTypeId=@FilterProfileTypeId AND SessionID=@SessionID AND DocumentId=@DocumentId AND IsLatest=0";
+                var query = DocumentQueryString() + " where FilterProfileTypeId=@FilterProfileTypeId AND SessionID=@SessionID AND DocumentId=@DocumentId AND IsLatest=0 AND IsDelete is null or IsDelete=0";
 
                 using (var connection = CreateConnection())
                 {
@@ -583,7 +478,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("FilterProfileTypeId", searchModel.MasterTypeID);
                 parameters.Add("DocumentParentId", searchModel.ParentID);
                 parameters.Add("SessionID", searchModel.SessionID, DbType.Guid);
-                var query = DocumentQueryString() + " where FilterProfileTypeId=@FilterProfileTypeId AND SessionID=@SessionID AND DocumentParentId=@DocumentParentId AND IsLatest=0";
+                var query = DocumentQueryString() + " where FilterProfileTypeId=@FilterProfileTypeId AND SessionID=@SessionID AND DocumentParentId=@DocumentParentId AND IsLatest=0 AND IsDelete is null or IsDelete=0";
 
                 using (var connection = CreateConnection())
                 {
@@ -671,7 +566,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<DocumentsModel> GetFileProfileTypeDelete(DocumentsModel documentsModel)
+        public async Task<DocumentsModel> GetFileProfileTypeDocumentDelete(DocumentsModel documentsModel)
         {
             try
             {
@@ -682,10 +577,13 @@ namespace Infrastructure.Repository.Query
                     {
                         try
                         {
+                            var userData = await _localStorageService.GetItem<ApplicationUser>("user");
                             var parameters = new DynamicParameters();
                             parameters.Add("DocumentID", documentsModel.DocumentID);
-                            parameters.Add("IsLatest", 0, (DbType?)SqlDbType.Bit);
-                            var Addquerys = "UPDATE Documents SET IsLatest = @IsLatest WHERE  DocumentID = @DocumentID";
+                            parameters.Add("IsDelete", 1);
+                            parameters.Add("DeleteByUserID", userData.UserID);
+                            parameters.Add("DeleteByDate", DateTime.Now, DbType.DateTime);
+                            var Addquerys = "UPDATE Documents SET IsDelete = @IsDelete,DeleteByUserID=@DeleteByUserID,DeleteByDate=@DeleteByDate WHERE  DocumentID = @DocumentID";
                             await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters, transaction);
 
                             transaction.Commit();
@@ -766,7 +664,7 @@ namespace Infrastructure.Repository.Query
                     var documentPermission = await GetDocumentPermissionByRoll();
                     parameters.Add("FileProfileTypeId", selectedFileProfileTypeID, DbType.Int64);
                     var query = DocumentQueryString() + " where FilterProfileTypeId=@FileProfileTypeId " +
-                        "AND IsLatest=1 " +
+                        "AND IsLatest=1 AND IsDelete is null or IsDelete=0 " +
                         "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) " +
                         "OR (DocumentID in(" + string.Join(",", linkfileProfileTypeDocumentids) + ") AND IsLatest=1) " +
                         "order by DocumentId desc";
@@ -1034,7 +932,7 @@ namespace Infrastructure.Repository.Query
                     var parameters = new DynamicParameters();
                     var documentPermission = await GetDocumentPermissionByRoll();
                     parameters.Add("DocumentID", DocumentId, DbType.Int64);
-                    var query = DocumentQueryString() + " where DocumentID=@DocumentID ";
+                    var query = DocumentQueryString() + " where DocumentID=@DocumentID AND IsDelete is null or IsDelete=0";
 
                     using (var connection = CreateConnection())
                     {
@@ -1163,7 +1061,7 @@ namespace Infrastructure.Repository.Query
                     "t5.UserName as ModifiedByUser,\r\nt6.CodeValue as StatusCode\r\nfrom DocumentLink t1 \r\n" +
                     "JOIN Documents t2 ON t1.LinkDocumentId=t2.DocumentID\r\nJOIN Documents t3 ON t1.DocumentID=t3.DocumentID \r\n" +
                     "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID\r\n" +
-                    "LEFT JOIN CodeMaster t6 ON t6.CodeID=t1.StatusCodeID where t1.DocumentID=@DocumentID";
+                    "LEFT JOIN CodeMaster t6 ON t6.CodeID=t1.StatusCodeID where t1.DocumentID=@DocumentID AND (t2.IsDelete=0 or t2.IsDelete Is Null) AND (t3.IsDelete=0 or t3.IsDelete Is Null) ";
                 using (var connection = CreateConnection())
                 {
                     var DocumentLink = (await connection.QueryAsync<DocumentLinkModel>(query, parameters)).ToList();
@@ -1242,7 +1140,7 @@ namespace Infrastructure.Repository.Query
                     "t1.LinkDocumentId=t2.DocumentID\r\n" +
                     "JOIN Documents t3 ON t1.DocumentID=t3.DocumentID \r\n" +
                     "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t5 ON t5.UserID=t1.ModifiedByUserID\r\n" +
-                    "LEFT JOIN CodeMaster t6 ON t6.CodeID=t1.StatusCodeID where t1.LinkDocumentId=@LinkDocumentId";
+                    "LEFT JOIN CodeMaster t6 ON t6.CodeID=t1.StatusCodeID where t1.LinkDocumentId=@LinkDocumentId AND (t2.IsDelete=0 or t2.IsDelete Is Null) AND (t3.IsDelete=0 or t3.IsDelete Is Null)";
                 using (var connection = CreateConnection())
                 {
                     var DocumentLink = (await connection.QueryAsync<DocumentLinkModel>(query, parameters)).ToList();
@@ -1892,6 +1790,166 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+        public async Task<IReadOnlyList<DocumentsModel>> GetAllFileProfileDeleteAsync()
+        {
+            try
+            {
+                var query = "select  *,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\n" +
+                    "FileProfileTypeID as DocumentID,\r\n" +
+                    "Profile as ProfileNo,\r\n" +
+                    "CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n" +
+                    "CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\n" +
+                    "CONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\n" +
+                    "CONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\nAND IsLatest=1  \r\nAND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\nOR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n" +
+                    "from view_FileProfileTypeDocument t2 WHERE IsDelete = 1";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentsModel>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentTypeModel> GetAllDocumentDeleteAsync()
+        {
+            DocumentTypeModel DocumentTypeModel = new DocumentTypeModel();
+            List<DocumentsModel> documentsModel = new List<DocumentsModel>();
+            try
+            {
+                var docs = await GetAllFileProfileDeleteAsync();
+                var counts = docs != null ? (docs.Count + 1) : 1;
+                DocumentTypeModel.DocumentsData.AddRange(docs);
+                var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                var appUsers = await GetApplicationUserAsync();
+                var fileProfileType = await GetFileprofiletypeAsync();
+                var parameters = new DynamicParameters();
+                var query = DocumentQueryString() + " where IsDelete=1 order by DocumentId desc";
+
+                using (var connection = CreateConnection())
+                {
+                    var documents = (await connection.QueryAsync<Documents>(query)).ToList();
+                    if (documents != null && documents.Count > 0)
+                    {
+                        documents.ForEach(s =>
+                        {
+                            var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
+                            var lastIndex = s.FileName != null ? s.FileName.LastIndexOf(".") : 0;
+                            lastIndex = lastIndex > 0 ? lastIndex : 0;
+                            var name = s.FileName != null ? s.FileName?.Substring(lastIndex) : "";
+                            var fileName = s.FileName?.Split(name);
+                            DocumentsModel documentsModels = new DocumentsModel();
+                            documentsModels.UniqueNo = counts;
+                            documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
+                            documentsModels.SessionId = s.SessionId;
+                            documentsModels.DocumentID = s.DocumentId;
+                            documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
+                            documentsModels.ContentType = s.ContentType;
+                            documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
+                            documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
+                            documentsModels.UploadDate = s.UploadDate;
+                            documentsModels.SessionID = s.SessionId;
+                            documentsModels.FileProfileTypeId = s.FilterProfileTypeId;
+                            documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
+                            documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
+                            documentsModels.ProfileID = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.ProfileId;
+                            documentsModels.DocumentParentId = s.DocumentParentId;
+                            documentsModels.TableName = s.TableName;
+                            documentsModels.IsMobileUpload = s.IsMobileUpload;
+                            documentsModels.Type = "Document";
+                            documentsModels.ExpiryDate = s.ExpiryDate;
+                            documentsModels.FileIndex = s.FileIndex;
+                            documentsModels.TotalDocument = documentcount == 1 ? 1 : (documentcount + 1);
+                            documentsModels.UploadedByUserId = s.AddedByUserId;
+                            documentsModels.ModifiedByUserID = s.ModifiedByUserId;
+                            documentsModels.AddedDate = s.UploadDate;
+                            documentsModels.ModifiedDate = s.ModifiedDate;
+                            documentsModels.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
+                            documentsModels.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
+                            documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                            documentsModels.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                            documentsModels.IsLocked = s.IsLocked;
+                            documentsModels.LockedByUserId = s.LockedByUserId;
+                            documentsModels.LockedDate = s.LockedDate;
+                            documentsModels.IsNewPath = s.IsNewPath;
+                            documentsModels.AddedByUserID = s.AddedByUserId;
+                            documentsModels.IsCompressed = s.IsCompressed;
+                            documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
+                            documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;
+                            documentsModels.IsEnableCreateTask = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsEnableCreateTask;
+                            documentsModels.CloseDocumentId = s.CloseDocumentId;
+                            documentsModels.CssClass = s.CloseDocumentId != null && s.CloseDocumentId == 2561 ? "blue-grey lighten - 3" : "transparent";
+                            documentsModels.ProfileNo = s.ProfileNo;
+                            documentsModels.FilePath = s.FilePath;
+                            documentsModels.DeleteByDate = s.DeleteByDate;
+                            documentsModels.DeleteByUserID = s.DeleteByUserID;
+                            documentsModels.DeleteByUser = appUsers.FirstOrDefault(f => f.UserID == s.DeleteByUserID)?.UserName;
+                            documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
+
+                            documentsModel.Add(documentsModels);
+
+                            counts++;
+                        });
+                    }
+                    DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());
+                }
+                return DocumentTypeModel;
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsModel> ReStoreFileProfileTypeAndDocument(DocumentsModel documentsModel)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentID", documentsModel.DocumentID);
+                            parameters.Add("FileProfileTypeId", documentsModel.DocumentID);
+                            parameters.Add("IsDelete", null);
+                            parameters.Add("DeleteByUserID", null);
+                            parameters.Add("DeleteByDate", null);
+                            parameters.Add("RestoreByUserID", userData.UserID);
+                            parameters.Add("RestoreByDate", DateTime.Now,DbType.DateTime);
+                            if (documentsModel.Type == "Document")
+                            {
+                                var Addquerys = "UPDATE Documents SET IsDelete = @IsDelete,DeleteByUserID=@DeleteByUserID,DeleteByDate=@DeleteByDate,RestoreByUserID=@RestoreByUserID,RestoreByDate=@RestoreByDate WHERE  DocumentID = @DocumentID";
+                                await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters, transaction);
+                            }
+                            else
+                            {
+                                var Addquerys = "UPDATE FileProfileType SET IsDelete = @IsDelete,DeleteByUserID=@DeleteByUserID,DeleteByDate=@DeleteByDate,RestoreByUserID=@RestoreByUserID,RestoreByDate=@RestoreByDate WHERE  FileProfileTypeId = @FileProfileTypeId";
+                                await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters, transaction);
+                            }
+                            transaction.Commit();
+
+                            return documentsModel;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

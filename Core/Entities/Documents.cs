@@ -61,6 +61,9 @@ namespace Core.Entities
         public bool? IsWiki { get; set; }
         public string? SubjectName { get; set; }
         public bool? IsNewPath { get; set; }
+        public long? DeleteByUserID { get; set; }
+        public bool? IsDelete { get; set; }
+        public DateTime? DeleteByDate { get; set; }
         public string? FilePath { get; set; }
         [NotMapped]
         public string? ServerFilePath { get; set; }

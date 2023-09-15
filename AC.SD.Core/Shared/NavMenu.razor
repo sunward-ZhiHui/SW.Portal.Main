@@ -1,103 +1,108 @@
-﻿@using AC.SD.Core.Configuration
-@using global::Core.EntityModels;
-@inject DemoConfiguration Configuration
+﻿@using global::Core.EntityModels;
 @inject NavigationManager NavigationManager
 @using Application.Queries;
 @using MediatR
 @using global::Core.Entities;
 @inject IMediator Mediator
-@using DevExpress.Export
-@inject IJSRuntime Js;
-@using global::Core.Entities.Views;
-@functions {
-    async Task<List<PortalMenuModel>> NavMenuLists()
-    {
-        return await Configuration.DoNavMenuListsItemsAsync();
-    }
-    public List<PortalMenuModel>  listsItemss()
-    {
-        return Configuration.DoNavMenuLists();
-    }
-}
-@{
-    
-    //var lists = Task.Run(async () => await NavMenuLists()).GetAwaiter().GetResult();
-    var lists = listsItemss();
-    var siteMode = Configuration.GetConfigurationValue<bool>("SiteMode");
-    
-}
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService;
 
-<DxTreeView @ref="@treeView"
-            CssClass="sidebar-tree"
+
+
+<DxTreeView @ref="treeView"
+@bind-FilterString="FilterString"
+            FilterMinLength="2"
+            ShowFilterPanel="true"
+            Target="_blank"
+            FilterMode="NavigationFilterMode.EntireBranch"
+            Data="@portalMenuModel"
             ExpandButtonIconCssClass="demo-icon-expand"
             CollapseButtonIconCssClass="demo-icon-collapse"
             AllowSelectNodes="true"
             SelectionChanged="@SelectionChanged">
-    <Nodes>
-        @foreach (var demoPage in lists)
-        {           
-            <NavMenuLeaf Page="@demoPage"></NavMenuLeaf>           
-        }
-    </Nodes>
+    <DataMappings>
+        <DxTreeViewDataMapping Text="Title"
+                               Key="PermissionID"
+                               ParentKey="ParentID" />
+    </DataMappings>
 </DxTreeView>
+
+
 @code {
-    DxTreeView treeView;
 
-    //[Parameter]
-    //public IEnumerable<PortalMenuModel> Pagess { get; set; }
-    //public IEnumerable<DemoPageBase> Pages { get; set; }
+    private DxTreeView treeView;
+    string? FilterString { get; set; }
     public List<PortalMenuModel> portalMenuModel { get; set; }
-    [Parameter]
-    public PortalMenuPermission portalMenuModels { get; set; }
-
+    public ApplicationUser applicationUser { get; private set; }
+    int count = 0;
     protected override async Task OnInitializedAsync()
     {
-        this.StateHasChanged();
-    }
-    protected override void OnInitialized() {
-        
-        NavigationManager.LocationChanged += OnLocationChanged;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        UpdateSelection(NavigationManager.Uri, true);
-        this.StateHasChanged();
+
+        // if (firstRender == true && count == 0)
+        // {
+        //     UpdateSelection(NavigationManager.Uri, true);
+        // }
+        // count++;
     }
-    void OnLocationChanged(object sender, LocationChangedEventArgs args) {
-        UpdateSelection(NavigationManager.Uri, true);
-    }
-    void UpdateSelection(string currentUri, bool expandNodesToSelection) {
-        treeView.SelectNode(n => {
-            if(!string.IsNullOrEmpty(n.NavigateUrl) && (currentUri.EndsWith("/" + n.NavigateUrl) || currentUri == NavigationManager.BaseUri && n.NavigateUrl == "./")) {
-                if(expandNodesToSelection)
+    void UpdateSelection(string currentUri, bool expandNodesToSelection)
+    {
+        string uri = NavigationManager.Uri;
+        string baseUri = NavigationManager.BaseUri;
+        treeView.SelectNode(n =>
+        {
+            var dataItem = n.DataItem as PortalMenuModel;
+            string rep1 = uri.Replace(baseUri, "").ToLower();
+            string[] UrlList = rep1.Split("/");
+            if (dataItem != null && UrlList.Length > 0 && UrlList[0] != null && dataItem.Component != null && dataItem.Component.ToLower() == UrlList[0])
+            {
+                if (expandNodesToSelection)
                     ExpandToSelectedNode(n);
                 return true;
             }
             return false;
         });
     }
-    void ExpandToSelectedNode(ITreeViewNodeInfo selectedNode) {
+    void ExpandToSelectedNode(ITreeViewNodeInfo selectedNode)
+    {
         var nodes = treeView.GetNodesInfo(n => true);
-        foreach(var node in nodes) {
+        foreach (var node in nodes)
+        {
             treeView.SetNodeExpanded(n => n == node, IsParentNode(node, selectedNode));
         }
     }
-    bool IsParentNode(ITreeViewNodeInfo parentNode, ITreeViewNodeInfo node) {
-        while(node != null) {
-            if(node == parentNode)
+    bool IsParentNode(ITreeViewNodeInfo parentNode, ITreeViewNodeInfo node)
+    {
+        while (node != null)
+        {
+            if (node == parentNode)
                 return true;
             node = node.Parent;
         }
         return false;
     }
-    protected void SelectionChanged(TreeViewNodeEventArgs e) {
-        if(e.Reason != NavigationItemStateChangeReason.ApiCall && string.IsNullOrEmpty(e.NodeInfo.NavigateUrl)) 
-            UpdateSelection(NavigationManager.Uri, false);
-    }
-    public void Dispose() {
-        NavigationManager.LocationChanged -= OnLocationChanged;
-    }
-    protected override bool ShouldRender() {
-        return false;
+    protected void SelectionChanged(TreeViewNodeEventArgs e)
+    {
+        if (e.NodeInfo?.DataItem != null)
+        {
+            var dataItem = e.NodeInfo.DataItem as PortalMenuModel;
+            if (dataItem != null && dataItem.Component != null || dataItem.Name != null)
+            {
+                var url = dataItem.Name;
+                if (url != null)
+                {
+                    NavigationManager.NavigateTo(url);
+                }
+            }
+            var nodes = treeView.GetNodesInfo(n => true);
+            foreach (var node in nodes)
+            {
+                treeView.SetNodeExpanded(n => n == node, IsParentNode(node, e.NodeInfo));
+            }
+        }
     }
 }

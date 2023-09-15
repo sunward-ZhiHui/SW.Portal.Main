@@ -9,6 +9,7 @@
 @using Microsoft.Extensions.Configuration;
 @inject IConfiguration Configuration
 @inject ClipboardService ClipboardService
+@inject NavigationManager NavigationManager
 @inject AC.SD.Core.Services.ToastService toastService
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
@@ -18,10 +19,15 @@
             <Items>
                 <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="OnDownload" Enabled="@DownloadEnabled" />
                 <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewEnabled" />
-                <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Enabled="@NotifyEnabled" />
+                @* <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Enabled="@NotifyEnabled" /> *@
                 <DxMenuItem Text="Link Document" IconCssClass="fa fa-link" Click="onLinkDocuments" Enabled="@linkdownloadEnabled" />
             </Items>
         </DxMenu>
+    </div>
+</div>
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <span style="font-weight: bold;padding: 10px;line-height: 30px;color:green;">Parent Link Document Name:  @ParentSelectedFiles.FileName</span>
     </div>
 </div>
 <DxLoadingPanel @bind-Visible="PanelVisibleParent"
@@ -90,8 +96,10 @@
     public bool linkdownloadEnabled { get; set; } = false;
     private string? DocumentViewUrl;
     private string? ServerUrl;
+    private string? FileUrl;
     protected override async Task OnInitializedAsync()
     {
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
 
@@ -189,17 +197,33 @@
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID, _selectedItems.LinkDocumentName, _selectedItems.FilePath));
-            //  Trigger file download
-            await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.LinkDocumentName, response.ImageData, "");
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID));
+            if (response.StatusCodeID == 0)
+            {
+                toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                //  Trigger file download
+                await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.LinkDocumentName, response.ImageData, "");
+            }
         }
     }
     async void onView()
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
-            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
+            }
+           
         }
     }
     void onLinkDocuments()

@@ -23,6 +23,15 @@ namespace Application.Queries
     {
 
     }
+    public class DeleteFileProfileType : PagedRequest, IRequest<long?>
+    {
+        public long? FileProfileTypeID { get; private set; }
+        public DeleteFileProfileType(long? fileProfileTypeID)
+        {
+            this.FileProfileTypeID = fileProfileTypeID;
+        }
+    }
+    
     public class GetAllSelectedfileprofiletypeQuery : PagedRequest, IRequest<DocumentTypeModel>
     {
         public long? selectedFileProfileTypeID { get; private set; }
@@ -40,10 +49,10 @@ namespace Application.Queries
             this.SearchModel = searchModel;
         }
     }
-    public class GetFileProfileTypeDelete : PagedRequest, IRequest<DocumentsModel>
+    public class GetFileProfileTypeDocumentDelete : PagedRequest, IRequest<DocumentsModel>
     {
         public DocumentsModel DocumentsModel { get; private set; }
-        public GetFileProfileTypeDelete(DocumentsModel documentsModel)
+        public GetFileProfileTypeDocumentDelete(DocumentsModel documentsModel)
         {
             this.DocumentsModel = documentsModel;
         }
@@ -91,13 +100,9 @@ namespace Application.Queries
     public class GetFileDownload : PagedRequest, IRequest<DocumentsModel>
     {
         public long? DocumentId { get; private set; }
-        public string? FileName { get; private set; }
-        public string? FilePath { get; private set; }
-        public GetFileDownload(long? documentId, string? fileName, string? filePath)
+        public GetFileDownload(long? documentId)
         {
             this.DocumentId = documentId;
-            this.FileName = fileName;
-            this.FilePath = filePath;
         }
     }
     public class GetUpdateDescriptionField : PagedRequest, IRequest<DocumentsModel>
@@ -170,6 +175,15 @@ namespace Application.Queries
             this.Id = id;
         }
     }
+    public class GetDocumentProfileNoSeriesById : PagedRequest, IRequest<DocumentProfileNoSeriesModel>
+    {
+        public long? Id { get; private set; }
+        public GetDocumentProfileNoSeriesById(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    
     public class InsertFileProfileTypeAccess : PagedRequest, IRequest<DocumentUserRoleModel>
     {
         public DocumentUserRoleModel DocumentUserRole { get; private set; }
@@ -192,6 +206,76 @@ namespace Application.Queries
         public DeleteDocumentUserRole(DocumentUserRoleModel documentUserRole)
         {
             this.DocumentUserRole = documentUserRole;
+        }
+    }
+    public class GetFileProfileSetupFormList : PagedRequest, IRequest<List<FileProfileSetupFormModel>>
+    {
+        public long? Id { get; private set; }
+        public GetFileProfileSetupFormList(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class GetReserveProfileNumberSeries : PagedRequest, IRequest<List<DocumentNoSeriesModel>>
+    {
+        public long? Id { get; private set; }
+        public long? ProfileId { get; private set; }
+        public GetReserveProfileNumberSeries(long? id, long? profileId)
+        {
+            this.Id = id;
+            this.ProfileId = profileId;
+        }
+    }
+    
+    public class InsertCreateDocument : PagedRequest, IRequest<DocumentsUploadModel>
+    {
+        public DocumentsUploadModel DocumentsUploadModel { get; private set; }
+        public InsertCreateDocument(DocumentsUploadModel documentsUploadModel)
+        {
+            this.DocumentsUploadModel = documentsUploadModel;
+        }
+    }
+    public class UpdateCreateDocumentBySession : PagedRequest, IRequest<DocumentsUploadModel>
+    {
+        public DocumentsUploadModel DocumentsUploadModel { get; private set; }
+        public UpdateCreateDocumentBySession(DocumentsUploadModel documentsUploadModel)
+        {
+            this.DocumentsUploadModel = documentsUploadModel;
+        }
+    }
+    public class InsertOrUpdateReserveProfileNumberSeries : PagedRequest, IRequest<DocumentNoSeriesModel>
+    {
+        public DocumentNoSeriesModel DocumentNoSeriesModel { get; private set; }
+        public InsertOrUpdateReserveProfileNumberSeries(DocumentNoSeriesModel documentNoSeriesModel)
+        {
+            this.DocumentNoSeriesModel = documentNoSeriesModel;
+        }
+    }
+    public class UpdateCreateDocumentBySessionReserveSeries : PagedRequest, IRequest<DocumentNoSeriesModel>
+    {
+        public DocumentNoSeriesModel DocumentNoSeriesModel { get; private set; }
+        public UpdateCreateDocumentBySessionReserveSeries(DocumentNoSeriesModel documentNoSeriesModel)
+        {
+            this.DocumentNoSeriesModel = documentNoSeriesModel;
+        }
+    }
+    public class UpdateReserveNumberDescriptionField : PagedRequest, IRequest<DocumentNoSeriesModel>
+    {
+        public DocumentNoSeriesModel DocumentNoSeriesModel { get; private set; }
+        public UpdateReserveNumberDescriptionField(DocumentNoSeriesModel documentNoSeriesModel)
+        {
+            this.DocumentNoSeriesModel = documentNoSeriesModel;
+        }
+    }
+    public class GetAllDocumentDelete : PagedRequest, IRequest<DocumentTypeModel>
+    {
+    }
+    public class ReStoreFileProfileTypeAndDocument : PagedRequest, IRequest<DocumentsModel>
+    {
+        public DocumentsModel DocumentsModel { get; private set; }
+        public ReStoreFileProfileTypeAndDocument(DocumentsModel documentsModel)
+        {
+            this.DocumentsModel = documentsModel;
         }
     }
     

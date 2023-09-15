@@ -375,8 +375,8 @@
                         Name = editModel.Name,
                         Description = editModel.Description,
                         FileContent = fileContent,
-                        FileName = fileName,
-                        ActFileName = editModel.FileName,
+                        FileName = fileName.ToLower(),
+                        ActFileName = editModel.FileName.ToLower(),
                         //AddedByUserID = editModel.AddedByUserID,
                         //StatusCodeID = editModel.StatusCodeID,
                         //ModifiedByUserID = applicationUser.UserID,
@@ -409,7 +409,7 @@
     public async Task onPreView(string fileName)
     {
         //NavigationManager.NavigateTo("ReportViewer/" + fileName + "");
-        await jsRuntime.InvokeVoidAsync("window.open", "ReportViewer/" + fileName + "", "_blank");
+        await jsRuntime.InvokeVoidAsync("window.open", "reportFileUploads/ReportViewer/" + fileName + "", "_blank");
     }
     private byte[] fileContent;
     private string fileName;

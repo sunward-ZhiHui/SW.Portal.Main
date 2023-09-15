@@ -12,11 +12,11 @@ namespace Core.Repositories.Query
 {
     public interface IFileprofileQueryRepository : IQueryRepository<Fileprofiletype>
     {
-        Task<IReadOnlyList<Fileprofiletype>> GetAllAsync(long FileProfileTypeID);
+        Task<long?> DeleteFileProfileType(long? fileProfileTypeId);
         Task<FileProfileTypeModel> GetFileProfileTypeBySession(Guid? SessionId);
         Task<DocumentTypeModel> GetAllSelectedFileAsync(long? selectedFileProfileTypeID);
         Task<DocumentTypeModel> GetFileProfileTypeDocumentByHistory(SearchModel searchModel);
-        Task<DocumentsModel> GetFileProfileTypeDelete(DocumentsModel documentsModel);
+        Task<DocumentsModel> GetFileProfileTypeDocumentDelete(DocumentsModel documentsModel);
         Task<DocumentsModel> GetFileProfileTypeCheckOut(DocumentsModel documentsModel);
         Task<IReadOnlyList<DocumentsModel>> GetAllFileProfileDocumentAsync();
         Task<IReadOnlyList<DocumentLinkModel>> GetDocumentLinkByDocumentId(long? id);
@@ -29,14 +29,17 @@ namespace Core.Repositories.Query
         Task<DocumentsModel> UpdateDocumentRename(DocumentsModel value);
         Task<IReadOnlyList<UserGroup>> GetUserGroups();
         Task<IReadOnlyList<DocumentRole>> GetDocumentRole();
-
+        Task<DocumentProfileNoSeriesModel> GetDocumentProfileNoSeriesById(long? Id);
         Task<IReadOnlyList<DocumentProfileNoSeriesModel>> GetDocumentProfiles();
         Task<FileProfileTypeModel> InsertOrUpdateFileProfileType(FileProfileTypeModel fileProfileTypeModel);
         Task<DocumentPermissionModel> GetDocumentPermissionByRoleID(long? Id);
         Task<DocumentUserRoleModel> InsertFileProfileTypeAccess(DocumentUserRoleModel documentUserRole);
         Task<IReadOnlyList<DocumentUserRoleModel>> GetDocumentUserRoleList(long? Id);
         Task<DocumentUserRoleModel> DeleteDocumentUserRole(DocumentUserRoleModel value);
-
+        Task<IReadOnlyList<FileProfileSetupFormModel>> GetFileProfileSetupFormList(long? Id);
+        Task<IReadOnlyList<DocumentNoSeriesModel>> GetReserveProfileNumberSeries(long? Id,long? ProfileId);
+        Task<DocumentTypeModel> GetAllDocumentDeleteAsync();
+        Task<DocumentsModel> ReStoreFileProfileTypeAndDocument(DocumentsModel documentsModel);
 
     }
 }

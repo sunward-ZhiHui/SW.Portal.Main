@@ -35,6 +35,125 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ToDoNotesHistory>> GetTodoDueAsync(long UserId)
+        {
+            try
+            {
+                //var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(DueDate AS DATE) = CAST(GETDATE() AS DATE)";
+                var query = @"SELECT TNH.*,EC.Name AS SubjectName FROM ToDoNotesHistory TNH
+                                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
+                                WHERE TNH.AddedByUserID = @UserId
+                                AND TNH.TopicId IS NOT NULL  AND TNH.TopicId > 0 AND TNH.Status = 'Open'
+                                AND CAST(TNH.DueDate AS DATE) <= CAST(GETDATE() AS DATE)
+                                ORDER BY TNH.DueDate DESC";
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+
+                using (var connection = CreateConnection())
+                {
+                    //return (await connection.QueryAsync<ToDoNotesHistory>(query,parameters)).ToList();
+                    connection.Open();
+                    var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
+
+                    foreach (var items in res)
+                    {
+                        if (items.Users != null && items.Users.Length != 0)
+                        {
+                            string[] userArray = items.Users.Split(',');
+                            var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
+                            var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
+                            items.participant = subQueryResults;
+
+                        }
+
+                    }
+
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<ToDoNotesHistory>> GetTodoRemainderAsync(long UserId)
+        {
+            try
+            {
+                //var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(RemainDate AS DATE) = CAST(GETDATE() AS DATE)";
+                var query = @"SELECT TNH.*,EC.Name AS SubjectName FROM ToDoNotesHistory TNH
+                                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
+                                WHERE TNH.AddedByUserID = @UserId
+                                AND TNH.TopicId IS NOT NULL  AND TNH.TopicId > 0 AND TNH.Status = 'Open'
+                                AND CAST(TNH.RemainDate AS DATE) <= CAST(GETDATE() AS DATE)
+                                ORDER BY TNH.RemainDate DESC";
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+                using (var connection = CreateConnection())
+                {
+                    //return (await connection.QueryAsync<ToDoNotesHistory>(query,parameters)).ToList();
+                    connection.Open();
+                    var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
+
+                    foreach (var items in res)
+                    {
+                        if (items.Users != null && items.Users.Length != 0)
+                        {
+                            string[] userArray = items.Users.Split(',');
+                            var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
+                            var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
+                            items.participant = subQueryResults;
+
+                        }
+
+                    }
+
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
+        public async Task<IReadOnlyList<Documents>> GetToDoDocumentsAsync(string SessionId)
+        {
+            try
+            {
+                var query = @"SELECT * FROM Documents WHERE SessionId = @SessionId";
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId);                
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Documents>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<ToDoNotesHistory>> GetByToDoSessionIdAsync(Guid SessionId)
+        {
+            try
+            {
+                var query = @"SELECT * FROM ToDoNotesHistory WHERE SessionId = @SessionId";
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ToDoNotesHistory>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
         public async Task<IReadOnlyList<ToDoNotesHistory>> GetAllToDoNotesHistoryAsync(long NotesId,long UserId)
         {
             try
@@ -48,7 +167,25 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ToDoNotesHistory>(query, parameters)).ToList();                    
+                    //return (await connection.QueryAsync<ToDoNotesHistory>(query, parameters)).ToList();
+                    //
+                    connection.Open();
+                    var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
+
+                    foreach (var items in res)
+                    {
+                        if(items.Users != null && items.Users.Length != 0)
+                        {
+                            string[] userArray = items.Users.Split(',');
+                            var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
+                            var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
+                            items.participant = subQueryResults;
+
+                        }
+                                              
+                    }
+
+                    return res;
                 }
             }
             catch (Exception exp)
@@ -82,9 +219,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("Status", ToDoNotesHistory.Status);
                             parameters.Add("ColourCode", ToDoNotesHistory.ColourCode);
                             parameters.Add("Users", ToDoNotesHistory.Users);
-                            
+                            parameters.Add("TopicId", ToDoNotesHistory.TopicId);
 
-                            var query = "INSERT INTO ToDoNotesHistory(Users,NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status,ColourCode) VALUES (@Users,@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status,@ColourCode)";
+
+                            var query = "INSERT INTO ToDoNotesHistory(TopicId,Users,NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status,ColourCode) VALUES (@TopicId,@Users,@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status,@ColourCode)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -133,9 +271,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("Status", ToDoNotesHistory.Status);
                             parameters.Add("ColourCode", ToDoNotesHistory.ColourCode);
                             parameters.Add("Users", ToDoNotesHistory.Users);
-                            
+                            parameters.Add("TopicId", ToDoNotesHistory.TopicId);
 
-                            var query = @"Update ToDoNotesHistory SET Users = @Users,Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Status = @Status,ColourCode = @ColourCode WHERE ID = @ID";
+
+                            var query = @"Update ToDoNotesHistory SET TopicId = @TopicId, Users = @Users,Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Status = @Status,ColourCode = @ColourCode WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
                             transaction.Commit();
@@ -176,6 +315,66 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("id", id);
 
                             var query = "Delete From ToDoNotesHistory  WHERE ID = @id";
+
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<ViewEmployee>> GetUserLst(string Userid)
+        {
+            try
+            {
+                var query = "SELECT * From View_Employee where UserID In (@Userid)";
+                var parameters = new DynamicParameters();
+                parameters.Add("Userid", Userid);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+       
+
+        public async Task<long> StatusUpdateAsync(long ID)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("ID", ID);
+
+                            var query = "update TodoNotesHistory Set Status = 'close' Where ID =@ID";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

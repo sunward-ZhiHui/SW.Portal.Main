@@ -54,6 +54,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ViewDivision>> GetDivisionByCompanyAsync(long? companyId)
+        {
+            try
+            {
+                var query = "SELECT * FROM view_Division WHERE companyId = @companyId";
+                var parameters = new DynamicParameters();
+                parameters.Add("companyId", companyId, DbType.Int64);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewDivision>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
     }
 }

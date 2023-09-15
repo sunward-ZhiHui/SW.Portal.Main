@@ -1,0 +1,120 @@
+﻿@page "/treeView2"
+@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@inject IJSRuntime jsRuntime
+@inject NavigationManager NavigationManager
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+
+<EditForm Model="@Data" Context="EditFormContext" OnValidSubmit="@(() => HandleValidSubmit())" OnInvalidSubmit="@HandleInvalidSubmit">
+    <DataAnnotationsValidator />
+    <DxFormLayout>
+        <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+            <DxTextBox @bind-Text="@Data.Description" ShowValidationIcon="true" />
+            <ValidationMessage For="@(() =>Data.Description)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="6" Context="FormLayoutContext">
+            <DxComboBox Value="@_formModel.FormEntity"
+                        ValueExpression="()=> _formModel.FormEntity"
+                        TextFieldName="@nameof(DocumentsModel.FileName)"
+                        Data="@_dropDownSelectData"
+                        DropDownCssClass="combo-dropdown"
+                        DropDownBodyCssClass="combo-dropdown-body"
+                        FilteringMode="@DataGridFilteringMode.None"
+                        AllowUserInput="true"
+            @oninput="@OnInput"
+                        DropDownVisibleChanged="() => { }">
+                <ItemTemplate>
+
+                    <DropdownTreeView Data="@fileProfileTypeDocumentsAll" SelectionChanged="@SelectionChanged" SelectedItemName="@_formModel?.FormEntity.FileName" />
+                </ItemTemplate>
+            </DxComboBox>
+            <DxSpinEdit @bind-Value="@Data.LinkID" ShowValidationIcon="true" style="display:none;"  />
+            <ValidationMessage For="@(() => Data.LinkID)" />
+        </DxFormLayoutItem>
+
+        <DxFormLayoutItem ColSpanMd="6">
+            <DxButton SubmitFormOnClick="true" Text="Submit" RenderStyle="ButtonRenderStyle.Secondary" />
+        </DxFormLayoutItem>
+    </DxFormLayout>
+</EditForm>
+
+@code {
+    private bool _show = false;
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    private DxTreeView _treeView;
+    private List<DocumentsModel> _dropDownSelectData;
+    FormDropDownModel _formModel = new FormDropDownModel();
+    DocumentsModel Data = new DocumentsModel();
+    List<DocumentsModel> fileProfileTypeDocuments = new List<DocumentsModel>();
+    private int _id = 9;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _formModel.FormEntity = new DocumentsModel();
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        if (fileProfileTypeDocumentsAll != null && fileProfileTypeDocumentsAll.Count > 0)
+        {
+            fileProfileTypeDocuments = fileProfileTypeDocumentsAll;
+            var firstData = fileProfileTypeDocumentsAll[0];
+            _formModel.FormEntity = firstData;
+            Data.LinkID = firstData.FileProfileTypeId;
+            _dropDownSelectData = new List<DocumentsModel> { _formModel.FormEntity };
+        }
+    }
+
+    protected void SelectionChanged(TreeViewNodeEventArgs e)
+    {
+        if (e.NodeInfo?.DataItem != null)
+        {
+            _formModel.FormEntity = e.NodeInfo.DataItem as DocumentsModel;
+            Data.LinkID = _formModel.FormEntity.DocumentID;
+        }
+
+        StateHasChanged();
+    }
+    void HandleInvalidSubmit()
+    {
+    }
+
+    private void HandleValidSubmit()
+    {
+        var _formModels = Data;
+    }
+    void OnInput(ChangeEventArgs e)
+    {
+        string value = e.Value.ToString();
+        var count = 0;
+        if (Data.LinkID>0)
+        {
+            count = Data.LinkID.ToString().Length;
+        }
+        if (count > 0)
+        {
+            string result = value.Substring(count);
+            if (string.IsNullOrEmpty(result))
+            {
+                fileProfileTypeDocumentsAll = fileProfileTypeDocuments;
+            }
+            else{
+
+                fileProfileTypeDocumentsAll = fileProfileTypeDocuments.Where(w => w.FileName.Contains(result)).ToList();
+            }
+        }
+        else
+        {
+            fileProfileTypeDocumentsAll = fileProfileTypeDocuments;
+        }
+        StateHasChanged();
+    }
+}

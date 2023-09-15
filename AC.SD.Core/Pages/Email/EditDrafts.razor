@@ -23,7 +23,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @using System.IO;
 @using System.ComponentModel;
-@page "/EditEmailDraft/{ActiveSessionId}"
+@page "/EmailDrafts/EditEmailDraft/{ActiveSessionId}"
 <style scoped>
     .txtEditorMsg {
         height: calc(100vh - 477px);
@@ -251,15 +251,18 @@ else
                                         <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
                                         <div class="">
                                             <DxUpload @ref="uploadComponent" Name="files"
-                                                  Visible="@AttachmentUploadVisible"
-                                                  AcceptedFileTypes=@AcceptedFileTypes
-                                                  UploadMode="@UploadMode.OnButtonClick"
-                                                  UploadUrl="@GetUploadUrl()"
-                                                  AllowMultiFileUpload="true"
-                                                  ExternalSelectButtonCssSelector="#attachmentSelectButton"
-                                                  SelectedFilesChanged="@AttachmentSelectedFilesChanged"
-                                                  FileUploaded="@isUploadSuccess"
-                                                  FileUploadError="@OnUploadError">
+                                                      Visible="@AttachmentUploadVisible"
+                                                      AcceptedFileTypes=@AcceptedFileTypes
+                                                      UploadMode="@UploadMode.OnButtonClick"
+                                                      FileUploadStart="OnFileUploadStart"
+                                                      ChunkSize="200000"
+                                                      AllowMultiFileUpload="true"
+                                                      ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                                                      SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                                                      FileUploaded="@isUploadSuccess"
+                                                      FileUploadProgressChanged="@OnUploadProgressChanged"
+                                                      FileUploadStarted="@OnFileUploadStarted"
+                                                      FileUploadError="@OnUploadError">
                                             </DxUpload>
                                             <div class="alert alert-danger @(ErrorVisible? " visible" : " invisible")">@MyError</div>
                                         </div>
@@ -313,6 +316,11 @@ else
 
 
 @code {
+    int CurrentUplodCount { get; set; }
+    long applicationAddedByUserID { get; set; }
+    string MyMessage { get; set; }
+    string Message = "Upload";
+    int SelectedFilesCount { get; set; }
     private string? FileUrl;
     bool IsDraftEnabled { get; set; } = false;
     [Parameter]
@@ -405,7 +413,7 @@ else
         //    _CCparticipant = _Toparticipant.Where(c => c.FirstName != itm).ToList();
         //}       
     }
-    public string GetUploadUrl()
+    public string GetUploadUrl_old()
     {
         string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
@@ -419,12 +427,50 @@ else
     {
         NavigationManager.NavigateTo("EmailDrafts");
     }
-    private async Task isUploadSuccess()
+    private async Task isUploadSuccess_old()
     {
         //uploadComponent.RemoveAllFiles();
         //uploadComponent.CancelAllFilesUpload();
         isFileUpload = false;
         //await LoadData();
+    }
+
+    async Task OnFileUploadStart(FileUploadStartEventArgs e)
+    {
+        Message = "Uploading...";
+        
+
+
+        var SessionId = _sessionId;
+        string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
+        e.UploadUrl = url;
+    }
+    void OnFileUploadStarted(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
+        InvokeAsync(StateHasChanged);
+    }
+    void OnUploadProgressChanged(FileUploadEventArgs e)
+    {
+        var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
+    }
+    private void isUploadSuccess(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        CurrentUplodCount++;
+        var draftIdsss = draftId;
+        if (CurrentUplodCount >= SelectedFilesCount)
+        {
+            Message = "Upload";
+
+
+            onCompletedUpload();
+        }
+        InvokeAsync(StateHasChanged);
+
     }
     void OnUploadError(FileUploadErrorEventArgs e)
     {
@@ -436,6 +482,8 @@ else
     {
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
+        SelectedFilesCount = files.ToList().Count; //Count current files
+        InvokeAsync(StateHasChanged);
     }
     void onCcChanged(IEnumerable<string> newTags)
     {
@@ -670,9 +718,9 @@ else
                 Data.StartDate = actItem[0].StartDate;
                 Data.DueDate = actItem[0].DueDate;
                 Data.FileData = actItem[0].FileData;
-               // Data.IsAllowParticipants = actItem[0].IsAllowParticipants;
+                // Data.IsAllowParticipants = actItem[0].IsAllowParticipants;
                 _sessionId = actItem[0].SessionId;
-              
+
                 // ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
 
                 //List<long?> ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
@@ -705,7 +753,32 @@ else
 
 
     }   
+    void onCompletedUpload()
+    {
+       
+        ActivityEmailTopicId = 0;
+        toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+        if (ActiveSessionId != null)
+        {
+            if (draftId == 0)
+            {
+                NavigationManager.NavigateTo($"CreateEmail");
+            }
+            else
+            {
+                NavigationManager.NavigateTo($"EmailDrafts");
+            }
+        }
+        else
+        {
+             JSRuntime.InvokeAsync<string>("ReloadUrl");
+        }
 
+
+
+        onRestText();
+       JSRuntime.InvokeAsync<string>("hideLoading");
+    }
     async void HandleValidSubmit()
     {        
         await JSRuntime.InvokeAsync<string>("showLoading");
@@ -727,9 +800,17 @@ else
         //    return;
         //}
 
+        List<string> concatList = null;
 
+        if(sCCIds != null)
+        {
+            concatList = sToIds.Concat(sCCIds).ToList();
+        }
+        else
+        {
+            concatList = sToIds.ToList();
+        }
 
-        List<string> concatList = sToIds.Concat(sCCIds).ToList();
 
         foreach (var itm in concatList)
         {
@@ -743,6 +824,11 @@ else
 
         participantIds.Add(applicationUser.UserID);
 
+        if (Data.OnBehalf != null)
+        {
+            participantIds.Add(Data.OnBehalf.Value);
+        }
+
         foreach(var itm in sToIds)
         {
             var ls = _Allparticipant.Where(c => c.Name +"-"+ c.NickName == itm).ToList();
@@ -753,17 +839,18 @@ else
             }
         }
 
-        foreach (var itm in sCCIds)
+        if(sCCIds != null)
         {
-            var ls = _Allparticipant.Where(c => c.Name +"-"+ c.NickName == itm).ToList();
-
-            for (var i = 0; i < ls.Count; i++)
+            foreach (var itm in sCCIds)
             {
-                SelectedCCIds.Add(ls[i].UserID.Value);
+                var ls = _Allparticipant.Where(c => c.Name + "-" + c.NickName == itm).ToList();
+
+                for (var i = 0; i < ls.Count; i++)
+                {
+                    SelectedCCIds.Add(ls[i].UserID.Value);
+                }
             }
         }
-
-
 
         //if (@SelectedDataItems.Count > 0)
         //{
@@ -799,6 +886,26 @@ else
         //}
 
 
+        if (draftId == 0)
+        {
+            if (Data.OnBehalf != null && Data.Follow == "No Follow Up")
+            {
+                participantIds.Remove(applicationUser.UserID);
+                applicationAddedByUserID = Data.OnBehalf.Value;
+                Data.OnBehalf = applicationUser.UserID;
+            }
+            else
+            {
+                applicationAddedByUserID = applicationUser.UserID;
+            }
+        }
+        else
+        {
+            applicationAddedByUserID = applicationUser.UserID;
+        }
+
+
+
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
 
         if (fileContent.Length == 480)
@@ -828,7 +935,7 @@ else
                     OverDue = Data.OverDue,
                     FileData = fileContent,
                     StatusCodeID = 1,
-                    AddedByUserID = applicationUser.UserID,
+                    AddedByUserID = applicationAddedByUserID,
                     AddedDate = DateTime.Now,
                     // SessionId = Guid.NewGuid(),
                     SessionId = _sessionId,
@@ -845,26 +952,41 @@ else
             //_sessionId = createReq.SessionId;
             var result = await Mediator.Send(createReq);
             if (result != null)
-            {                    
-                uploadComponent.UploadAllFiles();
-                await Task.Delay(2000); // Delay for 2 seconds
+            {      
 
-                //   onShowPopupMessage("success", "Topic have been saved successully");
-                ActivityEmailTopicId = 0;
-                toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
-                if (ActiveSessionId != null)
+                if (SelectedFilesCount > 0)
                 {
-                    NavigationManager.NavigateTo($"CreateEmail");
+                    uploadComponent.UploadAllFiles();
                 }
                 else
                 {
-                    await JSRuntime.InvokeAsync<string>("ReloadUrl");
+                    ActivityEmailTopicId = 0;
+                    toastService.ShowToast("Topic have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+                    if (ActiveSessionId != null)
+                    {
+                        if(draftId == 0)
+                        {
+                           NavigationManager.NavigateTo($"CreateEmail");
+                        }
+                        else
+                        {
+                            NavigationManager.NavigateTo($"EmailDrafts");
+                        }
+                       
+                    }
+                    else
+                    {
+                        await JSRuntime.InvokeAsync<string>("ReloadUrl");
+                    }
+
+
+
+                    onRestText();
+                    await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
 
-
-
-                onRestText();
-                await JSRuntime.InvokeAsync<string>("hideLoading");
+               
+                
             }
             else
             {

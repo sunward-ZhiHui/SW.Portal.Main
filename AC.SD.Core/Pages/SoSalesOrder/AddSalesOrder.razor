@@ -15,8 +15,36 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
-@page "/AddSalesOrder"
-@page "/AddSalesOrder/{SessionIds:guid}"
+@page "/SalesOrder/AddSalesOrder"
+@page "/SalesOrder/AddSalesOrder/{SessionIds:guid}"
+<style scoped>
+
+    #customers {
+        /* font-family: Arial, Helvetica, sans-serif;
+                                                                border-collapse: collapse;*/
+        width: 100%;
+    }
+
+        #customers td, #customers th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #customers tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #customers tr:hover {
+            background-color: #ddd;
+        }
+
+        #customers th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+</style>
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -75,7 +103,7 @@
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                    @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
+                        @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
                                                     Caption="Customer Name"
@@ -107,8 +135,9 @@
                                     FilteringMode="DataGridFilteringMode.Contains"
                                     TextFieldName="CustomerName"
                                     ValueFieldName="SoCustomerId"
+                                    EditFormat="{0}-{1}"
                                     ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                    @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true"
+                        @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true"
                                     SelectedItemChanged="@((SoCustomer soCustomer) => SelectedItemChanged(soCustomer))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(SoCustomer.CustomerName)"
@@ -121,6 +150,11 @@
                                 <DxListEditorColumn FieldName="@nameof(SoCustomer.Type)"
                                                     Caption="Type" />
                             </Columns>
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container-customer-info")
+                                                Tooltip="Pricing Info"
+                                                Click="@(_ => OnButtonCustomerClick())" />
+                            </Buttons>
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.SoCustomerId)" />
                     </DxFormLayoutItem>
@@ -178,7 +212,76 @@
          HeaderText="@MessageHeader"
          BodyText="@MessageBody" />
 
+<DxFlyout @bind-IsOpen=IsCustomerOpen
+          PositionTarget=@($"#flyout-overview-target-container-customer-info")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick=false
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <div class="custom-flyout-body" style="width:100%">
 
+            <table style="width:100%" id="customers">
+                @if (@soCustomer1.SoCustomerId > 0)
+                {
+                    <tr>
+                        <th>Name</th>
+                        <td>@soCustomer1.CustomerName</td>
+                    </tr>
+                    <tr>
+                        <th>Ship Code</th>
+                        <td>@soCustomer1.ShipCode</td>
+                    </tr>
+                    <tr>
+                        <th>Assign To Rep</th>
+                        <td>@soCustomer1.AssignToRep</td>
+                    </tr>
+                    <tr>
+                        <th>Address1</th>
+                        <td>@soCustomer1.Address1</td>
+                    </tr>
+                    <tr>
+                        <th>Address2</th>
+                        <td>@soCustomer1.Address2</td>
+                    </tr>
+                    <tr>
+                        <th>State Code</th>
+                        <td>@soCustomer1.StateCode</td>
+                    </tr>
+                    <tr>
+                        <th>City</th>
+                        <td>@soCustomer1.City</td>
+                    </tr>
+                    <tr>
+                        <th>PostCode</th>
+                        <td>@soCustomer1.PostCode</td>
+                    </tr>
+                    <tr>
+                        <th>Channel</th>
+                        <td>@soCustomer1.Channel</td>
+                    </tr>
+                }
+                else
+                {
+                    <tr><td colspan="2">No Records Found.</td></tr>
+                }
+            </table>
+
+        </div>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsCustomerOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
     public long? SoSalesOrderId { get; set; }
     SalesOrderLine? RefSalesOrderLine { get; set; }
@@ -194,7 +297,8 @@
     List<SoSalesOrder> AccodianData { get; set; }
     private List<SoCustomer>? _AllSoCustomer;
     private List<ViewPlants>? _plantItems;
-
+    bool IsCustomerOpen { get; set; } = false;
+    SoCustomer soCustomer1 = new SoCustomer();
     SoSalesOrder Data = new SoSalesOrder();
 
     //  ViewSoSalesOrder Data = new ViewSoSalesOrder();
@@ -213,15 +317,20 @@
             Data.ShipCode = soCustomer.ShipCode;
             Data.AssignToRep = soCustomer.AssignToRep;
             Data.Address1 = soCustomer.Address1;
+            soCustomer1 = soCustomer;
         }
         else
         {
+            soCustomer1 = new SoCustomer();
             Data.ShipCode = "";
             Data.AssignToRep = "";
             Data.Address1 = "";
         }
     }
-
+    void OnButtonCustomerClick()
+    {
+        IsCustomerOpen = true;
+    }
     protected override async Task OnInitializedAsync()
     {
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
@@ -242,7 +351,7 @@
 
         SoSalesOrderId = -1;
         ActiveSubTabIndex = 0;
-        NavigationManager.NavigateTo("AddSalesOrder");
+        NavigationManager.NavigateTo("SalesOrder/AddSalesOrder");
     }
 
     void onsubmitClick()
@@ -305,7 +414,7 @@
             SoSalesOrderId = result.SoSalesOrderId;
             ActiveSubTabIndex = 0;
             loading = false;
-            NavigationManager.NavigateTo("EditSalesOrder/" + createReq.SessionId + "");
+            NavigationManager.NavigateTo("SalesOrder/EditSalesOrder/" + createReq.SessionId + "");
             StateHasChanged();
         }
     }

@@ -33,7 +33,7 @@
         <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
         @* <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
         <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@        
-        <DxGridDataColumn FieldName="FirstName" Caption="">
+        <DxGridDataColumn FieldName="FirstName" Caption="From">
             <CellDisplayTemplate>
                 @{
                     var item = (EmailTopics)context.DataItem;
@@ -76,7 +76,7 @@
                 </DxContextMenu>
             </CellDisplayTemplate>
         </DxGridDataColumn>       
-        <DxGridDataColumn FieldName="PinStatus" Caption=" " SortOrder="GridColumnSortOrder.Descending" GroupIndex="0" Width="10%">
+        <DxGridDataColumn FieldName="PinStatus" Caption=" " Width="10%" Visible=false>
         <GroupRowTemplate>
                 @*<text>@context.DataColumn.FieldName =  @context.GroupValue</text>  *@               
                 

@@ -10,9 +10,9 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@page "/AddFileProfileTypes"
-@page "/AddFileProfileTypes/{Type}"
-@page "/AddFileProfileTypes/{Type}/{SessionId:guid}"
+@page "/fileprofiletype/AddFileProfileTypes"
+@page "/fileprofiletype/AddFileProfileTypes/{Type}"
+@page "/fileprofiletype/AddFileProfileTypes/{Type}/{SessionId:guid}"
 <div class="card" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <div class="row">
@@ -78,6 +78,7 @@
                     <FileProfileTypeSecurity FileProfileTypeId="@FileProfileTypeId"></FileProfileTypeSecurity>
                 </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Upload Details Form" Visible=@IsFileProfileTypeId>
+                    <UploadDetailsSetUpForm FileProfileTypeId="@FileProfileTypeId"></UploadDetailsSetUpForm>
                 </DxFormLayoutTabPage>
             </DxFormLayoutTabPages>
         </DxFormLayout>
@@ -85,6 +86,7 @@
 </div>
 
 @code {
+    
     [Parameter]
     public Guid? SessionId { get; set; }
     [Parameter]
@@ -105,7 +107,6 @@
     {
         _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         
-        _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
     protected override async Task OnParametersSetAsync()
     {

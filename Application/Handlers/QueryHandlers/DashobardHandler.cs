@@ -26,7 +26,20 @@ namespace CMS.Application.Handlers.QueryHandlers
             //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
         }
     }
+    public class EmailDashobardHandler : IRequestHandler<GetEmailDasboard, List<EmailTopics>>
+    {
 
+        private readonly IDashboardQueryRepository _queryRepository;
+        public EmailDashobardHandler(IDashboardQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetEmailDasboard request, CancellationToken cancellationToken)
+        {
+            return (List<EmailTopics>)await _queryRepository.GetEailDashboard();
+            //return (List<ForumTypes>)await _roleQueryRepository.GetAllAsync();
+        }
+    }
     public class GetEmailSchedulerListHandler : IRequestHandler<GetEmailSchedulerList, List<EmailScheduler>>
     {   
         private readonly IDashboardQueryRepository _dashboardQueryRepository;
@@ -156,6 +169,50 @@ namespace CMS.Application.Handlers.QueryHandlers
             //    }
             //};
             //return dataSource;
+        }
+
+        public class GetEmployeeCountHandler : IRequestHandler<GetEmployeeCount, List<GeneralDashboard>>
+        {
+
+            private readonly IDashboardQueryRepository _queryRepository;
+            public GetEmployeeCountHandler(IDashboardQueryRepository queryRepository)
+            {
+                _queryRepository = queryRepository;
+            }
+            public async Task<List<GeneralDashboard>> Handle(GetEmployeeCount request, CancellationToken cancellationToken)
+            {
+               
+                return (List<GeneralDashboard>)await _queryRepository.GetEmployeeCountAsync();
+            }
+        }
+        public class GetGenderRatioHandler : IRequestHandler<GetGenderRatio, List<GenderRatio>>
+        {
+
+            private readonly IDashboardQueryRepository _queryRepository;
+            public GetGenderRatioHandler(IDashboardQueryRepository queryRepository)
+            {
+                _queryRepository = queryRepository;
+            }
+            public async Task<List<GenderRatio>> Handle(GetGenderRatio request, CancellationToken cancellationToken)
+            {
+
+                return (List<GenderRatio>)await _queryRepository.GetGenderRatioAsync();
+            }
+        }
+
+        public class EmailRatioHandler : IRequestHandler<GetEmailRatio, List<EmailRatio>>
+        {
+
+            private readonly IDashboardQueryRepository _queryRepository;
+            public EmailRatioHandler(IDashboardQueryRepository queryRepository)
+            {
+                _queryRepository = queryRepository;
+            }
+            public async Task<List<EmailRatio>> Handle(GetEmailRatio request, CancellationToken cancellationToken)
+            {
+
+                return (List<EmailRatio>)await _queryRepository.GetEmailRatioAsync(request.UserId);
+            }
         }
     }
 }

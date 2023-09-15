@@ -30,5 +30,6 @@ namespace Core.EntityModels
         public string WikiStatusType { get; set; }
         public Guid? MainSessionId { get; set; }
         public string FilePath { get; set; }
+        public bool? IsNewPath { get; set; }
     }
 }

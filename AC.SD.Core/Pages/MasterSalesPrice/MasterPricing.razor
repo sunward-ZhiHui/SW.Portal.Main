@@ -136,11 +136,11 @@
     }
     void addNew()
     {
-        NavigationManager.NavigateTo("AddMasterPricing");
+        NavigationManager.NavigateTo("MasterPricing/AddMasterPricing");
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("EditMasterPricing/" + _selectedItems.SessionId + "");
+        NavigationManager.NavigateTo("MasterPricing/EditMasterPricing/" + _selectedItems.SessionId + "");
     }
     async Task addDelete()
     {

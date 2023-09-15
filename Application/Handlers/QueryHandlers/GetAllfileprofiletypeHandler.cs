@@ -15,16 +15,30 @@ using System.Threading.Tasks;
 
 namespace Application.Handlers.QueryHandlers
 {
-    public class GetAllfileprofiletypeHandler : IRequestHandler<GetAllfileprofiletypeQuery, List<Fileprofiletype>>
+
+    public class DeleteFileProfileTypeHandler : IRequestHandler<DeleteFileProfileType, long?>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
-        public GetAllfileprofiletypeHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        public DeleteFileProfileTypeHandler(IFileprofileQueryRepository fileprofileQueryRepository)
         {
             _fileprofileQueryRepository = fileprofileQueryRepository;
         }
-        public async Task<List<Fileprofiletype>> Handle(GetAllfileprofiletypeQuery request, CancellationToken cancellationToken)
+        public async Task<long?> Handle(DeleteFileProfileType request, CancellationToken cancellationToken)
         {
-            return (List<Fileprofiletype>)await _fileprofileQueryRepository.GetAllAsync(request.FileProfileTypeID);
+            return await _fileprofileQueryRepository.DeleteFileProfileType(request.FileProfileTypeID);
+        }
+
+    }
+    public class GetFileProfileTypeDocumentDeleteHandler : IRequestHandler<GetFileProfileTypeDocumentDelete, DocumentsModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetFileProfileTypeDocumentDeleteHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<DocumentsModel> Handle(GetFileProfileTypeDocumentDelete request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.GetFileProfileTypeDocumentDelete(request.DocumentsModel);
         }
 
     }
@@ -94,19 +108,7 @@ namespace Application.Handlers.QueryHandlers
 
     }
 
-    public class GetFileProfileTypeDeleteHandler : IRequestHandler<GetFileProfileTypeDelete, DocumentsModel>
-    {
-        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
-        public GetFileProfileTypeDeleteHandler(IFileprofileQueryRepository fileprofileQueryRepository)
-        {
-            _fileprofileQueryRepository = fileprofileQueryRepository;
-        }
-        public async Task<DocumentsModel> Handle(GetFileProfileTypeDelete request, CancellationToken cancellationToken)
-        {
-            return await _fileprofileQueryRepository.GetFileProfileTypeDelete(request.DocumentsModel);
-        }
 
-    }
     public class GetFileProfileTypeCheckOutHandler : IRequestHandler<GetFileProfileTypeCheckOut, DocumentsModel>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
@@ -175,23 +177,43 @@ namespace Application.Handlers.QueryHandlers
     public class GetFileDownloadHandler : IRequestHandler<GetFileDownload, DocumentsModel>
     {
         private readonly IConfiguration _configuration;
-        public GetFileDownloadHandler(IConfiguration configuration)
+        private readonly IDocumentsQueryRepository _documentsQueryRepository;
+        public GetFileDownloadHandler(IConfiguration configuration, IDocumentsQueryRepository documentsQueryRepository)
         {
             _configuration = configuration;
+            _documentsQueryRepository = documentsQueryRepository;
         }
         public Task<DocumentsModel> Handle(GetFileDownload request, CancellationToken cancellationToken)
         {
             var response = new DocumentsModel
             {
                 DocumentID = request.DocumentId.Value,
-                FileName = request.FileName,
+
             };
-            if (request.FilePath != null)
+            var documents = _documentsQueryRepository.GetByOneAsync(request.DocumentId);
+            if (documents != null && documents.FilePath != null)
             {
-                var url = _configuration["DocumentsUrl:ServerUrl"] + request.FilePath;
-                var webClient = new WebClient();
+                response.FileName = documents.FileName;
+                if (documents.IsNewPath == true)
                 {
-                    response.ImageData = webClient.DownloadData(new Uri(url));
+                    var filePath = "AppUpload/" + documents.FilePath;
+                    if (File.Exists(filePath))
+                    {
+                        response.ImageData = File.ReadAllBytes(filePath);
+                    }
+                    else
+                    {
+                        response.StatusCodeID = 0;
+                    }
+                }
+                else
+                {
+                    var url = _configuration["DocumentsUrl:ServerUrl"] + documents.FilePath;
+                    var webClient = new WebClient();
+                    {
+                        response.ImageData = webClient.DownloadData(new Uri(url));
+                    }
+
                 }
             }
             return Task.FromResult(response);
@@ -260,6 +282,19 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<DocumentProfileNoSeriesModel>> Handle(GetDocumentProfiles request, CancellationToken cancellationToken)
         {
             return (List<DocumentProfileNoSeriesModel>)await _fileprofileQueryRepository.GetDocumentProfiles();
+        }
+
+    }
+    public class GetDocumentProfileNoSeriesByIdHandler : IRequestHandler<GetDocumentProfileNoSeriesById, DocumentProfileNoSeriesModel>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetDocumentProfileNoSeriesByIdHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<DocumentProfileNoSeriesModel> Handle(GetDocumentProfileNoSeriesById request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.GetDocumentProfileNoSeriesById(request.Id);
         }
 
     }
@@ -341,5 +376,121 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    
+    public class GetFileProfileSetupFormListHandler : IRequestHandler<GetFileProfileSetupFormList, List<FileProfileSetupFormModel>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetFileProfileSetupFormListHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<FileProfileSetupFormModel>> Handle(GetFileProfileSetupFormList request, CancellationToken cancellationToken)
+        {
+            return (List<FileProfileSetupFormModel>)await _fileprofileQueryRepository.GetFileProfileSetupFormList(request.Id);
+        }
+
+    }
+    public class GetReserveProfileNumberSeriesHandler : IRequestHandler<GetReserveProfileNumberSeries, List<DocumentNoSeriesModel>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetReserveProfileNumberSeriesHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<DocumentNoSeriesModel>> Handle(GetReserveProfileNumberSeries request, CancellationToken cancellationToken)
+        {
+            return (List<DocumentNoSeriesModel>)await _fileprofileQueryRepository.GetReserveProfileNumberSeries(request.Id, request.ProfileId);
+        }
+
+    }
+
+    public class InsertCreateDocumentHandler : IRequestHandler<InsertCreateDocument, DocumentsUploadModel>
+    {
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        public InsertCreateDocumentHandler(IDocumentsQueryRepository documentsqueryrepository)
+        {
+            _documentsqueryrepository = documentsqueryrepository;
+        }
+        public async Task<DocumentsUploadModel> Handle(InsertCreateDocument request, CancellationToken cancellationToken)
+        {
+            return await _documentsqueryrepository.InsertCreateDocument(request.DocumentsUploadModel);
+        }
+
+    }
+    public class UpdateCreateDocumentBySessionHandler : IRequestHandler<UpdateCreateDocumentBySession, DocumentsUploadModel>
+    {
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        public UpdateCreateDocumentBySessionHandler(IDocumentsQueryRepository documentsqueryrepository)
+        {
+            _documentsqueryrepository = documentsqueryrepository;
+        }
+        public async Task<DocumentsUploadModel> Handle(UpdateCreateDocumentBySession request, CancellationToken cancellationToken)
+        {
+            return await _documentsqueryrepository.UpdateCreateDocumentBySession(request.DocumentsUploadModel);
+        }
+
+    }
+    public class InsertOrUpdateReserveProfileNumberSeriesHandler : IRequestHandler<InsertOrUpdateReserveProfileNumberSeries, DocumentNoSeriesModel>
+    {
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        public InsertOrUpdateReserveProfileNumberSeriesHandler(IDocumentsQueryRepository documentsqueryrepository)
+        {
+            _documentsqueryrepository = documentsqueryrepository;
+        }
+        public async Task<DocumentNoSeriesModel> Handle(InsertOrUpdateReserveProfileNumberSeries request, CancellationToken cancellationToken)
+        {
+            return await _documentsqueryrepository.InsertOrUpdateReserveProfileNumberSeries(request.DocumentNoSeriesModel);
+        }
+        public class UpdateCreateDocumentBySessionReserveSeriesHandler : IRequestHandler<UpdateCreateDocumentBySessionReserveSeries, DocumentNoSeriesModel>
+        {
+            private readonly IDocumentsQueryRepository _documentsqueryrepository;
+            public UpdateCreateDocumentBySessionReserveSeriesHandler(IDocumentsQueryRepository documentsqueryrepository)
+            {
+                _documentsqueryrepository = documentsqueryrepository;
+            }
+            public async Task<DocumentNoSeriesModel> Handle(UpdateCreateDocumentBySessionReserveSeries request, CancellationToken cancellationToken)
+            {
+                return await _documentsqueryrepository.UpdateCreateDocumentBySessionReserveSeries(request.DocumentNoSeriesModel);
+            }
+        }
+        public class UpdateReserveNumberDescriptionFieldHandler : IRequestHandler<UpdateReserveNumberDescriptionField, DocumentNoSeriesModel>
+        {
+            private readonly IDocumentsQueryRepository _documentsqueryrepository;
+            public UpdateReserveNumberDescriptionFieldHandler(IDocumentsQueryRepository documentsqueryrepository)
+            {
+                _documentsqueryrepository = documentsqueryrepository;
+            }
+            public async Task<DocumentNoSeriesModel> Handle(UpdateReserveNumberDescriptionField request, CancellationToken cancellationToken)
+            {
+                return await _documentsqueryrepository.UpdateReserveNumberDescriptionField(request.DocumentNoSeriesModel);
+            }
+        }
+        public class GetAllDocumentDeleteHandler : IRequestHandler<GetAllDocumentDelete, DocumentTypeModel>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public GetAllDocumentDeleteHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<DocumentTypeModel> Handle(GetAllDocumentDelete request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.GetAllDocumentDeleteAsync();
+            }
+
+        }
+        public class ReStoreFileProfileTypeAndDocumentHandler : IRequestHandler<ReStoreFileProfileTypeAndDocument, DocumentsModel>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public ReStoreFileProfileTypeAndDocumentHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<DocumentsModel> Handle(ReStoreFileProfileTypeAndDocument request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.ReStoreFileProfileTypeAndDocument(request.DocumentsModel);
+            }
+
+        }
+        
+
+    }
 }

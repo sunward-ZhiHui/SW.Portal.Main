@@ -14,6 +14,25 @@ namespace Application.Queries
     public class GetAllToDoNotesHistory : PagedRequest, IRequest<List<ToDoNotesHistory>>
     {
     }
+    public class GetMyToDoDueDate : PagedRequest, IRequest<List<ToDoNotesHistory>>
+    {
+        public long UserId { get; set; }
+        public GetMyToDoDueDate(long userID)
+        {
+            this.UserId = userID;
+        }
+    }
+
+    public class GetMyToDoRemainderDate : PagedRequest, IRequest<List<ToDoNotesHistory>>
+    {
+   
+        public long UserId { get; set; }
+        public GetMyToDoRemainderDate(long userID)
+        {            
+            this.UserId = userID;
+        }
+    }
+
     public class GetByToDoNotesHistory : PagedRequest, IRequest<List<ToDoNotesHistory>>
     {
         public long NotesId { get; set; }
@@ -22,6 +41,23 @@ namespace Application.Queries
         {
             this.NotesId = notesId;
             this.UserId = userID;
+        }
+    }
+    public class GetByToDoSessionId : PagedRequest, IRequest<List<ToDoNotesHistory>>
+    {
+        public Guid SessionId { get; set; }
+        
+        public GetByToDoSessionId(Guid SessionId)
+        {
+            this.SessionId = SessionId;            
+        }
+    }
+    public class GetByToDoDocuments : PagedRequest, IRequest<List<Documents>>
+    {       
+        public string SessionId { get; set; }
+        public GetByToDoDocuments(string SessionId)
+        {
+            this.SessionId = SessionId;            
         }
     }
 
@@ -39,5 +75,24 @@ namespace Application.Queries
         {
             this.ID = ID;
         }
-    }    
+    }
+    public class GetUserList : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+
+        public string UserId { get; set; }
+        public GetUserList(string userID)
+        {
+            this.UserId = userID;
+        }
+    }
+    public class StatusChangedQuery : PagedRequest, IRequest<long>
+    {
+        public long ID { get; set; }
+        public StatusChangedQuery(long ID)
+        {
+            this.ID = ID;
+        }
+    }
+
+    
 }

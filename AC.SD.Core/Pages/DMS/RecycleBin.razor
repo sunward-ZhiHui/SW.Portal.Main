@@ -1,0 +1,312 @@
+﻿@page "/fileprofiletype/RecycleBin"
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+<div class="menu-bar-content-container col-md-12">
+    <div class="card w-100" style="margin-bottom:1px;">
+
+
+
+        <div class="card-body p-0">
+
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+
+                <Items>
+                    <DxMenuItem Text="Restore" IconCssClass="fa fa-trash-restore" Click="onRestoreDocument" Enabled="@onRestoreEnabled"></DxMenuItem>
+                </Items>
+            </DxMenu>
+
+        </div>
+
+
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="fileProfileTypeDocuments"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="UniqueNo"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="w-100"
+            style="height: calc(100vh - 250px);"
+            FocusedRowEnabled="true"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            AllowSelectRowByClick="true">
+        <Columns>
+            
+            <DxGridSelectionColumn Width="60px" FixedPosition="GridColumnFixedPosition.Left" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="UniqueNo" Visible="false" />
+            <DxGridDataColumn FieldName="FileName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="270">
+                <CellDisplayTemplate>
+
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                        var contentType = item.ContentType != null ? item.ContentType.Split("/").First().ToLower() : "";
+                    }
+                    @if (item.Type == "Document")
+                    {
+                        @if (item.Extension == "xlsx" || item.Extension == "xls")
+                        {
+                            <i class="fa fa-file-excel" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "ppt" || item.Extension == "pptx")
+                        {
+                            <i class="fa fa-file-powerpoint" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#C03F1F;" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "doc" || item.Extension == "docx")
+                        {
+                            <i class="fa fa-file-word" aria-hidden="true" style="padding:5px;margin-right: 5px;color:blue;" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "pdf")
+                        {
+                            <i class="fa fa-file-pdf" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red;" title="@item.FileName"></i>
+                        }
+                        else if (item.Extension == "txt")
+                        {
+                            <i class="fa fa-file-text" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.FileName"></i>
+                        }
+                        else
+                        {
+                            if (contentType == "image")
+                            {
+                                <i class="fa fa-file-image" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1E3050" title="@item.FileName"></i>
+                            }
+                            else if (contentType == "video")
+                            {
+                                <i class="fa fa-file-video" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@item.FileName"></i>
+                            }
+                            else
+                            {
+                                <i class="fa fa-file" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.FileName"></i>
+                            }
+                        }
+                        @if (item.IsLocked == true)
+                        {
+                            <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.LockedByUser"></i>
+                        }
+
+                    }
+                    else
+                    {
+                        <i class="fa fa-folder" aria-hidden="true" style="padding:5px;margin-right: 5px;color:yellow" title="@item.FileName"></i>
+                    }
+                    @item.FileName
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="DocumentPath" FixedPosition="GridColumnFixedPosition.Left" Caption="Path" MinWidth="270" />
+            <DxGridDataColumn FieldName="ProfileNo" FixedPosition="GridColumnFixedPosition.Left" Caption="Profile" MinWidth="170" />
+            <DxGridDataColumn FieldName="FileSizes" FixedPosition="GridColumnFixedPosition.Left" Caption="File Size" MinWidth="170">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                    }
+
+                    @(item.FileSizes + (!string.IsNullOrEmpty(item.FileCounts) ? ("," + item.FileCounts) : ""))
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="DeleteByUser" Caption="Deleted By" FixedPosition="GridColumnFixedPosition.Left" MinWidth="200">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="DeleteByDate" Caption="Deleted Date" MinWidth="170" FixedPosition="GridColumnFixedPosition.Left">
+
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="170" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added" MinWidth="170" />
+            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="170" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified" MinWidth="170" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@BlukdeleteDocument"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupDocumentClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to Restore?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="OnRestroeDocument" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="Restore" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+
+
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+
+
+</DxPopup>
+@code {
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public ApplicationUser applicationUser { get; private set; }
+    private List<DocumentsModel> fileProfileTypeDocuments { get; set; }
+    private DocumentTypeModel _fileProfileselectedlstItems { get; set; }
+    private DocumentsModel _selectedItems;
+    bool PanelVisible { get; set; }
+    bool onRestoreEnabled { get; set; } = false;
+    IGrid Grid { get; set; }
+    DxPopup? popup;
+    string? DeleteerrorMessage;
+    bool PopupVisible { get; set; } = false;
+    bool BlukdeleteDocument { get; set; } = false;
+    public string RestoreDocumentName { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await OnLoadData();
+    }
+    async Task OnLoadData()
+    {
+        PanelVisible = true;
+
+         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        _fileProfileselectedlstItems = await Mediator.Send(new GetAllDocumentDelete());
+        fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
+        onRestoreEnabled = false;
+        if (fileProfileTypeDocuments != null && fileProfileTypeDocuments.Count > 0)
+        {
+            fileProfileTypeDocuments.ForEach(s =>
+            {
+                var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, s.FileProfileTypeId);
+                s.DocumentPath = lists.FirstOrDefault()?.FileProfilePath;
+                s.FileProfileTypeParentId = lists.FirstOrDefault()?.FileProfileTypeParentId;
+            });
+            _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
+            onRestoreEnabled = true;
+            Grid.SetFocusedRowIndex(0);
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel> foldersList = new List<FileProfileTypeModel>();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string> FolderPathLists = new List<string>();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<string> foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UniqueNo");
+        _selectedItems = fileProfileTypeDocuments.FirstOrDefault(f => f.UniqueNo == (long?)UniqueId);
+
+        StateHasChanged();
+    }
+    void EulaPopupDocumentClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        BlukdeleteDocument = false;
+        PopupVisible = false;
+    }
+    void onRestoreDocument()
+    {
+        BlukdeleteDocument = true;
+    }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+        await OnLoadData();
+    }
+    async Task OnRestroeDocument()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is DocumentsModel items)
+                    {
+                        var response = await Mediator.Send(new ReStoreFileProfileTypeAndDocument(items));
+                        if (response.DocumentID > 0)
+                        {
+                            BlukdeleteDocument = false;
+                            toastService.ShowToast("Record Restored Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                            await OnLoadData();
+                            Grid.SetFocusedRowIndex(0);
+                        }
+                    }
+                }
+                Grid.ClearSelection();
+            }
+        }
+        catch (Exception eq)
+        {
+            BlukdeleteDocument = false;
+            toastService.ShowToast("The Selected Record Do not Restored", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+    }
+}

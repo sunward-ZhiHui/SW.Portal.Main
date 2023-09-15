@@ -43,7 +43,20 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"select * from ChangeControlForm  CCF 
+                var query = @"select CCFA.CCFAInformationID,CCFA.IsInternalChanges,CCFA.InitiatorDate,CCFA.IsAuthorityDirectedChanges,CCFA.PIC,CCFA.PIA,CCFA.DepartmentID,CCFA.IsSiteTransfer,CCFA.IsProduct,CCFA.IsEquipment,
+                                CCFA.IsComposition,CCFA.IsFacility,CCFA.IsLayout,CCFA.IsDocument,CCFA.IsProcess,CCFA.IsControlParameter,CCFA.IsBatchSize,CCFA.IsHoldingTime,CCFA.IsRawMeterial,CCFA.IsArtwork,CCFA.IsPackagingMaterial,CCFA.IsVendor,
+                                CCFA.IsShelfLife,CCFA.IsRegulatory,CCFA.IsReTestPeriod,CCFA.Others,CCFA.DescriptionOfProposedChange ,CCFA.Justification,CCFA.ProposedImplementationAction,CCFA.RelatedDeviation,
+                                CCFB.CCFBEvaluationID,CCFB.EvaluationDate,CCFB.IsAcceptable,CCFB.IsNotAcceptable,CCFB.IsMinor,CCFB.IsMajor,CCFB.IsCritical,CCFB.Comments,CCFB.IsProduction,CCFB.IsEAndM,CCFB.IsRequlatory,CCFB.IsQA,CCFB.IsQC,CCFB.IsStore,CCFB.RelatedDeparmentOthers,CCFB.EvaluatedBy,CCFB.IsRequlatoryApproval,
+                                CCFB.IsNotificationRequired,CCFB.RegulatoryOthers,CCFB.RegulatoryDetails,CCFB.RequlatoryEvaluatedBy,CCFB.RegulatoryDate,CCFB.IsAnalyticalInstrument,CCFB.IsValidation,CCFB.IsEnvironmentalMonitoring,CCFB.IsRawMeterialSpec,CCFB.IsFinishedProductSpec,
+                                CCFB.IsPackagingMaterialSpec,CCFB.IsCalibration,CCFB.IsAnalyticalTestMethod,CCFB.IsSamplingMethod,CCFB.IsVendor as EvaluationIsVendor,CCFB.IsStabilityStudy,CCFB.IsInProcess,CCFB.QualityControlOthers,CCFB.QualityControlDetails,CCFB.QualityControlEvaluatedBy,CCFB.QualityControlDate,CCFB.IsProductionProcess,CCFB.IsProductionValidation,CCFB.IsControlParameter as EvaluationIsControlParameter,
+                                CCFB.ProductionOthers,CCFB.ProductionDetails,CCFB.ProductionEvaluatedBy,CCFB.ProductionDate,CCFB.IsPiping,CCFB.IsEquipment as EvaluationIsEquipment,CCFB.IsEngineeringCalibration,CCFB.IsPreventiveMaintenance,CCFB.IsUtilityParameter,CCFB.IsEngineeringFacility,CCFB.IsQualificationOfEquipment,CCFB.IsQualificationOfUtility,CCFB.EngineeringOthers,CCFB.EngineeringDetails,CCFB.EngineeringEvaluatedBy,CCFB.EngineeringMaintenanceDate,CCFB.IsQAQualification,CCFB.IsQAValidation,CCFB.IsQAVendor,
+                                CCFB.QAOthers,CCFB.QADetails,CCFB.QAEvaluatedBy,CCFB.QADate,CCFB.IsStoreRawMaterial,CCFB.IsStorePackagingMaterial,CCFB.IsStoreLabel,CCFB.IsStorageCondition,CCFB.IsStoreFinishProduct,CCFB.StoreOthers,CCFB.StoreDetails,
+                                CCFB.StoreEvaluatedBy,CCFB.StoreDate,CCFB.ProposedChangeImpactTo,CCFB.OthersDetails,CCFB.OthersEvaluatedBy,CCFB.OthersDate ,CCFC.CCFCAPprovalID ,CCFC.IsApproved ,CCFC.IsNotApproved ,CCFC.Comments as ApprovalComments ,CCFC.VerifiedBy ,CCFC.ApprovalDate ,
+                                CCFD.CCFDImplementationID ,CCFD.ClassOfDocumentID , CCFD.HODComments ,CCFD.HODSignature ,CCFD.HODDate ,CCFD.IsAcceptable as ImplementationIsAcceptable ,CCFD.IsNotAcceptable as ImplementationIsNotAcceptable ,CCFD.VerifiedBy as ImplementationVerifiedBy , CCFD.VerifiedDate ,
+                                CCFE.CCFEClosureID,CCFE.IsSatisfactory,CCFE.IsNotSatisfactory,CCFE.Comments as ClosureComments,CCFE.ClosedBy,CCFE.Date,CCFE.IsSatisfactoryForNotSatisfactory,CCFE.NotSatisfactoryClosedBy,CCFE.NotSatisfactoryDate,
+                                CCFCD.CCFDImplementationDetailsID,CCFCD.CCFDImplementationID AS DetailCCFDImplementationID,CCFCD.IsRequired,CCFCD. ResponsibiltyTo,CCFCD.DoneBy,CCFCD.DoneByDate
+
+                                 from ChangeControlForm  CCF 
                     Inner join CCFAInformation CCFA on CCFA.SessionId =CCF.SessionId
                     Inner Join CCFBEvaluation CCFB on CCFB.SessionId = CCF.SessionId
                     inner join CCFCAPproval CCFC on CCFC.SessionId = CCF.SessionId
@@ -91,13 +104,11 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("StatusCodeID", cCFDImplementation.StatusCodeID);
 
                             // var query = " Insert into  CCFDImplementationDetails (ClassOFDocumentID,IsRequired,DoneBy,DoneByDate,ResponsibiltyTo,AddedDate,SessionId,AddedByUserID,StatusCodeID)Values(@ClassOFDocumentID,@IsRequired,@DoneBy,@DoneByDate,@ResponsibiltyTo,@AddedDate,@SessionId,@AddedByUserID,@StatusCodeID)";
-                            var query = @"insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(79,@SessionId,@AddedByUserID,@StatusCodeID)
-                                        insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(80,@SessionId,@AddedByUserID,@StatusCodeID)
-                                        insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(81,@SessionId,@AddedByUserID,@StatusCodeID)
-                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(82,@SessionId,@AddedByUserID,@StatusCodeID)
-                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(83,@SessionId,@AddedByUserID,@StatusCodeID)
-                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(84,@SessionId,@AddedByUserID,@StatusCodeID)
-                                       insert into CCFDImplementationDetails(ClassOFDocumentID,SessionId,AddedByUserID,StatusCodeID)Values(85,@SessionId,@AddedByUserID,@StatusCodeID)";
+                            var query = @"insert into CCFDImplementationDetails (ClassOFDocumentID,SessionId ,AddedByUserID,StatusCodeID) 
+                                        select ApplicationMasterDetailID ,@SessionId ,@AddedByUserID,@StatusCodeID from ApplicationMasterDetail
+                                        WHERE  ApplicationMasterID in (select ApplicationMasterID from ApplicationMaster WHERE ApplicationMasterCodeID = 350 )";
+
+                                        
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
                             transaction.Commit();

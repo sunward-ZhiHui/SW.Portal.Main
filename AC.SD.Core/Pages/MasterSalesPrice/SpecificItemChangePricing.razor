@@ -136,11 +136,11 @@
     }
     void addNew()
     {
-        NavigationManager.NavigateTo("AddItemChangePrice");
+        NavigationManager.NavigateTo("SpecificItemChangePricing/AddItemChangePrice");
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("EditItemChangePrice/" + _selectedItems.SessionId + "");
+        NavigationManager.NavigateTo("SpecificItemChangePricing/EditItemChangePrice/" + _selectedItems.SessionId + "");
     }
     async Task addDelete()
     {

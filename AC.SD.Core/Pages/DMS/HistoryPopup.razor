@@ -1,6 +1,4 @@
-﻿
-@page "/history"
-@using Application.Queries;
+﻿@using Application.Queries;
 @using MediatR;
 @using global::Core.Entities;
 @using global::Core.EntityModels;
@@ -12,7 +10,7 @@
 @inject IConfiguration Configuration
 @inject ClipboardService ClipboardService
 @inject AC.SD.Core.Services.ToastService toastService
-
+@inject NavigationManager NavigationManager
 
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
@@ -20,52 +18,56 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled ="@DownloadEnabled" />
+                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Enabled="@DownloadEnabled" />
                 <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Enabled="@viewEnabled" />
                 <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Enabled="@copylinkEnabled" />
-              
+
             </Items>
         </DxMenu>
     </div>
 </div>
- <DxLoadingPanel @bind-Visible="PanelVisible"
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <span style="font-weight: bold;padding: 10px;line-height: 30px;color:green;">File ProfileType Name:  @selectedFiles.FileName</span>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
-                Text="Fetching Data..."
-               >
-<DxGrid @ref="Grid"  FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="_histryselectedFile"
             KeyFieldName="DocumentID"
             ShowGroupPanel="true" ShowGroupedColumns="true"
-        CustomizeElement="Grid_CustomizeElement"
-        ShowSearchBox="true"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        AutoExpandAllGroupRows="true"
-        CssClass="ch-360"
-        style="height: calc(100vh - 270px);"
-        FocusedRowEnabled="true"
-        RowClick="OnRowClick"
-        AllowSelectRowByClick="true">
-    <Columns>
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true">
+        <Columns>
             <DxGridDataColumn FieldName="FileName" Caption="File Name" MinWidth="80" />
-            <DxGridDataColumn FieldName="FileProfileTypeName" Caption="Profile Type Name" MinWidth="80" />
+           @*  <DxGridDataColumn FieldName="FileProfileTypeName" Caption="Profile Type Name" MinWidth="80" /> *@
             <DxGridDataColumn FieldName="ProfileNo" Caption="Profile No" MinWidth="80" />
-            <DxGridDataColumn FieldName="FileSize" Caption="Size(KB)" MinWidth="80" />
+            <DxGridDataColumn FieldName="FileSize" Caption="Size(KB)" MinWidth="40" />
             <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
             <DxGridDataColumn FieldName="AddedByUser" Caption="Modified By" MinWidth="80" />
-            <DxGridDataColumn FieldName="AddedDate" Caption="Modified Date" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Modified Date" MinWidth="40" />
 
-    </Columns>
+        </Columns>
     </DxGrid>
-    </DxLoadingPanel>
+</DxLoadingPanel>
 @code {
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
@@ -77,6 +79,7 @@
     public DocumentsModel _selectedItems { get; set; }
     private string? DocumentViewUrl;
     private string? ServerUrl;
+    private string? FileUrl;
     bool DownloadEnabled { get; set; } = false;
     bool viewEnabled { get; set; } = false;
     bool copylinkEnabled { get; set; } = false;
@@ -86,6 +89,7 @@
         PanelVisible = true;
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
         if (selectedFiles.DocumentID > 0)
@@ -103,7 +107,7 @@
 
         }
 
-        if (_histryselectedFile.Count >0)
+        if (_histryselectedFile.Count > 0)
         {
             _selectedItems = _histryselectedFile.FirstOrDefault();
             DownloadEnabled = true;
@@ -132,17 +136,34 @@
     {
         if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID,_selectedItems.FileName,_selectedItems.FilePath));
-            //  Trigger file download
-            await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+            var response = await Mediator.Send(new GetFileDownload(_selectedItems.DocumentID));
+            if (response.StatusCodeID == 0)
+            {
+                toastService.ShowToast("File Not Exits", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                //  Trigger file download
+                await JSRuntime.InvokeVoidAsync("downloadFile", _selectedItems.FileName, response.ImageData, "");
+            }
         }
     }
     async void onView()
     {
         if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
-            await OpenDocumentPreview(url);
+
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                await OpenDocumentPreview(url);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                await OpenDocumentPreview(url);
+            }
+
         }
     }
     private async Task OpenDocumentPreview(string url)
@@ -151,11 +172,22 @@
     }
     private async Task onCopy()
     {
-        if (_selectedItems.DocumentID > 0)
+        if (_selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
-            await ClipboardService.WriteTextAsync(url);
-          
+
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                await ClipboardService.WriteTextAsync(url);
+                toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+            }
+
         }
     }
 }

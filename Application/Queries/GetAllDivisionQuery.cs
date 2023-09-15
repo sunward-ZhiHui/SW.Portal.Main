@@ -14,5 +14,14 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetDivisionByCompany : PagedRequest, IRequest<List<ViewDivision>>
+    {
+        public long? CompanyId { get; set; }
+        public GetDivisionByCompany(long? companyId)
+        {
+            this.CompanyId= companyId;
+        }
+    }
+    
 
 }

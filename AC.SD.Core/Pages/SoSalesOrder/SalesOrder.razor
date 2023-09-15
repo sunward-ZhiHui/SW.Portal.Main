@@ -59,7 +59,7 @@
             ShowGroupPanel="true" ShowGroupedColumns="true">
 
         <Columns>
-            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+           @*  <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="SoSalesOrderId" Caption="Date" MinWidth="80" Visible="false" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Date" Width="180">
                 <CellDisplayTemplate>
@@ -120,11 +120,11 @@
     }
     void addNew()
     {
-        NavigationManager.NavigateTo("AddSalesOrder");
+        NavigationManager.NavigateTo("SalesOrder/AddSalesOrder");
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("EditSalesOrder/" + _selectedItems.SessionId + "");
+        NavigationManager.NavigateTo("SalesOrder/EditSalesOrder/" + _selectedItems.SessionId + "");
 
     }
     void addDelete()

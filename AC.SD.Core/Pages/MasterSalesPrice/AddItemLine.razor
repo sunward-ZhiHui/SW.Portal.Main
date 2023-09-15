@@ -106,51 +106,53 @@
                     @if (MasterType == "SpecificItemMasterPrice")
                     {
                         <DxComboBox Data="@_AllNavitems"
-                                NullText="Select Item No..."
-                                ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="No"
-                                ValueFieldName="ItemId"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@types.ItemId" ShowValidationIcon="true"
-                                SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                                    NullText="Select Item No..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.StartsWith"
+                                    TextFieldName="No"
+                                    ValueFieldName="ItemId"
+                                    EditFormat="{0}-{1}-{2}"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        @bind-Value="@types.ItemId" ShowValidationIcon="true"
+                                    SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
-                                                Caption="Item No"
-                                                Width="190px" />
+                                                    Caption="Item No"
+                                                    Width="190px" />
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
-                                                Caption="Item Serial No"
-                                                Width="90px" />
+                                                    Caption="Item Serial No"
+                                                    Width="90px" />
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
-                                                Caption="Description" />
+                                                    Caption="Description" />
                             </Columns>
                             <Buttons>
                                 <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container")
-                                            Tooltip="Master Pricing Information"
-                                            Click="@(_ => OnButtonClick())" />
+                                                Tooltip="Master Pricing Information"
+                                                Click="@(_ => OnButtonClick())" />
                             </Buttons>
                         </DxComboBox>
                     }
                     else
                     {
                         <DxComboBox Data="@_AllNavitems"
-                                NullText="Select Item No..."
-                                ListRenderMode="ListRenderMode.Virtual"
-                                FilteringMode="DataGridFilteringMode.Contains"
-                                TextFieldName="No"
-                                ValueFieldName="ItemId"
-                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="@types.ItemId" ShowValidationIcon="true"
-                                SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
+                                    NullText="Select Item No..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.StartsWith"
+                                    TextFieldName="No"
+                                    ValueFieldName="ItemId"
+                                    EditFormat="{0}-{1}-{2}"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        @bind-Value="@types.ItemId" ShowValidationIcon="true"
+                                    SelectedItemChanged="@((View_NavItems navitems) => SelectedItemChanged(navitems))">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.No)"
-                                                Caption="Item No"
-                                                Width="190px" />
+                                                    Caption="Item No"
+                                                    Width="190px" />
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.ItemSerialNo)"
-                                                Caption="Item Serial No"
-                                                Width="90px" />
+                                                    Caption="Item Serial No"
+                                                    Width="90px" />
                                 <DxListEditorColumn FieldName="@nameof(View_NavItems.Description)"
-                                                Caption="Description" />
+                                                    Caption="Description" />
                             </Columns>
 
                         </DxComboBox>
@@ -174,7 +176,7 @@
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterDetailID"
-                                @bind-Value="@types.SellingMethodId" ShowValidationIcon="true" />
+                    @bind-Value="@types.SellingMethodId" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.SellingMethodId)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="SM Allow Price" ColSpanMd="3" Visible="@SMAddEnabled">
@@ -183,7 +185,7 @@
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterDetailID"
-                                @bind-Value="@types.SmAllowPriceId" ShowValidationIcon="true"
+                    @bind-Value="@types.SmAllowPriceId" ShowValidationIcon="true"
                                 SelectedItemChanged="@((View_ApplicationMasterDetail applicationMasterDetail) => SelectedAllowPriceChanged(applicationMasterDetail))" />
                     <ValidationMessage For="@(() => types.SmAllowPriceId)" />
                 </DxFormLayoutItem>
@@ -346,7 +348,7 @@
             DisplayByMasterType = "";
             //SalesOrderMasterPricingLineId = _selectedItems.SalesOrderMasterPricingLineId;
             View_SalesOrderMasterPricingLineByItems = await Mediator.Send(new GetAllSalesOrderMasterPricingLineByItemQuery(_salesOrdersData.CompanyId, _salesOrdersData.PriceValidaityFrom, _salesOrdersData.PriceValidaityTo, ItemId));
-           // PricingGrid.ExpandAllGroupRows();
+            // PricingGrid.ExpandAllGroupRows();
             StateHasChanged();
         }
     }

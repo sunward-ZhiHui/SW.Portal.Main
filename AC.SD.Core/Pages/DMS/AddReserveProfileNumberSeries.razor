@@ -1,0 +1,336 @@
+﻿@using global::Core.EntityModels;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using Application.Queries;
+@using MediatR;
+@using Newtonsoft.Json;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject IMediator Mediator
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@LinkDocbackUrl" />
+                    </Items>
+                </DxMenu>
+            </div>
+
+            <div class="" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 100px; z-index: 9999; width:100px;">
+                <button type="submit" form="reserveProfileNumberSeriesForm" disabled="@loadingLinkDoc" class="btn border-primary btn-primary m-1 handline" onclick="@onsubmitUploadLinkDocFromClick">
+                    @if (loadingLinkDoc)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    <i class="fa fa-save"></i>
+                    Generate
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="" style="margin-top: 10px;margin-left: 11px;">
+    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;padding:10px;">
+        <div class="cw-480" style="margin-top:10px;">
+            <EditForm Model="@Data" id="reserveProfileNumberSeriesForm" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />
+                    <DxFormLayoutItem Caption="Requestor" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.AddedByUser" ShowValidationIcon="true" Enabled=false />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Date" ColSpanMd="6">
+                        <DxDateEdit NullText="Date" @bind-Date="@Data.AddedDate" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Title" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.Title" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="PlantCode"
+                                    ValueFieldName="PlantID"
+                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemLinkDocChanged(plantSelect?.PlantID))"
+                                    Enabled="isPlantLinkDoc"
+                        @bind-Value="@Data.PlantID" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                    Caption="Plant Code"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                    Caption="Nav Company" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.PlantID)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                        <DxComboBox Data="@_divisionItems"
+                                    NullText="Select Division..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="DivisionID"
+                                    Enabled="isDivisionLinkDoc"
+                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionLinkDocChanged(plantSelect?.DivisionID))"
+                        @bind-Value="@Data.DivisionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.DivisionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                        <DxComboBox Data="@_departmentItems"
+                                    NullText="Select Department..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="DepartmentName"
+                                    ValueFieldName="DepartmentId"
+                                    Enabled="isDepartmentLinkDoc"
+                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementLinkDocChanged(plantSelect?.DepartmentId))"
+                        @bind-Value="@Data.DepartmentId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.DepartmentId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                        <DxComboBox Data="@_sectionItems"
+                                    NullText="Select Section..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SectionName"
+                                    ValueFieldName="SectionId"
+                                    Enabled="isSectionLinkDoc"
+                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionLinkDocChanged(plantSelect?.SectionId))"
+                        @bind-Value="@Data.SectionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.SectionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
+                        <DxComboBox Data="@_subSectionItems"
+                                    NullText="Select SubSection..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SubSectionName"
+                                    ValueFieldName="SubSectionId"
+                                    Enabled="isSubSectionLinkDoc"
+                        @bind-Value="@Data.SubSectionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.SubSectionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Profile No" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@Data.DocumentNo" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                        <DxComboBox Data="@_statusItems"
+                                    NullText="Select Status..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="CodeValue"
+                                    ValueFieldName="CodeId"
+                        @bind-Value="@Data.StatusCodeID" ShowValidationIcon="true">
+                        </DxComboBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                        <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public DocumentsModel? selectedItems { get; set; }
+    [Parameter]
+    public long? FileProfileTypeId { get; set; }
+    [Parameter]
+    public ApplicationUser? applicationUser { get; set; }
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    DocumentNoSeriesModel Data = new DocumentNoSeriesModel();
+
+    private List<ViewPlants>? _plantItems;
+    private List<ViewDivision>? _divisionItems;
+    private List<ViewDepartment>? _departmentItems;
+    private List<ViewSection>? _sectionItems;
+    private List<ViewSubSection>? _subSectionItems;
+    bool isPlantLinkDoc { get; set; } = false;
+    bool isDivisionLinkDoc { get; set; } = false; bool isDepartmentLinkDoc { get; set; } = false;
+    bool isSectionLinkDoc { get; set; } = false; bool isSubSectionLinkDoc { get; set; } = false;
+    public DocumentProfileNoSeriesModel documentProfileNoSeriesLinkDocData { get; set; }
+    public bool loadingLinkDoc { get; set; } = false;
+    public List<CodeMaster> _statusItems { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        isPlantLinkDoc = false;
+        isDivisionLinkDoc = false; isDepartmentLinkDoc = false;
+        isSectionLinkDoc = false; isSubSectionLinkDoc = false;
+        Data.PlantID = 0; Data.DepartmentId = 0;
+        Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
+        loadingLinkDoc = false;
+        Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
+        Data.StatusCodeID = 710;
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        _statusItems = await Mediator.Send(new GetAllCodeMasterQuery("NoSeriesStatus"));
+        if (selectedItems != null && selectedItems.ProfileID > 0 && FileProfileTypeId>0)
+        {
+            documentProfileNoSeriesLinkDocData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedItems.ProfileID));
+            if (documentProfileNoSeriesLinkDocData != null)
+            {
+                dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesLinkDocData.Abbreviation1);
+                if (abbreviation != null)
+                {
+                    foreach (var item in abbreviation)
+                    {
+                        var itemsId = item.Id;
+                        if (itemsId == 1)
+                        {
+                            isPlantLinkDoc = true;
+                            Data.PlantID = null;
+                        }
+                        if (itemsId == 2)
+                        {
+                            isDepartmentLinkDoc = true; isDivisionLinkDoc = true;
+                            Data.DepartmentId = null;
+                            Data.DivisionId = null;
+                        }
+                        if (itemsId == 3)
+                        {
+                            isSectionLinkDoc = true;
+                            Data.SectionId = null;
+                        }
+                        if (itemsId == 4)
+                        {
+                            isSubSectionLinkDoc = true;
+                            Data.SubSectionId = null;
+                        }
+                    }
+                }
+            }
+            Data.ProfileID = selectedItems.ProfileID;
+            Data.FileProfileTypeId = FileProfileTypeId;
+        }
+        Data.NumberSeriesId = 0;
+        Data.SessionId = Guid.NewGuid();
+        Data.IsUpload = false;
+        Data.AddedByUserID = applicationUser.UserID;
+        Data.ModifiedByUserID = applicationUser.UserID;
+        
+        Data.AddedDate = DateTime.Now;
+        Data.ModifiedDate = DateTime.Now;
+        Data.AddedByUser = applicationUser.UserName;
+        Data.RequestorId = applicationUser.UserID;
+        await SelectedItemLinkDocChanged(0);
+        await SelectedItemDivisionLinkDocChanged(0);
+        await SelectedItemDepartementLinkDocChanged(0);
+        await SelectedItemSectionLinkDocChanged(0);
+        StateHasChanged();
+    }
+    async Task SelectedItemLinkDocChanged(long? plantID)
+    {
+        _divisionItems = new List<ViewDivision>();
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (plantID > 0)
+        {
+            _divisionItems = await Mediator.Send(new GetDivisionByCompany(plantID));
+        }
+    }
+    async Task SelectedItemDivisionLinkDocChanged(long? divisionId)
+    {
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (divisionId > 0)
+        {
+            _departmentItems = await Mediator.Send(new GetDepartmentByDivision(divisionId));
+        }
+    }
+    async Task SelectedItemDepartementLinkDocChanged(long? departmentId)
+    {
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (departmentId > 0)
+        {
+            _sectionItems = await Mediator.Send(new GetSectionByDepartment(departmentId));
+        }
+    }
+    async Task SelectedItemSectionLinkDocChanged(long? sectionId)
+    {
+        _subSectionItems = new List<ViewSubSection>();
+        if (sectionId > 0)
+        {
+            _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
+        }
+    }
+    void LinkDocbackUrl()
+    {
+        RevokeBack?.Invoke();
+    }
+    void onsubmitUploadLinkDocFromClick()
+    {
+    }
+    async Task HandleValidSubmit()
+    {
+        loadingLinkDoc = true;
+        if (Data.ProfileID > 0)
+        {
+            var response = await Mediator.Send(new InsertOrUpdateReserveProfileNumberSeries(Data));
+            Data.NumberSeriesId = response.NumberSeriesId;
+            Data.DocumentNo = response.DocumentNo;
+            toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            loadingLinkDoc = false;
+            LinkDocbackUrl();
+            StateHasChanged();
+        }
+        else
+        {
+            loadingLinkDoc = false;
+            toastService.ShowToast("Invaild Profile", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+}

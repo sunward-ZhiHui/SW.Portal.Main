@@ -1,0 +1,251 @@
+﻿
+@page "/attributesetup"
+@using Application.Queries;
+@using global::Core.Entities;
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@using global::Core.Repositories.Query;
+
+
+
+
+<div class="card w-100 tooltips" style="margin-bottom:10px;">
+    <div class="card-body p-0 tooltiptops">
+        <div class="row">
+            <div class="">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+
+            </Items>
+        </DxMenu>
+            </div>
+        <div class="save_hover" @onclick="@HandleValidSubmit" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 220px; z-index: 9999; width:100px;">
+            <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
+                @if (loading)
+                {
+                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                }
+                <i class="fa fa-save"></i>
+                Save
+            </button>
+        </div>
+
+
+        </div>
+    </div>
+</div>
+
+ <div class="main-container">
+
+    <div class="content-container row">
+      
+    <div class="menu-bar-content-container col-md-6">
+
+            <div class="card-body p-0">
+    <EditForm Model="@Data" id="@MyID" Context="EditFormContext" >
+    <DataAnnotationsValidator />
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Attribute ID" ColSpanMd="12">
+            @*    <DxTextBox  @bind-Text="@Data.AttributeName"></DxTextBox> *@
+
+          @*   <DxComboBox Data="@_attributes"
+                        NullText="Select ControlType..."
+                        TextFieldName="AttributeName"
+                        FilteringMode="DataGridFilteringMode.Contains"
+            @bind-Value="@Data.ControlType" /> *@
+
+
+
+            <DxComboBox Data="@_attributes"
+                        AllowUserInput="true"
+                        NullText="Select Others Tag..."
+                        ListRenderMode="ListRenderMode.Virtual"
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="AttributeName"
+                        ValueFieldName="AttributeName"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+            @bind-Value="Data.AttributeName"
+            @bind-Text="@Data.AttributeName" ShowValidationIcon="true"
+                        SelectedItemChanged="@((AttributeHeader plant) => SelectedItemChanged(plant.AttributeName))">
+            </DxComboBox>
+         
+            <ValidationMessage For="@(() => Data.AttributeName)" />
+            </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                <DxTextBox @bind-Text="@Data.Description"></DxTextBox>
+                <ValidationMessage For="@(() => Data.Description)" />
+            </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Control Type" ColSpanMd="12">
+                <DxComboBox Data="@ControlTypeData"
+                            NullText="Select ControlType..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                           
+                             @bind-Value="@Data.ControlType" />
+            </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Internal" ColSpanMd="12">
+               <DxCheckBox @bind-Checked ="Data.IsInternal"></DxCheckBox>
+            </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Entry Mask" ColSpanMd="12">
+               <DxTextBox @bind-Text ="Data.EntryMask"></DxTextBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Reg.Exp" ColSpanMd="12">
+                <DxTextBox @bind-Text="Data.RegExp"></DxTextBox>
+            </DxFormLayoutItem>
+        <ValidationSummary></ValidationSummary>
+    </DxFormLayout>
+       
+    </EditForm>
+        </div>
+        </div>
+        <div class="menu-bar-content-container col-md-6">
+
+      <AttributeDetailsSetup AttributeIDs="@AttributeIDs" @ref=RefDetails></AttributeDetailsSetup>
+</div>
+
+</div>
+</div>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_master[0].AttributeID))" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+
+    private AttributeDetailsSetup? RefDetails { get; set; }
+    bool DeleteEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    private bool loading;
+    private string MyID = "myid";
+    long AttributeIDs;
+    private List<AttributeHeader>? _attributes;
+    AttributeHeader Data = new AttributeHeader();
+    private List<CodeMaster> _stausItems;
+    List<string> ControlTypeData { get; set; }
+    private List<ApplicationUser> _applicationUsers;
+    private CodeMaster? codemaster;
+    public ApplicationUser? applicationUser { get; private set; }
+    private List<AttributeHeader>? _master;
+    AttributeHeader AttributeNamelst= new AttributeHeader();
+    protected override async Task OnInitializedAsync()
+    {
+        // _attributesDetails = await Mediator.Send(new GetAllAttributeDetailsQuery());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+
+        _attributes = await Mediator.Send(new GetAllAttributeHeader());
+        ControlTypeData = new List<string>
+            {
+                 "TextBox","ComboBox","DateEdit","CheckBox","SpinEdit","Memo","TagBox"
+            };
+
+    }
+
+    void addNew()
+    {
+
+        Data = new AttributeHeader();
+
+        ControlTypeData = new List<string>
+    {
+         "Text","ComboBox","DateEdit","CheckBox"
+    };
+
+
+        Data.IsInternal = false;
+
+
+
+    }
+    void addEdit()
+    {
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task HandleValidSubmit()
+    {
+        var ex = _attributes.Where(x => x.Description == Data.Description);
+        if (ex.Any())
+        {
+            // onShowPopupMessage("Error", "The entered value Already exists.");
+            toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        else
+        {
+            var createReq = new CreateAttributeHeader
+                {
+                     AttributeName= Data.AttributeName,
+                    Description = Data.Description,
+                    ControlType = Data.ControlType,
+                    IsInternal = Data.IsInternal,
+                    EntryMask = Data.EntryMask,
+                    RegExp = Data.RegExp,
+
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+
+                };
+            var result = await Mediator.Send(createReq);
+            AttributeIDs = result;
+            toastService.ShowToast("Attribute have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+            addNew();
+        }
+    }
+    async void SelectedItemChanged(string Name)
+    {
+
+        if (Name != null)
+        {
+            _master = _attributes.Where(c => c.AttributeName == Name).ToList();
+
+            Data.Description = _master[0].Description;
+            Data.EntryMask = _master[0].EntryMask;
+            Data.RegExp = _master[0].RegExp;
+            Data.IsInternal = _master[0].IsInternal;
+            Data.ControlType = _master[0].ControlType;
+            RefDetails.Attributeload(_master[0].AttributeID);
+            DeleteEnabled = true;
+        }
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+
+        Blukdeletepopup = false;
+
+
+    }
+    async Task bulkDelete(long id)
+    {
+
+        var request = new DeleteAttributeHeader(id);
+        await Mediator.Send(request);
+        Blukdeletepopup = false;
+        toastService.ShowToast("Attribute have been Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);
+
+        addNew();
+
+
+
+    }
+}

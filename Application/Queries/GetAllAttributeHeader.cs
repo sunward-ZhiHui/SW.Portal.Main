@@ -12,7 +12,7 @@ namespace Application.Queries
 {
     public class GetAllAttributeHeader : PagedRequest, IRequest<List<AttributeHeader>>
     {
-        public string SearchString { get; set; }
+       
 
     }
 

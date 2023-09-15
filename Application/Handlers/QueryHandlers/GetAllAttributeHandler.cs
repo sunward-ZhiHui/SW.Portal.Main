@@ -1,4 +1,5 @@
-﻿using Application.Queries;
+﻿using Application.Common.Mapper;
+using Application.Queries;
 using Core.Entities;
 using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
@@ -39,7 +40,9 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<long> Handle(CreateAttributeHeader request, CancellationToken cancellationToken)
         {
-            return (long)await _attrubutequeryRepository.Insert(request);
+           // return (long)await _attrubutequeryRepository.Insert(request);
+          var lst = await _attrubutequeryRepository.Insert(request);
+            return lst;
 
         }
     }
@@ -56,6 +59,23 @@ namespace Application.Handlers.QueryHandlers
         public async Task<long> Handle(EditAttributeHeader request, CancellationToken cancellationToken)
         {
             var req = await _conversationQueryRepository.UpdateAsync(request);
+            return req;
+        }
+    }
+
+    public class DeleteAttributeHandler : IRequestHandler<DeleteAttributeHeader, long>
+    {
+        private readonly IAttributeQueryRepository _conversationQueryRepository;
+
+        public DeleteAttributeHandler(IAttributeQueryRepository conversationQueryRepository)
+        {
+            _conversationQueryRepository = conversationQueryRepository;
+
+        }
+
+        public async Task<long> Handle(DeleteAttributeHeader request, CancellationToken cancellationToken)
+        {
+            var req = await _conversationQueryRepository.DeleteAsync(request.AttributeID);
             return req;
         }
     }

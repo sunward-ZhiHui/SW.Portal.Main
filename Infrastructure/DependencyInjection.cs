@@ -152,6 +152,8 @@ namespace Infrastructure
             services.AddTransient<IGenerateDocumentNoSeriesQueryRepository, GenerateDocumentNoSeriesQueryRepository>();
             services.AddSingleton<IGenerateDocumentNoSeriesSeviceQueryRepository, GenerateDocumentNoSeriesService>();
             
+            services.AddTransient<IAttributeDetailsCommandRepository, AttributeDetailsCommandRepository>();
+            services.AddTransient<IAttributeDetailsQueryRepository, AttributeDetailsQueryRepository>();
             return services;
         }
     }

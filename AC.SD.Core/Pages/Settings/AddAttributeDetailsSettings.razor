@@ -1,0 +1,104 @@
+﻿@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@page "/AddAttributeDetails"
+@page "/AddAttributeDetails/{Type}"
+@page "/AddAttributeDetails/{Type}/{SessionId:guid}"
+<div class="card" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                    </Items>
+                </DxMenu>
+            </div>
+            <div class="save_hover" style="@IsdisplayButton">
+                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    <i class="fa fa-save"></i>
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="demo-breadcrumbs-container theme-blazing-berry">
+    <div class="breadcrumb">
+        <div class="demo-breadcrumbs sidebar-hidden">
+            <!--!-->
+
+           
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    [Parameter]
+    public string Type { get; set; }
+  
+    int ActiveTabIndex { get; set; } = 0;
+    public ApplicationUser _applicationUser { get; private set; }
+    private bool loading;
+    bool IsAttributeDetailsId { get; set; } = false;
+
+    private string MyID = "myid";
+   
+    public List<AttributeDetails> AttributeDetailsAll { get; set; }
+    public long? AttributeDetailsId { get; set; }
+    string IsdisplayButton = "float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;";
+    protected override async Task OnInitializedAsync()
+    {
+        _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        
+       
+    }
+   
+  
+    void OnTabClick(TabClickEventArgs e)
+    {
+        var style = "float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;";
+        IsdisplayButton = "display:none;";
+        if (e.TabIndex == 0)
+        {
+            IsdisplayButton = style;
+        }
+        else
+        {
+            IsdisplayButton = style + "display:none;";
+        }
+        StateHasChanged();
+    }
+    void backUrl()
+    {
+        NavigationManager.NavigateTo("AttributeDetails/" + SessionId);
+    }
+    void onsubmitClick()
+    {
+       
+    }
+   
+    public void openFileProfileMainLink()
+    {
+        NavigationManager.NavigateTo("AttributeDetails");
+    }
+}

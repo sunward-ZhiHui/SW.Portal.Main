@@ -31,6 +31,7 @@ using Application.Command.FmGlobals;
 using Application.Command.SoCustomer;
 using Application.Command;
 using Application.Command.AttributeHeader;
+using Application.Command.AttributeDetails;
 
 namespace Application.Common.Mapper
 {
@@ -201,6 +202,10 @@ namespace Application.Common.Mapper
             CreateMap<AttributeHeader, CreateAttributeHeaderCommand>().ReverseMap();
             CreateMap<AttributeHeader, EditAttributeHeaderCommand>().ReverseMap();
             CreateMap<AttributeHeader, DeleteAttributeHeaderCommand>().ReverseMap();
+
+            CreateMap<AttributeDetails, CreateAttributeDetailsCommand>().ReverseMap();
+            CreateMap<AttributeDetails, EditAttributeDetailsCommand>().ReverseMap();
+            CreateMap<AttributeDetails, DeleteAttributeDetailsCommand>().ReverseMap();
         }
     }
 }

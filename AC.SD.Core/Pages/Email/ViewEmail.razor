@@ -510,16 +510,20 @@
                                                                                 <h5>                                                                                   
                                                                                     From: @items.UserName
                                                                                     <br>
-                                                                                    @if(items.IsRead.GetValueOrDefault(false))
+                                                                                    @if(items.IsRead != null)
                                                                                     {
-                                                                                        <span class="primary_color_icon handline" @onclick="@(() => onMarkasunRead(items.EmailNotificationId))" title="Mark as unread"><i class="fa fa-envelope-open" aria-hidden="true"></i></span>
-                                                                                        
+                                                                                        @if (items.IsRead.GetValueOrDefault(false))
+                                                                                        {
+                                                                                            <span class="primary_color_icon handline" @onclick="@(() => onMarkasunRead(items.EmailNotificationId))" title="Mark as unread"><i class="fa fa-envelope-open" aria-hidden="true"></i></span>
+
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <span class="primary_color_icon handline" @onclick="@(() => onMarkasRead(items.EmailNotificationId))" title="Mark as read"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                                                                                        }
+
                                                                                     }
-                                                                                    else
-                                                                                    {
-                                                                                        <span class="primary_color_icon handline" @onclick="@(() => onMarkasRead(items.EmailNotificationId))" title="Mark as read"><i class="fa fa-envelope" aria-hidden="true"></i></span>
-                                                                                    }                                                                                   
-                                                                                    
+                                                                                   
                                                                                     <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</span>
                                                                                     To:
                                                                                     @if (items.AssignToList != null && items.AssignToList.Any())
@@ -2750,7 +2754,7 @@
                 _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
             }
         }
-        
+
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
@@ -3213,7 +3217,7 @@
             StateHasChanged(); // Force a UI update
             await Task.Delay(2700);
             await onRichTxtChangeFontsize(); // Call your other function here
-           
+
         }        
     }  
     void EulaClosing(WindowClosingEventArgs args) {
@@ -3380,6 +3384,7 @@
 
 
         List<long> concatList;
+        List<long> NotificationconcatList = new List<long>();
 
         if (Data.AssignccIds != null)
         {
@@ -3403,15 +3408,17 @@
         {
             var plist = await Mediator.Send(new GetByConvasationPList(coId));
             List<long> plst = plist.Select(x => x.UserID.GetValueOrDefault()).ToList();
+            NotificationconcatList = plst;
             List<long> uniqueItems = concatList.Except(plst).ToList();
             if(uniqueItems.Count > 0)
             {
-                plistUniqueItems = string.Join(",", uniqueItems);
+                plistUniqueItems = string.Join(",", uniqueItems);                
+                NotificationconcatList.AddRange(uniqueItems);
             }
 
             ConIds = _replyComment[0].ID;
 
-        }
+        }       
 
         var createReq = new CreateEmailCoversation
             {
@@ -3431,7 +3438,7 @@
                 Urgent = Data.Urgent,
                 ConIds = ConIds,
                // AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),
-                AllParticipantIds = concatList,
+                AllParticipantIds = coId > 0 ? NotificationconcatList : concatList,
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
                 StatusCodeID = 1,

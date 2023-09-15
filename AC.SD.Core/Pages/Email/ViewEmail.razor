@@ -14,6 +14,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/ViewEmail"
 @page "/ViewEmail/{ActiveSessionId}"
+@page "/ViewEmail/{TodoSessionId:guid}/{Page}"
 @using DevExpress.Blazor.RichEdit
 @using DevExpress.Blazor.Office
 @using System.Globalization
@@ -128,23 +129,23 @@
 
                         @if(isLeftMenuvisible == "All")
                         {                                
-                            <AllEmail @ref=RefAssignAll GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId ="onSubViewEmailAllClick"></AllEmail>
+                            <AllEmail @ref=RefAssignAll GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId ="onSubViewEmailClick"></AllEmail>
                         }
                         else if (isLeftMenuvisible == "AssignTo")
                         {
-                                <AssignToEmail @ref=RefAssignTo GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId="onSubViewEmailToClick"></AssignToEmail>
+                                <AssignToEmail @ref=RefAssignTo GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId="onSubViewEmailClick"></AssignToEmail>
                         }
                         else if (isLeftMenuvisible == "AssignCC")
                         {
-                            <CCEmail GridSearchText="@GridSearchText" CCTopicId="onViewEmailCCClick" SubViewCCTopicId="onSubViewEmailCCClick"></CCEmail>
+                            <CCEmail GridSearchText="@GridSearchText" CCTopicId="onViewEmailCCClick" SubViewCCTopicId="onSubViewEmailClick"></CCEmail>
                         }
                         else if(isLeftMenuvisible == "Sent")
                         {
-                            <SentEmail sentTopicId="onViewEmailSentClick" SubViewSentTopicId="onSubViewEmailSentClick"></SentEmail>
+                            <SentEmail sentTopicId="onViewEmailSentClick" SubViewSentTopicId="onSubViewEmailClick"></SentEmail>
                         }  
                         else if(isLeftMenuvisible == "Library")
                         {
-                            <MasterSearch GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailAllClick"></MasterSearch>
+                            <MasterSearch GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch>
                         }  
                             
 
@@ -509,16 +510,20 @@
                                                                                 <h5>                                                                                   
                                                                                     From: @items.UserName
                                                                                     <br>
-                                                                                    @if(items.IsRead.GetValueOrDefault(false))
+                                                                                    @if(items.IsRead != null)
                                                                                     {
-                                                                                        <span class="primary_color_icon handline" @onclick="@(() => onMarkasunRead(items.EmailNotificationId))" title="Mark as unread"><i class="fa fa-envelope-open" aria-hidden="true"></i></span>
-                                                                                        
+                                                                                        @if (items.IsRead.GetValueOrDefault(false))
+                                                                                        {
+                                                                                            <span class="primary_color_icon handline" @onclick="@(() => onMarkasunRead(items.EmailNotificationId))" title="Mark as unread"><i class="fa fa-envelope-open" aria-hidden="true"></i></span>
+
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            <span class="primary_color_icon handline" @onclick="@(() => onMarkasRead(items.EmailNotificationId))" title="Mark as read"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                                                                                        }
+
                                                                                     }
-                                                                                    else
-                                                                                    {
-                                                                                        <span class="primary_color_icon handline" @onclick="@(() => onMarkasRead(items.EmailNotificationId))" title="Mark as read"><i class="fa fa-envelope" aria-hidden="true"></i></span>
-                                                                                    }                                                                                   
-                                                                                    
+                                                                                   
                                                                                     <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@items.AddedDate)</span>
                                                                                     To:
                                                                                     @if (items.AssignToList != null && items.AssignToList.Any())
@@ -1217,6 +1222,10 @@
     private Documents _selectlst;
     [Parameter]
     public string ActiveSessionId { get; set; }
+    [Parameter]
+    public Guid TodoSessionId { get; set; }    
+    [Parameter]
+    public string Page {get;set;}
     public string filterrowname { get; set; }
     private bool IsConHistory = false;
     [Parameter]
@@ -1870,6 +1879,16 @@
             await LoadData();
         }
     } 
+    private async void onSubViewEmailClick(string RId)
+    {
+        SelectedReplyId = RId;
+        var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
+        RTopicId = conversationList[0].TopicID;
+        SelectedGroup = conversationList[0].TopicID.ToString();
+        await Task.Delay(1000); // Example asynchronous operation
+        await LoadReplyData();
+        StateHasChanged();
+    }    
     private async void onSubViewEmailSentClick(string RId)
     {
         SelectedReplyId = RId;
@@ -1934,7 +1953,7 @@
         await LoadData();
         StateHasChanged();
     }   
-    private async void onSubViewEmailClick(string RId)
+    private async void onSubViewEmailClick_old(string RId)
     {
         SelectedReplyId = RId;
         var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
@@ -2561,7 +2580,7 @@
 
 
         IsConHistory = false;
-        await JSRuntime.InvokeAsync<string>("hideLoading");
+        await JSRuntime.InvokeAsync<string>("hideLoading");      
 
     }
     private async Task LoadDataPosts()
@@ -2666,6 +2685,7 @@
     protected override async Task OnInitializedAsync()
     {
         var sss = ActiveSessionId;
+
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         cancellationTokenSource = new CancellationTokenSource();
         StartAutoRefresh();
@@ -2680,47 +2700,61 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
 
         filterrowname = "";
-        if (ActiveSessionId != null)
+        if(Page != null)
         {
-            var lsts = await Mediator.Send(new GetListBySession(ActiveSessionId));
-            if(lsts.Count > 0)
+            var page = Page;
+            var todolist = await Mediator.Send(new GetByToDoSessionId(TodoSessionId));
+            if(todolist.Count > 0)
             {
-                SelectedGroup = lsts[0].ID.ToString();
-                RTopicId = 0;
-                filterrowname = ActiveSessionId;
+                string ridds = todolist[0].TopicId.ToString();
+                onSubViewEmailClick(ridds);
+            }
+        }
+        else
+        {
+            if (ActiveSessionId != null)
+            {
+                var lsts = await Mediator.Send(new GetListBySession(ActiveSessionId));
+                if (lsts.Count > 0)
+                {
+                    SelectedGroup = lsts[0].ID.ToString();
+                    RTopicId = 0;
+                    filterrowname = ActiveSessionId;
 
-                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-                _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-                _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
-                _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+                    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+                    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+                    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                    _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
 
-                await LoadData();
+                    await LoadData();
+
+                }
+                else
+                {
+                    RTopicId = 0;
+                    SelectedGroup = "0";
+                    await LoadData();
+
+                    //if (long.Parse(@SelectedGroup) > 0)
+                    //{
+                    //    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+                    //    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+                    //    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                    //    _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+                    //}
+
+                }
 
             }
             else
             {
-                RTopicId = 0;
-                SelectedGroup = "0";
-                await LoadData();
-
-                //if (long.Parse(@SelectedGroup) > 0)
-                //{
-                //    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-                //    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-                //    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
-                //    _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
-                //}
-
+                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+                _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+                _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
             }
+        }
 
-        }
-        else
-        {
-            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-            _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-            _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
-            _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
-        }
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
         //_discussionList = await Mediator.Send(new GetDiscussionList(38));
@@ -3183,7 +3217,7 @@
             StateHasChanged(); // Force a UI update
             await Task.Delay(2700);
             await onRichTxtChangeFontsize(); // Call your other function here
-           
+
         }        
     }  
     void EulaClosing(WindowClosingEventArgs args) {
@@ -3350,6 +3384,7 @@
 
 
         List<long> concatList;
+        List<long> NotificationconcatList = new List<long>();
 
         if (Data.AssignccIds != null)
         {
@@ -3373,15 +3408,17 @@
         {
             var plist = await Mediator.Send(new GetByConvasationPList(coId));
             List<long> plst = plist.Select(x => x.UserID.GetValueOrDefault()).ToList();
+            NotificationconcatList = plst;
             List<long> uniqueItems = concatList.Except(plst).ToList();
             if(uniqueItems.Count > 0)
             {
-                plistUniqueItems = string.Join(",", uniqueItems);
+                plistUniqueItems = string.Join(",", uniqueItems);                
+                NotificationconcatList.AddRange(uniqueItems);
             }
 
             ConIds = _replyComment[0].ID;
 
-        }
+        }       
 
         var createReq = new CreateEmailCoversation
             {
@@ -3401,7 +3438,7 @@
                 Urgent = Data.Urgent,
                 ConIds = ConIds,
                // AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),
-                AllParticipantIds = concatList,
+                AllParticipantIds = coId > 0 ? NotificationconcatList : concatList,
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
                 StatusCodeID = 1,

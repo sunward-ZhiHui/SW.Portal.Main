@@ -135,6 +135,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ToDoNotesHistory>> GetByToDoSessionIdAsync(Guid SessionId)
+        {
+            try
+            {
+                var query = @"SELECT * FROM ToDoNotesHistory WHERE SessionId = @SessionId";
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ToDoNotesHistory>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
         public async Task<IReadOnlyList<ToDoNotesHistory>> GetAllToDoNotesHistoryAsync(long NotesId,long UserId)
         {
             try

@@ -137,6 +137,7 @@
             AutoExpandAllGroupRows="true"
             CssClass="w-100" style="@gridHeight"
             RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             AllowSelectRowByClick="true" SelectedDataItemsChanged="@SelectedDataItemsChanged">
         <Columns>
@@ -611,9 +612,9 @@
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
-        OnRowClick(e);
-        addEdit();
-
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        var list = _ToDoNotesHistory.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        NavigationManager.NavigateTo($"ViewEmail/" + list.SessionId + "/Todo");
     }
     void addNew()
     {

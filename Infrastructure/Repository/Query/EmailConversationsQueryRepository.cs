@@ -518,7 +518,7 @@ namespace Infrastructure.Repository.Query
                                     FROM
                                         EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = FC.ParticipantId
+                                        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
                                     WHERE
                                         FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId
                                     ORDER BY FC.AddedDate DESC";
@@ -724,7 +724,7 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.AddedByUserID,
+                var query = @"SELECT FC.Name,FC.ID,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.AddedByUserID,
                                 AET.Comment as ActCommentName,AET.BackURL,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
                                 ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf
                                 FROM EmailConversations FC  

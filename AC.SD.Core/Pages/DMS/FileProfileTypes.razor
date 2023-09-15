@@ -217,7 +217,7 @@
                         var item = (DocumentsModel)context.DataItem;
                     }
                     <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-Description-{item.DocumentID}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.Description"></i>
-                    <span title="@item.Description">@item.Description</span
+                    <span title="@item.Description">@item.Description</span>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="ExpiryDate" MinWidth="170" FixedPosition="GridColumnFixedPosition.Left">

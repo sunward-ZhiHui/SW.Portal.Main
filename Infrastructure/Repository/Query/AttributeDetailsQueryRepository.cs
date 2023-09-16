@@ -189,10 +189,14 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("Description", attributeDetails.Description);
-                          
+                            parameters.Add("Disabled", attributeDetails.Disabled);
+                            parameters.Add("ModifiedByUserID", attributeDetails.ModifiedByUserID);
+                            parameters.Add("ModifiedDate", attributeDetails.ModifiedDate);
+                            parameters.Add("AttributeDetailName", attributeDetails.AttributeDetailName);
+
                             parameters.Add("AttributeDetailID", attributeDetails.AttributeDetailID, DbType.Int64);
 
-                            var query = " UPDATE AttributeDetails SET Description=@Description WHERE AttributeDetailID = @AttributeDetailID";
+                            var query = " UPDATE AttributeDetails SET Description=@Description,Disabled = @Disabled,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate WHERE AttributeDetailID = @AttributeDetailID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 

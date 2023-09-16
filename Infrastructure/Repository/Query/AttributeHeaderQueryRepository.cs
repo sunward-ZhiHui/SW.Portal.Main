@@ -61,14 +61,17 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<IReadOnlyList<AttributeHeader>> GetAllAsync()
+        public async Task<IReadOnlyList<AttributeHeader>> GetAllAsync(long ID)
         {
             try
             {
-                var query = "SELECT * FROM AttributeHeader";
+                var parameters = new DynamicParameters();
+                parameters.Add("ID", ID, DbType.Int64);
+
+                var query = "SELECT * FROM AttributeHeader Where AttributeID = @ID ";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<AttributeHeader>(query)).ToList();
+                    return (await connection.QueryAsync<AttributeHeader>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)

@@ -14,8 +14,8 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
-              
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled ="@DeleteEnabled"/>
                 
             </Items>
@@ -46,7 +46,7 @@
         AllowSelectRowByClick="true"
         SelectionMode="GridSelectionMode.Single"
         CssClass="ch-360"
-        style="height: calc(100vh - 250px);">
+        style="height: calc(100vh - 470px);">
     <Columns>
        
         <DxGridDataColumn FieldName="AttributeDetailName" Caption="Value ID" MinWidth="80" />
@@ -97,8 +97,9 @@
     IGrid? DetailGrid { get; set; }
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
     private List<AttributeDetails>? _attributesDetails;
-
+    bool AddEnabled { get; set; } = false;
     private List<ApplicationUser> _applicationUsers;
     private CodeMaster? codemaster;
     public ApplicationUser? applicationUser { get; private set; }
@@ -121,21 +122,41 @@
     public async Task Attributeload(long id)
     {
         _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(id));
+        if (_attributesDetails.Count >0 )
+        {
+            EditEnabled = true;
+            DeleteEnabled = true;
+        }
+      
         StateHasChanged();
     }
-    async Task UpdateDataAsync()
+    public async Task UpdateDataAsync()
     {
         _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(AttributeIDs));
         // _attributesDetails = await Mediator.Send(new GetAllAttributeDetailsQuery(AttributeIDs));
         if (_attributesDetails.Count > 0)
         {
             DeleteEnabled = true;
+            EditEnabled = true;
         }
         _selectedItems = _attributesDetails.FirstOrDefault();
         if(_attributesDetails.Count >0 )
         {
             DeleteEnabled = true;
+            EditEnabled = true;
         }
+    }
+    public void AddEnabledEvent(string ControlType)
+    {
+        if(ControlType == "ComboBox")
+        {
+            AddEnabled = true;
+        }
+        else
+        {
+            AddEnabled = false;
+        }
+        StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -184,14 +205,39 @@
             var result = await Mediator.Send(createReq);
             toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
 
-            await UpdateDataAsync();
+           
 
         }
+        else
+        {
+            var UpdateReq = new EditAttributeDetails(editModel)
+                {
+
+                    AttributeDetailID = editModel.AttributeDetailID,
+                    Description = editModel.Description,
+                  Disabled = editModel.Disabled,
+                  AttributeDetailName = editModel.AttributeDetailName,
+                    SessionId = editModel.SessionId,
+                    ModifiedByUserID =applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+
+
+                };
+
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+        await UpdateDataAsync();
     }
     void addNew()
     {
       
         DetailGrid.StartEditNewRowAsync();
+    }
+    void addEdit()
+    {
+        DetailGrid.StartEditDataItemAsync(_selectedItems);
+       
     }
     void addDetailDelete()
     {

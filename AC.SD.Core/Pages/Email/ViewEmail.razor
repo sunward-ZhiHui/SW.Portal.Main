@@ -377,7 +377,7 @@
                                                             @*<div class="mailbox-read-time pull-right">
                                                                 <DxDateEdit style="width: 190px; float: right;margin-top: -21px;" @bind-Date="@item.DueDate" Mask="dd/MMMM/yyyy" />
                                                             </div>*@
-                                                            <h5>                                                                
+                                                            <h5>                                                               
                                                                 From: @item.UserName
                                                                 @if (item.OnBehalfName != null)
                                                                 {
@@ -553,10 +553,18 @@
                                                                                         </div>
                                                                                     </div>*@
                                                                                 </h5>
-                                                                            </div>                                                                           
-                                                                            <div>
-                                                                                <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@items.FileData" />
-                                                                            </div>
+                                                                            </div> 
+                                                                            @if(items.IsMobile == 1)
+                                                                            {
+                                                                                <div style="padding: 10px;">@items.Message</div>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                <div>
+                                                                                    <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@items.FileData" />
+                                                                                </div>
+                                                                            }
+                                                                           
                                                                             @if (items.documents != null && items.documents.Any())
                                                                             {
                                                                                 @foreach (var attachment in items.documents)
@@ -3031,6 +3039,7 @@
     }
     private async Task onreply(long id)
     {
+       // var lsslsls = await Mediator.Send(new OnReplyConversation(id,applicationUser.UserID));
         await JSRuntime.InvokeAsync<string>("showLoading");
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
@@ -3444,6 +3453,7 @@
                 ParticipantId = applicationUser.UserID,
                 ReplyId = _replyComment != null && _replyComment.Any() ? _replyComment[0].ID : 0,
                 StatusCodeID = 1,
+                IsMobile = 0,
                 AddedByUserID = applicationUser.UserID,
                 AddedDate = DateTime.Now,
                 Name = Data.Name,

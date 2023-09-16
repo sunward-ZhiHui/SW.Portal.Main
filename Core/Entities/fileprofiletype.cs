@@ -1,6 +1,7 @@
 ﻿using Core.EntityModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ namespace Core.Entities
 {
     public class Fileprofiletype
     {
+        [Key]
         public long FileProfileTypeId { get; set; }
         public long ProfileId { get; set; }
         public string Name { get; set; }
@@ -36,6 +38,7 @@ namespace Core.Entities
         public long? TemplateTestCaseId { get; set; }
         [NotMapped]
         public string? Label { get; set; }
+        public Guid? SessionId { get; set; }
         public List<Fileprofiletype> Children { get; set; } = new List<Fileprofiletype>();
     }
 }

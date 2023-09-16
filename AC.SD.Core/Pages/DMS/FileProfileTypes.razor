@@ -1,7 +1,6 @@
-﻿
-@page "/fileprofiletype/"
-@page "/fileprofiletype/{SessionId:guid}"
-@page "/fileprofiletype/{SessionId:guid}/{DocSessionId:guid}"
+﻿@page "/fileprofiletype/"
+@page "/fileprofiletype/{MainSessionId:guid}"
+@page "/fileprofiletype/{MainSessionId:guid}/{DocSessionId:guid}"
 @using Application.Queries;
 @using MediatR;
 @inject IMediator Mediator
@@ -18,12 +17,18 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 <style>
     .dxbl-wait-indicator {
-    --dxbl-wait-indicator-color: white;
-}
- .dxbl-btn.dxbl-lg {
-    --dxbl-btn-line-height: 1.5rem;
-}
+        --dxbl-wait-indicator-color: white;
+    }
+
+    .dxbl-btn.dxbl-lg {
+        --dxbl-btn-line-height: 1.5rem;
+    }
+
+    .table-hover-OnFileProfile {
+        cursor: pointer;
+    }
 </style>
+
 <div class="menu-bar-content-container col-md-12">
     <div class="card w-100" style="margin-bottom:1px;">
 
@@ -37,40 +42,41 @@
 
                 <Items>
                     <DxMenuItem Position="ItemPosition.Start" IconCssClass="fa fa-reply " Click="onBack" />
-                    <DxMenuItem Text="Profile Type" Position="ItemPosition.Start" >
+                    <DxMenuItem Text="Profile Type" Position="ItemPosition.Start" style="@isFilterMore">
                         <Items>
                             <DxMenuItem Text="Add New" IconCssClass="fa fa-add" Click="onAddFileProfileType" />
-                            <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@onEditFileProfileType"/>
-                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@onDeleteFileProfileType"/>
-                                </Items>
+                            <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@onEditFileProfileType" />
+                            <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@onDeleteFileProfileType" />
+                        </Items>
                     </DxMenuItem>
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-file-excel" Click="onDownload" Enabled="@ondownloadEnabled" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter("Open"))" id=@($"flyout-overview-target-container-FilterDocuments") />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" style="@isFilterMore" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-file-excel" Click="onDownload" Enabled="@ondownloadEnabled" style="@isFilterMore" />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
                         <Items>
                             <DxMenuItem Text="Upload New Documents" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" />
                             <DxMenuItem Text="Reserve Profile Number Series" IconCssClass="fa fa-add" Click="onReserveProfileNumberSeries" />
-                                </Items>
+                        </Items>
                     </DxMenuItem>
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info-circle " Click="onInfo" Enabled=@informationEnabled />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info-circle " Click="onInfo" Enabled=@informationEnabled style="@isFilterMore" />
 
                     <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                         <Items>
-                             <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
+                            <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
                             <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Visible="@DownloadEnabled" />
-                            <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Visible="@uploadEnabled"/>
+                            <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Visible="@uploadEnabled" />
                             <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Visible="@renameEnabled" />
                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDeleteDocument" Visible="@deleteEnabled" />
-                             <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Visible="@checkoutEnabled" />
-                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Visible="@checkInEnabled" Click="onCheckin"/>
+                            <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Visible="@checkoutEnabled" />
+                            <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Visible="@checkInEnabled" Click="onCheckin" />
                             <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Visible="@historyEnabled" />
                             <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Visible="@copylinkEnabled" />
-                           @*  <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Visible="@NotifyEnabled" /> *@
-                           @*  <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Visible="@shareEnabled" /> *@
+                            @*  <DxMenuItem Text="Notify" IconCssClass="fa fa-comment" Click="onNotify" Visible="@NotifyEnabled" /> *@
+                            @*  <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Visible="@shareEnabled" /> *@
                             <DxMenuItem Text="Link Document" IconCssClass="fa fa-link" Click="onLinkDocuments" Visible="@linkdownloadEnabled" />
                             <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Visible="@formdetailsEnabled" />
                             <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewparentDocuments" Visible="@viewParentEnabled" />
-                           @*  <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" Click="onReleaseforwiki" Visible="@releasewikiEnabled" /> *@
+                            @*  <DxMenuItem Text="Relese For Wiki" IconCssClass="fa fa-paperclip" Click="onReleaseforwiki" Visible="@releasewikiEnabled" /> *@
                         </Items>
                     </DxMenuItem>
 
@@ -111,138 +117,146 @@
     </div>
 </div>
 <div style="@onShowMain">
-<DxLoadingPanel @bind-Visible="PanelVisible"
-                IsContentBlocked="true"
-                ApplyBackgroundShading="true"
-                IndicatorAreaVisible="false"
-                Text="Fetching Data...">
-    <DxGrid @ref="Grid"
-            Data="fileProfileTypeDocuments"
-            KeyFieldName="UniqueNo"
-            EditMode="GridEditMode.EditForm"
-            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            EditorRenderMode="GridEditorRenderMode.Integrated"
-            ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
-            ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
-            PagerNavigationMode="PagerNavigationMode.InputBox"
-            PageSizeSelectorVisible="true"
-            PageSizeSelectorAllRowsItemVisible="true"
-            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-            CustomizeCellDisplayText="Grid_CustomizeCellDisplayText"
-            PageSize="20" CustomizeElement="Grid_CustomizeElement" ValidationEnabled="false"
-            RowClick="OnRowClick"
-            RowDoubleClick="OnRowDoubleClick"
-            FocusedRowEnabled="true"
-            AllowSelectRowByClick="true"
-            CustomizeSummaryDisplayText="Grid_CustomizeSummaryDisplayText"
-            SelectionMode="GridSelectionMode.Single"
-            CssClass="w-100"
-            TextWrapEnabled="false"
-            style="height: calc(100vh - 250px);"
-            >
-        <Columns>
-@*            <DxGridSelectionColumn FixedPosition="GridColumnFixedPosition.Left" Width="60px" />
-*@            <DxGridDataColumn FieldName="UniqueNo"  Visible="false" />
-            <DxGridDataColumn FieldName="FileName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="270">
-                <CellDisplayTemplate>
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid @ref="Grid"
+                Data="fileProfileTypeDocuments"
+                KeyFieldName="UniqueNo"
+                EditMode="GridEditMode.EditForm"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                EditorRenderMode="GridEditorRenderMode.Integrated"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                CustomizeCellDisplayText="Grid_CustomizeCellDisplayText"
+                PageSize="20" CustomizeElement="Grid_CustomizeElement" ValidationEnabled="false"
+                RowClick="OnRowClick"
+                RowDoubleClick="OnRowDoubleClick"
+                FocusedRowEnabled="true"
+                AllowSelectRowByClick="true"
+                CustomizeSummaryDisplayText="Grid_CustomizeSummaryDisplayText"
+                SelectionMode="GridSelectionMode.Single"
+                CssClass="w-100 table-hover-OnFileProfile"
+                TextWrapEnabled="false"
+                style="height: calc(100vh - 250px);">
+            <Columns>
+                @*            <DxGridSelectionColumn FixedPosition="GridColumnFixedPosition.Left" Width="60px" />
+                *@            <DxGridDataColumn FieldName="UniqueNo" Visible="false" />
+                <DxGridDataColumn FieldName="FileName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="270">
+                    <CellDisplayTemplate>
 
-                    @{
-                        var item = (DocumentsModel)context.DataItem;
-                        var contentType = item.ContentType!=null?item.ContentType.Split("/").First().ToLower():"";
-                    }
-                    @if (item.Type == "Document")
-                    {
-                        @if(item.Extension=="xlsx" || item.Extension=="xls")
-                        {
-                            <i class="fa fa-file-excel" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@item.FileName"></i>
+                        @{
+                            var item = (DocumentsModel)context.DataItem;
+                            var contentType = item.ContentType != null ? item.ContentType.Split("/").First().ToLower() : "";
                         }
-                        else if(item.Extension=="ppt" || item.Extension=="pptx")
+                        @if (item.Type == "Document")
                         {
-                            <i class="fa fa-file-powerpoint" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#C03F1F;" title="@item.FileName"></i>
-                        }
-                        else if(item.Extension=="doc" || item.Extension=="docx")
-                        {
-                            <i class="fa fa-file-word" aria-hidden="true" style="padding:5px;margin-right: 5px;color:blue;" title="@item.FileName"></i>
-                        }
-                        else if(item.Extension=="pdf")
-                        {
-                            <i class="fa fa-file-pdf" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red;" title="@item.FileName"></i>
-                        }
-                        else if(item.Extension=="txt")
-                        {
-                            <i class="fa fa-file-text" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.FileName"></i>
-                        }
-                        else
-                        {
-                            if (contentType == "image")
+                            @if (item.Extension == "xlsx" || item.Extension == "xls")
                             {
-                                <i class="fa fa-file-image" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1E3050" title="@item.FileName"></i>
+                                <i class="fa fa-file-excel" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@item.FileName"></i>
                             }
-                            else if (contentType == "video")
+                            else if (item.Extension == "ppt" || item.Extension == "pptx")
                             {
-                                <i class="fa fa-file-video" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@item.FileName"></i>
+                                <i class="fa fa-file-powerpoint" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#C03F1F;" title="@item.FileName"></i>
+                            }
+                            else if (item.Extension == "doc" || item.Extension == "docx")
+                            {
+                                <i class="fa fa-file-word" aria-hidden="true" style="padding:5px;margin-right: 5px;color:blue;" title="@item.FileName"></i>
+                            }
+                            else if (item.Extension == "pdf")
+                            {
+                                <i class="fa fa-file-pdf" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red;" title="@item.FileName"></i>
+                            }
+                            else if (item.Extension == "txt")
+                            {
+                                <i class="fa fa-file-text" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.FileName"></i>
                             }
                             else
                             {
-                                <i class="fa fa-file" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.FileName"></i>
+                                if (contentType == "image")
+                                {
+                                    <i class="fa fa-file-image" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1E3050" title="@item.FileName"></i>
+                                }
+                                else if (contentType == "video")
+                                {
+                                    <i class="fa fa-file-video" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@item.FileName"></i>
+                                }
+                                else
+                                {
+                                    <i class="fa fa-file" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.FileName"></i>
+                                }
                             }
-                        }
-                        @if (item.IsLocked == true)
-                        {
-                            <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.LockedByUser"></i>
-                        }
-                        
-                    }
-                    else
-                    {
-                        <i class="fa fa-folder" aria-hidden="true" style="padding:5px;margin-right: 5px;color:yellow" title="@item.FileName"></i>
-                    }
-                    <span id=@($"flyout-overview-target-container-RenameFilename-{item.DocumentID}")>@item.FileName</span>
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="ProfileNo" FixedPosition="GridColumnFixedPosition.Left" Caption="Profile" MinWidth="170" />
-            <DxGridDataColumn FieldName="FileSizes" FixedPosition="GridColumnFixedPosition.Left" Caption="File Size"MinWidth="170">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (DocumentsModel)context.DataItem;
-                    }
+                            @if (item.IsLocked == true)
+                            {
+                                <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.LockedByUser"></i>
+                            }
 
-                    @(item.FileSizes + (!string.IsNullOrEmpty(item.FileCounts) ? ("," + item.FileCounts) : ""))
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="Description" FixedPosition="GridColumnFixedPosition.Left" MinWidth="200">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (DocumentsModel)context.DataItem;
-                    }
-                    <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-Description-{item.DocumentID}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.Description"></i>
-                    <span title="@item.Description">@item.Description</span>
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="ExpiryDate" MinWidth="170" FixedPosition="GridColumnFixedPosition.Left">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (DocumentsModel)context.DataItem;
-                        var expiryDate= (item.ExpiryDate!= null ? Application.Common.Helper.Helper.FormatDate(item.ExpiryDate.Value) : null);
-                    }
-                    @if (item.Type == "Document")
-                    {
-                        <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-ExpiryDate-{item.DocumentID}") onclick="@(() => OnButtonExpiryDateClick(item))" title="@expiryDate"></i>
-                       @expiryDate
-                    }
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="AddedBy" Caption="Added By"  MinWidth="170" />
-            <DxGridDataColumn FieldName="AddedDate"   Caption="Added" MinWidth="170" />
-            <DxGridDataColumn FieldName="ModifiedBy"  Caption="Modified By" MinWidth="170" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified" MinWidth="170" />
-        </Columns>
-        <TotalSummary>
-            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
-        </TotalSummary>
-    </DxGrid>
-</DxLoadingPanel>
+                        }
+                        else
+                        {
+                            <i class="fa fa-folder" aria-hidden="true" style="padding:5px;margin-right: 5px;color:yellow" title="@item.FileName"></i>
+                        }
+                        <span id=@($"flyout-overview-target-container-RenameFilename-{item.DocumentID}")>@item.FileName</span>
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="FullPath" FixedPosition="GridColumnFixedPosition.Left" Caption="Path" Visible="@isEnablePath" MinWidth="170">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentsModel)context.DataItem;
+                            <a href="javascript:void(0);" title="@item.FullPath" onclick="@(() => openFileProfileOpenPathLink(item))" style="color:black;">@item.FullPath</a>
+                        }
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="ProfileNo" FixedPosition="GridColumnFixedPosition.Left" Caption="Profile" MinWidth="170" />
+                <DxGridDataColumn FieldName="FileSizes" FixedPosition="GridColumnFixedPosition.Left" Caption="File Size" MinWidth="170">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentsModel)context.DataItem;
+                        }
+
+                        @(item.FileSizes + (!string.IsNullOrEmpty(item.FileCounts) ? ("," + item.FileCounts) : ""))
+                        @((item.FileIndex > 0 ? ("," + item.FileIndex + " History") : ""))
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="Description" FixedPosition="GridColumnFixedPosition.Left" MinWidth="200">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentsModel)context.DataItem;
+                        }
+                        <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-Description-{item.DocumentID}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.Description"></i>
+                        <span title="@item.Description">@item.Description</span>
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="ExpiryDate" MinWidth="170" FixedPosition="GridColumnFixedPosition.Left">
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentsModel)context.DataItem;
+                            var expiryDate = (item.ExpiryDate != null ? Application.Common.Helper.Helper.FormatDate(item.ExpiryDate.Value) : null);
+                        }
+                        @if (item.Type == "Document")
+                        {
+                            <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-ExpiryDate-{item.DocumentID}") onclick="@(() => OnButtonExpiryDateClick(item))" title="@expiryDate"></i>
+                            @expiryDate
+                        }
+                    </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="170" />
+                <DxGridDataColumn FieldName="AddedDate" Caption="Added" MinWidth="170" />
+                <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="170" />
+                <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified" MinWidth="170" />
+            </Columns>
+            <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
+            </TotalSummary>
+        </DxGrid>
+    </DxLoadingPanel>
 </div>
 <DxPopup @bind-Visible="@PopupVisible"
          ShowFooter="true"
@@ -287,9 +301,9 @@
           AnimationType="FlyoutAnimationType.Fade"
           PreventCloseOnPositionTargetClick="true"
           HeaderVisible="true"
-          CloseOnOutsideClick="false"
           HeaderText="Update Description"
           FooterVisible="true"
+          CloseOnOutsideClick="false"
           FooterCssClass="custom-flyout-footer"
           Width="max(25vw, 550px)"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
@@ -301,8 +315,8 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-       <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
-        <DxButton  RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
     </FooterContentTemplate>
 </DxFlyout>
 <DxFlyout @bind-IsOpen=IsExpiryDateOpen
@@ -310,10 +324,10 @@
           RestrictionTarget="#Navigation-Flyout-Customization"
           AnimationType="FlyoutAnimationType.Fade"
           PreventCloseOnPositionTargetClick="true"
-          CloseOnOutsideClick="false"
           FooterVisible="true"
           HeaderVisible="true"
-           HeaderText="Update Expiry Date"
+          CloseOnOutsideClick="false"
+          HeaderText="Update Expiry Date"
           FooterCssClass="custom-flyout-footer"
           Width="max(25vw, 550px)"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
@@ -325,39 +339,38 @@
         </DxFormLayout>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-         <DxButton   style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsExpiryDateOpen = false) />
-          <DxButton  RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateExpiryDate()) />
-               
-           
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsExpiryDateOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateExpiryDate()) />
+
+
     </FooterContentTemplate>
 </DxFlyout>
-<DxFlyout
-    @bind-IsOpen=IsRenameOpen
-    PositionTarget=@($"#flyout-overview-target-container-RenameFilename-{_selectedDescriptionItems?.DocumentID}")
-    RestrictionTarget="#Navigation-Flyout-Customization"
-     AnimationType="FlyoutAnimationType.Fade"
-    HeaderVisible="true"
-    HeaderText="Rename Document"
-    FooterVisible="true"
-    FooterCssClass="custom-flyout-footer"
-    Width="max(25vw, 550px)"
-    PreventCloseOnPositionTargetClick="true"
-   >
-   <BodyContentTemplate Context="PopupContext">
+<DxFlyout @bind-IsOpen=IsRenameOpen
+          PositionTarget=@($"#flyout-overview-target-container-RenameFilename-{_selectedDescriptionItems?.DocumentID}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Rename Document"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          Width="max(25vw, 550px)"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutItem Caption="Document Name:" ColSpanMd="9">
-               <DxTextBox @bind-Text="@NewRename" CssClass="cw-480" />
+                <DxTextBox @bind-Text="@NewRename" CssClass="cw-480" />
             </DxFormLayoutItem>
-             <DxFormLayoutItem Caption="" ColSpanMd="3">
-               <DxTextBox @bind-Text="@_selectedDescriptionItems.Extension" CssClass="cw-480"  Enabled="false"/>
+            <DxFormLayoutItem Caption="" ColSpanMd="3">
+                <DxTextBox @bind-Text="@_selectedDescriptionItems.Extension" CssClass="cw-480" Enabled="false" />
             </DxFormLayoutItem>
         </DxFormLayout>
     </BodyContentTemplate>
-    <FooterContentTemplate  Context="Context">
-         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsRenameOpen = false) />
-                <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDocumentRename()) />
-               
-          
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsRenameOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDocumentRename()) />
+
+
     </FooterContentTemplate>
 </DxFlyout>
 <DxPopup @bind-Visible="@PopupVisibleSecurityAccess"
@@ -375,20 +388,20 @@
 </DxPopup>
 <div style="@onUploadVisible">
 
-<UploadDoumentFiles @ref="refUploadDoumentFiles" UploadDocFormID="UploadDocFormID"   RevokeBack="BackUpload"></UploadDoumentFiles>
+    <UploadDoumentFiles @ref="refUploadDoumentFiles" UploadDocFormID="UploadDocFormID" RevokeBack="BackUpload"></UploadDoumentFiles>
 
 </div>
- <DxPopup @bind-Visible="@PopupUpload"
+<DxPopup @bind-Visible="@PopupUpload"
          HeaderText="Upload Documents"
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
-         ShowFooter ="false"
+         ShowFooter="false"
          Width="1000px">
-     <BodyContentTemplate> 
-        <UploadDocumentUpdateFiles @ref="refUploadDocumentUpdateFiles"  selectedItems="@_selectedItems" applicationUser="@applicationUser" FileProfileSessionId="@SessionId" RevokeBack="BackUpload"></UploadDocumentUpdateFiles>
-     </BodyContentTemplate> 
- </DxPopup> 
- <DxPopup @bind-Visible="@Blukdeletepopup"
+    <BodyContentTemplate>
+        <UploadDocumentUpdateFiles @ref="refUploadDocumentUpdateFiles" selectedItems="@_selectedItems" applicationUser="@applicationUser" FileProfileSessionId="@MainSessionId" RevokeBack="BackUpload"></UploadDocumentUpdateFiles>
+    </BodyContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@Blukdeletepopup"
          ShowFooter="true"
          HeaderText="Delete"
          Closed="EulaPopupClosed"
@@ -400,13 +413,13 @@
         <strong>@DeleteProfileTypeName</strong>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="deleteFileProfileTypes" />
-       
+
     </FooterContentTemplate>
 </DxPopup>
 
- <DxPopup @bind-Visible="@BlukdeleteDocument"
+<DxPopup @bind-Visible="@BlukdeleteDocument"
          ShowFooter="true"
          HeaderText="Delete"
          Closed="EulaPopupDocumentClosed"
@@ -418,24 +431,124 @@
         <strong>@DeleteDocumentName</strong>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
-         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="onDelete" />
-       
+
     </FooterContentTemplate>
 </DxPopup>
+
+
+<DxFlyout @bind-IsOpen=IsFilterOpen
+          PositionTarget=@($"#flyout-overview-target-container-FilterDocuments")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Search Document"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          Width="max(25vw, 550px)"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+
+            <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="12">
+                <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                    <Buttons>
+                        <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+                                        Tooltip="Select File ProfileType"
+                                        Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                    </Buttons>
+                </DxTextBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Document Name:" ColSpanMd="12">
+                <DxTextBox @bind-Text="@LinkFilterFileprofiletypeFileName" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-480" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Document No:" ColSpanMd="12">
+                <DxTextBox @bind-Text="@LinkFilterFileprofiletypeProfileNo" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-480" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Ext" ColSpanMd="12">
+                <DxComboBox Data="@_fileContentList"
+                            NullText="Select File Ext..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Extension"
+                            ValueFieldName="Extension"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                @bind-Value="@LinkFilterFileprofiletypeExtension" ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="From" ColSpanMd="12">
+                <DxDateEdit NullText="Select a From Date..." @bind-Date="@LinkFilterFileprofiletypeFrom" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="To" ColSpanMd="12">
+                <DxDateEdit NullText="Select a To Date..." @bind-Date="@LinkFilterFileprofiletypeTo" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Success" Text="Search" Click=@(()=> OnFilterDocuments()) />
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Clear" Click=@(()=> OnClearFilterDocuments()) />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click=@(()=> OnCloseFilterDocuments()) />
+
+    </FooterContentTemplate>
+</DxFlyout>
+
+<DxFlyout @bind-IsOpen=IsFileProfileTypeFilterDocOpen
+          PositionTarget=@($"#flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Select FileProfile Type"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick="false"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+            <DxFormLayoutItem Caption="">
+                <DxTreeView @ref="_treeFilterDocView"
+                @bind-FilterString="FilterDocumentString"
+                            ShowFilterPanel="true"
+                            FilterMode="NavigationFilterMode.EntireBranch"
+                            Data="@fileProfileTypeDocumentsAll"
+                            AllowSelectNodes="true"
+                            SelectionChanged="@SelectionChanged">
+                    <DataMappings>
+                        <DxTreeViewDataMapping Text="FileName"
+                                               Key="DocumentID"
+                                               ParentKey="ParentId" />
+                    </DataMappings>
+                </DxTreeView>
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
     private UploadDoumentFiles refUploadDoumentFiles;
     private UploadDocumentUpdateFiles refUploadDocumentUpdateFiles;
     IGrid Grid { get; set; }
     [Parameter]
-    public Guid? SessionId { get; set; }
+    public Guid? MainSessionId { get; set; }
+    //public Guid? SessionId { get; set; }
+
     [Parameter]
     public Guid? DocSessionId { get; set; }
     bool Blukdeletepopup { get; set; } = false;
     bool BlukdeleteDocument { get; set; } = false;
-    public string DeleteDocumentName{ get; set; }
+    public string DeleteDocumentName { get; set; }
     bool IsDescriptionOpen { get; set; } = false;
     bool IsRenameOpen { get; set; } = false;
+    bool IsFilterOpen { get; set; } = false;
     public bool PopupUpload { get; set; } = false;
     public bool PopupVisible { get; set; } = false;
     public bool PopupVisibleLinkDocument { get; set; } = false;
@@ -453,14 +566,15 @@
     DocumentLinkModel LinkProfileSelectedFiles = new DocumentLinkModel();
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     private DocumentsModel _selectedItems;
-    public string? DeleteProfileTypeName{ get; set; }
-    public long? DeletefileProfileTypeId{ get; set; }
-    public long? DeleteParentfileProfileTypeId{ get; set; }
-    public Guid? DeleteParentSessionId{ get; set; }
+    public string? DeleteProfileTypeName { get; set; }
+    public long? DeletefileProfileTypeId { get; set; }
+    public long? DeleteParentfileProfileTypeId { get; set; }
+    public Guid? DeleteParentSessionId { get; set; }
     private DocumentsModel _ParentselectedItems;
-    DocumentsModel _selectedDescriptionItems=new DocumentsModel();
+    DocumentsModel _selectedDescriptionItems = new DocumentsModel();
     public string? Name;
     public Guid? SelectSessionId { get; set; }
+    public string isFilterMore { get; set; } = "";
     public string isVisibleParentMore { get; set; } = "display:none;";
     public string isVisibleMore { get; set; } = "display:none;";
     public bool DownloadEnabled { get; set; } = false;
@@ -488,6 +602,20 @@
     private string? DocumentViewUrl;
     private string? ServerUrl;
     private string? FileUrl;
+    public bool IsFileProfileTypeFilterDocOpen { get; set; }
+    private DxTreeView _treeFilterDocView;
+    string? FilterDocumentString { get; set; }
+    string? LinkFilterFileprofiletypeName { get; set; } = null;
+    string? LinkFilterFileprofiletypeFileName { get; set; } = null;
+    string? LinkFilterFileprofiletypeProfileNo { get; set; } = null;
+    long? LinkFilterFileprofiletypeId { get; set; } = null;
+    Guid? LinkFilterFileprofiletypeSessionId { get; set; } = null;
+    string? LinkFilterFileprofiletypeExtension { get; set; } = null;
+    DateTime? LinkFilterFileprofiletypeFrom { get; set; } = null;
+    DateTime? LinkFilterFileprofiletypeTo { get; set; } = null;
+    DocumentSearchModel documentSearchModel = new DocumentSearchModel();
+    public List<DocumentsModel> _fileContentList { get; set; }
+    bool isEnablePath { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -496,17 +624,29 @@
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
 
     }
+
     protected override async Task OnParametersSetAsync()
     {
+        await mainPageLoad();
+        base.OnParametersSet();
+    }
+    async Task mainPageLoad()
+    {
+        isEnablePath = false;
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
-        isVisibleMore = "display:none;";isVisibleParentMore = "display:none;";
+        _fileContentList = await Mediator.Send(new GetFileContetTypes());
+
+        isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;";
         ondownloadEnabled = false; moreEnabled = false; informationEnabled = false; securityEnabled = false;
 
         FolderPathLists = new List<DocumentsModel>();
-        FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == SessionId)?.FileProfileTypeId;
+        documentSearchModel.SessionId = MainSessionId;
+        FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
 
         if (FileProfileTypeId > 0)
         {
+            documentSearchModel.FileProfileTypeId = FileProfileTypeId;
+            OnFileProfiltefilter(null);
             var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
             if (fileType != null)
             {
@@ -521,27 +661,40 @@
             }
         }
         await loadFileProfileData();
-        base.OnParametersSet();
+
     }
     async Task loadFileProfileData()
     {
+        IsExpiryDateOpen = false; IsDescriptionOpen = false; IsRenameOpen = false;
+        isFilterMore = "";
         _selectedItems = null;
-        if (FileProfileTypeId == null && SessionId != null)
+        if (FileProfileTypeId == null && MainSessionId != null)
         {
             NavigationManager.NavigateTo("fileprofiletype");
         }
         else
         {
             PanelVisible = true;
-            _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
+            _fileProfileselectedlstItems = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentSearchModel));
             fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
             if (DocSessionId != null)
             {
                 fileProfileTypeDocuments = fileProfileTypeDocuments.Where(w => w.SessionID == DocSessionId).ToList();
+
             }
             if (fileProfileTypeDocuments.Count > 0)
             {
-
+                if (documentSearchModel.Type == "Search")
+                {
+                    isEnablePath = true;
+                    isFilterMore = "display:none";
+                    fileProfileTypeDocuments.ForEach(s =>
+                    {
+                        var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, s.FilterProfileTypeId);
+                        s.FullPath = lists.FirstOrDefault()?.FileProfilePath;
+                        s.FileProfileTypeMainParentId = lists.FirstOrDefault()?.FileProfileTypeParentId;
+                    });
+                }
                 _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
 
                 permissionEnabled();
@@ -562,7 +715,7 @@
         deleteEnabled = false; historyEnabled = false; checkoutEnabled = false; checkInEnabled = false;
         shareEnabled = false; NotifyEnabled = false; formdetailsEnabled = false; linkdownloadEnabled = false; formdetailsEnabled = false;
         renameEnabled = false; releasewikiEnabled = false; viewParentEnabled = false;
-        if (_selectedItems != null || FileProfileTypeId>0)
+        if (_selectedItems != null || FileProfileTypeId > 0)
         {
             ondownloadEnabled = true;
             moreEnabled = true;
@@ -587,8 +740,8 @@
             {
                 uploadEnabled = false; deleteEnabled = false; DownloadEnabled = true;
                 viewfileEnabled = true; historyEnabled = true; checkoutEnabled = false; checkInEnabled = true;
-                NotifyEnabled = true; releasewikiEnabled = true; copylinkEnabled = true;viewParentEnabled = true;
-                linkdownloadEnabled = true; shareEnabled = true;formdetailsEnabled = true;
+                NotifyEnabled = true; releasewikiEnabled = true; copylinkEnabled = true; viewParentEnabled = true;
+                linkdownloadEnabled = true; shareEnabled = true; formdetailsEnabled = true;
             }
             else
             {
@@ -661,13 +814,39 @@
     }
     public void openFileProfileLink(DocumentsModel documentsModel)
     {
+        documentSearchModel.SessionId = null;
+        documentSearchModel.FileProfileTypeId = null;
+        documentSearchModel.Type = null;
+        documentSearchModel.SessionIds = null;
+        documentSearchModel.FileProfileTypeIds = null;
+        LinkFilterFileprofiletypeExtension = null;
+        LinkFilterFileprofiletypeFrom = null; LinkFilterFileprofiletypeTo = null;
+        LinkFilterFileprofiletypeFileName = null;
+        LinkFilterFileprofiletypeProfileNo = null;
+        LinkFilterFileprofiletypeId = null;
+        LinkFilterFileprofiletypeName = null;
+        LinkFilterFileprofiletypeSessionId = null;
+        isEnablePath = false;
         onShowMain = "";
         onUploadVisible = "display:none;";
         StateHasChanged();
         NavigationManager.NavigateTo("fileprofiletype/" + documentsModel.SessionID);
     }
     public void openFileProfileMainLink()
-    { 
+    {
+        documentSearchModel.SessionId = null;
+        documentSearchModel.FileProfileTypeId = null;
+        documentSearchModel.Type = null;
+        documentSearchModel.SessionIds = null;
+        documentSearchModel.FileProfileTypeIds = null;
+        LinkFilterFileprofiletypeExtension = null;
+        LinkFilterFileprofiletypeFrom = null; LinkFilterFileprofiletypeTo = null;
+        LinkFilterFileprofiletypeFileName = null;
+        LinkFilterFileprofiletypeProfileNo = null;
+        LinkFilterFileprofiletypeId = null;
+        LinkFilterFileprofiletypeSessionId = null;
+        LinkFilterFileprofiletypeName = null;
+        isEnablePath = false;
         onShowMain = "";
         onUploadVisible = "display:none;";
         StateHasChanged();
@@ -683,6 +862,7 @@
     }
     async Task OnRowClick(GridRowClickEventArgs e)
     {
+
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UniqueNo");
         _selectedItems = fileProfileTypeDocuments.FirstOrDefault(f => f.UniqueNo == (long?)UniqueId);
         if (_selectedItems != null)
@@ -695,6 +875,12 @@
     {
         if (_selectedItems != null && _selectedItems.FileProfileTypeId > 0)
         {
+            documentSearchModel.SessionId = null;
+            documentSearchModel.FileProfileTypeId = null;
+            documentSearchModel.Type = null;
+            documentSearchModel.SessionIds = null;
+            documentSearchModel.FileProfileTypeIds = null;
+            isEnablePath = false;
             NavigationManager.NavigateTo($"fileprofiletype/" + _selectedItems.SessionID);
         }
         else
@@ -743,12 +929,12 @@
     }
     void onAddFileProfileType()
     {
-        NavigationManager.NavigateTo($"fileprofiletype/AddFileProfileTypes/Add/"+SessionId);
+        NavigationManager.NavigateTo($"fileprofiletype/AddFileProfileTypes/Add/" + MainSessionId);
     }
     void onEditFileProfileType()
     {
         SelectSessionId = null;
-        if(SessionId==null)
+        if (MainSessionId == null)
         {
             if (_selectedItems != null)
             {
@@ -761,7 +947,7 @@
             {
                 if (_selectedItems.FileProfileTypeId == null)
                 {
-                    SelectSessionId=fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == _selectedItems.FilterProfileTypeId)?.SessionID;
+                    SelectSessionId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == _selectedItems.FilterProfileTypeId)?.SessionID;
                 }
                 else
                 {
@@ -770,21 +956,25 @@
             }
             else
             {
-                SelectSessionId = SessionId;
+                SelectSessionId = MainSessionId;
             }
         }
-        NavigationManager.NavigateTo($"fileprofiletype/AddFileProfileTypes/Edit/"+SelectSessionId);
+        NavigationManager.NavigateTo($"fileprofiletype/AddFileProfileTypes/Edit/" + SelectSessionId);
 
     }
     void onBack()
     {
+        isEnablePath = false;
+        documentSearchModel.SessionId = null;
+        documentSearchModel.FileProfileTypeId = null;
+        documentSearchModel.Type = null;
         NavigationManager.NavigateTo($"fileprofiletype");
     }
     private async Task onCopy()
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            if(_selectedItems.IsNewPath==true)
+            if (_selectedItems.IsNewPath == true)
             {
                 var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
                 await ClipboardService.WriteTextAsync(url);
@@ -841,7 +1031,7 @@
     }
     async Task onUploadFileProfileType()
     {
-        await refUploadDoumentFiles.loadData(_ParentselectedItems,applicationUser);
+        await refUploadDoumentFiles.loadData(_ParentselectedItems, applicationUser);
         onShowMain = "display:none;";
         onUploadVisible = "";
         StateHasChanged();
@@ -854,7 +1044,7 @@
     {
         if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
         {
-            if(_selectedItems.IsNewPath==true)
+            if (_selectedItems.IsNewPath == true)
             {
                 var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
                 await OpenDocumentPreview(url);
@@ -897,8 +1087,8 @@
 
             await Mediator.Send(new GetFileProfileTypeCheckOut(_selectedItems));
             //await loadFileProfileData();
-            _selectedItems.IsLocked=true;
-            _selectedItems.LockedByUserId=applicationUser.UserID;
+            _selectedItems.IsLocked = true;
+            _selectedItems.LockedByUserId = applicationUser.UserID;
             _selectedItems.LockedByUser = applicationUser.UserName;
             permissionEnabled();
             await Download();
@@ -959,13 +1149,14 @@
     }
     void OnButtonDescriptionClick(DocumentsModel items)
     {
-        IsDescriptionOpen = true;
+        IsDescriptionOpen = true; IsExpiryDateOpen = false; IsRenameOpen = false;
         _selectedDescriptionItems = new DocumentsModel();
-        _selectedDescriptionItems.FilterProfileTypeId=items.FilterProfileTypeId;
-        _selectedDescriptionItems.DocumentID=items.DocumentID;
-        _selectedDescriptionItems.Description=items.Description;
+        _selectedDescriptionItems.FilterProfileTypeId = items.FilterProfileTypeId;
+        _selectedDescriptionItems.DocumentID = items.DocumentID;
+        _selectedDescriptionItems.Description = items.Description;
+        _selectedDescriptionItems.Type = items.Type;
         _selectedDescriptionItems.ModifiedDate = DateTime.Now;
-        _selectedDescriptionItems.ModifiedByUserID=applicationUser.UserID;
+        _selectedDescriptionItems.ModifiedByUserID = applicationUser.UserID;
     }
     async Task OnUpdateDescription()
     {
@@ -976,22 +1167,23 @@
     }
     void OnButtonExpiryDateClick(DocumentsModel items)
     {
-        IsExpiryDateOpen = true;
+        IsExpiryDateOpen = true; IsDescriptionOpen = false; IsRenameOpen = false;
         _selectedDescriptionItems = new DocumentsModel();
-        _selectedDescriptionItems.FilterProfileTypeId=items.FilterProfileTypeId;
-        _selectedDescriptionItems.DocumentID=items.DocumentID;
-        _selectedDescriptionItems.ExpiryDate=items.ExpiryDate;
+        _selectedDescriptionItems.FilterProfileTypeId = items.FilterProfileTypeId;
+        _selectedDescriptionItems.DocumentID = items.DocumentID;
+        _selectedDescriptionItems.ExpiryDate = items.ExpiryDate;
+        _selectedDescriptionItems.Type = items.Type;
         _selectedDescriptionItems.ModifiedDate = DateTime.Now;
-        _selectedDescriptionItems.ModifiedByUserID=applicationUser.UserID;
+        _selectedDescriptionItems.ModifiedByUserID = applicationUser.UserID;
     }
     void OnButtonRenameDescriptionClick()
     {
-        IsRenameOpen = true;
+        IsRenameOpen = true; IsExpiryDateOpen = false; IsDescriptionOpen = false;
         _selectedDescriptionItems = new DocumentsModel();
         _selectedDescriptionItems = _selectedItems;
-        if (!string.IsNullOrEmpty(_selectedDescriptionItems.FileName))
+        if (!string.IsNullOrEmpty(_selectedDescriptionItems.OriginalFileName))
         {
-            NewRename = _selectedDescriptionItems.FileName.Remove(_selectedDescriptionItems.FileName.LastIndexOf("."));
+            NewRename = _selectedDescriptionItems.OriginalFileName.Remove(_selectedDescriptionItems.OriginalFileName.LastIndexOf("."));
         }
     }
     async Task OnUpdateExpiryDate()
@@ -1003,7 +1195,7 @@
     }
     async Task OnUpdateDocumentRename()
     {
-        var NewName =NewRename != null ? NewRename.Trim() : "";
+        var NewName = NewRename != null ? NewRename.Trim() : "";
         if (!string.IsNullOrEmpty(NewName))
         {
             _selectedDescriptionItems.FileName = NewRename + "." + _selectedDescriptionItems.Extension;
@@ -1028,7 +1220,7 @@
     }
     void onReserveProfileNumberSeries()
     {
-        NavigationManager.NavigateTo("fileprofiletype/reserveProfileNumberSeries/"+SessionId);
+        NavigationManager.NavigateTo("fileprofiletype/reserveProfileNumberSeries/" + MainSessionId);
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
@@ -1051,8 +1243,8 @@
             if (response > 0)
             {
                 Blukdeletepopup = false;
-                 toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                if (SessionId == DeleteParentSessionId)
+                toastService.ShowToast("Record Deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                if (MainSessionId == DeleteParentSessionId)
                 {
                     await loadFileProfileData();
                 }
@@ -1074,43 +1266,171 @@
     void onDeleteFileProfileType()
     {
         DeleteParentSessionId = null;
-        if(SessionId==null)
+        if (MainSessionId == null)
         {
             if (_selectedItems != null)
             {
                 DeletefileProfileTypeId = _selectedItems.DocumentID;
-                DeleteProfileTypeName=fileProfileTypeDocumentsAll.FirstOrDefault(f => f.DocumentID ==  _selectedItems.DocumentID)?.FileName;
-                DeleteParentfileProfileTypeId=0;
+                DeleteProfileTypeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.DocumentID == _selectedItems.DocumentID)?.FileName;
+                DeleteParentfileProfileTypeId = 0;
             }
         }
         else
-        { 
+        {
             if (_selectedItems != null)
             {
                 if (_selectedItems.FileProfileTypeId == null)
                 {
                     DeletefileProfileTypeId = _selectedItems.FilterProfileTypeId;
-                    DeleteProfileTypeName=fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId ==  _selectedItems.FilterProfileTypeId)?.FileName;
-                    DeleteParentfileProfileTypeId=fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId ==  _selectedItems.FilterProfileTypeId)?.ParentId;
-                    DeleteParentSessionId=fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == DeleteParentfileProfileTypeId)?.SessionID;
+                    DeleteProfileTypeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == _selectedItems.FilterProfileTypeId)?.FileName;
+                    DeleteParentfileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == _selectedItems.FilterProfileTypeId)?.ParentId;
+                    DeleteParentSessionId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == DeleteParentfileProfileTypeId)?.SessionID;
                 }
                 else
                 {
                     DeletefileProfileTypeId = _selectedItems.FileProfileTypeId;
                     DeleteProfileTypeName = _selectedItems.FileName;
-                    DeleteParentfileProfileTypeId=fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId ==  DeletefileProfileTypeId)?.ParentId;
-                    DeleteParentSessionId=fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == DeleteParentfileProfileTypeId)?.SessionID;
+                    DeleteParentfileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == DeletefileProfileTypeId)?.ParentId;
+                    DeleteParentSessionId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == DeleteParentfileProfileTypeId)?.SessionID;
                 }
             }
             else
             {
-                DeletefileProfileTypeId =fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == SessionId)?.FileProfileTypeId;
-                DeleteProfileTypeName=fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == SessionId)?.FileName;
-                DeleteParentfileProfileTypeId=fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId ==  DeletefileProfileTypeId)?.ParentId;
-                DeleteParentSessionId=fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == DeleteParentfileProfileTypeId)?.SessionID;
+                DeletefileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
+                DeleteProfileTypeName = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileName;
+                DeleteParentfileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == DeletefileProfileTypeId)?.ParentId;
+                DeleteParentSessionId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == DeleteParentfileProfileTypeId)?.SessionID;
             }
         }
         Blukdeletepopup = true;
         StateHasChanged();
+    }
+    void OnFileProfiltefilter(string? type)
+    {
+        if (FileProfileTypeId > 0)
+        {
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, FileProfileTypeId);
+            LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            LinkFilterFileprofiletypeId = FileProfileTypeId;
+            LinkFilterFileprofiletypeSessionId = MainSessionId;
+        }
+        if (type == "Open")
+        {
+            IsFilterOpen = true;
+        }
+    }
+    async void OnClearFilterDocuments()
+    {
+        documentSearchModel.Type = null;
+        LinkFilterFileprofiletypeName = null;
+        documentSearchModel.Extension = null;
+        documentSearchModel.FileName = string.Empty;
+        documentSearchModel.SessionIds = null;
+        documentSearchModel.FileProfileTypeIds = null;
+        documentSearchModel.FileProfileTypeId = null;
+        documentSearchModel.SessionId = null;
+        LinkFilterFileprofiletypeFileName = null;
+        LinkFilterFileprofiletypeProfileNo = null;
+        LinkFilterFileprofiletypeExtension = null;
+        LinkFilterFileprofiletypeFrom = null; LinkFilterFileprofiletypeTo = null;
+        isFilterMore = "";
+        isEnablePath = false;
+        IsFilterOpen = false;
+        await mainPageLoad();
+    }
+    void OnCloseFilterDocuments()
+    {
+        IsFilterOpen = false;
+    }
+    async void OnFilterDocuments()
+    {
+        // if (LinkFilterFileprofiletypeId == null || string.IsNullOrEmpty(LinkFilterFileprofiletypeFileName) || string.IsNullOrEmpty(LinkFilterFileprofiletypeExtension) || string.IsNullOrEmpty(LinkFilterFileprofiletypeProfileNo))
+        //  {
+        // if (LinkFilterFileprofiletypeId > 0 && !string.IsNullOrEmpty(LinkFilterFileprofiletypeFileName) && !string.IsNullOrEmpty(LinkFilterFileprofiletypeExtension) && !string.IsNullOrEmpty(LinkFilterFileprofiletypeProfileNo))
+        //{
+        // NavigationManager.NavigateTo($"fileprofiletype/" + LinkFilterFileprofiletypeSessionId);
+        //  }
+        // else
+        // {
+        var childLists = GetChild(LinkFilterFileprofiletypeId);
+        documentSearchModel.FileProfileTypeId = LinkFilterFileprofiletypeId;
+        documentSearchModel.SessionId = LinkFilterFileprofiletypeSessionId;
+        documentSearchModel.FileProfileTypeIds = childLists.Select(s => s.FileProfileTypeId).ToList();
+        documentSearchModel.SessionIds = childLists.Select(s => s.SessionID).ToList();
+        documentSearchModel.Extension = LinkFilterFileprofiletypeExtension;
+        documentSearchModel.FileName = LinkFilterFileprofiletypeFileName;
+        documentSearchModel.ProfileNo = LinkFilterFileprofiletypeProfileNo;
+        documentSearchModel.FromDate = LinkFilterFileprofiletypeFrom;
+        documentSearchModel.ToDate = LinkFilterFileprofiletypeTo;
+        documentSearchModel.Type = "Search";
+        await loadFileProfileData();
+        // }
+        //}
+    }
+    void OnButtonFileProfileTypeLinDocClick()
+    {
+        IsFileProfileTypeFilterDocOpen = true;
+    }
+    protected void SelectionChanged(TreeViewNodeEventArgs e)
+    {
+        if (e.NodeInfo?.DataItem != null)
+        {
+            var nodeName = e.NodeInfo.DataItem as DocumentsModel;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, nodeName.FileProfileTypeId);
+            LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            LinkFilterFileprofiletypeId = nodeName.FileProfileTypeId;
+            LinkFilterFileprofiletypeSessionId = nodeName.SessionID;
+        }
+        IsFileProfileTypeFilterDocOpen = false;
+        StateHasChanged();
+    }
+    public IEnumerable<DocumentsModel> GetChild(long? id)
+    {
+        var locations = fileProfileTypeDocumentsAll.Where(x => x.ParentId == id || x.FileProfileTypeId == id).ToList();
+
+        var child = locations.AsEnumerable().Union(fileProfileTypeDocumentsAll.AsEnumerable().Where(x => x.ParentId == id).SelectMany(y => GetChild(y.FileProfileTypeId))).ToList();
+        return child;
+    }
+    private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel> foldersList = new List<FileProfileTypeModel>();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string> FolderPathLists = new List<string>();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<string> foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
+    }
+    async Task openFileProfileOpenPathLink(DocumentsModel documentModel)
+    {
+        var url = NavigationManager.BaseUri.ToString() + "fileprofiletype/" + documentModel.FileProfileTypeSessionId + "/" + documentModel.SessionID;
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
 }

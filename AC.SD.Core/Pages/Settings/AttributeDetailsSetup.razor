@@ -1,0 +1,226 @@
+﻿@page "/attributeDetailSetup"
+@using Application.Queries;
+@using global::Core.Entities;
+@using MediatR
+@inject IMediator Mediator
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@using global::Core.Repositories.Query;
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+              
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled ="@DeleteEnabled"/>
+                
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+<DxGrid @ref="DetailGrid"
+        Data="_attributesDetails"
+        KeyFieldName="AttributeDetailID"
+        EditMode="GridEditMode.EditForm"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        EditorRenderMode="GridEditorRenderMode.Integrated"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20" CustomizeElement="Grid_CustomizeElement"  ValidationEnabled="false"
+        EditModelSaving="OnEditModelSaving"
+       
+        RowClick="OnRowClick"
+      
+        FocusedRowEnabled="true"
+        AllowSelectRowByClick="true"
+        SelectionMode="GridSelectionMode.Single"
+        CssClass="ch-360"
+        style="height: calc(100vh - 250px);">
+    <Columns>
+       
+        <DxGridDataColumn FieldName="AttributeDetailName" Caption="Value ID" MinWidth="80" />
+        <DxGridDataColumn FieldName="Description" MinWidth="80" />
+        <DxGridDataColumn FieldName="Disabled" MinWidth="80" />
+    </Columns>
+    <EditFormTemplate Context="EditFormContext">
+        @{
+            var rolePermission = (AttributeDetails)EditFormContext.EditModel;
+        }
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Value ID:" ColSpanMd="6">
+                <DxTextBox @bind-Text="@rolePermission.AttributeDetailName" />
+                <ValidationMessage For="@(() => rolePermission.AttributeDetailName)" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                <DxTextBox @bind-Text="@rolePermission.Description" />
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Disabled:" ColSpanMd="6">
+                <DxCheckBox @bind-Checked="@rolePermission.Disabled" />
+            </DxFormLayoutItem>
+            <ValidationSummary />
+        </DxFormLayout>
+    </EditFormTemplate>
+</DxGrid>
+
+
+
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_selectedItems.AttributeDetailID))" />
+    </FooterContentTemplate>
+</DxPopup>
+
+@code {
+
+    IGrid? DetailGrid { get; set; }
+    bool DeleteEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    private List<AttributeDetails>? _attributesDetails;
+
+    private List<ApplicationUser> _applicationUsers;
+    private CodeMaster? codemaster;
+    public ApplicationUser? applicationUser { get; private set; }
+    private AttributeDetails _selectedItems;
+    private List<CodeMaster> _stausItems;
+    [Parameter]
+    public long AttributeIDs {get;set;}
+
+    [Parameter]
+    public Action<long> Attributelst { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        // _attributesDetails = await Mediator.Send(new GetAllAttributeDetailsQuery());
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+
+        await UpdateDataAsync();
+
+    } 
+    public async Task Attributeload(long id)
+    {
+        _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(id));
+        StateHasChanged();
+    }
+    async Task UpdateDataAsync()
+    {
+        _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(AttributeIDs));
+        // _attributesDetails = await Mediator.Send(new GetAllAttributeDetailsQuery(AttributeIDs));
+        if (_attributesDetails.Count > 0)
+        {
+            DeleteEnabled = true;
+        }
+        _selectedItems = _attributesDetails.FirstOrDefault();
+        if(_attributesDetails.Count >0 )
+        {
+            DeleteEnabled = true;
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "AttributeDetailID");
+        _selectedItems = _attributesDetails.FirstOrDefault(f => f.AttributeDetailID == (long)UniqueId);
+
+        StateHasChanged();
+
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (AttributeDetails)e.EditModel;
+
+        if (e.IsNew)
+        {
+            // var ex = _attributesDetails.Where(x => x.Name == editModel.Name);
+            // if (ex.Any())
+            // {
+            //     // onShowPopupMessage("Error", "The entered value Already exists.");
+            //     toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            // }
+
+            var createReq = new CreateAttributeDetails
+                {
+                    AttributeDetailName = editModel.AttributeDetailName,
+                    AttributeID = AttributeIDs,
+                    Description = editModel.Description,
+                    Disabled = editModel.Disabled,
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+
+                    AddedDate = DateTime.Now,
+
+                    SessionId = Guid.NewGuid()
+                };
+
+
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+            await UpdateDataAsync();
+
+        }
+    }
+    void addNew()
+    {
+      
+        DetailGrid.StartEditNewRowAsync();
+    }
+    void addDetailDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete(long id)
+    {
+
+
+
+
+        var request = new DeleteAttributeDetails(id);
+        await Mediator.Send(request);
+        Blukdeletepopup = false;
+        await UpdateDataAsync();
+       DetailGrid.SetFocusedRowIndex(0);
+
+
+
+
+      
+
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+
+        Blukdeletepopup = false;
+
+        UpdateDataAsync();
+    }
+}

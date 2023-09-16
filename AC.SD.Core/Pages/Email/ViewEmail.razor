@@ -2680,6 +2680,7 @@
     async Task onRichTxtChangeFontsize()
     {
         await msgrichEdit.NewDocumentAsync();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
     }
 
     protected override async Task OnInitializedAsync()
@@ -3030,6 +3031,7 @@
     }
     private async Task onreply(long id)
     {
+        await JSRuntime.InvokeAsync<string>("showLoading");
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
 

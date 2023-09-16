@@ -21,9 +21,44 @@ namespace Infrastructure.Repository.Query
 
         }
 
-        public Task<long> DeleteAsync(long id)
+        public  async Task<long> DeleteAsync(long id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("id", id);
+
+                            var query = "DELETE  FROM AttributeHeader WHERE AttributeID = @id";
+
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
 
         public async Task<IReadOnlyList<AttributeHeader>> GetAllAsync()
@@ -62,9 +97,67 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public Task<long> Insert(AttributeHeader attributeHeader)
+        public  async Task<long> Insert(AttributeHeader attributeHeader)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("AttributeName", attributeHeader.AttributeName);
+                            parameters.Add("IsInternal", attributeHeader.IsInternal);
+                            parameters.Add("Description", attributeHeader.Description);
+                            parameters.Add("ControlType", attributeHeader.ControlType);
+                            parameters.Add("EntryMask", attributeHeader.EntryMask);
+                            parameters.Add("RegExp", attributeHeader.RegExp);
+                            parameters.Add("AddedByUserID", attributeHeader.AddedByUserID);
+                            parameters.Add("AddedDate", attributeHeader.AddedDate);
+                            parameters.Add("SessionId", attributeHeader.SessionId);
+                            parameters.Add("StatusCodeID", attributeHeader.StatusCodeID);
+
+                            //var query = "INSERT INTO AttributeHeader(AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID) VALUES (@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID)";
+
+                            //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            //transaction.Commit();
+
+                            //return rowsAffected;
+
+                            var query = @"INSERT INTO AttributeHeader(AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID) 
+              OUTPUT INSERTED.AttributeID  -- Replace 'YourIDColumn' with the actual column name of your IDENTITY column
+              VALUES (@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID)";
+
+                            var insertedId = await connection.ExecuteScalarAsync<int>(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return insertedId;
+
+                        }
+
+
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
 
         public Task<long> UpdateAsync(AttributeHeader attributeHeader)

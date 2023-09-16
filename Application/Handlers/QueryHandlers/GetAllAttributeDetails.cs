@@ -22,7 +22,23 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<AttributeDetails>> Handle(GetAllAttributeDetailsQuery request, CancellationToken cancellationToken)
         {
-            return (List<AttributeDetails>)await _queryRepository.GetListAsync();
+            return (List<AttributeDetails>)await _attrubutequeryRepository.GetAllAsync(request.ID);
+        }
+    }
+
+    public class GetAllAttributeLoadHandler : IRequestHandler<GetAllAttributeLoadQuery, List<AttributeDetails>>
+    {
+       
+        private readonly IAttributeDetailsQueryRepository _attrubutequeryRepository;
+        public GetAllAttributeLoadHandler(IAttributeDetailsQueryRepository attrubutequeryRepository)
+        {
+            
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<AttributeDetails>> Handle(GetAllAttributeLoadQuery request, CancellationToken cancellationToken)
+        {
+            return (List<AttributeDetails>)await _attrubutequeryRepository.LoadAttributelst(request.ID);
+          
         }
     }
 
@@ -55,6 +71,22 @@ namespace Application.Handlers.QueryHandlers
         public async Task<long> Handle(EditAttributeDetails request, CancellationToken cancellationToken)
         {
             var req = await _conversationQueryRepository.UpdateAsync(request);
+            return req;
+        }
+    }
+
+    public class DeleteAttributeDetailsHandler : IRequestHandler<DeleteAttributeDetails, long>
+    {
+        private readonly IAttributeDetailsQueryRepository _QueryRepository;
+
+        public DeleteAttributeDetailsHandler(IAttributeDetailsQueryRepository QueryRepository)
+        {
+            _QueryRepository = QueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteAttributeDetails request, CancellationToken cancellationToken)
+        {
+            var req = await _QueryRepository.Delete(request.AttributeDetailsID);
             return req;
         }
     }

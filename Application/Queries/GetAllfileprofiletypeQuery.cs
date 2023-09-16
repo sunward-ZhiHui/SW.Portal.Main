@@ -34,10 +34,10 @@ namespace Application.Queries
     
     public class GetAllSelectedfileprofiletypeQuery : PagedRequest, IRequest<DocumentTypeModel>
     {
-        public long? selectedFileProfileTypeID { get; private set; }
-        public GetAllSelectedfileprofiletypeQuery(long? selectedFileProfileTypeID)
+        public DocumentSearchModel DocumentSearchModel { get; private set; }
+        public GetAllSelectedfileprofiletypeQuery(DocumentSearchModel documentSearchModel)
         {
-            this.selectedFileProfileTypeID = selectedFileProfileTypeID;
+            this.DocumentSearchModel = documentSearchModel;
         }
     }
 
@@ -225,6 +225,9 @@ namespace Application.Queries
             this.Id = id;
             this.ProfileId = profileId;
         }
+    }
+    public class GetFileContetTypes : PagedRequest, IRequest<List<DocumentsModel>>
+    {
     }
     
     public class InsertCreateDocument : PagedRequest, IRequest<DocumentsUploadModel>

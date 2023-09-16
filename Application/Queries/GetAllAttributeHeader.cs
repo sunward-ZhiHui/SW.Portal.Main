@@ -12,10 +12,18 @@ namespace Application.Queries
 {
     public class GetAllAttributeHeader : PagedRequest, IRequest<List<AttributeHeader>>
     {
-        public string SearchString { get; set; }
+      
 
     }
+    public class GetAllAttributeValues : PagedRequest, IRequest<List<AttributeHeader>>
+    {
 
+        public long ID { get; set; }
+        public GetAllAttributeValues(long ID)
+        {
+            this.ID = ID;
+        }
+    }
     public class CreateAttributeHeader : AttributeHeader, IRequest<long>
     {
     }

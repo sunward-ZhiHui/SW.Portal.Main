@@ -9,9 +9,22 @@ using System.Threading.Tasks;
 
 namespace Application.Queries
 {
+    public class GetAllAttributeLoadQuery : PagedRequest, IRequest<List<AttributeDetails>>
+    {
+        public long ID { get; set; }
+        public GetAllAttributeLoadQuery(long ID)
+        {
+            this.ID = ID;
+        }
+    }
+        
     public class GetAllAttributeDetailsQuery : PagedRequest, IRequest<List<AttributeDetails>>
     {
-        public string SearchString { get; set; }
+        public long ID { get; set; }
+        public GetAllAttributeDetailsQuery(long ID)
+        {
+            this.ID = ID;
+        }
     }
     public class CreateAttributeDetails : AttributeDetails, IRequest<long>
     {

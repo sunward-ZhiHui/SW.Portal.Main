@@ -12,11 +12,14 @@ namespace Core.Entities
     public class AttributeHeader : BaseEntity
     {
         [Key]
+       
         public int AttributeID { get; set; }
-        [Required(ErrorMessage = "Description is Required")]
+      // [Required]
+        public string AttributeName { get; set; }
+        [Required]
         public string Description { get; set; }
 
-        public int ControlType { get; set; }
+        public string ControlType { get; set; }
 
         public string EntryMask { get; set; }
         public string RegExp { get; set; }

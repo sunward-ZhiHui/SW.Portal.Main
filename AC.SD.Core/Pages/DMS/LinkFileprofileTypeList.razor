@@ -169,6 +169,7 @@
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     private DocumentsModel _selectedItemsList;
     public ApplicationUser applicationUser { get; private set; }
+    DocumentSearchModel documentLinkSearchModel = new DocumentSearchModel();
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -180,6 +181,7 @@
         FolderPathLists = new List<DocumentsModel>();
         if (FileProfileTypeId > 0)
         {
+            
             var fileType = fileProfileTypeDocumentsAllList.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
             if (fileType != null)
             {
@@ -193,7 +195,8 @@
     async Task loadFileProfileDataLists()
     {
         PanelVisibleLink = true;
-        _fileProfileselectedlstItemsList = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
+        documentLinkSearchModel.FileProfileTypeId = FileProfileTypeId;
+        _fileProfileselectedlstItemsList = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentLinkSearchModel));
         fileProfileTypeDocumentsLink = _fileProfileselectedlstItemsList.DocumentsData;
         if (fileProfileTypeDocumentsLink.Count > 0 && ParentSelectedFiles!=null && ParentSelectedFiles.Type=="Document")
         {

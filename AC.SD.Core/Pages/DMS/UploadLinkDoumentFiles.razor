@@ -228,6 +228,8 @@
             <DxFormLayoutItem Caption="" >
                 <DxTreeView @ref="_treeLinkDocView"
                 @bind-FilterString="FilterString"
+                            ShowFilterPanel="true"
+                            FilterMode="NavigationFilterMode.EntireBranch"
                             Data="@fileProfileTypeLinkDocDocumentsAll"
                             AllowSelectNodes="true"
                             AfterExpand="@AfterExpand"

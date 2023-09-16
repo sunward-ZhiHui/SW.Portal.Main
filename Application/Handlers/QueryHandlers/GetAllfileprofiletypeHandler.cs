@@ -64,7 +64,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<DocumentTypeModel> Handle(GetAllSelectedfileprofiletypeQuery request, CancellationToken cancellationToken)
         {
-            return await _fileprofileQueryRepository.GetAllSelectedFileAsync(request.selectedFileProfileTypeID);
+            return await _fileprofileQueryRepository.GetAllSelectedFileAsync(request.DocumentSearchModel);
         }
 
     }
@@ -490,7 +490,19 @@ namespace Application.Handlers.QueryHandlers
             }
 
         }
-        
+        public class GetFileContetTypesHandler : IRequestHandler<GetFileContetTypes, List<DocumentsModel>>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public GetFileContetTypesHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<List<DocumentsModel>> Handle(GetFileContetTypes request, CancellationToken cancellationToken)
+            {
+                return (List<DocumentsModel>)await _fileprofileQueryRepository.GetFileContetTypes();
+            }
+
+        }
 
     }
 }

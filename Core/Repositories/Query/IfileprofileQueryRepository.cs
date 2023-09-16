@@ -14,7 +14,7 @@ namespace Core.Repositories.Query
     {
         Task<long?> DeleteFileProfileType(long? fileProfileTypeId);
         Task<FileProfileTypeModel> GetFileProfileTypeBySession(Guid? SessionId);
-        Task<DocumentTypeModel> GetAllSelectedFileAsync(long? selectedFileProfileTypeID);
+        Task<DocumentTypeModel> GetAllSelectedFileAsync(DocumentSearchModel documentSearchModel);
         Task<DocumentTypeModel> GetFileProfileTypeDocumentByHistory(SearchModel searchModel);
         Task<DocumentsModel> GetFileProfileTypeDocumentDelete(DocumentsModel documentsModel);
         Task<DocumentsModel> GetFileProfileTypeCheckOut(DocumentsModel documentsModel);
@@ -40,6 +40,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DocumentNoSeriesModel>> GetReserveProfileNumberSeries(long? Id,long? ProfileId);
         Task<DocumentTypeModel> GetAllDocumentDeleteAsync();
         Task<DocumentsModel> ReStoreFileProfileTypeAndDocument(DocumentsModel documentsModel);
+        Task<IReadOnlyList<DocumentsModel>> GetFileContetTypes();
 
     }
 }

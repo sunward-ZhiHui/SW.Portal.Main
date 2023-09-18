@@ -51,7 +51,7 @@
        
         <DxGridDataColumn FieldName="AttributeDetailName" Caption="Value ID" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" MinWidth="80" />
-        <DxGridDataColumn FieldName="Disabled" MinWidth="80" />
+        <DxGridDataColumn FieldName="Disabled" Caption="Is Active" MinWidth="80" />
     </Columns>
     <EditFormTemplate Context="EditFormContext">
         @{
@@ -107,7 +107,7 @@
     private List<CodeMaster> _stausItems;
     [Parameter]
     public long AttributeIDs {get;set;}
-
+    long selectedAttributeID;
     [Parameter]
     public Action<long> Attributelst { get; set; }
     protected override async Task OnInitializedAsync()
@@ -116,35 +116,39 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
 
-        await UpdateDataAsync();
+        await UpdateLst();
 
-    } 
+    }
+    public async Task UpdateLst()
+    {
+        _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(AttributeIDs));
+    }
     public async Task Attributeload(long id)
     {
+        AttributeIDs = 0;
+        selectedAttributeID = id;
         _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(id));
-        if (_attributesDetails.Count >0 )
-        {
-            EditEnabled = true;
-            DeleteEnabled = true;
-        }
-      
+        EditEnabled = false;
+        DeleteEnabled = false;
+        AddEnabled = true;
+
         StateHasChanged();
     }
     public async Task UpdateDataAsync()
     {
-        _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(AttributeIDs));
-        // _attributesDetails = await Mediator.Send(new GetAllAttributeDetailsQuery(AttributeIDs));
-        if (_attributesDetails.Count > 0)
+        _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(selectedAttributeID));
+        // _attributesDetails = await Mediator.Send(new GetAllAttributeDetailsQuery());
+        if (_selectedItems != null)
         {
             DeleteEnabled = true;
             EditEnabled = true;
         }
-        _selectedItems = _attributesDetails.FirstOrDefault();
-        if(_attributesDetails.Count >0 )
+        else
         {
-            DeleteEnabled = true;
-            EditEnabled = true;
+            DeleteEnabled = false;
+            EditEnabled = false;
         }
+        StateHasChanged();
     }
     public void AddEnabledEvent(string ControlType)
     {
@@ -170,7 +174,8 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "AttributeDetailID");
         _selectedItems = _attributesDetails.FirstOrDefault(f => f.AttributeDetailID == (long)UniqueId);
-
+        EditEnabled = true;
+        DeleteEnabled = true;
         StateHasChanged();
 
     }
@@ -186,26 +191,60 @@
             //     // onShowPopupMessage("Error", "The entered value Already exists.");
             //     toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
             // }
-
-            var createReq = new CreateAttributeDetails
-                {
-                    AttributeDetailName = editModel.AttributeDetailName,
-                    AttributeID = AttributeIDs,
-                    Description = editModel.Description,
-                    Disabled = editModel.Disabled,
-                    StatusCodeID = 1,
-                    AddedByUserID = applicationUser.UserID,
-
-                    AddedDate = DateTime.Now,
-
-                    SessionId = Guid.NewGuid()
-                };
+            if (AttributeIDs == 0)
+            {
+                var createReq = new CreateAttributeDetails
+                    {
 
 
-            var result = await Mediator.Send(createReq);
-            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        AttributeDetailName = editModel.AttributeDetailName,
+                        AttributeID = selectedAttributeID,
 
-           
+                        Description = editModel.Description,
+                        Disabled = editModel.Disabled,
+                        StatusCodeID = 1,
+                        AddedByUserID = applicationUser.UserID,
+
+                        AddedDate = DateTime.Now,
+
+                        SessionId = Guid.NewGuid()
+
+
+                    };
+
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+            else
+            {
+
+                var createReq = new CreateAttributeDetails
+                    {
+
+
+                        AttributeDetailName = editModel.AttributeDetailName,
+                        AttributeID = AttributeIDs,
+
+                        Description = editModel.Description,
+                        Disabled = editModel.Disabled,
+                        StatusCodeID = 1,
+                        AddedByUserID = applicationUser.UserID,
+
+                        AddedDate = DateTime.Now,
+
+                        SessionId = Guid.NewGuid()
+
+
+                    };
+
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+                await UpdateLst();
+
+            }
+
 
         }
         else
@@ -215,10 +254,10 @@
 
                     AttributeDetailID = editModel.AttributeDetailID,
                     Description = editModel.Description,
-                  Disabled = editModel.Disabled,
-                  AttributeDetailName = editModel.AttributeDetailName,
+                    Disabled = editModel.Disabled,
+                    AttributeDetailName = editModel.AttributeDetailName,
                     SessionId = editModel.SessionId,
-                    ModifiedByUserID =applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
 
 
@@ -226,8 +265,18 @@
 
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            if (AttributeIDs == 0)
+            {
+                await UpdateDataAsync();
+            }
+            else
+            {
+                await UpdateLst();
+            }
+        
         }
-        await UpdateDataAsync();
+
+
     }
     void addNew()
     {
@@ -252,7 +301,14 @@
         var request = new DeleteAttributeDetails(id);
         await Mediator.Send(request);
         Blukdeletepopup = false;
-        await UpdateDataAsync();
+        if (AttributeIDs == 0)
+        {
+            await UpdateDataAsync();
+        }
+        else
+        {
+            await UpdateLst();
+        }
        DetailGrid.SetFocusedRowIndex(0);
 
 
@@ -267,6 +323,6 @@
 
         Blukdeletepopup = false;
 
-        UpdateDataAsync();
+         UpdateLst();
     }
 }

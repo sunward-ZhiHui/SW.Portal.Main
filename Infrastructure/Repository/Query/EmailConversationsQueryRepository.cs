@@ -514,7 +514,8 @@ namespace Infrastructure.Repository.Query
                                         FC.ReplyId,
                                         FC.SessionId,FC.FileData,
                                         EN.IsRead,
-										EN.ID as EmailNotificationId
+										EN.ID as EmailNotificationId,
+                                        ISNULL(FC.IsMobile, 0) AS IsMobile
                                     FROM
                                         EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
@@ -757,7 +758,8 @@ namespace Infrastructure.Repository.Query
                                         FC.ReplyId,
                                         FC.SessionId,FC.FileData,
                                         EN.IsRead,
-										EN.ID as EmailNotificationId
+										EN.ID as EmailNotificationId,                                        
+                                        ISNULL(FC.IsMobile, 0) AS IsMobile
                                     FROM
                                         EmailConversations FC
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
@@ -1084,8 +1086,9 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DueDate", forumConversations.DueDate);
                             parameters.Add("IsAllowParticipants", forumConversations.IsAllowParticipants);
                             parameters.Add("Urgent", forumConversations.Urgent);
+                            parameters.Add("IsMobile", forumConversations.IsMobile,DbType.Int32);
 
-                            var query = "INSERT INTO EmailConversations(Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
+                            var query = "INSERT INTO EmailConversations(IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

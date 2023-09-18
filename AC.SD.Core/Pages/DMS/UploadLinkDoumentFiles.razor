@@ -1,0 +1,535 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using Newtonsoft.Json;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager Navigator
+<style>
+    .dxuc-file-list-view {
+        padding: 20px;
+    }
+
+    .dxuc-upload-icon {
+        display: none; /* or any other style to disable or hide the icon */
+    }
+</style>
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@LinkDocbackUrl" />
+                    </Items>
+                </DxMenu>
+            </div>
+            <div class="" style="float: left; margin-top: -40px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
+                <div id="attachmentLinkDocSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+            </div>
+            <div class="" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 8px; z-index: 9999; width:100px;">
+                <button type="submit" form="@UploadDocLinkFormID" disabled="@loadingLinkDoc" class="btn border-primary btn-primary m-1 handline" onclick="@onsubmitUploadLinkDocFromClick">
+                    @if (loadingLinkDoc)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    <i class="fa fa-upload"></i>
+                    @LinkDocMessage
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="" style="margin-left:10px;">
+    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
+        <div class="cw-480" style="margin-top:10px;">
+            <EditForm Model="@Data" id="@UploadDocLinkFormID" Context="EditFormContext" OnValidSubmit="@HandleValidLinkDocSubmit">
+
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />
+                    <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10" >
+                        <DxTextBox @bind-Text=@LinkDocFileprofiletypeName Enabled="IsFileProfileTypeLinkDocShow">
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFileProfileTypeLinkDocOpen")
+                                                Tooltip="Select File ProfileType"
+                                                Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                            </Buttons>
+                        </DxTextBox>
+                        <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" ShowValidationIcon="true" style="display:none;" />
+                        <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="PlantCode"
+                                    ValueFieldName="PlantID"
+                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemLinkDocChanged(plantSelect?.PlantID))"
+                                    Enabled="isPlantLinkDoc"
+                        @bind-Value="@Data.PlantId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                    Caption="Plant Code"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                    Caption="Nav Company" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.PlantId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                        <DxComboBox Data="@_divisionItems"
+                                    NullText="Select Division..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="DivisionID"
+                                    Enabled="isDivisionLinkDoc"
+                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionLinkDocChanged(plantSelect?.DivisionID))"
+                        @bind-Value="@Data.DivisionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.DivisionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                        <DxComboBox Data="@_departmentItems"
+                                    NullText="Select Department..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="DepartmentName"
+                                    ValueFieldName="DepartmentId"
+                                    Enabled="isDepartmentLinkDoc"
+                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementLinkDocChanged(plantSelect?.DepartmentId))"
+                        @bind-Value="@Data.DepartmentId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.DepartmentId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                        <DxComboBox Data="@_sectionItems"
+                                    NullText="Select Section..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SectionName"
+                                    ValueFieldName="SectionId"
+                                    Enabled="isSectionLinkDoc"
+                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionLinkDocChanged(plantSelect?.SectionId))"
+                        @bind-Value="@Data.SectionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.SectionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
+                        <DxComboBox Data="@_subSectionItems"
+                                    NullText="Select SubSection..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SubSectionName"
+                                    ValueFieldName="SubSectionId"
+                                    Enabled="isSubSectionLinkDoc"
+                        @bind-Value="@Data.SubSectionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.SubSectionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="6" Visible="@linkDocisExpiryDate">
+                        <DxDateEdit NullText="Select a Expiry Date..." MinDate="DateTime.Now" @bind-Date="@Data.ExpiryDate" CssClass="cw-320" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                        <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="" ColSpanMd="12">
+
+                        <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
+                            <DxUpload @ref="LinkDocuploadComponent" Name="files"
+                                      Visible="@AttachmentUploadLinkDocVisible"
+                                      AcceptedFileTypes=@linkDocAcceptedFileTypes
+                                      ChunkSize="200000"
+                                      UploadMode="@UploadMode.OnButtonClick"
+                                      FileUploadStart="OnFileUploadLinkDocStart"
+                                      AllowMultiFileUpload="true"
+                                      ExternalSelectButtonCssSelector="#attachmentLinkDocSelectButton"
+                                      SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                                      FileUploaded="@isUploadLinkDocSuccess"
+                                      FileUploadProgressChanged="@OnUploadProgressLinkDocChanged"
+                                      FileUploadStarted="@OnFileUploadLinkDocStarted"
+                                      FileUploadError="@OnUploadLinkDocError">
+                            </DxUpload>
+
+                        </div>
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<DxFlyout @bind-IsOpen=IsFileProfileTypeLinkDocOpen
+          PositionTarget=@($"#flyout-overview-target-container-IsFileProfileTypeLinkDocOpen")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Select FileProfile Type"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick="false"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+            <DxFormLayoutItem Caption="" >
+                <DxTreeView @ref="_treeLinkDocView"
+                @bind-FilterString="FilterString"
+                            ShowFilterPanel="true"
+                            FilterMode="NavigationFilterMode.EntireBranch"
+                            Data="@fileProfileTypeLinkDocDocumentsAll"
+                            AllowSelectNodes="true"
+                            AfterExpand="@AfterExpand"
+                            SelectionChanged="@SelectionChanged">
+                    <DataMappings>
+                        <DxTreeViewDataMapping Text="FileName"
+                                               Key="DocumentID"
+                                               ParentKey="ParentId" />
+                    </DataMappings>
+                </DxTreeView>
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeLinkDocOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+@code {
+    [Parameter]
+    public DocumentsModel selectedFiles { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public Action RevokeLinkDocBack { get; set; }
+    [Parameter]
+    public Guid? FileProfileSessionId { get; set; }
+    public string UploadDocLinkFormID { get; set; } = "UploadDocLinkFormID";
+    private DxTreeView _treeLinkDocView;
+    string FilterString { get; set; }
+    public string LinkDocFileprofiletypeName { get; set; }
+    public bool loadingLinkDoc { get; set; } = false;
+    public bool IsFileProfileTypeLinkDocOpen { get; set; }
+    string LinkDocMessage = "Upload";
+    public bool IsFileProfileTypeLinkDocShow { get; set; } = false;
+    private List<ViewPlants>? _plantItems;
+    private List<ViewDivision>? _divisionItems;
+    private List<ViewDepartment>? _departmentItems;
+    private List<ViewSection>? _sectionItems;
+    private List<ViewSubSection>? _subSectionItems;
+    bool AttachmentUploadLinkDocVisible { get; set; } = false;
+    DocumentsUploadModel Data = new DocumentsUploadModel();
+    public List<DocumentsUploadModel> TempSetLinkDocIds = new List<DocumentsUploadModel>();
+    public DocumentProfileNoSeriesModel documentProfileNoSeriesLinkDocData { get; set; }
+    private DxUpload LinkDocuploadComponent;
+    string linkDocMyError { get; set; }
+    string linkDocMyMessage { get; set; }
+    private List<UploadFileInfo> LinkDocSelectedFiles { get; set; } = new List<UploadFileInfo>();
+    bool linkDocisExpiryDate { get; set; } = false;
+    bool isPlantLinkDoc { get; set; } = false;
+    bool isDivisionLinkDoc { get; set; } = false; bool isDepartmentLinkDoc { get; set; } = false;
+    bool isSectionLinkDoc { get; set; } = false; bool isSubSectionLinkDoc { get; set; } = false;
+    int LinkDocSelectedFilesCount { get; set; }
+    int LinkDocCurrentUplodCount { get; set; }
+    public List<DocumentsModel> fileProfileTypeLinkDocDocumentsAll { get; set; }
+    public List<string> linkDocAcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
+    protected override async Task OnInitializedAsync()
+    {
+        await loadLinkDocData(selectedFiles, applicationUser);
+    }
+    public async Task loadLinkDocData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser)
+    {
+        IsFileProfileTypeLinkDocShow = true;
+        fileProfileTypeLinkDocDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        isPlantLinkDoc = false;
+        isDivisionLinkDoc = false; isDepartmentLinkDoc = false;
+        isSectionLinkDoc = false; isSubSectionLinkDoc = false;
+        Data.PlantId = 0; Data.DepartmentId = 0;
+        Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
+        TempSetLinkDocIds = new List<DocumentsUploadModel>();
+        loadingLinkDoc = false;
+        LinkDocMessage = "Upload";
+        LinkDocuploadComponent.RemoveAllFiles();
+        LinkDocCurrentUplodCount = 0;
+        LinkDocSelectedFilesCount = 0;
+        LinkDocSelectedFiles = new List<UploadFileInfo>();
+        linkDocMyError = ""; linkDocMyMessage = ""; LinkDocFileprofiletypeName = "";
+        if (_selectedFiles != null && _selectedFiles.ProfileID > 0)
+        {
+            selectedFiles = _selectedFiles;
+            applicationUser = _applicationUser;
+            documentProfileNoSeriesLinkDocData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedFiles.ProfileID));
+
+            dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesLinkDocData.Abbreviation1);
+            if (abbreviation != null)
+            {
+                foreach (var item in abbreviation)
+                {
+                    var itemsId = item.Id;
+                    if (itemsId == 1)
+                    {
+                        isPlantLinkDoc = true;
+                        Data.PlantId = null;
+                    }
+                    if (itemsId == 2)
+                    {
+                        isDepartmentLinkDoc = true; isDivisionLinkDoc = true;
+                        Data.DepartmentId = null;
+                        Data.DivisionId = null;
+                    }
+                    if (itemsId == 3)
+                    {
+                        isSectionLinkDoc = true;
+                        Data.SectionId = null;
+                    }
+                    if (itemsId == 4)
+                    {
+                        isSubSectionLinkDoc = true;
+                        Data.SubSectionId = null;
+                    }
+                }
+            }
+            if (selectedFiles.IsExpiryDate == true)
+            {
+                linkDocisExpiryDate = true;
+            }
+            Data.DocumentId = selectedFiles.DocumentID;
+            Data.UserSession = applicationUser.SessionId;
+            Data.UserId = applicationUser.UserID;
+            Data.ProfileId = selectedFiles.ProfileID;
+            Data.FileProfileTypeId = selectedFiles.FileProfileTypeId > 0 ? selectedFiles.FileProfileTypeId : selectedFiles.FilterProfileTypeId;
+            var lists = GetFileProfileTypePath(fileProfileTypeLinkDocDocumentsAll, Data.FileProfileTypeId);
+            LinkDocFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+        }
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        await SelectedItemLinkDocChanged(0);
+        await SelectedItemDivisionLinkDocChanged(0);
+        await SelectedItemDepartementLinkDocChanged(0);
+        await SelectedItemSectionLinkDocChanged(0);
+        StateHasChanged();
+    }
+    private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel> foldersList = new List<FileProfileTypeModel>();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string> FolderPathLists = new List<string>();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<string> foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
+    }
+    private void AfterExpand(TreeViewNodeEventArgs e)
+    {
+        if (!e.CausedByAPI)
+        {
+            _treeLinkDocView.ExpandAll();
+        }
+    }
+    protected void SelectionChanged(TreeViewNodeEventArgs e)
+    {
+        if (e.NodeInfo?.DataItem != null)
+        {
+            var nodeName = e.NodeInfo.DataItem as DocumentsModel;
+            Data.FileProfileTypeId = nodeName.FileProfileTypeId;
+            var lists = GetFileProfileTypePath(fileProfileTypeLinkDocDocumentsAll, Data.FileProfileTypeId);
+            LinkDocFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+        }
+
+        StateHasChanged();
+    }
+    void OnButtonFileProfileTypeLinDocClick()
+    {
+        IsFileProfileTypeLinkDocOpen = true;
+    }
+   void LinkDocbackUrl()
+    {
+       RevokeLinkDocBack?.Invoke();
+    }
+    void OnFileUploadLinkDocStart(FileUploadStartEventArgs e)
+    {
+        LinkDocMessage = "Uploading...";
+        loadingLinkDoc = true;
+        var SessionId = new Guid(e.FileInfo.Guid);
+        DocumentsUploadModel TempSetId = new DocumentsUploadModel();
+        TempSetId.SessionId = SessionId;
+        TempSetLinkDocIds.Add(TempSetId);
+        string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + selectedFiles.SessionID + "&addedByUserId=" + applicationUser.UserID + "&IsFileSession=true";
+        e.UploadUrl = url;
+    }
+    async Task isUploadLinkDocSuccess(FileUploadEventArgs e)
+    {
+        LinkDocCurrentUplodCount++;
+        var filesessionIds = new Guid(e.FileInfo.Guid);
+        Data.SessionId = filesessionIds;
+        Data.FileSessionId = filesessionIds;
+        var ext = e.FileInfo.Name.Split(".").Last();
+        Data.FilePath = @"Documents\" + selectedFiles.SessionID + @"\" + filesessionIds + "." + ext;
+        Data.Type = "Document Link";
+        var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
+        linkDocMyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+        toastService.ShowToast(linkDocMyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        if (LinkDocCurrentUplodCount >= LinkDocSelectedFilesCount)
+        {
+            LinkDocMessage = "Upload";
+            loadingLinkDoc = false;
+            LinkDocbackUrl();
+        }
+
+    }
+    void OnUploadLinkDocError(FileUploadErrorEventArgs e)
+    {
+        linkDocMyError = e.RequestInfo.ResponseText;
+        toastService.ShowToast(linkDocMyError, AC.SD.Core.Services.ToastLevel.Error);
+        LinkDocMessage = "Upload";
+        loadingLinkDoc = false;
+        InvokeAsync(StateHasChanged);
+    }
+    void OnFileUploadLinkDocStarted(FileUploadEventArgs e)
+    {
+        linkDocMyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
+        toastService.ShowToast(linkDocMyMessage, AC.SD.Core.Services.ToastLevel.Info);
+        InvokeAsync(StateHasChanged);
+    }
+    void OnUploadProgressLinkDocChanged(FileUploadEventArgs e)
+    {
+        // var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
+    }
+    async Task SelectedItemLinkDocChanged(long? plantID)
+    {
+        _divisionItems = new List<ViewDivision>();
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (plantID > 0)
+        {
+            _divisionItems = await Mediator.Send(new GetDivisionByCompany(plantID));
+        }
+    }
+    async Task SelectedItemDivisionLinkDocChanged(long? divisionId)
+    {
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (divisionId > 0)
+        {
+            _departmentItems = await Mediator.Send(new GetDepartmentByDivision(divisionId));
+        }
+    }
+    async Task SelectedItemDepartementLinkDocChanged(long? departmentId)
+    {
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (departmentId > 0)
+        {
+            _sectionItems = await Mediator.Send(new GetSectionByDepartment(departmentId));
+        }
+    }
+    async Task SelectedItemSectionLinkDocChanged(long? sectionId)
+    {
+        _subSectionItems = new List<ViewSubSection>();
+        if (sectionId > 0)
+        {
+            _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
+        }
+    }
+    void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        AttachmentUploadLinkDocVisible = files.ToList().Count > 0;
+        LinkDocSelectedFiles.AddRange(files);
+        LinkDocSelectedFilesCount = files.ToList().Count; //Count current files
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void onsubmitUploadLinkDocFromClick()
+    {
+    }
+    void HandleValidLinkDocSubmit()
+    {
+        LinkDocuploadComponent.UploadAllFiles();
+    }
+}

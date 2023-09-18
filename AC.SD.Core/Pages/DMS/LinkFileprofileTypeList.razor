@@ -82,48 +82,48 @@
                     {
                         @if (item.Extension == "xlsx" || item.Extension == "xls")
                         {
-                            <i class="fa fa-file-excel" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                            <i class="fa fa-file-excel" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@item.FileName"></i>
                         }
                         else if (item.Extension == "ppt" || item.Extension == "pptx")
                         {
-                            <i class="fa fa-file-powerpoint" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                            <i class="fa fa-file-powerpoint" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#C03F1F;" title="@item.FileName"></i>
                         }
                         else if (item.Extension == "doc" || item.Extension == "docx")
                         {
-                            <i class="fa fa-file-word" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                            <i class="fa fa-file-word" aria-hidden="true" style="padding:5px;margin-right: 5px;color:blue;" title="@item.FileName"></i>
                         }
                         else if (item.Extension == "pdf")
                         {
-                            <i class="fa fa-file-pdf" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                            <i class="fa fa-file-pdf" aria-hidden="true" style="padding:5px;margin-right: 5px;color:red;" title="@item.FileName"></i>
                         }
                         else if (item.Extension == "txt")
                         {
-                            <i class="fa fa-file-text" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                            <i class="fa fa-file-text" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.FileName"></i>
                         }
                         else
                         {
                             if (contentType == "image")
                             {
-                                <i class="fa fa-file-image" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                                <i class="fa fa-file-image" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1E3050" title="@item.FileName"></i>
                             }
                             else if (contentType == "video")
                             {
-                                <i class="fa fa-file-video" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                                <i class="fa fa-file-video" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#008080" title="@item.FileName"></i>
                             }
                             else
                             {
-                                <i class="fa fa-file" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                                <i class="fa fa-file" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.FileName"></i>
                             }
                         }
                         @if (item.IsLocked == true)
                         {
-                            <i class="fa fa-lock" aria-hidden="true" style="margin-right: 5px;" title="@item.LockedByUser"></i>
+                            <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.LockedByUser"></i>
                         }
 
                     }
                     else
                     {
-                        <i class="fa fa-folder" aria-hidden="true" style="margin-right: 5px;" title="@item.FileName"></i>
+                        <i class="fa fa-folder" aria-hidden="true" style="padding:5px;margin-right: 5px;color:yellow" title="@item.FileName"></i>
                     }
                     <span id=@($"flyout-overview-target-container-RenameFilename-{item.DocumentID}")>@item.FileName</span>
                 </CellDisplayTemplate>
@@ -139,8 +139,10 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn FieldName="Description" MinWidth="80" />
-            <DxGridDataColumn FieldName="AddedByUser" Caption="ModifiedBy" MinWidth="40" />
-            <DxGridDataColumn FieldName="AddedDate" Caption="Modified" MinWidth="40" />
+            <DxGridDataColumn FieldName="AddedBy" Caption="Added By" MinWidth="40" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added" MinWidth="40" />
+            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="40" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified" MinWidth="40" />
         </Columns>
         <TotalSummary>
             <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProfileNo" />
@@ -167,6 +169,7 @@
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     private DocumentsModel _selectedItemsList;
     public ApplicationUser applicationUser { get; private set; }
+    DocumentSearchModel documentLinkSearchModel = new DocumentSearchModel();
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -178,6 +181,7 @@
         FolderPathLists = new List<DocumentsModel>();
         if (FileProfileTypeId > 0)
         {
+            
             var fileType = fileProfileTypeDocumentsAllList.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
             if (fileType != null)
             {
@@ -191,7 +195,8 @@
     async Task loadFileProfileDataLists()
     {
         PanelVisibleLink = true;
-        _fileProfileselectedlstItemsList = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(FileProfileTypeId));
+        documentLinkSearchModel.FileProfileTypeId = FileProfileTypeId;
+        _fileProfileselectedlstItemsList = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentLinkSearchModel));
         fileProfileTypeDocumentsLink = _fileProfileselectedlstItemsList.DocumentsData;
         if (fileProfileTypeDocumentsLink.Count > 0 && ParentSelectedFiles!=null && ParentSelectedFiles.Type=="Document")
         {

@@ -153,12 +153,12 @@ else
     void addNew()
     {
 
-        NavigationManager.NavigateTo("EmployeeForm");
+        NavigationManager.NavigateTo("Employees/EmployeeForm");
     }
     void addEdit()
     {
         //Grid.StartEditDataItemAsync(_selectedItems);
-        NavigationManager.NavigateTo("EmployeeForm/" + _selectedItems.SessionId + "");
+        NavigationManager.NavigateTo("Employees/EmployeeForm/" + _selectedItems.SessionId + "");
 
     }
     void addDelete()
@@ -175,12 +175,12 @@ else
     }
     void NewEmployeeForm(MouseEventArgs args)
     {
-        NavigationManager.NavigateTo("EmployeeForm");
+        NavigationManager.NavigateTo("Employees/EmployeeForm");
     }
 
     void EditEmployeeOnPage(ViewEmployee viewEmployee)
     {
-        NavigationManager.NavigateTo("EmployeeForm/" + viewEmployee.SessionId + "");
+        NavigationManager.NavigateTo("Employees/EmployeeForm/" + viewEmployee.SessionId + "");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

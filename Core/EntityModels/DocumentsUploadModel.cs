@@ -17,6 +17,7 @@ namespace Core.EntityModels
         public string? Type { get; set; }
         public Guid? UserSession { get; set; }
         public string? Description { get; set; }
+        [Required(ErrorMessage = "FileProfile Type is Required")]
         public long? FileProfileTypeId { get; set; }
         [Required(ErrorMessage = "Company is Required")]
         public long? PlantId { get; set; } = 0;
@@ -37,7 +38,8 @@ namespace Core.EntityModels
         public long? DocumentParentId { get; set; }
         public long? DocumentMainParentId { get; set; }
         public bool? IsCheckOut { get; set; } = false;
-        
+        public string? FilePath { get; set; }
         public string? FileName { get; set; }
+        public Guid? FileSessionId { get; set; }
     }
 }

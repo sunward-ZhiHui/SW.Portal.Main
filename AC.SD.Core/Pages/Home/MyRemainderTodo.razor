@@ -149,8 +149,8 @@
                         <div style=" font-size: 14px;">
                             @item.SubjectName
                             <div style="float: right; font-size: 11px;">
-                                <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox>
-                                <span style="float: right; margin-right: 10px;    margin-top: 7px;">@item.Status</span>
+                               @*  <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox> *@
+                                <span style="float: right;">@item.Status</span>
                             </div>
                         </div>
                        
@@ -312,7 +312,7 @@
                                             string formattedFileSize = FormatFileSize(item.FileSize.Value);
                                         }
                                         <span style="font-size: 11px; margin-left:10px;">  @formattedFileSize</span>
-                                        <button style="color:red;float:right;" class="dxbl-btn fa fa-eye" @onclick="@(() => onPreview(item.DocumentId))"> </button>
+                                        <button style="color:#009eff;float:right;" class="dxbl-btn fa fa-eye" @onclick="@(() => onPreview(item.DocumentId))"> </button>
                                     </td>
 
                                 </tr>
@@ -375,13 +375,21 @@
     private List<ViewEmployee>? _participant;
 
     protected override async Task OnInitializedAsync()
-    {      
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _ToDoNotesHistory = await Mediator.Send(new GetMyToDoRemainderDate(applicationUser.UserID));        
-        _participant = await Mediator.Send(new GetAllEmployeeListQuery());
+    {
+
+
+        await  Reloadtodo();
+
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+    }
+    public async Task Reloadtodo()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _ToDoNotesHistory = await Mediator.Send(new GetMyToDoRemainderDate(applicationUser.UserID));
+        _participant = await Mediator.Send(new GetAllEmployeeListQuery());
+        StateHasChanged();
     }
     public static string FormatFileSize(long bytes)
     {

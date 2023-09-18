@@ -1308,8 +1308,9 @@ main {
     height: 180px !important;
 }
 .pinrotated {
-    transform: rotate(37deg);
+    transform: rotate(65deg);
     margin-right: 3px;
+    color: #111111;
 }
 
 .card-body {

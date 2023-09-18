@@ -183,36 +183,48 @@
             Data.UserSession = applicationUser.SessionId;
             Data.UserId = applicationUser.UserID;
             Data.ProfileId = selectedItems.ProfileID;
+            Data.SessionId = selectedItems.SessionId;
             Data.ProfileNo = selectedItems.ProfileNo;
             Data.FileProfileTypeId = selectedItems.FileProfileTypeId > 0 ? selectedItems.FileProfileTypeId : selectedItems.FilterProfileTypeId;
             StateHasChanged();
         }
     }
-    async Task OnFileUploadStart(FileUploadStartEventArgs e)
+    void OnFileUploadStart(FileUploadStartEventArgs e)
     {
-        Message = "Uploading...";
-        checkInloading = true;
-        var SessionId = selectedItems.SessionId;
-        Data.SessionId = SessionId;
-        var response = await Mediator.Send(new InsertCreateDocument(Data));
-        if (response.DocumentId > 0)
+        if (SelectedFilesCount > 0)
         {
-            var newSessionId = FileProfileSessionId == null ? SessionId : FileProfileSessionId;
-            DocumentsUploadModel TempSetId = new DocumentsUploadModel();
-            TempSetId.SessionId = SessionId;
-            TempSetId.DocumentId = response.DocumentId;
-            TempSetIds.Add(TempSetId);
-            string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
-            string url = BaseUrl + "UploadDocumentsChunkFileById?SessionId=" + newSessionId + "&DocumentId=" + response.DocumentId;
-            e.UploadUrl = url;
-
+            if (SelectedFilesCount == 1)
+            {
+                Message = "Uploading...";
+                checkInloading = true;
+                string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
+                string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + FileProfileSessionId + "&addedByUserId=" + applicationUser.UserID + "&IsNewSession=true";
+                e.UploadUrl = url;
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
         }
     }
-    protected async void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
         AttachmentCheckInUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
         SelectedFilesCount = files.ToList().Count; //Count current files
+        if (SelectedFilesCount > 0)
+        {
+            if (SelectedFilesCount == 1)
+            {
+
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
         InvokeAsync(StateHasChanged);
     }
     void OnFileUploadStarted(FileUploadEventArgs e)
@@ -221,28 +233,26 @@
         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
         InvokeAsync(StateHasChanged);
     }
-    private void isUploadSuccess(FileUploadEventArgs e)
+    async Task isUploadSuccess(FileUploadEventArgs e)
     {
-        var MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
-        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
         CurrentUplodCount++;
-        if (CurrentUplodCount >= SelectedFilesCount)
+        var filesessionIds = new Guid(e.FileInfo.Guid);
+        var ext = e.FileInfo.Name.Split(".").Last();
+        Data.FilePath = @"Documents\" + FileProfileSessionId + @"\" + filesessionIds + "." + ext;
+        Data.FileSessionId = FileProfileSessionId;
+        var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
+        if (response.SessionId != null)
         {
+            var MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+            toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
             Message = "Upload";
             checkInloading = false;
             backUrl();
         }
-        InvokeAsync(StateHasChanged);
 
     }
-    async Task OnUploadError(FileUploadErrorEventArgs e)
+    void OnUploadError(FileUploadErrorEventArgs e)
     {
-        var filesessionIds = new Guid(e.FileInfo.Guid);
-        var docId = TempSetIds.FirstOrDefault(o => o.SessionId == filesessionIds)?.DocumentId;
-        if (docId > 0)
-        {
-            await Mediator.Send(new DeleteDoc(docId.Value));
-        }
         var MyError = e.RequestInfo.ResponseText;
         toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
         Message = "Upload";
@@ -259,7 +269,19 @@
     }
     void onSubmitCheckInUploadFormClick()
     {
-        uploadCheckInComponent.UploadAllFiles();
+        if (SelectedFilesCount > 0)
+        {
+            if (SelectedFilesCount == 1)
+            {
+                uploadCheckInComponent.UploadAllFiles();
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+
     }
     void HandleValidCheckInSubmit()
     {

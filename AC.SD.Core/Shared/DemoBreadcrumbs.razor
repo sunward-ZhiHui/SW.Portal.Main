@@ -1,17 +1,15 @@
 ﻿@implements IDisposable
-@inject DemoConfiguration Configuration
-@inject NavigationManager NavManager
+@inject DemoConfiguration Configurations
 @inject NavigationManager NavigationManager
 @using global::Core.EntityModels;
 @using Application.Queries;
 @using MediatR
 @inject IMediator Mediator
-@inject IJSRuntime jsRuntime
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-
-
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
 <div class="items">
     @foreach (var item in Items)
     {
@@ -26,23 +24,39 @@
         <span class="separator"></span>
     }
 </div>
-
+<DxPopup HeaderText="Access Denied"
+@bind-Visible="@PopupVisible"
+         CloseOnEscape="false"
+         CloseOnOutsideClick="false"
+         ShowFooter="true"
+         ShowCloseButton="false">
+    <BodyContentTemplate>
+        <PermissionDenied _portalMenuModelData="@portalMenuModelData" RevokeBackPermission="BackPermission"></PermissionDenied>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Primary" Text="Dashboard" Click="@(() => goDashBoard())" />
+        <DxButton CssClass="popup-button my-1 ms-2" RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() =>PopupVisible=false)" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
-
+    bool PopupVisible { get; set; } = false;
+    public PortalMenuModel portalMenuModelData { get; set; }
     [Parameter]
     public PortalMenuModel _appPermissionListItems { get; set; }
     private List<PortalMenuModel> _appPermissionItems;
     public ApplicationUser applicationUser { get; private set; }
     const string HomePageTitle = "Home";
     List<Tuple<string, string>> Items { get; set; } = new List<Tuple<string, string>>();
+    private bool isDevelopmentMode;
     protected override async Task OnInitializedAsync()
     {
-        //page navigation 
+        isDevelopmentMode = Boolean.Parse(Configuration["IsDevelopmentMode"] != null ? Configuration["IsDevelopmentMode"] : "true");
+        //page navigation
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         if (applicationUser == null)
         {
-            NavManager.NavigateTo($"Login",forceLoad:true);
-        }      
+            NavigationManager.NavigateTo($"Login", forceLoad: true);
+        }
         else
         {
             _appPermissionItems = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
@@ -53,7 +67,17 @@
         //UpdateItems(NavigationManager.Uri)dashboard;
 
     }
+    void BackPermission()
+    {
+        PopupVisible = false;
+        StateHasChanged();
+    }
+    void goDashBoard()
+    {
 
+        PopupVisible = false;
+        NavigationManager.NavigateTo("dashboard");
+    }
     void BreadcrumbsGenerate()
     {
         string str = NavigationManager.Uri;
@@ -67,6 +91,7 @@
                 var list1 = _appPermissionItems.FirstOrDefault(f => f.Component != null && f.Component.ToLower() == UrlList[0]);
                 if (list1 != null)
                 {
+                    
                     if (list1.ParentID != null)
                     {
                         var list2 = _appPermissionItems.FirstOrDefault(f => f.PermissionID == list1.ParentID);
@@ -75,19 +100,27 @@
                             Items.Add(new(list2.Title, ""));
                         }
                     }
+                    // if (list1.Name != null && list1.Component.ToLower() != list1.Name.ToLower())
+                    // {
+                    //     Items.Add(new(list1.Component, ""));
+                    // }
                     Items.Add(new(list1.Title, ""));
 
                 }
-                //else
-                //{
-                   
-                //    var list5 = UrlList[0];
-                //    Items.Add(new(list5, ""));
+                else
+                {
+                    if (isDevelopmentMode==false)
+                    {
+                        portalMenuModelData = list1;
+                        PopupVisible = true;
+                    }
+                    //    var list5 = UrlList[0];
+                    //    Items.Add(new(list5, ""));
 
-                //}
+                }
             }
         }
-       
+
     }
     void OnLocationChanged(object sender, LocationChangedEventArgs args)
     {
@@ -99,7 +132,7 @@
     {
         Items.Clear();
 
-        var currentPage = Configuration.GetDemoPageByUrl(NavigationManager, currentUri);
+        var currentPage = Configurations.GetDemoPageByUrl(NavigationManager, currentUri);
         if (currentPage != null)
         {
             var demoPage = currentPage;

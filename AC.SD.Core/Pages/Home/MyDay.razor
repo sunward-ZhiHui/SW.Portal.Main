@@ -17,23 +17,30 @@
         <div class="content-container row">
             <div class="@leftTodoDisplay" style="@styleTreeDisplay overflow-x: hidden;">
                 <div class="mini-menu-bar-top">
-                    <MyDueTodo></MyDueTodo>
+                    <MyDueTodo NotesId="ReloadGrid"></MyDueTodo>
                 </div>
             </div>
             <div class="@RighttodoDisplay">
-                <MyRemainderTodo></MyRemainderTodo>
+                <MyRemainderTodo @ref="RefMyRemainderTodo"></MyRemainderTodo>
             </div>
         </div>
     </div>
 </div>
 @code {
-
-    
+    private MyRemainderTodo? RefMyRemainderTodo { get; set; }
+    public ApplicationUser? applicationUser { get; private set; }
+    private List<ToDoNotesHistory>? _ToDoNotesHistory;
     string leftTodoDisplay = "col-md-6";
     string RighttodoDisplay = "col-md-6";
     string styleTreeDisplay = "height: calc(100vh - 190px); padding:10px";
     protected override async Task OnInitializedAsync()
     {
-       
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
+    public async void ReloadGrid()
+    {
+        RefMyRemainderTodo.Reloadtodo();
+        // _ToDoNotesHistory = await Mediator.Send(new GetMyToDoRemainderDate(applicationUser.UserID));
+    }
+
 }

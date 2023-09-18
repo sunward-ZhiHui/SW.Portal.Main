@@ -1,0 +1,423 @@
+﻿@page "/fileprofiletype/reserveProfileNumberSeries/{SessionId:guid}"
+@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ClipboardService ClipboardService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+<style>
+    .dxuc-file-list-view {
+        padding: 20px;
+    }
+
+    .dxuc-upload-icon {
+        display: none; /* or any other style to disable or hide the icon */
+    }
+</style>
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="onBackUrl" />
+                <DxMenuItem Text="Add New No" IconCssClass="fa fa-add" Click="onAdd" />
+                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Enabled="@uploadEnabled" id=@($"flyout-overview-target-container-UploadReseveSeries") />
+                <DxMenuItem Text="Copy Document No" IconCssClass="fa fa-clone" Click="onCopyDocumentNo" Enabled="@copyEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<div class="demo-breadcrumbs-container theme-blazing-berry">
+    <div class="breadcrumb">
+        <div class="demo-breadcrumbs sidebar-hidden">
+            <!--!-->
+
+            <div class="items">
+                <a href="javascript:void(0);" onclick="@(() => openFileProfileMainLink())">Main</a>
+                @if (FolderPathLists.Count > 0)
+                {
+                    <span class="separator"></span>
+                    @foreach (var item in FolderPathLists)
+                    {
+                        var names = item.FileName.Length > 20 ? item.FileName.Substring(0, 20) + "..." : item.FileName;
+                        if (FolderPathLists.IndexOf(item) == FolderPathLists.Count - 1)
+                        {
+                            <span title="@item.FileName">@names</span>
+                        }
+                        else
+                        {
+                            <a href="javascript:void(0);" title="@item.FileName" onclick="@(() => openFileProfileLink(item))">@names</a>
+                        }
+                        <span class="separator"></span>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_reserveProfileNumberSeriesList"
+            KeyFieldName="NumberSeriesId"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridDataColumn FieldName="NumberSeriesId" Visible="false" />
+            <DxGridDataColumn FieldName="DocumentNo" Caption="Document No" MinWidth="80" />
+            <DxGridDataColumn FieldName="RequestorName" Caption="Requestor Name" MinWidth="80" />
+            @*  <DxGridDataColumn FieldName="ProfileName" Caption="Profile Name" MinWidth="40" /> *@
+            <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentNoSeriesModel)context.DataItem;
+                    }
+                    <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-Description-{item.NumberSeriesId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.Description"></i>
+                    <span title="@item.Description">@item.Description</span>
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="VersionNo" Caption="Version No" MinWidth="80" />
+            <DxGridDataColumn FieldName="Title" Caption="Title" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="40" />
+
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DocumentNo" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@PopupReserveSeries"
+         HeaderText="Generate Document No"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="true"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AddReserveProfileNumberSeries selectedItems="@_ParentselectedItems" applicationUser="@applicationUser" SessionId="@SessionId" FileProfileTypeId="@FileProfileTypeId" RevokeBack="ClosePopupReserveSeries"></AddReserveProfileNumberSeries>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopupReserveSeries())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxFlyout @bind-IsOpen=IsUploadReseveSeries
+          PositionTarget=@($"#flyout-overview-target-container-UploadReseveSeries")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Upload Document"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 650px)"
+          CloseOnOutsideClick="false"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="" ColSpanMd="9">
+                <div id="attachmentCheckInSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+                <DxButton RenderStyle="ButtonRenderStyle.Primary" RenderStyleMode="ButtonRenderStyleMode.Contained" Text="Save" Click="onSaveUploadFile" />
+                <div class="">
+                    <DxUpload @ref="uploadCheckInComponent" Name="files"
+                              Visible="@AttachmentCheckInUploadVisible"
+                              AcceptedFileTypes=@AcceptedFileTypes
+                              ChunkSize="200000"
+                              UploadMode="@UploadMode.OnButtonClick"
+                              FileUploadStart="OnFileUploadStart"
+                              AllowMultiFileUpload="false"
+                              ExternalSelectButtonCssSelector="#attachmentCheckInSelectButton"
+                              SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                              FileUploaded="@isUploadSuccess"
+                              FileUploadStarted="@OnFileUploadStarted"
+                              FileUploadError="@OnUploadError">
+                    </DxUpload>
+
+                </div>
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsUploadReseveSeries = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+
+<DxFlyout @bind-IsOpen=IsDescriptionOpen
+          PositionTarget=@($"#flyout-overview-target-container-Description-{_selectedDescriptionItems?.NumberSeriesId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          CloseOnOutsideClick="false"
+          HeaderVisible="true"
+          HeaderText="Update Description"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Description:" ColSpanMd="12">
+                <DxMemo @bind-Text="@_selectedDescriptionItems.Description" CssClass="cw-480" Rows="5" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionClose()) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+@code {
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    private DxUpload uploadCheckInComponent;
+    bool IsUploadReseveSeries { get; set; } = false;
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
+    bool AttachmentCheckInUploadVisible { get; set; } = false;
+    private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    bool uploadEnabled { get; set; } = false;
+    bool copyEnabled { get; set; } = false;
+    bool PopupReserveSeries { get; set; } = false;
+    public long? FileProfileTypeId { get; set; }
+    public ApplicationUser applicationUser { get; private set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public List<DocumentNoSeriesModel> _reserveProfileNumberSeriesList { get; set; }
+    List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
+    DocumentNoSeriesModel _selectedDescriptionItems = new DocumentNoSeriesModel();
+    private DocumentsModel _ParentselectedItems;
+    int SelectedFilesCount { get; set; }
+    public DocumentNoSeriesModel _selectedItems { get; set; }
+    bool IsDescriptionOpen { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        FolderPathLists = new List<DocumentsModel>();
+        FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == SessionId)?.FileProfileTypeId;
+        uploadEnabled = false; copyEnabled = false;
+        if (FileProfileTypeId > 0)
+        {
+
+            var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
+            if (fileType != null)
+            {
+                _ParentselectedItems = fileType;
+                if (fileType != null)
+                {
+                    await loadReserveNoData();
+                    FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
+                    FolderPathLists.Add(fileType);
+                }
+
+            }
+            PanelVisible = false;
+        }
+        base.OnParametersSet();
+        StateHasChanged();
+    }
+    async Task loadReserveNoData()
+    {
+        PanelVisible = true;
+        _reserveProfileNumberSeriesList = await Mediator.Send(new GetReserveProfileNumberSeries(FileProfileTypeId, _ParentselectedItems.ProfileID));
+        if (_reserveProfileNumberSeriesList.Count > 0)
+        {
+            _selectedItems = _reserveProfileNumberSeriesList.FirstOrDefault();
+            Grid.SetFocusedRowIndex(0);
+            uploadEnabled = true; copyEnabled = true;
+
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
+    {
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetAllFileProfileTypeName(foldersListItems, items, foldersModel);
+            foldersModel.Add(items);
+        }
+        return foldersModel;
+    }
+    public void openFileProfileLink(DocumentsModel documentsModel)
+    {
+        NavigationManager.NavigateTo("fileprofiletype/reserveProfileNumberSeries/" + documentsModel.SessionID);
+    }
+    void openFileProfileMainLink()
+    {
+        NavigationManager.NavigateTo("fileprofiletype/");
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "NumberSeriesId");
+        _selectedItems = _reserveProfileNumberSeriesList.FirstOrDefault(f => f.NumberSeriesId == (long?)UniqueId);
+        StateHasChanged();
+
+    }
+    void onAdd()
+    {
+        PopupReserveSeries = true;
+    }
+    void ClosePopupReserveSeries()
+    {
+        InvokeAsync(loadReserveNoData);
+        PopupReserveSeries = false;
+    }
+    async Task onCopyDocumentNo()
+    {
+        await ClipboardService.WriteTextAsync(_selectedItems.DocumentNo);
+        toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+    }
+    void onBackUrl()
+    {
+        NavigationManager.NavigateTo("fileprofiletype/" + SessionId);
+    }
+    void onUpload()
+    {
+        IsUploadReseveSeries = true;
+    }
+    void OnFileUploadStart(FileUploadStartEventArgs e)
+    {
+        if (SelectedFilesCount > 0)
+        {
+            if (SelectedFilesCount == 1)
+            {
+                string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
+                string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + _selectedItems.SessionID + "&addedByUserId=" + applicationUser.UserID + "&IsNewSession=true";
+                e.UploadUrl = url;
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+    }
+    void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        AttachmentCheckInUploadVisible = files.ToList().Count > 0;
+        SelectedFiles.AddRange(files);
+        SelectedFilesCount = files.ToList().Count; //Count current files
+        if (SelectedFilesCount > 0)
+        {
+            if (SelectedFilesCount == 1)
+            {
+
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+        InvokeAsync(StateHasChanged);
+    }
+    async Task isUploadSuccess(FileUploadEventArgs e)
+    {
+        var filesessionIds = new Guid(e.FileInfo.Guid);
+        var ext = e.FileInfo.Name.Split(".").Last();
+        _selectedItems.FilePath = @"Documents\" + _selectedItems.SessionID + @"\" + filesessionIds + "." + ext;
+        _selectedItems.AddedByUserID = applicationUser.UserID;
+        var response = await Mediator.Send(new UpdateCreateDocumentBySessionReserveSeries(_selectedItems));
+        if (response.NumberSeriesId > 0)
+        {
+            var MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+            toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+            IsUploadReseveSeries = false;
+            await loadReserveNoData();
+        }
+    }
+    void OnFileUploadStarted(FileUploadEventArgs e)
+    {
+        var MyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
+        InvokeAsync(StateHasChanged);
+    }
+    void OnUploadError(FileUploadErrorEventArgs e)
+    {
+        var MyError = e.RequestInfo.ResponseText;
+        toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
+        InvokeAsync(StateHasChanged);
+    }
+    void onSaveUploadFile()
+    {
+        if (SelectedFilesCount > 0)
+        {
+            if (SelectedFilesCount == 1)
+            {
+                uploadCheckInComponent.UploadAllFiles();
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+
+    }
+    void OnButtonDescriptionClick(DocumentNoSeriesModel items)
+    {
+        IsDescriptionOpen = true;
+        _selectedDescriptionItems = new DocumentNoSeriesModel();
+        _selectedDescriptionItems.NumberSeriesId = items.NumberSeriesId;
+        _selectedDescriptionItems.Description = items.Description;
+        _selectedDescriptionItems.AddedByUserID = applicationUser.UserID;
+    }
+    void IsDescriptionClose()
+    {
+        _selectedDescriptionItems = new DocumentNoSeriesModel();
+        IsDescriptionOpen = false;
+    }
+    async Task OnUpdateDescription()
+    {
+        var response = await Mediator.Send(new UpdateReserveNumberDescriptionField(_selectedDescriptionItems));
+        if (response.NumberSeriesId > 0)
+        {
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            IsDescriptionOpen = false;
+            await loadReserveNoData();
+        }
+    }
+}

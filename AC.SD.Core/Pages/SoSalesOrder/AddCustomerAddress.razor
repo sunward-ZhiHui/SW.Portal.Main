@@ -15,8 +15,8 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
-@page "/AddCustomerAddress"
-@page "/AddCustomerAddress/{SoCustomerId:long}"
+@page "/soCustomer/AddCustomerAddress"
+@page "/soCustomer/AddCustomerAddress/{SoCustomerId:long}"
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <div class="row">
@@ -173,11 +173,6 @@
     void ResetForm()
     {
 
-        //employee = new EmployeeResponse();Data
-        SoCustomerId = -1;
-        ActiveTabIndex = 0;
-        ActiveSubTabIndex = 0;
-        NavigationManager.NavigateTo("AddSalesOrder");
     }
 
     async void onsubmitClick()

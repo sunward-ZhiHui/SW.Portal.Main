@@ -139,6 +139,8 @@ namespace Infrastructure.Repository.Query
             documentNoSeriesModel.SectionName = value.SectionName;
             documentNoSeriesModel.SubSectionName = value.SubSectionName;
             documentNoSeriesModel.DepartmentName = value.DepartmentName;
+            documentNoSeriesModel.FileProfileTypeId = value.FileProfileTypeId;
+            documentNoSeriesModel.SessionId = value.FileSessionId;
             return await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
         }
         public async Task<Documents> UpdateDocumentAfterUpload(Documents value)
@@ -194,7 +196,6 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("IsLatest", 0);
                             var query = "Update Documents SET IsLatest=@IsLatest WHERE DocumentId= @DocumentId";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                            transaction.Commit();
                             return DocumentId;
                         }
                         catch (Exception exp)
@@ -229,6 +230,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<Documents> GetDocumentIdByPathName(DocumentsUploadModel value)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("AddedByUserId", value.UserId);
+                parameters.Add("SessionId", value.FileSessionId, DbType.Guid);
+                parameters.Add("FilePath", value.FilePath, DbType.String);
+                using (var connection = CreateConnection())
+                {
+                    var query = "SELECT documentId FROM Documents WHERE AddedByUserId = @AddedByUserId AND SessionId=@SessionId AND FilePath=@FilePath";
+                    var result = await connection.QueryFirstAsync<Documents>(query, parameters);
+                    return result;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DocumentsUploadModel> InsertCreateDocument(DocumentsUploadModel value)
         {
             try
@@ -252,7 +273,7 @@ namespace Infrastructure.Repository.Query
                                 }
                                 else
                                 {
-                                    value.DocumentMainParentId=value.DocumentParentId;
+                                    value.DocumentMainParentId = value.DocumentParentId;
                                     fileIndex = 1;
                                 }
                                 await UpdateDocumentIsLastet(value.DocumentParentId);
@@ -316,12 +337,13 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedByUserId", value.AddedByUserId);
                             parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
                             parameters.Add("SessionId", value.SessionId, DbType.Guid);
-                            parameters.Add("IsLatest", value.IsLatest == true ? 1 : 0, DbType.Boolean);
+                            parameters.Add("IsLatest", 1);
                             parameters.Add("FilePath", value.FilePath, DbType.String);
                             parameters.Add("IsNewPath", 1);
-                            var query = "INSERT INTO [Documents](FileName,ContentType,FileSize,UploadDate,AddedByUserId,AddedDate,SessionId,IsLatest,FilePath,IsNewPath) " +
+                            parameters.Add("IsTemp", value.IsTemp);
+                            var query = "INSERT INTO [Documents](FileName,ContentType,FileSize,UploadDate,AddedByUserId,AddedDate,SessionId,IsLatest,FilePath,IsNewPath,IsTemp) " +
                                 "OUTPUT INSERTED.DocumentId VALUES " +
-                               "(@FileName,@ContentType,@FileSize,@UploadDate,@AddedByUserId,@AddedDate,@SessionId,@IsLatest,@FilePath,@IsNewPath)";
+                               "(@FileName,@ContentType,@FileSize,@UploadDate,@AddedByUserId,@AddedDate,@SessionId,@IsLatest,@FilePath,@IsNewPath,@IsTemp)";
                             value.DocumentId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             transaction.Commit();
                             return value;
@@ -340,6 +362,239 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DocumentsUploadModel> UpdateCreateDocumentBySession(DocumentsUploadModel value)
+        {
 
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            Nullable<long> fileIndex = null;
+                            var parameters = new DynamicParameters();
+                            var profileNo = value.ProfileNo;
+                            if (value.IsCheckOut == true && value.DocumentParentId > 0)
+                            {
+                                if (value.DocumentMainParentId > 0)
+                                {
+                                    fileIndex = await GetDocumentParentCount(value.DocumentMainParentId);
+                                    fileIndex = fileIndex > 0 ? (fileIndex.Value + 1) : 1;
+                                }
+                                else
+                                {
+                                    value.DocumentMainParentId = value.DocumentParentId;
+                                    fileIndex = 1;
+                                }
+                                await UpdateDocumentIsLastet(value.DocumentParentId);
+                            }
+                            else
+                            {
+                                profileNo = await GenerateDocumentProfileAutoNumber(value);
+                            }
+                            parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
+                            parameters.Add("Description", value.Description);
+                            parameters.Add("ExpiryDate", value.ExpiryDate);
+                            parameters.Add("StatusCodeID", 1);
+                            parameters.Add("AddedByUserId", value.UserId);
+                            parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                            parameters.Add("ProfileNo", profileNo);
+                            parameters.Add("DocumentParentId", value.DocumentMainParentId);
+                            parameters.Add("TableName", "Document");
+                            parameters.Add("FileIndex", fileIndex);
+                            parameters.Add("FileSessionId", value.FileSessionId);
+                            parameters.Add("IsTemp", 0);
+                            parameters.Add("FilePath", value.FilePath, DbType.String);
+                            var query = "Update Documents SET " +
+                                "FilterProfileTypeId=@FileProfileTypeId, " +
+                                "Description=@Description, " +
+                                "ExpiryDate=@ExpiryDate, " +
+                                "StatusCodeID=@StatusCodeID, " +
+                                "ProfileNo=@ProfileNo, " +
+                                "DocumentParentId=@DocumentParentId, " +
+                                "TableName=@TableName, " +
+                                "FileIndex=@FileIndex, " +
+                                "IsTemp=@IsTemp, " +
+                                "SessionId=@SessionId " +
+                                "WHERE " +
+                                 "AddedByUserId=@AddedByUserId AND " +
+                                 "SessionId=@FileSessionId AND " +
+                                "FilePath= @FilePath";
+                            await connection.ExecuteAsync(query, parameters, transaction);
+                            transaction.Commit();
+                            connection.Close();
+                            if (value.Type == "Document Link")
+                            {
+                                await InsertDocumentLink(value);
+                            }
+
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsUploadModel> InsertDocumentLink(DocumentsUploadModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var DocuId = await GetDocumentIdByPathName(value);
+                            if (DocuId != null)
+                            {
+                                var LinkDocparameters = new DynamicParameters();
+                                LinkDocparameters.Add("FileProfieTypeId", value.FileProfileTypeId);
+                                LinkDocparameters.Add("AddedByUserId", value.UserId);
+                                LinkDocparameters.Add("AddedDate", DateTime.Now);
+                                LinkDocparameters.Add("DocumentPath", value.Type);
+                                LinkDocparameters.Add("LinkDocumentId", DocuId.DocumentId);
+                                LinkDocparameters.Add("DocumentId", value.DocumentId);
+                                var linkquery = "INSERT INTO [DocumentLink](FileProfieTypeId,AddedByUserId,AddedDate,DocumentPath,LinkDocumentId,DocumentId) " +
+                               "OUTPUT INSERTED.DocumentLinkId VALUES " +
+                              "(@FileProfieTypeId,@AddedByUserId,@AddedDate,@DocumentPath,@LinkDocumentId,@DocumentId)";
+                                await connection.ExecuteAsync(linkquery, LinkDocparameters, transaction);
+                            }
+                            transaction.Commit();
+                            connection.Close();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentNoSeriesModel> InsertOrUpdateReserveProfileNumberSeries(DocumentNoSeriesModel documentNoSeries)
+        {
+            documentNoSeries.DocumentNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeries);
+            return documentNoSeries;
+        }
+        public async Task<DocumentNoSeriesModel> UpdateCreateDocumentBySessionReserveSeries(DocumentNoSeriesModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            Nullable<long> fileIndex = null;
+                            var parameters = new DynamicParameters();
+                            parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
+                            parameters.Add("Description", value.Description);
+                            parameters.Add("StatusCodeID", value.StatusCodeID);
+                            parameters.Add("AddedByUserId", value.AddedByUserID);
+                            parameters.Add("SessionId", value.SessionID, DbType.Guid);
+                            parameters.Add("ProfileNo", value.DocumentNo);
+                            parameters.Add("TableName", "Document");
+                            parameters.Add("FileIndex", fileIndex);
+                            parameters.Add("IsTemp", 0);
+                            parameters.Add("FilePath", value.FilePath, DbType.String);
+                            var query = "Update Documents SET " +
+                                "FilterProfileTypeId=@FileProfileTypeId, " +
+                                "Description=@Description, " +
+                                "StatusCodeID=@StatusCodeID, " +
+                                "ProfileNo=@ProfileNo, " +
+                                "TableName=@TableName, " +
+                                "FileIndex=@FileIndex, " +
+                                "IsTemp=@IsTemp " +
+                                "WHERE " +
+                                 "AddedByUserId=@AddedByUserId AND " +
+                                 "SessionId=@SessionID AND " +
+                                 "FilePath= @FilePath;";
+
+                            parameters.Add("ModifiedByUserID", value.AddedByUserID);
+                            parameters.Add("ModifiedDate", DateTime.Now);
+                            parameters.Add("IsUpload", 1);
+                            parameters.Add("NumberSeriesId", value.NumberSeriesId);
+                            query += "Update DocumentNoSeries SET FileProfileTypeID=@FileProfileTypeID,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,IsUpload=@IsUpload WHERE NumberSeriesId= @NumberSeriesId;";
+                            await connection.ExecuteAsync(query, parameters, transaction);
+                            transaction.Commit();
+                            connection.Close();
+                            // await UpdateDocumentNoSeries(value);
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentNoSeriesModel> UpdateReserveNumberDescriptionField(DocumentNoSeriesModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+
+                            var LinkDocparameters = new DynamicParameters();
+                            LinkDocparameters.Add("Description", value.Description);
+                            LinkDocparameters.Add("ModifiedByUserID", value.AddedByUserID);
+                            LinkDocparameters.Add("ModifiedDate", DateTime.Now);
+                            LinkDocparameters.Add("NumberSeriesId", value.NumberSeriesId);
+                            var query = "Update DocumentNoSeries SET Description=@Description,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate WHERE NumberSeriesId= @NumberSeriesId";
+                            await connection.ExecuteAsync(query, LinkDocparameters, transaction);
+                            transaction.Commit();
+                            connection.Close();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

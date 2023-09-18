@@ -1,19 +1,9 @@
 using System;
 using System.Collections.Generic;
 using DevExpress.Blazor.DocumentMetadata;
-
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using AC.SD.Model.DemoData;
-using Core.EntityModels;
-using Core.Repositories.Query;
-using System.Linq;
-using Core.Entities;
-using Microsoft.JSInterop;
-using System.Threading.Tasks;
-using System.Text.Json;
-using AC.SD.Core.Data;
-using Infrastructure.Repository.Query;
 
 namespace AC.SD.Core.Configuration
 {
@@ -22,19 +12,12 @@ namespace AC.SD.Core.Configuration
         public const string DocBaseUrl = "https://docs.devexpress.com/Blazor/";
         public static readonly string PagesFolderName = "Pages";
         public static readonly string DescriptionsFolderName = "Descriptions";
-        private readonly IMenuPermissionQueryRepository _queryRepository;
-        private IJSRuntime _jsRuntime;
-        public ApplicationUser applicationUser { get; private set; }
-        private readonly ILocalStorageService<ApplicationUser> _localStorageService;
         protected DemoConfiguration()
         {
         }
-        public DemoConfiguration(IConfiguration configuration, IMenuPermissionQueryRepository queryRepository, ILocalStorageService<ApplicationUser> localStorageService, IJSRuntime jsRuntime)
+        public DemoConfiguration(IConfiguration configuration)
         {
             Configuration = configuration;
-            _localStorageService = localStorageService;
-            _queryRepository = queryRepository;
-            _jsRuntime = jsRuntime;
             Model = DemoModel.Create(IsServerSide);
             Products = Model.Products;
             RootPages = Model.RootPages;
@@ -56,7 +39,6 @@ namespace AC.SD.Core.Configuration
 
         public virtual IEnumerable<DemoProductInfo> Products { get; }
         public virtual IEnumerable<DemoRootPage> RootPages { get; }
-        public virtual IEnumerable<PortalMenuModel> AppPermissionModels { get; set; }
         public Dictionary<string, string> Redirects { get; private set; }
 
         public T GetConfigurationValue<T>(string key)
@@ -151,24 +133,6 @@ namespace AC.SD.Core.Configuration
         public List<DemoSearchResult> DoSearch(string request)
         {
             return Search.DoSearch(request);
-        }
-        public List<PortalMenuModel> DoNavMenuLists()
-        {
-            long Userid = 1;
-            var appPermissionModels = _queryRepository.GetAllByPermissionAsync(Userid).ToList();
-            return appPermissionModels;
-        }
-        public async Task<long?> GetAsync()
-        {
-            var result = await _localStorageService.GetItem<ApplicationUser>("user");
-            return result.UserID;
-
-        }
-        public async Task<List<PortalMenuModel>> DoNavMenuListsItemsAsync()
-        {
-            long Userid = 1;
-            var appPermissionModels = (List<PortalMenuModel>)await _queryRepository.GetAllAsync(Userid);
-            return appPermissionModels;
         }
     }
 }

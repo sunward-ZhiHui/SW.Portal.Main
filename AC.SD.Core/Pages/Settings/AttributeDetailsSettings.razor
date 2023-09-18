@@ -1,0 +1,510 @@
+﻿@using Application.Commands;
+@using Application.Handlers.CommandHandler.AttributeDetail;
+@using Application.Queries;
+@using Application.Response;
+@using Infrastructure.Repository.Query;
+@using Application.Handlers.QueryHandlers;
+@using Application.Handlers.CommandHandler;
+@using MediatR
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@page "/AttributeDetails"
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
+                <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@errorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
+
+    </BodyTemplate>
+</DxPopup>
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" Data="@_attributes" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="AttributeDetailID"
+    @oncontextmenu:preventDefault
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 220px);"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"            
+       
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+
+
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+          
+          
+            <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="80" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (AttributeDetails)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+         
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+    
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (AttributeDetails)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@types.Description" />
+                    <ValidationMessage For="@(() => types.Description)" />
+                </DxFormLayoutItem>
+               
+               
+               
+
+
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+
+    </DxGrid>
+   
+</DxLoadingPanel>
+@*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true"  Width="350px" @bind-Visible="@Blukdeletepopup">
+    <div class="text-center">
+
+        <Content>
+        <p>
+                <div > Do you want to delete</div>
+
+        </p>
+    </Content>
+
+        <DxButton class=align-Button Text="Yes" Click="@(() => bulkDelete())" />
+        <DxButton  class=align-items Text="No" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>*@
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+
+    bool PanelVisible { get; set; }
+    Dictionary<long, string>? UsernameIndex { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private string gridHeight = "calc(100vh - 230px - 143px)";
+    private List<AttributeDetails>? _attributes;
+    IGrid? Grid { get; set; }
+    private AttributeDetails _selectedItems;
+    private List<CodeMaster> _stausItems;
+    //bool EditEnabled { get; set; } = true;
+    //bool DeleteEnabled { get; set; } = true;
+    bool ExportSelectedRowsOnly { get; set; }
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? errorMessage;
+    string? DeleteerrorMessage;
+    bool MessageVisible { get; set; }
+    string styleClass = "";
+    string MessageHeader = "Error";
+    string MessageBody = "";
+    private bool loading;
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = true;
+    string SelectedGroup = "none";
+    private AttributeDetails _selectlst;
+    public ApplicationUser? applicationUser { get; private set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        // await jsRuntime.InvokeAsync<string>("showLoading");
+      //  var models = await Mediator.Send(new GetAllAttributeDetailsQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        //  var model = await Mediator.Send(new GetAllAttributeDetailsQuery());
+        // _attributes = model;
+
+        //for (int i = 0; i < models.Count; i++)
+        //{
+        //    models[i].Index = i + 1;
+        //}
+
+       // _attributes = models;
+        PanelVisible = false;
+        // await jsRuntime.InvokeAsync<string>("hideLoading");
+        //await jsRuntime.InvokeVoidAsync("import", "../wwwroot/common.js");
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true;
+        //await jsRuntime.InvokeAsync<string>("showLoading");
+        //  var model = await Mediator.Send(new GetAllAttributeDetailsQuery());
+       // var models = await Mediator.Send(new GetAllAttributeDetailsQuery());
+
+        //for (int i = 0; i < models.Count; i++)
+        //{
+        //    models[i].Index = i + 1;
+        //}
+
+       // _attributes = models;
+        PanelVisible = false;
+        if (_attributes.Count > 0)
+        {
+
+            _selectedItems = _attributes.FirstOrDefault();
+            StateHasChanged();
+        }
+        //  await jsRuntime.InvokeAsync<string>("hideLoading");
+        //  toastService.ShowToast("I'm a SUCCESS message", AC.SD.Core.Services.ToastLevel.Success);
+        // _attributes = model;
+    }
+    async Task ExportToExcel()
+    {
+
+        if (SelectedDataItems != null)
+        {
+
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+
+
+    }
+
+
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+
+
+
+    }
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        await jsRuntime.InvokeVoidAsync("setGridHeight");
+    //    }
+    //}
+
+    //[JSInvokable]
+    //public void Resize()
+    //{
+    //    jsRuntime.InvokeVoidAsync("setGridHeight");
+    //}
+
+    //protected override bool ShouldRender()
+    //{
+    //    Resize();
+    //    return base.ShouldRender();
+    //}
+
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editModel = (AttributeDetails)e.EditModel;
+
+        if (e.IsNew)
+        {
+            var ex = _attributes.Where(x => x.Description == editModel.Description);
+            if (ex.Any())
+            {
+                // onShowPopupMessage("Error", "The entered value Already exists.");
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                try
+                {
+                    var result = await Mediator.Send(new CreateAttributeDetails());
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    //  onShowPopupMessage("Success", "Record save Successfully");
+                }
+                catch (Exception eq)
+                {
+
+                    errorMessage = eq.Message;
+                    PopupVisible = true;
+
+                }
+
+                await UpdateDataAsync();
+            }
+
+
+            var  entity = new CreateAttributeDetails
+                    {
+
+                        Description = editModel.Description,
+                        AddedDate = DateTime.Now,
+                        SessionId = Guid.NewGuid(),
+                        StatusCodeID = 1,
+                        AddedByUserID = 1,
+                    };
+            var request = await Mediator.Send(entity);
+
+
+
+        }
+        else
+        {
+
+
+            var UpdateReq = new EditAttributeDetails(editModel)
+            {
+                
+                        AttributeDetailID = editModel.AttributeDetailID,                       
+                        Description = editModel.Description,
+                        StatusCodeID = editModel.StatusCodeID,
+                        AddedByUserID = editModel.AddedByUserID,
+                        AddedDate = editModel.AddedDate,
+                        SessionId = editModel.SessionId,
+                        ModifiedByUserID = editModel.ModifiedByUserID,
+                        ModifiedDate = DateTime.Now,
+                    
+
+            };
+
+                var ans = await Mediator.Send(UpdateReq);
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            
+
+        }
+
+    }
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
+    }
+    async void ClosePopup()
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
+    }
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+
+        var editModel = (AttributeDetails)e.DataItem;
+
+        //  string result = string.Empty;
+        //  result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
+        // Console.WriteLine(result);
+        // await UpdateDataAsync();
+
+        var request = new DeleteAttributeDetails(editModel.AttributeDetailID);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+
+
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+       
+    }
+    void Onclick(DataGridSelection<AttributeDetails> e)
+    {
+
+
+
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "AttributeDetailID");
+        _selectedItems = _attributes.FirstOrDefault(f => f.AttributeDetailID == (long)UniqueId);
+
+        StateHasChanged();
+
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+
+        if (SelectedDataItems.Count == 1)
+        {
+
+            foreach (object item in SelectedDataItems)
+            {
+
+                if (item is AttributeDetails AttributeDetails)
+                {
+
+                    _selectlst = _attributes.FirstOrDefault(f => f.AttributeDetailID == AttributeDetails.AttributeDetailID);
+
+
+                }
+            }
+            Grid.StartEditDataItemAsync(_selectlst);
+        }
+        else
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
+
+        // Grid.SelectDataItems(SelectedDataItems);
+
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is AttributeDetails AttributeDetails)
+                    {
+
+                        var request = new DeleteAttributeDetails(AttributeDetails.AttributeDetailID);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+
+    }
+}
+

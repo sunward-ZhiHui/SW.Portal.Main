@@ -61,6 +61,17 @@
 
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
+                    <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10" >
+                        <DxTextBox @bind-Text=@FileprofiletypeName Enabled="IsFileProfileTypeShow">
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-FileProfileTypeOpen")
+                                                Tooltip="Select File ProfileType"
+                                                Click="@(_ => OnButtonFileProfileTypeClick())" />
+                            </Buttons>
+                        </DxTextBox>
+                        <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" ShowValidationIcon="true" style="display:none;" />
+                        <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                         <DxComboBox Data="@_plantItems"
                                     NullText="Select Company..."
@@ -201,6 +212,44 @@
         </div>
     </div>
 </div>
+<DxFlyout @bind-IsOpen=IsFileProfileTypeOpen
+          PositionTarget=@($"#flyout-overview-target-container-FileProfileTypeOpen")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Select FileProfile Type"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick="false"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+            <DxFormLayoutItem Caption="" >
+                <DxTreeView @ref="_treeView"
+                @bind-FilterString="FilterString"
+                            Data="@fileProfileTypeDocumentsAll"
+                            AllowSelectNodes="true"
+                            AfterExpand="@AfterExpand"
+                            SelectionChanged="@SelectionChanged">
+                    <DataMappings>
+                        <DxTreeViewDataMapping Text="FileName"
+                                               Key="DocumentID"
+                                               ParentKey="ParentId" />
+                    </DataMappings>
+                </DxTreeView>
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
     public DocumentsModel selectedFiles { get; set; }
     public ApplicationUser applicationUser { get; set; }
@@ -208,8 +257,13 @@
     public Action RevokeBack { get; set; }
     [Parameter]
     public string UploadDocFormID { get; set; }
+    private DxTreeView _treeView;
+    string FilterString { get; set; }
+    public string FileprofiletypeName { get; set; }
     public bool loading { get; set; } = false;
+    public bool IsFileProfileTypeOpen { get; set; }
     string Message = "Upload";
+    public bool IsFileProfileTypeShow { get; set; } = false;
     private List<ViewPlants>? _plantItems;
     private List<ViewDivision>? _divisionItems;
     private List<ViewDepartment>? _departmentItems;
@@ -229,6 +283,7 @@
     bool isSection { get; set; } = false; bool isSubSection { get; set; } = false;
     int SelectedFilesCount { get; set; }
     int CurrentUplodCount { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
@@ -236,6 +291,8 @@
     }
     public async Task loadData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser)
     {
+        IsFileProfileTypeShow = false;
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         isPlant = false;
         isDivision = false; isDepartment = false;
         isSection = false; isSubSection = false;
@@ -248,8 +305,8 @@
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
         SelectedFiles = new List<UploadFileInfo>();
-        MyError = ""; MyMessage = "";
-        if (_selectedFiles != null)
+        MyError = ""; MyMessage = ""; FileprofiletypeName = "";
+        if (_selectedFiles != null && _selectedFiles.ProfileID > 0)
         {
             selectedFiles = _selectedFiles;
             applicationUser = _applicationUser;
@@ -292,6 +349,8 @@
             Data.UserId = applicationUser.UserID;
             Data.ProfileId = selectedFiles.ProfileID;
             Data.FileProfileTypeId = selectedFiles.FileProfileTypeId > 0 ? selectedFiles.FileProfileTypeId : selectedFiles.FilterProfileTypeId;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
+            FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
         }
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         await SelectedItemChanged(0);
@@ -300,28 +359,110 @@
         await SelectedItemSectionChanged(0);
         StateHasChanged();
     }
+    private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel> foldersList = new List<FileProfileTypeModel>();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string> FolderPathLists = new List<string>();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<string> foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
+    }
+    private void AfterExpand(TreeViewNodeEventArgs e)
+    {
+        if (!e.CausedByAPI)
+        {
+            _treeView.ExpandAll();
+        }
+    }
+    protected void SelectionChanged(TreeViewNodeEventArgs e)
+    {
+        if (e.NodeInfo?.DataItem != null)
+        {
+            var nodeName = e.NodeInfo.DataItem as DocumentsModel;
+            Data.FileProfileTypeId = nodeName.FileProfileTypeId;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
+            FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+        }
+
+        StateHasChanged();
+    }
+    void OnButtonFileProfileTypeClick()
+    {
+        _treeView.CollapseAll();
+        IsFileProfileTypeOpen = true;
+    }
     void backUrl()
     {
         RevokeBack?.Invoke();
     }
-    async Task OnFileUploadStart(FileUploadStartEventArgs e)
+    void OnFileUploadStart(FileUploadStartEventArgs e)
     {
         Message = "Uploading...";
         loading = true;
         var SessionId = new Guid(e.FileInfo.Guid);
-        Data.SessionId = SessionId;
-        var response = await Mediator.Send(new InsertCreateDocument(Data));
-        if (response.DocumentId > 0)
-        {
-            DocumentsUploadModel TempSetId = new DocumentsUploadModel();
-            TempSetId.SessionId = SessionId;
-            TempSetId.DocumentId = response.DocumentId;
-            TempSetIds.Add(TempSetId);
-            string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
-            string url = BaseUrl + "UploadDocumentsChunkFileById?SessionId=" + selectedFiles.SessionID + "&DocumentId=" + response.DocumentId;
-            e.UploadUrl = url;
+        DocumentsUploadModel TempSetId = new DocumentsUploadModel();
+        TempSetId.SessionId = SessionId;
+        TempSetIds.Add(TempSetId);
+        string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + selectedFiles.SessionID + "&addedByUserId=" + applicationUser.UserID + "&IsFileSession=true";
+        e.UploadUrl = url;
+    }
+    async Task isUploadSuccess(FileUploadEventArgs e)
+    {
 
+        CurrentUplodCount++;
+        var filesessionIds = new Guid(e.FileInfo.Guid);
+        Data.SessionId = filesessionIds;
+        Data.FileSessionId = filesessionIds;
+        var ext = e.FileInfo.Name.Split(".").Last();
+        Data.FilePath = @"Documents\" + selectedFiles.SessionID + @"\" + filesessionIds + "." + ext;
+        var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        if (CurrentUplodCount >= SelectedFilesCount)
+        {
+            Message = "Upload";
+            loading = false;
+            backUrl();
         }
+
+    }
+    void OnUploadError(FileUploadErrorEventArgs e)
+    {
+        MyError = e.RequestInfo.ResponseText;
+        toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
+        Message = "Upload";
+        loading = false;
+        InvokeAsync(StateHasChanged);
     }
     void OnFileUploadStarted(FileUploadEventArgs e)
     {
@@ -331,7 +472,7 @@
     }
     void OnUploadProgressChanged(FileUploadEventArgs e)
     {
-        var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
+        // var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
     }
     async Task SelectedItemChanged(long? plantID)
     {
@@ -371,45 +512,18 @@
             _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
         }
     }
-    protected async void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
         SelectedFilesCount = files.ToList().Count; //Count current files
         InvokeAsync(StateHasChanged);
     }
-    private void isUploadSuccess(FileUploadEventArgs e)
-    {
-        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
-        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
-        CurrentUplodCount++;
-        if (CurrentUplodCount >= SelectedFilesCount)
-        {
-            Message = "Upload";
-            loading = false;
-            backUrl();
-        }
-        InvokeAsync(StateHasChanged);
 
-    }
-    async Task OnUploadError(FileUploadErrorEventArgs e)
-    {
-        var filesessionIds = new Guid(e.FileInfo.Guid);
-        var docId = TempSetIds.FirstOrDefault(o => o.SessionId == filesessionIds)?.DocumentId;
-        if (docId > 0)
-        {
-            await Mediator.Send(new DeleteDoc(docId.Value));
-        }
-        MyError = e.RequestInfo.ResponseText;
-        toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
-        Message = "Upload";
-        loading = false;
-        InvokeAsync(StateHasChanged);
-    }
     public void onsubmitUploadFromClick()
     {
     }
-    public async Task HandleValidSubmit()
+    void HandleValidSubmit()
     {
         uploadComponent.UploadAllFiles();
     }

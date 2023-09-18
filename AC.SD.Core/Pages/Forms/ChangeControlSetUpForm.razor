@@ -116,7 +116,7 @@
 
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ChangeControlFormID");
         _selectedItems = _changeControlForm.FirstOrDefault(f => f.ChangeControlFormID == (long?)UniqueId);
-        NavigationManager.NavigateTo("changecontrolforms/" + _selectedItems.SessionId);
+        NavigationManager.NavigateTo("changeControlsetupForm/changecontrolforms/" + _selectedItems.SessionId);
 
     }
     void addNew()

@@ -40,6 +40,22 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
+
+    public class UpdateTopicUnArchiveHandler : IRequestHandler<UpdateTopicUnArchive, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public UpdateTopicUnArchiveHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+
+        }
+        public async Task<long> Handle(UpdateTopicUnArchive request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.UpdateTopicUnArchive(request);
+            return req;
+        }
+    }
     public class GetListBySessionHandler : IRequestHandler<GetListBySession, List<EmailTopics>>
     {
 

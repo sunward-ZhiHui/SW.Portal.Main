@@ -32,7 +32,7 @@ namespace Core.Entities
         public string UserEmail { get; set; }
         public List<Documents>? documents { get; set; }
         public byte[] FileData { get; set; }
-
+        public int? IsMobile { get; set; }
         [NotMapped]
         public string? AssigntoIdss { get; set; }
         [NotMapped]
@@ -57,6 +57,8 @@ namespace Core.Entities
         public string From { get; set; }
         [NotMapped]
         public long ConIds { get; set; }
+        [NotMapped]
+        public string? BackURL { get; set; }
         [NotMapped]
         public string? ActCommentName { get; set; }
         [NotMapped]

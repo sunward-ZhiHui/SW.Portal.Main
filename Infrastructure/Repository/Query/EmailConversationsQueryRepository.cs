@@ -458,7 +458,7 @@ namespace Infrastructure.Repository.Query
 
                 var query = @"SELECT * FROM (
                             SELECT FC.TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
-                                AET.Comment AS ActCommentName, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
+                                AET.Comment AS ActCommentName,AET.BackURL, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
                                 ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent
                             FROM EmailConversations FC
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf
@@ -514,11 +514,12 @@ namespace Infrastructure.Repository.Query
                                         FC.ReplyId,
                                         FC.SessionId,FC.FileData,
                                         EN.IsRead,
-										EN.ID as EmailNotificationId
+										EN.ID as EmailNotificationId,
+                                        ISNULL(FC.IsMobile, 0) AS IsMobile
                                     FROM
                                         EmailConversations FC                                       
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = FC.ParticipantId
+                                        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
                                     WHERE
                                         FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId
                                     ORDER BY FC.AddedDate DESC";
@@ -724,8 +725,8 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.AddedByUserID,
-                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
+                var query = @"SELECT FC.Name,FC.ID,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.AddedByUserID,
+                                AET.Comment as ActCommentName,AET.BackURL,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
                                 ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf
                                 FROM EmailConversations FC  
                                 LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf                                
@@ -757,7 +758,8 @@ namespace Infrastructure.Repository.Query
                                         FC.ReplyId,
                                         FC.SessionId,FC.FileData,
                                         EN.IsRead,
-										EN.ID as EmailNotificationId
+										EN.ID as EmailNotificationId,                                        
+                                        ISNULL(FC.IsMobile, 0) AS IsMobile
                                     FROM
                                         EmailConversations FC
                                         INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
@@ -1084,8 +1086,9 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DueDate", forumConversations.DueDate);
                             parameters.Add("IsAllowParticipants", forumConversations.IsAllowParticipants);
                             parameters.Add("Urgent", forumConversations.Urgent);
+                            parameters.Add("IsMobile", forumConversations.IsMobile,DbType.Int32);
 
-                            var query = "INSERT INTO EmailConversations(Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
+                            var query = "INSERT INTO EmailConversations(IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

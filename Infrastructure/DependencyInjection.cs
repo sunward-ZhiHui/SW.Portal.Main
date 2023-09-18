@@ -141,7 +141,6 @@ namespace Infrastructure
             services.AddTransient<IToDoNotesQueryRepository, ToDoNotesQueryRepository>();
             services.AddTransient<IToDoNotesHistoryQueryRepository, ToDoNotesHistoryQueryRepository>();
             services.AddTransient<IDashboardQueryRepository, DashboardQueryRepository>();
-            services.AddTransient<IFileProfileTypeDocumentQueryRepository, FileProfileTypeDocumentQueryRepository>();
 
             services.AddTransient<IFmGlobalMoveCommandRepository, FmGlobalMoveCommandRepository>();
             services.AddTransient<IFileprofileQueryRepository,FileprofiletypeQueryRepository>();
@@ -152,6 +151,8 @@ namespace Infrastructure
             services.AddTransient<IGenerateDocumentNoSeriesQueryRepository, GenerateDocumentNoSeriesQueryRepository>();
             services.AddSingleton<IGenerateDocumentNoSeriesSeviceQueryRepository, GenerateDocumentNoSeriesService>();
             
+            services.AddTransient<IAttributeDetailsCommandRepository, AttributeDetailsCommandRepository>();
+            services.AddTransient<IAttributeDetailsQueryRepository, AttributeDetailsQueryRepository>();
             return services;
         }
     }

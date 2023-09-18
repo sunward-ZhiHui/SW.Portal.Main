@@ -218,7 +218,7 @@
         // await jsRuntime.InvokeAsync<string>("showLoading");
         var models = await Mediator.Send(new GetAllAttributeHeader());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
-        //  var model = await Mediator.Send(new GetAllAttributeHeader());
+        //  var model = await Mediator.Send(new GetAllAttribute());
         // _attributes = model;
 
         //for (int i = 0; i < models.Count; i++)
@@ -235,7 +235,7 @@
     {
         PanelVisible = true;
         //await jsRuntime.InvokeAsync<string>("showLoading");
-        //  var model = await Mediator.Send(new GetAllAttributeHeader());
+        //  var model = await Mediator.Send(new GetAllAttribute());
         var models = await Mediator.Send(new GetAllAttributeHeader());
 
         //for (int i = 0; i < models.Count; i++)
@@ -319,6 +319,8 @@
 
         var editModel = (AttributeHeader)e.EditModel;
 
+       
+
         if (e.IsNew)
         {
             var ex = _attributes.Where(x => x.Description == editModel.Description);
@@ -346,36 +348,44 @@
                 await UpdateDataAsync();
             }
 
-            //var request = new CreateCommand<ForumTypeResponse>
-            //    {
-            //        Entity = new ForumTypeResponse
-            //        {
-            //            Name = editModel.Name,
-            //            Description = editModel.Description,
-            //            AddedDate = DateTime.Now,
-            //            SessionId = Guid.NewGuid(),
-            //            StatusCodeID = 1,
-            //            AddedByUserID = 1,
-            //        }
-            //    };
 
-            //var customer = await Mediator.Send(request);
+            var entity = new CreateAttributeHeader
+                {
+
+                    Description = editModel.Description,
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+                    StatusCodeID = 1,
+                    AddedByUserID = 1,
+                };
+            var request = await Mediator.Send(entity);
+
+
+
         }
         else
         {
-            var ex = _attributes.Where(x => x.Description == editModel.Description && x.AttributeID != editModel.AttributeID);
-            if (ex.Any())
-            {
-                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
-                // onShowPopupMessage("Error", "The entered value Already exists.");
-            }
-            else
-            {
-                var ans = await Mediator.Send(new EditAttributeHeader(editModel));
-                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                await UpdateDataAsync();
 
-            }
+
+            var UpdateReq = new EditAttributeHeader(editModel)
+                {
+
+                    AttributeID = editModel.AttributeID,
+                    Description = editModel.Description,
+                    StatusCodeID = editModel.StatusCodeID,
+                    AddedByUserID = editModel.AddedByUserID,
+                    AddedDate = editModel.AddedDate,
+                    SessionId = editModel.SessionId,
+                    ModifiedByUserID = editModel.ModifiedByUserID,
+                    ModifiedDate = DateTime.Now,
+
+
+                };
+
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
 
         }
 

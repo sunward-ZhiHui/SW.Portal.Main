@@ -36,5 +36,10 @@ namespace Core.EntityModels
         public string ScreenID { get; set; }
         public string ReferenceInfo { get; set; }
         public string DepartmentCompanyName { get; set; }
+
+        public long? DeleteByUserID { get; set; }
+        public string? DeleteByUser { get; set; }
+       
+        public DateTime? DeleteByDate { get; set; }
     }
 }

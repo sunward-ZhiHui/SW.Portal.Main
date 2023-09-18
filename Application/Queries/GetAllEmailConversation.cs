@@ -74,6 +74,16 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class OnReplyConversation : PagedRequest, IRequest<OnReplyEmail>
+    {
+        public long ID { get; private set; }
+        public long UserId { get; private set; }
+        public OnReplyConversation(long Id,long UserId)
+        {
+            this.ID = Id;
+            this.UserId= UserId;
+        }
+    }
     public class GetEmailConversationList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long ID { get; private set; }

@@ -33,5 +33,10 @@ namespace Core.EntityModels
         public string PermissionCode { get; set; }
         public string ScreenID { get; set; }
     }
+    public class PortalMenuMultipleModel
+    {
+        public List<PortalMenuModel> PortalMenuModel { get; set; }
+        public PortalMenuModel DashboardItem { get; set; }
+    }
 }
 

@@ -15,7 +15,6 @@ namespace Core.Repositories.Query
     {
      
         Task<IReadOnlyList<PortalMenuModel>> GetAllAsync(long? Id);
-        IReadOnlyList<PortalMenuModel> GetAllByPermissionAsync(long? Id);
         Task<IReadOnlyList<PortalMenuModel>> GetAllByAsync(long? Id);
 
     }

@@ -79,6 +79,8 @@ namespace Core.Entities
         public bool? isValidateSession { get; set; }
         [NotMapped]
         public long ActivityEmailTopicId { get; set; }
+        [NotMapped]
+        public long EmailCount { get; set; }
 
     }
 }

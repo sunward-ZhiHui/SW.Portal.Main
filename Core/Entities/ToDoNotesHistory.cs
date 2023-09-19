@@ -14,8 +14,7 @@ namespace Core.Entities
     {
         [Key]
         public long ID { get; set; }
-        public long NotesId { get; set; }
-        [Required(ErrorMessage = "Please Enter Description.")]
+        public long NotesId { get; set; }      
         public string? Description { get; set; }
         public DateTime? DueDate { get; set; }
         public DateTime? RemainDate { get; set; }

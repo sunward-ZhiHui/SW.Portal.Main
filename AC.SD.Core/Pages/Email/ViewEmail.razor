@@ -438,7 +438,14 @@
                                                     </div>
 
                                                 }
-                                                <div class="uk-card-body">                                                   
+                                                <div class="uk-card-body">
+                                                    <div>
+                                                        @{
+                                                            byte[] htmlBinaryData = item.FileData; // Your HTML binary data
+                                                            string htmlContent = System.Text.Encoding.UTF8.GetString(htmlBinaryData);
+                                                            @((MarkupString)htmlContent)
+                                                        }                                                        
+                                                    </div>
                                                     <p class="uk-text-success">                                                       
                                                         <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />                                                      
                                                     </p>
@@ -554,15 +561,25 @@
                                                                                     </div>*@
                                                                                 </h5>
                                                                             </div> 
+
+                                                                            @{
+                                                                                byte[] htmlBinaryData1 = items.FileData; // Your HTML binary data
+                                                                                string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
+                                                                                <div style="padding: 10px;">
+                                                                                    @((MarkupString)htmlContent1)
+                                                                                </div>
+                                                                            }
+
+
                                                                             @if(items.IsMobile == 1)
                                                                             {
-                                                                                <div style="padding: 10px;">@items.Message</div>
+                                                                                @*<div style="padding: 10px;">@items.Message</div>*@
                                                                             }
                                                                             else
                                                                             {
-                                                                                <div>
+                                                                                @*<div>
                                                                                     <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@items.FileData" />
-                                                                                </div>
+                                                                                </div>*@
                                                                             }
                                                                            
                                                                             @if (items.documents != null && items.documents.Any())
@@ -3351,7 +3368,9 @@
         loading = true;        
         //var contentdd = msgContent;
         //byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
-        byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+        byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);      
+
+
         string htmlString = string.Empty;
         var len = fileContent.Length;
         //documentContent = null;            
@@ -3370,6 +3389,14 @@
             loading = false;
             return;
         }    
+
+         await msgrichEdit.SaveDocumentAsync();
+        using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+        byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+        server.LoadDocument(fileContent1);
+        server.Options.Export.Html.EmbedImages = true;
+        byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
+
 
         if(Data.Name == null)
         {
@@ -3438,7 +3465,7 @@
                // Message = Data.Message != null ? Data.Message : "Attachments",
                 Message = htmlString,
                 //FileData = Data.Message != null ? Encoding.UTF8.GetBytes(Data.Message) : Encoding.UTF8.GetBytes("Attachments"),
-                FileData = fileContent,
+                FileData = fileContents,
                 //AssigntoIdss = Data.AssigntoIds.Count() == 0 ? assignCCidsString : assigntoidsString,
                 AssigntoIdss =  assigntoidsString,
                 AssignccIdss = assignccidsString,

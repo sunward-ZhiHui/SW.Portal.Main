@@ -7,10 +7,12 @@ using DevExpress.Data.Filtering.Helpers;
 using DevExpress.Xpo;
 using Infrastructure.Repository.Query;
 using MediatR;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.WsTrust;
 using Microsoft.VisualBasic;
+using System.Text;
 using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
 
 namespace SW.Portal.Solutions.Controllers
@@ -145,7 +147,7 @@ namespace SW.Portal.Solutions.Controllers
                     userName = rconversation.UserName,
                     TopicName = rconversation.Name,
                     firstName = rconversation.FirstName,
-                    Message = rconversation.IsMobile == 1 ? (object)rconversation.Message : rconversation.FileData,
+                    Message = rconversation.FileData,
                     To = rconversation.AssignToList,
                     CC = rconversation.AssignCCList,
                     userId = rconversation.UserId,
@@ -218,10 +220,17 @@ namespace SW.Portal.Solutions.Controllers
                     NotificationconcatList.AddRange(uniqueItems);
                 }
 
+
+                string input_string = emailConversations.Message;
+                byte[] bytes = Encoding.UTF8.GetBytes(input_string);
+                string encodedString = Encoding.UTF8.GetString(bytes);
+                string htmlContent = $"<html><body>{encodedString}</body></html>";
+                byte[] htmlBinaryData = Encoding.UTF8.GetBytes(htmlContent);
+
                 var createReq = new CreateEmailCoversation
                 {
                     TopicID = emailConversations.TopicID,
-                    FileData = emailConversations.FileData,
+                    FileData = htmlBinaryData,
                     Message = emailConversations.Message,
                     AssigntoIdss = assigntoidsString,
                     AssignccIdss = assignccidsString,

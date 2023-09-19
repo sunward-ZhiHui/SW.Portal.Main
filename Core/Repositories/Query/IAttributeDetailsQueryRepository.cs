@@ -11,7 +11,7 @@ namespace Core.Repositories.Query
 {
     public interface IAttributeDetailsQueryRepository : IQueryRepository<AttributeDetails>
     {
-        Task<IReadOnlyList<AttributeDetails>> GetAllAsync(long ID);
+        Task<IReadOnlyList<AttributeDetails>> GetAllAsync();
         Task<AttributeDetails> GetByIdAsync(Int64 id);
         Task<long> Insert(AttributeDetails attributeDetails);
         Task<long> UpdateAsync(AttributeDetails attributeDetails);

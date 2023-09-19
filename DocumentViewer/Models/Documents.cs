@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Core.Entities
+namespace DocumentApi.Models
 {
     public class Documents
     {
@@ -60,17 +54,8 @@ namespace Core.Entities
         public bool? IsPrint { get; set; }
         public bool? IsWiki { get; set; }
         public string? SubjectName { get; set; }
-        public bool? IsNewPath { get; set; }
-        public long? DeleteByUserID { get; set; }
-        public bool? IsDelete { get; set; }
-        public DateTime? DeleteByDate { get; set; }
         public string? FilePath { get; set; }
-        public string? ModifiedBy { get; set; }
-        [NotMapped]
-        public string? ServerFilePath { get; set; }
-        [NotMapped]
-        public string? AddedBy { get; set; }
-        [NotMapped]
+        public bool? IsNewPath { get; set; }
         public string? SourceFrom { get; set; }
         public Guid? UniqueSessionId { get; set; }
     }

@@ -374,7 +374,9 @@ namespace Infrastructure.Repository.Query
                     "IsNewPath, " +
                     "IsDelete, " +
                     "DeleteByUserID, " +
-                    "DeleteByDate " +
+                    "DeleteByDate, " +
+                    "SourceFrom, " +
+                    "UniqueSessionId " +
                     "from Documents ";
             return query;
         }
@@ -447,6 +449,7 @@ namespace Infrastructure.Repository.Query
                         documentsModel.Type = "Document";
                         documentsModel.IsNewPath = documetsparent.IsNewPath;
                         documentsModel.AddedDate = documetsparent.AddedDate;
+                        documentsModel.UniqueSessionId = documetsparent.UniqueSessionId;
                         documentsModel.AddedByUser = appUsers?.FirstOrDefault(f => f.UserID == documetsparent.AddedByUserID)?.UserName;
                         documentsModel.IsCompressed = documetsparent.IsCompressed;
                         documentsModel.FileIndex = documetsparent.FileIndex;
@@ -497,6 +500,7 @@ namespace Infrastructure.Repository.Query
                                     FileProfileTypeName = fileProfileType.FirstOrDefault(f => f.FileProfileTypeId == s.FilterProfileTypeId)?.Name,
                                     DocumentParentId = s.DocumentParentId,
                                     TableName = s.TableName,
+                                    UniqueSessionId=s.UniqueSessionId,
                                     Type = "Document",
                                     AddedDate = s.AddedDate,
                                     AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName,
@@ -751,6 +755,7 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
                                 documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
                                 documentsModels.UploadDate = s.UploadDate;
+                                documentsModels.UniqueSessionId = s.UniqueSessionId;
                                 documentsModels.SessionID = s.SessionId;
                                 documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
                                 documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
@@ -767,6 +772,7 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.ModifiedByUserID = s.ModifiedByUserId;
                                 documentsModels.AddedDate = s.UploadDate;
                                 documentsModels.ModifiedDate = s.ModifiedDate;
+                                documentsModels.SourceFrom = s.SourceFrom;
                                 documentsModels.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
                                 documentsModels.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
                                 documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
@@ -1100,7 +1106,7 @@ namespace Infrastructure.Repository.Query
                     "t1.LinkDocumentId,\r\nt1.DocumentPath,\r\nt1.FolderID,\r\n" +
                     "t1.StatusCodeID,\r\nt1.AddedByUserID,\r\nt1.ModifiedByUserID,\r\n" +
                     "t1.ModifiedDate,\r\nt1.AddedDate,\r\nt2.SessionID,\r\nt2.FileSize, \r\n" +
-                    "t2.FileName as Title,\r\nt2.ContentType, \r\nt2.FileName as LinkDocumentName,\r\n" +
+                    "t2.FileName as Title,\r\nt2.ContentType, \r\nt2.FileName as LinkDocumentName,\r\nt3.UniqueSessionId as UniqueSessionId,\r\n" +
                     "t2.FilterProfileTypeID as PathFileProfieTypeId,\r\nt2.FolderID as LinkFolderID,\r\n" +
                     "t2.FilePath,\r\nt3.TableName as Type,\r\nt3.FileName as DocumentName,\r\nt4.UserName as AddedByUser,\r\nt3.IsNewPath as IsNewPath,\r\n" +
 
@@ -1138,6 +1144,7 @@ namespace Infrastructure.Repository.Query
                             DocumentLinkModel.Title = s.Title;
                             DocumentLinkModel.Type = s.Type;
                             DocumentLinkModel.IsNewPath = s.IsNewPath;
+                            DocumentLinkModel.UniqueSessionId = s.UniqueSessionId;
                             DocumentLinkModel.ContentType = s.ContentType;
                             DocumentLinkModel.DocumentName = s.DocumentName;
                             DocumentLinkModel.LinkDocumentName = s.LinkDocumentName;
@@ -1172,6 +1179,7 @@ namespace Infrastructure.Repository.Query
                     "t1.ModifiedByUserID,\r\nt1.ModifiedDate,\r\nt1.AddedDate,\r\n" +
                     "t3.SessionID,\r\n" +
                     "t2.IsNewPath,\r\n" +
+                    "t2.UniqueSessionId,\r\n" +
                     "t3.FileSize, \r\n" +
                     "t3.FileName as Title,\r\n" +
                     "t3.ContentType, \r\nt3.FileName as LinkDocumentName,\r\n" +
@@ -1218,6 +1226,7 @@ namespace Infrastructure.Repository.Query
                             DocumentLinkModel.Type = s.Type;
                             DocumentLinkModel.ContentType = s.ContentType;
                             DocumentLinkModel.IsNewPath = s.IsNewPath;
+                            DocumentLinkModel.UniqueSessionId = s.UniqueSessionId;
                             DocumentLinkModel.DocumentName = s.DocumentName;
                             DocumentLinkModel.LinkDocumentName = s.LinkDocumentName;
                             var FileProfileTypeId = s.PathFileProfieTypeId;

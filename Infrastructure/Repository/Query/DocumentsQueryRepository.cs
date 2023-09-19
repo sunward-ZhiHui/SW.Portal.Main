@@ -297,9 +297,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", DateTime.Now);
                             parameters.Add("UploadDate", DateTime.Now);
                             parameters.Add("FileIndex", fileIndex);
-                            var query = "INSERT INTO [Documents](FilterProfileTypeID,Description,ExpiryDate,StatusCodeID,IsTemp,SessionId,ProfileNo,AddedByUserId,IsLatest,AddedDate,UploadDate,IsNewPath,TableName,DocumentParentId,FileIndex) " +
+                            parameters.Add("SourceFrom", value.SourceFrom,DbType.String);
+                            var query = "INSERT INTO [Documents](FilterProfileTypeID,Description,ExpiryDate,StatusCodeID,IsTemp,SessionId,ProfileNo,AddedByUserId,IsLatest,AddedDate,UploadDate,IsNewPath,TableName,DocumentParentId,FileIndex,SourceFrom) " +
                                 "OUTPUT INSERTED.DocumentId VALUES " +
-                               "(@FileProfileTypeId,@Description,@ExpiryDate,@StatusCodeID,@IsTemp,@SessionId,@ProfileNo,@AddedByUserId,@IsLatest,@AddedDate,@UploadDate,@IsNewPath,@TableName,@DocumentParentId,@FileIndex)";
+                               "(@FileProfileTypeId,@Description,@ExpiryDate,@StatusCodeID,@IsTemp,@SessionId,@ProfileNo,@AddedByUserId,@IsLatest,@AddedDate,@UploadDate,@IsNewPath,@TableName,@DocumentParentId,@FileIndex,@SourceFrom)";
                             value.DocumentId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             transaction.Commit();
                             return value;
@@ -408,6 +409,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("FileSessionId", value.FileSessionId);
                             parameters.Add("IsTemp", 0);
                             parameters.Add("FilePath", value.FilePath, DbType.String);
+                            parameters.Add("SourceFrom", value.SourceFrom,DbType.String);
                             var query = "Update Documents SET " +
                                 "FilterProfileTypeId=@FileProfileTypeId, " +
                                 "Description=@Description, " +
@@ -418,6 +420,7 @@ namespace Infrastructure.Repository.Query
                                 "TableName=@TableName, " +
                                 "FileIndex=@FileIndex, " +
                                 "IsTemp=@IsTemp, " +
+                                "SourceFrom=@SourceFrom, " +
                                 "SessionId=@SessionId " +
                                 "WHERE " +
                                  "AddedByUserId=@AddedByUserId AND " +

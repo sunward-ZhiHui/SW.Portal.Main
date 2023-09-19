@@ -240,6 +240,7 @@
         var ext = e.FileInfo.Name.Split(".").Last();
         Data.FilePath = @"Documents\" + FileProfileSessionId + @"\" + filesessionIds + "." + ext;
         Data.FileSessionId = FileProfileSessionId;
+        Data.SourceFrom = "FileProfile";
         var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
         if (response.SessionId != null)
         {

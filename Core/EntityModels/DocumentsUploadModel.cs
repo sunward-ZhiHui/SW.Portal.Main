@@ -41,5 +41,6 @@ namespace Core.EntityModels
         public string? FilePath { get; set; }
         public string? FileName { get; set; }
         public Guid? FileSessionId { get; set; }
+        public string? SourceFrom { get; set; }
     }
 }

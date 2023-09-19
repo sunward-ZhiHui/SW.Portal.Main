@@ -155,12 +155,14 @@
 
             if (_selectedItems.IsNewPath == true)
             {
-                var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+               // var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
                 await OpenDocumentPreview(url);
             }
             else
             {
-                var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                //var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
                 await OpenDocumentPreview(url);
             }
 
@@ -177,13 +179,15 @@
 
             if (_selectedItems.IsNewPath == true)
             {
-                var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                //var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
                 await ClipboardService.WriteTextAsync(url);
                 toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
             }
             else
             {
-                var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                //var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
                 await ClipboardService.WriteTextAsync(url);
                 toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
             }

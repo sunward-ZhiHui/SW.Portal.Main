@@ -1,23 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Core.EntityModels
+﻿namespace DocumentViewer.EntityModels
 {
-    public class DocumentsModel : BaseModel
+    public class DocumentsModel 
     {
-        public long UniqueNo { get; set; }
         public long DocumentID { get; set; }
         public long? DepartmentID { get; set; }
-        public long? ParentId { get; set; }
-        public long? FileProfileTypeId { get; set; }
         public long? WikiID { get; set; }
         public long? CategoryID { get; set; }
-        public string? FileName { get; set; }
-        public string? OriginalFileName { get; set; }
+        public string FileName { get; set; }
         public string DocumentName { get; set; }
         public string DisplayName { get; set; }
         public string Extension { get; set; }
@@ -27,7 +16,9 @@ namespace Core.EntityModels
         public byte[] ImageData { get; set; }
         public int? FileIndex { get; set; }
         public long? FileSize { get; set; }
-        public DateTime? UploadDate { get; set; }
+        public System.DateTime? UploadDate { get; set; }
+
+        //public string LinkFileName { get; set; }
         public Guid? SessionID { get; set; }
         public long? LinkID { get; set; }
         public long? AppWikiReleaseDocId { get; set; }
@@ -40,6 +31,7 @@ namespace Core.EntityModels
         public long? CompanyCalendarLineId { get; set; }
         public bool? IsTemp { get; set; }
 
+        //Changes Done by Aravinth
         public int? ReferenceNumber { get; set; }
         public string Description { get; set; }
         public List<DocumentsModel> Children { get; set; }
@@ -57,6 +49,7 @@ namespace Core.EntityModels
         public string LinkedTask { get; set; }
         public string SubjectName { get; set; }
         public string VersionNo { get; set; }
+        //public IFormCollection UploadedFile { get; set; }
         public string ActualVersionNo { get; set; }
         public string DraftingVersionNo { get; set; }
         public bool? IsLocked { get; set; }
@@ -121,8 +114,8 @@ namespace Core.EntityModels
 
         public bool? IsNoAccess { get; set; }
         public bool? isSetAccess { get; set; }
-        public string AddedBy { get; set; }
-        public string ModifiedBy { get; set; }
+
+
         // Add New User AssignTask Permission
         public List<long?> AssignedToIds { get; set; }
         public List<long?> AssignedCCIds { get; set; }
@@ -182,55 +175,6 @@ namespace Core.EntityModels
         public long? NotesCount { get; set; }
         public string NotesColor { get; set; }
         public string FilePath { get; set; }
-        public string? FileSizes { get; set; }
-        public string? FileCounts { get; set; }
-        public bool? IsNewPath { get; set; }
-        public long? FileProfileTypeMainParentId { get; set; }
-        public string? FullPath { get; set; }
-        public Guid? FileProfileTypeSessionId { get; set; }
-        public string? SourceFrom { get; set; }
-        public Guid? UniqueSessionId { get; set; }
-    }
-    public class DocumentListModel : BaseModel
-    {
-        public List<DocumentsModel> DocumentList { get; set; }
-        public long? FilterProfileTypeId { get; set; }
-        public string Description { get; set; }
-    }
-    public class DocumentNameModel
-    {
-        public string FileName { get; set; }
-        public string ContentType { get; set; }
-        public string Extension { get; set; }
-    }
-    public class FormDropDownModel
-    {
-        public DocumentsModel FormEntity { get; set; }
-    }
-    public class DocumentTypeModel : BaseModel
-    {
-        public List<DocumentsModel> DocumentsData { get; set; } = new List<DocumentsModel>();
-        public DocumentPermissionModel DocumentPermissionData { get; set; }
-        public int? TotalDocument { get; set; }
-        public int? OpenDocument { get; set; }
-
-        public bool? IsExpiryDate { get; set; }
-    }
-    public class DocumentSearchModel
-    {
-        public string? FileName { get; set; }
-        public long? FileProfileTypeId { get; set; }
-        public Guid? SessionId { get; set; }
-        public string? Extension { get; set; }
-        public string? Type { get; set; }
-        public string? Description { get; set; }
-        public DateTime? ExpiryDate { get; set; }
-        public string? ContentType { get; set; }
-        public string? ProfileNo { get; set; }
-        public List<long?> FileProfileTypeIds { get; set; }
-        public List<Guid?> SessionIds { get; set; }
-        public DateTime? FromDate { get; set; }
-        public DateTime? ToDate { get; set; }
-
+        public string FilePaths { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace Core.Repositories.Query
 {
     public interface IToDoNotesQueryRepository : IQueryRepository<ToDoNotes>
     {
-        Task<IReadOnlyList<ToDoNotes>> GetAllAsync();        
+        Task<IReadOnlyList<ToDoNotes>> GetAllAsync(long userId);        
         Task<IReadOnlyList<ToDoNotes>> GetAllToDoNotesAsync(long UserId,long Topicid);
         Task<long> Insert(ToDoNotes ToDoNotes);
         Task<long> UpdateAsync(ToDoNotes ToDoNotes);

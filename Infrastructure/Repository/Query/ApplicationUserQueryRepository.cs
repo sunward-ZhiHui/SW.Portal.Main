@@ -213,6 +213,35 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }        
+        public async Task<string> UpdateDeviceId(string LoginID, string DeviceID)
+        {
+            try
+            {
+                var User = await GetByUsers(LoginID);
+                if (User != null)
+                {
+                    var userId = User.UserID;
+                    var query = "update ApplicationUser set MobileDeviceID=@DeviceID where UserID=@userId";
+                    var parameters = new DynamicParameters();
+                    parameters.Add("UserID", userId);
+                    parameters.Add("DeviceID", DeviceID);
+                    using (var connection = CreateConnection())
+                    {
+                        var user = await connection.ExecuteAsync(query, parameters);
+                        return "updated successfully";
+                    }
+                }
+                else
+                {                    
+                    return "-1";
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
         }
         public async Task<ApplicationUser> UpdatePasswordUser(long UserID, string NewPassword, string OldPassword, string LoginID)
         {

@@ -31,5 +31,6 @@ namespace Core.EntityModels
         public Guid? MainSessionId { get; set; }
         public string FilePath { get; set; }
         public bool? IsNewPath { get; set; }
+        public Guid? UniqueSessionId { get; set; }
     }
 }

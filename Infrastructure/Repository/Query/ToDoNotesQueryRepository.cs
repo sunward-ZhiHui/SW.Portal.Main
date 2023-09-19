@@ -19,15 +19,17 @@ namespace Infrastructure.Repository.Query
         {
         }
 
-        public async Task<IReadOnlyList<ToDoNotes>> GetAllAsync()
+        public async Task<IReadOnlyList<ToDoNotes>> GetAllAsync(long userId)
         {
             try
             {
-                var query = "SELECT * FROM ToDoNotes";
+                var parameters = new DynamicParameters();
+                parameters.Add("userId", userId);
+                var query = "SELECT DISTINCT Notes FROM ToDoNotes where AddedByUserID = @userId";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ToDoNotes>(query)).ToList();
+                    return (await connection.QueryAsync<ToDoNotes>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)

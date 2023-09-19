@@ -107,14 +107,26 @@
             </DxGridDataColumn>
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
-        @*  @bind-SelectedDataItems="SelectedDataItems"*@
+        @*  @bind-SelectedDataItems="SelectedDataItems"     SelectedItemChanged="@((AttributeHeader plant) => SelectedItemChanged(plant))"*@
         <EditFormTemplate Context="EditFormContext">
             @{
                 var types = (ToDoNotes)EditFormContext.EditModel;
             }
             <DxFormLayout CssClass="w-100">
                 <DxFormLayoutItem Caption="Notes:" ColSpanMd="12">
-                    <DxTextBox @bind-Text="@types.Notes" />
+               @*      <DxTextBox @bind-Text="@types.Notes" /> *@
+                    <DxComboBox Data="@_NotesLst"
+                                AllowUserInput="true"
+                                NullText="Select Notes..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="Notes"
+                                ValueFieldName="Notes"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    @bind-Value="types.Notes"
+                    @bind-Text="@types.Notes" ShowValidationIcon="true"
+                            >
+                    </DxComboBox>
                     <ValidationMessage For="@(() => types.Notes)" />
                 </DxFormLayoutItem>               
                 <ValidationSummary />
@@ -168,6 +180,7 @@
     private string CompleteText = "Complete";
     private string ReopenText = "Re-Open";
     private List<ToDoNotes>? _toDoNotes; 
+    private List<ToDoNotes>? _NotesLst;
     IGrid? Grid { get; set; }
     private ToDoNotes _selectedItems;
     bool ExportSelectedRowsOnly { get; set; }
@@ -189,7 +202,7 @@
     bool isEnabled { get; set; } = true;
     [Parameter]
     public long Topicid { get; set; }
-   
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -197,9 +210,9 @@
         PanelVisible = true;
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-      
+
         _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
-       
+        _NotesLst = await Mediator.Send(new GetAllToDoNotes(applicationUser.UserID));
 
         PanelVisible = false;
         if( Topicid >0)

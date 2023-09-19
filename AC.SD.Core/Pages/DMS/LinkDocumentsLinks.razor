@@ -190,12 +190,14 @@
         {
             if (_selectedItems.IsNewPath == true)
             {
-                var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                //var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
                 await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
             }
             else
             {
-                var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                //var url = DocumentViewUrl + "?url=" + ServerUrl + _selectedItems.FilePath;
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
                 await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
             }
         }

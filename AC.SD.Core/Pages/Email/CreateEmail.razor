@@ -1066,6 +1066,9 @@ else
 
         byte[] fileContent = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
 
+
+      
+
         if (fileContent.Length == 480)
         {
             toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
@@ -1080,6 +1083,15 @@ else
             }
             return;
         }
+
+
+        await msgrichEdit.SaveDocumentAsync();
+        using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+        byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+        server.LoadDocument(fileContent1);
+        server.Options.Export.Html.EmbedImages = true;
+        byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
+
 
         var plistuniquevalue = participantIds.Distinct().ToList();
         string participantidsString = string.Join(",", plistuniquevalue); // convert the array to a comma-separated string
@@ -1110,7 +1122,7 @@ else
                     DueDate = Data.DueDate,
                     OverDue = Data.OverDue,
                     IsAllowParticipants = Data.IsAllowParticipants,
-                    FileData = fileContent,                
+                    FileData = fileContents,                
                     StatusCodeID = 1,
                     AddedByUserID = applicationAddedByUserID,
                     AddedDate = DateTime.Now,

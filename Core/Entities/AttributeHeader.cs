@@ -14,7 +14,7 @@ namespace Core.Entities
         [Key]
        
         public int AttributeID { get; set; }
-        [Required]
+      // [Required]
         public string AttributeName { get; set; }
         [Required]
         public string Description { get; set; }

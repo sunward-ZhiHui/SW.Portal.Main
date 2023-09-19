@@ -20,11 +20,11 @@ namespace Application.Queries
         
     public class GetAllAttributeDetailsQuery : PagedRequest, IRequest<List<AttributeDetails>>
     {
-        public long ID { get; set; }
-        public GetAllAttributeDetailsQuery(long ID)
-        {
-            this.ID = ID;
-        }
+        //public long ID { get; set; }
+        //public GetAllAttributeDetailsQuery(long ID)
+        //{
+        //    this.ID = ID;
+        //}
     }
     public class CreateAttributeDetails : AttributeDetails, IRequest<long>
     {

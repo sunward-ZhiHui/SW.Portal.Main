@@ -27,7 +27,21 @@ namespace Application.Handlers.QueryHandlers
             return (List<AttributeHeader>)await _queryRepository.GetListAsync();
         }
     }
+    public class GetAllAttributeValueHandler : IRequestHandler<GetAllAttributeValues, List<AttributeHeader>>
+    {
 
+        private readonly IQueryRepository<AttributeHeader> _queryRepository;
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetAllAttributeValueHandler( IAttributeQueryRepository attrubutequeryRepository)
+        {
+           
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<AttributeHeader>> Handle(GetAllAttributeValues request, CancellationToken cancellationToken)
+        {
+            return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAsync(request.ID);
+        }
+    }
     public class CreateAttributeHandler : IRequestHandler<CreateAttributeHeader, long>
     {
 

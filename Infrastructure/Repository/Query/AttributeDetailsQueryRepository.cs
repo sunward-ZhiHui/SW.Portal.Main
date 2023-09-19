@@ -63,17 +63,17 @@ namespace Infrastructure.Repository.Query
             
         }
 
-        public async Task<IReadOnlyList<AttributeDetails>> GetAllAsync(long ID)
+        public async Task<IReadOnlyList<AttributeDetails>> GetAllAsync()
         {
             try
             {
-                var parameters = new DynamicParameters();
-                parameters.Add("ID", ID, DbType.Int64);
+                //var parameters = new DynamicParameters();
+                //parameters.Add("ID", ID, DbType.Int64);
 
-                var query = "SELECT * FROM AttributeDetails Where AttributeID = @ID";
+                var query = "SELECT * FROM AttributeDetails ";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<AttributeDetails>(query, parameters)).ToList();
+                    return (await connection.QueryAsync<AttributeDetails>(query)).ToList();
                 }
             }
             catch (Exception exp)
@@ -189,10 +189,14 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("Description", attributeDetails.Description);
-                          
+                            parameters.Add("Disabled", attributeDetails.Disabled);
+                            parameters.Add("ModifiedByUserID", attributeDetails.ModifiedByUserID);
+                            parameters.Add("ModifiedDate", attributeDetails.ModifiedDate);
+                            parameters.Add("AttributeDetailName", attributeDetails.AttributeDetailName);
+
                             parameters.Add("AttributeDetailID", attributeDetails.AttributeDetailID, DbType.Int64);
 
-                            var query = " UPDATE AttributeDetails SET Description=@Description WHERE AttributeDetailID = @AttributeDetailID";
+                            var query = " UPDATE AttributeDetails SET Description=@Description,Disabled = @Disabled,ModifiedByUserID =@ModifiedByUserID,ModifiedDate =@ModifiedDate,AttributeDetailName =@AttributeDetailName WHERE AttributeDetailID = @AttributeDetailID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 

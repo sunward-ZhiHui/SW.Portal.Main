@@ -44,7 +44,34 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDiscussionListAsync(request.TopicId,request.UserId);           
         }
     }
-    
+    public class GetDemoEmailFileDataListHandler : IRequestHandler<GetDemoEmailFileDataList, List<EmailConversations>>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetDemoEmailFileDataListHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<List<EmailConversations>> Handle(GetDemoEmailFileDataList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDemoEmailFileDataListAsync();
+        }
+    }
+    public class GetDemoUpdateEmailFileDataListHandler : IRequestHandler<GetDemoUpdateEmailFileDataList, long>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetDemoUpdateEmailFileDataListHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<long> Handle(GetDemoUpdateEmailFileDataList request, CancellationToken cancellationToken)
+        {
+            return (long)await _emailConversationsQueryRepository.GetDemoUpdateEmailFileDataListAsync(request.id,request.fileData);
+        }
+    }
+
     public class GetEmailValidUserListHandler : IRequestHandler<GetEmailValidUserList, List<EmailConversations>>
     {
         private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
@@ -72,6 +99,154 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<EmailConversations>> Handle(GetEmailConversationList request, CancellationToken cancellationToken)
         {
             return (List<EmailConversations>)await _emailConversationsQueryRepository.GetConversationListAsync(request.ID);
+        }
+    }
+    public class OnReplyConversationHandler : IRequestHandler<OnReplyConversation, OnReplyEmail>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+        private readonly IEmployeeQueryRepository _employeeQueryRepository;
+        public OnReplyConversationHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository, IEmployeeQueryRepository employeeQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+            _employeeQueryRepository = employeeQueryRepository;
+        }
+        public async Task<OnReplyEmail> Handle(OnReplyConversation request, CancellationToken cancellationToken)
+        {
+            var _allparticipant = new List<ViewEmployee>(); 
+            var AssignccIds = new List<long>(); 
+            var SelectedCCIds = new List<string>(); 
+            var _Toparticipant = new List<ViewEmployee>(); 
+            var _CCparticipant = new List<ViewEmployee>(); 
+            var _allparticipants = new List<ViewEmployee>();
+
+
+            var _replyComment = await _emailConversationsQueryRepository.GetReplyDiscussionListAsync(request.ID, request.UserId);
+            if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
+            {
+                var plist = await _employeeQueryRepository.GetAllUserAsync();
+                var allplist = plist.Where(c => c.UserID != request.UserId).ToList();
+
+                var gettids = await _emailConversationsQueryRepository.GetConversationListAsync(request.ID);
+                var getplllst = await _emailConversationsQueryRepository.GetAllConvTopicPListAsync(request.ID, gettids[0].TopicID);                
+                var parttcc = getplllst.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+                #region AssignTo
+                /*Assignto*/
+                var convlistTo = await _emailConversationsQueryRepository.GetConversationAssignToList(_replyComment[0].ID);               
+                var conto = convlistTo.Where(c => c.UserId != request.UserId).ToList();                
+                List<long> updatedList = conto.Select(s => s.UserId).ToList();
+                long fromUserId = _replyComment[0].UserId.Value;
+
+                if (fromUserId != request.UserId)
+                {
+                    updatedList.Add(fromUserId);
+                   _allparticipant = allplist.Where(c => c.UserID != request.UserId).ToList();
+                   _Toparticipant = _allparticipant.ToList();
+                   _CCparticipant = _allparticipant.ToList();
+                   _allparticipants = _allparticipant.ToList();                    
+                }
+                else
+                {
+                   _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].UserId.Value).ToList();
+                   _Toparticipant = _allparticipant.ToList();
+                   _CCparticipant = _allparticipant.ToList();
+                   _allparticipants = _allparticipant.ToList();
+                }                
+                //Data.AssigntoIds = new List<long>();
+                #endregion
+
+                #region AssignCC
+                /*AssignCC*/
+                var convlistCC = await _emailConversationsQueryRepository.GetConversationAssignCCList(_replyComment[0].ID);                 
+                var concc = convlistCC.Where(c => c.UserId != request.UserId).ToList();
+                var t1 = parttcc.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                var t2 = parttcc.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+                AssignccIds = t1.Concat(t2).ToList();
+
+                var filteredCCList = _allparticipant.Where(c => AssignccIds.Contains(c.UserID.Value)).ToList();
+                IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
+                SelectedCCIds = CCtags.ToList();
+
+
+                _Toparticipant = _Toparticipant.Where(c => !AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+                #endregion
+
+
+                var conversation = new OnReplyEmail();
+                conversation.ID = (int)request.ID;
+                conversation.ToList = _Toparticipant;
+                conversation.CCList = _CCparticipant;
+                conversation.Allparticipant = _allparticipant;
+                conversation.Allparticipants = _allparticipants;
+                conversation.SelectedCCIds = SelectedCCIds;
+
+                return conversation;
+
+            }
+            else
+            {
+                var gettid = await _emailConversationsQueryRepository.GetAllConvTPListAsync(_replyComment[0].TopicID);                
+                var allplist = gettid;
+                var gettids = await _emailConversationsQueryRepository.GetAllConvTPListAsync(_replyComment[0].TopicID);
+                var getpatlist = gettids.Select(p => p.UserID).Where(userId => userId.HasValue).Select(userId => userId.Value).ToList();
+
+
+                #region AssignTo
+                /*Assignto*/
+                var convlistTo = await _emailConversationsQueryRepository.GetConversationAssignToList(_replyComment[0].ID);                
+                var conto = convlistTo.Where(c => c.UserId != request.UserId).ToList();
+                List<long> updatedList = conto.Select(s => s.UserId).ToList();
+                long fromUserId = _replyComment[0].AddedByUserID.Value;
+
+                if (fromUserId != request.UserId)
+                {
+                    updatedList.Add(fromUserId);
+                   _allparticipant = allplist.Where(c => c.UserID != request.UserId).ToList();
+                   _Toparticipant = _allparticipant.ToList();
+                   _CCparticipant = _allparticipant.ToList();
+                   _allparticipants = _allparticipant.ToList();                   
+                }
+                else
+                {
+                   _allparticipant = allplist.Where(c => c.UserID != _replyComment[0].AddedByUserID.Value).ToList();
+                   _Toparticipant = _allparticipant.ToList();
+                   _CCparticipant = _allparticipant.ToList();
+                   _allparticipants = _allparticipant.ToList();                   
+                }                
+                //Data.AssigntoIds = new List<long>();
+
+                #endregion
+
+
+                #region AssignCC
+                var convlistCC = await _emailConversationsQueryRepository.GetConversationAssignCCList(_replyComment[0].ID);                
+                var concc = convlistCC.Where(c => c.UserId != request.UserId).ToList();
+                
+                var t1 = getpatlist.Where(userId => updatedList.Any(s => s == userId)).ToList();
+                var t2 = getpatlist.Where(userId => concc.Any(s => s.UserId == userId)).ToList();
+
+                AssignccIds = t1.Concat(t2).ToList();
+
+                var filteredCCList = _allparticipant.Where(c => AssignccIds.Contains(c.UserID.Value)).ToList();
+                IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
+                SelectedCCIds = CCtags.ToList();
+
+                _Toparticipant = _Toparticipant.Where(c => !AssignccIds.Select(id => (long?)id).Contains(c.UserID)).ToList();
+
+                #endregion
+
+
+                var conversation = new OnReplyEmail();
+                conversation.ID = (int)request.ID;
+                conversation.ToList = _Toparticipant;
+                conversation.CCList = _CCparticipant;
+                conversation.Allparticipant = _allparticipant;
+                conversation.Allparticipants = _allparticipants;
+                conversation.SelectedCCIds = SelectedCCIds;
+
+                return conversation;
+            }
         }
     }
     public class GetTopConversationListHandler : IRequestHandler<GetTopConversationList, List<EmailConversations>>
@@ -161,8 +336,8 @@ namespace Application.Handlers.QueryHandlers
         public async Task<long> Handle(CreateEmailCoversation request, CancellationToken cancellationToken)
         {
             var req = await _conversationQueryRepository.Insert(request);
-
-
+            var updatereq = await _conversationQueryRepository.LastUserIDUpdate(request.ReplyId,request.AddedByUserID.Value);
+            
             var conversationAssignTo = new EmailConversationAssignTo();
             conversationAssignTo.ConversationId = req;
             conversationAssignTo.ReplyId = request.ReplyId;

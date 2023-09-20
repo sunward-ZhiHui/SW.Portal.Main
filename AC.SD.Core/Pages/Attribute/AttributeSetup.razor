@@ -72,7 +72,7 @@
                         SelectedItemChanged="@((AttributeHeader plant) => SelectedItemChanged(plant))">
             </DxComboBox>
          
-             <ValidationMessage For="@(() => Data.AttributeName)" />  
+           @*   <ValidationMessage For="@(() => Data.AttributeName)" />   *@
                    </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Screen ID" ColSpanMd="6">
                                 <DxComboBox Data="@_attributes"

@@ -16,7 +16,7 @@ namespace Core.Entities
         public int AttributeID { get; set; }
          [Required]
         public string ScreenID { get; set; }
-        [Required]
+      //  [Required]
         public string AttributeName { get; set; }
         [Required]
         public string Description { get; set; }

@@ -1063,7 +1063,8 @@ else
         //var url = FileUrl + lst.FilePath;
         //await OpenUrlInNewTab(url);
         _documents = _documentslst.FirstOrDefault(a => a.DocumentId == Id);
-        var url = DocumentViewUrl +"?url="+ FileUrl+_documents.FilePath;
+        //var url = DocumentViewUrl +"?url="+ FileUrl+_documents.FilePath;
+        var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
         await OpenDocumentPreview(url);
          
         

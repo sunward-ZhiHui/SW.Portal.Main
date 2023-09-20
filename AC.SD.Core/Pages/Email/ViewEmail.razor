@@ -875,11 +875,11 @@
                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                     DisplayMode="MenuDisplayMode.Desktop">
                                     <Items>
-                                        @if(IsFileValidUser)
-                                        {
+                                       @* @if(IsFileValidUser)
+                                        {*@
                                             <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="((e) => onPreview(_selectlst.DocumentId))" Enabled=PreviewEnabled />
                                             @*<DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectlst.DocumentId))" Enabled=docEnabled />*@
-                                        }                                       
+                                       @* } *@                                      
                                         
                                     </Items>
                                     </DxMenu>
@@ -1992,7 +1992,8 @@
     public async Task onPreview(long Id)
     {
         _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);       
-        var url = DocumentViewUrl+"?url="+FileUrl + _documents.FilePath;
+       // var url = DocumentViewUrl+"?url="+FileUrl + _documents.FilePath;
+        var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
         await OpenDocumentPreview(url);
     }
     private async Task OpenDocumentPreview(string url)
@@ -2225,7 +2226,8 @@
         _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup))); 
         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
 
-        var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
+        //var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
+        var url = DocumentViewUrl + "?url=" + lst.UniqueSessionId;
         await OpenDocumentPreview(url);
     }
     public async Task onDocDownload_old(long Id)

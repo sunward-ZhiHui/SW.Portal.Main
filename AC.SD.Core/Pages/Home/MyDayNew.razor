@@ -349,7 +349,8 @@
     public async Task onPreview(long Id)
     {
         _documents = _DocumentsList.FirstOrDefault(a => a.DocumentId == Id);
-        var url = DocumentViewUrl + "?url=" + FileUrl + _documents.FilePath;
+        //var url = DocumentViewUrl + "?url=" + FileUrl + _documents.FilePath;
+        var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
         await OpenDocumentPreview(url);
     }
     private async Task OpenDocumentPreview(string url)

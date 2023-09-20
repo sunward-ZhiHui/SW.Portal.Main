@@ -81,6 +81,23 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<IReadOnlyList<AttributeHeader>> GetAllAttributeName()
+        {
+            try
+            {
+                var query = "select DISTINCT AttributeName from  AttributeHeader";
+
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<AttributeHeader>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async Task<AttributeHeader> GetByIdAsync(long id)
         {

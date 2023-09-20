@@ -866,13 +866,12 @@
         }
         else
         {
-            var ex = _ToDoNotesHistory.Where(x => x.Description == editModel.Description && x.ID != editModel.ID);
-            if (ex.Any())
-            {
-                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
-            }
-            else
-            {
+            //var ex = _ToDoNotesHistory.Where(x => x.Description == editModel.Description && x.ID != editModel.ID);
+            //if (ex.Any())
+            //{
+            //    toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            //}
+           
                 var UpdateReq = new EditToDoNotesHistoryQuery
                     {
                         ID = editModel.ID,  
@@ -895,7 +894,7 @@
                 toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
                 await UpdateDataAsync();
 
-            }
+            
 
         }
 

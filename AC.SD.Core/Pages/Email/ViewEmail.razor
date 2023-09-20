@@ -145,7 +145,7 @@
                         }  
                         else if(isLeftMenuvisible == "Library")
                         {
-                            <MasterSearch GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch>
+                            <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch>
                         }  
                             
 
@@ -1313,6 +1313,7 @@
     private AllEmail? RefAssignAll{ get; set; }
     private TopicTags? RefTopicTagList { get; set; }
     private UserToDo? RefTopicTodo { get; set; }
+    private MasterSearch? RefMasterSearch { get; set; }
     private bool IsValidUser { get; set; } = false;
     private bool IsFileValidUser { get; set; } = false;
     [Parameter]
@@ -2734,6 +2735,10 @@
             {
                 string ridds = todolist[0].TopicId.ToString();
                 onSubViewEmailClick(ridds);
+                //OnLeftMenuItemClick("Library");
+                //isLeftMenuvisible = "Library";
+                // await Task.Delay(2000); // Delay for 2 seconds
+                //await loadLibary_Data("tt");
             }
         }
         else
@@ -3344,6 +3349,14 @@
     async Task loadTags_Data()
     {
         await RefTopicTagList.loadTagList(long.Parse(@SelectedGroup));
+    }
+    async Task loadLibary_Data(string txt)
+    {
+        if(RefMasterSearch != null)
+        {
+            await RefMasterSearch.loadLibaryList(txt);
+        }
+        
     }
     async Task loadTodo_Data()
     {

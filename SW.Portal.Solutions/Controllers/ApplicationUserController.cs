@@ -69,13 +69,7 @@ namespace SW.Portal.Solutions.Controllers
             }
 
             return Ok(response);
-
-
-            //var response = await _applicationUserQueryRepository.LoginAuth(loginId, password);
-            //if (response != null)
-            //    return Ok(response);
-            //else
-            //    return NotFound("Invalid User");
+            
         }
 
         [HttpPost]
@@ -112,13 +106,6 @@ namespace SW.Portal.Solutions.Controllers
             }
 
             return Ok(response);
-
-
-            //var response = await _applicationUserQueryRepository.LoginAuth(loginId, password);
-            //if (response != null)
-            //    return Ok(response);
-            //else
-            //    return NotFound("Invalid User");
         }
 
 

@@ -14,6 +14,8 @@ namespace DocumentViewer.Models
         public DbSet<ApplicationUser> ApplicationUser { get; set; }
         public DbSet<DocumentUserRole> DocumentUserRole { get; set; }
         public DbSet<DocumentPermission> DocumentPermission { get; set; }
+        public DbSet<ApplicationMasterDetail> ApplicationMasterDetail { get; set; }
+        public DbSet<Employee> Employee { get; set; }
     }
 }
 

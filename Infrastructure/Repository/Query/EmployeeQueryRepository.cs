@@ -70,6 +70,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<ViewEmployee>> GetAllUserWithoutStatusAsync()
+        {
+            try
+            {
+                var query = "select  * from View_Employee";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ViewEmployee>(query)).Distinct().ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<ViewEmployee> GetAllUserByIDAsync(long UserID)
         {
             try

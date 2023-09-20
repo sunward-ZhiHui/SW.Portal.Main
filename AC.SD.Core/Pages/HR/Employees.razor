@@ -79,7 +79,7 @@ else
         <DxGridDataColumn FieldName="FirstName" MinWidth="80" />
         <DxGridDataColumn FieldName="LastName" MinWidth="80" />
         <DxGridDataColumn FieldName="NickName" MinWidth="80" />
-        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
+            <DxGridDataColumn FieldName="StatusName" Caption="Status" MinWidth="80" />
         <DxGridDataColumn FieldName="ModifiedDate" Width="180" >
             <CellDisplayTemplate>
                 @{
@@ -123,7 +123,7 @@ else
        // await jsRuntime.InvokeAsync<string>("showLoading");
       //  await Task.Run(LoadEmployeesAsync);
         PanelVisible = true;
-        _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+        _employeeItems = await Mediator.Send(new GetAllUserWithoutStatusQuery());
         PanelVisible = false;
      //   await jsRuntime.InvokeAsync<string>("hideLoading");
         if (_employeeItems.Count > 0)
@@ -170,7 +170,7 @@ else
     {
          await jsRuntime.InvokeAsync<string>("showLoading");
 
-        _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+        _employeeItems = await Mediator.Send(new GetAllUserWithoutStatusQuery());
          await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void NewEmployeeForm(MouseEventArgs args)

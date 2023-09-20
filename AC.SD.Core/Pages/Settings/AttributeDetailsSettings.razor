@@ -184,7 +184,7 @@
         // await jsRuntime.InvokeAsync<string>("showLoading");
       //  var models = await Mediator.Send(new GetAllAttributeDetailsQuery());
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
-        //  var model = await Mediator.Send(new GetAllAttributeDetailsQuery());
+          var model = await Mediator.Send(new GetAllAttributeDetailsQuery());
         // _attributes = model;
 
         //for (int i = 0; i < models.Count; i++)

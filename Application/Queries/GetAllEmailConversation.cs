@@ -64,6 +64,19 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class GetDemoEmailFileDataList : PagedRequest, IRequest<List<EmailConversations>>
+    {  
+    }
+    public class GetDemoUpdateEmailFileDataList : PagedRequest, IRequest<long>
+    {
+        public long id { get; private set; }
+        public byte[] fileData { get; private set; }
+        public GetDemoUpdateEmailFileDataList(long id, byte[] fileData)
+        {
+            this.id = id;
+            this.fileData = fileData;
+        }
+    }
     public class GetEmailValidUserList : PagedRequest, IRequest<List<EmailConversations>>
     {
         public long TopicId { get; private set; }

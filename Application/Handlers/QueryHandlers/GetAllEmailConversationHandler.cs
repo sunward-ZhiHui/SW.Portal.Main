@@ -44,7 +44,34 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDiscussionListAsync(request.TopicId,request.UserId);           
         }
     }
-    
+    public class GetDemoEmailFileDataListHandler : IRequestHandler<GetDemoEmailFileDataList, List<EmailConversations>>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetDemoEmailFileDataListHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<List<EmailConversations>> Handle(GetDemoEmailFileDataList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDemoEmailFileDataListAsync();
+        }
+    }
+    public class GetDemoUpdateEmailFileDataListHandler : IRequestHandler<GetDemoUpdateEmailFileDataList, long>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetDemoUpdateEmailFileDataListHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<long> Handle(GetDemoUpdateEmailFileDataList request, CancellationToken cancellationToken)
+        {
+            return (long)await _emailConversationsQueryRepository.GetDemoUpdateEmailFileDataListAsync(request.id,request.fileData);
+        }
+    }
+
     public class GetEmailValidUserListHandler : IRequestHandler<GetEmailValidUserList, List<EmailConversations>>
     {
         private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
@@ -309,8 +336,8 @@ namespace Application.Handlers.QueryHandlers
         public async Task<long> Handle(CreateEmailCoversation request, CancellationToken cancellationToken)
         {
             var req = await _conversationQueryRepository.Insert(request);
-
-
+            var updatereq = await _conversationQueryRepository.LastUserIDUpdate(request.ReplyId,request.AddedByUserID.Value);
+            
             var conversationAssignTo = new EmailConversationAssignTo();
             conversationAssignTo.ConversationId = req;
             conversationAssignTo.ReplyId = request.ReplyId;

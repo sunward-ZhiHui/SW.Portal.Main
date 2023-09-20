@@ -22,7 +22,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<AttributeDetails>> Handle(GetAllAttributeDetailsQuery request, CancellationToken cancellationToken)
         {
-            return (List<AttributeDetails>)await _attrubutequeryRepository.GetAllAsync(request.ID);
+            return (List<AttributeDetails>)await _attrubutequeryRepository.GetAllAsync();
         }
     }
 

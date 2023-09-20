@@ -443,6 +443,7 @@
         var filesessionIds = new Guid(e.FileInfo.Guid);
         Data.SessionId = filesessionIds;
         Data.FileSessionId = filesessionIds;
+        Data.SourceFrom = "FileProfile";
         var ext = e.FileInfo.Name.Split(".").Last();
         Data.FilePath = @"Documents\" + selectedFiles.SessionID + @"\" + filesessionIds + "." + ext;
         var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));

@@ -1,5 +1,6 @@
 ﻿using AC.SD.Core.Pages.Forum;
 using Application.Queries;
+using AutoMapper;
 using Core.Entities;
 using Core.Repositories.Query;
 using DevExpress.ClipboardSource.SpreadsheetML;
@@ -7,10 +8,14 @@ using DevExpress.Data.Filtering.Helpers;
 using DevExpress.Xpo;
 using Infrastructure.Repository.Query;
 using MediatR;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.WsTrust;
 using Microsoft.VisualBasic;
+using SW.Portal.Solutions.Models;
+using SW.Portal.Solutions.Services;
+using System.Text;
 using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
 
 namespace SW.Portal.Solutions.Controllers
@@ -30,9 +35,10 @@ namespace SW.Portal.Solutions.Controllers
 
 
         [HttpGet("GetEmailList")]
-        public async Task<IActionResult> GetList(string mode, long UserId)
+        public async Task<ActionResult<ResponseModel<IEnumerable<EmailTopics>>>> GetList(string mode, long UserId)
         {
             List<Core.Entities.EmailTopics> result = null;
+            var response = new ResponseModel<EmailTopics>();
 
             if (mode == "To")
             {
@@ -52,10 +58,10 @@ namespace SW.Portal.Solutions.Controllers
             }
             else
             {
-                result = new List<Core.Entities.EmailTopics>();
+                result = new List<Core.Entities.EmailTopics>();               
             }
             
-            var displayResult = result?.Select(topic => new
+            var displayResult = result?.Select(topic => new EmailTopicViewModel
             {
                 id = topic.ID,
                 topicName = topic.TopicName,
@@ -72,12 +78,33 @@ namespace SW.Portal.Solutions.Controllers
                 userId = UserId
             }).ToList();
 
-            return Ok(displayResult);
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+
+                // Add AutoMapper configuration here
+                var config = new MapperConfiguration(cfg => {
+                    cfg.CreateMap<EmailTopicViewModel, EmailTopics>();
+                    cfg.CreateMap<EmailTopics, EmailTopicViewModel>();
+                });
+
+
+                var mapper = new Mapper(config);               
+                response.Results = mapper.Map<List<EmailTopics>>(displayResult);
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
         }
         [HttpGet("GetSubEmailList")]
-        public async Task<IActionResult> GetSubList(string mode, long Id, long UserId)
+        public async Task<ActionResult<ResponseModel<IEnumerable<EmailTopics>>>> GetSubList(string mode, long Id, long UserId)
         {
             List<Core.Entities.EmailTopics> subResult = null;
+            var response = new ResponseModel<EmailTopics>();
 
             if (mode == "To")
             {
@@ -100,7 +127,7 @@ namespace SW.Portal.Solutions.Controllers
                 subResult = new List<Core.Entities.EmailTopics>();
             }
 
-            var displayResult = subResult?.Select(topic => new
+            var displayResult = subResult?.Select(topic => new EmailTopicViewModel
             {
                 id = topic.ID,
                 replyId = topic.ReplyId,
@@ -118,14 +145,35 @@ namespace SW.Portal.Solutions.Controllers
                 userId = UserId
             }).ToList();
 
-            return Ok(displayResult);
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+
+                // Add AutoMapper configuration here
+                var config = new MapperConfiguration(cfg => {
+                    cfg.CreateMap<EmailTopicViewModel, EmailTopics>();
+                    cfg.CreateMap<EmailTopics, EmailTopicViewModel>();
+                });
+
+
+                var mapper = new Mapper(config);
+                response.Results = mapper.Map<List<EmailTopics>>(displayResult);
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
         }
         [HttpGet("GetDiscussionList")]
-        public async Task<IActionResult> GetEmailDiscussionList(long Id, long UserId)
+        public async Task<ActionResult<ResponseModel<IEnumerable<EmailConversationViewModel>>>> GetEmailDiscussionList(long Id, long UserId)
         {
+            var response = new ResponseModel<EmailConversationViewModel>();
             var result = await _mediator.Send(new GetEmailReplyDiscussionList(Id, UserId));
 
-            var displayResult = result?.Select(conversations => new
+            var displayResult = result?.Select(conversations => new EmailConversationViewModel
             {
                 id = conversations.ID,
                 replyId = conversations.ReplyId,
@@ -137,7 +185,7 @@ namespace SW.Portal.Solutions.Controllers
                 CC = conversations.AssignCCList,
                 message = conversations.FileData,
                 replyCount = conversations.ReplyConversation.Count(),
-                ReplyConversation = conversations.ReplyConversation?.Select(rconversation => new
+                ReplyConversation = conversations.ReplyConversation?.Select(rconversation => new ReplyConversationModel
                 {
                     id= rconversation.ID,
                     replyId = rconversation.ReplyId,
@@ -145,7 +193,7 @@ namespace SW.Portal.Solutions.Controllers
                     userName = rconversation.UserName,
                     TopicName = rconversation.Name,
                     firstName = rconversation.FirstName,
-                    Message = rconversation.IsMobile == 1 ? (object)rconversation.Message : rconversation.FileData,
+                    Message = rconversation.FileData,
                     To = rconversation.AssignToList,
                     CC = rconversation.AssignCCList,
                     userId = rconversation.UserId,
@@ -157,8 +205,8 @@ namespace SW.Portal.Solutions.Controllers
                     isAllowParticipants = rconversation.IsAllowParticipants,
                     
 
-                }),               
-                rrgent = conversations.Urgent,
+                }).ToList(),               
+                urgent = conversations.Urgent,
                 isAllowParticipants = conversations.IsAllowParticipants,
                 dueDate = conversations.DueDate,
                 onBehalf = conversations.OnBehalf,
@@ -169,7 +217,18 @@ namespace SW.Portal.Solutions.Controllers
             }).ToList();
 
 
-            return Ok(displayResult);
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+                response.Result = displayResult.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
         }      
         [HttpGet("GetOnReplyList")]
         public async Task<IActionResult> GetOnReplyList(long Id, long UserId)
@@ -178,78 +237,114 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(result);
         }
         [HttpPost("OnSubmitReply")]
-        public async Task<IActionResult> OnSubmitReply(EmailConversations emailConversations)
+        public async Task<ActionResult<ResponseModel<IEnumerable<ReplyConversation>>>> OnSubmitReply(EmailConversations emailConversations)
         {
-            if(emailConversations.AssigntoIds != null)
+            var response = new ResponseModel<ReplyConversation>();
+
+            if (emailConversations.AssigntoIds != null)
             {
-                List<long> concatList;
-                List<long> NotificationconcatList = new List<long>();
-                string plistUniqueItems = null;
-
-                if (emailConversations.AssignccIds != null)
+                try
                 {
-                    concatList = emailConversations.AssigntoIds.Concat(emailConversations.AssignccIds).ToList();
+                    response.ResponseCode = ResponseCode.Success;
+
+
+                    List<long> concatList;
+                    List<long> NotificationconcatList = new List<long>();
+                    string plistUniqueItems = null;
+
+                    if (emailConversations.AssignccIds != null)
+                    {
+                        concatList = emailConversations.AssigntoIds.Concat(emailConversations.AssignccIds).ToList();
+                    }
+                    else
+                    {
+                        concatList = emailConversations.AssigntoIds.ToList();
+                    }
+
+                    concatList.Add(emailConversations.ParticipantId);
+                    concatList = concatList.Distinct().ToList();
+                    string participantidsString = string.Join(",", concatList);
+
+                    string assignccidsString = null;
+                    if (emailConversations.AssignccIds != null)
+                    {
+                        assignccidsString = string.Join(",", emailConversations.AssignccIds);
+                    }
+                    string assigntoidsString = string.Join(",", emailConversations.AssigntoIds);
+
+
+
+                    var plist = await _mediator.Send(new GetByConvasationPList(emailConversations.ReplyId));
+                    List<long> plst = plist.Select(x => x.UserID.GetValueOrDefault()).ToList();
+                    NotificationconcatList = plst;
+                    List<long> uniqueItems = concatList.Except(plst).ToList();
+                    if (uniqueItems.Count > 0)
+                    {
+                        plistUniqueItems = string.Join(",", uniqueItems);
+                        NotificationconcatList.AddRange(uniqueItems);
+                    }
+
+
+                    string input_string = emailConversations.Message;
+                    byte[] bytes = Encoding.UTF8.GetBytes(input_string);
+                    string encodedString = Encoding.UTF8.GetString(bytes);
+                    string htmlContent = $"<html><body>{encodedString}</body></html>";
+                    byte[] htmlBinaryData = Encoding.UTF8.GetBytes(htmlContent);             
+
+               
+                    var createReq = new CreateEmailCoversation
+                    {
+                        TopicID = emailConversations.TopicID,
+                        FileData = htmlBinaryData,
+                        Message = emailConversations.Message,
+                        AssigntoIdss = assigntoidsString,
+                        AssignccIdss = assignccidsString,
+                        PlistIdss = participantidsString,
+                        AllowPlistids = plistUniqueItems,
+                        DueDate = emailConversations.DueDate,
+                        IsAllowParticipants = emailConversations.IsAllowParticipants,
+                        Urgent = emailConversations.Urgent,
+                        ConIds = emailConversations.ReplyId,
+                        AllParticipantIds = concatList,
+                        ParticipantId = emailConversations.ParticipantId,
+                        ReplyId = emailConversations.ReplyId,
+                        StatusCodeID = 1,
+                        AddedByUserID = emailConversations.ParticipantId,
+                        IsMobile = 1,
+                        AddedDate = DateTime.Now,
+                        Name = emailConversations.Name,
+                        SessionId = Guid.NewGuid()
+                    };
+
+                    var res = await _mediator.Send(createReq);
+
+                    var emailconversations = new ReplyConversation
+                    {
+                        id = (int)res,
+                        Message = "Add Successfully"
+                    };
+
+                    response.Result = emailconversations;
                 }
-                else
+                catch (Exception ex)
                 {
-                    concatList = emailConversations.AssigntoIds.ToList();
+                    response.ResponseCode = ResponseCode.Failure;
+                    response.ErrorMessages.Add(ex.Message);
                 }
 
-                concatList.Add(emailConversations.ParticipantId);
-                concatList = concatList.Distinct().ToList();
-                string participantidsString = string.Join(",", concatList);
 
-                string assignccidsString = null;
-                if (emailConversations.AssignccIds != null)
-                {
-                    assignccidsString = string.Join(",", emailConversations.AssignccIds);
-                }
-                string assigntoidsString = string.Join(",", emailConversations.AssigntoIds);
-
-
-
-                var plist = await _mediator.Send(new GetByConvasationPList(emailConversations.ReplyId));
-                List<long> plst = plist.Select(x => x.UserID.GetValueOrDefault()).ToList();
-                NotificationconcatList = plst;
-                List<long> uniqueItems = concatList.Except(plst).ToList();
-                if (uniqueItems.Count > 0)
-                {
-                    plistUniqueItems = string.Join(",", uniqueItems);
-                    NotificationconcatList.AddRange(uniqueItems);
-                }
-
-                var createReq = new CreateEmailCoversation
-                {
-                    TopicID = emailConversations.TopicID,
-                    FileData = emailConversations.FileData,
-                    Message = emailConversations.Message,
-                    AssigntoIdss = assigntoidsString,
-                    AssignccIdss = assignccidsString,
-                    PlistIdss = participantidsString,
-                    AllowPlistids = plistUniqueItems,
-                    DueDate = emailConversations.DueDate,
-                    IsAllowParticipants = emailConversations.IsAllowParticipants,
-                    Urgent = emailConversations.Urgent,
-                    ConIds = emailConversations.ReplyId,
-                    AllParticipantIds = concatList,
-                    ParticipantId = emailConversations.ParticipantId,
-                    ReplyId = emailConversations.ReplyId,
-                    StatusCodeID = 1,
-                    AddedByUserID = emailConversations.ParticipantId,
-                    IsMobile = 1,
-                    AddedDate = DateTime.Now,
-                    Name = emailConversations.Name,
-                    SessionId = Guid.NewGuid()
-                };
-
-                var result = await _mediator.Send(createReq);
-                return Ok(result);
+                //var result = await _mediator.Send(createReq);
+                //return Ok(result);
             }
             else
-            {
-                return BadRequest("Your request is invalid. Please check your Assign To.");
+            {                
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add("Your request is invalid. Please check your Assign To");
             }
-          
+           
+
+            return Ok(response);
+
         }
     }
 }

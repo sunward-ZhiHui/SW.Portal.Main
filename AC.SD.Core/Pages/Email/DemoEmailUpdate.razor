@@ -1,0 +1,49 @@
+﻿@page "/DemoEmailUpdate"
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime JSRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+<h3>DemoEmailUpdate</h3>
+<DxButton Text="OK" Click="@(() => onClickEmailFileData())" />
+@code {
+    private bool loading;
+    DxRichEdit msgrichEdit { get; set; }
+    async void onClickEmailFileData()
+    {
+        loading = true;
+        await JSRuntime.InvokeAsync<string>("showLoading");
+
+        var emailist = await Mediator.Send(new GetDemoEmailFileDataList());
+        if(emailist.Count > 0)
+        {
+            foreach (EmailConversations emailConversations in emailist)
+            {
+                var ids = emailConversations.ID;
+                var filedata = emailConversations.FileData;
+
+                //await msgrichEdit.SaveDocumentAsync();
+                using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+                //byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+                byte[] fileContent1 = emailConversations.FileData;
+                server.LoadDocument(fileContent1);
+                server.Options.Export.Html.EmbedImages = true;
+                byte[] fileContent = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
+
+                await UpdateFileDataList(ids, fileContent);
+            }
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+        }        
+    }
+    async Task UpdateFileDataList(long id,byte[] fileData)
+    {
+        var updated = await Mediator.Send(new GetDemoUpdateEmailFileDataList(id,fileData));
+    }
+}

@@ -820,13 +820,13 @@
 
         if (e.IsNew)
         {
-            var ex = _ToDoNotesHistory.Where(x => x.Description == editModel.Description);
-            if (ex.Any())
-            {
-                toastService.ShowToast("The entered value Already exists Description.", AC.SD.Core.Services.ToastLevel.Error);
-            }
-            else
-            {
+            // var ex = _ToDoNotesHistory.Where(x => x.Description == editModel.Description);
+            // if (ex.Any())
+            // {
+            //     toastService.ShowToast("The entered value Already exists Description.", AC.SD.Core.Services.ToastLevel.Error);
+            // }
+            // else
+            // {
                 //if (_ToDoNotesHistory.Count > 0)
                 //{
                 //    toastService.ShowToast("Applicable Total 1 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
@@ -862,17 +862,16 @@
                 }
 
                 await UpdateDataAsync();
-            }
+            
         }
         else
         {
-            var ex = _ToDoNotesHistory.Where(x => x.Description == editModel.Description && x.ID != editModel.ID);
-            if (ex.Any())
-            {
-                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
-            }
-            else
-            {
+            //var ex = _ToDoNotesHistory.Where(x => x.Description == editModel.Description && x.ID != editModel.ID);
+            //if (ex.Any())
+            //{
+            //    toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            //}
+           
                 var UpdateReq = new EditToDoNotesHistoryQuery
                     {
                         ID = editModel.ID,  
@@ -895,7 +894,7 @@
                 toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
                 await UpdateDataAsync();
 
-            }
+            
 
         }
 
@@ -1086,7 +1085,8 @@
     public async Task onPreview(long Id)
     {
         _documents = _DocumentsList.FirstOrDefault(a => a.DocumentId == Id);
-        var url = DocumentViewUrl + "?url=" + FileUrl + _documents.FilePath;
+        //var url = DocumentViewUrl + "?url=" + FileUrl + _documents.FilePath;
+        var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
         await OpenDocumentPreview(url);
     }
     private async Task OpenDocumentPreview(string url)

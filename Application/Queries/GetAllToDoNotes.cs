@@ -13,6 +13,13 @@ namespace Application.Queries
 {
     public class GetAllToDoNotes : PagedRequest, IRequest<List<ToDoNotes>>
     {
+        public long UserID { get; set; }
+       
+        public GetAllToDoNotes(long UserID)
+        {
+            this.UserID = UserID;
+            
+        }
     }
     public class GetByToDoNotes : PagedRequest, IRequest<List<ToDoNotes>>
     {

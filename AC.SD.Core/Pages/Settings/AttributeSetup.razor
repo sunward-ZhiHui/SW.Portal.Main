@@ -252,7 +252,7 @@
 
 
         Data.IsInternal = false;
-        RefDetails.UpdateDataAsync();
+        RefDetails.Attributeload(0);
 
 
     }
@@ -314,6 +314,7 @@
         {
             if (header.AttributeName != null)
             {
+              
                 _master = _attributes.Where(c => c.AttributeName == header.AttributeName).ToList();
 
                 Data.Description = _master[0].Description;
@@ -321,6 +322,17 @@
                 Data.RegExp = _master[0].RegExp;
                 Data.IsInternal = _master[0].IsInternal;
                 Data.ControlType = _master[0].ControlType;
+                if (Data.ControlType == "TextBox" || Data.ControlType == "DateEdit")
+                {
+                    MaskEnabled = true;
+                    RegEnabled = true;
+                }
+                else
+                {
+                    MaskEnabled = false;
+                    RegEnabled = false;
+                }
+
                 RefDetails.Attributeload(_master[0].AttributeID);
                 DeleteEnabled = true;
             }
@@ -361,8 +373,8 @@
         toastService.ShowToast("Attribute have been Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);
 
         addNew();
-
-
+        _attributes = await Mediator.Send(new GetAllAttributeHeader());
+        RefDetails.Attributeload(_master[0].AttributeID);
 
     }
 }

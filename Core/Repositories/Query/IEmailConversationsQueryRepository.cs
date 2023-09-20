@@ -15,6 +15,7 @@ namespace Core.Repositories.Query
         //Custom operation which is not generic
         Task<IReadOnlyList<EmailConversations>> GetAllAsync();
         Task<long> Insert(EmailConversations company);
+        Task<long> LastUserIDUpdate(long ReplyId,long UserId);
         Task<long> InsertAssignTo(EmailConversationAssignTo forumConversationAssignTo);
         Task<long> InsertAssignTo_sp(EmailConversationAssignTo emailConversationAssignTo);
         Task<long> InsertEmailNotifications(EmailNotifications forumNotifications);
@@ -26,6 +27,8 @@ namespace Core.Repositories.Query
         Task<EmailConversations> GetByIdAsync(Int64 id);        
         Task<List<EmailConversations>> GetFullDiscussionListAsync(Int64 TopicId);
         Task<List<EmailConversations>> GetDiscussionListAsync(Int64 TopicId,Int64 UserId);
+        Task<List<EmailConversations>> GetDemoEmailFileDataListAsync();
+        Task<long> GetDemoUpdateEmailFileDataListAsync(long id, Byte[] fileData);
         Task<List<EmailConversations>> GetValidUserListAsync(Int64 TopicId, Int64 UserId);        
         Task<List<EmailConversations>> GetConversationListAsync(Int64 Id);
         Task<List<EmailConversations>> GetTopConversationListAsync(Int64 TopicId);

@@ -14,8 +14,7 @@ namespace Core.Entities
     {
         [Key]
         public long ID { get; set; }
-        public long NotesId { get; set; }
-        [Required(ErrorMessage = "Please Enter Description.")]
+        public long NotesId { get; set; }      
         public string? Description { get; set; }
         public DateTime? DueDate { get; set; }
         public DateTime? RemainDate { get; set; }
@@ -27,7 +26,7 @@ namespace Core.Entities
         public string ModifiedBy { get; set; }
         [NotMapped]
         public string AddedBy { get; set; }
-
+        
         public string Status { get; set; }
         public string? ColourCode {get;set;}
         public string? Users { get; set; }
@@ -35,6 +34,11 @@ namespace Core.Entities
         public IEnumerable<long> UserIds { get; set; }
         [NotMapped]
         public string SubjectName { get;set; }
+        [NotMapped]
+        public  string MainSubject { get; set; }
+        [NotMapped]
+        public string NoteName { get; set; }
+       
     }
 }
  

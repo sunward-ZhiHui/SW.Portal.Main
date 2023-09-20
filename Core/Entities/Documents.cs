@@ -65,11 +65,13 @@ namespace Core.Entities
         public bool? IsDelete { get; set; }
         public DateTime? DeleteByDate { get; set; }
         public string? FilePath { get; set; }
+        public string? ModifiedBy { get; set; }
         [NotMapped]
         public string? ServerFilePath { get; set; }
         [NotMapped]
         public string? AddedBy { get; set; }
         [NotMapped]
-        public string? ModifiedBy { get; set; }       
+        public string? SourceFrom { get; set; }
+        public Guid? UniqueSessionId { get; set; }
     }
 }

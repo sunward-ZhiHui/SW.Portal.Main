@@ -450,6 +450,7 @@
         var ext = e.FileInfo.Name.Split(".").Last();
         Data.FilePath = @"Documents\" + selectedFiles.SessionID + @"\" + filesessionIds + "." + ext;
         Data.Type = "Document Link";
+        Data.SourceFrom = "FileProfile";
         var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
         linkDocMyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
         toastService.ShowToast(linkDocMyMessage, AC.SD.Core.Services.ToastLevel.Success);

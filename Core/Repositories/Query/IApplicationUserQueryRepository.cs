@@ -18,6 +18,7 @@ namespace Core.Repositories.Query
         Task<ApplicationUser> Auth(string LoginID, string Password);
         Task<ApplicationUser> GetByIdAsync(Int64 id);
         Task<ApplicationUser> GetByUsers(string LoginID);
+        Task<string> UpdateDeviceId(string LoginID, string DeviceID);
         Task<ApplicationUser> UpdatePasswordUser(long UserID, string NewPassword, string OldPassword, string LoginID);
         Task<ApplicationUser> ForGotPasswordUser(string LoginID, string NewPassword);
         Task<ApplicationUser> UnLockedPassword(string LoginID, string NewPassword);

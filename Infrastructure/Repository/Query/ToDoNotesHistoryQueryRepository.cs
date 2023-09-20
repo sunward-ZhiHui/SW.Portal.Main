@@ -80,13 +80,22 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                //var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(RemainDate AS DATE) = CAST(GETDATE() AS DATE)";
-                var query = @"SELECT TNH.*,EC.Name AS SubjectName FROM ToDoNotesHistory TNH
-                                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
+
+                var query = @"SELECT TNH.*,EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName FROM ToDoNotesHistory TNH
+                                 INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId  
+                                 INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId  
+                                 INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId                             
                                 WHERE TNH.AddedByUserID = @UserId
                                 AND TNH.TopicId IS NOT NULL  AND TNH.TopicId > 0 AND TNH.Status = 'Open'
                                 AND CAST(TNH.RemainDate AS DATE) <= CAST(GETDATE() AS DATE)
                                 ORDER BY TNH.RemainDate DESC";
+                // var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(RemainDate AS DATE) = CAST(GETDATE() AS DATE)";
+                //var query = @"SELECT TNH.*,EC.Name AS SubjectName FROM ToDoNotesHistory TNH
+                //                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId 
+                //                WHERE TNH.AddedByUserID = @UserId
+                //                AND TNH.TopicId IS NOT NULL  AND TNH.TopicId > 0 AND TNH.Status = 'Open'
+                //                AND CAST(TNH.RemainDate AS DATE) <= CAST(GETDATE() AS DATE)
+                //                ORDER BY TNH.RemainDate DESC";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId);
                 using (var connection = CreateConnection())

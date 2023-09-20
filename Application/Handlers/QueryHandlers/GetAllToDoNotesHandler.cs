@@ -21,7 +21,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<ToDoNotes>> Handle(GetAllToDoNotes request, CancellationToken cancellationToken)
         {   
-            return (List<ToDoNotes>)await _toDoNotesQueryRepository.GetAllAsync();
+            return (List<ToDoNotes>)await _toDoNotesQueryRepository.GetAllAsync(request.UserID);
         }
     }
     public class GetByToDoNotesHandler : IRequestHandler<GetByToDoNotes, List<ToDoNotes>>

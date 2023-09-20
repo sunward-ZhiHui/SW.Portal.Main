@@ -188,6 +188,8 @@ namespace Core.EntityModels
         public long? FileProfileTypeMainParentId { get; set; }
         public string? FullPath { get; set; }
         public Guid? FileProfileTypeSessionId { get; set; }
+        public string? SourceFrom { get; set; }
+        public Guid? UniqueSessionId { get; set; }
     }
     public class DocumentListModel : BaseModel
     {

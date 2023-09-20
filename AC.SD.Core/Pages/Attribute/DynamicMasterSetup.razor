@@ -1,0 +1,163 @@
+﻿@page "/DynamicMasterSetup"
+@using global::Core.Entities.Views;
+
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+
+
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+
+
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" Data="@_dynamicForm" EditModelSaving="@Grid_EditModelSaving" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+    
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 220px);"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+           
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick">
+
+        <Columns>
+            <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="80" />
+            <DxGridDataColumn FieldName="ScreenID" MinWidth="80" Caption="ScreenID" />
+           
+
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var controlform = (DynamicForm)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Version No" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@controlform.Name"></DxTextBox>
+                   @*  <ValidationMessage For="@(() => controlform.VersionNo)" /> *@
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Screen ID:" ColSpanMd="6">
+                    <DxComboBox Data="@_attributes"
+                                AllowUserInput="false"
+                                NullText="Select ScreenID..."
+                                ListRenderMode="ListRenderMode.Virtual"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="ScreenID"
+                                ValueFieldName="ScreenID"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                    @bind-Value="@controlform.ScreenID"
+                    @bind-Text="@controlform.ScreenID" ShowValidationIcon="true">
+                    </DxComboBox>
+                </DxFormLayoutItem>
+                
+                <ValidationSummary />
+
+            </DxFormLayout>
+        </EditFormTemplate>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    bool PanelVisible { get; set; }
+    IGrid Grid { get; set; }
+    private List<DynamicForm> _dynamicForm;
+    private List<AttributeHeader>? _attributes;
+    public ApplicationUser? applicationUser { get; private set; }
+    private DynamicForm _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+
+        PanelVisible = true;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _attributes = await Mediator.Send(new GetAllAttributeHeader());
+        await UpdateDataAsync();
+        PanelVisible = false;
+    }
+    async Task UpdateDataAsync()
+    {
+        _dynamicForm = await Mediator.Send(new GetAllDynamicForm());
+
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedItems = _dynamicForm.FirstOrDefault(f => f.ID == (long?)UniqueId);
+       // NavigationManager.NavigateTo("changeControlsetupForm/changecontrolforms/" + _selectedItems.SessionId);
+
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (DynamicForm)e.EditModel;
+
+        // var ex = _changeControlForm.Where(x => x.CCNumber == editModel.CCNumber || x.DocNo == editModel.DocNo);
+        // if (ex.Any())
+        // {
+        //     // onShowPopupMessage("Error", "The entered value Already exists.");
+        //     toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+        // }
+        // else
+
+        // {
+            var createReq = new CreateDynamicForm
+                {
+                    Name = editModel.Name,
+                    ScreenID = editModel.ScreenID
+                };
+
+
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+      //  }
+
+        await UpdateDataAsync();
+    }
+
+}

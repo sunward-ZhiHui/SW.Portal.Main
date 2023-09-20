@@ -24,7 +24,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<AttributeHeader>> Handle(GetAllAttributeHeader request, CancellationToken cancellationToken)
         {
-            return (List<AttributeHeader>)await _queryRepository.GetListAsync();
+            return (List<AttributeHeader>)await _attrubutequeryRepository.GetComboBoxLst();
         }
     }
     public class GetAllAttributeValueHandler : IRequestHandler<GetAllAttributeValues, List<AttributeHeader>>

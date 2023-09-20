@@ -2,6 +2,7 @@
 using Core.Entities.Views;
 using Core.Repositories.Query;
 using Dapper;
+using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -100,6 +101,24 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public  async Task<IReadOnlyList<AttributeHeader>> GetComboBoxLst()
+        {
+            try
+            {
+                var query = "select DISTINCT ScreenID from  AttributeHeader";
+
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<AttributeHeader>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public  async Task<long> Insert(AttributeHeader attributeHeader)
         {
             try
@@ -117,6 +136,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AttributeName", attributeHeader.AttributeName);
                             parameters.Add("IsInternal", attributeHeader.IsInternal);
                             parameters.Add("Description", attributeHeader.Description);
+                            parameters.Add("ScreenID", attributeHeader.ScreenID);
                             parameters.Add("ControlType", attributeHeader.ControlType);
                             parameters.Add("EntryMask", attributeHeader.EntryMask);
                             parameters.Add("RegExp", attributeHeader.RegExp);
@@ -133,9 +153,9 @@ namespace Infrastructure.Repository.Query
 
                             //return rowsAffected;
 
-                            var query = @"INSERT INTO AttributeHeader(AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID) 
+                            var query = @"INSERT INTO AttributeHeader(AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID,ScreenID) 
               OUTPUT INSERTED.AttributeID  -- Replace 'YourIDColumn' with the actual column name of your IDENTITY column
-              VALUES (@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID)";
+              VALUES (@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID,@ScreenID)";
 
                             var insertedId = await connection.ExecuteScalarAsync<int>(query, parameters, transaction);
 

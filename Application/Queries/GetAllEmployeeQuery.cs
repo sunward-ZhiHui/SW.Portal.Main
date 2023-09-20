@@ -14,6 +14,11 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetAllUserWithoutStatusQuery : PagedRequest, IRequest<List<ViewEmployee>>
+    {
+        public string SearchString { get; set; }
+    }
+    
     public class GetAllEmployeeListQuery : PagedRequest, IRequest<List<ViewEmployee>>
     {
         public string SearchString { get; set; }

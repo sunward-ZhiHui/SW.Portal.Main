@@ -22,7 +22,7 @@ namespace SW.Portal.Solutions.Controllers
         }
         [HttpPost]
         [Route("UploadDocumentsBySession")]
-        public async Task<ActionResult> UploadDocumentsBySession(IFormFile files, Guid? SessionId, long? addedByUserId,bool? IsFileSession)
+        public async Task<ActionResult> UploadDocumentsBySession(IFormFile files, Guid? SessionId, long? addedByUserId,bool? IsFileSession,string? SourceFrom)
         {
             long documentId = 0;
             // Handling Upload with Chunks
@@ -73,6 +73,7 @@ namespace SW.Portal.Solutions.Controllers
                         documents.FileName = metaDataObject.FileName;
                         documents.ContentType = metaDataObject.FileType;
                         documents.FileSize = metaDataObject.FileSize;
+                        documents.SourceFrom = SourceFrom;
                         documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                         var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
                         documentId = response.DocumentId;
@@ -87,7 +88,7 @@ namespace SW.Portal.Solutions.Controllers
         }
         [HttpPost]
         [Route("UploadDocumentsById")]
-        public async Task<ActionResult> UploadDocumentsById(IFormFile files, Guid? SessionId, long? DocumentId)
+        public async Task<ActionResult> UploadDocumentsById(IFormFile files, Guid? SessionId, long? DocumentId, string? SourceFrom)
         {
             // Handling Upload with Chunks
             string chunkMetadata = Request.Form["chunkMetadata"];
@@ -132,6 +133,7 @@ namespace SW.Portal.Solutions.Controllers
                         documents.FileName = metaDataObject.FileName;
                         documents.ContentType = metaDataObject.FileType;
                         documents.FileSize = metaDataObject.FileSize;
+                        documents.SourceFrom = SourceFrom;
                         documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                         await _documentsqueryrepository.UpdateDocumentAfterUpload(documents);
                     }

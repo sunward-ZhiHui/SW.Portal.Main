@@ -302,19 +302,12 @@
 
         if (e.IsNew)
         {
-            var ex = _toDoNotes.Where(x => x.Notes == editModel.Notes);
-            if (ex.Any())
-            {
-                toastService.ShowToast("The entered value Already exists Notes.", AC.SD.Core.Services.ToastLevel.Error);
-            }
-            else
-            {
-                //if (_toDoNotes.Count > 0)
-                //{
-                //    toastService.ShowToast("Applicable Total 1 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
-                //    return;
-                //}
-
+            //var ex = _toDoNotes.Where(x => x.Notes == editModel.Notes);
+            //if (ex.Any())
+            //{
+            //    toastService.ShowToast("The entered value Already exists Notes.", AC.SD.Core.Services.ToastLevel.Error);
+            //}          
+                
                 var createReq = new CreateToDoNotesQuery
                     {                        
                         Notes = editModel.Notes,
@@ -339,17 +332,16 @@
 
                 await UpdateDataAsync();
                
-            }
+            
         }
         else
         {
-            var ex = _toDoNotes.Where(x => x.Notes == editModel.Notes && x.ID != editModel.ID);
-            if (ex.Any())
-            {
-                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
-            }
-            else
-            {
+            //var ex = _toDoNotes.Where(x => x.Notes == editModel.Notes && x.ID != editModel.ID);
+            //if (ex.Any())
+            //{
+            //    toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            //}
+          
                 var UpdateReq = new EditToDoNotesQuery
                     {
                         ID = editModel.ID,                       
@@ -368,7 +360,7 @@
                 toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
                 await UpdateDataAsync();
 
-            }
+            
 
         }
 

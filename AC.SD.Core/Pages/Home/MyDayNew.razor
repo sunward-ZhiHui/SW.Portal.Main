@@ -122,7 +122,7 @@
                 @item.SubjectName
                 <div style="float: right; font-size: 11px;">
                     <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox> 
-                    <span style="float: right;">@item.Status</span> 
+                    <span style="float: right; margin-top: 6px;    margin-right: 8px;">@item.Status</span>
                 </div>
 
                  @*  <div>
@@ -349,7 +349,8 @@
     public async Task onPreview(long Id)
     {
         _documents = _DocumentsList.FirstOrDefault(a => a.DocumentId == Id);
-        var url = DocumentViewUrl + "?url=" + FileUrl + _documents.FilePath;
+        //var url = DocumentViewUrl + "?url=" + FileUrl + _documents.FilePath;
+        var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
         await OpenDocumentPreview(url);
     }
     private async Task OpenDocumentPreview(string url)

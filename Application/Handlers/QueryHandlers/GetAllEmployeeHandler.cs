@@ -23,6 +23,18 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<ViewEmployee>)await _queryRepository.GetAllAsync();
         }
     }
+    public class GetAllUserWithoutStatusQueryHandler : IRequestHandler<GetAllUserWithoutStatusQuery, List<ViewEmployee>>
+    {
+        private readonly IEmployeeQueryRepository _queryRepository;
+        public GetAllUserWithoutStatusQueryHandler(IEmployeeQueryRepository plantQueryRepository)
+        {
+            _queryRepository = plantQueryRepository;
+        }
+        public async Task<List<ViewEmployee>> Handle(GetAllUserWithoutStatusQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ViewEmployee>)await _queryRepository.GetAllUserWithoutStatusAsync();
+        }
+    }
     public class GetAllEmployeeListHandler : IRequestHandler<GetAllEmployeeListQuery, List<ViewEmployee>>
     {
         private readonly IEmployeeQueryRepository _queryRepository;

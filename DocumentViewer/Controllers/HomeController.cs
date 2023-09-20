@@ -38,6 +38,7 @@ namespace DocumentViewer.Controllers
             var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
             var fileNewUrl = _configuration["DocumentsUrl:FileNewUrl"];
             var fileurl = string.Empty;
+            HttpContext.Session.Remove("invalid");
             HttpContext.Session.Remove("isDownload");
             HttpContext.Session.Remove("isView");
             HttpContext.Session.Remove("fileUrl");

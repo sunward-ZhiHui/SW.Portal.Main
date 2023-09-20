@@ -160,7 +160,8 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ContentType", value.ContentType, DbType.String);
                             parameters.Add("FileSize", value.FileSize);
                             parameters.Add("FilePath", value.FilePath, DbType.String);
-                            var query = "Update Documents SET FileName=@FileName,ContentType=@ContentType,FilePath=@FilePath,FileSize=@FileSize WHERE " +
+                            parameters.Add("SourceFrom", value.SourceFrom, DbType.String);
+                            var query = "Update Documents SET FileName=@FileName,ContentType=@ContentType,FilePath=@FilePath,FileSize=@FileSize,SourceFrom=@SourceFrom WHERE " +
                                 "DocumentId= @DocumentId";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             transaction.Commit();
@@ -342,9 +343,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("FilePath", value.FilePath, DbType.String);
                             parameters.Add("IsNewPath", 1);
                             parameters.Add("IsTemp", value.IsTemp);
-                            var query = "INSERT INTO [Documents](FileName,ContentType,FileSize,UploadDate,AddedByUserId,AddedDate,SessionId,IsLatest,FilePath,IsNewPath,IsTemp) " +
+                            parameters.Add("SourceFrom", value.SourceFrom,DbType.String);
+                            var query = "INSERT INTO [Documents](FileName,ContentType,FileSize,UploadDate,AddedByUserId,AddedDate,SessionId,IsLatest,FilePath,IsNewPath,IsTemp,SourceFrom) " +
                                 "OUTPUT INSERTED.DocumentId VALUES " +
-                               "(@FileName,@ContentType,@FileSize,@UploadDate,@AddedByUserId,@AddedDate,@SessionId,@IsLatest,@FilePath,@IsNewPath,@IsTemp)";
+                               "(@FileName,@ContentType,@FileSize,@UploadDate,@AddedByUserId,@AddedDate,@SessionId,@IsLatest,@FilePath,@IsNewPath,@IsTemp,@SourceFrom)";
                             value.DocumentId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             transaction.Commit();
                             return value;
@@ -409,7 +411,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("FileSessionId", value.FileSessionId);
                             parameters.Add("IsTemp", 0);
                             parameters.Add("FilePath", value.FilePath, DbType.String);
-                            parameters.Add("SourceFrom", value.SourceFrom,DbType.String);
+                            
                             var query = "Update Documents SET " +
                                 "FilterProfileTypeId=@FileProfileTypeId, " +
                                 "Description=@Description, " +
@@ -420,7 +422,7 @@ namespace Infrastructure.Repository.Query
                                 "TableName=@TableName, " +
                                 "FileIndex=@FileIndex, " +
                                 "IsTemp=@IsTemp, " +
-                                "SourceFrom=@SourceFrom, " +
+                               
                                 "SessionId=@SessionId " +
                                 "WHERE " +
                                  "AddedByUserId=@AddedByUserId AND " +

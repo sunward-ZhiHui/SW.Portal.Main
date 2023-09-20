@@ -329,7 +329,11 @@ namespace Infrastructure.Repository.Query
             try
             {
                 fileProfileTypeId = fileProfileTypeId != null && fileProfileTypeId.Count > 0 ? fileProfileTypeId : new List<long?>() { -1 };
-                var query = "select  * from DocumentUserRole where FileProfileTypeId in(" + string.Join(',', fileProfileTypeId) + ")";
+                //var query = "select  * from DocumentUserRole where FileProfileTypeId in(" + string.Join(',', fileProfileTypeId) + ")";
+                var query = "select  t1.* from DocumentUserRole t1\r\n" +
+                    "JOIN Employee t2 ON t2.UserID=t1.UserID\r\n" +
+                    "LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus\r\n" +
+                    "Where  t1.FileProfileTypeID in(" + string.Join(',', fileProfileTypeId) + ") AND (t3.Value is null or t3.Value!='Resign')";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DocumentUserRole>(query)).ToList();

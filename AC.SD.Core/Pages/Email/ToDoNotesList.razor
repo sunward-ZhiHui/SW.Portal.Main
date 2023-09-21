@@ -626,7 +626,7 @@
         loading = true;
         var SessionId = CurrentTodoNotes.SessionId;
         string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
-        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + CurrentTodoNotes.SessionId + "&addedByUserId=" + applicationUser.UserID;
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + CurrentTodoNotes.SessionId + "&addedByUserId=" + applicationUser.UserID + "&IsNewSession=false&SourceFrom=ToDo";
         e.UploadUrl = url;
     }
     void OnFileUploadStarted(FileUploadEventArgs e)

@@ -196,6 +196,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<UserNotification> GetUserNotificationValidatation(long UserId,string DeviceType,string TokenID)
+        {
+            try
+            {
+                var query = "SELECT * FROM UserNotifications WHERE UserId = @UserId AND DeviceType = @DeviceType AND TokenID = @TokenID";
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+                parameters.Add("DeviceType", DeviceType);
+                parameters.Add("TokenID", TokenID);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<UserNotification>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<ApplicationUser> GetByUserID(string name)
         {
             try
@@ -214,7 +234,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }        
-        public async Task<string> UpdateDeviceId(string LoginID, string DeviceID)
+        public async Task<string> UpdateDeviceId(string LoginID, string DeviceType, string TokenID)
         {
             try
             {
@@ -222,15 +242,28 @@ namespace Infrastructure.Repository.Query
                 if (User != null)
                 {
                     var userId = User.UserID;
-                    var query = "update ApplicationUser set MobileDeviceID=@DeviceID where UserID=@userId";
-                    var parameters = new DynamicParameters();
-                    parameters.Add("UserID", userId);
-                    parameters.Add("DeviceID", DeviceID);
-                    using (var connection = CreateConnection())
+
+
+                    var validataion = await GetUserNotificationValidatation(userId, DeviceType, TokenID);
+                    if(validataion == null)
                     {
-                        var user = await connection.ExecuteAsync(query, parameters);
-                        return "updated successfully";
+                        var query = "insert into UserNotifications (UserId,DeviceType,TokenID) values (@UserID,@DeviceType,@TokenID)";
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserID", userId);
+                        parameters.Add("DeviceType", DeviceType);
+                        parameters.Add("TokenID", TokenID);
+                        using (var connection = CreateConnection())
+                        {
+                            var user = await connection.ExecuteAsync(query, parameters);
+                            return "Added successfully";
+                        }
                     }
+                    else
+                    {
+                        return "Already Added";
+                    }
+
+                   
                 }
                 else
                 {                    

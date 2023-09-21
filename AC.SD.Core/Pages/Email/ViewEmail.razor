@@ -145,7 +145,7 @@
                         }  
                         else if(isLeftMenuvisible == "Library")
                         {
-                            <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch>
+                            <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch>
                         }  
                             
 
@@ -1238,6 +1238,7 @@
     private string? ProductActivityBaseUrl;
     public int ActiveTabIndex { get; set; } = 1;
     string? SearchText { get; set; }
+    string? MyDayFilterText  = null;
     string? GridSearchText { get; set; }
     bool PreviewEnabled { get; set; } = false;
     bool docEnabled { get; set; } = false;
@@ -1992,7 +1993,7 @@
     public async Task onPreview(long Id)
     {
         _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);       
-       // var url = DocumentViewUrl+"?url="+FileUrl + _documents.FilePath;
+        // var url = DocumentViewUrl+"?url="+FileUrl + _documents.FilePath;
         var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
         await OpenDocumentPreview(url);
     }
@@ -2713,8 +2714,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var sss = ActiveSessionId;
-
+        var sss = ActiveSessionId;      
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         cancellationTokenSource = new CancellationTokenSource();
         StartAutoRefresh();
@@ -2736,11 +2736,13 @@
             if(todolist.Count > 0)
             {
                 string ridds = todolist[0].TopicId.ToString();
-                onSubViewEmailClick(ridds);
+                
+                //ActiveTabIndex = 4;
                 //OnLeftMenuItemClick("Library");
                 //isLeftMenuvisible = "Library";
-                // await Task.Delay(2000); // Delay for 2 seconds
-                //await loadLibary_Data("tt");
+                //MyDayFilterText = todolist[0].SubjectName;
+                //await Task.Delay(2000); // Delay for 2 seconds                
+                onSubViewEmailClick(ridds);
             }
         }
         else

@@ -15,6 +15,11 @@ namespace Application.Queries
       
 
     }
+    public class GetAllAttributeNameHeader : PagedRequest, IRequest<List<AttributeHeader>>
+    {
+
+
+    }
     public class GetAllAttributeValues : PagedRequest, IRequest<List<AttributeHeader>>
     {
 

@@ -24,7 +24,22 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<AttributeHeader>> Handle(GetAllAttributeHeader request, CancellationToken cancellationToken)
         {
-            return (List<AttributeHeader>)await _queryRepository.GetListAsync();
+            return (List<AttributeHeader>)await _attrubutequeryRepository.GetComboBoxLst();
+        }
+    }
+    public class GetAllAttributeNameHandler : IRequestHandler<GetAllAttributeNameHeader, List<AttributeHeader>>
+    {
+
+        private readonly IQueryRepository<AttributeHeader> _queryRepository;
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetAllAttributeNameHandler(IQueryRepository<AttributeHeader> queryRepository, IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _queryRepository = queryRepository;
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<AttributeHeader>> Handle(GetAllAttributeNameHeader request, CancellationToken cancellationToken)
+        {
+            return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAttributeName();
         }
     }
     public class GetAllAttributeValueHandler : IRequestHandler<GetAllAttributeValues, List<AttributeHeader>>

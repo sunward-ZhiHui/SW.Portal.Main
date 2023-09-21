@@ -22,8 +22,8 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
-
-
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
             </Items>
         </DxMenu>
     </div>
@@ -33,11 +33,11 @@
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-    <DxGrid @ref="Grid" Data="@_dynamicForm" EditModelSaving="@Grid_EditModelSaving" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    <DxGrid @ref="Grid" Data="@_dynamicForm" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
-    
+            EditModelSaving="@Grid_EditModelSaving"
             PageSizeSelectorVisible="true"
             PageSizeSelectorAllRowsItemVisible="true"
             PageSizeSelectorItems="@(new int[] { 5,10,20 })"
@@ -45,18 +45,19 @@
             style="height: calc(100vh - 220px);"
             CssClass="ch-360"
             FocusedRowEnabled="true"
-           
+            KeyFieldName="ID"
             AllowSelectRowByClick="true"
+            RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
             AutoExpandAllGroupRows="true"
             SelectionMode="GridSelectionMode.Multiple"
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-            RowDoubleClick="OnRowDoubleClick">
+            RowDoubleClick="OnRowDoubleClick" CustomizeEditModel="Grid_CustomizeEditModel">
 
         <Columns>
             <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="80" />
             <DxGridDataColumn FieldName="ScreenID" MinWidth="80" Caption="ScreenID" />
-           
+            <DxGridDataColumn FieldName="AttributeID" MinWidth="80" Caption="Attribute Name" />
 
         </Columns>
         <EditFormTemplate Context="EditFormContext">
@@ -66,11 +67,11 @@
             <DxFormLayout CssClass="w-100">
                 <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
                     <DxTextBox @bind-Text="@controlform.Name"></DxTextBox>
-                   @*  <ValidationMessage For="@(() => controlform.VersionNo)" /> *@
+                    @*  <ValidationMessage For="@(() => controlform.VersionNo)" /> *@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Screen ID:" ColSpanMd="6">
-                    <DxComboBox Data="@_attributes"
-                                AllowUserInput="false"
+                    <DxComboBox Data="@_dynamicList"
+                                AllowUserInput="true"
                                 NullText="Select ScreenID..."
                                 ListRenderMode="ListRenderMode.Virtual"
                                 FilteringMode="DataGridFilteringMode.Contains"
@@ -80,27 +81,70 @@
                     @bind-Value="@controlform.ScreenID"
                     @bind-Text="@controlform.ScreenID" ShowValidationIcon="true">
                     </DxComboBox>
+                    <ValidationMessage For="@(() => controlform.ScreenID)" />
                 </DxFormLayoutItem>
-                
+
+                <DxFormLayoutItem Caption="Users" ColSpanMd="12">
+                    <DxTagBox Data="_attributesName"
+                    @bind-Values="AttributeIds"
+                              NullText="Select Attribute..."
+                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                              ValueFieldName="AttributeID"
+                              TextFieldName="AttributeName"
+                              ListRenderMode="ListRenderMode.Virtual"
+                              CssClass="cw-480">
+                        <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)" Caption="Attribute Name" />
+                        <DxListEditorColumn FieldName="@nameof(AttributeHeader.ControlType)" Caption="Control Type" />
+                        <DxListEditorColumn FieldName="@nameof(AttributeHeader.Description)" Caption="Description" />
+
+                    </DxTagBox>
+                    <ValidationMessage For="@(() => AttributeIds)" />
+                </DxFormLayoutItem>
                 <ValidationSummary />
 
             </DxFormLayout>
         </EditFormTemplate>
     </DxGrid>
 </DxLoadingPanel>
+
+
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_selectedItems.ID))" />
+    </FooterContentTemplate>
+</DxPopup>
+
 @code {
-    bool PanelVisible { get; set; }
+
     IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    private List<DynamicForm>? _dynamicList;
     private List<DynamicForm> _dynamicForm;
-    private List<AttributeHeader>? _attributes;
+    private List<AttributeHeader>? _attributesName;
     public ApplicationUser? applicationUser { get; private set; }
     private DynamicForm _selectedItems;
+    public IEnumerable<long> AttributeIds { get; set; }
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
 
         PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _attributes = await Mediator.Send(new GetAllAttributeHeader());
+        _dynamicList = await Mediator.Send(new GetAllAttributeHeader());
+        _attributesName = await Mediator.Send(new GetAllAttributeNameHeader());
         await UpdateDataAsync();
         PanelVisible = false;
     }
@@ -117,47 +161,125 @@
             e.CssClass = "alt-item";
         }
     }
-
-    void OnRowDoubleClick(GridRowClickEventArgs e)
+    void OnRowclick(GridRowClickEventArgs e)
     {
-
-
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _dynamicForm.FirstOrDefault(f => f.ID == (long?)UniqueId);
-       // NavigationManager.NavigateTo("changeControlsetupForm/changecontrolforms/" + _selectedItems.SessionId);
+        EditEnabled = true;
+        DeleteEnabled = true;
+    }
+    async void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+
+        OnRowclick(e);
+
+
+        NavigationManager.NavigateTo("DynamicMasterSetup/sampledynamic/" + _selectedItems.SessionID);
 
     }
     void addNew()
     {
         Grid.StartEditNewRowAsync();
-
+        AttributeIds = null;
     }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
 
+        }
+        else
+        {
+            var editModel = (DynamicForm)e.EditModel;
+            var controlform = (DynamicForm)e.EditModel;
+
+            if (controlform.AttributeID != null && controlform.AttributeID.Length != 0)
+            {
+                string userIdsString = controlform.AttributeID; // Assuming UserIds is a string
+                                                                // Split the comma-separated string and parse into an IEnumerable<long>
+                AttributeIds = userIdsString.Split(',').Select(long.Parse);
+            }
+        }
+    }
     async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
     {
         var editModel = (DynamicForm)e.EditModel;
+        string useridsString = null;
+        if (AttributeIds != null)
+        {
 
-        // var ex = _changeControlForm.Where(x => x.CCNumber == editModel.CCNumber || x.DocNo == editModel.DocNo);
-        // if (ex.Any())
-        // {
-        //     // onShowPopupMessage("Error", "The entered value Already exists.");
-        //     toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
-        // }
-        // else
-
-        // {
-            var createReq = new CreateDynamicForm
-                {
-                    Name = editModel.Name,
-                    ScreenID = editModel.ScreenID
-                };
+            useridsString = string.Join(",", AttributeIds);
 
 
-            var result = await Mediator.Send(createReq);
-            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-      //  }
+
+
+            if (e.IsNew)
+            {
+
+
+
+                var createReq = new CreateDynamicForm
+                    {
+                        Name = editModel.Name,
+                        ScreenID = editModel.ScreenID,
+                        SessionID = Guid.NewGuid(),
+                        AttributeID = useridsString
+                    };
+
+
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+            }
+            else
+            {
+                var editReq = new EditDynamicForm
+                    {
+                        ID = editModel.ID,
+                        Name = editModel.Name,
+                        ScreenID = editModel.ScreenID,
+
+                        AttributeID = useridsString
+                    };
+
+
+                var result = await Mediator.Send(editReq);
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+        }
+        else
+        {
+            toastService.ShowToast("Please Select AttributeName", AC.SD.Core.Services.ToastLevel.Info);
+        }
 
         await UpdateDataAsync();
     }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+        
 
+    }
+    void addDetailDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+
+        Blukdeletepopup = false;
+
+        UpdateDataAsync();
+    }
+    async Task bulkDelete(long id)
+    {
+
+        var request = new DeleteDynamicForm(id);
+        await Mediator.Send(request);
+        Blukdeletepopup = false;
+        UpdateDataAsync();
+        Grid.SetFocusedRowIndex(0);
+
+
+    }
 }

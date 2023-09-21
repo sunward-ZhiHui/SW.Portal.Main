@@ -13,9 +13,8 @@ namespace Core.Entities
     {
         [Key]
        
-        public int AttributeID { get; set; }
-         [Required]
-        public string ScreenID { get; set; }
+        public long AttributeID { get; set; }
+       
       //  [Required]
         public string AttributeName { get; set; }
         [Required]

@@ -219,5 +219,94 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+
+        public async Task<IReadOnlyList<EmailConversations>> GetTransferPermissionsEmailConversationParticipant(long? userIds)
+        {
+            try
+            {
+                userIds = userIds != null ? userIds : -1;
+                var query = "select t1.*,t3.TopicName,t4.Name as EmailConversationName,t2.UserName from EmailConversationParticipant t1\r\n" +
+                    "JOIN ApplicationUser t2 ON t1.UserId=t2.UserID\r\n" +
+                    "JOIN EmailTopics t3 ON t3.ID=t1.TopicId\r\nJOIN EmailConversations t4 ON t4.ID=t1.ConversationId\r\n\r\n " +
+                    "WHERE  t1.UserID in(" + string.Join(',', userIds) + ")";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailConversations>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public EmailConversations CheckTransferPermissionsEmailConversationParticipant(EmailConversations emailConversations, long? ToUserId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", emailConversations.TopicID);
+                parameters.Add("ConversationId", emailConversations.ConversationId);
+                parameters.Add("UserId", ToUserId);
+                var query = "select ID,ConversationId,UserId,TopicId from EmailConversationParticipant where TopicId=@TopicId and ConversationId=@ConversationId And UserId=@UserId\r\n";
+
+                using (var connection = CreateConnection())
+                {
+                    return connection.QueryFirstOrDefault<EmailConversations>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<EmailConversations> UpdateTransferPermissionsEmailConversationParticipant(List<EmailConversations> EmailConversations, long? userId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            List<long?> ids = new List<long?>();
+                            if (EmailConversations != null && EmailConversations.Count > 0)
+                            {
+                                EmailConversations.ForEach(s =>
+                                {
+                                    var result = CheckTransferPermissionsEmailConversationParticipant(s, userId);
+                                    if (result == null)
+                                    {
+                                        ids.Add(s.ID);
+                                    }
+                                });
+                            }
+                            if (userId > 0 && ids.Count > 0)
+                            {
+                                var parameters = new DynamicParameters();
+                                var query = "Update EmailConversationParticipant set UserID=" + userId + " WHERE  ID in(" + string.Join(',', ids) + ")";
+                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+
+                            }
+                            transaction.Commit();
+                            return EmailConversations.FirstOrDefault();
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

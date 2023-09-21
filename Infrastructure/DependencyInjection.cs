@@ -153,7 +153,6 @@ namespace Infrastructure
             
             services.AddTransient<IAttributeDetailsCommandRepository, AttributeDetailsCommandRepository>();
             services.AddTransient<IAttributeDetailsQueryRepository, AttributeDetailsQueryRepository>();
-            services.AddTransient<IResetPermissionsQueryRepository, ResetPermissionsQueryRepository>();
             services.AddTransient<IDynamicFormQueryRepository, DynamicFormQueryRepository>();
             services.AddTransient<ITransferPermissionsQueryRepository, TransferPermissionsQueryRepository>();
             return services;

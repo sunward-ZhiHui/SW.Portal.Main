@@ -2,6 +2,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Mvc;
 using DocumentViewer.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +15,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddMvc().AddSessionStateTempDataProvider();
-builder.Services.AddSession();
+//builder.Services.AddSession();
+builder.Services.AddSession(option =>
+{
+    option.IdleTimeout = TimeSpan.FromHours(100);
+    option.Cookie.MaxAge = TimeSpan.FromHours(100);
+});
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddCors(options =>
 {

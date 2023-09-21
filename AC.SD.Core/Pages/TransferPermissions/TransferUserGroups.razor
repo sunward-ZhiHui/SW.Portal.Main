@@ -1,0 +1,198 @@
+﻿@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using global::Core.EntityModels;
+@inject AC.SD.Core.Services.ToastService toastService
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Update" IconCssClass="fa fa-pencil" Click="@updateUserGroup" Enabled="@UpdateUserGroupEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteUserGroupDelete" Enabled="@DeleteUserGroupEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelUserGroupVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="TransferPermissionsUserGroupUserGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="userGroupUsers"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="UserGroupUserId"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 420px);"
+            FocusedRowEnabled="true"
+            SelectedDataItemsChanged="@SelectedUserGroupDataItemsChanged"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="UserGroupUserId" Visible="false" />
+            <DxGridDataColumn FieldName="FirstName" Caption="Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="UserGroupName" Caption="UserGroup" MinWidth="170" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DocumentRoleName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@BlukdeleteUserGroupPopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+
+
+@code {
+
+    [Parameter]
+    public ResetPermissionModel? Data { get; set; }
+    public List<UserGroupUser> userGroupUsers { get; set; }
+    bool PanelUserGroupVisible { get; set; }
+    bool BlukdeleteUserGroupPopup { get; set; } = false;
+    IGrid? TransferPermissionsUserGroupUserGrid { get; set; }
+    bool DeleteUserGroupEnabled { get; set; } = false;
+    bool UpdateUserGroupEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedUserGroupDataItems { get; set; }
+    private UserGroupUser _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+        await loadUserGroupDatas();
+    }
+
+    public async Task loadUserGroupData(ResetPermissionModel data)
+    {
+        Data = data;
+        await loadUserGroupDatas();
+    }
+    async Task loadUserGroupDatas()
+    {
+        DeleteUserGroupEnabled = false; UpdateUserGroupEnabled = false;
+        PanelUserGroupVisible = true;
+        userGroupUsers = await Mediator.Send(new GetTransferPermissionsUserGroupUsers(Data.FromUserId));
+        if (userGroupUsers != null && userGroupUsers.Count > 0)
+        {
+            UpdateUserGroupEnabled = true;
+            DeleteUserGroupEnabled = true;
+            _selectedItems = userGroupUsers.FirstOrDefault();
+        }
+        PanelUserGroupVisible = false;
+        StateHasChanged();
+    }
+    void SelectedUserGroupDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedUserGroupDataItems = SelectedToItems;
+    }
+    void deleteUserGroupDelete()
+    {
+        BlukdeleteUserGroupPopup = true;
+    }
+    async void ClosePopup()
+    {
+        PanelUserGroupVisible = false;
+        await loadUserGroupDatas();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedUserGroupDataItems = null;
+        BlukdeleteUserGroupPopup = false;
+        PanelUserGroupVisible = false;
+    }
+    async Task bulkDelete()
+    {
+        List<long?> ids = new List<long?>();
+        try
+        {
+            if (SelectedUserGroupDataItems != null)
+            {
+                foreach (object item in SelectedUserGroupDataItems)
+                {
+                    if (item is UserGroupUser dataItem)
+                    {
+                        ids.Add(dataItem.UserGroupUserId);
+                    }
+
+                }
+                if (ids != null && ids.Count > 0)
+                {
+                    var request = new DeleteTransferPermissionsUserGroupUser(ids);
+                    await Mediator.Send(request);
+                    BlukdeleteUserGroupPopup = false;
+                    toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    await loadUserGroupDatas();
+                    TransferPermissionsUserGroupUserGrid.SetFocusedRowIndex(0);
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            BlukdeleteUserGroupPopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task updateUserGroup()
+    {
+        List<long?> ids = new List<long?>();
+        try
+        {
+            if (SelectedUserGroupDataItems != null)
+            {
+                foreach (object item in SelectedUserGroupDataItems)
+                {
+                    if (item is UserGroupUser dataItem)
+                    {
+                        ids.Add(dataItem.UserGroupUserId);
+                    }
+
+                }
+                if (Data.ToUserId > 0)
+                {
+                    if (ids != null && ids.Count > 0)
+                    {
+                        var request = new UpdateTransferPermissionsUserGroupUser(ids, Data.ToUserId);
+                        await Mediator.Send(request);
+                        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await loadUserGroupDatas();
+                        TransferPermissionsUserGroupUserGrid.SetFocusedRowIndex(0);
+                    }
+                }
+                else
+                {
+                    toastService.ShowToast("Must Select To User", AC.SD.Core.Services.ToastLevel.Warning);
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+           // toastService.ShowToast("Err", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+}

@@ -207,14 +207,14 @@ namespace DocumentViewer.Controllers
         {
             return View(new ErrorViewModel { RequestId = "10" });
         }
-        public void GetAllSelectedFilePermissionAsync(Documents currentDocuments)
+        private void GetAllSelectedFilePermissionAsync(Documents currentDocuments)
         {
             List<DocumentsModel> documentsModel = new List<DocumentsModel>();
             long userId = Int64.Parse(HttpContext.Session.GetString("user_id"));
 
             var sessionId = currentDocuments?.SessionId;
             var fileProfileId = currentDocuments?.FilterProfileTypeId;
-            var documents = _context.Documents.Where(w => w.IsLatest == true && w.SessionId == sessionId).ToList();
+            var documents = _context.Documents.Where(w => w.IsLatest == true && w.SessionId == sessionId && w.SourceFrom == "FileProfile").ToList();
             if (documents != null)
             {
                 var roleItemsList = _context.DocumentUserRole.Where(w => w.FileProfileTypeId == fileProfileId).ToList();
@@ -305,7 +305,7 @@ namespace DocumentViewer.Controllers
                 HttpContext.Session.SetString("isView", IsRead);
             }
         }
-        public List<DocumentPermissionModel> GetDocumentPermissionByRoll()
+        private List<DocumentPermissionModel> GetDocumentPermissionByRoll()
         {
             var documentPermission = _context.DocumentPermission.ToList();
             List<DocumentPermissionModel> documentPermissionModel = new List<DocumentPermissionModel>();
@@ -351,7 +351,7 @@ namespace DocumentViewer.Controllers
         }
 
 
-        public void GetEmailFilePermissionAsync(Documents documents)
+        private void GetEmailFilePermissionAsync(Documents documents)
         {
             long userId = Int64.Parse(HttpContext.Session.GetString("user_id"));
             string mode = documents.SourceFrom;
@@ -360,9 +360,9 @@ namespace DocumentViewer.Controllers
 
             var IsRead = "No";
 
-            if(mode == "Email")
+            if (mode == "Email")
             {
-                
+
                 var emailConversationlst = _context.EmailConversations.Where(w => w.SessionId == docsessionId).FirstOrDefault();
                 if (emailConversationlst != null)
                 {
@@ -382,9 +382,10 @@ namespace DocumentViewer.Controllers
                     HttpContext.Session.SetString("isView", IsRead);
                 }
             }
-            else if(mode == "ToDo")
+            else if (mode == "ToDo")
             {
-                if(documents?.AddedByUserId == userId) {
+                if (documents?.AddedByUserId == userId)
+                {
                     IsRead = "Yes";
                 }
                 else
@@ -401,7 +402,7 @@ namespace DocumentViewer.Controllers
                 HttpContext.Session.SetString("isView", IsRead);
             }
 
-           
+
         }
     }
 

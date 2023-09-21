@@ -55,11 +55,17 @@ namespace Core.EntityModels
         public string? LastName { get; set; }
         public string? DesignationName { get; set; }
         public string? FullName { get; set; }
+
     }
     public class LeveMasterUsersModel
     {
         public long? LevelId { get; set; }
         public long? DesignationId { get; set; }
         public long? UserId { get; set; }
+    }
+    public class ResetPermissionModel
+    {
+        public long? FromUserId { get; set; }
+        public long? ToUserId { get; set; }
     }
 }

@@ -16,5 +16,7 @@ namespace Core.Entities
         public long? UserGroupId { get; set; }
         [NotMapped]
         public string? UserGroupName { get; set;}
+        [NotMapped]
+        public string? FirstName { get; set; }
     }
 }

@@ -198,7 +198,7 @@
                 Message = "Uploading...";
                 checkInloading = true;
                 string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
-                string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + FileProfileSessionId + "&addedByUserId=" + applicationUser.UserID + "&IsNewSession=true";
+                string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + FileProfileSessionId + "&addedByUserId=" + applicationUser.UserID + "&IsNewSession=true&SourceFrom=FileProfile";
                 e.UploadUrl = url;
             }
             else
@@ -240,7 +240,7 @@
         var ext = e.FileInfo.Name.Split(".").Last();
         Data.FilePath = @"Documents\" + FileProfileSessionId + @"\" + filesessionIds + "." + ext;
         Data.FileSessionId = FileProfileSessionId;
-        Data.SourceFrom = "FileProfile";
+       // Data.SourceFrom = "FileProfile";
         var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
         if (response.SessionId != null)
         {

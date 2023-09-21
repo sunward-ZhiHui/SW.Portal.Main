@@ -123,14 +123,26 @@
     {
         _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(AttributeIDs));
     }
-    public async Task Attributeload(long id)
+    public async Task Attributeload(long id,string ControlType)
     {
         AttributeIDs = 0;
         selectedAttributeID = id;
         _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(id));
         EditEnabled = false;
         DeleteEnabled = false;
-        AddEnabled = true;
+        if(id == 0)
+        {
+            AddEnabled = false;
+        }
+        else if(ControlType == "ComboBox")
+        {
+            AddEnabled = true;
+        }
+        else
+        {
+            AddEnabled = false;
+        }
+
 
         StateHasChanged();
     }

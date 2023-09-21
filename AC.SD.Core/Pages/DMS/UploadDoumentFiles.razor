@@ -433,7 +433,7 @@
         TempSetId.SessionId = SessionId;
         TempSetIds.Add(TempSetId);
         string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
-        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + selectedFiles.SessionID + "&addedByUserId=" + applicationUser.UserID + "&IsFileSession=true";
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + selectedFiles.SessionID + "&addedByUserId=" + applicationUser.UserID + "&IsFileSession=true&SourceFrom=FileProfile";
         e.UploadUrl = url;
     }
     async Task isUploadSuccess(FileUploadEventArgs e)

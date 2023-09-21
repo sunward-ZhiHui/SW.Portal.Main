@@ -16,6 +16,9 @@ namespace DocumentViewer.Models
         public DbSet<DocumentPermission> DocumentPermission { get; set; }
         public DbSet<ApplicationMasterDetail> ApplicationMasterDetail { get; set; }
         public DbSet<Employee> Employee { get; set; }
+        public DbSet<EmailConversation> EmailConversations { get; set; }
+        public DbSet<EmailConversationParticipant> EmailConversationParticipant { get; set; }
+        
     }
 }
 

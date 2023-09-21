@@ -65,5 +65,10 @@ namespace DocumentViewer.Controllers
             }
             return View();
         }
+        [HttpGet("Logout")]
+        public void Logout()
+        {
+            HttpContext.Session.Clear();
+        }
     }
 }

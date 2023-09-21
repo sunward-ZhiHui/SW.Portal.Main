@@ -1,0 +1,201 @@
+﻿@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using Application.Queries;
+@using MediatR
+@inject IMediator Mediator
+@using global::Core.EntityModels;
+@inject AC.SD.Core.Services.ToastService toastService
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Update" IconCssClass="fa fa-pencil" Click="@updateDocumentUserRole" Enabled="@UpdateDocumentUserRoleEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@deleteDocumentUserRoleDelete" Enabled="@DeleteDocumentUserRoleEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelDocumentUserRoleVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="TransferPermissionsDocumentUserRoleUserGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="DocumentUserRoleUsers"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="DocumentUserRoleID"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 420px);"
+            FocusedRowEnabled="true"
+            SelectedDataItemsChanged="@SelectedDocumentUserRoleDataItemsChanged"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="DocumentUserRoleID" Visible="false" />
+            <DxGridDataColumn FieldName="FullName" Caption="Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="DocumentRoleName" Caption="Role" MinWidth="170" />
+            <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="170" />
+            <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="170" />
+            <DxGridDataColumn FieldName="FileProfileTypeName" Caption="File Profile Type" MinWidth="170" />
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DocumentRoleName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@BlukdeleteDocumentUserRolePopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupUserRoleClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkUserRoleDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+
+
+@code {
+    
+    [Parameter]
+    public ResetPermissionModel? Data { get; set; }
+    public List<DocumentUserRoleModel> DocumentUserRoleUsers { get; set; }
+    bool PanelDocumentUserRoleVisible { get; set; }
+    bool BlukdeleteDocumentUserRolePopup { get; set; } = false;
+    IGrid? TransferPermissionsDocumentUserRoleUserGrid { get; set; }
+    bool DeleteDocumentUserRoleEnabled { get; set; } = false;
+    bool UpdateDocumentUserRoleEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedDocumentUserRoleDataItems { get; set; }
+    
+    private DocumentUserRoleModel _selectedItems;
+    protected override async Task OnInitializedAsync()
+    {
+        await loadDocumentUserRole();
+    }
+    public async Task loadDocumentUserRoles(long? userIds, ResetPermissionModel data)
+    {
+        Data = data;
+        await loadDocumentUserRole();
+    }
+    async Task loadDocumentUserRole()
+    {
+        DeleteDocumentUserRoleEnabled = false; UpdateDocumentUserRoleEnabled = false;
+        PanelDocumentUserRoleVisible = true;
+        DocumentUserRoleUsers = await Mediator.Send(new GetResetPermissionDocumentUserRoleList(Data.FromUserId));
+        if (DocumentUserRoleUsers != null && DocumentUserRoleUsers.Count > 0)
+        {
+            UpdateDocumentUserRoleEnabled = true;
+            DeleteDocumentUserRoleEnabled = true;
+            _selectedItems = DocumentUserRoleUsers.FirstOrDefault();
+        }
+        PanelDocumentUserRoleVisible = false;
+        StateHasChanged();
+    }
+    void SelectedDocumentUserRoleDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDocumentUserRoleDataItems = SelectedToItems;
+    }
+    void deleteDocumentUserRoleDelete()
+    {
+        BlukdeleteDocumentUserRolePopup = true;
+    }
+    async void ClosePopup()
+    {
+        PanelDocumentUserRoleVisible = false;
+        await loadDocumentUserRole();
+    }
+    void EulaPopupUserRoleClosed(PopupClosedEventArgs args)
+    {
+        SelectedDocumentUserRoleDataItems = null;
+        BlukdeleteDocumentUserRolePopup = false;
+        PanelDocumentUserRoleVisible = false;
+    }
+    async Task bulkUserRoleDelete()
+    {
+        List<long?> ids = new List<long?>();
+        try
+        {
+            if (SelectedDocumentUserRoleDataItems != null)
+            {
+                foreach (object item in SelectedDocumentUserRoleDataItems)
+                {
+                    if (item is DocumentUserRoleModel dataItem)
+                    {
+                        ids.Add(dataItem.DocumentUserRoleID);
+                    }
+
+                }
+                if (ids != null && ids.Count > 0)
+                {
+                    var request = new DeleteTransferPermissionsDocumentUserRoleUser(ids);
+                    await Mediator.Send(request);
+                    BlukdeleteDocumentUserRolePopup = false;
+                    toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    await loadDocumentUserRole();
+                    TransferPermissionsDocumentUserRoleUserGrid.SetFocusedRowIndex(0);
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            BlukdeleteDocumentUserRolePopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task updateDocumentUserRole()
+    {
+        List<long?> ids = new List<long?>();
+        try
+        {
+            if (SelectedDocumentUserRoleDataItems != null)
+            {
+                foreach (object item in SelectedDocumentUserRoleDataItems)
+                {
+                    if (item is DocumentUserRoleModel dataItem)
+                    {
+                        ids.Add(dataItem.DocumentUserRoleID);
+                    }
+
+                }
+                if (Data.ToUserId > 0)
+                {
+                    if (ids != null && ids.Count > 0)
+                    {
+                        var request = new UpdateTransferPermissionsDocumentUserRoleUser(ids, Data.ToUserId);
+                        await Mediator.Send(request);
+                        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await loadDocumentUserRole();
+                        TransferPermissionsDocumentUserRoleUserGrid.SetFocusedRowIndex(0);
+                    }
+                }
+                else
+                {
+                    toastService.ShowToast("Must Select To User", AC.SD.Core.Services.ToastLevel.Warning);
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            // toastService.ShowToast("Err", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+}

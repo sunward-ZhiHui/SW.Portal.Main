@@ -73,8 +73,8 @@ namespace SW.Portal.Solutions.Controllers
         }
 
         [HttpPost]
-        [Route("UpdateMobileDeviceId")]
-        public async Task<ActionResult<ResponseModel<IEnumerable<ReplyConversation>>>> UpdateMobileDeviceId(string LoginId, string DeviceID)
+        [Route("UpdateDeviceinfo")]
+        public async Task<ActionResult<ResponseModel<IEnumerable<ReplyConversation>>>> UpdateDeviceinfo(string LoginId, string DeviceType,string TokenID)
         {
             var response = new ResponseModel<ReplyConversation>();
 
@@ -82,12 +82,12 @@ namespace SW.Portal.Solutions.Controllers
             {
                 response.ResponseCode = ResponseCode.Success;
 
-                var lst = await _applicationUserQueryRepository.UpdateDeviceId(LoginId, DeviceID);
+                var lst = await _applicationUserQueryRepository.UpdateDeviceId(LoginId, DeviceType, TokenID);
                 if (lst != "-1")
                 {
                     var emailconversations = new ReplyConversation
                     {                        
-                        Message = "Updated Successfully"
+                        Message = lst.ToString(),
                     };
 
                     response.Result = emailconversations;

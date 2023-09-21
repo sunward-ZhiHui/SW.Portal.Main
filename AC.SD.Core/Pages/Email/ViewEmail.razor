@@ -133,7 +133,7 @@
                         }
                         else if (isLeftMenuvisible == "AssignTo")
                         {
-                                <AssignToEmail @ref=RefAssignTo GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId="onSubViewEmailClick"></AssignToEmail>
+                                <AssignToEmail @ref=RefAssignTo Page="@Page" GridSearchText="@GridSearchText" ToTopicId="onViewEmailToClick" SubViewToTopicId="onSubViewEmailClick"></AssignToEmail>
                         }
                         else if (isLeftMenuvisible == "AssignCC")
                         {
@@ -145,7 +145,7 @@
                         }  
                         else if(isLeftMenuvisible == "Library")
                         {
-                            <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch>
+                            <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch>
                         }  
                             
 
@@ -1223,7 +1223,7 @@
         loading = true;
         var SessionId = _sessionId;        
         string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";            
-        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId + "&IsNewSession=false&SourceFrom=Email";
         e.UploadUrl = url;
     }
     void OnFileUploadStarted(FileUploadEventArgs e)
@@ -1238,6 +1238,7 @@
     private string? ProductActivityBaseUrl;
     public int ActiveTabIndex { get; set; } = 1;
     string? SearchText { get; set; }
+    string? MyDayFilterText  = null;
     string? GridSearchText { get; set; }
     bool PreviewEnabled { get; set; } = false;
     bool docEnabled { get; set; } = false;
@@ -1248,9 +1249,9 @@
     [Parameter]
     public string ActiveSessionId { get; set; }
     [Parameter]
-    public Guid TodoSessionId { get; set; }    
+    public Guid TodoSessionId { get; set; }
     [Parameter]
-    public string Page {get;set;}
+    public string Page { get; set; }
     public string filterrowname { get; set; }
     private bool IsConHistory = false;
     [Parameter]
@@ -1992,7 +1993,7 @@
     public async Task onPreview(long Id)
     {
         _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);       
-       // var url = DocumentViewUrl+"?url="+FileUrl + _documents.FilePath;
+        // var url = DocumentViewUrl+"?url="+FileUrl + _documents.FilePath;
         var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
         await OpenDocumentPreview(url);
     }
@@ -2711,10 +2712,9 @@
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        var sss = ActiveSessionId;
-
+        var sss = ActiveSessionId;      
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         cancellationTokenSource = new CancellationTokenSource();
         StartAutoRefresh();
@@ -2736,15 +2736,17 @@
             if(todolist.Count > 0)
             {
                 string ridds = todolist[0].TopicId.ToString();
-                onSubViewEmailClick(ridds);
+
+                //ActiveTabIndex = 4;
                 //OnLeftMenuItemClick("Library");
                 //isLeftMenuvisible = "Library";
-                // await Task.Delay(2000); // Delay for 2 seconds
-                //await loadLibary_Data("tt");
+               // MyDayFilterText = todolist[0].SubjectName;
+               // await Task.Delay(2000); // Delay for 2 seconds                
+                onSubViewEmailClick(ridds);
             }
         }
         else
-        {
+        {      
             if (ActiveSessionId != null)
             {
                 var lsts = await Mediator.Send(new GetListBySession(ActiveSessionId));
@@ -3063,7 +3065,7 @@
     }
     private async Task onreply(long id)
     {
-       // var lsslsls = await Mediator.Send(new OnReplyConversation(id,applicationUser.UserID));
+        // var lsslsls = await Mediator.Send(new OnReplyConversation(id,applicationUser.UserID));
         await JSRuntime.InvokeAsync<string>("showLoading");
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
@@ -3278,6 +3280,7 @@
     async void OnLeftMenuItemClick(string text)
     {
         isLeftMenuvisible = text;
+        Page = text;
     }
     async Task OnMenuItemClick(string text)
     {

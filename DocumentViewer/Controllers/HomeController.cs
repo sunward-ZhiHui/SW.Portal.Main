@@ -18,6 +18,7 @@ using DocumentViewer.EntityModels;
 using Microsoft.AspNetCore.Http;
 using DocumentApi.Models;
 using System.Threading;
+using DevExpress.Xpo;
 
 namespace DocumentViewer.Controllers
 {
@@ -66,6 +67,10 @@ namespace DocumentViewer.Controllers
                             if (currentDocuments.FilterProfileTypeId > 0)
                             {
                                 GetAllSelectedFilePermissionAsync(currentDocuments);
+                            }
+                            else
+                            {
+                                GetEmailFilePermissionAsync(currentDocuments);
                             }
                         }
                     }
@@ -202,14 +207,14 @@ namespace DocumentViewer.Controllers
         {
             return View(new ErrorViewModel { RequestId = "10" });
         }
-        public void GetAllSelectedFilePermissionAsync(Documents currentDocuments)
+        private void GetAllSelectedFilePermissionAsync(Documents currentDocuments)
         {
             List<DocumentsModel> documentsModel = new List<DocumentsModel>();
             long userId = Int64.Parse(HttpContext.Session.GetString("user_id"));
 
             var sessionId = currentDocuments?.SessionId;
             var fileProfileId = currentDocuments?.FilterProfileTypeId;
-            var documents = _context.Documents.Where(w => w.IsLatest == true && w.SessionId == sessionId).ToList();
+            var documents = _context.Documents.Where(w => w.IsLatest == true && w.SessionId == sessionId && w.SourceFrom == "FileProfile").ToList();
             if (documents != null)
             {
                 var roleItemsList = _context.DocumentUserRole.Where(w => w.FileProfileTypeId == fileProfileId).ToList();
@@ -300,7 +305,7 @@ namespace DocumentViewer.Controllers
                 HttpContext.Session.SetString("isView", IsRead);
             }
         }
-        public List<DocumentPermissionModel> GetDocumentPermissionByRoll()
+        private List<DocumentPermissionModel> GetDocumentPermissionByRoll()
         {
             var documentPermission = _context.DocumentPermission.ToList();
             List<DocumentPermissionModel> documentPermissionModel = new List<DocumentPermissionModel>();
@@ -343,6 +348,61 @@ namespace DocumentViewer.Controllers
                 documentPermissionModel.Add(documentPermissionModels);
             });
             return documentPermissionModel.OrderByDescending(a => a.DocumentPermissionID).ToList();
+        }
+
+
+        private void GetEmailFilePermissionAsync(Documents documents)
+        {
+            long userId = Int64.Parse(HttpContext.Session.GetString("user_id"));
+            string mode = documents.SourceFrom;
+            var docsessionId = documents?.SessionId;
+
+
+            var IsRead = "No";
+
+            if (mode == "Email")
+            {
+
+                var emailConversationlst = _context.EmailConversations.Where(w => w.SessionId == docsessionId).FirstOrDefault();
+                if (emailConversationlst != null)
+                {
+                    var topicId = emailConversationlst.TopicId;
+                    var plst = _context.EmailConversationParticipant.Where(x => x.TopicId == topicId && x.UserId == userId).FirstOrDefault();
+
+                    if (plst != null)
+                    {
+                        IsRead = "Yes";
+                    }
+                    else
+                    {
+                        IsRead = "No";
+                    }
+
+                    HttpContext.Session.SetString("isDownload", IsRead);
+                    HttpContext.Session.SetString("isView", IsRead);
+                }
+            }
+            else if (mode == "ToDo")
+            {
+                if (documents?.AddedByUserId == userId)
+                {
+                    IsRead = "Yes";
+                }
+                else
+                {
+                    IsRead = "No";
+                }
+
+                HttpContext.Session.SetString("isDownload", IsRead);
+                HttpContext.Session.SetString("isView", IsRead);
+            }
+            else
+            {
+                HttpContext.Session.SetString("isDownload", IsRead);
+                HttpContext.Session.SetString("isView", IsRead);
+            }
+
+
         }
     }
 

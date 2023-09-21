@@ -107,6 +107,8 @@
     public string filterrowname { get; set; }
     private SubViewEmail? RefSubAssignTo { get; set; }
     [Parameter]
+    public string? Page { get; set; }
+    [Parameter]
     public string? GridSearchText { get; set; }
 
     [Parameter]
@@ -116,7 +118,11 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+        //@if (Page == "AssignTo")
+        //{
+            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+        //}
+       
     }
     void OnItemClick(ContextMenuItemClickEventArgs args)
     {

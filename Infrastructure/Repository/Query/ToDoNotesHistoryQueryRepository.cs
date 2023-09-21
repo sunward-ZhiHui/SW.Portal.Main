@@ -86,9 +86,9 @@ namespace Infrastructure.Repository.Query
                                  INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId  
                                  INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId                             
                                 WHERE TNH.AddedByUserID = @UserId
-                                AND TNH.TopicId IS NOT NULL  AND TNH.TopicId > 0 AND TNH.Status = 'Open'
-                                AND CAST(TNH.RemainDate AS DATE) <= CAST(GETDATE() AS DATE)
-                                ORDER BY TNH.RemainDate DESC";
+                                AND TNH.TopicId IS NOT NULL  AND TNH.TopicId > 0 AND TNH.Status = 'Open'                               
+                                AND CAST(TNH.DueDate AS DATE) <= CAST(GETDATE() AS DATE)
+                                ORDER BY TNH.DueDate DESC";
                 // var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(RemainDate AS DATE) = CAST(GETDATE() AS DATE)";
                 //var query = @"SELECT TNH.*,EC.Name AS SubjectName FROM ToDoNotesHistory TNH
                 //                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId 
@@ -148,7 +148,11 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT * FROM ToDoNotesHistory WHERE SessionId = @SessionId";
+                var query = @"SELECT EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,TNH.* FROM ToDoNotesHistory TNH
+                                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
+                                INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId  
+                                INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId  
+                                WHERE TNH.SessionId = @SessionId";
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId);
 

@@ -51,13 +51,13 @@
         RowDoubleClick="OnRowDoubleClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true" 
-        EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving">
+        EditMode="GridEditMode.EditForm" EditModelSaving="Grid_EditModelSaving" CustomizeEditModel="Grid_CustomizeEditModel">
     <Columns>
         @*  <DxGridCommandColumn Width="160px" NewButtonVisible="false"  DeleteButtonVisible="false"/>  <span class="fa fa-paperclip" id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)"> </span>*@
-      @*   <DxGridDataColumn FieldName="MainSubject" Caption="Main Subject" ReadOnly= "true"/>
+        <DxGridDataColumn FieldName="MainSubject" Caption="Main Subject" ReadOnly= "true"/>
         <DxGridDataColumn FieldName="SubjectName" Caption="Subject" ReadOnly="true" />
-        <DxGridDataColumn FieldName="NoteName" Caption="Note Name" ReadOnly="true" />
-        <DxGridDataColumn FieldName="AssignTo" Caption="Assign To" ReadOnly="true" /> *@
+       @*  <DxGridDataColumn FieldName="NoteName" Caption="Note Name" ReadOnly="true" />
+        <DxGridDataColumn FieldName="AssignTo" Caption="Assign To" ReadOnly="true" />  *@
         <DxGridDataColumn FieldName="DueDate">
             <CellDisplayTemplate>
                 @{
@@ -99,6 +99,24 @@
             <DxFormLayoutItem Caption="Remain Date:" ColSpanMd="6">
                 <DxDateEdit @bind-Date="@types.RemainDate" TimeSectionVisible="true" />
             </DxFormLayoutItem>
+
+            <DxFormLayoutItem Caption="Users" ColSpanMd="12">
+                <DxTagBox Data="_participant"
+                @bind-Values="UserIds"
+                          NullText="Select Users..."
+                          ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                          ValueFieldName="UserID"
+                          TextFieldName="Name"
+                          EditFormat="{0}-{1}"
+                          ListRenderMode="ListRenderMode.Virtual"
+                          CssClass="cw-480">
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                    <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                </DxTagBox>
+                <ValidationMessage For="@(() => UserIds)" />
+            </DxFormLayoutItem>
            @*  <DxFormLayoutItem Caption="Status:" ColSpanMd="6">
                 <DxComboBox Data="@StatusList" @bind-Value="@types.Status"
                             NullText="Select Status..."
@@ -117,8 +135,9 @@
         <div style="width:100%">
 
             <div style=" font-size: 14px;">
-                @item.MainSubject/
-                @item.SubjectName
+               @*  <span style=" color:deeppink"> @item.MainSubject</span>/ *@
+                <span style="color:green"> @item.NoteName</span> 
+               
                 <div style="float: right; font-size: 11px;">
                     <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox> 
                     <span style="float: right; margin-top: 6px;    margin-right: 8px;">@item.Status</span>
@@ -132,14 +151,9 @@
              
 
             <strong>
-                @if (item.Description != null)
-                {
+              
                     @item.Description
-                }
-                else
-                {
-                    @item.NoteName
-                }
+               
               
             </strong>
 
@@ -255,12 +269,15 @@
     private string? FileUrl;
     private string? DocumentViewUrl;
     bool Checked { get; set; } = false;
+    private List<ViewEmployee>? _participant;
+    public IEnumerable<long> UserIds { get; set; }
     protected override async Task OnInitializedAsync()
     {
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _participant = await Mediator.Send(new GetAllEmployeeListQuery());
         await UpdateDataAsync();
     }
     public  async Task   UpdateDataAsync()
@@ -294,9 +311,9 @@
     {
         var editModel = (ToDoNotesHistory)e.EditModel;
         string useridsString = null;
-        if (editModel.UserIds != null)
+        if (UserIds != null)
         {
-            useridsString = string.Join(",", editModel.UserIds);
+            useridsString = string.Join(",", UserIds);
         }
         var UpdateReq = new EditToDoNotesHistoryQuery
             {
@@ -369,5 +386,24 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         var list = _ToDoNotesHistory.FirstOrDefault(f => f.ID == (long?)UniqueId);
         NavigationManager.NavigateTo($"ViewEmail/" + list.SessionId + "/Todo");
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+
+        }
+        else
+        {
+            var editModel = (ToDoNotesHistory)e.EditModel;
+            var types = (ToDoNotesHistory)e.EditModel;
+
+            if (types.Users != null && types.Users.Length != 0)
+            {
+                string userIdsString = types.Users; // Assuming UserIds is a string
+                                                    // Split the comma-separated string and parse into an IEnumerable<long>
+                UserIds = userIdsString.Split(',').Select(long.Parse);
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Base;
+using Core.Entities.Views;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -33,6 +34,7 @@ namespace Core.Entities
         public string AddedBy { get; set; }
         [NotMapped]
         public int? RowIndex { get; set; }
+       
 
     }
 }

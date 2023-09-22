@@ -20,5 +20,7 @@ namespace Core.Entities
         public Guid SessionID { get; set; }
         [NotMapped]
         public IEnumerable<long> AttributeIds { get; set; }
+        [NotMapped]
+        public List<AttributeHeader>? _attributesName { get; set; }
     }
 }

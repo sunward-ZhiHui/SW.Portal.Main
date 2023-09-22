@@ -23,7 +23,8 @@
     [Parameter]
     public Guid SessionIds { get; set; }
     private List<DynamicForm> _dynamicform;
-    private List<AttributeHeader> ControlType;
+    //  private List<AttributeHeader> ControlType;
+    string ControlType;
     string DataType;
     List<string> AttributeList = new List<string>();
 
@@ -36,33 +37,33 @@
         foreach (string author in attributeidList)
         {
 
-            ControlType = await Mediator.Send(new GetAllAttributeNameList(author));
+            var list = await Mediator.Send(new GetAllAttributeNameList(author));
            
-            // ControlType = list[0].ControlType;
-            // var t2 = "[FieldType(FieldType."+ @ControlType + ")]";
-            // var t3 = "[Display(Name =" + list[0].EntryMask + " )]";
-            // if(ControlType == "TextBox" || ControlType == "ComboBox" )
-            // {
-            //     DataType = "string";
-            // }
+            ControlType = list[0].ControlType;
+            var t2 = "[FieldType(FieldType."+ @ControlType + ")]";
+            var t3 = "[Display(Name =" + list[0].EntryMask + " )]";
+            if(ControlType == "TextBox" || ControlType == "ComboBox" )
+            {
+                DataType = "string";
+            }
 
-            // if (ControlType == "DateEdit")
-            // {
-            //     DataType = "DateTime";
-            // }
+            if (ControlType == "DateEdit")
+            {
+                DataType = "DateTime";
+            }
 
-            // if (ControlType == "CheckBox")
-            // {
-            //     DataType = "bool";
-            // }
-            // if (ControlType == "SpinEdit")
-            // {
-            //     DataType = "int";
-            // }
-            // var t4 = "public"+" "+ @DataType +" "+ list[0].AttributeName + "{ get; set; };";
-            // AttributeList.Add(t2);
-            // AttributeList.Add(t3);
-            // AttributeList.Add(t4);
+            if (ControlType == "CheckBox")
+            {
+                DataType = "bool";
+            }
+            if (ControlType == "SpinEdit")
+            {
+                DataType = "int";
+            }
+            var t4 = "public"+" "+ @DataType +" "+ list[0].AttributeName + "{ get; set; };";
+            AttributeList.Add(t2);
+            AttributeList.Add(t3);
+            AttributeList.Add(t4);
 
 
 

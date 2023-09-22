@@ -55,9 +55,25 @@
             RowDoubleClick="OnRowDoubleClick" CustomizeEditModel="Grid_CustomizeEditModel">
 
         <Columns>
-            <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="80" />
-            <DxGridDataColumn FieldName="ScreenID" MinWidth="80" Caption="ScreenID" />
-            <DxGridDataColumn FieldName="AttributeID" MinWidth="80" Caption="Attribute Name" />
+            <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="50" />
+            <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="ScreenID" />
+            <DxGridDataColumn FieldName="AttributeID" MinWidth="300" Caption="Attribute Name">
+                <CellDisplayTemplate>
+
+                    @{
+                        var dynamicform = (DynamicForm)context.DataItem;
+                    }
+                    @if (dynamicform._attributesName != null && dynamicform._attributesName.Any())
+                    {
+                        @foreach (var items in dynamicform._attributesName)
+                        {
+                            <span class=""> 
+                                @items.AttributeName,
+                            </span> 
+                        }
+                    }
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
 
         </Columns>
         <EditFormTemplate Context="EditFormContext">
@@ -84,7 +100,7 @@
                     <ValidationMessage For="@(() => controlform.ScreenID)" />
                 </DxFormLayoutItem>
 
-                <DxFormLayoutItem Caption="Users" ColSpanMd="12">
+                <DxFormLayoutItem Caption="Controls:" ColSpanMd="12">
                     <DxTagBox Data="_attributesName"
                     @bind-Values="AttributeIds"
                               NullText="Select Attribute..."

@@ -1,6 +1,8 @@
 ﻿using Core.Entities;
+using Core.Entities.Views;
 using Core.Repositories.Query;
 using Dapper;
+using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -69,7 +71,22 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DynamicForm>(query)).ToList();
+                    var res = connection.Query<DynamicForm>(query).ToList();
+                   
+                    foreach (var items in res)
+                    {
+                        if (items.AttributeID != null && items.AttributeID.Length != 0)
+                        {
+                            string[] userArray = items.AttributeID.Split(',');
+                            var subQuery = $"SELECT * FROM AttributeHeader WHERE AttributeID IN ({string.Join(",", userArray)})";
+                            var subQueryResults = connection.Query<AttributeHeader>(subQuery).ToList();
+                            items._attributesName = subQueryResults;
+
+                        }
+
+                    }
+
+                    return res;
                 }
             }
             catch (Exception exp)

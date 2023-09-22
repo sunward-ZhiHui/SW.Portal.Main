@@ -19,6 +19,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DocumentUserRoleModel>> GetTransferPermissionDocumentUserRoleList(long? Id);
         Task<List<long?>> DeleteTransferPermissionsDocumentUserRoleUser(List<long?> ids);
         Task<List<long?>> UpdateTransferPermissionsDocumentUserRoleUser(List<long?> ids, long? Id);
+        Task<IReadOnlyList<EmailConversations>> GetTransferPermissionsEmailConversationParticipant(long? userIds);
+        Task<EmailConversations> UpdateTransferPermissionsEmailConversationParticipant(List<EmailConversations> ids, long? userId);
 
     }
 }

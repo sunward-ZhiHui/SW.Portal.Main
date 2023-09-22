@@ -313,15 +313,6 @@
 
                                                     </div>
                                                 </div>
-
-                                                @if(isDescription)
-                                                {   
-                                                    <div>
-                                                        <div> Description :</div>
-                                                        <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />
-                                                    </div>
-                                                }
-                                                
                                             </div>
                                         </div>
                                     </div>
@@ -446,9 +437,9 @@
                                                             @((MarkupString)htmlContent)
                                                         }                                                        
                                                     </div>
-                                                    <p class="uk-text-success">                                                       
+                                                @*    <p class="uk-text-success">                                                       
                                                         <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />                                                      
-                                                    </p>
+                                                    </p>*@
 
                                                     @if (item.documents.Any())
                                                     {
@@ -631,9 +622,9 @@
                                                                                                             }                                                                                                            
                                                                                                         </h5>
                                                                                                     </div>
-                                                                                                    <div>
+                                                                                                    @*<div>
                                                                                                         <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@itm.FileData" />
-                                                                                                    </div>
+                                                                                                    </div>*@
                                                                                                     @if (itm.documents != null && itm.documents.Any())
                                                                                                     {
                                                                                                         @foreach (var attachment in itm.documents)
@@ -2714,6 +2705,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        Page = Page == null ? "AssignTo" : Page;
+
         var sss = ActiveSessionId;      
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         cancellationTokenSource = new CancellationTokenSource();
@@ -2729,7 +2722,7 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
 
         filterrowname = "";
-        if(Page != null)
+        if(Page == "Todo")
         {
             var page = Page;
             var todolist = await Mediator.Send(new GetByToDoSessionId(TodoSessionId));
@@ -2737,11 +2730,11 @@
             {
                 string ridds = todolist[0].TopicId.ToString();
 
-                //ActiveTabIndex = 4;
-                //OnLeftMenuItemClick("Library");
-                //isLeftMenuvisible = "Library";
-               // MyDayFilterText = todolist[0].SubjectName;
-               // await Task.Delay(2000); // Delay for 2 seconds                
+                ActiveTabIndex = 4;
+                OnLeftMenuItemClick("Library");
+                isLeftMenuvisible = "Library";
+                MyDayFilterText = todolist[0].SubjectName;
+                await Task.Delay(2000); // Delay for 2 seconds                
                 onSubViewEmailClick(ridds);
             }
         }

@@ -64,5 +64,23 @@ namespace Application.Queries
             this.UserIds = userIds;
         }
     }
+    public class GetTransferPermissionsEmailConversationParticipant : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public long? Id { get; set; }
+        public GetTransferPermissionsEmailConversationParticipant(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class UpdateTransferPermissionsEmailConversationUser : PagedRequest, IRequest<EmailConversations>
+    {
+        public List<EmailConversations> Ids { get; set; }
+        public long? UserIds { get; set; }
+        public UpdateTransferPermissionsEmailConversationUser(List<EmailConversations> ids, long? userIds)
+        {
+            this.Ids = ids;
+            this.UserIds = userIds;
+        }
+    }
 
 }

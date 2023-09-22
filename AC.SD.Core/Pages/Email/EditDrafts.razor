@@ -345,6 +345,7 @@ else
     string MessageHeader = "Error";
     string MessageBody = "";
     DxRichEdit msgrichEdit { get; set; }
+    DxRichEdit msgrichEdit1 { get; set; }
     IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     bool IsOpen { get; set; } = false;
 
@@ -717,7 +718,15 @@ else
                 Data.AddedDate = actItem[0].AddedDate;
                 Data.StartDate = actItem[0].StartDate;
                 Data.DueDate = actItem[0].DueDate;
-                Data.FileData = actItem[0].FileData;
+                
+                await msgrichEdit.SaveDocumentAsync();
+                using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+                byte[] fileContent1 = actItem[0].FileData;
+                server.LoadDocument(fileContent1);
+                server.Options.Export.Html.EmbedImages = true;
+                byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Rtf);              
+              
+                Data.FileData = fileContents;
                 // Data.IsAllowParticipants = actItem[0].IsAllowParticipants;
                 _sessionId = actItem[0].SessionId;
 
@@ -916,6 +925,14 @@ else
             return;
         }
 
+        await msgrichEdit.SaveDocumentAsync();
+        using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
+        byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
+        server.LoadDocument(fileContent1);
+        server.Options.Export.Html.EmbedImages = true;
+        byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
+
+
         //var slsls = participantIds.Distinct().ToList();
         string participantidsString = string.Join(",", participantIds); // convert the array to a comma-separated string
         string toidsString = string.Join(",", selectedToIds); // convert the array to a comma-separated string
@@ -933,7 +950,7 @@ else
                     Urgent = Data.Urgent,
                     DueDate = Data.DueDate,
                     OverDue = Data.OverDue,
-                    FileData = fileContent,
+                    FileData = fileContents,
                     StatusCodeID = 1,
                     AddedByUserID = applicationAddedByUserID,
                     AddedDate = DateTime.Now,

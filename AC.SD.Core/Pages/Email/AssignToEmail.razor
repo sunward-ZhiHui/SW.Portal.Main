@@ -118,10 +118,10 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        //@if (Page == "AssignTo")
-        //{
+        @if (Page == "AssignTo")
+        {
             _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-        //}
+        }
        
     }
     void OnItemClick(ContextMenuItemClickEventArgs args)

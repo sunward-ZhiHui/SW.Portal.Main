@@ -86,4 +86,29 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _queryRepository.UpdateTransferPermissionsDocumentUserRoleUser(request.Ids, request.UserIds);
         }
     }
+    public class GetTransferPermissionsEmailConversationParticipantHandler : IRequestHandler<GetTransferPermissionsEmailConversationParticipant, List<EmailConversations>>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public GetTransferPermissionsEmailConversationParticipantHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<EmailConversations>> Handle(GetTransferPermissionsEmailConversationParticipant request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversations>)await _queryRepository.GetTransferPermissionsEmailConversationParticipant(request.Id);
+        }
+    }
+
+    public class UpdateTransferPermissionsEmailConversationUserHandler : IRequestHandler<UpdateTransferPermissionsEmailConversationUser, EmailConversations>
+    {
+        private readonly ITransferPermissionsQueryRepository _queryRepository;
+        public UpdateTransferPermissionsEmailConversationUserHandler(ITransferPermissionsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<EmailConversations> Handle(UpdateTransferPermissionsEmailConversationUser request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateTransferPermissionsEmailConversationParticipant(request.Ids, request.UserIds);
+        }
+    }
 }

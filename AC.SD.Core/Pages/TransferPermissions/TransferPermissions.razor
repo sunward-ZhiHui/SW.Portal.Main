@@ -59,7 +59,9 @@
                                 <DxFormLayoutTabPage Caption="File Profile Type Security">
                                     <TransferPermissionDocumentUserRole Data="@Data"></TransferPermissionDocumentUserRole>
                                 </DxFormLayoutTabPage>
-
+                                <DxFormLayoutTabPage Caption="Email Conversations">
+                                    <TransferPermissionsEmailConversationParticipant Data="@Data"></TransferPermissionsEmailConversationParticipant>
+                                </DxFormLayoutTabPage>
                             </DxFormLayoutTabPages>
                         </DxFormLayout>
                     </div>
@@ -104,24 +106,29 @@
         Data.FromUserId = UserIds;
         StateHasChanged();
         await refResetUserGroups.loadUserGroupData(Data);
-       
+
 
     }
-    void onSelectedUserToItemsChanged(ViewEmployee viewEmployees)
+    async Task onSelectedUserToItemsChanged(ViewEmployee viewEmployees)
     {
+        ActiveSubTabIndex = 0;
+        long? toUserIds = -1;
         if (viewEmployees != null && viewEmployees.UserID > 0)
         {
+            toUserIds = viewEmployees.UserID;
             _usersFromList = _usersList.Where(w => w.UserID != viewEmployees.UserID).ToList();
         }
         else
         {
             _usersFromList = _usersList;
         }
+        Data.ToUserId = toUserIds;
         StateHasChanged();
+        await refResetUserGroups.loadUserGroupData(Data);
     }
     async Task OnTabClick(TabClickEventArgs e)
     {
-        // tabIndex = e.TabIndex;
+         tabIndex = e.TabIndex;
         // if (tabIndex == 0)
         // {
         //     await refResetUserGroups.loadUserGroupData(Data);

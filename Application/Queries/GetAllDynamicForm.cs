@@ -13,9 +13,29 @@ namespace Application.Queries
     {
 
     }
+    public class GetAllDynamicFormLst : PagedRequest, IRequest<List<DynamicForm>>
+    {
+        public Guid ID { get; set; }
+        public GetAllDynamicFormLst(Guid ID)
+        {
+            this.ID = ID;
+        }
+    }
     public class CreateDynamicForm : DynamicForm, IRequest<long>
     {
 
+    }
+    public class EditDynamicForm : DynamicForm, IRequest<long>
+    {
+
+    }
+    public class DeleteDynamicForm : DynamicForm, IRequest<long>
+    {
+        public long ID { get; set; }
+        public DeleteDynamicForm(long ID)
+        {
+            this.ID = ID;
+        }
     }
     
 }

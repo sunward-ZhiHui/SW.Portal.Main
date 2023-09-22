@@ -42,4 +42,50 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+
+    public class GetAllDynamicFormLstHandler : IRequestHandler<GetAllDynamicFormLst, List<DynamicForm>>
+    {
+
+        private readonly IQueryRepository<AttributeHeader> _queryRepository;
+        private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
+        public GetAllDynamicFormLstHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+
+            _DynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicForm>> Handle(GetAllDynamicFormLst request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicForm>)await _DynamicFormQueryRepository.GetAllSelectedLst(request.ID);
+        }
+    }
+
+    public class EditDynamicFormHandler : IRequestHandler<EditDynamicForm, long>
+    {
+        private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
+        public EditDynamicFormHandler(IDynamicFormQueryRepository QueryRepository)
+        {
+            _DynamicFormQueryRepository = QueryRepository;
+        }
+
+        public async Task<long> Handle(EditDynamicForm request, CancellationToken cancellationToken)
+        {
+            var req = await _DynamicFormQueryRepository.Update(request);
+            return req;
+        }
+    }
+    public class DeleteDynamicFormHandler : IRequestHandler<DeleteDynamicForm, long>
+    {
+        private readonly IDynamicFormQueryRepository _DynamicFormQueryRepository;
+
+        public DeleteDynamicFormHandler(IDynamicFormQueryRepository QueryRepository)
+        {
+            _DynamicFormQueryRepository = QueryRepository;
+        }
+
+        public async Task<long> Handle(DeleteDynamicForm request, CancellationToken cancellationToken)
+        {
+            var req = await _DynamicFormQueryRepository.Delete(request.ID);
+            return req;
+        }
+    }
 }

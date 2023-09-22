@@ -71,25 +71,9 @@
             @bind-Text="@Data.AttributeName" ShowValidationIcon="true"
                         SelectedItemChanged="@((AttributeHeader plant) => SelectedItemChanged(plant))">
             </DxComboBox>
-         
+           </DxFormLayoutItem>
            @*   <ValidationMessage For="@(() => Data.AttributeName)" />   *@
-                   </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Screen ID" ColSpanMd="6">
-                                <DxComboBox Data="@_attributesID"
-                                            AllowUserInput="true"
-                                            NullText="Select ScreenID..."
-                                            ListRenderMode="ListRenderMode.Virtual"
-                                            FilteringMode="DataGridFilteringMode.Contains"
-                                            TextFieldName="ScreenID"
-                                            ValueFieldName="ScreenID"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                @bind-Value="Data.ScreenID"
-                                @bind-Text="@Data.ScreenID" ShowValidationIcon="true"
-                                          >
-                                </DxComboBox>
-
-                                  <ValidationMessage For="@(() => Data.ScreenID)" /> 
-                            </DxFormLayoutItem>
+                 
                     <DxFormLayoutItem Caption="Description" ColSpanMd="6">
                 <DxTextBox @bind-Text="@Data.Description"></DxTextBox>
                 <ValidationMessage For="@(() => Data.Description)" />
@@ -162,7 +146,7 @@
     private string MyID = "myid";
     long AttributeIDs;
     private List<AttributeHeader>? _attributes;
-    private List<AttributeHeader>? _attributesID;
+   
     AttributeHeader Data = new AttributeHeader();
     private List<CodeMaster> _stausItems;
     List<string> ControlTypeData { get; set; }
@@ -179,7 +163,7 @@
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
 
         _attributes = await Mediator.Send(new GetAllAttributeNameHeader());
-        _attributesID = await Mediator.Send(new GetAllAttributeHeader());
+      
         ControlTypeData = new List<string>
             {
                  "TextBox","ComboBox","DateEdit","CheckBox","SpinEdit","Memo","TagBox"
@@ -217,7 +201,7 @@
   
     async Task HandleValidSubmit()
     {
-        var ex = _attributes.Where(x => x.Description == Data.Description);
+        var ex = _attributes.Where(x => x.Description == Data.Description || x.AttributeName == Data.AttributeName);
         if (ex.Any())
         {
             // onShowPopupMessage("Error", "The entered value Already exists.");
@@ -233,7 +217,7 @@
                     IsInternal = Data.IsInternal,
                     EntryMask = Data.EntryMask,
                     RegExp = Data.RegExp,
-                    ScreenID = Data.ScreenID,
+                   
                     StatusCodeID = 1,
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now,
@@ -253,10 +237,10 @@
                 Data.ControlType = _SaveLst[0].ControlType;
                 Data.EntryMask = _SaveLst[0].EntryMask;
                 Data.RegExp = _SaveLst[0].RegExp;
-                Data.ScreenID = _SaveLst[0].ScreenID;
+              
                 RefDetails.AddEnabledEvent(_SaveLst[0].ControlType);
             }
-            _attributes = await Mediator.Send(new GetAllAttributeHeader());
+            _attributes = await Mediator.Send(new GetAllAttributeNameHeader());
             toastService.ShowToast("Attribute have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
 
         }
@@ -274,7 +258,7 @@
                 Data.EntryMask = _master[0].EntryMask;
                 Data.RegExp = _master[0].RegExp;
                 Data.IsInternal = _master[0].IsInternal;
-                Data.ScreenID = _master[0].ScreenID;
+              
                 Data.ControlType = _master[0].ControlType;
                 if (Data.ControlType == "TextBox" || Data.ControlType == "DateEdit")
                 {
@@ -329,7 +313,7 @@
             toastService.ShowToast("Attribute have been Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);
 
             addNew();
-            _attributes = await Mediator.Send(new GetAllAttributeHeader());
+            _attributes = await Mediator.Send(new GetAllAttributeNameHeader());
             RefDetails.Attributeload(_master[0].AttributeID, "");
         }
         catch (Exception eq)

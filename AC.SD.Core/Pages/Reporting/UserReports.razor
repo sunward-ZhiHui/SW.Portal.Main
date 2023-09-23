@@ -1,0 +1,49 @@
+﻿@page "/userReports"
+@using AC.SD.Core.Pages.Reports;
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+<div class="">
+    <div class="main-container">
+        <div class="content-container row">
+            <div class="@leftReportDisplay" style="overflow-x: hidden;">
+                <div class="mini-menu-bar-top">
+                    <LeftReportUser ReportName="onViewClick"></LeftReportUser>
+                </div>
+            </div>
+          
+            <div class="@RightReportDisplay">
+                <div style=" Height:calc(100vh - 185px);border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
+           
+                <ReportViewer @ref=RefReportViewer></ReportViewer>
+            </div>
+            </div>
+            </div>
+      
+    </div>
+</div>
+
+@code {
+    string leftReportDisplay = "col-md-3";
+    string RightReportDisplay = "col-md-9";
+   // string styleTreeDisplay = "height: calc(100vh - 185px); padding:10px";
+    private ReportViewer? RefReportViewer { get; set; }
+    public async void onViewClick(string ReportName)
+    {
+        // await jsRuntime.InvokeVoidAsync("ReportViewer/" + ReportName + "", "_blank");
+        // SeletedNoteId = NoteId;
+        //await LoadData();
+         RefReportViewer.LoadData(ReportName);
+        StateHasChanged();
+    }
+}

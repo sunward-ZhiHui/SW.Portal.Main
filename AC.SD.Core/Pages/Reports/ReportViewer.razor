@@ -26,6 +26,16 @@
         }
         Report = reportProvider.GetReport(ReportName, null);
     }
+
+    public async  void LoadData( string SelectedReport)
+    {
+        if (String.IsNullOrEmpty(ReportName))
+        {
+            ReportName = SelectedReport;
+        }
+        Report = reportProvider.GetReport(SelectedReport, null);
+        StateHasChanged();
+    }
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)

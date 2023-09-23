@@ -1,0 +1,86 @@
+﻿@page "/LeftReportUser"
+@using Application.Queries;
+@using DevExpress.Export;
+@inject IJSRuntime jsRuntime
+@using System.IO;
+@using System.Text.RegularExpressions;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using MediatR
+@using Microsoft.Extensions.Configuration;
+@using global::Core.Repositories.Query;
+@inject IConfiguration Configuration;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@using System.Linq;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.EntityFrameworkCore;
+@using System;
+@inject NavigationManager NavigationManager
+@inject IJSRuntime jsRuntime
+
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+<DxGrid @ref="Grid" Data="@_reportdocuments" ShowGroupPanel="false" ShowGroupedColumns="false" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="false"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+       
+        PageSize="20" CustomizeElement="Grid_CustomizeElement" style="height: calc(100vh - 185px);"
+        CssClass="w-100" AutoExpandAllGroupRows="true"
+        SelectionMode="GridSelectionMode.Multiple"
+        FocusedRowEnabled="true"
+      
+        RowClick="OnRowClick"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+    <Columns>
+
+        <DxGridDataColumn FieldName="Name" MinWidth="150" />
+      
+    </Columns>
+   
+</DxGrid>
+
+
+</DxLoadingPanel>
+@code {
+    IGrid Grid { get; set; }
+    private List<ReportDocuments> _reportdocuments;
+    bool PanelVisible { get; set; }
+    private ReportDocuments _selectedItems;
+    [Parameter]
+    public Action<string> ReportName { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+
+        PanelVisible = true;
+       
+        _reportdocuments = await Mediator.Send(new GetAllReportFileUploadsQuery());
+      
+
+       
+        PanelVisible = false;
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ReportDocumentID");
+        _selectedItems = _reportdocuments.FirstOrDefault(f => f.ReportDocumentID == (long?)UniqueId);
+        ReportName?.Invoke(_selectedItems.FileName);
+    }
+}

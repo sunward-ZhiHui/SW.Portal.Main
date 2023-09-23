@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Queries
 {
-    public class GetAllAttributeHeader : PagedRequest, IRequest<List<AttributeHeader>>
+    public class GetAllAttributeHeader : PagedRequest, IRequest<List<DynamicForm>>
     {
       
 
@@ -47,6 +47,16 @@ namespace Application.Queries
         public DeleteAttributeHeader(long AttributeID)
         {
             this.AttributeID = AttributeID;
+        }
+    }
+
+    public class GetAllAttributeNameList : PagedRequest, IRequest<List<AttributeHeader>>
+    {
+
+        public string ID { get; set; }
+        public GetAllAttributeNameList(string ID)
+        {
+            this.ID = ID;
         }
     }
 }

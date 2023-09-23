@@ -75,6 +75,12 @@ namespace Core.Entities
         public string? Follow { get; set; }
         public bool? Urgent { get; set; } = false;
         public long? OnBehalf { get; set; }
+        [NotMapped]
+        public string? TopicName { get; set; }
+        [NotMapped]
+        public string? EmailConversationName { get; set; }
+        [NotMapped]
+        public long? ConversationId { get; set; }
 
     }
 }

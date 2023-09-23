@@ -370,10 +370,10 @@
         Data.FilterFrom = DateRange;
         MinDateFrom = DateRange;    
         
-        //@if(MyDayFilterText != null)
-        //{
-        //    await loadLibaryList(MyDayFilterText);
-        //}
+        @if(MyDayFilterText != null)
+        {
+            await loadLibaryList(MyDayFilterText);
+        }
 
     }
     void OnDateChanged(DateTime newValue)

@@ -85,12 +85,31 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select DISTINCT AttributeName from  AttributeHeader";
+                var query = "select *from  AttributeHeader";
 
 
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<AttributeHeader>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<AttributeHeader>> GetAllAttributeNameAsync(string ID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ID", ID);
+
+                var query = "SELECT * FROM AttributeHeader Where AttributeID = @ID ";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<AttributeHeader>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -118,16 +137,16 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public  async Task<IReadOnlyList<AttributeHeader>> GetComboBoxLst()
+        public  async Task<IReadOnlyList<DynamicForm>> GetComboBoxLst()
         {
             try
             {
-                var query = "select DISTINCT ScreenID from  AttributeHeader";
+                var query = "select DISTINCT ScreenID from  DynamicForm";
 
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<AttributeHeader>(query)).ToList();
+                    return (await connection.QueryAsync<DynamicForm>(query)).ToList();
                 }
             }
             catch (Exception exp)
@@ -153,7 +172,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AttributeName", attributeHeader.AttributeName);
                             parameters.Add("IsInternal", attributeHeader.IsInternal);
                             parameters.Add("Description", attributeHeader.Description);
-                            parameters.Add("ScreenID", attributeHeader.ScreenID);
+                            
                             parameters.Add("ControlType", attributeHeader.ControlType);
                             parameters.Add("EntryMask", attributeHeader.EntryMask);
                             parameters.Add("RegExp", attributeHeader.RegExp);
@@ -170,9 +189,9 @@ namespace Infrastructure.Repository.Query
 
                             //return rowsAffected;
 
-                            var query = @"INSERT INTO AttributeHeader(AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID,ScreenID) 
+                            var query = @"INSERT INTO AttributeHeader(AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID) 
               OUTPUT INSERTED.AttributeID  -- Replace 'YourIDColumn' with the actual column name of your IDENTITY column
-              VALUES (@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID,@ScreenID)";
+              VALUES (@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID)";
 
                             var insertedId = await connection.ExecuteScalarAsync<int>(query, parameters, transaction);
 

@@ -191,12 +191,12 @@
             var pid = permissionlst.PermissionName;
             permissionids.Add(pid);
             //permission = ir.PermissionName;
-            //if (permission == "Users")
-            //{
+            // if (permission == "Users")
+            // {
             //    ResetShow = true;
             //    UnlockShow = true;
             //    break;
-            //}
+            // }
             //else if (permission == "Reset Password")
             //{
             //    ResetShow = true;
@@ -212,6 +212,7 @@
         {
             ResetEnabled = true;
             UnlockEnabled = true;
+            
         }
         if (permissionids.Any((f) => f == "Reset Password"))
         {

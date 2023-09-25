@@ -57,10 +57,10 @@
                                     <TransferUserGroups @ref="refResetUserGroups" Data="@Data"></TransferUserGroups>
                                 </DxFormLayoutTabPage>
                                 <DxFormLayoutTabPage Caption="File Profile Type Security">
-                                    <TransferPermissionDocumentUserRole Data="@Data"></TransferPermissionDocumentUserRole>
+                                    <TransferPermissionDocumentUserRole @ref="refTransferPermissionDocumentUserRole" Data="@Data"></TransferPermissionDocumentUserRole>
                                 </DxFormLayoutTabPage>
                                 <DxFormLayoutTabPage Caption="Email Conversations">
-                                    <TransferPermissionsEmailConversationParticipant Data="@Data"></TransferPermissionsEmailConversationParticipant>
+                                    <TransferPermissionsEmailConversationParticipant @ref="refTransferPermissionsEmailConversationParticipant" Data="@Data"></TransferPermissionsEmailConversationParticipant>
                                 </DxFormLayoutTabPage>
                             </DxFormLayoutTabPages>
                         </DxFormLayout>
@@ -72,12 +72,14 @@
 </div>
 @code {
     private TransferUserGroups refResetUserGroups;
+    private TransferPermissionDocumentUserRole refTransferPermissionDocumentUserRole;
+    private TransferPermissionsEmailConversationParticipant refTransferPermissionsEmailConversationParticipant;
     private List<ViewEmployee> _usersList { get; set; }
     private List<ViewEmployee> _usersFromList { get; set; }
     private List<ViewEmployee> _usersToList { get; set; }
     ResetPermissionModel Data = new ResetPermissionModel();
     long? UserIds { get; set; }
-    int? tabIndex { get; set; }
+    int tabIndex { get; set; } = 0;
     int ActiveSubTabIndex { get; set; } = 0;
     protected override async Task OnInitializedAsync()
     {
@@ -92,7 +94,7 @@
     }
     async Task onSelectedUserItemsChanged(ViewEmployee viewEmployee)
     {
-        ActiveSubTabIndex = 0;
+
         UserIds = -1;
         if (viewEmployee != null && viewEmployee.UserID > 0)
         {
@@ -105,9 +107,7 @@
         }
         Data.FromUserId = UserIds;
         StateHasChanged();
-        await refResetUserGroups.loadUserGroupData(Data);
-
-
+        await loadTabDatas();
     }
     async Task onSelectedUserToItemsChanged(ViewEmployee viewEmployees)
     {
@@ -124,15 +124,29 @@
         }
         Data.ToUserId = toUserIds;
         StateHasChanged();
-        await refResetUserGroups.loadUserGroupData(Data);
+        await loadTabDatas();
     }
-    async Task OnTabClick(TabClickEventArgs e)
+    async Task loadTabDatas()
     {
-         tabIndex = e.TabIndex;
-        // if (tabIndex == 0)
-        // {
-        //     await refResetUserGroups.loadUserGroupData(Data);
-        //     StateHasChanged();
-        // }
+        if (tabIndex == 0)
+        {
+            ActiveSubTabIndex = tabIndex;
+            await refResetUserGroups.loadUserGroupData(Data);
+        }
+        if (tabIndex == 1)
+        {
+            ActiveSubTabIndex = tabIndex;
+            await refTransferPermissionDocumentUserRole.loadDocumentUserRoles(Data);
+        }
+        if (tabIndex == 2)
+        {
+            ActiveSubTabIndex = tabIndex;
+            await refTransferPermissionsEmailConversationParticipant.loadEmailConversations(Data);
+        }
+    }
+    void OnTabClick(TabClickEventArgs e)
+    {
+        tabIndex = e.TabIndex;
+       
     }
 }

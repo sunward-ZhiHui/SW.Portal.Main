@@ -21,7 +21,7 @@
 
     #customers {
         /* font-family: Arial, Helvetica, sans-serif;
-                                                                            border-collapse: collapse;*/
+                                                                                border-collapse: collapse;*/
         width: 100%;
     }
 
@@ -103,7 +103,6 @@
                                     TextFieldName="PlantCode"
                                     ValueFieldName="PlantID"
                                     Enabled="false"
-                                    
                         @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
                             <Columns>
                                 <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
@@ -136,7 +135,6 @@
                                     ValueFieldName="SoCustomerId"
                                     Enabled="true"
                                     EditFormat="{0}-{1}"
-                                   
                         @bind-Value="@Data.SoCustomerId" ShowValidationIcon="true"
                                     SelectedItemChanged="@((SoCustomer soCustomer) => SelectedItemChanged(soCustomer))">
                             <Columns>
@@ -300,14 +298,17 @@
     string MessageHeader = "";
     string MessageBody = "";
 
-
-
     protected override async Task OnInitializedAsync()
     {
         _AllSoCustomer = new List<SoCustomer>();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-       // _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("Clinic,Customer"));
+        _AllSoCustomer = await Mediator.Send(new GetSoCustomerByTypeQuery("Clinic,Customer"));
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        await onEditSalesOrder();
+    }
+    async Task onEditSalesOrder()
+    {
+
         if (SessionIds != null)
         {
             _salesOrderItem = await Mediator.Send(new GetAllSoOrderBySession(SessionIds));
@@ -334,7 +335,6 @@
                     if (soCustomers != null)
                     {
                         soCustomer1 = soCustomers;
-                        _AllSoCustomer.Add(soCustomers);
                     }
                 }
                 await RefSalesOrderLine.loadData(_salesOrderItem);
@@ -412,6 +412,7 @@
 
             toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             loading = false;
+            await onEditSalesOrder();
             StateHasChanged();
         }
         else

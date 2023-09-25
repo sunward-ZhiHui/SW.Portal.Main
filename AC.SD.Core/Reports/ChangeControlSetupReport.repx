@@ -7,19 +7,19 @@
     <Item1 Ref="5" ControlType="TopMarginBand" Name="topMarginBand1" HeightF="0" TextAlignment="TopLeft" Padding="0,0,0,0,100" />
     <Item2 Ref="6" ControlType="BottomMarginBand" Name="bottomMarginBand1" HeightF="0" TextAlignment="TopLeft" Padding="0,0,0,0,100" />
     <Item3 Ref="7" ControlType="DetailBand" Name="detailBand1" HeightF="0" TextAlignment="TopLeft" Padding="0,0,0,0,100" />
-    <Item4 Ref="8" ControlType="GroupHeaderBand" Name="GroupHeader1" HeightF="6162.03955" BorderDashStyle="Solid">
+    <Item4 Ref="8" ControlType="GroupHeaderBand" Name="GroupHeader1" HeightF="6162.04" BorderDashStyle="Solid">
       <Controls>
-        <Item1 Ref="9" ControlType="XRLine" Name="xrLine2" LineDirection="Vertical" SizeF="3.125,225.7085" LocationFloat="783.4169,4938.0835" />
-        <Item2 Ref="10" ControlType="XRLine" Name="xrLine1" LineDirection="Vertical" SizeF="3.125,225.7085" LocationFloat="10.0000067,4938.0835" />
-        <Item3 Ref="11" ControlType="XRPanel" Name="xrPanel2" SizeF="777.534363,998.247559" LocationFloat="9.007533,5163.792" Borders="All">
+        <Item1 Ref="9" ControlType="XRLine" Name="xrLine2" LineDirection="Vertical" SizeF="3.125,225.7085" LocationFloat="783.4169,4938.083" />
+        <Item2 Ref="10" ControlType="XRLine" Name="xrLine1" LineDirection="Vertical" SizeF="3.125,225.7085" LocationFloat="10.00001,4938.083" />
+        <Item3 Ref="11" ControlType="XRPanel" Name="xrPanel2" SizeF="777.5344,998.2476" LocationFloat="9.007533,5163.792" Borders="All">
           <Controls>
             <Item1 Ref="12" ControlType="XRLabel" Name="xrLabel218" Multiline="true" Text="Closed By(Pharmacist):" SizeF="112.0386,37.54102" LocationFloat="14.84925,935.959" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="13" UseBorders="false" />
             </Item1>
-            <Item2 Ref="14" ControlType="XRLabel" Name="xrLabel219" Multiline="true" Text="Date:" SizeF="48.97162,19.83008" LocationFloat="515.147156,953.667969" Padding="2,2,0,0,100" Borders="None">
+            <Item2 Ref="14" ControlType="XRLabel" Name="xrLabel219" Multiline="true" Text="Date:" SizeF="48.97162,19.83008" LocationFloat="515.1472,953.668" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="15" UseBorders="false" />
             </Item2>
-            <Item3 Ref="16" ControlType="XRLabel" Name="xrLabel220" Multiline="true" Text="xrLabel220" TextAlignment="TopLeft" SizeF="342.9145,19.83154" LocationFloat="146.620911,953.667969" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item3 Ref="16" ControlType="XRLabel" Name="xrLabel220" Multiline="true" Text="xrLabel220" TextAlignment="TopLeft" SizeF="342.9145,19.83154" LocationFloat="146.6209,953.668" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="17" EventName="BeforePrint" PropertyName="Text" Expression="[NotSatisfactoryClosedBy]" />
               </ExpressionBindings>
@@ -31,73 +31,73 @@
               </ExpressionBindings>
               <StylePriority Ref="21" UseBorders="false" />
             </Item4>
-            <Item5 Ref="22" ControlType="XRLabel" Name="xrLabel226" Multiline="true" Text="Satisfactory" SizeF="89.91702,23" LocationFloat="185.759842,875.042969" Padding="2,2,0,0,100" Borders="None">
+            <Item5 Ref="22" ControlType="XRLabel" Name="xrLabel226" Multiline="true" Text="Satisfactory" SizeF="89.91702,23" LocationFloat="185.7598,875.043" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="23" UseBorders="false" />
             </Item5>
-            <Item6 Ref="24" ControlType="XRCheckBox" Name="xrCheckBox80" Checked="true" CheckBoxState="Indeterminate" SizeF="29.0817,23" LocationFloat="144.520538,875.042969" Padding="2,2,0,0,100" Borders="None">
+            <Item6 Ref="24" ControlType="XRCheckBox" Name="xrCheckBox80" Checked="true" CheckBoxState="Indeterminate" SizeF="29.0817,23" LocationFloat="144.5205,875.043" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="25" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[IsSatisfactoryForNotSatisfactory]" />
               </ExpressionBindings>
               <StylePriority Ref="26" UseBorders="false" />
             </Item6>
-            <Item7 Ref="27" ControlType="XRLabel" Name="xrLabel135" Multiline="true" Text="All completed activities found:" SizeF="113.2059,46.9585" LocationFloat="14.84925,862.542969" Padding="2,2,0,0,100" Borders="None">
+            <Item7 Ref="27" ControlType="XRLabel" Name="xrLabel135" Multiline="true" Text="All completed activities found:" SizeF="113.2059,46.9585" LocationFloat="14.84925,862.543" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="28" UseBorders="false" />
             </Item7>
-            <Item8 Ref="29" ControlType="XRLabel" Name="xrLabel43" Multiline="true" Text="*To be filled if completed activities not satisfactory initially" SizeF="405.331,23" LocationFloat="11.9901018,821.417" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item8 Ref="29" ControlType="XRLabel" Name="xrLabel43" Multiline="true" Text="*To be filled if completed activities not satisfactory initially" SizeF="405.331,23" LocationFloat="11.9901,821.417" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="30" UseFont="false" UseBorders="false" />
             </Item8>
-            <Item9 Ref="31" ControlType="XRLine" Name="xrLine13" SizeF="767.226257,4.25" LocationFloat="4.54136467,786.333" Borders="None">
+            <Item9 Ref="31" ControlType="XRLine" Name="xrLine13" SizeF="767.2263,4.25" LocationFloat="4.541365,786.333" Borders="None">
               <StylePriority Ref="32" UseBorders="false" />
             </Item9>
-            <Item10 Ref="33" ControlType="XRLabel" Name="xrLabel206" Multiline="true" Text="All Completed Activities Found:" SizeF="116.4566,40.70898" LocationFloat="19.9202843,524.3335" Padding="2,2,0,0,100" Borders="None">
+            <Item10 Ref="33" ControlType="XRLabel" Name="xrLabel206" Multiline="true" Text="All Completed Activities Found:" SizeF="116.4566,40.70898" LocationFloat="19.92028,524.3335" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="34" UseBorders="false" />
             </Item10>
-            <Item11 Ref="35" ControlType="XRCheckBox" Name="xrCheckBox76" Checked="true" CheckBoxState="Indeterminate" SizeF="45.83324,23" LocationFloat="154.780655,542.0425" Padding="2,2,0,0,100" Borders="None">
+            <Item11 Ref="35" ControlType="XRCheckBox" Name="xrCheckBox76" Checked="true" CheckBoxState="Indeterminate" SizeF="45.83324,23" LocationFloat="154.7807,542.0425" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="36" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[IsSatisfactory]" />
               </ExpressionBindings>
               <StylePriority Ref="37" UseBorders="false" />
             </Item11>
-            <Item12 Ref="38" ControlType="XRLabel" Name="xrLabel207" Multiline="true" Text="Satisfactory" SizeF="100,23" LocationFloat="210.506866,542.043457" Padding="2,2,0,0,100" Borders="None">
+            <Item12 Ref="38" ControlType="XRLabel" Name="xrLabel207" Multiline="true" Text="Satisfactory" SizeF="100,23" LocationFloat="210.5069,542.0435" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="39" UseBorders="false" />
             </Item12>
-            <Item13 Ref="40" ControlType="XRCheckBox" Name="xrCheckBox77" Checked="true" CheckBoxState="Indeterminate" SizeF="42.58359,23" LocationFloat="324.7495,542.043457" Padding="2,2,0,0,100" Borders="None">
+            <Item13 Ref="40" ControlType="XRCheckBox" Name="xrCheckBox77" Checked="true" CheckBoxState="Indeterminate" SizeF="42.58359,23" LocationFloat="324.7495,542.0435" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="41" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[IsNotSatisfactory]" />
               </ExpressionBindings>
               <StylePriority Ref="42" UseBorders="false" />
             </Item13>
-            <Item14 Ref="43" ControlType="XRLabel" Name="xrLabel208" Multiline="true" Text="Not Satisfactory" SizeF="110.6666,23" LocationFloat="378.855652,542.043457" Padding="2,2,0,0,100" Borders="None">
+            <Item14 Ref="43" ControlType="XRLabel" Name="xrLabel208" Multiline="true" Text="Not Satisfactory" SizeF="110.6666,23" LocationFloat="378.8557,542.0435" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="44" UseBorders="false" />
             </Item14>
-            <Item15 Ref="45" ControlType="XRLabel" Name="xrLabel209" Multiline="true" Text="Comments( if any):" SizeF="116.4568,22.99951" LocationFloat="15.9977274,598.2925" Padding="2,2,0,0,100" Borders="None">
+            <Item15 Ref="45" ControlType="XRLabel" Name="xrLabel209" Multiline="true" Text="Comments( if any):" SizeF="116.4568,22.99951" LocationFloat="15.99773,598.2925" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="46" UseBorders="false" />
             </Item15>
-            <Item16 Ref="47" ControlType="XRLabel" Name="xrLabel211" Multiline="true" Text="Closed By(Pharmacist):" SizeF="115.2896,33.4165" LocationFloat="21.4547157,725.4995" Padding="2,2,0,0,100" Borders="None">
+            <Item16 Ref="47" ControlType="XRLabel" Name="xrLabel211" Multiline="true" Text="Closed By(Pharmacist):" SizeF="115.2896,33.4165" LocationFloat="21.45472,725.4995" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="48" UseBorders="false" />
             </Item16>
-            <Item17 Ref="49" ControlType="XRLabel" Name="xrLabel212" Multiline="true" Text="Date:" SizeF="43.75012,18.8335" LocationFloat="504.319763,740.0825" Padding="2,2,0,0,100" Borders="None">
+            <Item17 Ref="49" ControlType="XRLabel" Name="xrLabel212" Multiline="true" Text="Date:" SizeF="43.75012,18.8335" LocationFloat="504.3198,740.0825" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="50" UseBorders="false" />
             </Item17>
-            <Item18 Ref="51" ControlType="XRLabel" Name="xrLabel210" Multiline="true" Text="xrLabel210" SizeF="602.5408,118.8325" LocationFloat="150.249039,598.293457" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item18 Ref="51" ControlType="XRLabel" Name="xrLabel210" Multiline="true" Text="xrLabel210" SizeF="602.5408,118.8325" LocationFloat="150.249,598.2935" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="52" EventName="BeforePrint" PropertyName="Text" Expression="[Comments]" />
               </ExpressionBindings>
               <StylePriority Ref="53" UseBorders="false" />
             </Item18>
-            <Item19 Ref="54" ControlType="XRLabel" Name="xrLabel213" Multiline="true" Text="xrLabel213" TextAlignment="TopLeft" SizeF="342.9146,18.83252" LocationFloat="150.249039,740.0835" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item19 Ref="54" ControlType="XRLabel" Name="xrLabel213" Multiline="true" Text="xrLabel213" TextAlignment="TopLeft" SizeF="342.9146,18.83252" LocationFloat="150.249,740.0835" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="55" EventName="BeforePrint" PropertyName="Text" Expression="[ClosedBy]" />
               </ExpressionBindings>
               <StylePriority Ref="56" UseBorders="false" UseTextAlignment="false" />
             </Item19>
-            <Item20 Ref="57" ControlType="XRLabel" Name="xrLabel214" TextFormatString="{0:d}" Multiline="true" Text="xrLabel214" SizeF="195.6796,18.83105" LocationFloat="557.941162,740.0825" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item20 Ref="57" ControlType="XRLabel" Name="xrLabel214" TextFormatString="{0:d}" Multiline="true" Text="xrLabel214" SizeF="195.6796,18.83105" LocationFloat="557.9412,740.0825" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="58" EventName="BeforePrint" PropertyName="Text" Expression="[Date]" />
               </ExpressionBindings>
               <StylePriority Ref="59" UseBorders="false" />
             </Item20>
-            <Item21 Ref="60" ControlType="XRCheckBox" Name="xrCheckBox74" Checked="true" CheckBoxState="Indeterminate" SizeF="50.58311,23" LocationFloat="21.3151836,301.2119" Padding="2,2,0,0,100" Borders="None">
+            <Item21 Ref="60" ControlType="XRCheckBox" Name="xrCheckBox74" Checked="true" CheckBoxState="Indeterminate" SizeF="50.58311,23" LocationFloat="21.31518,301.2119" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="61" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[DAcceptable]" />
               </ExpressionBindings>
@@ -106,37 +106,37 @@
             <Item22 Ref="63" ControlType="XRLabel" Name="xrLabel199" Multiline="true" Text="Acceptable" SizeF="83.16403,23" LocationFloat="86.24352,301.2119" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="64" UseBorders="false" />
             </Item22>
-            <Item23 Ref="65" ControlType="XRCheckBox" Name="xrCheckBox75" Checked="true" CheckBoxState="Indeterminate" SizeF="37.41635,23" LocationFloat="189.258224,301.2119" Padding="2,2,0,0,100" Borders="None">
+            <Item23 Ref="65" ControlType="XRCheckBox" Name="xrCheckBox75" Checked="true" CheckBoxState="Indeterminate" SizeF="37.41635,23" LocationFloat="189.2582,301.2119" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="66" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[DNotAcceptable]" />
               </ExpressionBindings>
               <StylePriority Ref="67" UseBorders="false" />
             </Item23>
-            <Item24 Ref="68" ControlType="XRLabel" Name="xrLabel200" Multiline="true" Text="Not Acceptable" SizeF="104.0844,23" LocationFloat="241.190018,301.2119" Padding="2,2,0,0,100" Borders="None">
+            <Item24 Ref="68" ControlType="XRLabel" Name="xrLabel200" Multiline="true" Text="Not Acceptable" SizeF="104.0844,23" LocationFloat="241.19,301.2119" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="69" UseBorders="false" />
             </Item24>
-            <Item25 Ref="70" ControlType="XRLabel" Name="xrLabel201" Multiline="true" Text="Verified By:" SizeF="106.9532,22.99854" LocationFloat="17.6496029,357.75" Padding="2,2,0,0,100" Borders="None">
+            <Item25 Ref="70" ControlType="XRLabel" Name="xrLabel201" Multiline="true" Text="Verified By:" SizeF="106.9532,22.99854" LocationFloat="17.6496,357.75" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="71" UseBorders="false" />
             </Item25>
-            <Item26 Ref="72" ControlType="XRLabel" Name="xrLabel202" Multiline="true" Text="Date:" SizeF="42.37469,23" LocationFloat="493.745728,357.749023" Padding="2,2,0,0,100" Borders="None">
+            <Item26 Ref="72" ControlType="XRLabel" Name="xrLabel202" Multiline="true" Text="Date:" SizeF="42.37469,23" LocationFloat="493.7457,357.749" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="73" UseBorders="false" />
             </Item26>
-            <Item27 Ref="74" ControlType="XRLabel" Name="xrLabel204" TextFormatString="{0:d}" Multiline="true" Text="xrLabel204" SizeF="205.846,22.99951" LocationFloat="543.233032,357.75" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item27 Ref="74" ControlType="XRLabel" Name="xrLabel204" TextFormatString="{0:d}" Multiline="true" Text="xrLabel204" SizeF="205.846,22.99951" LocationFloat="543.233,357.75" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="75" EventName="BeforePrint" PropertyName="Text" Expression="[Date]" />
               </ExpressionBindings>
               <StylePriority Ref="76" UseBorders="false" />
             </Item27>
-            <Item28 Ref="77" ControlType="XRLabel" Name="xrLabel205" Multiline="true" Text="SECTION E: CHANGE CLOSUER(To be filled by QA)" SizeF="759.0435,27.1665" LocationFloat="14.3714733,476.542" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
+            <Item28 Ref="77" ControlType="XRLabel" Name="xrLabel205" Multiline="true" Text="SECTION E: CHANGE CLOSUER(To be filled by QA)" SizeF="759.0435,27.1665" LocationFloat="14.37147,476.542" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
               <StylePriority Ref="78" UseBackColor="false" />
             </Item28>
-            <Item29 Ref="79" ControlType="XRLabel" Name="xrLabel203" Multiline="true" Text="Acceptable" SizeF="343.6214,22.99902" LocationFloat="138.577118,357.75" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item29 Ref="79" ControlType="XRLabel" Name="xrLabel203" Multiline="true" Text="Acceptable" SizeF="343.6214,22.99902" LocationFloat="138.5771,357.75" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="80" EventName="BeforePrint" PropertyName="Text" Expression="[DVerifiedBy]" />
               </ExpressionBindings>
               <StylePriority Ref="81" UseBorders="false" />
             </Item29>
-            <Item30 Ref="82" ControlType="XRLine" Name="xrLine12" SizeF="771.1061,9.458496" LocationFloat="2.308941,417.208984" Borders="None">
+            <Item30 Ref="82" ControlType="XRLine" Name="xrLine12" SizeF="771.1061,9.458496" LocationFloat="2.308941,417.209" Borders="None">
               <StylePriority Ref="83" UseBorders="false" />
             </Item30>
             <Item31 Ref="84" ControlType="XRLabel" Name="xrLabel188" Multiline="true" Text="*Discontinue of Implementation(If Applicable)" SizeF="756.964,29.08398" LocationFloat="13.57034,10" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
@@ -145,40 +145,40 @@
             <Item32 Ref="86" ControlType="XRLabel" Name="xrLabel191" Multiline="true" Text="HOD Comments:" SizeF="101.4166,93.66748" LocationFloat="16.27922,64.08545" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="87" UseBorders="false" />
             </Item32>
-            <Item33 Ref="88" ControlType="XRLabel" Name="xrLabel192" Multiline="true" Text="xrLabel192" SizeF="605.7706,93.66699" LocationFloat="143.461716,64.08545" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item33 Ref="88" ControlType="XRLabel" Name="xrLabel192" Multiline="true" Text="xrLabel192" SizeF="605.7706,93.66699" LocationFloat="143.4617,64.08545" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="89" EventName="BeforePrint" PropertyName="Text" Expression="[HODComments]" />
               </ExpressionBindings>
               <StylePriority Ref="90" UseBorders="false" />
             </Item33>
-            <Item34 Ref="91" ControlType="XRLabel" Name="xrLabel193" Multiline="true" Text="HOD Signature:" SizeF="99.7879,23" LocationFloat="17.3886948,173.790039" Padding="2,2,0,0,100" Borders="None">
+            <Item34 Ref="91" ControlType="XRLabel" Name="xrLabel193" Multiline="true" Text="HOD Signature:" SizeF="99.7879,23" LocationFloat="17.38869,173.79" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="92" UseBorders="false" />
             </Item34>
-            <Item35 Ref="93" ControlType="XRLabel" Name="xrLabel194" Multiline="true" Text="Date:" SizeF="41.08307,23" LocationFloat="481.460754,173.790039" Padding="2,2,0,0,100" Borders="None">
+            <Item35 Ref="93" ControlType="XRLabel" Name="xrLabel194" Multiline="true" Text="Date:" SizeF="41.08307,23" LocationFloat="481.4608,173.79" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="94" UseBorders="false" />
             </Item35>
-            <Item36 Ref="95" ControlType="XRLabel" Name="xrLabel195" Multiline="true" Text="xrLabel195" SizeF="317.3578,23" LocationFloat="146.52002,173.790039" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item36 Ref="95" ControlType="XRLabel" Name="xrLabel195" Multiline="true" Text="xrLabel195" SizeF="317.3578,23" LocationFloat="146.52,173.79" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="96" EventName="BeforePrint" PropertyName="Text" Expression="[HODSignature]" />
               </ExpressionBindings>
               <StylePriority Ref="97" UseBorders="false" />
             </Item36>
-            <Item37 Ref="98" ControlType="XRLabel" Name="xrLabel196" TextFormatString="{0:d}" Multiline="true" Text="xrLabel196" SizeF="211.1213,23" LocationFloat="537.2561,173.790039" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item37 Ref="98" ControlType="XRLabel" Name="xrLabel196" TextFormatString="{0:d}" Multiline="true" Text="xrLabel196" SizeF="211.1213,23" LocationFloat="537.2561,173.79" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="99" EventName="BeforePrint" PropertyName="Text" Expression="[HODDate]" />
               </ExpressionBindings>
               <StylePriority Ref="100" UseBorders="false" />
             </Item37>
-            <Item38 Ref="101" ControlType="XRLabel" Name="xrLabel197" Multiline="true" Text="QA Verification" SizeF="758.9985,30.2915" LocationFloat="12.7690954,215.541016" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
+            <Item38 Ref="101" ControlType="XRLabel" Name="xrLabel197" Multiline="true" Text="QA Verification" SizeF="758.9985,30.2915" LocationFloat="12.7691,215.541" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
               <StylePriority Ref="102" UseBackColor="false" />
             </Item38>
-            <Item39 Ref="103" ControlType="XRLabel" Name="xrLabel198" Multiline="true" Text="Status" SizeF="100.9868,23" LocationFloat="21.9687462,263" Padding="2,2,0,0,100" Borders="None">
+            <Item39 Ref="103" ControlType="XRLabel" Name="xrLabel198" Multiline="true" Text="Status" SizeF="100.9868,23" LocationFloat="21.96875,263" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="104" UseBorders="false" />
             </Item39>
           </Controls>
           <StylePriority Ref="105" UseBorders="false" />
         </Item3>
-        <Item4 Ref="106" ControlType="XRSubreport" Name="xrSubreport1" SizeF="721.3414,159.041" LocationFloat="26.3551388,4990.0415">
+        <Item4 Ref="106" ControlType="XRSubreport" Name="xrSubreport1" SizeF="721.3414,159.041" LocationFloat="26.35514,4990.042">
           <ReportSource Ref="108" ControlType="AC.SD.Core.Reports.ChangeControlSubReport, AC.SD.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" Margins="39, 26, 5.208333, 0" PageWidth="850" PageHeight="1100" Version="23.1" DataMember="View_GetCCFImplementation" DataSource="#Ref-107" Font="Arial, 9.75pt">
             <Bands>
               <Item1 Ref="109" ControlType="TopMarginBand" Name="topMarginBand1" HeightF="5.208333" TextAlignment="TopLeft" Padding="0,0,0,0,100" />
@@ -247,10 +247,10 @@
             </ComponentStorage>
           </ReportSource>
         </Item4>
-        <Item5 Ref="139" ControlType="XRLabel" Name="xrLabel42" Multiline="true" Text="SECTION D :CHANGE IMPLEMENTATION(*Attach Document Copy)" SizeF="764.909,29.25" LocationFloat="15.62535,4949.3335" BackColor="LightSteelBlue" Padding="2,2,0,0,100" Borders="All">
+        <Item5 Ref="139" ControlType="XRLabel" Name="xrLabel42" Multiline="true" Text="SECTION D :CHANGE IMPLEMENTATION(*Attach Document Copy)" SizeF="764.909,29.25" LocationFloat="15.62535,4949.333" BackColor="LightSteelBlue" Padding="2,2,0,0,100" Borders="All">
           <StylePriority Ref="140" UseBackColor="false" UseBorders="false" />
         </Item5>
-        <Item6 Ref="141" ControlType="XRPanel" Name="xrPanel1" SizeF="776.5419,4928.0835" LocationFloat="10.0000067,10.000102" Borders="All">
+        <Item6 Ref="141" ControlType="XRPanel" Name="xrPanel1" SizeF="776.5419,4928.083" LocationFloat="10.00001,10.0001" Borders="All">
           <Controls>
             <Item1 Ref="142" ControlType="XRLabel" Name="xrLabel181" Multiline="true" Text="Change Approval:" SizeF="143.6584,23" LocationFloat="32.21477,4692.501" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="143" UseBorders="false" />
@@ -300,22 +300,22 @@
               </ExpressionBindings>
               <StylePriority Ref="168" UseBorders="false" UseTextAlignment="false" />
             </Item11>
-            <Item12 Ref="169" ControlType="XRLabel" Name="xrLabel174" Multiline="true" Text="b)Details:" SizeF="66.95728,18.83301" LocationFloat="24.4175854,4387.292" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item12 Ref="169" ControlType="XRLabel" Name="xrLabel174" Multiline="true" Text="b)Details:" SizeF="66.95728,18.83301" LocationFloat="24.41759,4387.292" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="170" UseFont="false" UseBorders="false" />
             </Item12>
-            <Item13 Ref="171" ControlType="XRLabel" Name="xrLabel175" Multiline="true" Text="xrLabel175" SizeF="600.8158,95.9165" LocationFloat="135.648422,4387.292" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item13 Ref="171" ControlType="XRLabel" Name="xrLabel175" Multiline="true" Text="xrLabel175" SizeF="600.8158,95.9165" LocationFloat="135.6484,4387.292" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="172" EventName="BeforePrint" PropertyName="Text" Expression="[OthersDetails]" />
               </ExpressionBindings>
               <StylePriority Ref="173" UseBorders="false" />
             </Item13>
-            <Item14 Ref="174" ControlType="XRLabel" Name="xrLabel176" Multiline="true" Text="Evaluvated By:" SizeF="91.83598,23" LocationFloat="24.5414047,4513.708" Padding="2,2,0,0,100" Borders="None">
+            <Item14 Ref="174" ControlType="XRLabel" Name="xrLabel176" Multiline="true" Text="Evaluvated By:" SizeF="91.83598,23" LocationFloat="24.5414,4513.708" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="175" UseBorders="false" />
             </Item14>
             <Item15 Ref="176" ControlType="XRLabel" Name="xrLabel177" Multiline="true" Text="Date:" SizeF="50.75009,23" LocationFloat="484.8833,4513.708" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="177" UseBorders="false" />
             </Item15>
-            <Item16 Ref="178" ControlType="XRLabel" Name="xrLabel178" Multiline="true" Text="xrLabel178" TextAlignment="TopLeft" SizeF="335.2583,23" LocationFloat="135.791122,4513.708" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item16 Ref="178" ControlType="XRLabel" Name="xrLabel178" Multiline="true" Text="xrLabel178" TextAlignment="TopLeft" SizeF="335.2583,23" LocationFloat="135.7911,4513.708" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="179" EventName="BeforePrint" PropertyName="Text" Expression="[OthersEvaluatedBy]" />
               </ExpressionBindings>
@@ -327,7 +327,7 @@
               </ExpressionBindings>
               <StylePriority Ref="183" UseBorders="false" />
             </Item17>
-            <Item18 Ref="184" ControlType="XRLabel" Name="xrLabel90" Multiline="true" Text="SECTION C:CHANGE APPROVAL(To be filled by QA)" SizeF="744.109131,31.3334961" LocationFloat="19.7979622,4644.083" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
+            <Item18 Ref="184" ControlType="XRLabel" Name="xrLabel90" Multiline="true" Text="SECTION C:CHANGE APPROVAL(To be filled by QA)" SizeF="744.1091,31.3335" LocationFloat="19.79796,4644.083" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
               <StylePriority Ref="185" UseBackColor="false" />
             </Item18>
             <Item19 Ref="186" ControlType="XRLine" Name="xrLine8" SizeF="776.5419,9.458008" LocationFloat="0,4584.625" Borders="None">
@@ -336,34 +336,34 @@
             <Item20 Ref="188" ControlType="XRLabel" Name="xrLabel167" Multiline="true" Text="Evaluvated By:" SizeF="98.59986,25.0835" LocationFloat="23.65656,4084.331" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="189" UseBorders="false" />
             </Item20>
-            <Item21 Ref="190" ControlType="XRLabel" Name="xrLabel168" Multiline="true" Text="Date:" SizeF="41.08301,23" LocationFloat="485.508667,4084.331" Padding="2,2,0,0,100" Borders="None">
+            <Item21 Ref="190" ControlType="XRLabel" Name="xrLabel168" Multiline="true" Text="Date:" SizeF="41.08301,23" LocationFloat="485.5087,4084.331" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="191" UseBorders="false" />
             </Item21>
-            <Item22 Ref="192" ControlType="XRLabel" Name="xrLabel169" Multiline="true" Text="xrLabel169" TextAlignment="TopLeft" SizeF="352.5099,23.00024" LocationFloat="124.429581,4086.415" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item22 Ref="192" ControlType="XRLabel" Name="xrLabel169" Multiline="true" Text="xrLabel169" TextAlignment="TopLeft" SizeF="352.5099,23.00024" LocationFloat="124.4296,4086.415" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="193" EventName="BeforePrint" PropertyName="Text" Expression="[StoreEvaluatedBy]" />
               </ExpressionBindings>
               <StylePriority Ref="194" UseBorders="false" UseTextAlignment="false" />
             </Item22>
-            <Item23 Ref="195" ControlType="XRLabel" Name="xrLabel170" TextFormatString="{0:d}" Multiline="true" Text="xrLabel170" SizeF="191.1931,25.0835" LocationFloat="543.964661,4084.331" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item23 Ref="195" ControlType="XRLabel" Name="xrLabel170" TextFormatString="{0:d}" Multiline="true" Text="xrLabel170" SizeF="191.1931,25.0835" LocationFloat="543.9647,4084.331" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="196" EventName="BeforePrint" PropertyName="Text" Expression="[StoreDate]" />
               </ExpressionBindings>
               <StylePriority Ref="197" UseBorders="false" />
             </Item23>
-            <Item24 Ref="198" ControlType="XRLabel" Name="xrLabel171" Multiline="true" Text="OTHERS" SizeF="233.5012,23" LocationFloat="27.1315327,4154.498" Font="Arial, 10pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item24 Ref="198" ControlType="XRLabel" Name="xrLabel171" Multiline="true" Text="OTHERS" SizeF="233.5012,23" LocationFloat="27.13153,4154.498" Font="Arial, 10pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="199" UseFont="false" UseBorders="false" />
             </Item24>
             <Item25 Ref="200" ControlType="XRLabel" Name="xrLabel172" Multiline="true" Text="a)The proposed change Impact to:" SizeF="236.9762,24.03955" LocationFloat="23.65656,4218.544" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="201" UseFont="false" UseBorders="false" />
             </Item25>
-            <Item26 Ref="202" ControlType="XRLabel" Name="xrLabel173" Multiline="true" Text="xrLabel173" SizeF="604.9611,106.3335" LocationFloat="132.128387,4258.208" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item26 Ref="202" ControlType="XRLabel" Name="xrLabel173" Multiline="true" Text="xrLabel173" SizeF="604.9611,106.3335" LocationFloat="132.1284,4258.208" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="203" EventName="BeforePrint" PropertyName="Text" Expression="[ProposedChangeImpactTo]" />
               </ExpressionBindings>
               <StylePriority Ref="204" UseBorders="false" />
             </Item26>
-            <Item27 Ref="205" ControlType="XRLine" Name="xrLine10" SizeF="776.000061,9.458984" LocationFloat="0,4123.165" Borders="None">
+            <Item27 Ref="205" ControlType="XRLine" Name="xrLine10" SizeF="776.0001,9.458984" LocationFloat="0,4123.165" Borders="None">
               <StylePriority Ref="206" UseBorders="false" />
             </Item27>
             <Item28 Ref="207" ControlType="XRCheckBox" Name="xrCheckBox66" Checked="true" CheckBoxState="Indeterminate" SizeF="70.87497,23" LocationFloat="27.22248,3803.624" Padding="2,2,0,0,100" Borders="None">
@@ -432,43 +432,43 @@
             <Item41 Ref="241" ControlType="XRLabel" Name="xrLabel41" Multiline="true" Text="Others:" SizeF="69.49488,23" LocationFloat="27.59015,3879.374" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="242" UseBorders="false" />
             </Item41>
-            <Item42 Ref="243" ControlType="XRLabel" Name="xrLabel147" Multiline="true" Text="xrLabel147" SizeF="598.8839,61.5415" LocationFloat="134.383469,3456.458" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item42 Ref="243" ControlType="XRLabel" Name="xrLabel147" Multiline="true" Text="xrLabel147" SizeF="598.8839,61.5415" LocationFloat="134.3835,3456.458" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="244" EventName="BeforePrint" PropertyName="Text" Expression="[QAOthers]" />
               </ExpressionBindings>
               <StylePriority Ref="245" UseBorders="false" />
             </Item42>
-            <Item43 Ref="246" ControlType="XRLabel" Name="xrLabel148" Multiline="true" Text="Evaluvated By:" SizeF="102.3601,23" LocationFloat="21.7662411,3651.415" Padding="2,2,0,0,100" Borders="None">
+            <Item43 Ref="246" ControlType="XRLabel" Name="xrLabel148" Multiline="true" Text="Evaluvated By:" SizeF="102.3601,23" LocationFloat="21.76624,3651.415" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="247" UseBorders="false" />
             </Item43>
-            <Item44 Ref="248" ControlType="XRLabel" Name="xrLabel150" Multiline="true" Text="xrLabel150" TextAlignment="TopLeft" SizeF="347.6753,23" LocationFloat="134.526062,3651.415" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item44 Ref="248" ControlType="XRLabel" Name="xrLabel150" Multiline="true" Text="xrLabel150" TextAlignment="TopLeft" SizeF="347.6753,23" LocationFloat="134.5261,3651.415" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="249" EventName="BeforePrint" PropertyName="Text" Expression="[QAEvaluatedBy]" />
               </ExpressionBindings>
               <StylePriority Ref="250" UseBorders="false" UseTextAlignment="false" />
             </Item44>
-            <Item45 Ref="251" ControlType="XRLabel" Name="xrLabel154" Multiline="true" Text="b)Details:" SizeF="86.80401,65.70825" LocationFloat="25.4318218,3542.999" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item45 Ref="251" ControlType="XRLabel" Name="xrLabel154" Multiline="true" Text="b)Details:" SizeF="86.80401,65.70825" LocationFloat="25.43182,3542.999" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="252" UseFont="false" UseBorders="false" />
             </Item45>
-            <Item46 Ref="253" ControlType="XRLabel" Name="xrLabel155" Multiline="true" Text="xrLabel155" SizeF="600.8156,65.70825" LocationFloat="134.383469,3542.999" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item46 Ref="253" ControlType="XRLabel" Name="xrLabel155" Multiline="true" Text="xrLabel155" SizeF="600.8156,65.70825" LocationFloat="134.3835,3542.999" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="254" EventName="BeforePrint" PropertyName="Text" Expression="[QADetails]" />
               </ExpressionBindings>
               <StylePriority Ref="255" UseBorders="false" />
             </Item46>
-            <Item47 Ref="256" ControlType="XRLabel" Name="xrLabel156" Multiline="true" Text="STORE" SizeF="235.8343,23" LocationFloat="21.7662411,3724.499" Font="Arial, 10pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item47 Ref="256" ControlType="XRLabel" Name="xrLabel156" Multiline="true" Text="STORE" SizeF="235.8343,23" LocationFloat="21.76624,3724.499" Font="Arial, 10pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="257" UseFont="false" UseBorders="false" />
             </Item47>
-            <Item48 Ref="258" ControlType="XRLabel" Name="xrLabel157" Multiline="true" Text="a)The proposed change Impact to:" SizeF="233.5011,23" LocationFloat="20.5675716,3763.123" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item48 Ref="258" ControlType="XRLabel" Name="xrLabel157" Multiline="true" Text="a)The proposed change Impact to:" SizeF="233.5011,23" LocationFloat="20.56757,3763.123" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="259" UseFont="false" UseBorders="false" />
             </Item48>
-            <Item49 Ref="260" ControlType="XRLine" Name="xrLine7" SizeF="776.5419,9.458252" LocationFloat="0,3700.5835" Borders="None">
+            <Item49 Ref="260" ControlType="XRLine" Name="xrLine7" SizeF="776.5419,9.458252" LocationFloat="0,3700.583" Borders="None">
               <StylePriority Ref="261" UseBorders="false" />
             </Item49>
-            <Item50 Ref="262" ControlType="XRLabel" Name="xrLabel40" Multiline="true" Text="Others:" SizeF="89.27676,61.5415" LocationFloat="24.8735428,3456.458" Padding="2,2,0,0,100" Borders="None">
+            <Item50 Ref="262" ControlType="XRLabel" Name="xrLabel40" Multiline="true" Text="Others:" SizeF="89.27676,61.5415" LocationFloat="24.87354,3456.458" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="263" UseBorders="false" />
             </Item50>
-            <Item51 Ref="264" ControlType="XRLabel" Name="xrLabel136" Multiline="true" Text="Evaluvated By:" SizeF="220.2851,22.99976" LocationFloat="16.8438168,3224.25" Padding="2,2,0,0,100" Borders="None">
+            <Item51 Ref="264" ControlType="XRLabel" Name="xrLabel136" Multiline="true" Text="Evaluvated By:" SizeF="220.2851,22.99976" LocationFloat="16.84382,3224.25" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="265" UseBorders="false" />
             </Item51>
             <Item52 Ref="266" ControlType="XRLabel" Name="xrLabel137" Multiline="true" Text="xrLabel137" TextAlignment="TopLeft" WordWrap="false" SizeF="235.8194,23" LocationFloat="247.4039,3224.25" Padding="2,2,0,0,100" Borders="Bottom">
@@ -486,13 +486,13 @@
               </ExpressionBindings>
               <StylePriority Ref="273" UseBorders="false" />
             </Item54>
-            <Item55 Ref="274" ControlType="XRLabel" Name="xrLabel141" Multiline="true" Text="QUALITY ASSURANCE(QA)" SizeF="229.6389,23" LocationFloat="16.8438168,3295.167" Font="Arial, 10pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item55 Ref="274" ControlType="XRLabel" Name="xrLabel141" Multiline="true" Text="QUALITY ASSURANCE(QA)" SizeF="229.6389,23" LocationFloat="16.84382,3295.167" Font="Arial, 10pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="275" UseFont="false" UseBorders="false" />
             </Item55>
-            <Item56 Ref="276" ControlType="XRLabel" Name="xrLabel142" Multiline="true" Text="a)The proposed change Impact to:" SizeF="216.9609,23" LocationFloat="16.8438168,3328.583" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item56 Ref="276" ControlType="XRLabel" Name="xrLabel142" Multiline="true" Text="a)The proposed change Impact to:" SizeF="216.9609,23" LocationFloat="16.84382,3328.583" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="277" UseFont="false" UseBorders="false" />
             </Item56>
-            <Item57 Ref="278" ControlType="XRCheckBox" Name="xrCheckBox27" Checked="true" CheckBoxState="Indeterminate" SizeF="62.32055,23" LocationFloat="19.5526962,3377.624" Padding="2,2,0,0,100" Borders="None">
+            <Item57 Ref="278" ControlType="XRCheckBox" Name="xrCheckBox27" Checked="true" CheckBoxState="Indeterminate" SizeF="62.32055,23" LocationFloat="19.5527,3377.624" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="279" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[IsQAQualification]" />
               </ExpressionBindings>
@@ -501,16 +501,16 @@
             <Item58 Ref="281" ControlType="XRLabel" Name="xrLabel143" Multiline="true" Text="Qualification" SizeF="83.42526,23" LocationFloat="94.83131,3377.624" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="282" UseBorders="false" />
             </Item58>
-            <Item59 Ref="283" ControlType="XRCheckBox" Name="xrCheckBox63" Checked="true" CheckBoxState="Indeterminate" SizeF="41.94768,23" LocationFloat="191.85701,3377.624" Padding="2,2,0,0,100" Borders="None">
+            <Item59 Ref="283" ControlType="XRCheckBox" Name="xrCheckBox63" Checked="true" CheckBoxState="Indeterminate" SizeF="41.94768,23" LocationFloat="191.857,3377.624" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="284" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[IsQAValidation]" />
               </ExpressionBindings>
               <StylePriority Ref="285" UseBorders="false" />
             </Item59>
-            <Item60 Ref="286" ControlType="XRLabel" Name="xrLabel144" Multiline="true" Text="Validation" SizeF="100,23" LocationFloat="245.667313,3377.624" Padding="2,2,0,0,100" Borders="None">
+            <Item60 Ref="286" ControlType="XRLabel" Name="xrLabel144" Multiline="true" Text="Validation" SizeF="100,23" LocationFloat="245.6673,3377.624" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="287" UseBorders="false" />
             </Item60>
-            <Item61 Ref="288" ControlType="XRCheckBox" Name="xrCheckBox64" Checked="true" CheckBoxState="Indeterminate" SizeF="50.29181,23" LocationFloat="355.761017,3377.624" Padding="2,2,0,0,100" Borders="None">
+            <Item61 Ref="288" ControlType="XRCheckBox" Name="xrCheckBox64" Checked="true" CheckBoxState="Indeterminate" SizeF="50.29181,23" LocationFloat="355.761,3377.624" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="289" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[IsQAVendor]" />
               </ExpressionBindings>
@@ -519,7 +519,7 @@
             <Item62 Ref="291" ControlType="XRLabel" Name="xrLabel145" Multiline="true" Text="Vendor" SizeF="100,23" LocationFloat="420.9775,3377.624" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="292" UseBorders="false" />
             </Item62>
-            <Item63 Ref="293" ControlType="XRCheckBox" Name="xrCheckBox65" SizeF="62.32056,21.9585" LocationFloat="19.5526962,3410.958" Padding="2,2,0,0,100" Borders="None">
+            <Item63 Ref="293" ControlType="XRCheckBox" Name="xrCheckBox65" SizeF="62.32056,21.9585" LocationFloat="19.5527,3410.958" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="294" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[QAOthers]" />
               </ExpressionBindings>
@@ -528,10 +528,10 @@
             <Item64 Ref="296" ControlType="XRLabel" Name="xrLabel146" Multiline="true" Text="Others" SizeF="82.67065,23" LocationFloat="95.58591,3410.958" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="297" UseBorders="false" />
             </Item64>
-            <Item65 Ref="298" ControlType="XRLabel" Name="xrLabel152" Multiline="true" Text="b)Details:" SizeF="220.6898,73" LocationFloat="17.8255863,3135.625" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item65 Ref="298" ControlType="XRLabel" Name="xrLabel152" Multiline="true" Text="b)Details:" SizeF="220.6898,73" LocationFloat="17.82559,3135.625" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="299" UseFont="false" UseBorders="false" />
             </Item65>
-            <Item66 Ref="300" ControlType="XRLabel" Name="xrLabel153" Multiline="true" Text="xrLabel153" SizeF="475.8403,73.00024" LocationFloat="255.634918,3135.625" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item66 Ref="300" ControlType="XRLabel" Name="xrLabel153" Multiline="true" Text="xrLabel153" SizeF="475.8403,73.00024" LocationFloat="255.6349,3135.625" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="301" EventName="BeforePrint" PropertyName="Text" Expression="[EngineeringDetails]" />
               </ExpressionBindings>
@@ -636,25 +636,25 @@
             <Item89 Ref="357" ControlType="XRLabel" Name="xrLabel39" Multiline="true" Text="Others:" SizeF="219.0864,79.25" LocationFloat="24.11518,3029.042" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="358" UseBorders="false" />
             </Item89>
-            <Item90 Ref="359" ControlType="XRLabel" Name="xrLabel117" Multiline="true" Text="xrLabel117" SizeF="527.5018,56.33325" LocationFloat="203.011215,2545.958" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item90 Ref="359" ControlType="XRLabel" Name="xrLabel117" Multiline="true" Text="xrLabel117" SizeF="527.5018,56.33325" LocationFloat="203.0112,2545.958" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="360" EventName="BeforePrint" PropertyName="Text" Expression="[ProductionOthers]" />
               </ExpressionBindings>
               <StylePriority Ref="361" UseBorders="false" />
             </Item90>
-            <Item91 Ref="362" ControlType="XRLabel" Name="xrLabel118" Multiline="true" Text="b)Details:" SizeF="166.2608,23" LocationFloat="17.3886967,2617.416" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item91 Ref="362" ControlType="XRLabel" Name="xrLabel118" Multiline="true" Text="b)Details:" SizeF="166.2608,23" LocationFloat="17.3887,2617.416" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="363" UseFont="false" UseBorders="false" />
             </Item91>
-            <Item92 Ref="364" ControlType="XRLabel" Name="xrLabel119" Multiline="true" Text="xrLabel119" SizeF="526.9853,74.0415" LocationFloat="203.52771,2617.416" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item92 Ref="364" ControlType="XRLabel" Name="xrLabel119" Multiline="true" Text="xrLabel119" SizeF="526.9853,74.0415" LocationFloat="203.5277,2617.416" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="365" EventName="BeforePrint" PropertyName="Text" Expression="[ProductionDetails]" />
               </ExpressionBindings>
               <StylePriority Ref="366" UseBorders="false" />
             </Item92>
-            <Item93 Ref="367" ControlType="XRLabel" Name="xrLabel120" Multiline="true" Text="Evaluvated By:" SizeF="167.2426,23" LocationFloat="16.4069271,2716.458" Padding="2,2,0,0,100" Borders="None">
+            <Item93 Ref="367" ControlType="XRLabel" Name="xrLabel120" Multiline="true" Text="Evaluvated By:" SizeF="167.2426,23" LocationFloat="16.40693,2716.458" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="368" UseBorders="false" />
             </Item93>
-            <Item94 Ref="369" ControlType="XRLabel" Name="xrLabel122" Multiline="true" Text="Date:" SizeF="53.67566,23" LocationFloat="523.869934,2716.458" Padding="2,2,0,0,100" Borders="None">
+            <Item94 Ref="369" ControlType="XRLabel" Name="xrLabel122" Multiline="true" Text="Date:" SizeF="53.67566,23" LocationFloat="523.8699,2716.458" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="370" UseBorders="false" />
             </Item94>
             <Item95 Ref="371" ControlType="XRLabel" Name="xrLabel123" TextFormatString="{0:d}" Multiline="true" Text="xrLabel123" SizeF="140.5626,23" LocationFloat="589.9505,2716.458" Padding="2,2,0,0,100" Borders="Bottom">
@@ -663,37 +663,37 @@
               </ExpressionBindings>
               <StylePriority Ref="373" UseBorders="false" />
             </Item95>
-            <Item96 Ref="374" ControlType="XRLabel" Name="xrLabel121" Multiline="true" Text="xrLabel121" TextAlignment="TopLeft" SizeF="310.7537,23" LocationFloat="203.52771,2716.458" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item96 Ref="374" ControlType="XRLabel" Name="xrLabel121" Multiline="true" Text="xrLabel121" TextAlignment="TopLeft" SizeF="310.7537,23" LocationFloat="203.5277,2716.458" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="375" EventName="BeforePrint" PropertyName="Text" Expression="[ProductionEvaluatedBy]" />
               </ExpressionBindings>
               <StylePriority Ref="376" UseBorders="false" UseTextAlignment="false" />
             </Item96>
-            <Item97 Ref="377" ControlType="XRLine" Name="xrLine5" SizeF="776.5419,2.00024414" LocationFloat="0,2778.958" Borders="None">
+            <Item97 Ref="377" ControlType="XRLine" Name="xrLine5" SizeF="776.5419,2.000244" LocationFloat="0,2778.958" Borders="None">
               <StylePriority Ref="378" UseBorders="false" />
             </Item97>
-            <Item98 Ref="379" ControlType="XRLabel" Name="xrLabel5" Multiline="true" Text="Others:" SizeF="166.2608,56.33325" LocationFloat="17.3886967,2545.958" Padding="2,2,0,0,100" Borders="None">
+            <Item98 Ref="379" ControlType="XRLabel" Name="xrLabel5" Multiline="true" Text="Others:" SizeF="166.2608,56.33325" LocationFloat="17.3887,2545.958" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="380" UseBorders="false" />
             </Item98>
-            <Item99 Ref="381" ControlType="XRLabel" Name="xrLabel107" Multiline="true" Text="Evaluvated By:" SizeF="213.4008,23.00024" LocationFloat="21.3565311,2327.999" Padding="2,2,0,0,100" Borders="None">
+            <Item99 Ref="381" ControlType="XRLabel" Name="xrLabel107" Multiline="true" Text="Evaluvated By:" SizeF="213.4008,23.00024" LocationFloat="21.35653,2327.999" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="382" UseBorders="false" />
             </Item99>
-            <Item100 Ref="383" ControlType="XRLabel" Name="xrLabel109" Multiline="true" Text="Date:" SizeF="53.67554,23.00024" LocationFloat="527.837769,2327.999" Padding="2,2,0,0,100" Borders="None">
+            <Item100 Ref="383" ControlType="XRLabel" Name="xrLabel109" Multiline="true" Text="Date:" SizeF="53.67554,23.00024" LocationFloat="527.8378,2327.999" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="384" UseBorders="false" />
             </Item100>
-            <Item101 Ref="385" ControlType="XRLabel" Name="xrLabel110" TextFormatString="{0:d}" Multiline="true" Text="xrLabel110" SizeF="139.1561,23.00024" LocationFloat="593.918335,2327.998" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item101 Ref="385" ControlType="XRLabel" Name="xrLabel110" TextFormatString="{0:d}" Multiline="true" Text="xrLabel110" SizeF="139.1561,23.00024" LocationFloat="593.9183,2327.998" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="386" EventName="BeforePrint" PropertyName="Text" Expression="[QualityControlDate]" />
               </ExpressionBindings>
               <StylePriority Ref="387" UseBorders="false" />
             </Item101>
-            <Item102 Ref="388" ControlType="XRLabel" Name="xrLabel111" Multiline="true" Text="PRODUCTION" SizeF="125.3529,23" LocationFloat="20.3747616,2395.249" Font="Arial, 10pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item102 Ref="388" ControlType="XRLabel" Name="xrLabel111" Multiline="true" Text="PRODUCTION" SizeF="125.3529,23" LocationFloat="20.37476,2395.249" Font="Arial, 10pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="389" UseFont="false" UseBorders="false" />
             </Item102>
-            <Item103 Ref="390" ControlType="XRLabel" Name="xrLabel112" Multiline="true" Text="a)The proposed change Impact to:" SizeF="264.2909,22.99976" LocationFloat="21.3565311,2432.832" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item103 Ref="390" ControlType="XRLabel" Name="xrLabel112" Multiline="true" Text="a)The proposed change Impact to:" SizeF="264.2909,22.99976" LocationFloat="21.35653,2432.832" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="391" UseFont="false" UseBorders="false" />
             </Item103>
-            <Item104 Ref="392" ControlType="XRCheckBox" Name="xrCheckBox50" Checked="true" CheckBoxState="Indeterminate" SizeF="39.69587,23" LocationFloat="20.3747616,2467.29" Padding="2,2,0,0,100" Borders="None">
+            <Item104 Ref="392" ControlType="XRCheckBox" Name="xrCheckBox50" Checked="true" CheckBoxState="Indeterminate" SizeF="39.69587,23" LocationFloat="20.37476,2467.29" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="393" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[IsProductionProcess]" />
               </ExpressionBindings>
@@ -702,25 +702,25 @@
             <Item105 Ref="395" ControlType="XRLabel" Name="xrLabel113" Multiline="true" Text="Process\Procedure" SizeF="121.1854,23" LocationFloat="72.6995,2467.29" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="396" UseBorders="false" />
             </Item105>
-            <Item106 Ref="397" ControlType="XRCheckBox" Name="xrCheckBox51" Checked="true" CheckBoxState="Indeterminate" SizeF="41.03629,23" LocationFloat="206.97905,2467.29" Padding="2,2,0,0,100" Borders="None">
+            <Item106 Ref="397" ControlType="XRCheckBox" Name="xrCheckBox51" Checked="true" CheckBoxState="Indeterminate" SizeF="41.03629,23" LocationFloat="206.979,2467.29" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="398" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[IsProductionValidation]" />
               </ExpressionBindings>
               <StylePriority Ref="399" UseBorders="false" />
             </Item106>
-            <Item107 Ref="400" ControlType="XRLabel" Name="xrLabel114" Multiline="true" Text="Validation\Qualification" SizeF="182.6816,23" LocationFloat="254.407166,2467.29" Padding="2,2,0,0,100" Borders="None">
+            <Item107 Ref="400" ControlType="XRLabel" Name="xrLabel114" Multiline="true" Text="Validation\Qualification" SizeF="182.6816,23" LocationFloat="254.4072,2467.29" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="401" UseBorders="false" />
             </Item107>
-            <Item108 Ref="402" ControlType="XRCheckBox" Name="xrCheckBox52" Checked="true" CheckBoxState="Indeterminate" SizeF="37.36877,23" LocationFloat="449.385437,2467.29" Padding="2,2,0,0,100" Borders="None">
+            <Item108 Ref="402" ControlType="XRCheckBox" Name="xrCheckBox52" Checked="true" CheckBoxState="Indeterminate" SizeF="37.36877,23" LocationFloat="449.3854,2467.29" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="403" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[BControlParameter]" />
               </ExpressionBindings>
               <StylePriority Ref="404" UseBorders="false" />
             </Item108>
-            <Item109 Ref="405" ControlType="XRLabel" Name="xrLabel115" Multiline="true" Text="Control Parameter" SizeF="127.1486,23" LocationFloat="496.538849,2467.29" Padding="2,2,0,0,100" Borders="None">
+            <Item109 Ref="405" ControlType="XRLabel" Name="xrLabel115" Multiline="true" Text="Control Parameter" SizeF="127.1486,23" LocationFloat="496.5388,2467.29" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="406" UseBorders="false" />
             </Item109>
-            <Item110 Ref="407" ControlType="XRCheckBox" Name="xrCheckBox53" SizeF="38.71409,23" LocationFloat="21.3565311,2508.374" Padding="2,2,0,0,100" Borders="None">
+            <Item110 Ref="407" ControlType="XRCheckBox" Name="xrCheckBox53" SizeF="38.71409,23" LocationFloat="21.35653,2508.374" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="408" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[ProductionOthers]" />
               </ExpressionBindings>
@@ -729,13 +729,13 @@
             <Item111 Ref="410" ControlType="XRLabel" Name="xrLabel116" Multiline="true" Text="Others:" SizeF="114.9178,23" LocationFloat="72.69959,2508.374" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="411" UseBorders="false" />
             </Item111>
-            <Item112 Ref="412" ControlType="XRLabel" Name="xrLabel108" Multiline="true" Text="xrLabel108" TextAlignment="TopLeft" SizeF="251.212,23.00024" LocationFloat="267.037262,2327.999" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item112 Ref="412" ControlType="XRLabel" Name="xrLabel108" Multiline="true" Text="xrLabel108" TextAlignment="TopLeft" SizeF="251.212,23.00024" LocationFloat="267.0373,2327.999" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="413" EventName="BeforePrint" PropertyName="Text" Expression="[QualityControlEvaluatedBy]" />
               </ExpressionBindings>
               <StylePriority Ref="414" UseBorders="false" UseTextAlignment="false" />
             </Item112>
-            <Item113 Ref="415" ControlType="XRLine" Name="xrLine6" SizeF="759.6937,7.375244" LocationFloat="14.3062582,2368.958" Borders="None">
+            <Item113 Ref="415" ControlType="XRLine" Name="xrLine6" SizeF="759.6937,7.375244" LocationFloat="14.30626,2368.958" Borders="None">
               <StylePriority Ref="416" UseBorders="false" />
             </Item113>
             <Item114 Ref="417" ControlType="XRCheckBox" Name="xrCheckBox46" Checked="true" CheckBoxState="Indeterminate" SizeF="62.11366,23.00098" LocationFloat="25.50157,2055.998" Padding="2,2,0,0,100" Borders="None">
@@ -792,13 +792,13 @@
             <Item125 Ref="445" ControlType="XRLabel" Name="xrLabel4" Multiline="true" Text="Others:" SizeF="213.4008,68.83398" LocationFloat="23.89828,2140.333" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="446" UseBorders="false" />
             </Item125>
-            <Item126 Ref="447" ControlType="XRLabel" Name="xrLabel85" Multiline="true" Text="Evaluated By:" SizeF="227.6406,23" LocationFloat="24.874527,1795.79175" Padding="2,2,0,0,100" Borders="None">
+            <Item126 Ref="447" ControlType="XRLabel" Name="xrLabel85" Multiline="true" Text="Evaluated By:" SizeF="227.6406,23" LocationFloat="24.87453,1795.792" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="448" UseBorders="false" />
             </Item126>
-            <Item127 Ref="449" ControlType="XRLabel" Name="xrLabel86" Multiline="true" Text="Date:" SizeF="48.25006,23" LocationFloat="527.8378,1795.79175" Padding="2,2,0,0,100" Borders="None">
+            <Item127 Ref="449" ControlType="XRLabel" Name="xrLabel86" Multiline="true" Text="Date:" SizeF="48.25006,23" LocationFloat="527.8378,1795.792" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="450" UseBorders="false" />
             </Item127>
-            <Item128 Ref="451" ControlType="XRLabel" Name="xrLabel88" TextFormatString="{0:d}" Multiline="true" Text="xrLabel88" SizeF="140.5625,23" LocationFloat="589.950562,1795.79175" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item128 Ref="451" ControlType="XRLabel" Name="xrLabel88" TextFormatString="{0:d}" Multiline="true" Text="xrLabel88" SizeF="140.5625,23" LocationFloat="589.9506,1795.792" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="452" EventName="BeforePrint" PropertyName="Text" Expression="[RegulatoryDate]" />
               </ExpressionBindings>
@@ -891,25 +891,25 @@
             <Item148 Ref="501" ControlType="XRLabel" Name="xrLabel180" Multiline="true" Text="a)The proposed change Impact to:" SizeF="262.4232,23.00049" LocationFloat="20.89828,1898.75" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="502" UseFont="false" UseBorders="false" />
             </Item148>
-            <Item149 Ref="503" ControlType="XRLabel" Name="xrLabel87" Multiline="true" Text="xrLabel87" TextAlignment="TopLeft" SizeF="251.212,23" LocationFloat="263.069336,1795.79175" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item149 Ref="503" ControlType="XRLabel" Name="xrLabel87" Multiline="true" Text="xrLabel87" TextAlignment="TopLeft" SizeF="251.212,23" LocationFloat="263.0693,1795.792" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="504" EventName="BeforePrint" PropertyName="Text" Expression="[RequlatoryEvaluatedBy]" />
               </ExpressionBindings>
               <StylePriority Ref="505" UseBorders="false" UseTextAlignment="false" />
             </Item149>
-            <Item150 Ref="506" ControlType="XRLine" Name="xrLine4" SizeF="776.5419,2" LocationFloat="0,1834.33228" Borders="None">
+            <Item150 Ref="506" ControlType="XRLine" Name="xrLine4" SizeF="776.5419,2" LocationFloat="0,1834.332" Borders="None">
               <StylePriority Ref="507" UseBorders="false" />
             </Item150>
-            <Item151 Ref="508" ControlType="XRLabel" Name="xrLabel76" Multiline="true" Text="a)The proposed change Impact to:" SizeF="227.6406,34.45898" LocationFloat="21.9687462,1561.16626" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item151 Ref="508" ControlType="XRLabel" Name="xrLabel76" Multiline="true" Text="a)The proposed change Impact to:" SizeF="227.6406,34.45898" LocationFloat="21.96875,1561.166" Font="Arial, 9pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="509" UseFont="false" UseBorders="false" />
             </Item151>
-            <Item152 Ref="510" ControlType="XRLabel" Name="xrLabel77" Multiline="true" Text="The Regulatory Reporting Category&#xD;&#xA;" SizeF="225.0798,31.25098" LocationFloat="22.9165077,1602.999" Padding="2,2,0,0,100" Borders="None">
+            <Item152 Ref="510" ControlType="XRLabel" Name="xrLabel77" Multiline="true" Text="The Regulatory Reporting Category&#xD;&#xA;" SizeF="225.0798,31.25098" LocationFloat="22.91651,1602.999" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="511" UseBorders="false" />
             </Item152>
-            <Item153 Ref="512" ControlType="XRLabel" Name="xrLabel78" Multiline="true" Text="Regulatory Approval\Notification required" SizeF="222.4947,36.54175" LocationFloat="25.5015678,1642.58337" Padding="2,2,0,0,100" Borders="None">
+            <Item153 Ref="512" ControlType="XRLabel" Name="xrLabel78" Multiline="true" Text="Regulatory Approval\Notification required" SizeF="222.4947,36.54175" LocationFloat="25.50157,1642.583" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="513" UseBorders="false" />
             </Item153>
-            <Item154 Ref="514" ControlType="XRCheckBox" Name="xrCheckBox35" Checked="true" CheckBoxState="Indeterminate" SizeF="39.51009,23" LocationFloat="271.543945,1656.125" Padding="2,2,0,0,100" Borders="None">
+            <Item154 Ref="514" ControlType="XRCheckBox" Name="xrCheckBox35" Checked="true" CheckBoxState="Indeterminate" SizeF="39.51009,23" LocationFloat="271.5439,1656.125" Padding="2,2,0,0,100" Borders="None">
               <ExpressionBindings>
                 <Item1 Ref="515" EventName="BeforePrint" PropertyName="CheckBoxState" Expression="[IsRequlatoryApproval]" />
               </ExpressionBindings>
@@ -930,16 +930,16 @@
             <Item158 Ref="524" ControlType="XRLabel" Name="xrLabel81" Multiline="true" Text="Others" SizeF="57.10678,23" LocationFloat="449.7319,1656.125" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="525" UseBorders="false" />
             </Item158>
-            <Item159 Ref="526" ControlType="XRLabel" Name="xrLabel82" Multiline="true" Text="xrLabel82" SizeF="467.4436,37.58325" LocationFloat="267.7141,1690.41711" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item159 Ref="526" ControlType="XRLabel" Name="xrLabel82" Multiline="true" Text="xrLabel82" SizeF="467.4436,37.58325" LocationFloat="267.7141,1690.417" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="527" EventName="BeforePrint" PropertyName="Text" Expression="[RegulatoryOthers]" />
               </ExpressionBindings>
               <StylePriority Ref="528" UseBorders="false" />
             </Item159>
-            <Item160 Ref="529" ControlType="XRLabel" Name="xrLabel83" Multiline="true" Text="b)Details:" SizeF="224.098,23" LocationFloat="23.8982811,1744.66638" Font="Arial, 8pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item160 Ref="529" ControlType="XRLabel" Name="xrLabel83" Multiline="true" Text="b)Details:" SizeF="224.098,23" LocationFloat="23.89828,1744.666" Font="Arial, 8pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="530" UseFont="false" UseBorders="false" />
             </Item160>
-            <Item161 Ref="531" ControlType="XRLabel" Name="xrLabel84" Multiline="true" Text="xrLabel84" SizeF="467.4437,37.58337" LocationFloat="266.578857,1744.66638" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item161 Ref="531" ControlType="XRLabel" Name="xrLabel84" Multiline="true" Text="xrLabel84" SizeF="467.4437,37.58337" LocationFloat="266.5789,1744.666" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="532" EventName="BeforePrint" PropertyName="Text" Expression="[RegulatoryDetails]" />
               </ExpressionBindings>
@@ -951,7 +951,7 @@
               </ExpressionBindings>
               <StylePriority Ref="536" UseBorders="false" />
             </Item162>
-            <Item163 Ref="537" ControlType="XRLabel" Name="xrLabel3" Multiline="true" Text="Others:" SizeF="224.0981,37.58325" LocationFloat="27.1315231,1690.417" Padding="2,2,0,0,100" Borders="None">
+            <Item163 Ref="537" ControlType="XRLabel" Name="xrLabel3" Multiline="true" Text="Others:" SizeF="224.0981,37.58325" LocationFloat="27.13152,1690.417" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="538" UseBorders="false" />
             </Item163>
             <Item164 Ref="539" ControlType="XRLabel" Name="xrLabel61" Multiline="true" Text="Releated Department for &#xD;&#xA;Evaluation:" SizeF="126.8289,38.625" LocationFloat="22.91651,1218.624" Padding="2,2,0,0,100" Borders="None">
@@ -1026,25 +1026,25 @@
               </ExpressionBindings>
               <StylePriority Ref="578" UseBorders="false" />
             </Item179>
-            <Item180 Ref="579" ControlType="XRLabel" Name="xrLabel70" Multiline="true" Text="Evaluated By:" SizeF="126.8289,23" LocationFloat="24.874527,1417.66638" Padding="2,2,0,0,100" Borders="None">
+            <Item180 Ref="579" ControlType="XRLabel" Name="xrLabel70" Multiline="true" Text="Evaluated By:" SizeF="126.8289,23" LocationFloat="24.87453,1417.666" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="580" UseBorders="false" />
             </Item180>
-            <Item181 Ref="581" ControlType="XRLabel" Name="xrLabel72" Multiline="true" Text="Date:" SizeF="48.24994,23" LocationFloat="529.2957,1417.6665" Padding="2,2,0,0,100" Borders="None">
+            <Item181 Ref="581" ControlType="XRLabel" Name="xrLabel72" Multiline="true" Text="Date:" SizeF="48.24994,23" LocationFloat="529.2957,1417.667" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="582" UseBorders="false" />
             </Item181>
-            <Item182 Ref="583" ControlType="XRLabel" Name="xrLabel73" TextFormatString="{0:d}" Multiline="true" Text="xrLabel73" SizeF="140.5625,23.00012" LocationFloat="592.511963,1417.66626" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item182 Ref="583" ControlType="XRLabel" Name="xrLabel73" TextFormatString="{0:d}" Multiline="true" Text="xrLabel73" SizeF="140.5625,23.00012" LocationFloat="592.512,1417.666" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="584" EventName="BeforePrint" PropertyName="Text" Expression="[EvaluationDate]" />
               </ExpressionBindings>
               <StylePriority Ref="585" UseBorders="false" />
             </Item182>
-            <Item183 Ref="586" ControlType="XRLabel" Name="xrLabel74" Multiline="true" Text="*Section(s)  below is to be filled  if proposed change is acceptable" SizeF="763.2432,31.1672363" LocationFloat="7.29115772,1481.12439" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
+            <Item183 Ref="586" ControlType="XRLabel" Name="xrLabel74" Multiline="true" Text="*Section(s)  below is to be filled  if proposed change is acceptable" SizeF="763.2432,31.16724" LocationFloat="7.291158,1481.124" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
               <StylePriority Ref="587" UseBackColor="false" />
             </Item183>
-            <Item184 Ref="588" ControlType="XRLabel" Name="xrLabel75" Multiline="true" Text="REGULATORY" SizeF="740.916443,25.083252" LocationFloat="25.62542,1523.75" Font="Arial, 10pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
+            <Item184 Ref="588" ControlType="XRLabel" Name="xrLabel75" Multiline="true" Text="REGULATORY" SizeF="740.9164,25.08325" LocationFloat="25.62542,1523.75" Font="Arial, 10pt, style=Bold" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="589" UseFont="false" UseBorders="false" />
             </Item184>
-            <Item185 Ref="590" ControlType="XRLabel" Name="xrLabel71" Multiline="true" Text="xrLabel71" TextAlignment="TopLeft" SizeF="350.1833,23" LocationFloat="170.794235,1417.66638" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item185 Ref="590" ControlType="XRLabel" Name="xrLabel71" Multiline="true" Text="xrLabel71" TextAlignment="TopLeft" SizeF="350.1833,23" LocationFloat="170.7942,1417.666" Padding="2,2,0,0,100" Borders="Bottom">
               <ExpressionBindings>
                 <Item1 Ref="591" EventName="BeforePrint" PropertyName="Text" Expression="[EvaluatedByuser]" />
               </ExpressionBindings>
@@ -1053,7 +1053,7 @@
             <Item186 Ref="593" ControlType="XRLabel" Name="xrLabel2" Multiline="true" Text="Others:" SizeF="125.8471,59.4585" LocationFloat="23.89828,1339.457" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="594" UseBorders="false" />
             </Item186>
-            <Item187 Ref="595" ControlType="XRLabel" Name="xrLabel51" Multiline="true" Text="SECTION B:CHANGE EVALUATION" SizeF="746.162964,32.7915649" LocationFloat="20.3789063,944.249939" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
+            <Item187 Ref="595" ControlType="XRLabel" Name="xrLabel51" Multiline="true" Text="SECTION B:CHANGE EVALUATION" SizeF="746.163,32.79156" LocationFloat="20.37891,944.2499" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
               <StylePriority Ref="596" UseBackColor="false" />
             </Item187>
             <Item188 Ref="597" ControlType="XRCheckBox" Name="xrCheckBox22" Checked="true" CheckBoxState="Indeterminate" SizeF="29.75,23" LocationFloat="170.6073,994.8332" Padding="2,2,0,0,100" Borders="None">
@@ -1116,7 +1116,7 @@
               </ExpressionBindings>
               <StylePriority Ref="630" UseBorders="false" />
             </Item201>
-            <Item202 Ref="631" ControlType="XRLine" Name="xrLine3" SizeF="774,9.458313" LocationFloat="0,906.666565" Borders="None">
+            <Item202 Ref="631" ControlType="XRLine" Name="xrLine3" SizeF="774,9.458313" LocationFloat="0,906.6666" Borders="None">
               <StylePriority Ref="632" UseBorders="false" />
             </Item202>
             <Item203 Ref="633" ControlType="XRLabel" Name="xrLabel45" Multiline="true" Text="Related Deviation to be Attached (if any):" SizeF="126.8289,76.29163" LocationFloat="22.91651,799.625" Padding="2,2,0,0,100" Borders="None">
@@ -1227,7 +1227,7 @@
             <Item226 Ref="691" ControlType="XRLabel" Name="xrLabel1" Multiline="true" Text="Others" SizeF="126.8289,51.04169" LocationFloat="22.91651,446.375" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="692" UseBorders="false" />
             </Item226>
-            <Item227 Ref="693" ControlType="XRLabel" Name="xrLabel6" Multiline="true" Text="SECTION A:CHANGE INFORMATION(To be filled by Initiator/PIC)" SizeF="743.5282,30.2916279" LocationFloat="20.3789063,10.0000067" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
+            <Item227 Ref="693" ControlType="XRLabel" Name="xrLabel6" Multiline="true" Text="SECTION A:CHANGE INFORMATION(To be filled by Initiator/PIC)" SizeF="743.5282,30.29163" LocationFloat="20.37891,10.00001" BackColor="LightSteelBlue" Padding="2,2,0,0,100">
               <StylePriority Ref="694" UseBackColor="false" />
             </Item227>
             <Item228 Ref="695" ControlType="XRCheckBox" Name="xrCheckBox1" Checked="true" CheckBoxState="Indeterminate" SizeF="82.37,24.04168" LocationFloat="32.21477,62.16666" Padding="2,2,0,0,100" Borders="None">
@@ -1236,7 +1236,7 @@
               </ExpressionBindings>
               <StylePriority Ref="697" UseBorders="false" />
             </Item228>
-            <Item229 Ref="698" ControlType="XRLabel" Name="xrLabel7" Multiline="true" Text="Internal Changes" SizeF="187.9717,24.04168" LocationFloat="123.9998,62.16666" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item229 Ref="698" ControlType="XRLabel" Name="xrLabel7" Multiline="true" Text="Internal Changes" SizeF="187.9717,24.04168" LocationFloat="123.9998,62.16666" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="699" UseBorders="false" />
             </Item229>
             <Item230 Ref="700" ControlType="XRCheckBox" Name="xrCheckBox2" Checked="true" CheckBoxState="Indeterminate" SizeF="65.58286,24.04168" LocationFloat="329.2966,62.16666" Padding="2,2,0,0,100" Borders="None">
@@ -1245,7 +1245,7 @@
               </ExpressionBindings>
               <StylePriority Ref="702" UseBorders="false" />
             </Item230>
-            <Item231 Ref="703" ControlType="XRLabel" Name="xrLabel8" Multiline="true" Text="Authority Directed Changes" SizeF="322.4267,24.04169" LocationFloat="413.1895,62.16666" Padding="2,2,0,0,100" Borders="Bottom">
+            <Item231 Ref="703" ControlType="XRLabel" Name="xrLabel8" Multiline="true" Text="Authority Directed Changes" SizeF="322.4267,24.04169" LocationFloat="413.1895,62.16666" Padding="2,2,0,0,100" Borders="None">
               <StylePriority Ref="704" UseBorders="false" />
             </Item231>
             <Item232 Ref="705" ControlType="XRLabel" Name="xrLabel9" Multiline="true" Text="Initiator/PIC:" SizeF="83.70574,23" LocationFloat="30.87905,103.9167" Padding="2,2,0,0,100" Borders="None">
@@ -1403,7 +1403,7 @@
     </Item4>
     <Item5 Ref="789" ControlType="PageHeaderBand" Name="PageHeader" HeightF="162.2501">
       <Controls>
-        <Item1 Ref="790" ControlType="XRTable" Name="xrTable1" SizeF="776.5418,111.2084" LocationFloat="10.0000067,10.0000067" Font="Arial, 9pt" Padding="2,2,0,0,96" Borders="Left, Top, Right">
+        <Item1 Ref="790" ControlType="XRTable" Name="xrTable1" SizeF="776.5418,111.2084" LocationFloat="10.00001,10.00001" Font="Arial, 9pt" Padding="2,2,0,0,96" Borders="Left, Top, Right">
           <Rows>
             <Item1 Ref="791" ControlType="XRTableRow" Name="xrTableRow1" Weight="1">
               <Cells>
@@ -1457,7 +1457,7 @@
           </Rows>
           <StylePriority Ref="815" UseFont="false" UseBorders="false" />
         </Item1>
-        <Item2 Ref="816" ControlType="XRLabel" Name="xrLabel229" Multiline="true" Text="         CHANGE CONTROLL FORM" TextAlignment="MiddleCenter" SizeF="776.5419,41.0416946" LocationFloat="10.0000067,121.208382" Font="Arial, 12pt, style=Bold" ForeColor="Black" Padding="2,2,0,0,100" Borders="All">
+        <Item2 Ref="816" ControlType="XRLabel" Name="xrLabel229" Multiline="true" Text="         CHANGE CONTROLL FORM" TextAlignment="MiddleCenter" SizeF="776.5419,41.04169" LocationFloat="10.00001,121.2084" Font="Arial, 12pt, style=Bold" ForeColor="Black" Padding="2,2,0,0,100" Borders="All">
           <StylePriority Ref="817" UseFont="false" UseForeColor="false" UseBorders="false" UseTextAlignment="false" />
         </Item2>
       </Controls>

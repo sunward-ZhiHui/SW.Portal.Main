@@ -2398,27 +2398,50 @@
             this.sqlDataSource3 = new DevExpress.DataAccess.Sql.SqlDataSource(this.components);
             this.sqlDataSource4 = new DevExpress.DataAccess.Sql.SqlDataSource(this.components);
             this.GroupHeader1 = new DevExpress.XtraReports.UI.GroupHeaderBand();
-            this.sqlDataSource5 = new DevExpress.DataAccess.Sql.SqlDataSource(this.components);
-            this.sqlDataSource6 = new DevExpress.DataAccess.Sql.SqlDataSource(this.components);
-            this.sqlDataSource7 = new DevExpress.DataAccess.Sql.SqlDataSource(this.components);
-            this.parameter1 = new DevExpress.XtraReports.Parameters.Parameter();
-            this.sqlDataSource9 = new DevExpress.DataAccess.Sql.SqlDataSource(this.components);
-            this.PageHeader = new DevExpress.XtraReports.UI.PageHeaderBand();
-            this.xrTable1 = new DevExpress.XtraReports.UI.XRTable();
-            this.xrTableRow1 = new DevExpress.XtraReports.UI.XRTableRow();
-            this.xrTableCell1 = new DevExpress.XtraReports.UI.XRTableCell();
-            this.xrLabel222 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrPictureBox2 = new DevExpress.XtraReports.UI.XRPictureBox();
-            this.xrTableCell2 = new DevExpress.XtraReports.UI.XRTableCell();
-            this.xrLabel223 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrTableCell3 = new DevExpress.XtraReports.UI.XRTableCell();
-            this.xrLabel224 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrPageInfo1 = new DevExpress.XtraReports.UI.XRPageInfo();
-            this.xrLabel230 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel231 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel227 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel225 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel229 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLine2 = new DevExpress.XtraReports.UI.XRLine();
+            this.xrLine1 = new DevExpress.XtraReports.UI.XRLine();
+            this.xrPanel2 = new DevExpress.XtraReports.UI.XRPanel();
+            this.xrLabel218 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel219 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel220 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel221 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel226 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrCheckBox80 = new DevExpress.XtraReports.UI.XRCheckBox();
+            this.xrLabel135 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel43 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLine13 = new DevExpress.XtraReports.UI.XRLine();
+            this.xrLabel206 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrCheckBox76 = new DevExpress.XtraReports.UI.XRCheckBox();
+            this.xrLabel207 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrCheckBox77 = new DevExpress.XtraReports.UI.XRCheckBox();
+            this.xrLabel208 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel209 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel211 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel212 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel210 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel213 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel214 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrCheckBox74 = new DevExpress.XtraReports.UI.XRCheckBox();
+            this.xrLabel199 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrCheckBox75 = new DevExpress.XtraReports.UI.XRCheckBox();
+            this.xrLabel200 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel201 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel202 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel204 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel205 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel203 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLine12 = new DevExpress.XtraReports.UI.XRLine();
+            this.xrLabel188 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel191 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel192 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel193 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel194 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel195 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel196 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel197 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel198 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrSubreport1 = new DevExpress.XtraReports.UI.XRSubreport();
+            this.xrLabel42 = new DevExpress.XtraReports.UI.XRLabel();
             this.xrPanel1 = new DevExpress.XtraReports.UI.XRPanel();
             this.xrLabel181 = new DevExpress.XtraReports.UI.XRLabel();
             this.xrCheckBox72 = new DevExpress.XtraReports.UI.XRCheckBox();
@@ -2684,50 +2707,27 @@
             this.xrLabel12 = new DevExpress.XtraReports.UI.XRLabel();
             this.xrLabel49 = new DevExpress.XtraReports.UI.XRLabel();
             this.xrLabel50 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrSubreport1 = new DevExpress.XtraReports.UI.XRSubreport();
-            this.xrLabel42 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrPanel2 = new DevExpress.XtraReports.UI.XRPanel();
-            this.xrLabel218 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel219 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel220 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel221 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel226 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrCheckBox80 = new DevExpress.XtraReports.UI.XRCheckBox();
-            this.xrLabel135 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel43 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLine13 = new DevExpress.XtraReports.UI.XRLine();
-            this.xrLabel206 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrCheckBox76 = new DevExpress.XtraReports.UI.XRCheckBox();
-            this.xrLabel207 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrCheckBox77 = new DevExpress.XtraReports.UI.XRCheckBox();
-            this.xrLabel208 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel209 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel211 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel212 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel210 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel213 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel214 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrCheckBox74 = new DevExpress.XtraReports.UI.XRCheckBox();
-            this.xrLabel199 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrCheckBox75 = new DevExpress.XtraReports.UI.XRCheckBox();
-            this.xrLabel200 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel201 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel202 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel204 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel205 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel203 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLine12 = new DevExpress.XtraReports.UI.XRLine();
-            this.xrLabel188 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel191 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel192 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel193 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel194 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel195 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel196 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel197 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLabel198 = new DevExpress.XtraReports.UI.XRLabel();
-            this.xrLine1 = new DevExpress.XtraReports.UI.XRLine();
-            this.xrLine2 = new DevExpress.XtraReports.UI.XRLine();
+            this.sqlDataSource5 = new DevExpress.DataAccess.Sql.SqlDataSource(this.components);
+            this.sqlDataSource6 = new DevExpress.DataAccess.Sql.SqlDataSource(this.components);
+            this.sqlDataSource7 = new DevExpress.DataAccess.Sql.SqlDataSource(this.components);
+            this.parameter1 = new DevExpress.XtraReports.Parameters.Parameter();
+            this.sqlDataSource9 = new DevExpress.DataAccess.Sql.SqlDataSource(this.components);
+            this.PageHeader = new DevExpress.XtraReports.UI.PageHeaderBand();
+            this.xrTable1 = new DevExpress.XtraReports.UI.XRTable();
+            this.xrTableRow1 = new DevExpress.XtraReports.UI.XRTableRow();
+            this.xrTableCell1 = new DevExpress.XtraReports.UI.XRTableCell();
+            this.xrLabel222 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrPictureBox2 = new DevExpress.XtraReports.UI.XRPictureBox();
+            this.xrTableCell2 = new DevExpress.XtraReports.UI.XRTableCell();
+            this.xrLabel223 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrTableCell3 = new DevExpress.XtraReports.UI.XRTableCell();
+            this.xrLabel224 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrPageInfo1 = new DevExpress.XtraReports.UI.XRPageInfo();
+            this.xrLabel230 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel231 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel227 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel225 = new DevExpress.XtraReports.UI.XRLabel();
+            this.xrLabel229 = new DevExpress.XtraReports.UI.XRLabel();
             ((System.ComponentModel.ISupportInitialize)(this.xrTable1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             // 
@@ -5820,1944 +5820,554 @@
             this.GroupHeader1.Name = "GroupHeader1";
             this.GroupHeader1.StylePriority.UseBorderDashStyle = false;
             // 
-            // sqlDataSource5
+            // xrLine2
             // 
-            this.sqlDataSource5.ConnectionName = "Report_Connection";
-            this.sqlDataSource5.Name = "sqlDataSource5";
-            columnExpression734.ColumnName = "CCFAInformationID";
-            table21.Name = "View_GetCCFFormReport";
-            columnExpression734.Table = table21;
-            column734.Expression = columnExpression734;
-            columnExpression735.ColumnName = "IsInternalChanges";
-            columnExpression735.Table = table21;
-            column735.Expression = columnExpression735;
-            columnExpression736.ColumnName = "IsAuthorityDirectedChanges";
-            columnExpression736.Table = table21;
-            column736.Expression = columnExpression736;
-            columnExpression737.ColumnName = "PersonInCharge";
-            columnExpression737.Table = table21;
-            column737.Expression = columnExpression737;
-            columnExpression738.ColumnName = "PersonApprove";
-            columnExpression738.Table = table21;
-            column738.Expression = columnExpression738;
-            columnExpression739.ColumnName = "DepartmentName";
-            columnExpression739.Table = table21;
-            column739.Expression = columnExpression739;
-            columnExpression740.ColumnName = "IsSiteTransfer";
-            columnExpression740.Table = table21;
-            column740.Expression = columnExpression740;
-            columnExpression741.ColumnName = "IsProduct";
-            columnExpression741.Table = table21;
-            column741.Expression = columnExpression741;
-            columnExpression742.ColumnName = "AEquipment";
-            columnExpression742.Table = table21;
-            column742.Expression = columnExpression742;
-            columnExpression743.ColumnName = "IsComposition";
-            columnExpression743.Table = table21;
-            column743.Expression = columnExpression743;
-            columnExpression744.ColumnName = "IsFacility";
-            columnExpression744.Table = table21;
-            column744.Expression = columnExpression744;
-            columnExpression745.ColumnName = "IsLayout";
-            columnExpression745.Table = table21;
-            column745.Expression = columnExpression745;
-            columnExpression746.ColumnName = "IsDocument";
-            columnExpression746.Table = table21;
-            column746.Expression = columnExpression746;
-            columnExpression747.ColumnName = "IsProcess";
-            columnExpression747.Table = table21;
-            column747.Expression = columnExpression747;
-            columnExpression748.ColumnName = "AControlParameter";
-            columnExpression748.Table = table21;
-            column748.Expression = columnExpression748;
-            columnExpression749.ColumnName = "IsBatchSize";
-            columnExpression749.Table = table21;
-            column749.Expression = columnExpression749;
-            columnExpression750.ColumnName = "IsHoldingTime";
-            columnExpression750.Table = table21;
-            column750.Expression = columnExpression750;
-            columnExpression751.ColumnName = "IsRawMeterial";
-            columnExpression751.Table = table21;
-            column751.Expression = columnExpression751;
-            columnExpression752.ColumnName = "IsArtwork";
-            columnExpression752.Table = table21;
-            column752.Expression = columnExpression752;
-            columnExpression753.ColumnName = "IsPackagingMaterial";
-            columnExpression753.Table = table21;
-            column753.Expression = columnExpression753;
-            columnExpression754.ColumnName = "AVendor";
-            columnExpression754.Table = table21;
-            column754.Expression = columnExpression754;
-            columnExpression755.ColumnName = "IsShelfLife";
-            columnExpression755.Table = table21;
-            column755.Expression = columnExpression755;
-            columnExpression756.ColumnName = "IsRegulatory";
-            columnExpression756.Table = table21;
-            column756.Expression = columnExpression756;
-            columnExpression757.ColumnName = "IsReTestPeriod";
-            columnExpression757.Table = table21;
-            column757.Expression = columnExpression757;
-            columnExpression758.ColumnName = "Others";
-            columnExpression758.Table = table21;
-            column758.Expression = columnExpression758;
-            columnExpression759.ColumnName = "DescriptionOfProposedChange";
-            columnExpression759.Table = table21;
-            column759.Expression = columnExpression759;
-            columnExpression760.ColumnName = "Justification";
-            columnExpression760.Table = table21;
-            column760.Expression = columnExpression760;
-            columnExpression761.ColumnName = "ProposedImplementationAction";
-            columnExpression761.Table = table21;
-            column761.Expression = columnExpression761;
-            columnExpression762.ColumnName = "RelatedDeviation";
-            columnExpression762.Table = table21;
-            column762.Expression = columnExpression762;
-            columnExpression763.ColumnName = "SessionID";
-            columnExpression763.Table = table21;
-            column763.Expression = columnExpression763;
-            columnExpression764.ColumnName = "CCFBEvaluationID";
-            columnExpression764.Table = table21;
-            column764.Expression = columnExpression764;
-            columnExpression765.ColumnName = "BAcceptable";
-            columnExpression765.Table = table21;
-            column765.Expression = columnExpression765;
-            columnExpression766.ColumnName = "BNotAcceptable";
-            columnExpression766.Table = table21;
-            column766.Expression = columnExpression766;
-            columnExpression767.ColumnName = "IsMinor";
-            columnExpression767.Table = table21;
-            column767.Expression = columnExpression767;
-            columnExpression768.ColumnName = "IsMajor";
-            columnExpression768.Table = table21;
-            column768.Expression = columnExpression768;
-            columnExpression769.ColumnName = "IsCritical";
-            columnExpression769.Table = table21;
-            column769.Expression = columnExpression769;
-            columnExpression770.ColumnName = "BComments";
-            columnExpression770.Table = table21;
-            column770.Expression = columnExpression770;
-            columnExpression771.ColumnName = "IsProduction";
-            columnExpression771.Table = table21;
-            column771.Expression = columnExpression771;
-            columnExpression772.ColumnName = "IsEAndM";
-            columnExpression772.Table = table21;
-            column772.Expression = columnExpression772;
-            columnExpression773.ColumnName = "IsRequlatory";
-            columnExpression773.Table = table21;
-            column773.Expression = columnExpression773;
-            columnExpression774.ColumnName = "IsQA";
-            columnExpression774.Table = table21;
-            column774.Expression = columnExpression774;
-            columnExpression775.ColumnName = "IsQC";
-            columnExpression775.Table = table21;
-            column775.Expression = columnExpression775;
-            columnExpression776.ColumnName = "IsStore";
-            columnExpression776.Table = table21;
-            column776.Expression = columnExpression776;
-            columnExpression777.ColumnName = "RelatedDeparmentOthers";
-            columnExpression777.Table = table21;
-            column777.Expression = columnExpression777;
-            columnExpression778.ColumnName = "EvaluatedBy";
-            columnExpression778.Table = table21;
-            column778.Expression = columnExpression778;
-            columnExpression779.ColumnName = "IsRequlatoryApproval";
-            columnExpression779.Table = table21;
-            column779.Expression = columnExpression779;
-            columnExpression780.ColumnName = "IsNotificationRequired";
-            columnExpression780.Table = table21;
-            column780.Expression = columnExpression780;
-            columnExpression781.ColumnName = "RegulatoryOthers";
-            columnExpression781.Table = table21;
-            column781.Expression = columnExpression781;
-            columnExpression782.ColumnName = "RegulatoryDetails";
-            columnExpression782.Table = table21;
-            column782.Expression = columnExpression782;
-            columnExpression783.ColumnName = "RequlatoryEvaluatedBy";
-            columnExpression783.Table = table21;
-            column783.Expression = columnExpression783;
-            columnExpression784.ColumnName = "RegulatoryDate";
-            columnExpression784.Table = table21;
-            column784.Expression = columnExpression784;
-            columnExpression785.ColumnName = "IsAnalyticalInstrument";
-            columnExpression785.Table = table21;
-            column785.Expression = columnExpression785;
-            columnExpression786.ColumnName = "IsValidation";
-            columnExpression786.Table = table21;
-            column786.Expression = columnExpression786;
-            columnExpression787.ColumnName = "IsEnvironmentalMonitoring";
-            columnExpression787.Table = table21;
-            column787.Expression = columnExpression787;
-            columnExpression788.ColumnName = "IsRawMeterialSpec";
-            columnExpression788.Table = table21;
-            column788.Expression = columnExpression788;
-            columnExpression789.ColumnName = "IsFinishedProductSpec";
-            columnExpression789.Table = table21;
-            column789.Expression = columnExpression789;
-            columnExpression790.ColumnName = "IsPackagingMaterialSpec";
-            columnExpression790.Table = table21;
-            column790.Expression = columnExpression790;
-            columnExpression791.ColumnName = "IsCalibration";
-            columnExpression791.Table = table21;
-            column791.Expression = columnExpression791;
-            columnExpression792.ColumnName = "IsAnalyticalTestMethod";
-            columnExpression792.Table = table21;
-            column792.Expression = columnExpression792;
-            columnExpression793.ColumnName = "IsSamplingMethod";
-            columnExpression793.Table = table21;
-            column793.Expression = columnExpression793;
-            columnExpression794.ColumnName = "BVendor";
-            columnExpression794.Table = table21;
-            column794.Expression = columnExpression794;
-            columnExpression795.ColumnName = "IsStabilityStudy";
-            columnExpression795.Table = table21;
-            column795.Expression = columnExpression795;
-            columnExpression796.ColumnName = "IsInProcess";
-            columnExpression796.Table = table21;
-            column796.Expression = columnExpression796;
-            columnExpression797.ColumnName = "QualityControlOthers";
-            columnExpression797.Table = table21;
-            column797.Expression = columnExpression797;
-            columnExpression798.ColumnName = "QualityControlDetails";
-            columnExpression798.Table = table21;
-            column798.Expression = columnExpression798;
-            columnExpression799.ColumnName = "QualityControlEvaluatedBy";
-            columnExpression799.Table = table21;
-            column799.Expression = columnExpression799;
-            columnExpression800.ColumnName = "QualityControlDate";
-            columnExpression800.Table = table21;
-            column800.Expression = columnExpression800;
-            columnExpression801.ColumnName = "IsProductionProcess";
-            columnExpression801.Table = table21;
-            column801.Expression = columnExpression801;
-            columnExpression802.ColumnName = "IsProductionValidation";
-            columnExpression802.Table = table21;
-            column802.Expression = columnExpression802;
-            columnExpression803.ColumnName = "BControlParameter";
-            columnExpression803.Table = table21;
-            column803.Expression = columnExpression803;
-            columnExpression804.ColumnName = "ProductionOthers";
-            columnExpression804.Table = table21;
-            column804.Expression = columnExpression804;
-            columnExpression805.ColumnName = "ProductionDetails";
-            columnExpression805.Table = table21;
-            column805.Expression = columnExpression805;
-            columnExpression806.ColumnName = "ProductionEvaluatedBy";
-            columnExpression806.Table = table21;
-            column806.Expression = columnExpression806;
-            columnExpression807.ColumnName = "ProductionDate";
-            columnExpression807.Table = table21;
-            column807.Expression = columnExpression807;
-            columnExpression808.ColumnName = "IsPiping";
-            columnExpression808.Table = table21;
-            column808.Expression = columnExpression808;
-            columnExpression809.ColumnName = "BEquipment";
-            columnExpression809.Table = table21;
-            column809.Expression = columnExpression809;
-            columnExpression810.ColumnName = "IsEngineeringCalibration";
-            columnExpression810.Table = table21;
-            column810.Expression = columnExpression810;
-            columnExpression811.ColumnName = "IsPreventiveMaintenance";
-            columnExpression811.Table = table21;
-            column811.Expression = columnExpression811;
-            columnExpression812.ColumnName = "IsUtilityParameter";
-            columnExpression812.Table = table21;
-            column812.Expression = columnExpression812;
-            columnExpression813.ColumnName = "IsEngineeringFacility";
-            columnExpression813.Table = table21;
-            column813.Expression = columnExpression813;
-            columnExpression814.ColumnName = "IsQualificationOfEquipment";
-            columnExpression814.Table = table21;
-            column814.Expression = columnExpression814;
-            columnExpression815.ColumnName = "IsQualificationOfUtility";
-            columnExpression815.Table = table21;
-            column815.Expression = columnExpression815;
-            columnExpression816.ColumnName = "EngineeringOthers";
-            columnExpression816.Table = table21;
-            column816.Expression = columnExpression816;
-            columnExpression817.ColumnName = "EngineeringDetails";
-            columnExpression817.Table = table21;
-            column817.Expression = columnExpression817;
-            columnExpression818.ColumnName = "EngineeringEvaluatedBy";
-            columnExpression818.Table = table21;
-            column818.Expression = columnExpression818;
-            columnExpression819.ColumnName = "EngineeringMaintenanceDate";
-            columnExpression819.Table = table21;
-            column819.Expression = columnExpression819;
-            columnExpression820.ColumnName = "IsQAQualification";
-            columnExpression820.Table = table21;
-            column820.Expression = columnExpression820;
-            columnExpression821.ColumnName = "IsQAValidation";
-            columnExpression821.Table = table21;
-            column821.Expression = columnExpression821;
-            columnExpression822.ColumnName = "IsQAVendor";
-            columnExpression822.Table = table21;
-            column822.Expression = columnExpression822;
-            columnExpression823.ColumnName = "QAOthers";
-            columnExpression823.Table = table21;
-            column823.Expression = columnExpression823;
-            columnExpression824.ColumnName = "QADetails";
-            columnExpression824.Table = table21;
-            column824.Expression = columnExpression824;
-            columnExpression825.ColumnName = "QAEvaluatedBy";
-            columnExpression825.Table = table21;
-            column825.Expression = columnExpression825;
-            columnExpression826.ColumnName = "QADate";
-            columnExpression826.Table = table21;
-            column826.Expression = columnExpression826;
-            columnExpression827.ColumnName = "IsStoreRawMaterial";
-            columnExpression827.Table = table21;
-            column827.Expression = columnExpression827;
-            columnExpression828.ColumnName = "IsStorePackagingMaterial";
-            columnExpression828.Table = table21;
-            column828.Expression = columnExpression828;
-            columnExpression829.ColumnName = "IsStoreLabel";
-            columnExpression829.Table = table21;
-            column829.Expression = columnExpression829;
-            columnExpression830.ColumnName = "IsStorageCondition";
-            columnExpression830.Table = table21;
-            column830.Expression = columnExpression830;
-            columnExpression831.ColumnName = "IsStoreFinishProduct";
-            columnExpression831.Table = table21;
-            column831.Expression = columnExpression831;
-            columnExpression832.ColumnName = "StoreOthers";
-            columnExpression832.Table = table21;
-            column832.Expression = columnExpression832;
-            columnExpression833.ColumnName = "StoreDetails";
-            columnExpression833.Table = table21;
-            column833.Expression = columnExpression833;
-            columnExpression834.ColumnName = "StoreEvaluatedBy";
-            columnExpression834.Table = table21;
-            column834.Expression = columnExpression834;
-            columnExpression835.ColumnName = "StoreDate";
-            columnExpression835.Table = table21;
-            column835.Expression = columnExpression835;
-            columnExpression836.ColumnName = "ProposedChangeImpactTo";
-            columnExpression836.Table = table21;
-            column836.Expression = columnExpression836;
-            columnExpression837.ColumnName = "OthersDetails";
-            columnExpression837.Table = table21;
-            column837.Expression = columnExpression837;
-            columnExpression838.ColumnName = "OthersEvaluatedBy";
-            columnExpression838.Table = table21;
-            column838.Expression = columnExpression838;
-            columnExpression839.ColumnName = "OthersDate";
-            columnExpression839.Table = table21;
-            column839.Expression = columnExpression839;
-            columnExpression840.ColumnName = "EvaluationDate";
-            columnExpression840.Table = table21;
-            column840.Expression = columnExpression840;
-            columnExpression841.ColumnName = "CCFCAPprovalID";
-            columnExpression841.Table = table21;
-            column841.Expression = columnExpression841;
-            columnExpression842.ColumnName = "IsApproved";
-            columnExpression842.Table = table21;
-            column842.Expression = columnExpression842;
-            columnExpression843.ColumnName = "IsNotApproved";
-            columnExpression843.Table = table21;
-            column843.Expression = columnExpression843;
-            columnExpression844.ColumnName = "CComments";
-            columnExpression844.Table = table21;
-            column844.Expression = columnExpression844;
-            columnExpression845.ColumnName = "CVerifiedBy";
-            columnExpression845.Table = table21;
-            column845.Expression = columnExpression845;
-            columnExpression846.ColumnName = "ApprovalDate";
-            columnExpression846.Table = table21;
-            column846.Expression = columnExpression846;
-            columnExpression847.ColumnName = "CCFDImplementationID";
-            columnExpression847.Table = table21;
-            column847.Expression = columnExpression847;
-            columnExpression848.ColumnName = "ClassOfDocumentID";
-            columnExpression848.Table = table21;
-            column848.Expression = columnExpression848;
-            columnExpression849.ColumnName = "HODComments";
-            columnExpression849.Table = table21;
-            column849.Expression = columnExpression849;
-            columnExpression850.ColumnName = "HODSignature";
-            columnExpression850.Table = table21;
-            column850.Expression = columnExpression850;
-            columnExpression851.ColumnName = "HODDate";
-            columnExpression851.Table = table21;
-            column851.Expression = columnExpression851;
-            columnExpression852.ColumnName = "DAcceptable";
-            columnExpression852.Table = table21;
-            column852.Expression = columnExpression852;
-            columnExpression853.ColumnName = "DNotAcceptable";
-            columnExpression853.Table = table21;
-            column853.Expression = columnExpression853;
-            columnExpression854.ColumnName = "DVerifiedBy";
-            columnExpression854.Table = table21;
-            column854.Expression = columnExpression854;
-            columnExpression855.ColumnName = "VerifiedDate";
-            columnExpression855.Table = table21;
-            column855.Expression = columnExpression855;
-            columnExpression856.ColumnName = "CCFDImplementationDetailsID";
-            columnExpression856.Table = table21;
-            column856.Expression = columnExpression856;
-            columnExpression857.ColumnName = "DetailsImplementaionID";
-            columnExpression857.Table = table21;
-            column857.Expression = columnExpression857;
-            columnExpression858.ColumnName = "DetailsCloseOFDocumentID";
-            columnExpression858.Table = table21;
-            column858.Expression = columnExpression858;
-            columnExpression859.ColumnName = "IsRequired";
-            columnExpression859.Table = table21;
-            column859.Expression = columnExpression859;
-            columnExpression860.ColumnName = "ResponsibiltyTo";
-            columnExpression860.Table = table21;
-            column860.Expression = columnExpression860;
-            columnExpression861.ColumnName = "DoneBy";
-            columnExpression861.Table = table21;
-            column861.Expression = columnExpression861;
-            columnExpression862.ColumnName = "DoneByDate";
-            columnExpression862.Table = table21;
-            column862.Expression = columnExpression862;
-            columnExpression863.ColumnName = "CCFEClosureID";
-            columnExpression863.Table = table21;
-            column863.Expression = columnExpression863;
-            columnExpression864.ColumnName = "IsSatisfactory";
-            columnExpression864.Table = table21;
-            column864.Expression = columnExpression864;
-            columnExpression865.ColumnName = "IsNotSatisfactory";
-            columnExpression865.Table = table21;
-            column865.Expression = columnExpression865;
-            columnExpression866.ColumnName = "Comments";
-            columnExpression866.Table = table21;
-            column866.Expression = columnExpression866;
-            columnExpression867.ColumnName = "ClosedBy";
-            columnExpression867.Table = table21;
-            column867.Expression = columnExpression867;
-            columnExpression868.ColumnName = "Date";
-            columnExpression868.Table = table21;
-            column868.Expression = columnExpression868;
-            columnExpression869.ColumnName = "IsSatisfactoryForNotSatisfactory";
-            columnExpression869.Table = table21;
-            column869.Expression = columnExpression869;
-            columnExpression870.ColumnName = "NotSatisfactoryClosedBy";
-            columnExpression870.Table = table21;
-            column870.Expression = columnExpression870;
-            columnExpression871.ColumnName = "NotSatisfactoryDate";
-            columnExpression871.Table = table21;
-            column871.Expression = columnExpression871;
-            selectQuery21.Columns.Add(column734);
-            selectQuery21.Columns.Add(column735);
-            selectQuery21.Columns.Add(column736);
-            selectQuery21.Columns.Add(column737);
-            selectQuery21.Columns.Add(column738);
-            selectQuery21.Columns.Add(column739);
-            selectQuery21.Columns.Add(column740);
-            selectQuery21.Columns.Add(column741);
-            selectQuery21.Columns.Add(column742);
-            selectQuery21.Columns.Add(column743);
-            selectQuery21.Columns.Add(column744);
-            selectQuery21.Columns.Add(column745);
-            selectQuery21.Columns.Add(column746);
-            selectQuery21.Columns.Add(column747);
-            selectQuery21.Columns.Add(column748);
-            selectQuery21.Columns.Add(column749);
-            selectQuery21.Columns.Add(column750);
-            selectQuery21.Columns.Add(column751);
-            selectQuery21.Columns.Add(column752);
-            selectQuery21.Columns.Add(column753);
-            selectQuery21.Columns.Add(column754);
-            selectQuery21.Columns.Add(column755);
-            selectQuery21.Columns.Add(column756);
-            selectQuery21.Columns.Add(column757);
-            selectQuery21.Columns.Add(column758);
-            selectQuery21.Columns.Add(column759);
-            selectQuery21.Columns.Add(column760);
-            selectQuery21.Columns.Add(column761);
-            selectQuery21.Columns.Add(column762);
-            selectQuery21.Columns.Add(column763);
-            selectQuery21.Columns.Add(column764);
-            selectQuery21.Columns.Add(column765);
-            selectQuery21.Columns.Add(column766);
-            selectQuery21.Columns.Add(column767);
-            selectQuery21.Columns.Add(column768);
-            selectQuery21.Columns.Add(column769);
-            selectQuery21.Columns.Add(column770);
-            selectQuery21.Columns.Add(column771);
-            selectQuery21.Columns.Add(column772);
-            selectQuery21.Columns.Add(column773);
-            selectQuery21.Columns.Add(column774);
-            selectQuery21.Columns.Add(column775);
-            selectQuery21.Columns.Add(column776);
-            selectQuery21.Columns.Add(column777);
-            selectQuery21.Columns.Add(column778);
-            selectQuery21.Columns.Add(column779);
-            selectQuery21.Columns.Add(column780);
-            selectQuery21.Columns.Add(column781);
-            selectQuery21.Columns.Add(column782);
-            selectQuery21.Columns.Add(column783);
-            selectQuery21.Columns.Add(column784);
-            selectQuery21.Columns.Add(column785);
-            selectQuery21.Columns.Add(column786);
-            selectQuery21.Columns.Add(column787);
-            selectQuery21.Columns.Add(column788);
-            selectQuery21.Columns.Add(column789);
-            selectQuery21.Columns.Add(column790);
-            selectQuery21.Columns.Add(column791);
-            selectQuery21.Columns.Add(column792);
-            selectQuery21.Columns.Add(column793);
-            selectQuery21.Columns.Add(column794);
-            selectQuery21.Columns.Add(column795);
-            selectQuery21.Columns.Add(column796);
-            selectQuery21.Columns.Add(column797);
-            selectQuery21.Columns.Add(column798);
-            selectQuery21.Columns.Add(column799);
-            selectQuery21.Columns.Add(column800);
-            selectQuery21.Columns.Add(column801);
-            selectQuery21.Columns.Add(column802);
-            selectQuery21.Columns.Add(column803);
-            selectQuery21.Columns.Add(column804);
-            selectQuery21.Columns.Add(column805);
-            selectQuery21.Columns.Add(column806);
-            selectQuery21.Columns.Add(column807);
-            selectQuery21.Columns.Add(column808);
-            selectQuery21.Columns.Add(column809);
-            selectQuery21.Columns.Add(column810);
-            selectQuery21.Columns.Add(column811);
-            selectQuery21.Columns.Add(column812);
-            selectQuery21.Columns.Add(column813);
-            selectQuery21.Columns.Add(column814);
-            selectQuery21.Columns.Add(column815);
-            selectQuery21.Columns.Add(column816);
-            selectQuery21.Columns.Add(column817);
-            selectQuery21.Columns.Add(column818);
-            selectQuery21.Columns.Add(column819);
-            selectQuery21.Columns.Add(column820);
-            selectQuery21.Columns.Add(column821);
-            selectQuery21.Columns.Add(column822);
-            selectQuery21.Columns.Add(column823);
-            selectQuery21.Columns.Add(column824);
-            selectQuery21.Columns.Add(column825);
-            selectQuery21.Columns.Add(column826);
-            selectQuery21.Columns.Add(column827);
-            selectQuery21.Columns.Add(column828);
-            selectQuery21.Columns.Add(column829);
-            selectQuery21.Columns.Add(column830);
-            selectQuery21.Columns.Add(column831);
-            selectQuery21.Columns.Add(column832);
-            selectQuery21.Columns.Add(column833);
-            selectQuery21.Columns.Add(column834);
-            selectQuery21.Columns.Add(column835);
-            selectQuery21.Columns.Add(column836);
-            selectQuery21.Columns.Add(column837);
-            selectQuery21.Columns.Add(column838);
-            selectQuery21.Columns.Add(column839);
-            selectQuery21.Columns.Add(column840);
-            selectQuery21.Columns.Add(column841);
-            selectQuery21.Columns.Add(column842);
-            selectQuery21.Columns.Add(column843);
-            selectQuery21.Columns.Add(column844);
-            selectQuery21.Columns.Add(column845);
-            selectQuery21.Columns.Add(column846);
-            selectQuery21.Columns.Add(column847);
-            selectQuery21.Columns.Add(column848);
-            selectQuery21.Columns.Add(column849);
-            selectQuery21.Columns.Add(column850);
-            selectQuery21.Columns.Add(column851);
-            selectQuery21.Columns.Add(column852);
-            selectQuery21.Columns.Add(column853);
-            selectQuery21.Columns.Add(column854);
-            selectQuery21.Columns.Add(column855);
-            selectQuery21.Columns.Add(column856);
-            selectQuery21.Columns.Add(column857);
-            selectQuery21.Columns.Add(column858);
-            selectQuery21.Columns.Add(column859);
-            selectQuery21.Columns.Add(column860);
-            selectQuery21.Columns.Add(column861);
-            selectQuery21.Columns.Add(column862);
-            selectQuery21.Columns.Add(column863);
-            selectQuery21.Columns.Add(column864);
-            selectQuery21.Columns.Add(column865);
-            selectQuery21.Columns.Add(column866);
-            selectQuery21.Columns.Add(column867);
-            selectQuery21.Columns.Add(column868);
-            selectQuery21.Columns.Add(column869);
-            selectQuery21.Columns.Add(column870);
-            selectQuery21.Columns.Add(column871);
-            selectQuery21.Name = "View_GetCCFFormReport";
-            selectQuery21.Tables.Add(table21);
-            this.sqlDataSource5.Queries.AddRange(new DevExpress.DataAccess.Sql.SqlQuery[] {
-            selectQuery21});
-            this.sqlDataSource5.ResultSchemaSerializable = resources.GetString("sqlDataSource5.ResultSchemaSerializable");
+            this.xrLine2.LineDirection = DevExpress.XtraReports.UI.LineDirection.Vertical;
+            this.xrLine2.LocationFloat = new DevExpress.Utils.PointFloat(783.4169F, 4938.083F);
+            this.xrLine2.Name = "xrLine2";
+            this.xrLine2.SizeF = new System.Drawing.SizeF(3.125F, 225.7085F);
             // 
-            // sqlDataSource6
+            // xrLine1
             // 
-            this.sqlDataSource6.ConnectionName = "Report_Connection";
-            this.sqlDataSource6.Name = "sqlDataSource6";
-            columnExpression872.ColumnName = "CCFAInformationID";
-            table22.Name = "View_GetCCFFormReport";
-            columnExpression872.Table = table22;
-            column872.Expression = columnExpression872;
-            columnExpression873.ColumnName = "IsInternalChanges";
-            columnExpression873.Table = table22;
-            column873.Expression = columnExpression873;
-            columnExpression874.ColumnName = "IsAuthorityDirectedChanges";
-            columnExpression874.Table = table22;
-            column874.Expression = columnExpression874;
-            columnExpression875.ColumnName = "PersonInCharge";
-            columnExpression875.Table = table22;
-            column875.Expression = columnExpression875;
-            columnExpression876.ColumnName = "PersonApprove";
-            columnExpression876.Table = table22;
-            column876.Expression = columnExpression876;
-            columnExpression877.ColumnName = "DepartmentName";
-            columnExpression877.Table = table22;
-            column877.Expression = columnExpression877;
-            columnExpression878.ColumnName = "IsSiteTransfer";
-            columnExpression878.Table = table22;
-            column878.Expression = columnExpression878;
-            columnExpression879.ColumnName = "IsProduct";
-            columnExpression879.Table = table22;
-            column879.Expression = columnExpression879;
-            columnExpression880.ColumnName = "AEquipment";
-            columnExpression880.Table = table22;
-            column880.Expression = columnExpression880;
-            columnExpression881.ColumnName = "IsComposition";
-            columnExpression881.Table = table22;
-            column881.Expression = columnExpression881;
-            columnExpression882.ColumnName = "IsFacility";
-            columnExpression882.Table = table22;
-            column882.Expression = columnExpression882;
-            columnExpression883.ColumnName = "IsLayout";
-            columnExpression883.Table = table22;
-            column883.Expression = columnExpression883;
-            columnExpression884.ColumnName = "IsDocument";
-            columnExpression884.Table = table22;
-            column884.Expression = columnExpression884;
-            columnExpression885.ColumnName = "IsProcess";
-            columnExpression885.Table = table22;
-            column885.Expression = columnExpression885;
-            columnExpression886.ColumnName = "AControlParameter";
-            columnExpression886.Table = table22;
-            column886.Expression = columnExpression886;
-            columnExpression887.ColumnName = "IsBatchSize";
-            columnExpression887.Table = table22;
-            column887.Expression = columnExpression887;
-            columnExpression888.ColumnName = "IsHoldingTime";
-            columnExpression888.Table = table22;
-            column888.Expression = columnExpression888;
-            columnExpression889.ColumnName = "IsRawMeterial";
-            columnExpression889.Table = table22;
-            column889.Expression = columnExpression889;
-            columnExpression890.ColumnName = "IsArtwork";
-            columnExpression890.Table = table22;
-            column890.Expression = columnExpression890;
-            columnExpression891.ColumnName = "IsPackagingMaterial";
-            columnExpression891.Table = table22;
-            column891.Expression = columnExpression891;
-            columnExpression892.ColumnName = "AVendor";
-            columnExpression892.Table = table22;
-            column892.Expression = columnExpression892;
-            columnExpression893.ColumnName = "IsShelfLife";
-            columnExpression893.Table = table22;
-            column893.Expression = columnExpression893;
-            columnExpression894.ColumnName = "IsRegulatory";
-            columnExpression894.Table = table22;
-            column894.Expression = columnExpression894;
-            columnExpression895.ColumnName = "IsReTestPeriod";
-            columnExpression895.Table = table22;
-            column895.Expression = columnExpression895;
-            columnExpression896.ColumnName = "Others";
-            columnExpression896.Table = table22;
-            column896.Expression = columnExpression896;
-            columnExpression897.ColumnName = "DescriptionOfProposedChange";
-            columnExpression897.Table = table22;
-            column897.Expression = columnExpression897;
-            columnExpression898.ColumnName = "Justification";
-            columnExpression898.Table = table22;
-            column898.Expression = columnExpression898;
-            columnExpression899.ColumnName = "ProposedImplementationAction";
-            columnExpression899.Table = table22;
-            column899.Expression = columnExpression899;
-            columnExpression900.ColumnName = "RelatedDeviation";
-            columnExpression900.Table = table22;
-            column900.Expression = columnExpression900;
-            columnExpression901.ColumnName = "InitiatorDate";
-            columnExpression901.Table = table22;
-            column901.Expression = columnExpression901;
-            columnExpression902.ColumnName = "SessionID";
-            columnExpression902.Table = table22;
-            column902.Expression = columnExpression902;
-            columnExpression903.ColumnName = "CCFBEvaluationID";
-            columnExpression903.Table = table22;
-            column903.Expression = columnExpression903;
-            columnExpression904.ColumnName = "BAcceptable";
-            columnExpression904.Table = table22;
-            column904.Expression = columnExpression904;
-            columnExpression905.ColumnName = "BNotAcceptable";
-            columnExpression905.Table = table22;
-            column905.Expression = columnExpression905;
-            columnExpression906.ColumnName = "IsMinor";
-            columnExpression906.Table = table22;
-            column906.Expression = columnExpression906;
-            columnExpression907.ColumnName = "IsMajor";
-            columnExpression907.Table = table22;
-            column907.Expression = columnExpression907;
-            columnExpression908.ColumnName = "IsCritical";
-            columnExpression908.Table = table22;
-            column908.Expression = columnExpression908;
-            columnExpression909.ColumnName = "BComments";
-            columnExpression909.Table = table22;
-            column909.Expression = columnExpression909;
-            columnExpression910.ColumnName = "IsProduction";
-            columnExpression910.Table = table22;
-            column910.Expression = columnExpression910;
-            columnExpression911.ColumnName = "IsEAndM";
-            columnExpression911.Table = table22;
-            column911.Expression = columnExpression911;
-            columnExpression912.ColumnName = "IsRequlatory";
-            columnExpression912.Table = table22;
-            column912.Expression = columnExpression912;
-            columnExpression913.ColumnName = "IsQA";
-            columnExpression913.Table = table22;
-            column913.Expression = columnExpression913;
-            columnExpression914.ColumnName = "IsQC";
-            columnExpression914.Table = table22;
-            column914.Expression = columnExpression914;
-            columnExpression915.ColumnName = "IsStore";
-            columnExpression915.Table = table22;
-            column915.Expression = columnExpression915;
-            columnExpression916.ColumnName = "RelatedDeparmentOthers";
-            columnExpression916.Table = table22;
-            column916.Expression = columnExpression916;
-            columnExpression917.ColumnName = "EvaluatedBy";
-            columnExpression917.Table = table22;
-            column917.Expression = columnExpression917;
-            columnExpression918.ColumnName = "IsRequlatoryApproval";
-            columnExpression918.Table = table22;
-            column918.Expression = columnExpression918;
-            columnExpression919.ColumnName = "IsNotificationRequired";
-            columnExpression919.Table = table22;
-            column919.Expression = columnExpression919;
-            columnExpression920.ColumnName = "RegulatoryOthers";
-            columnExpression920.Table = table22;
-            column920.Expression = columnExpression920;
-            columnExpression921.ColumnName = "RegulatoryDetails";
-            columnExpression921.Table = table22;
-            column921.Expression = columnExpression921;
-            columnExpression922.ColumnName = "RequlatoryEvaluatedBy";
-            columnExpression922.Table = table22;
-            column922.Expression = columnExpression922;
-            columnExpression923.ColumnName = "RegulatoryDate";
-            columnExpression923.Table = table22;
-            column923.Expression = columnExpression923;
-            columnExpression924.ColumnName = "IsAnalyticalInstrument";
-            columnExpression924.Table = table22;
-            column924.Expression = columnExpression924;
-            columnExpression925.ColumnName = "IsValidation";
-            columnExpression925.Table = table22;
-            column925.Expression = columnExpression925;
-            columnExpression926.ColumnName = "IsEnvironmentalMonitoring";
-            columnExpression926.Table = table22;
-            column926.Expression = columnExpression926;
-            columnExpression927.ColumnName = "IsRawMeterialSpec";
-            columnExpression927.Table = table22;
-            column927.Expression = columnExpression927;
-            columnExpression928.ColumnName = "IsFinishedProductSpec";
-            columnExpression928.Table = table22;
-            column928.Expression = columnExpression928;
-            columnExpression929.ColumnName = "IsPackagingMaterialSpec";
-            columnExpression929.Table = table22;
-            column929.Expression = columnExpression929;
-            columnExpression930.ColumnName = "IsCalibration";
-            columnExpression930.Table = table22;
-            column930.Expression = columnExpression930;
-            columnExpression931.ColumnName = "IsAnalyticalTestMethod";
-            columnExpression931.Table = table22;
-            column931.Expression = columnExpression931;
-            columnExpression932.ColumnName = "IsSamplingMethod";
-            columnExpression932.Table = table22;
-            column932.Expression = columnExpression932;
-            columnExpression933.ColumnName = "BVendor";
-            columnExpression933.Table = table22;
-            column933.Expression = columnExpression933;
-            columnExpression934.ColumnName = "IsStabilityStudy";
-            columnExpression934.Table = table22;
-            column934.Expression = columnExpression934;
-            columnExpression935.ColumnName = "IsInProcess";
-            columnExpression935.Table = table22;
-            column935.Expression = columnExpression935;
-            columnExpression936.ColumnName = "QualityControlOthers";
-            columnExpression936.Table = table22;
-            column936.Expression = columnExpression936;
-            columnExpression937.ColumnName = "QualityControlDetails";
-            columnExpression937.Table = table22;
-            column937.Expression = columnExpression937;
-            columnExpression938.ColumnName = "QualityControlEvaluatedBy";
-            columnExpression938.Table = table22;
-            column938.Expression = columnExpression938;
-            columnExpression939.ColumnName = "QualityControlDate";
-            columnExpression939.Table = table22;
-            column939.Expression = columnExpression939;
-            columnExpression940.ColumnName = "IsProductionProcess";
-            columnExpression940.Table = table22;
-            column940.Expression = columnExpression940;
-            columnExpression941.ColumnName = "IsProductionValidation";
-            columnExpression941.Table = table22;
-            column941.Expression = columnExpression941;
-            columnExpression942.ColumnName = "BControlParameter";
-            columnExpression942.Table = table22;
-            column942.Expression = columnExpression942;
-            columnExpression943.ColumnName = "ProductionOthers";
-            columnExpression943.Table = table22;
-            column943.Expression = columnExpression943;
-            columnExpression944.ColumnName = "ProductionDetails";
-            columnExpression944.Table = table22;
-            column944.Expression = columnExpression944;
-            columnExpression945.ColumnName = "ProductionEvaluatedBy";
-            columnExpression945.Table = table22;
-            column945.Expression = columnExpression945;
-            columnExpression946.ColumnName = "ProductionDate";
-            columnExpression946.Table = table22;
-            column946.Expression = columnExpression946;
-            columnExpression947.ColumnName = "IsPiping";
-            columnExpression947.Table = table22;
-            column947.Expression = columnExpression947;
-            columnExpression948.ColumnName = "BEquipment";
-            columnExpression948.Table = table22;
-            column948.Expression = columnExpression948;
-            columnExpression949.ColumnName = "IsEngineeringCalibration";
-            columnExpression949.Table = table22;
-            column949.Expression = columnExpression949;
-            columnExpression950.ColumnName = "IsPreventiveMaintenance";
-            columnExpression950.Table = table22;
-            column950.Expression = columnExpression950;
-            columnExpression951.ColumnName = "IsUtilityParameter";
-            columnExpression951.Table = table22;
-            column951.Expression = columnExpression951;
-            columnExpression952.ColumnName = "IsEngineeringFacility";
-            columnExpression952.Table = table22;
-            column952.Expression = columnExpression952;
-            columnExpression953.ColumnName = "IsQualificationOfEquipment";
-            columnExpression953.Table = table22;
-            column953.Expression = columnExpression953;
-            columnExpression954.ColumnName = "IsQualificationOfUtility";
-            columnExpression954.Table = table22;
-            column954.Expression = columnExpression954;
-            columnExpression955.ColumnName = "EngineeringOthers";
-            columnExpression955.Table = table22;
-            column955.Expression = columnExpression955;
-            columnExpression956.ColumnName = "EngineeringDetails";
-            columnExpression956.Table = table22;
-            column956.Expression = columnExpression956;
-            columnExpression957.ColumnName = "EngineeringEvaluatedBy";
-            columnExpression957.Table = table22;
-            column957.Expression = columnExpression957;
-            columnExpression958.ColumnName = "EngineeringMaintenanceDate";
-            columnExpression958.Table = table22;
-            column958.Expression = columnExpression958;
-            columnExpression959.ColumnName = "IsQAQualification";
-            columnExpression959.Table = table22;
-            column959.Expression = columnExpression959;
-            columnExpression960.ColumnName = "IsQAValidation";
-            columnExpression960.Table = table22;
-            column960.Expression = columnExpression960;
-            columnExpression961.ColumnName = "IsQAVendor";
-            columnExpression961.Table = table22;
-            column961.Expression = columnExpression961;
-            columnExpression962.ColumnName = "QAOthers";
-            columnExpression962.Table = table22;
-            column962.Expression = columnExpression962;
-            columnExpression963.ColumnName = "QADetails";
-            columnExpression963.Table = table22;
-            column963.Expression = columnExpression963;
-            columnExpression964.ColumnName = "QAEvaluatedBy";
-            columnExpression964.Table = table22;
-            column964.Expression = columnExpression964;
-            columnExpression965.ColumnName = "QADate";
-            columnExpression965.Table = table22;
-            column965.Expression = columnExpression965;
-            columnExpression966.ColumnName = "IsStoreRawMaterial";
-            columnExpression966.Table = table22;
-            column966.Expression = columnExpression966;
-            columnExpression967.ColumnName = "IsStorePackagingMaterial";
-            columnExpression967.Table = table22;
-            column967.Expression = columnExpression967;
-            columnExpression968.ColumnName = "IsStoreLabel";
-            columnExpression968.Table = table22;
-            column968.Expression = columnExpression968;
-            columnExpression969.ColumnName = "IsStorageCondition";
-            columnExpression969.Table = table22;
-            column969.Expression = columnExpression969;
-            columnExpression970.ColumnName = "IsStoreFinishProduct";
-            columnExpression970.Table = table22;
-            column970.Expression = columnExpression970;
-            columnExpression971.ColumnName = "StoreOthers";
-            columnExpression971.Table = table22;
-            column971.Expression = columnExpression971;
-            columnExpression972.ColumnName = "StoreDetails";
-            columnExpression972.Table = table22;
-            column972.Expression = columnExpression972;
-            columnExpression973.ColumnName = "StoreEvaluatedBy";
-            columnExpression973.Table = table22;
-            column973.Expression = columnExpression973;
-            columnExpression974.ColumnName = "StoreDate";
-            columnExpression974.Table = table22;
-            column974.Expression = columnExpression974;
-            columnExpression975.ColumnName = "ProposedChangeImpactTo";
-            columnExpression975.Table = table22;
-            column975.Expression = columnExpression975;
-            columnExpression976.ColumnName = "OthersDetails";
-            columnExpression976.Table = table22;
-            column976.Expression = columnExpression976;
-            columnExpression977.ColumnName = "OthersEvaluatedBy";
-            columnExpression977.Table = table22;
-            column977.Expression = columnExpression977;
-            columnExpression978.ColumnName = "OthersDate";
-            columnExpression978.Table = table22;
-            column978.Expression = columnExpression978;
-            columnExpression979.ColumnName = "EvaluationDate";
-            columnExpression979.Table = table22;
-            column979.Expression = columnExpression979;
-            columnExpression980.ColumnName = "VersionNo";
-            columnExpression980.Table = table22;
-            column980.Expression = columnExpression980;
-            columnExpression981.ColumnName = "DocNo";
-            columnExpression981.Table = table22;
-            column981.Expression = columnExpression981;
-            columnExpression982.ColumnName = "CCFCAPprovalID";
-            columnExpression982.Table = table22;
-            column982.Expression = columnExpression982;
-            columnExpression983.ColumnName = "IsApproved";
-            columnExpression983.Table = table22;
-            column983.Expression = columnExpression983;
-            columnExpression984.ColumnName = "IsNotApproved";
-            columnExpression984.Table = table22;
-            column984.Expression = columnExpression984;
-            columnExpression985.ColumnName = "CComments";
-            columnExpression985.Table = table22;
-            column985.Expression = columnExpression985;
-            columnExpression986.ColumnName = "CVerifiedBy";
-            columnExpression986.Table = table22;
-            column986.Expression = columnExpression986;
-            columnExpression987.ColumnName = "ApprovalDate";
-            columnExpression987.Table = table22;
-            column987.Expression = columnExpression987;
-            columnExpression988.ColumnName = "CCFDImplementationID";
-            columnExpression988.Table = table22;
-            column988.Expression = columnExpression988;
-            columnExpression989.ColumnName = "ClassOfDocumentID";
-            columnExpression989.Table = table22;
-            column989.Expression = columnExpression989;
-            columnExpression990.ColumnName = "HODComments";
-            columnExpression990.Table = table22;
-            column990.Expression = columnExpression990;
-            columnExpression991.ColumnName = "HODSignature";
-            columnExpression991.Table = table22;
-            column991.Expression = columnExpression991;
-            columnExpression992.ColumnName = "HODDate";
-            columnExpression992.Table = table22;
-            column992.Expression = columnExpression992;
-            columnExpression993.ColumnName = "DAcceptable";
-            columnExpression993.Table = table22;
-            column993.Expression = columnExpression993;
-            columnExpression994.ColumnName = "DNotAcceptable";
-            columnExpression994.Table = table22;
-            column994.Expression = columnExpression994;
-            columnExpression995.ColumnName = "DVerifiedBy";
-            columnExpression995.Table = table22;
-            column995.Expression = columnExpression995;
-            columnExpression996.ColumnName = "VerifiedDate";
-            columnExpression996.Table = table22;
-            column996.Expression = columnExpression996;
-            columnExpression997.ColumnName = "CCFDImplementationDetailsID";
-            columnExpression997.Table = table22;
-            column997.Expression = columnExpression997;
-            columnExpression998.ColumnName = "DetailsImplementaionID";
-            columnExpression998.Table = table22;
-            column998.Expression = columnExpression998;
-            columnExpression999.ColumnName = "DetailsCloseOFDocumentID";
-            columnExpression999.Table = table22;
-            column999.Expression = columnExpression999;
-            columnExpression1000.ColumnName = "IsRequired";
-            columnExpression1000.Table = table22;
-            column1000.Expression = columnExpression1000;
-            columnExpression1001.ColumnName = "ResponsibiltyTo";
-            columnExpression1001.Table = table22;
-            column1001.Expression = columnExpression1001;
-            columnExpression1002.ColumnName = "DoneBy";
-            columnExpression1002.Table = table22;
-            column1002.Expression = columnExpression1002;
-            columnExpression1003.ColumnName = "DoneByDate";
-            columnExpression1003.Table = table22;
-            column1003.Expression = columnExpression1003;
-            columnExpression1004.ColumnName = "CCFEClosureID";
-            columnExpression1004.Table = table22;
-            column1004.Expression = columnExpression1004;
-            columnExpression1005.ColumnName = "IsSatisfactory";
-            columnExpression1005.Table = table22;
-            column1005.Expression = columnExpression1005;
-            columnExpression1006.ColumnName = "IsNotSatisfactory";
-            columnExpression1006.Table = table22;
-            column1006.Expression = columnExpression1006;
-            columnExpression1007.ColumnName = "Comments";
-            columnExpression1007.Table = table22;
-            column1007.Expression = columnExpression1007;
-            columnExpression1008.ColumnName = "ClosedBy";
-            columnExpression1008.Table = table22;
-            column1008.Expression = columnExpression1008;
-            columnExpression1009.ColumnName = "Date";
-            columnExpression1009.Table = table22;
-            column1009.Expression = columnExpression1009;
-            columnExpression1010.ColumnName = "IsSatisfactoryForNotSatisfactory";
-            columnExpression1010.Table = table22;
-            column1010.Expression = columnExpression1010;
-            columnExpression1011.ColumnName = "NotSatisfactoryClosedBy";
-            columnExpression1011.Table = table22;
-            column1011.Expression = columnExpression1011;
-            columnExpression1012.ColumnName = "NotSatisfactoryDate";
-            columnExpression1012.Table = table22;
-            column1012.Expression = columnExpression1012;
-            selectQuery22.Columns.Add(column872);
-            selectQuery22.Columns.Add(column873);
-            selectQuery22.Columns.Add(column874);
-            selectQuery22.Columns.Add(column875);
-            selectQuery22.Columns.Add(column876);
-            selectQuery22.Columns.Add(column877);
-            selectQuery22.Columns.Add(column878);
-            selectQuery22.Columns.Add(column879);
-            selectQuery22.Columns.Add(column880);
-            selectQuery22.Columns.Add(column881);
-            selectQuery22.Columns.Add(column882);
-            selectQuery22.Columns.Add(column883);
-            selectQuery22.Columns.Add(column884);
-            selectQuery22.Columns.Add(column885);
-            selectQuery22.Columns.Add(column886);
-            selectQuery22.Columns.Add(column887);
-            selectQuery22.Columns.Add(column888);
-            selectQuery22.Columns.Add(column889);
-            selectQuery22.Columns.Add(column890);
-            selectQuery22.Columns.Add(column891);
-            selectQuery22.Columns.Add(column892);
-            selectQuery22.Columns.Add(column893);
-            selectQuery22.Columns.Add(column894);
-            selectQuery22.Columns.Add(column895);
-            selectQuery22.Columns.Add(column896);
-            selectQuery22.Columns.Add(column897);
-            selectQuery22.Columns.Add(column898);
-            selectQuery22.Columns.Add(column899);
-            selectQuery22.Columns.Add(column900);
-            selectQuery22.Columns.Add(column901);
-            selectQuery22.Columns.Add(column902);
-            selectQuery22.Columns.Add(column903);
-            selectQuery22.Columns.Add(column904);
-            selectQuery22.Columns.Add(column905);
-            selectQuery22.Columns.Add(column906);
-            selectQuery22.Columns.Add(column907);
-            selectQuery22.Columns.Add(column908);
-            selectQuery22.Columns.Add(column909);
-            selectQuery22.Columns.Add(column910);
-            selectQuery22.Columns.Add(column911);
-            selectQuery22.Columns.Add(column912);
-            selectQuery22.Columns.Add(column913);
-            selectQuery22.Columns.Add(column914);
-            selectQuery22.Columns.Add(column915);
-            selectQuery22.Columns.Add(column916);
-            selectQuery22.Columns.Add(column917);
-            selectQuery22.Columns.Add(column918);
-            selectQuery22.Columns.Add(column919);
-            selectQuery22.Columns.Add(column920);
-            selectQuery22.Columns.Add(column921);
-            selectQuery22.Columns.Add(column922);
-            selectQuery22.Columns.Add(column923);
-            selectQuery22.Columns.Add(column924);
-            selectQuery22.Columns.Add(column925);
-            selectQuery22.Columns.Add(column926);
-            selectQuery22.Columns.Add(column927);
-            selectQuery22.Columns.Add(column928);
-            selectQuery22.Columns.Add(column929);
-            selectQuery22.Columns.Add(column930);
-            selectQuery22.Columns.Add(column931);
-            selectQuery22.Columns.Add(column932);
-            selectQuery22.Columns.Add(column933);
-            selectQuery22.Columns.Add(column934);
-            selectQuery22.Columns.Add(column935);
-            selectQuery22.Columns.Add(column936);
-            selectQuery22.Columns.Add(column937);
-            selectQuery22.Columns.Add(column938);
-            selectQuery22.Columns.Add(column939);
-            selectQuery22.Columns.Add(column940);
-            selectQuery22.Columns.Add(column941);
-            selectQuery22.Columns.Add(column942);
-            selectQuery22.Columns.Add(column943);
-            selectQuery22.Columns.Add(column944);
-            selectQuery22.Columns.Add(column945);
-            selectQuery22.Columns.Add(column946);
-            selectQuery22.Columns.Add(column947);
-            selectQuery22.Columns.Add(column948);
-            selectQuery22.Columns.Add(column949);
-            selectQuery22.Columns.Add(column950);
-            selectQuery22.Columns.Add(column951);
-            selectQuery22.Columns.Add(column952);
-            selectQuery22.Columns.Add(column953);
-            selectQuery22.Columns.Add(column954);
-            selectQuery22.Columns.Add(column955);
-            selectQuery22.Columns.Add(column956);
-            selectQuery22.Columns.Add(column957);
-            selectQuery22.Columns.Add(column958);
-            selectQuery22.Columns.Add(column959);
-            selectQuery22.Columns.Add(column960);
-            selectQuery22.Columns.Add(column961);
-            selectQuery22.Columns.Add(column962);
-            selectQuery22.Columns.Add(column963);
-            selectQuery22.Columns.Add(column964);
-            selectQuery22.Columns.Add(column965);
-            selectQuery22.Columns.Add(column966);
-            selectQuery22.Columns.Add(column967);
-            selectQuery22.Columns.Add(column968);
-            selectQuery22.Columns.Add(column969);
-            selectQuery22.Columns.Add(column970);
-            selectQuery22.Columns.Add(column971);
-            selectQuery22.Columns.Add(column972);
-            selectQuery22.Columns.Add(column973);
-            selectQuery22.Columns.Add(column974);
-            selectQuery22.Columns.Add(column975);
-            selectQuery22.Columns.Add(column976);
-            selectQuery22.Columns.Add(column977);
-            selectQuery22.Columns.Add(column978);
-            selectQuery22.Columns.Add(column979);
-            selectQuery22.Columns.Add(column980);
-            selectQuery22.Columns.Add(column981);
-            selectQuery22.Columns.Add(column982);
-            selectQuery22.Columns.Add(column983);
-            selectQuery22.Columns.Add(column984);
-            selectQuery22.Columns.Add(column985);
-            selectQuery22.Columns.Add(column986);
-            selectQuery22.Columns.Add(column987);
-            selectQuery22.Columns.Add(column988);
-            selectQuery22.Columns.Add(column989);
-            selectQuery22.Columns.Add(column990);
-            selectQuery22.Columns.Add(column991);
-            selectQuery22.Columns.Add(column992);
-            selectQuery22.Columns.Add(column993);
-            selectQuery22.Columns.Add(column994);
-            selectQuery22.Columns.Add(column995);
-            selectQuery22.Columns.Add(column996);
-            selectQuery22.Columns.Add(column997);
-            selectQuery22.Columns.Add(column998);
-            selectQuery22.Columns.Add(column999);
-            selectQuery22.Columns.Add(column1000);
-            selectQuery22.Columns.Add(column1001);
-            selectQuery22.Columns.Add(column1002);
-            selectQuery22.Columns.Add(column1003);
-            selectQuery22.Columns.Add(column1004);
-            selectQuery22.Columns.Add(column1005);
-            selectQuery22.Columns.Add(column1006);
-            selectQuery22.Columns.Add(column1007);
-            selectQuery22.Columns.Add(column1008);
-            selectQuery22.Columns.Add(column1009);
-            selectQuery22.Columns.Add(column1010);
-            selectQuery22.Columns.Add(column1011);
-            selectQuery22.Columns.Add(column1012);
-            selectQuery22.Name = "View_GetCCFFormReport";
-            selectQuery22.Tables.Add(table22);
-            this.sqlDataSource6.Queries.AddRange(new DevExpress.DataAccess.Sql.SqlQuery[] {
-            selectQuery22});
-            this.sqlDataSource6.ResultSchemaSerializable = resources.GetString("sqlDataSource6.ResultSchemaSerializable");
+            this.xrLine1.LineDirection = DevExpress.XtraReports.UI.LineDirection.Vertical;
+            this.xrLine1.LocationFloat = new DevExpress.Utils.PointFloat(10.00001F, 4938.083F);
+            this.xrLine1.Name = "xrLine1";
+            this.xrLine1.SizeF = new System.Drawing.SizeF(3.125F, 225.7085F);
             // 
-            // sqlDataSource7
+            // xrPanel2
             // 
-            this.sqlDataSource7.ConnectionName = "Report_Connection";
-            this.sqlDataSource7.Name = "sqlDataSource7";
-            customSqlQuery1.Name = "View_GetCCFFormReport";
-            queryParameter1.Name = "parameter1";
-            queryParameter1.Type = typeof(global::DevExpress.DataAccess.Expression);
-            queryParameter1.Value = new DevExpress.DataAccess.Expression("?parameter1", typeof(System.Guid));
-            customSqlQuery1.Parameters.AddRange(new DevExpress.DataAccess.Sql.QueryParameter[] {
-            queryParameter1});
-            customSqlQuery1.Sql = resources.GetString("customSqlQuery1.Sql");
-            this.sqlDataSource7.Queries.AddRange(new DevExpress.DataAccess.Sql.SqlQuery[] {
-            customSqlQuery1});
-            this.sqlDataSource7.ResultSchemaSerializable = resources.GetString("sqlDataSource7.ResultSchemaSerializable");
-            // 
-            // parameter1
-            // 
-            this.parameter1.Description = "Parameter1";
-            this.parameter1.Name = "parameter1";
-            this.parameter1.Type = typeof(global::System.Guid);
-            this.parameter1.ValueInfo = "00000000-0000-0000-0000-000000000000";
-            dynamicListLookUpSettings1.DataMember = "View_GetCCFFormReport";
-            dynamicListLookUpSettings1.DataSource = this.sqlDataSource10;
-            dynamicListLookUpSettings1.DisplayMember = "DocNo";
-            dynamicListLookUpSettings1.SortMember = null;
-            dynamicListLookUpSettings1.ValueMember = "SessionID";
-            this.parameter1.ValueSourceSettings = dynamicListLookUpSettings1;
-            // 
-            // sqlDataSource9
-            // 
-            this.sqlDataSource9.ConnectionName = "Report_Connection";
-            this.sqlDataSource9.Name = "sqlDataSource9";
-            columnExpression1013.ColumnName = "CCFAInformationID";
-            table23.MetaSerializable = "<Meta X=\"30\" Y=\"30\" Width=\"125\" Height=\"2903\" />";
-            table23.Name = "View_GetCCFFormReport";
-            columnExpression1013.Table = table23;
-            column1013.Expression = columnExpression1013;
-            columnExpression1014.ColumnName = "IsInternalChanges";
-            columnExpression1014.Table = table23;
-            column1014.Expression = columnExpression1014;
-            columnExpression1015.ColumnName = "IsAuthorityDirectedChanges";
-            columnExpression1015.Table = table23;
-            column1015.Expression = columnExpression1015;
-            columnExpression1016.ColumnName = "PersonInCharge";
-            columnExpression1016.Table = table23;
-            column1016.Expression = columnExpression1016;
-            columnExpression1017.ColumnName = "PersonApprove";
-            columnExpression1017.Table = table23;
-            column1017.Expression = columnExpression1017;
-            columnExpression1018.ColumnName = "DepartmentName";
-            columnExpression1018.Table = table23;
-            column1018.Expression = columnExpression1018;
-            columnExpression1019.ColumnName = "EvaluatedByuser";
-            columnExpression1019.Table = table23;
-            column1019.Expression = columnExpression1019;
-            columnExpression1020.ColumnName = "RequlatoryEvaluatedBy";
-            columnExpression1020.Table = table23;
-            column1020.Expression = columnExpression1020;
-            columnExpression1021.ColumnName = "ProductionEvaluatedBy";
-            columnExpression1021.Table = table23;
-            column1021.Expression = columnExpression1021;
-            columnExpression1022.ColumnName = "QualityControlEvaluatedBy";
-            columnExpression1022.Table = table23;
-            column1022.Expression = columnExpression1022;
-            columnExpression1023.ColumnName = "EngineeringEvaluatedBy";
-            columnExpression1023.Table = table23;
-            column1023.Expression = columnExpression1023;
-            columnExpression1024.ColumnName = "StoreEvaluatedBy";
-            columnExpression1024.Table = table23;
-            column1024.Expression = columnExpression1024;
-            columnExpression1025.ColumnName = "OthersEvaluatedBy";
-            columnExpression1025.Table = table23;
-            column1025.Expression = columnExpression1025;
-            columnExpression1026.ColumnName = "QAEvaluatedBy";
-            columnExpression1026.Table = table23;
-            column1026.Expression = columnExpression1026;
-            columnExpression1027.ColumnName = "ClosedBy";
-            columnExpression1027.Table = table23;
-            column1027.Expression = columnExpression1027;
-            columnExpression1028.ColumnName = "NotSatisfactoryClosedBy";
-            columnExpression1028.Table = table23;
-            column1028.Expression = columnExpression1028;
-            columnExpression1029.ColumnName = "CVerifiedBy";
-            columnExpression1029.Table = table23;
-            column1029.Expression = columnExpression1029;
-            columnExpression1030.ColumnName = "D1VerifiedBy";
-            columnExpression1030.Table = table23;
-            column1030.Expression = columnExpression1030;
-            columnExpression1031.ColumnName = "IsSiteTransfer";
-            columnExpression1031.Table = table23;
-            column1031.Expression = columnExpression1031;
-            columnExpression1032.ColumnName = "IsProduct";
-            columnExpression1032.Table = table23;
-            column1032.Expression = columnExpression1032;
-            columnExpression1033.ColumnName = "AEquipment";
-            columnExpression1033.Table = table23;
-            column1033.Expression = columnExpression1033;
-            columnExpression1034.ColumnName = "IsComposition";
-            columnExpression1034.Table = table23;
-            column1034.Expression = columnExpression1034;
-            columnExpression1035.ColumnName = "IsFacility";
-            columnExpression1035.Table = table23;
-            column1035.Expression = columnExpression1035;
-            columnExpression1036.ColumnName = "IsLayout";
-            columnExpression1036.Table = table23;
-            column1036.Expression = columnExpression1036;
-            columnExpression1037.ColumnName = "IsDocument";
-            columnExpression1037.Table = table23;
-            column1037.Expression = columnExpression1037;
-            columnExpression1038.ColumnName = "IsProcess";
-            columnExpression1038.Table = table23;
-            column1038.Expression = columnExpression1038;
-            columnExpression1039.ColumnName = "AControlParameter";
-            columnExpression1039.Table = table23;
-            column1039.Expression = columnExpression1039;
-            columnExpression1040.ColumnName = "IsBatchSize";
-            columnExpression1040.Table = table23;
-            column1040.Expression = columnExpression1040;
-            columnExpression1041.ColumnName = "IsHoldingTime";
-            columnExpression1041.Table = table23;
-            column1041.Expression = columnExpression1041;
-            columnExpression1042.ColumnName = "IsRawMeterial";
-            columnExpression1042.Table = table23;
-            column1042.Expression = columnExpression1042;
-            columnExpression1043.ColumnName = "IsArtwork";
-            columnExpression1043.Table = table23;
-            column1043.Expression = columnExpression1043;
-            columnExpression1044.ColumnName = "IsPackagingMaterial";
-            columnExpression1044.Table = table23;
-            column1044.Expression = columnExpression1044;
-            columnExpression1045.ColumnName = "AVendor";
-            columnExpression1045.Table = table23;
-            column1045.Expression = columnExpression1045;
-            columnExpression1046.ColumnName = "IsShelfLife";
-            columnExpression1046.Table = table23;
-            column1046.Expression = columnExpression1046;
-            columnExpression1047.ColumnName = "IsRegulatory";
-            columnExpression1047.Table = table23;
-            column1047.Expression = columnExpression1047;
-            columnExpression1048.ColumnName = "IsReTestPeriod";
-            columnExpression1048.Table = table23;
-            column1048.Expression = columnExpression1048;
-            columnExpression1049.ColumnName = "Others";
-            columnExpression1049.Table = table23;
-            column1049.Expression = columnExpression1049;
-            columnExpression1050.ColumnName = "DescriptionOfProposedChange";
-            columnExpression1050.Table = table23;
-            column1050.Expression = columnExpression1050;
-            columnExpression1051.ColumnName = "Justification";
-            columnExpression1051.Table = table23;
-            column1051.Expression = columnExpression1051;
-            columnExpression1052.ColumnName = "ProposedImplementationAction";
-            columnExpression1052.Table = table23;
-            column1052.Expression = columnExpression1052;
-            columnExpression1053.ColumnName = "RelatedDeviation";
-            columnExpression1053.Table = table23;
-            column1053.Expression = columnExpression1053;
-            columnExpression1054.ColumnName = "SessionID";
-            columnExpression1054.Table = table23;
-            column1054.Expression = columnExpression1054;
-            columnExpression1055.ColumnName = "CCFBEvaluationID";
-            columnExpression1055.Table = table23;
-            column1055.Expression = columnExpression1055;
-            columnExpression1056.ColumnName = "BAcceptable";
-            columnExpression1056.Table = table23;
-            column1056.Expression = columnExpression1056;
-            columnExpression1057.ColumnName = "BNotAcceptable";
-            columnExpression1057.Table = table23;
-            column1057.Expression = columnExpression1057;
-            columnExpression1058.ColumnName = "IsMinor";
-            columnExpression1058.Table = table23;
-            column1058.Expression = columnExpression1058;
-            columnExpression1059.ColumnName = "IsMajor";
-            columnExpression1059.Table = table23;
-            column1059.Expression = columnExpression1059;
-            columnExpression1060.ColumnName = "IsCritical";
-            columnExpression1060.Table = table23;
-            column1060.Expression = columnExpression1060;
-            columnExpression1061.ColumnName = "BComments";
-            columnExpression1061.Table = table23;
-            column1061.Expression = columnExpression1061;
-            columnExpression1062.ColumnName = "IsProduction";
-            columnExpression1062.Table = table23;
-            column1062.Expression = columnExpression1062;
-            columnExpression1063.ColumnName = "IsEAndM";
-            columnExpression1063.Table = table23;
-            column1063.Expression = columnExpression1063;
-            columnExpression1064.ColumnName = "IsRequlatory";
-            columnExpression1064.Table = table23;
-            column1064.Expression = columnExpression1064;
-            columnExpression1065.ColumnName = "IsQA";
-            columnExpression1065.Table = table23;
-            column1065.Expression = columnExpression1065;
-            columnExpression1066.ColumnName = "IsQC";
-            columnExpression1066.Table = table23;
-            column1066.Expression = columnExpression1066;
-            columnExpression1067.ColumnName = "IsStore";
-            columnExpression1067.Table = table23;
-            column1067.Expression = columnExpression1067;
-            columnExpression1068.ColumnName = "RelatedDeparmentOthers";
-            columnExpression1068.Table = table23;
-            column1068.Expression = columnExpression1068;
-            columnExpression1069.ColumnName = "EvaluatedBy";
-            columnExpression1069.Table = table23;
-            column1069.Expression = columnExpression1069;
-            columnExpression1070.ColumnName = "IsRequlatoryApproval";
-            columnExpression1070.Table = table23;
-            column1070.Expression = columnExpression1070;
-            columnExpression1071.ColumnName = "IsNotificationRequired";
-            columnExpression1071.Table = table23;
-            column1071.Expression = columnExpression1071;
-            columnExpression1072.ColumnName = "RegulatoryOthers";
-            columnExpression1072.Table = table23;
-            column1072.Expression = columnExpression1072;
-            columnExpression1073.ColumnName = "RegulatoryDetails";
-            columnExpression1073.Table = table23;
-            column1073.Expression = columnExpression1073;
-            columnExpression1074.ColumnName = "RegulatoryDate";
-            columnExpression1074.Table = table23;
-            column1074.Expression = columnExpression1074;
-            columnExpression1075.ColumnName = "IsAnalyticalInstrument";
-            columnExpression1075.Table = table23;
-            column1075.Expression = columnExpression1075;
-            columnExpression1076.ColumnName = "IsValidation";
-            columnExpression1076.Table = table23;
-            column1076.Expression = columnExpression1076;
-            columnExpression1077.ColumnName = "IsEnvironmentalMonitoring";
-            columnExpression1077.Table = table23;
-            column1077.Expression = columnExpression1077;
-            columnExpression1078.ColumnName = "IsRawMeterialSpec";
-            columnExpression1078.Table = table23;
-            column1078.Expression = columnExpression1078;
-            columnExpression1079.ColumnName = "IsFinishedProductSpec";
-            columnExpression1079.Table = table23;
-            column1079.Expression = columnExpression1079;
-            columnExpression1080.ColumnName = "IsPackagingMaterialSpec";
-            columnExpression1080.Table = table23;
-            column1080.Expression = columnExpression1080;
-            columnExpression1081.ColumnName = "IsCalibration";
-            columnExpression1081.Table = table23;
-            column1081.Expression = columnExpression1081;
-            columnExpression1082.ColumnName = "IsAnalyticalTestMethod";
-            columnExpression1082.Table = table23;
-            column1082.Expression = columnExpression1082;
-            columnExpression1083.ColumnName = "IsSamplingMethod";
-            columnExpression1083.Table = table23;
-            column1083.Expression = columnExpression1083;
-            columnExpression1084.ColumnName = "BVendor";
-            columnExpression1084.Table = table23;
-            column1084.Expression = columnExpression1084;
-            columnExpression1085.ColumnName = "IsStabilityStudy";
-            columnExpression1085.Table = table23;
-            column1085.Expression = columnExpression1085;
-            columnExpression1086.ColumnName = "IsInProcess";
-            columnExpression1086.Table = table23;
-            column1086.Expression = columnExpression1086;
-            columnExpression1087.ColumnName = "QualityControlOthers";
-            columnExpression1087.Table = table23;
-            column1087.Expression = columnExpression1087;
-            columnExpression1088.ColumnName = "QualityControlDetails";
-            columnExpression1088.Table = table23;
-            column1088.Expression = columnExpression1088;
-            columnExpression1089.ColumnName = "QualityControlDate";
-            columnExpression1089.Table = table23;
-            column1089.Expression = columnExpression1089;
-            columnExpression1090.ColumnName = "IsProductionProcess";
-            columnExpression1090.Table = table23;
-            column1090.Expression = columnExpression1090;
-            columnExpression1091.ColumnName = "IsProductionValidation";
-            columnExpression1091.Table = table23;
-            column1091.Expression = columnExpression1091;
-            columnExpression1092.ColumnName = "BControlParameter";
-            columnExpression1092.Table = table23;
-            column1092.Expression = columnExpression1092;
-            columnExpression1093.ColumnName = "ProductionOthers";
-            columnExpression1093.Table = table23;
-            column1093.Expression = columnExpression1093;
-            columnExpression1094.ColumnName = "ProductionDetails";
-            columnExpression1094.Table = table23;
-            column1094.Expression = columnExpression1094;
-            columnExpression1095.ColumnName = "ProductionDate";
-            columnExpression1095.Table = table23;
-            column1095.Expression = columnExpression1095;
-            columnExpression1096.ColumnName = "IsPiping";
-            columnExpression1096.Table = table23;
-            column1096.Expression = columnExpression1096;
-            columnExpression1097.ColumnName = "BEquipment";
-            columnExpression1097.Table = table23;
-            column1097.Expression = columnExpression1097;
-            columnExpression1098.ColumnName = "IsEngineeringCalibration";
-            columnExpression1098.Table = table23;
-            column1098.Expression = columnExpression1098;
-            columnExpression1099.ColumnName = "IsPreventiveMaintenance";
-            columnExpression1099.Table = table23;
-            column1099.Expression = columnExpression1099;
-            columnExpression1100.ColumnName = "IsUtilityParameter";
-            columnExpression1100.Table = table23;
-            column1100.Expression = columnExpression1100;
-            columnExpression1101.ColumnName = "IsEngineeringFacility";
-            columnExpression1101.Table = table23;
-            column1101.Expression = columnExpression1101;
-            columnExpression1102.ColumnName = "IsQualificationOfEquipment";
-            columnExpression1102.Table = table23;
-            column1102.Expression = columnExpression1102;
-            columnExpression1103.ColumnName = "IsQualificationOfUtility";
-            columnExpression1103.Table = table23;
-            column1103.Expression = columnExpression1103;
-            columnExpression1104.ColumnName = "EngineeringOthers";
-            columnExpression1104.Table = table23;
-            column1104.Expression = columnExpression1104;
-            columnExpression1105.ColumnName = "EngineeringDetails";
-            columnExpression1105.Table = table23;
-            column1105.Expression = columnExpression1105;
-            columnExpression1106.ColumnName = "EngineeringMaintenanceDate";
-            columnExpression1106.Table = table23;
-            column1106.Expression = columnExpression1106;
-            columnExpression1107.ColumnName = "IsQAQualification";
-            columnExpression1107.Table = table23;
-            column1107.Expression = columnExpression1107;
-            columnExpression1108.ColumnName = "IsQAValidation";
-            columnExpression1108.Table = table23;
-            column1108.Expression = columnExpression1108;
-            columnExpression1109.ColumnName = "IsQAVendor";
-            columnExpression1109.Table = table23;
-            column1109.Expression = columnExpression1109;
-            columnExpression1110.ColumnName = "QAOthers";
-            columnExpression1110.Table = table23;
-            column1110.Expression = columnExpression1110;
-            columnExpression1111.ColumnName = "QADetails";
-            columnExpression1111.Table = table23;
-            column1111.Expression = columnExpression1111;
-            columnExpression1112.ColumnName = "QADate";
-            columnExpression1112.Table = table23;
-            column1112.Expression = columnExpression1112;
-            columnExpression1113.ColumnName = "IsStoreRawMaterial";
-            columnExpression1113.Table = table23;
-            column1113.Expression = columnExpression1113;
-            columnExpression1114.ColumnName = "IsStorePackagingMaterial";
-            columnExpression1114.Table = table23;
-            column1114.Expression = columnExpression1114;
-            columnExpression1115.ColumnName = "IsStoreLabel";
-            columnExpression1115.Table = table23;
-            column1115.Expression = columnExpression1115;
-            columnExpression1116.ColumnName = "IsStorageCondition";
-            columnExpression1116.Table = table23;
-            column1116.Expression = columnExpression1116;
-            columnExpression1117.ColumnName = "IsStoreFinishProduct";
-            columnExpression1117.Table = table23;
-            column1117.Expression = columnExpression1117;
-            columnExpression1118.ColumnName = "StoreOthers";
-            columnExpression1118.Table = table23;
-            column1118.Expression = columnExpression1118;
-            columnExpression1119.ColumnName = "StoreDetails";
-            columnExpression1119.Table = table23;
-            column1119.Expression = columnExpression1119;
-            columnExpression1120.ColumnName = "StoreDate";
-            columnExpression1120.Table = table23;
-            column1120.Expression = columnExpression1120;
-            columnExpression1121.ColumnName = "ProposedChangeImpactTo";
-            columnExpression1121.Table = table23;
-            column1121.Expression = columnExpression1121;
-            columnExpression1122.ColumnName = "OthersDetails";
-            columnExpression1122.Table = table23;
-            column1122.Expression = columnExpression1122;
-            columnExpression1123.ColumnName = "OthersDate";
-            columnExpression1123.Table = table23;
-            column1123.Expression = columnExpression1123;
-            columnExpression1124.ColumnName = "EvaluationDate";
-            columnExpression1124.Table = table23;
-            column1124.Expression = columnExpression1124;
-            columnExpression1125.ColumnName = "CCFCAPprovalID";
-            columnExpression1125.Table = table23;
-            column1125.Expression = columnExpression1125;
-            columnExpression1126.ColumnName = "IsApproved";
-            columnExpression1126.Table = table23;
-            column1126.Expression = columnExpression1126;
-            columnExpression1127.ColumnName = "IsNotApproved";
-            columnExpression1127.Table = table23;
-            column1127.Expression = columnExpression1127;
-            columnExpression1128.ColumnName = "CComments";
-            columnExpression1128.Table = table23;
-            column1128.Expression = columnExpression1128;
-            columnExpression1129.ColumnName = "ApprovalDate";
-            columnExpression1129.Table = table23;
-            column1129.Expression = columnExpression1129;
-            columnExpression1130.ColumnName = "CCFDImplementationID";
-            columnExpression1130.Table = table23;
-            column1130.Expression = columnExpression1130;
-            columnExpression1131.ColumnName = "ClassOfDocumentID";
-            columnExpression1131.Table = table23;
-            column1131.Expression = columnExpression1131;
-            columnExpression1132.ColumnName = "HODComments";
-            columnExpression1132.Table = table23;
-            column1132.Expression = columnExpression1132;
-            columnExpression1133.ColumnName = "HODSignature";
-            columnExpression1133.Table = table23;
-            column1133.Expression = columnExpression1133;
-            columnExpression1134.ColumnName = "HODDate";
-            columnExpression1134.Table = table23;
-            column1134.Expression = columnExpression1134;
-            columnExpression1135.ColumnName = "DAcceptable";
-            columnExpression1135.Table = table23;
-            column1135.Expression = columnExpression1135;
-            columnExpression1136.ColumnName = "DNotAcceptable";
-            columnExpression1136.Table = table23;
-            column1136.Expression = columnExpression1136;
-            columnExpression1137.ColumnName = "VerifiedDate";
-            columnExpression1137.Table = table23;
-            column1137.Expression = columnExpression1137;
-            columnExpression1138.ColumnName = "CCFDImplementationDetailsID";
-            columnExpression1138.Table = table23;
-            column1138.Expression = columnExpression1138;
-            columnExpression1139.ColumnName = "DetailsImplementaionID";
-            columnExpression1139.Table = table23;
-            column1139.Expression = columnExpression1139;
-            columnExpression1140.ColumnName = "DetailsCloseOFDocumentID";
-            columnExpression1140.Table = table23;
-            column1140.Expression = columnExpression1140;
-            columnExpression1141.ColumnName = "IsRequired";
-            columnExpression1141.Table = table23;
-            column1141.Expression = columnExpression1141;
-            columnExpression1142.ColumnName = "ResponsibiltyTo";
-            columnExpression1142.Table = table23;
-            column1142.Expression = columnExpression1142;
-            columnExpression1143.ColumnName = "DoneBy";
-            columnExpression1143.Table = table23;
-            column1143.Expression = columnExpression1143;
-            columnExpression1144.ColumnName = "DoneByDate";
-            columnExpression1144.Table = table23;
-            column1144.Expression = columnExpression1144;
-            columnExpression1145.ColumnName = "CCFEClosureID";
-            columnExpression1145.Table = table23;
-            column1145.Expression = columnExpression1145;
-            columnExpression1146.ColumnName = "IsSatisfactory";
-            columnExpression1146.Table = table23;
-            column1146.Expression = columnExpression1146;
-            columnExpression1147.ColumnName = "IsNotSatisfactory";
-            columnExpression1147.Table = table23;
-            column1147.Expression = columnExpression1147;
-            columnExpression1148.ColumnName = "Comments";
-            columnExpression1148.Table = table23;
-            column1148.Expression = columnExpression1148;
-            columnExpression1149.ColumnName = "VersionNo";
-            columnExpression1149.Table = table23;
-            column1149.Expression = columnExpression1149;
-            columnExpression1150.ColumnName = "DocNo";
-            columnExpression1150.Table = table23;
-            column1150.Expression = columnExpression1150;
-            columnExpression1151.ColumnName = "InitiatorDate";
-            columnExpression1151.Table = table23;
-            column1151.Expression = columnExpression1151;
-            columnExpression1152.ColumnName = "Date";
-            columnExpression1152.Table = table23;
-            column1152.Expression = columnExpression1152;
-            columnExpression1153.ColumnName = "IsSatisfactoryForNotSatisfactory";
-            columnExpression1153.Table = table23;
-            column1153.Expression = columnExpression1153;
-            columnExpression1154.ColumnName = "NotSatisfactoryDate";
-            columnExpression1154.Table = table23;
-            column1154.Expression = columnExpression1154;
-            selectQuery23.Columns.Add(column1013);
-            selectQuery23.Columns.Add(column1014);
-            selectQuery23.Columns.Add(column1015);
-            selectQuery23.Columns.Add(column1016);
-            selectQuery23.Columns.Add(column1017);
-            selectQuery23.Columns.Add(column1018);
-            selectQuery23.Columns.Add(column1019);
-            selectQuery23.Columns.Add(column1020);
-            selectQuery23.Columns.Add(column1021);
-            selectQuery23.Columns.Add(column1022);
-            selectQuery23.Columns.Add(column1023);
-            selectQuery23.Columns.Add(column1024);
-            selectQuery23.Columns.Add(column1025);
-            selectQuery23.Columns.Add(column1026);
-            selectQuery23.Columns.Add(column1027);
-            selectQuery23.Columns.Add(column1028);
-            selectQuery23.Columns.Add(column1029);
-            selectQuery23.Columns.Add(column1030);
-            selectQuery23.Columns.Add(column1031);
-            selectQuery23.Columns.Add(column1032);
-            selectQuery23.Columns.Add(column1033);
-            selectQuery23.Columns.Add(column1034);
-            selectQuery23.Columns.Add(column1035);
-            selectQuery23.Columns.Add(column1036);
-            selectQuery23.Columns.Add(column1037);
-            selectQuery23.Columns.Add(column1038);
-            selectQuery23.Columns.Add(column1039);
-            selectQuery23.Columns.Add(column1040);
-            selectQuery23.Columns.Add(column1041);
-            selectQuery23.Columns.Add(column1042);
-            selectQuery23.Columns.Add(column1043);
-            selectQuery23.Columns.Add(column1044);
-            selectQuery23.Columns.Add(column1045);
-            selectQuery23.Columns.Add(column1046);
-            selectQuery23.Columns.Add(column1047);
-            selectQuery23.Columns.Add(column1048);
-            selectQuery23.Columns.Add(column1049);
-            selectQuery23.Columns.Add(column1050);
-            selectQuery23.Columns.Add(column1051);
-            selectQuery23.Columns.Add(column1052);
-            selectQuery23.Columns.Add(column1053);
-            selectQuery23.Columns.Add(column1054);
-            selectQuery23.Columns.Add(column1055);
-            selectQuery23.Columns.Add(column1056);
-            selectQuery23.Columns.Add(column1057);
-            selectQuery23.Columns.Add(column1058);
-            selectQuery23.Columns.Add(column1059);
-            selectQuery23.Columns.Add(column1060);
-            selectQuery23.Columns.Add(column1061);
-            selectQuery23.Columns.Add(column1062);
-            selectQuery23.Columns.Add(column1063);
-            selectQuery23.Columns.Add(column1064);
-            selectQuery23.Columns.Add(column1065);
-            selectQuery23.Columns.Add(column1066);
-            selectQuery23.Columns.Add(column1067);
-            selectQuery23.Columns.Add(column1068);
-            selectQuery23.Columns.Add(column1069);
-            selectQuery23.Columns.Add(column1070);
-            selectQuery23.Columns.Add(column1071);
-            selectQuery23.Columns.Add(column1072);
-            selectQuery23.Columns.Add(column1073);
-            selectQuery23.Columns.Add(column1074);
-            selectQuery23.Columns.Add(column1075);
-            selectQuery23.Columns.Add(column1076);
-            selectQuery23.Columns.Add(column1077);
-            selectQuery23.Columns.Add(column1078);
-            selectQuery23.Columns.Add(column1079);
-            selectQuery23.Columns.Add(column1080);
-            selectQuery23.Columns.Add(column1081);
-            selectQuery23.Columns.Add(column1082);
-            selectQuery23.Columns.Add(column1083);
-            selectQuery23.Columns.Add(column1084);
-            selectQuery23.Columns.Add(column1085);
-            selectQuery23.Columns.Add(column1086);
-            selectQuery23.Columns.Add(column1087);
-            selectQuery23.Columns.Add(column1088);
-            selectQuery23.Columns.Add(column1089);
-            selectQuery23.Columns.Add(column1090);
-            selectQuery23.Columns.Add(column1091);
-            selectQuery23.Columns.Add(column1092);
-            selectQuery23.Columns.Add(column1093);
-            selectQuery23.Columns.Add(column1094);
-            selectQuery23.Columns.Add(column1095);
-            selectQuery23.Columns.Add(column1096);
-            selectQuery23.Columns.Add(column1097);
-            selectQuery23.Columns.Add(column1098);
-            selectQuery23.Columns.Add(column1099);
-            selectQuery23.Columns.Add(column1100);
-            selectQuery23.Columns.Add(column1101);
-            selectQuery23.Columns.Add(column1102);
-            selectQuery23.Columns.Add(column1103);
-            selectQuery23.Columns.Add(column1104);
-            selectQuery23.Columns.Add(column1105);
-            selectQuery23.Columns.Add(column1106);
-            selectQuery23.Columns.Add(column1107);
-            selectQuery23.Columns.Add(column1108);
-            selectQuery23.Columns.Add(column1109);
-            selectQuery23.Columns.Add(column1110);
-            selectQuery23.Columns.Add(column1111);
-            selectQuery23.Columns.Add(column1112);
-            selectQuery23.Columns.Add(column1113);
-            selectQuery23.Columns.Add(column1114);
-            selectQuery23.Columns.Add(column1115);
-            selectQuery23.Columns.Add(column1116);
-            selectQuery23.Columns.Add(column1117);
-            selectQuery23.Columns.Add(column1118);
-            selectQuery23.Columns.Add(column1119);
-            selectQuery23.Columns.Add(column1120);
-            selectQuery23.Columns.Add(column1121);
-            selectQuery23.Columns.Add(column1122);
-            selectQuery23.Columns.Add(column1123);
-            selectQuery23.Columns.Add(column1124);
-            selectQuery23.Columns.Add(column1125);
-            selectQuery23.Columns.Add(column1126);
-            selectQuery23.Columns.Add(column1127);
-            selectQuery23.Columns.Add(column1128);
-            selectQuery23.Columns.Add(column1129);
-            selectQuery23.Columns.Add(column1130);
-            selectQuery23.Columns.Add(column1131);
-            selectQuery23.Columns.Add(column1132);
-            selectQuery23.Columns.Add(column1133);
-            selectQuery23.Columns.Add(column1134);
-            selectQuery23.Columns.Add(column1135);
-            selectQuery23.Columns.Add(column1136);
-            selectQuery23.Columns.Add(column1137);
-            selectQuery23.Columns.Add(column1138);
-            selectQuery23.Columns.Add(column1139);
-            selectQuery23.Columns.Add(column1140);
-            selectQuery23.Columns.Add(column1141);
-            selectQuery23.Columns.Add(column1142);
-            selectQuery23.Columns.Add(column1143);
-            selectQuery23.Columns.Add(column1144);
-            selectQuery23.Columns.Add(column1145);
-            selectQuery23.Columns.Add(column1146);
-            selectQuery23.Columns.Add(column1147);
-            selectQuery23.Columns.Add(column1148);
-            selectQuery23.Columns.Add(column1149);
-            selectQuery23.Columns.Add(column1150);
-            selectQuery23.Columns.Add(column1151);
-            selectQuery23.Columns.Add(column1152);
-            selectQuery23.Columns.Add(column1153);
-            selectQuery23.Columns.Add(column1154);
-            selectQuery23.FilterString = "[View_GetCCFFormReport.SessionID] = ?parameter1";
-            selectQuery23.GroupFilterString = "";
-            selectQuery23.Name = "View_GetCCFFormReport";
-            queryParameter2.Name = "parameter1";
-            queryParameter2.Type = typeof(global::DevExpress.DataAccess.Expression);
-            queryParameter2.Value = new DevExpress.DataAccess.Expression("?parameter1", typeof(System.Guid));
-            selectQuery23.Parameters.AddRange(new DevExpress.DataAccess.Sql.QueryParameter[] {
-            queryParameter2});
-            selectQuery23.Tables.Add(table23);
-            this.sqlDataSource9.Queries.AddRange(new DevExpress.DataAccess.Sql.SqlQuery[] {
-            selectQuery23});
-            this.sqlDataSource9.ResultSchemaSerializable = resources.GetString("sqlDataSource9.ResultSchemaSerializable");
-            // 
-            // PageHeader
-            // 
-            this.PageHeader.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
-            this.xrTable1,
-            this.xrLabel229});
-            this.PageHeader.HeightF = 162.2501F;
-            this.PageHeader.Name = "PageHeader";
-            // 
-            // xrTable1
-            // 
-            this.xrTable1.Borders = ((DevExpress.XtraPrinting.BorderSide)(((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
-            | DevExpress.XtraPrinting.BorderSide.Right)));
-            this.xrTable1.Font = new DevExpress.Drawing.DXFont("Arial", 9F);
-            this.xrTable1.LocationFloat = new DevExpress.Utils.PointFloat(10.00001F, 10.00001F);
-            this.xrTable1.Name = "xrTable1";
-            this.xrTable1.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 96F);
-            this.xrTable1.Rows.AddRange(new DevExpress.XtraReports.UI.XRTableRow[] {
-            this.xrTableRow1});
-            this.xrTable1.SizeF = new System.Drawing.SizeF(776.5418F, 111.2084F);
-            this.xrTable1.StylePriority.UseBorders = false;
-            this.xrTable1.StylePriority.UseFont = false;
-            // 
-            // xrTableRow1
-            // 
-            this.xrTableRow1.Cells.AddRange(new DevExpress.XtraReports.UI.XRTableCell[] {
-            this.xrTableCell1,
-            this.xrTableCell2,
-            this.xrTableCell3});
-            this.xrTableRow1.Name = "xrTableRow1";
-            this.xrTableRow1.Weight = 1D;
-            // 
-            // xrTableCell1
-            // 
-            this.xrTableCell1.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
-            this.xrLabel222,
-            this.xrPictureBox2});
-            this.xrTableCell1.Multiline = true;
-            this.xrTableCell1.Name = "xrTableCell1";
-            this.xrTableCell1.Text = "xrTableCell1";
-            this.xrTableCell1.Weight = 1D;
-            // 
-            // xrLabel222
-            // 
-            this.xrLabel222.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel222.Font = new DevExpress.Drawing.DXFont("Arial", 9F, DevExpress.Drawing.DXFontStyle.Italic);
-            this.xrLabel222.LocationFloat = new DevExpress.Utils.PointFloat(10.00001F, 65.7084F);
-            this.xrLabel222.Multiline = true;
-            this.xrLabel222.Name = "xrLabel222";
-            this.xrLabel222.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel222.SizeF = new System.Drawing.SizeF(184.4924F, 34.4583F);
-            this.xrLabel222.StylePriority.UseBorders = false;
-            this.xrLabel222.StylePriority.UseFont = false;
-            this.xrLabel222.Text = "Pharmaceutical Pte.Ltd";
-            // 
-            // xrPictureBox2
-            // 
-            this.xrPictureBox2.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrPictureBox2.LocationFloat = new DevExpress.Utils.PointFloat(7.291158F, 10.00001F);
-            this.xrPictureBox2.Name = "xrPictureBox2";
-            this.xrPictureBox2.SizeF = new System.Drawing.SizeF(187.3751F, 41.83334F);
-            this.xrPictureBox2.Sizing = DevExpress.XtraPrinting.ImageSizeMode.ZoomImage;
-            this.xrPictureBox2.StylePriority.UseBorders = false;
-            // 
-            // xrTableCell2
-            // 
-            this.xrTableCell2.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
-            this.xrLabel223});
-            this.xrTableCell2.Multiline = true;
-            this.xrTableCell2.Name = "xrTableCell2";
-            this.xrTableCell2.Text = "xrTableCell2";
-            this.xrTableCell2.Weight = 1.3838086205050635D;
-            // 
-            // xrLabel223
-            // 
-            this.xrLabel223.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel223.Font = new DevExpress.Drawing.DXFont("Arial", 9F, DevExpress.Drawing.DXFontStyle.Bold);
-            this.xrLabel223.LocationFloat = new DevExpress.Utils.PointFloat(13.96542F, 34.20842F);
-            this.xrLabel223.Multiline = true;
-            this.xrLabel223.Name = "xrLabel223";
-            this.xrLabel223.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel223.SizeF = new System.Drawing.SizeF(258.6252F, 43.83337F);
-            this.xrLabel223.StylePriority.UseBorders = false;
-            this.xrLabel223.StylePriority.UseFont = false;
-            this.xrLabel223.StylePriority.UseTextAlignment = false;
-            this.xrLabel223.Text = "QUALITY ASSURANCE DEPARTMENT RECORD";
-            this.xrLabel223.TextAlignment = DevExpress.XtraPrinting.TextAlignment.TopCenter;
-            // 
-            // xrTableCell3
-            // 
-            this.xrTableCell3.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
-            this.xrLabel224,
-            this.xrPageInfo1,
-            this.xrLabel230,
-            this.xrLabel231,
-            this.xrLabel227,
-            this.xrLabel225});
-            this.xrTableCell3.Multiline = true;
-            this.xrTableCell3.Name = "xrTableCell3";
-            this.xrTableCell3.Text = "xrTableCell3";
-            this.xrTableCell3.Weight = 1.4780477771263973D;
-            // 
-            // xrLabel224
-            // 
-            this.xrLabel224.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel224.LocationFloat = new DevExpress.Utils.PointFloat(5.249603F, 10.00001F);
-            this.xrLabel224.Multiline = true;
-            this.xrLabel224.Name = "xrLabel224";
-            this.xrLabel224.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel224.SizeF = new System.Drawing.SizeF(88.54169F, 22.99999F);
-            this.xrLabel224.StylePriority.UseBorders = false;
-            this.xrLabel224.Text = "DOC .NO:";
-            // 
-            // xrPageInfo1
-            // 
-            this.xrPageInfo1.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrPageInfo1.LocationFloat = new DevExpress.Utils.PointFloat(104.9057F, 77.16675F);
-            this.xrPageInfo1.Name = "xrPageInfo1";
-            this.xrPageInfo1.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 96F);
-            this.xrPageInfo1.SizeF = new System.Drawing.SizeF(174.5402F, 22.99995F);
-            this.xrPageInfo1.StylePriority.UseBorders = false;
-            // 
-            // xrLabel230
-            // 
-            this.xrLabel230.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel230.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[DocNo]")});
-            this.xrLabel230.LocationFloat = new DevExpress.Utils.PointFloat(104.9057F, 10.00001F);
-            this.xrLabel230.Multiline = true;
-            this.xrLabel230.Name = "xrLabel230";
-            this.xrLabel230.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel230.SizeF = new System.Drawing.SizeF(174.5402F, 23F);
-            this.xrLabel230.StylePriority.UseBorders = false;
-            // 
-            // xrLabel231
-            // 
-            this.xrLabel231.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel231.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[VersionNo]")});
-            this.xrLabel231.LocationFloat = new DevExpress.Utils.PointFloat(104.4054F, 41.33332F);
-            this.xrLabel231.Multiline = true;
-            this.xrLabel231.Name = "xrLabel231";
-            this.xrLabel231.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel231.SizeF = new System.Drawing.SizeF(174.5402F, 23.00002F);
-            this.xrLabel231.StylePriority.UseBorders = false;
-            // 
-            // xrLabel227
-            // 
-            this.xrLabel227.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel227.LocationFloat = new DevExpress.Utils.PointFloat(5.249603F, 77.16675F);
-            this.xrLabel227.Multiline = true;
-            this.xrLabel227.Name = "xrLabel227";
-            this.xrLabel227.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel227.SizeF = new System.Drawing.SizeF(88.54169F, 22.99995F);
-            this.xrLabel227.StylePriority.UseBorders = false;
-            this.xrLabel227.Text = "PAGES:";
-            // 
-            // xrLabel225
-            // 
-            this.xrLabel225.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel225.LocationFloat = new DevExpress.Utils.PointFloat(5.249847F, 44.62509F);
-            this.xrLabel225.Multiline = true;
-            this.xrLabel225.Name = "xrLabel225";
-            this.xrLabel225.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel225.SizeF = new System.Drawing.SizeF(88.54144F, 19.70825F);
-            this.xrLabel225.StylePriority.UseBorders = false;
-            this.xrLabel225.Text = "VERSION.NO:";
-            // 
-            // xrLabel229
-            // 
-            this.xrLabel229.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
+            this.xrPanel2.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
             | DevExpress.XtraPrinting.BorderSide.Right) 
             | DevExpress.XtraPrinting.BorderSide.Bottom)));
-            this.xrLabel229.Font = new DevExpress.Drawing.DXFont("Arial", 12F, DevExpress.Drawing.DXFontStyle.Bold);
-            this.xrLabel229.ForeColor = System.Drawing.Color.Black;
-            this.xrLabel229.LocationFloat = new DevExpress.Utils.PointFloat(10.00001F, 121.2084F);
-            this.xrLabel229.Multiline = true;
-            this.xrLabel229.Name = "xrLabel229";
-            this.xrLabel229.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel229.SizeF = new System.Drawing.SizeF(776.5419F, 41.04169F);
-            this.xrLabel229.StylePriority.UseBorders = false;
-            this.xrLabel229.StylePriority.UseFont = false;
-            this.xrLabel229.StylePriority.UseForeColor = false;
-            this.xrLabel229.StylePriority.UseTextAlignment = false;
-            this.xrLabel229.Text = "         CHANGE CONTROLL FORM";
-            this.xrLabel229.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            this.xrPanel2.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+            this.xrLabel218,
+            this.xrLabel219,
+            this.xrLabel220,
+            this.xrLabel221,
+            this.xrLabel226,
+            this.xrCheckBox80,
+            this.xrLabel135,
+            this.xrLabel43,
+            this.xrLine13,
+            this.xrLabel206,
+            this.xrCheckBox76,
+            this.xrLabel207,
+            this.xrCheckBox77,
+            this.xrLabel208,
+            this.xrLabel209,
+            this.xrLabel211,
+            this.xrLabel212,
+            this.xrLabel210,
+            this.xrLabel213,
+            this.xrLabel214,
+            this.xrCheckBox74,
+            this.xrLabel199,
+            this.xrCheckBox75,
+            this.xrLabel200,
+            this.xrLabel201,
+            this.xrLabel202,
+            this.xrLabel204,
+            this.xrLabel205,
+            this.xrLabel203,
+            this.xrLine12,
+            this.xrLabel188,
+            this.xrLabel191,
+            this.xrLabel192,
+            this.xrLabel193,
+            this.xrLabel194,
+            this.xrLabel195,
+            this.xrLabel196,
+            this.xrLabel197,
+            this.xrLabel198});
+            this.xrPanel2.LocationFloat = new DevExpress.Utils.PointFloat(9.007533F, 5163.792F);
+            this.xrPanel2.Name = "xrPanel2";
+            this.xrPanel2.SizeF = new System.Drawing.SizeF(777.5344F, 998.2476F);
+            this.xrPanel2.StylePriority.UseBorders = false;
+            // 
+            // xrLabel218
+            // 
+            this.xrLabel218.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel218.LocationFloat = new DevExpress.Utils.PointFloat(14.84925F, 935.959F);
+            this.xrLabel218.Multiline = true;
+            this.xrLabel218.Name = "xrLabel218";
+            this.xrLabel218.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel218.SizeF = new System.Drawing.SizeF(112.0386F, 37.54102F);
+            this.xrLabel218.StylePriority.UseBorders = false;
+            this.xrLabel218.Text = "Closed By(Pharmacist):";
+            // 
+            // xrLabel219
+            // 
+            this.xrLabel219.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel219.LocationFloat = new DevExpress.Utils.PointFloat(515.1472F, 953.668F);
+            this.xrLabel219.Multiline = true;
+            this.xrLabel219.Name = "xrLabel219";
+            this.xrLabel219.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel219.SizeF = new System.Drawing.SizeF(48.97162F, 19.83008F);
+            this.xrLabel219.StylePriority.UseBorders = false;
+            this.xrLabel219.Text = "Date:";
+            // 
+            // xrLabel220
+            // 
+            this.xrLabel220.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel220.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[NotSatisfactoryClosedBy]")});
+            this.xrLabel220.LocationFloat = new DevExpress.Utils.PointFloat(146.6209F, 953.668F);
+            this.xrLabel220.Multiline = true;
+            this.xrLabel220.Name = "xrLabel220";
+            this.xrLabel220.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel220.SizeF = new System.Drawing.SizeF(342.9145F, 19.83154F);
+            this.xrLabel220.StylePriority.UseBorders = false;
+            this.xrLabel220.StylePriority.UseTextAlignment = false;
+            this.xrLabel220.Text = "xrLabel220";
+            this.xrLabel220.TextAlignment = DevExpress.XtraPrinting.TextAlignment.TopLeft;
+            // 
+            // xrLabel221
+            // 
+            this.xrLabel221.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel221.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[NotSatisfactoryDate]")});
+            this.xrLabel221.LocationFloat = new DevExpress.Utils.PointFloat(584.1345F, 953.6699F);
+            this.xrLabel221.Multiline = true;
+            this.xrLabel221.Name = "xrLabel221";
+            this.xrLabel221.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel221.SizeF = new System.Drawing.SizeF(163.7578F, 19.8291F);
+            this.xrLabel221.StylePriority.UseBorders = false;
+            this.xrLabel221.Text = "xrLabel221";
+            this.xrLabel221.TextFormatString = "{0:d}";
+            // 
+            // xrLabel226
+            // 
+            this.xrLabel226.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel226.LocationFloat = new DevExpress.Utils.PointFloat(185.7598F, 875.043F);
+            this.xrLabel226.Multiline = true;
+            this.xrLabel226.Name = "xrLabel226";
+            this.xrLabel226.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel226.SizeF = new System.Drawing.SizeF(89.91702F, 23F);
+            this.xrLabel226.StylePriority.UseBorders = false;
+            this.xrLabel226.Text = "Satisfactory";
+            // 
+            // xrCheckBox80
+            // 
+            this.xrCheckBox80.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrCheckBox80.CheckBoxState = DevExpress.XtraPrinting.CheckBoxState.Indeterminate;
+            this.xrCheckBox80.Checked = true;
+            this.xrCheckBox80.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "CheckBoxState", "[IsSatisfactoryForNotSatisfactory]")});
+            this.xrCheckBox80.LocationFloat = new DevExpress.Utils.PointFloat(144.5205F, 875.043F);
+            this.xrCheckBox80.Name = "xrCheckBox80";
+            this.xrCheckBox80.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrCheckBox80.SizeF = new System.Drawing.SizeF(29.0817F, 23F);
+            this.xrCheckBox80.StylePriority.UseBorders = false;
+            // 
+            // xrLabel135
+            // 
+            this.xrLabel135.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel135.LocationFloat = new DevExpress.Utils.PointFloat(14.84925F, 862.543F);
+            this.xrLabel135.Multiline = true;
+            this.xrLabel135.Name = "xrLabel135";
+            this.xrLabel135.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel135.SizeF = new System.Drawing.SizeF(113.2059F, 46.9585F);
+            this.xrLabel135.StylePriority.UseBorders = false;
+            this.xrLabel135.Text = "All completed activities found:";
+            // 
+            // xrLabel43
+            // 
+            this.xrLabel43.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel43.Font = new DevExpress.Drawing.DXFont("Arial", 9F, DevExpress.Drawing.DXFontStyle.Bold);
+            this.xrLabel43.LocationFloat = new DevExpress.Utils.PointFloat(11.9901F, 821.417F);
+            this.xrLabel43.Multiline = true;
+            this.xrLabel43.Name = "xrLabel43";
+            this.xrLabel43.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel43.SizeF = new System.Drawing.SizeF(405.331F, 23F);
+            this.xrLabel43.StylePriority.UseBorders = false;
+            this.xrLabel43.StylePriority.UseFont = false;
+            this.xrLabel43.Text = "*To be filled if completed activities not satisfactory initially";
+            // 
+            // xrLine13
+            // 
+            this.xrLine13.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLine13.LocationFloat = new DevExpress.Utils.PointFloat(4.541365F, 786.333F);
+            this.xrLine13.Name = "xrLine13";
+            this.xrLine13.SizeF = new System.Drawing.SizeF(767.2263F, 4.25F);
+            this.xrLine13.StylePriority.UseBorders = false;
+            // 
+            // xrLabel206
+            // 
+            this.xrLabel206.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel206.LocationFloat = new DevExpress.Utils.PointFloat(19.92028F, 524.3335F);
+            this.xrLabel206.Multiline = true;
+            this.xrLabel206.Name = "xrLabel206";
+            this.xrLabel206.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel206.SizeF = new System.Drawing.SizeF(116.4566F, 40.70898F);
+            this.xrLabel206.StylePriority.UseBorders = false;
+            this.xrLabel206.Text = "All Completed Activities Found:";
+            // 
+            // xrCheckBox76
+            // 
+            this.xrCheckBox76.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrCheckBox76.CheckBoxState = DevExpress.XtraPrinting.CheckBoxState.Indeterminate;
+            this.xrCheckBox76.Checked = true;
+            this.xrCheckBox76.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "CheckBoxState", "[IsSatisfactory]")});
+            this.xrCheckBox76.LocationFloat = new DevExpress.Utils.PointFloat(154.7807F, 542.0425F);
+            this.xrCheckBox76.Name = "xrCheckBox76";
+            this.xrCheckBox76.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrCheckBox76.SizeF = new System.Drawing.SizeF(45.83324F, 23F);
+            this.xrCheckBox76.StylePriority.UseBorders = false;
+            // 
+            // xrLabel207
+            // 
+            this.xrLabel207.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel207.LocationFloat = new DevExpress.Utils.PointFloat(210.5069F, 542.0435F);
+            this.xrLabel207.Multiline = true;
+            this.xrLabel207.Name = "xrLabel207";
+            this.xrLabel207.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel207.SizeF = new System.Drawing.SizeF(100F, 23F);
+            this.xrLabel207.StylePriority.UseBorders = false;
+            this.xrLabel207.Text = "Satisfactory";
+            // 
+            // xrCheckBox77
+            // 
+            this.xrCheckBox77.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrCheckBox77.CheckBoxState = DevExpress.XtraPrinting.CheckBoxState.Indeterminate;
+            this.xrCheckBox77.Checked = true;
+            this.xrCheckBox77.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "CheckBoxState", "[IsNotSatisfactory]")});
+            this.xrCheckBox77.LocationFloat = new DevExpress.Utils.PointFloat(324.7495F, 542.0435F);
+            this.xrCheckBox77.Name = "xrCheckBox77";
+            this.xrCheckBox77.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrCheckBox77.SizeF = new System.Drawing.SizeF(42.58359F, 23F);
+            this.xrCheckBox77.StylePriority.UseBorders = false;
+            // 
+            // xrLabel208
+            // 
+            this.xrLabel208.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel208.LocationFloat = new DevExpress.Utils.PointFloat(378.8557F, 542.0435F);
+            this.xrLabel208.Multiline = true;
+            this.xrLabel208.Name = "xrLabel208";
+            this.xrLabel208.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel208.SizeF = new System.Drawing.SizeF(110.6666F, 23F);
+            this.xrLabel208.StylePriority.UseBorders = false;
+            this.xrLabel208.Text = "Not Satisfactory";
+            // 
+            // xrLabel209
+            // 
+            this.xrLabel209.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel209.LocationFloat = new DevExpress.Utils.PointFloat(15.99773F, 598.2925F);
+            this.xrLabel209.Multiline = true;
+            this.xrLabel209.Name = "xrLabel209";
+            this.xrLabel209.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel209.SizeF = new System.Drawing.SizeF(116.4568F, 22.99951F);
+            this.xrLabel209.StylePriority.UseBorders = false;
+            this.xrLabel209.Text = "Comments( if any):";
+            // 
+            // xrLabel211
+            // 
+            this.xrLabel211.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel211.LocationFloat = new DevExpress.Utils.PointFloat(21.45472F, 725.4995F);
+            this.xrLabel211.Multiline = true;
+            this.xrLabel211.Name = "xrLabel211";
+            this.xrLabel211.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel211.SizeF = new System.Drawing.SizeF(115.2896F, 33.4165F);
+            this.xrLabel211.StylePriority.UseBorders = false;
+            this.xrLabel211.Text = "Closed By(Pharmacist):";
+            // 
+            // xrLabel212
+            // 
+            this.xrLabel212.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel212.LocationFloat = new DevExpress.Utils.PointFloat(504.3198F, 740.0825F);
+            this.xrLabel212.Multiline = true;
+            this.xrLabel212.Name = "xrLabel212";
+            this.xrLabel212.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel212.SizeF = new System.Drawing.SizeF(43.75012F, 18.8335F);
+            this.xrLabel212.StylePriority.UseBorders = false;
+            this.xrLabel212.Text = "Date:";
+            // 
+            // xrLabel210
+            // 
+            this.xrLabel210.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel210.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[Comments]")});
+            this.xrLabel210.LocationFloat = new DevExpress.Utils.PointFloat(150.249F, 598.2935F);
+            this.xrLabel210.Multiline = true;
+            this.xrLabel210.Name = "xrLabel210";
+            this.xrLabel210.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel210.SizeF = new System.Drawing.SizeF(602.5408F, 118.8325F);
+            this.xrLabel210.StylePriority.UseBorders = false;
+            this.xrLabel210.Text = "xrLabel210";
+            // 
+            // xrLabel213
+            // 
+            this.xrLabel213.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel213.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[ClosedBy]")});
+            this.xrLabel213.LocationFloat = new DevExpress.Utils.PointFloat(150.249F, 740.0835F);
+            this.xrLabel213.Multiline = true;
+            this.xrLabel213.Name = "xrLabel213";
+            this.xrLabel213.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel213.SizeF = new System.Drawing.SizeF(342.9146F, 18.83252F);
+            this.xrLabel213.StylePriority.UseBorders = false;
+            this.xrLabel213.StylePriority.UseTextAlignment = false;
+            this.xrLabel213.Text = "xrLabel213";
+            this.xrLabel213.TextAlignment = DevExpress.XtraPrinting.TextAlignment.TopLeft;
+            // 
+            // xrLabel214
+            // 
+            this.xrLabel214.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel214.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[Date]")});
+            this.xrLabel214.LocationFloat = new DevExpress.Utils.PointFloat(557.9412F, 740.0825F);
+            this.xrLabel214.Multiline = true;
+            this.xrLabel214.Name = "xrLabel214";
+            this.xrLabel214.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel214.SizeF = new System.Drawing.SizeF(195.6796F, 18.83105F);
+            this.xrLabel214.StylePriority.UseBorders = false;
+            this.xrLabel214.Text = "xrLabel214";
+            this.xrLabel214.TextFormatString = "{0:d}";
+            // 
+            // xrCheckBox74
+            // 
+            this.xrCheckBox74.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrCheckBox74.CheckBoxState = DevExpress.XtraPrinting.CheckBoxState.Indeterminate;
+            this.xrCheckBox74.Checked = true;
+            this.xrCheckBox74.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "CheckBoxState", "[DAcceptable]")});
+            this.xrCheckBox74.LocationFloat = new DevExpress.Utils.PointFloat(21.31518F, 301.2119F);
+            this.xrCheckBox74.Name = "xrCheckBox74";
+            this.xrCheckBox74.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrCheckBox74.SizeF = new System.Drawing.SizeF(50.58311F, 23F);
+            this.xrCheckBox74.StylePriority.UseBorders = false;
+            // 
+            // xrLabel199
+            // 
+            this.xrLabel199.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel199.LocationFloat = new DevExpress.Utils.PointFloat(86.24352F, 301.2119F);
+            this.xrLabel199.Multiline = true;
+            this.xrLabel199.Name = "xrLabel199";
+            this.xrLabel199.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel199.SizeF = new System.Drawing.SizeF(83.16403F, 23F);
+            this.xrLabel199.StylePriority.UseBorders = false;
+            this.xrLabel199.Text = "Acceptable";
+            // 
+            // xrCheckBox75
+            // 
+            this.xrCheckBox75.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrCheckBox75.CheckBoxState = DevExpress.XtraPrinting.CheckBoxState.Indeterminate;
+            this.xrCheckBox75.Checked = true;
+            this.xrCheckBox75.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "CheckBoxState", "[DNotAcceptable]")});
+            this.xrCheckBox75.LocationFloat = new DevExpress.Utils.PointFloat(189.2582F, 301.2119F);
+            this.xrCheckBox75.Name = "xrCheckBox75";
+            this.xrCheckBox75.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrCheckBox75.SizeF = new System.Drawing.SizeF(37.41635F, 23F);
+            this.xrCheckBox75.StylePriority.UseBorders = false;
+            // 
+            // xrLabel200
+            // 
+            this.xrLabel200.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel200.LocationFloat = new DevExpress.Utils.PointFloat(241.19F, 301.2119F);
+            this.xrLabel200.Multiline = true;
+            this.xrLabel200.Name = "xrLabel200";
+            this.xrLabel200.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel200.SizeF = new System.Drawing.SizeF(104.0844F, 23F);
+            this.xrLabel200.StylePriority.UseBorders = false;
+            this.xrLabel200.Text = "Not Acceptable";
+            // 
+            // xrLabel201
+            // 
+            this.xrLabel201.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel201.LocationFloat = new DevExpress.Utils.PointFloat(17.6496F, 357.75F);
+            this.xrLabel201.Multiline = true;
+            this.xrLabel201.Name = "xrLabel201";
+            this.xrLabel201.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel201.SizeF = new System.Drawing.SizeF(106.9532F, 22.99854F);
+            this.xrLabel201.StylePriority.UseBorders = false;
+            this.xrLabel201.Text = "Verified By:";
+            // 
+            // xrLabel202
+            // 
+            this.xrLabel202.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel202.LocationFloat = new DevExpress.Utils.PointFloat(493.7457F, 357.749F);
+            this.xrLabel202.Multiline = true;
+            this.xrLabel202.Name = "xrLabel202";
+            this.xrLabel202.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel202.SizeF = new System.Drawing.SizeF(42.37469F, 23F);
+            this.xrLabel202.StylePriority.UseBorders = false;
+            this.xrLabel202.Text = "Date:";
+            // 
+            // xrLabel204
+            // 
+            this.xrLabel204.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel204.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[Date]")});
+            this.xrLabel204.LocationFloat = new DevExpress.Utils.PointFloat(543.233F, 357.75F);
+            this.xrLabel204.Multiline = true;
+            this.xrLabel204.Name = "xrLabel204";
+            this.xrLabel204.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel204.SizeF = new System.Drawing.SizeF(205.846F, 22.99951F);
+            this.xrLabel204.StylePriority.UseBorders = false;
+            this.xrLabel204.Text = "xrLabel204";
+            this.xrLabel204.TextFormatString = "{0:d}";
+            // 
+            // xrLabel205
+            // 
+            this.xrLabel205.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.xrLabel205.LocationFloat = new DevExpress.Utils.PointFloat(14.37147F, 476.542F);
+            this.xrLabel205.Multiline = true;
+            this.xrLabel205.Name = "xrLabel205";
+            this.xrLabel205.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel205.SizeF = new System.Drawing.SizeF(759.0435F, 27.1665F);
+            this.xrLabel205.StylePriority.UseBackColor = false;
+            this.xrLabel205.Text = "SECTION E: CHANGE CLOSUER(To be filled by QA)";
+            // 
+            // xrLabel203
+            // 
+            this.xrLabel203.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel203.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[DVerifiedBy]")});
+            this.xrLabel203.LocationFloat = new DevExpress.Utils.PointFloat(138.5771F, 357.75F);
+            this.xrLabel203.Multiline = true;
+            this.xrLabel203.Name = "xrLabel203";
+            this.xrLabel203.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel203.SizeF = new System.Drawing.SizeF(343.6214F, 22.99902F);
+            this.xrLabel203.StylePriority.UseBorders = false;
+            this.xrLabel203.Text = "Acceptable";
+            // 
+            // xrLine12
+            // 
+            this.xrLine12.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLine12.LocationFloat = new DevExpress.Utils.PointFloat(2.308941F, 417.209F);
+            this.xrLine12.Name = "xrLine12";
+            this.xrLine12.SizeF = new System.Drawing.SizeF(771.1061F, 9.458496F);
+            this.xrLine12.StylePriority.UseBorders = false;
+            // 
+            // xrLabel188
+            // 
+            this.xrLabel188.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.xrLabel188.LocationFloat = new DevExpress.Utils.PointFloat(13.57034F, 10F);
+            this.xrLabel188.Multiline = true;
+            this.xrLabel188.Name = "xrLabel188";
+            this.xrLabel188.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel188.SizeF = new System.Drawing.SizeF(756.964F, 29.08398F);
+            this.xrLabel188.StylePriority.UseBackColor = false;
+            this.xrLabel188.Text = "*Discontinue of Implementation(If Applicable)";
+            // 
+            // xrLabel191
+            // 
+            this.xrLabel191.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel191.LocationFloat = new DevExpress.Utils.PointFloat(16.27922F, 64.08545F);
+            this.xrLabel191.Multiline = true;
+            this.xrLabel191.Name = "xrLabel191";
+            this.xrLabel191.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel191.SizeF = new System.Drawing.SizeF(101.4166F, 93.66748F);
+            this.xrLabel191.StylePriority.UseBorders = false;
+            this.xrLabel191.Text = "HOD Comments:";
+            // 
+            // xrLabel192
+            // 
+            this.xrLabel192.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel192.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[HODComments]")});
+            this.xrLabel192.LocationFloat = new DevExpress.Utils.PointFloat(143.4617F, 64.08545F);
+            this.xrLabel192.Multiline = true;
+            this.xrLabel192.Name = "xrLabel192";
+            this.xrLabel192.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel192.SizeF = new System.Drawing.SizeF(605.7706F, 93.66699F);
+            this.xrLabel192.StylePriority.UseBorders = false;
+            this.xrLabel192.Text = "xrLabel192";
+            // 
+            // xrLabel193
+            // 
+            this.xrLabel193.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel193.LocationFloat = new DevExpress.Utils.PointFloat(17.38869F, 173.79F);
+            this.xrLabel193.Multiline = true;
+            this.xrLabel193.Name = "xrLabel193";
+            this.xrLabel193.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel193.SizeF = new System.Drawing.SizeF(99.7879F, 23F);
+            this.xrLabel193.StylePriority.UseBorders = false;
+            this.xrLabel193.Text = "HOD Signature:";
+            // 
+            // xrLabel194
+            // 
+            this.xrLabel194.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel194.LocationFloat = new DevExpress.Utils.PointFloat(481.4608F, 173.79F);
+            this.xrLabel194.Multiline = true;
+            this.xrLabel194.Name = "xrLabel194";
+            this.xrLabel194.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel194.SizeF = new System.Drawing.SizeF(41.08307F, 23F);
+            this.xrLabel194.StylePriority.UseBorders = false;
+            this.xrLabel194.Text = "Date:";
+            // 
+            // xrLabel195
+            // 
+            this.xrLabel195.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel195.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[HODSignature]")});
+            this.xrLabel195.LocationFloat = new DevExpress.Utils.PointFloat(146.52F, 173.79F);
+            this.xrLabel195.Multiline = true;
+            this.xrLabel195.Name = "xrLabel195";
+            this.xrLabel195.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel195.SizeF = new System.Drawing.SizeF(317.3578F, 23F);
+            this.xrLabel195.StylePriority.UseBorders = false;
+            this.xrLabel195.Text = "xrLabel195";
+            // 
+            // xrLabel196
+            // 
+            this.xrLabel196.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel196.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[HODDate]")});
+            this.xrLabel196.LocationFloat = new DevExpress.Utils.PointFloat(537.2561F, 173.79F);
+            this.xrLabel196.Multiline = true;
+            this.xrLabel196.Name = "xrLabel196";
+            this.xrLabel196.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel196.SizeF = new System.Drawing.SizeF(211.1213F, 23F);
+            this.xrLabel196.StylePriority.UseBorders = false;
+            this.xrLabel196.Text = "xrLabel196";
+            this.xrLabel196.TextFormatString = "{0:d}";
+            // 
+            // xrLabel197
+            // 
+            this.xrLabel197.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.xrLabel197.LocationFloat = new DevExpress.Utils.PointFloat(12.7691F, 215.541F);
+            this.xrLabel197.Multiline = true;
+            this.xrLabel197.Name = "xrLabel197";
+            this.xrLabel197.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel197.SizeF = new System.Drawing.SizeF(758.9985F, 30.2915F);
+            this.xrLabel197.StylePriority.UseBackColor = false;
+            this.xrLabel197.Text = "QA Verification";
+            // 
+            // xrLabel198
+            // 
+            this.xrLabel198.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel198.LocationFloat = new DevExpress.Utils.PointFloat(21.96875F, 263F);
+            this.xrLabel198.Multiline = true;
+            this.xrLabel198.Name = "xrLabel198";
+            this.xrLabel198.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel198.SizeF = new System.Drawing.SizeF(100.9868F, 23F);
+            this.xrLabel198.StylePriority.UseBorders = false;
+            this.xrLabel198.Text = "Status";
+            // 
+            // xrSubreport1
+            // 
+            this.xrSubreport1.LocationFloat = new DevExpress.Utils.PointFloat(26.35514F, 4990.042F);
+            this.xrSubreport1.Name = "xrSubreport1";
+            this.xrSubreport1.ReportSource = new AC.SD.Core.Reports.ChangeControlSubReport();
+            this.xrSubreport1.SizeF = new System.Drawing.SizeF(721.3414F, 159.041F);
+            // 
+            // xrLabel42
+            // 
+            this.xrLabel42.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.xrLabel42.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
+            | DevExpress.XtraPrinting.BorderSide.Right) 
+            | DevExpress.XtraPrinting.BorderSide.Bottom)));
+            this.xrLabel42.LocationFloat = new DevExpress.Utils.PointFloat(15.62535F, 4949.333F);
+            this.xrLabel42.Multiline = true;
+            this.xrLabel42.Name = "xrLabel42";
+            this.xrLabel42.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel42.SizeF = new System.Drawing.SizeF(764.909F, 29.25F);
+            this.xrLabel42.StylePriority.UseBackColor = false;
+            this.xrLabel42.StylePriority.UseBorders = false;
+            this.xrLabel42.Text = "SECTION D :CHANGE IMPLEMENTATION(*Attach Document Copy)";
             // 
             // xrPanel1
             // 
@@ -10773,7 +9383,7 @@
             // 
             // xrLabel7
             // 
-            this.xrLabel7.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel7.Borders = DevExpress.XtraPrinting.BorderSide.None;
             this.xrLabel7.LocationFloat = new DevExpress.Utils.PointFloat(123.9998F, 62.16666F);
             this.xrLabel7.Multiline = true;
             this.xrLabel7.Name = "xrLabel7";
@@ -10797,7 +9407,7 @@
             // 
             // xrLabel8
             // 
-            this.xrLabel8.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
+            this.xrLabel8.Borders = DevExpress.XtraPrinting.BorderSide.None;
             this.xrLabel8.LocationFloat = new DevExpress.Utils.PointFloat(413.1895F, 62.16666F);
             this.xrLabel8.Multiline = true;
             this.xrLabel8.Name = "xrLabel8";
@@ -11206,554 +9816,1944 @@
             this.xrLabel50.Text = "xrLabel50";
             this.xrLabel50.TextAlignment = DevExpress.XtraPrinting.TextAlignment.TopLeft;
             // 
-            // xrSubreport1
+            // sqlDataSource5
             // 
-            this.xrSubreport1.LocationFloat = new DevExpress.Utils.PointFloat(26.35514F, 4990.042F);
-            this.xrSubreport1.Name = "xrSubreport1";
-            this.xrSubreport1.ReportSource = new AC.SD.Core.Reports.ChangeControlSubReport();
-            this.xrSubreport1.SizeF = new System.Drawing.SizeF(721.3414F, 159.041F);
+            this.sqlDataSource5.ConnectionName = "Report_Connection";
+            this.sqlDataSource5.Name = "sqlDataSource5";
+            columnExpression734.ColumnName = "CCFAInformationID";
+            table21.Name = "View_GetCCFFormReport";
+            columnExpression734.Table = table21;
+            column734.Expression = columnExpression734;
+            columnExpression735.ColumnName = "IsInternalChanges";
+            columnExpression735.Table = table21;
+            column735.Expression = columnExpression735;
+            columnExpression736.ColumnName = "IsAuthorityDirectedChanges";
+            columnExpression736.Table = table21;
+            column736.Expression = columnExpression736;
+            columnExpression737.ColumnName = "PersonInCharge";
+            columnExpression737.Table = table21;
+            column737.Expression = columnExpression737;
+            columnExpression738.ColumnName = "PersonApprove";
+            columnExpression738.Table = table21;
+            column738.Expression = columnExpression738;
+            columnExpression739.ColumnName = "DepartmentName";
+            columnExpression739.Table = table21;
+            column739.Expression = columnExpression739;
+            columnExpression740.ColumnName = "IsSiteTransfer";
+            columnExpression740.Table = table21;
+            column740.Expression = columnExpression740;
+            columnExpression741.ColumnName = "IsProduct";
+            columnExpression741.Table = table21;
+            column741.Expression = columnExpression741;
+            columnExpression742.ColumnName = "AEquipment";
+            columnExpression742.Table = table21;
+            column742.Expression = columnExpression742;
+            columnExpression743.ColumnName = "IsComposition";
+            columnExpression743.Table = table21;
+            column743.Expression = columnExpression743;
+            columnExpression744.ColumnName = "IsFacility";
+            columnExpression744.Table = table21;
+            column744.Expression = columnExpression744;
+            columnExpression745.ColumnName = "IsLayout";
+            columnExpression745.Table = table21;
+            column745.Expression = columnExpression745;
+            columnExpression746.ColumnName = "IsDocument";
+            columnExpression746.Table = table21;
+            column746.Expression = columnExpression746;
+            columnExpression747.ColumnName = "IsProcess";
+            columnExpression747.Table = table21;
+            column747.Expression = columnExpression747;
+            columnExpression748.ColumnName = "AControlParameter";
+            columnExpression748.Table = table21;
+            column748.Expression = columnExpression748;
+            columnExpression749.ColumnName = "IsBatchSize";
+            columnExpression749.Table = table21;
+            column749.Expression = columnExpression749;
+            columnExpression750.ColumnName = "IsHoldingTime";
+            columnExpression750.Table = table21;
+            column750.Expression = columnExpression750;
+            columnExpression751.ColumnName = "IsRawMeterial";
+            columnExpression751.Table = table21;
+            column751.Expression = columnExpression751;
+            columnExpression752.ColumnName = "IsArtwork";
+            columnExpression752.Table = table21;
+            column752.Expression = columnExpression752;
+            columnExpression753.ColumnName = "IsPackagingMaterial";
+            columnExpression753.Table = table21;
+            column753.Expression = columnExpression753;
+            columnExpression754.ColumnName = "AVendor";
+            columnExpression754.Table = table21;
+            column754.Expression = columnExpression754;
+            columnExpression755.ColumnName = "IsShelfLife";
+            columnExpression755.Table = table21;
+            column755.Expression = columnExpression755;
+            columnExpression756.ColumnName = "IsRegulatory";
+            columnExpression756.Table = table21;
+            column756.Expression = columnExpression756;
+            columnExpression757.ColumnName = "IsReTestPeriod";
+            columnExpression757.Table = table21;
+            column757.Expression = columnExpression757;
+            columnExpression758.ColumnName = "Others";
+            columnExpression758.Table = table21;
+            column758.Expression = columnExpression758;
+            columnExpression759.ColumnName = "DescriptionOfProposedChange";
+            columnExpression759.Table = table21;
+            column759.Expression = columnExpression759;
+            columnExpression760.ColumnName = "Justification";
+            columnExpression760.Table = table21;
+            column760.Expression = columnExpression760;
+            columnExpression761.ColumnName = "ProposedImplementationAction";
+            columnExpression761.Table = table21;
+            column761.Expression = columnExpression761;
+            columnExpression762.ColumnName = "RelatedDeviation";
+            columnExpression762.Table = table21;
+            column762.Expression = columnExpression762;
+            columnExpression763.ColumnName = "SessionID";
+            columnExpression763.Table = table21;
+            column763.Expression = columnExpression763;
+            columnExpression764.ColumnName = "CCFBEvaluationID";
+            columnExpression764.Table = table21;
+            column764.Expression = columnExpression764;
+            columnExpression765.ColumnName = "BAcceptable";
+            columnExpression765.Table = table21;
+            column765.Expression = columnExpression765;
+            columnExpression766.ColumnName = "BNotAcceptable";
+            columnExpression766.Table = table21;
+            column766.Expression = columnExpression766;
+            columnExpression767.ColumnName = "IsMinor";
+            columnExpression767.Table = table21;
+            column767.Expression = columnExpression767;
+            columnExpression768.ColumnName = "IsMajor";
+            columnExpression768.Table = table21;
+            column768.Expression = columnExpression768;
+            columnExpression769.ColumnName = "IsCritical";
+            columnExpression769.Table = table21;
+            column769.Expression = columnExpression769;
+            columnExpression770.ColumnName = "BComments";
+            columnExpression770.Table = table21;
+            column770.Expression = columnExpression770;
+            columnExpression771.ColumnName = "IsProduction";
+            columnExpression771.Table = table21;
+            column771.Expression = columnExpression771;
+            columnExpression772.ColumnName = "IsEAndM";
+            columnExpression772.Table = table21;
+            column772.Expression = columnExpression772;
+            columnExpression773.ColumnName = "IsRequlatory";
+            columnExpression773.Table = table21;
+            column773.Expression = columnExpression773;
+            columnExpression774.ColumnName = "IsQA";
+            columnExpression774.Table = table21;
+            column774.Expression = columnExpression774;
+            columnExpression775.ColumnName = "IsQC";
+            columnExpression775.Table = table21;
+            column775.Expression = columnExpression775;
+            columnExpression776.ColumnName = "IsStore";
+            columnExpression776.Table = table21;
+            column776.Expression = columnExpression776;
+            columnExpression777.ColumnName = "RelatedDeparmentOthers";
+            columnExpression777.Table = table21;
+            column777.Expression = columnExpression777;
+            columnExpression778.ColumnName = "EvaluatedBy";
+            columnExpression778.Table = table21;
+            column778.Expression = columnExpression778;
+            columnExpression779.ColumnName = "IsRequlatoryApproval";
+            columnExpression779.Table = table21;
+            column779.Expression = columnExpression779;
+            columnExpression780.ColumnName = "IsNotificationRequired";
+            columnExpression780.Table = table21;
+            column780.Expression = columnExpression780;
+            columnExpression781.ColumnName = "RegulatoryOthers";
+            columnExpression781.Table = table21;
+            column781.Expression = columnExpression781;
+            columnExpression782.ColumnName = "RegulatoryDetails";
+            columnExpression782.Table = table21;
+            column782.Expression = columnExpression782;
+            columnExpression783.ColumnName = "RequlatoryEvaluatedBy";
+            columnExpression783.Table = table21;
+            column783.Expression = columnExpression783;
+            columnExpression784.ColumnName = "RegulatoryDate";
+            columnExpression784.Table = table21;
+            column784.Expression = columnExpression784;
+            columnExpression785.ColumnName = "IsAnalyticalInstrument";
+            columnExpression785.Table = table21;
+            column785.Expression = columnExpression785;
+            columnExpression786.ColumnName = "IsValidation";
+            columnExpression786.Table = table21;
+            column786.Expression = columnExpression786;
+            columnExpression787.ColumnName = "IsEnvironmentalMonitoring";
+            columnExpression787.Table = table21;
+            column787.Expression = columnExpression787;
+            columnExpression788.ColumnName = "IsRawMeterialSpec";
+            columnExpression788.Table = table21;
+            column788.Expression = columnExpression788;
+            columnExpression789.ColumnName = "IsFinishedProductSpec";
+            columnExpression789.Table = table21;
+            column789.Expression = columnExpression789;
+            columnExpression790.ColumnName = "IsPackagingMaterialSpec";
+            columnExpression790.Table = table21;
+            column790.Expression = columnExpression790;
+            columnExpression791.ColumnName = "IsCalibration";
+            columnExpression791.Table = table21;
+            column791.Expression = columnExpression791;
+            columnExpression792.ColumnName = "IsAnalyticalTestMethod";
+            columnExpression792.Table = table21;
+            column792.Expression = columnExpression792;
+            columnExpression793.ColumnName = "IsSamplingMethod";
+            columnExpression793.Table = table21;
+            column793.Expression = columnExpression793;
+            columnExpression794.ColumnName = "BVendor";
+            columnExpression794.Table = table21;
+            column794.Expression = columnExpression794;
+            columnExpression795.ColumnName = "IsStabilityStudy";
+            columnExpression795.Table = table21;
+            column795.Expression = columnExpression795;
+            columnExpression796.ColumnName = "IsInProcess";
+            columnExpression796.Table = table21;
+            column796.Expression = columnExpression796;
+            columnExpression797.ColumnName = "QualityControlOthers";
+            columnExpression797.Table = table21;
+            column797.Expression = columnExpression797;
+            columnExpression798.ColumnName = "QualityControlDetails";
+            columnExpression798.Table = table21;
+            column798.Expression = columnExpression798;
+            columnExpression799.ColumnName = "QualityControlEvaluatedBy";
+            columnExpression799.Table = table21;
+            column799.Expression = columnExpression799;
+            columnExpression800.ColumnName = "QualityControlDate";
+            columnExpression800.Table = table21;
+            column800.Expression = columnExpression800;
+            columnExpression801.ColumnName = "IsProductionProcess";
+            columnExpression801.Table = table21;
+            column801.Expression = columnExpression801;
+            columnExpression802.ColumnName = "IsProductionValidation";
+            columnExpression802.Table = table21;
+            column802.Expression = columnExpression802;
+            columnExpression803.ColumnName = "BControlParameter";
+            columnExpression803.Table = table21;
+            column803.Expression = columnExpression803;
+            columnExpression804.ColumnName = "ProductionOthers";
+            columnExpression804.Table = table21;
+            column804.Expression = columnExpression804;
+            columnExpression805.ColumnName = "ProductionDetails";
+            columnExpression805.Table = table21;
+            column805.Expression = columnExpression805;
+            columnExpression806.ColumnName = "ProductionEvaluatedBy";
+            columnExpression806.Table = table21;
+            column806.Expression = columnExpression806;
+            columnExpression807.ColumnName = "ProductionDate";
+            columnExpression807.Table = table21;
+            column807.Expression = columnExpression807;
+            columnExpression808.ColumnName = "IsPiping";
+            columnExpression808.Table = table21;
+            column808.Expression = columnExpression808;
+            columnExpression809.ColumnName = "BEquipment";
+            columnExpression809.Table = table21;
+            column809.Expression = columnExpression809;
+            columnExpression810.ColumnName = "IsEngineeringCalibration";
+            columnExpression810.Table = table21;
+            column810.Expression = columnExpression810;
+            columnExpression811.ColumnName = "IsPreventiveMaintenance";
+            columnExpression811.Table = table21;
+            column811.Expression = columnExpression811;
+            columnExpression812.ColumnName = "IsUtilityParameter";
+            columnExpression812.Table = table21;
+            column812.Expression = columnExpression812;
+            columnExpression813.ColumnName = "IsEngineeringFacility";
+            columnExpression813.Table = table21;
+            column813.Expression = columnExpression813;
+            columnExpression814.ColumnName = "IsQualificationOfEquipment";
+            columnExpression814.Table = table21;
+            column814.Expression = columnExpression814;
+            columnExpression815.ColumnName = "IsQualificationOfUtility";
+            columnExpression815.Table = table21;
+            column815.Expression = columnExpression815;
+            columnExpression816.ColumnName = "EngineeringOthers";
+            columnExpression816.Table = table21;
+            column816.Expression = columnExpression816;
+            columnExpression817.ColumnName = "EngineeringDetails";
+            columnExpression817.Table = table21;
+            column817.Expression = columnExpression817;
+            columnExpression818.ColumnName = "EngineeringEvaluatedBy";
+            columnExpression818.Table = table21;
+            column818.Expression = columnExpression818;
+            columnExpression819.ColumnName = "EngineeringMaintenanceDate";
+            columnExpression819.Table = table21;
+            column819.Expression = columnExpression819;
+            columnExpression820.ColumnName = "IsQAQualification";
+            columnExpression820.Table = table21;
+            column820.Expression = columnExpression820;
+            columnExpression821.ColumnName = "IsQAValidation";
+            columnExpression821.Table = table21;
+            column821.Expression = columnExpression821;
+            columnExpression822.ColumnName = "IsQAVendor";
+            columnExpression822.Table = table21;
+            column822.Expression = columnExpression822;
+            columnExpression823.ColumnName = "QAOthers";
+            columnExpression823.Table = table21;
+            column823.Expression = columnExpression823;
+            columnExpression824.ColumnName = "QADetails";
+            columnExpression824.Table = table21;
+            column824.Expression = columnExpression824;
+            columnExpression825.ColumnName = "QAEvaluatedBy";
+            columnExpression825.Table = table21;
+            column825.Expression = columnExpression825;
+            columnExpression826.ColumnName = "QADate";
+            columnExpression826.Table = table21;
+            column826.Expression = columnExpression826;
+            columnExpression827.ColumnName = "IsStoreRawMaterial";
+            columnExpression827.Table = table21;
+            column827.Expression = columnExpression827;
+            columnExpression828.ColumnName = "IsStorePackagingMaterial";
+            columnExpression828.Table = table21;
+            column828.Expression = columnExpression828;
+            columnExpression829.ColumnName = "IsStoreLabel";
+            columnExpression829.Table = table21;
+            column829.Expression = columnExpression829;
+            columnExpression830.ColumnName = "IsStorageCondition";
+            columnExpression830.Table = table21;
+            column830.Expression = columnExpression830;
+            columnExpression831.ColumnName = "IsStoreFinishProduct";
+            columnExpression831.Table = table21;
+            column831.Expression = columnExpression831;
+            columnExpression832.ColumnName = "StoreOthers";
+            columnExpression832.Table = table21;
+            column832.Expression = columnExpression832;
+            columnExpression833.ColumnName = "StoreDetails";
+            columnExpression833.Table = table21;
+            column833.Expression = columnExpression833;
+            columnExpression834.ColumnName = "StoreEvaluatedBy";
+            columnExpression834.Table = table21;
+            column834.Expression = columnExpression834;
+            columnExpression835.ColumnName = "StoreDate";
+            columnExpression835.Table = table21;
+            column835.Expression = columnExpression835;
+            columnExpression836.ColumnName = "ProposedChangeImpactTo";
+            columnExpression836.Table = table21;
+            column836.Expression = columnExpression836;
+            columnExpression837.ColumnName = "OthersDetails";
+            columnExpression837.Table = table21;
+            column837.Expression = columnExpression837;
+            columnExpression838.ColumnName = "OthersEvaluatedBy";
+            columnExpression838.Table = table21;
+            column838.Expression = columnExpression838;
+            columnExpression839.ColumnName = "OthersDate";
+            columnExpression839.Table = table21;
+            column839.Expression = columnExpression839;
+            columnExpression840.ColumnName = "EvaluationDate";
+            columnExpression840.Table = table21;
+            column840.Expression = columnExpression840;
+            columnExpression841.ColumnName = "CCFCAPprovalID";
+            columnExpression841.Table = table21;
+            column841.Expression = columnExpression841;
+            columnExpression842.ColumnName = "IsApproved";
+            columnExpression842.Table = table21;
+            column842.Expression = columnExpression842;
+            columnExpression843.ColumnName = "IsNotApproved";
+            columnExpression843.Table = table21;
+            column843.Expression = columnExpression843;
+            columnExpression844.ColumnName = "CComments";
+            columnExpression844.Table = table21;
+            column844.Expression = columnExpression844;
+            columnExpression845.ColumnName = "CVerifiedBy";
+            columnExpression845.Table = table21;
+            column845.Expression = columnExpression845;
+            columnExpression846.ColumnName = "ApprovalDate";
+            columnExpression846.Table = table21;
+            column846.Expression = columnExpression846;
+            columnExpression847.ColumnName = "CCFDImplementationID";
+            columnExpression847.Table = table21;
+            column847.Expression = columnExpression847;
+            columnExpression848.ColumnName = "ClassOfDocumentID";
+            columnExpression848.Table = table21;
+            column848.Expression = columnExpression848;
+            columnExpression849.ColumnName = "HODComments";
+            columnExpression849.Table = table21;
+            column849.Expression = columnExpression849;
+            columnExpression850.ColumnName = "HODSignature";
+            columnExpression850.Table = table21;
+            column850.Expression = columnExpression850;
+            columnExpression851.ColumnName = "HODDate";
+            columnExpression851.Table = table21;
+            column851.Expression = columnExpression851;
+            columnExpression852.ColumnName = "DAcceptable";
+            columnExpression852.Table = table21;
+            column852.Expression = columnExpression852;
+            columnExpression853.ColumnName = "DNotAcceptable";
+            columnExpression853.Table = table21;
+            column853.Expression = columnExpression853;
+            columnExpression854.ColumnName = "DVerifiedBy";
+            columnExpression854.Table = table21;
+            column854.Expression = columnExpression854;
+            columnExpression855.ColumnName = "VerifiedDate";
+            columnExpression855.Table = table21;
+            column855.Expression = columnExpression855;
+            columnExpression856.ColumnName = "CCFDImplementationDetailsID";
+            columnExpression856.Table = table21;
+            column856.Expression = columnExpression856;
+            columnExpression857.ColumnName = "DetailsImplementaionID";
+            columnExpression857.Table = table21;
+            column857.Expression = columnExpression857;
+            columnExpression858.ColumnName = "DetailsCloseOFDocumentID";
+            columnExpression858.Table = table21;
+            column858.Expression = columnExpression858;
+            columnExpression859.ColumnName = "IsRequired";
+            columnExpression859.Table = table21;
+            column859.Expression = columnExpression859;
+            columnExpression860.ColumnName = "ResponsibiltyTo";
+            columnExpression860.Table = table21;
+            column860.Expression = columnExpression860;
+            columnExpression861.ColumnName = "DoneBy";
+            columnExpression861.Table = table21;
+            column861.Expression = columnExpression861;
+            columnExpression862.ColumnName = "DoneByDate";
+            columnExpression862.Table = table21;
+            column862.Expression = columnExpression862;
+            columnExpression863.ColumnName = "CCFEClosureID";
+            columnExpression863.Table = table21;
+            column863.Expression = columnExpression863;
+            columnExpression864.ColumnName = "IsSatisfactory";
+            columnExpression864.Table = table21;
+            column864.Expression = columnExpression864;
+            columnExpression865.ColumnName = "IsNotSatisfactory";
+            columnExpression865.Table = table21;
+            column865.Expression = columnExpression865;
+            columnExpression866.ColumnName = "Comments";
+            columnExpression866.Table = table21;
+            column866.Expression = columnExpression866;
+            columnExpression867.ColumnName = "ClosedBy";
+            columnExpression867.Table = table21;
+            column867.Expression = columnExpression867;
+            columnExpression868.ColumnName = "Date";
+            columnExpression868.Table = table21;
+            column868.Expression = columnExpression868;
+            columnExpression869.ColumnName = "IsSatisfactoryForNotSatisfactory";
+            columnExpression869.Table = table21;
+            column869.Expression = columnExpression869;
+            columnExpression870.ColumnName = "NotSatisfactoryClosedBy";
+            columnExpression870.Table = table21;
+            column870.Expression = columnExpression870;
+            columnExpression871.ColumnName = "NotSatisfactoryDate";
+            columnExpression871.Table = table21;
+            column871.Expression = columnExpression871;
+            selectQuery21.Columns.Add(column734);
+            selectQuery21.Columns.Add(column735);
+            selectQuery21.Columns.Add(column736);
+            selectQuery21.Columns.Add(column737);
+            selectQuery21.Columns.Add(column738);
+            selectQuery21.Columns.Add(column739);
+            selectQuery21.Columns.Add(column740);
+            selectQuery21.Columns.Add(column741);
+            selectQuery21.Columns.Add(column742);
+            selectQuery21.Columns.Add(column743);
+            selectQuery21.Columns.Add(column744);
+            selectQuery21.Columns.Add(column745);
+            selectQuery21.Columns.Add(column746);
+            selectQuery21.Columns.Add(column747);
+            selectQuery21.Columns.Add(column748);
+            selectQuery21.Columns.Add(column749);
+            selectQuery21.Columns.Add(column750);
+            selectQuery21.Columns.Add(column751);
+            selectQuery21.Columns.Add(column752);
+            selectQuery21.Columns.Add(column753);
+            selectQuery21.Columns.Add(column754);
+            selectQuery21.Columns.Add(column755);
+            selectQuery21.Columns.Add(column756);
+            selectQuery21.Columns.Add(column757);
+            selectQuery21.Columns.Add(column758);
+            selectQuery21.Columns.Add(column759);
+            selectQuery21.Columns.Add(column760);
+            selectQuery21.Columns.Add(column761);
+            selectQuery21.Columns.Add(column762);
+            selectQuery21.Columns.Add(column763);
+            selectQuery21.Columns.Add(column764);
+            selectQuery21.Columns.Add(column765);
+            selectQuery21.Columns.Add(column766);
+            selectQuery21.Columns.Add(column767);
+            selectQuery21.Columns.Add(column768);
+            selectQuery21.Columns.Add(column769);
+            selectQuery21.Columns.Add(column770);
+            selectQuery21.Columns.Add(column771);
+            selectQuery21.Columns.Add(column772);
+            selectQuery21.Columns.Add(column773);
+            selectQuery21.Columns.Add(column774);
+            selectQuery21.Columns.Add(column775);
+            selectQuery21.Columns.Add(column776);
+            selectQuery21.Columns.Add(column777);
+            selectQuery21.Columns.Add(column778);
+            selectQuery21.Columns.Add(column779);
+            selectQuery21.Columns.Add(column780);
+            selectQuery21.Columns.Add(column781);
+            selectQuery21.Columns.Add(column782);
+            selectQuery21.Columns.Add(column783);
+            selectQuery21.Columns.Add(column784);
+            selectQuery21.Columns.Add(column785);
+            selectQuery21.Columns.Add(column786);
+            selectQuery21.Columns.Add(column787);
+            selectQuery21.Columns.Add(column788);
+            selectQuery21.Columns.Add(column789);
+            selectQuery21.Columns.Add(column790);
+            selectQuery21.Columns.Add(column791);
+            selectQuery21.Columns.Add(column792);
+            selectQuery21.Columns.Add(column793);
+            selectQuery21.Columns.Add(column794);
+            selectQuery21.Columns.Add(column795);
+            selectQuery21.Columns.Add(column796);
+            selectQuery21.Columns.Add(column797);
+            selectQuery21.Columns.Add(column798);
+            selectQuery21.Columns.Add(column799);
+            selectQuery21.Columns.Add(column800);
+            selectQuery21.Columns.Add(column801);
+            selectQuery21.Columns.Add(column802);
+            selectQuery21.Columns.Add(column803);
+            selectQuery21.Columns.Add(column804);
+            selectQuery21.Columns.Add(column805);
+            selectQuery21.Columns.Add(column806);
+            selectQuery21.Columns.Add(column807);
+            selectQuery21.Columns.Add(column808);
+            selectQuery21.Columns.Add(column809);
+            selectQuery21.Columns.Add(column810);
+            selectQuery21.Columns.Add(column811);
+            selectQuery21.Columns.Add(column812);
+            selectQuery21.Columns.Add(column813);
+            selectQuery21.Columns.Add(column814);
+            selectQuery21.Columns.Add(column815);
+            selectQuery21.Columns.Add(column816);
+            selectQuery21.Columns.Add(column817);
+            selectQuery21.Columns.Add(column818);
+            selectQuery21.Columns.Add(column819);
+            selectQuery21.Columns.Add(column820);
+            selectQuery21.Columns.Add(column821);
+            selectQuery21.Columns.Add(column822);
+            selectQuery21.Columns.Add(column823);
+            selectQuery21.Columns.Add(column824);
+            selectQuery21.Columns.Add(column825);
+            selectQuery21.Columns.Add(column826);
+            selectQuery21.Columns.Add(column827);
+            selectQuery21.Columns.Add(column828);
+            selectQuery21.Columns.Add(column829);
+            selectQuery21.Columns.Add(column830);
+            selectQuery21.Columns.Add(column831);
+            selectQuery21.Columns.Add(column832);
+            selectQuery21.Columns.Add(column833);
+            selectQuery21.Columns.Add(column834);
+            selectQuery21.Columns.Add(column835);
+            selectQuery21.Columns.Add(column836);
+            selectQuery21.Columns.Add(column837);
+            selectQuery21.Columns.Add(column838);
+            selectQuery21.Columns.Add(column839);
+            selectQuery21.Columns.Add(column840);
+            selectQuery21.Columns.Add(column841);
+            selectQuery21.Columns.Add(column842);
+            selectQuery21.Columns.Add(column843);
+            selectQuery21.Columns.Add(column844);
+            selectQuery21.Columns.Add(column845);
+            selectQuery21.Columns.Add(column846);
+            selectQuery21.Columns.Add(column847);
+            selectQuery21.Columns.Add(column848);
+            selectQuery21.Columns.Add(column849);
+            selectQuery21.Columns.Add(column850);
+            selectQuery21.Columns.Add(column851);
+            selectQuery21.Columns.Add(column852);
+            selectQuery21.Columns.Add(column853);
+            selectQuery21.Columns.Add(column854);
+            selectQuery21.Columns.Add(column855);
+            selectQuery21.Columns.Add(column856);
+            selectQuery21.Columns.Add(column857);
+            selectQuery21.Columns.Add(column858);
+            selectQuery21.Columns.Add(column859);
+            selectQuery21.Columns.Add(column860);
+            selectQuery21.Columns.Add(column861);
+            selectQuery21.Columns.Add(column862);
+            selectQuery21.Columns.Add(column863);
+            selectQuery21.Columns.Add(column864);
+            selectQuery21.Columns.Add(column865);
+            selectQuery21.Columns.Add(column866);
+            selectQuery21.Columns.Add(column867);
+            selectQuery21.Columns.Add(column868);
+            selectQuery21.Columns.Add(column869);
+            selectQuery21.Columns.Add(column870);
+            selectQuery21.Columns.Add(column871);
+            selectQuery21.Name = "View_GetCCFFormReport";
+            selectQuery21.Tables.Add(table21);
+            this.sqlDataSource5.Queries.AddRange(new DevExpress.DataAccess.Sql.SqlQuery[] {
+            selectQuery21});
+            this.sqlDataSource5.ResultSchemaSerializable = resources.GetString("sqlDataSource5.ResultSchemaSerializable");
             // 
-            // xrLabel42
+            // sqlDataSource6
             // 
-            this.xrLabel42.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.xrLabel42.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
+            this.sqlDataSource6.ConnectionName = "Report_Connection";
+            this.sqlDataSource6.Name = "sqlDataSource6";
+            columnExpression872.ColumnName = "CCFAInformationID";
+            table22.Name = "View_GetCCFFormReport";
+            columnExpression872.Table = table22;
+            column872.Expression = columnExpression872;
+            columnExpression873.ColumnName = "IsInternalChanges";
+            columnExpression873.Table = table22;
+            column873.Expression = columnExpression873;
+            columnExpression874.ColumnName = "IsAuthorityDirectedChanges";
+            columnExpression874.Table = table22;
+            column874.Expression = columnExpression874;
+            columnExpression875.ColumnName = "PersonInCharge";
+            columnExpression875.Table = table22;
+            column875.Expression = columnExpression875;
+            columnExpression876.ColumnName = "PersonApprove";
+            columnExpression876.Table = table22;
+            column876.Expression = columnExpression876;
+            columnExpression877.ColumnName = "DepartmentName";
+            columnExpression877.Table = table22;
+            column877.Expression = columnExpression877;
+            columnExpression878.ColumnName = "IsSiteTransfer";
+            columnExpression878.Table = table22;
+            column878.Expression = columnExpression878;
+            columnExpression879.ColumnName = "IsProduct";
+            columnExpression879.Table = table22;
+            column879.Expression = columnExpression879;
+            columnExpression880.ColumnName = "AEquipment";
+            columnExpression880.Table = table22;
+            column880.Expression = columnExpression880;
+            columnExpression881.ColumnName = "IsComposition";
+            columnExpression881.Table = table22;
+            column881.Expression = columnExpression881;
+            columnExpression882.ColumnName = "IsFacility";
+            columnExpression882.Table = table22;
+            column882.Expression = columnExpression882;
+            columnExpression883.ColumnName = "IsLayout";
+            columnExpression883.Table = table22;
+            column883.Expression = columnExpression883;
+            columnExpression884.ColumnName = "IsDocument";
+            columnExpression884.Table = table22;
+            column884.Expression = columnExpression884;
+            columnExpression885.ColumnName = "IsProcess";
+            columnExpression885.Table = table22;
+            column885.Expression = columnExpression885;
+            columnExpression886.ColumnName = "AControlParameter";
+            columnExpression886.Table = table22;
+            column886.Expression = columnExpression886;
+            columnExpression887.ColumnName = "IsBatchSize";
+            columnExpression887.Table = table22;
+            column887.Expression = columnExpression887;
+            columnExpression888.ColumnName = "IsHoldingTime";
+            columnExpression888.Table = table22;
+            column888.Expression = columnExpression888;
+            columnExpression889.ColumnName = "IsRawMeterial";
+            columnExpression889.Table = table22;
+            column889.Expression = columnExpression889;
+            columnExpression890.ColumnName = "IsArtwork";
+            columnExpression890.Table = table22;
+            column890.Expression = columnExpression890;
+            columnExpression891.ColumnName = "IsPackagingMaterial";
+            columnExpression891.Table = table22;
+            column891.Expression = columnExpression891;
+            columnExpression892.ColumnName = "AVendor";
+            columnExpression892.Table = table22;
+            column892.Expression = columnExpression892;
+            columnExpression893.ColumnName = "IsShelfLife";
+            columnExpression893.Table = table22;
+            column893.Expression = columnExpression893;
+            columnExpression894.ColumnName = "IsRegulatory";
+            columnExpression894.Table = table22;
+            column894.Expression = columnExpression894;
+            columnExpression895.ColumnName = "IsReTestPeriod";
+            columnExpression895.Table = table22;
+            column895.Expression = columnExpression895;
+            columnExpression896.ColumnName = "Others";
+            columnExpression896.Table = table22;
+            column896.Expression = columnExpression896;
+            columnExpression897.ColumnName = "DescriptionOfProposedChange";
+            columnExpression897.Table = table22;
+            column897.Expression = columnExpression897;
+            columnExpression898.ColumnName = "Justification";
+            columnExpression898.Table = table22;
+            column898.Expression = columnExpression898;
+            columnExpression899.ColumnName = "ProposedImplementationAction";
+            columnExpression899.Table = table22;
+            column899.Expression = columnExpression899;
+            columnExpression900.ColumnName = "RelatedDeviation";
+            columnExpression900.Table = table22;
+            column900.Expression = columnExpression900;
+            columnExpression901.ColumnName = "InitiatorDate";
+            columnExpression901.Table = table22;
+            column901.Expression = columnExpression901;
+            columnExpression902.ColumnName = "SessionID";
+            columnExpression902.Table = table22;
+            column902.Expression = columnExpression902;
+            columnExpression903.ColumnName = "CCFBEvaluationID";
+            columnExpression903.Table = table22;
+            column903.Expression = columnExpression903;
+            columnExpression904.ColumnName = "BAcceptable";
+            columnExpression904.Table = table22;
+            column904.Expression = columnExpression904;
+            columnExpression905.ColumnName = "BNotAcceptable";
+            columnExpression905.Table = table22;
+            column905.Expression = columnExpression905;
+            columnExpression906.ColumnName = "IsMinor";
+            columnExpression906.Table = table22;
+            column906.Expression = columnExpression906;
+            columnExpression907.ColumnName = "IsMajor";
+            columnExpression907.Table = table22;
+            column907.Expression = columnExpression907;
+            columnExpression908.ColumnName = "IsCritical";
+            columnExpression908.Table = table22;
+            column908.Expression = columnExpression908;
+            columnExpression909.ColumnName = "BComments";
+            columnExpression909.Table = table22;
+            column909.Expression = columnExpression909;
+            columnExpression910.ColumnName = "IsProduction";
+            columnExpression910.Table = table22;
+            column910.Expression = columnExpression910;
+            columnExpression911.ColumnName = "IsEAndM";
+            columnExpression911.Table = table22;
+            column911.Expression = columnExpression911;
+            columnExpression912.ColumnName = "IsRequlatory";
+            columnExpression912.Table = table22;
+            column912.Expression = columnExpression912;
+            columnExpression913.ColumnName = "IsQA";
+            columnExpression913.Table = table22;
+            column913.Expression = columnExpression913;
+            columnExpression914.ColumnName = "IsQC";
+            columnExpression914.Table = table22;
+            column914.Expression = columnExpression914;
+            columnExpression915.ColumnName = "IsStore";
+            columnExpression915.Table = table22;
+            column915.Expression = columnExpression915;
+            columnExpression916.ColumnName = "RelatedDeparmentOthers";
+            columnExpression916.Table = table22;
+            column916.Expression = columnExpression916;
+            columnExpression917.ColumnName = "EvaluatedBy";
+            columnExpression917.Table = table22;
+            column917.Expression = columnExpression917;
+            columnExpression918.ColumnName = "IsRequlatoryApproval";
+            columnExpression918.Table = table22;
+            column918.Expression = columnExpression918;
+            columnExpression919.ColumnName = "IsNotificationRequired";
+            columnExpression919.Table = table22;
+            column919.Expression = columnExpression919;
+            columnExpression920.ColumnName = "RegulatoryOthers";
+            columnExpression920.Table = table22;
+            column920.Expression = columnExpression920;
+            columnExpression921.ColumnName = "RegulatoryDetails";
+            columnExpression921.Table = table22;
+            column921.Expression = columnExpression921;
+            columnExpression922.ColumnName = "RequlatoryEvaluatedBy";
+            columnExpression922.Table = table22;
+            column922.Expression = columnExpression922;
+            columnExpression923.ColumnName = "RegulatoryDate";
+            columnExpression923.Table = table22;
+            column923.Expression = columnExpression923;
+            columnExpression924.ColumnName = "IsAnalyticalInstrument";
+            columnExpression924.Table = table22;
+            column924.Expression = columnExpression924;
+            columnExpression925.ColumnName = "IsValidation";
+            columnExpression925.Table = table22;
+            column925.Expression = columnExpression925;
+            columnExpression926.ColumnName = "IsEnvironmentalMonitoring";
+            columnExpression926.Table = table22;
+            column926.Expression = columnExpression926;
+            columnExpression927.ColumnName = "IsRawMeterialSpec";
+            columnExpression927.Table = table22;
+            column927.Expression = columnExpression927;
+            columnExpression928.ColumnName = "IsFinishedProductSpec";
+            columnExpression928.Table = table22;
+            column928.Expression = columnExpression928;
+            columnExpression929.ColumnName = "IsPackagingMaterialSpec";
+            columnExpression929.Table = table22;
+            column929.Expression = columnExpression929;
+            columnExpression930.ColumnName = "IsCalibration";
+            columnExpression930.Table = table22;
+            column930.Expression = columnExpression930;
+            columnExpression931.ColumnName = "IsAnalyticalTestMethod";
+            columnExpression931.Table = table22;
+            column931.Expression = columnExpression931;
+            columnExpression932.ColumnName = "IsSamplingMethod";
+            columnExpression932.Table = table22;
+            column932.Expression = columnExpression932;
+            columnExpression933.ColumnName = "BVendor";
+            columnExpression933.Table = table22;
+            column933.Expression = columnExpression933;
+            columnExpression934.ColumnName = "IsStabilityStudy";
+            columnExpression934.Table = table22;
+            column934.Expression = columnExpression934;
+            columnExpression935.ColumnName = "IsInProcess";
+            columnExpression935.Table = table22;
+            column935.Expression = columnExpression935;
+            columnExpression936.ColumnName = "QualityControlOthers";
+            columnExpression936.Table = table22;
+            column936.Expression = columnExpression936;
+            columnExpression937.ColumnName = "QualityControlDetails";
+            columnExpression937.Table = table22;
+            column937.Expression = columnExpression937;
+            columnExpression938.ColumnName = "QualityControlEvaluatedBy";
+            columnExpression938.Table = table22;
+            column938.Expression = columnExpression938;
+            columnExpression939.ColumnName = "QualityControlDate";
+            columnExpression939.Table = table22;
+            column939.Expression = columnExpression939;
+            columnExpression940.ColumnName = "IsProductionProcess";
+            columnExpression940.Table = table22;
+            column940.Expression = columnExpression940;
+            columnExpression941.ColumnName = "IsProductionValidation";
+            columnExpression941.Table = table22;
+            column941.Expression = columnExpression941;
+            columnExpression942.ColumnName = "BControlParameter";
+            columnExpression942.Table = table22;
+            column942.Expression = columnExpression942;
+            columnExpression943.ColumnName = "ProductionOthers";
+            columnExpression943.Table = table22;
+            column943.Expression = columnExpression943;
+            columnExpression944.ColumnName = "ProductionDetails";
+            columnExpression944.Table = table22;
+            column944.Expression = columnExpression944;
+            columnExpression945.ColumnName = "ProductionEvaluatedBy";
+            columnExpression945.Table = table22;
+            column945.Expression = columnExpression945;
+            columnExpression946.ColumnName = "ProductionDate";
+            columnExpression946.Table = table22;
+            column946.Expression = columnExpression946;
+            columnExpression947.ColumnName = "IsPiping";
+            columnExpression947.Table = table22;
+            column947.Expression = columnExpression947;
+            columnExpression948.ColumnName = "BEquipment";
+            columnExpression948.Table = table22;
+            column948.Expression = columnExpression948;
+            columnExpression949.ColumnName = "IsEngineeringCalibration";
+            columnExpression949.Table = table22;
+            column949.Expression = columnExpression949;
+            columnExpression950.ColumnName = "IsPreventiveMaintenance";
+            columnExpression950.Table = table22;
+            column950.Expression = columnExpression950;
+            columnExpression951.ColumnName = "IsUtilityParameter";
+            columnExpression951.Table = table22;
+            column951.Expression = columnExpression951;
+            columnExpression952.ColumnName = "IsEngineeringFacility";
+            columnExpression952.Table = table22;
+            column952.Expression = columnExpression952;
+            columnExpression953.ColumnName = "IsQualificationOfEquipment";
+            columnExpression953.Table = table22;
+            column953.Expression = columnExpression953;
+            columnExpression954.ColumnName = "IsQualificationOfUtility";
+            columnExpression954.Table = table22;
+            column954.Expression = columnExpression954;
+            columnExpression955.ColumnName = "EngineeringOthers";
+            columnExpression955.Table = table22;
+            column955.Expression = columnExpression955;
+            columnExpression956.ColumnName = "EngineeringDetails";
+            columnExpression956.Table = table22;
+            column956.Expression = columnExpression956;
+            columnExpression957.ColumnName = "EngineeringEvaluatedBy";
+            columnExpression957.Table = table22;
+            column957.Expression = columnExpression957;
+            columnExpression958.ColumnName = "EngineeringMaintenanceDate";
+            columnExpression958.Table = table22;
+            column958.Expression = columnExpression958;
+            columnExpression959.ColumnName = "IsQAQualification";
+            columnExpression959.Table = table22;
+            column959.Expression = columnExpression959;
+            columnExpression960.ColumnName = "IsQAValidation";
+            columnExpression960.Table = table22;
+            column960.Expression = columnExpression960;
+            columnExpression961.ColumnName = "IsQAVendor";
+            columnExpression961.Table = table22;
+            column961.Expression = columnExpression961;
+            columnExpression962.ColumnName = "QAOthers";
+            columnExpression962.Table = table22;
+            column962.Expression = columnExpression962;
+            columnExpression963.ColumnName = "QADetails";
+            columnExpression963.Table = table22;
+            column963.Expression = columnExpression963;
+            columnExpression964.ColumnName = "QAEvaluatedBy";
+            columnExpression964.Table = table22;
+            column964.Expression = columnExpression964;
+            columnExpression965.ColumnName = "QADate";
+            columnExpression965.Table = table22;
+            column965.Expression = columnExpression965;
+            columnExpression966.ColumnName = "IsStoreRawMaterial";
+            columnExpression966.Table = table22;
+            column966.Expression = columnExpression966;
+            columnExpression967.ColumnName = "IsStorePackagingMaterial";
+            columnExpression967.Table = table22;
+            column967.Expression = columnExpression967;
+            columnExpression968.ColumnName = "IsStoreLabel";
+            columnExpression968.Table = table22;
+            column968.Expression = columnExpression968;
+            columnExpression969.ColumnName = "IsStorageCondition";
+            columnExpression969.Table = table22;
+            column969.Expression = columnExpression969;
+            columnExpression970.ColumnName = "IsStoreFinishProduct";
+            columnExpression970.Table = table22;
+            column970.Expression = columnExpression970;
+            columnExpression971.ColumnName = "StoreOthers";
+            columnExpression971.Table = table22;
+            column971.Expression = columnExpression971;
+            columnExpression972.ColumnName = "StoreDetails";
+            columnExpression972.Table = table22;
+            column972.Expression = columnExpression972;
+            columnExpression973.ColumnName = "StoreEvaluatedBy";
+            columnExpression973.Table = table22;
+            column973.Expression = columnExpression973;
+            columnExpression974.ColumnName = "StoreDate";
+            columnExpression974.Table = table22;
+            column974.Expression = columnExpression974;
+            columnExpression975.ColumnName = "ProposedChangeImpactTo";
+            columnExpression975.Table = table22;
+            column975.Expression = columnExpression975;
+            columnExpression976.ColumnName = "OthersDetails";
+            columnExpression976.Table = table22;
+            column976.Expression = columnExpression976;
+            columnExpression977.ColumnName = "OthersEvaluatedBy";
+            columnExpression977.Table = table22;
+            column977.Expression = columnExpression977;
+            columnExpression978.ColumnName = "OthersDate";
+            columnExpression978.Table = table22;
+            column978.Expression = columnExpression978;
+            columnExpression979.ColumnName = "EvaluationDate";
+            columnExpression979.Table = table22;
+            column979.Expression = columnExpression979;
+            columnExpression980.ColumnName = "VersionNo";
+            columnExpression980.Table = table22;
+            column980.Expression = columnExpression980;
+            columnExpression981.ColumnName = "DocNo";
+            columnExpression981.Table = table22;
+            column981.Expression = columnExpression981;
+            columnExpression982.ColumnName = "CCFCAPprovalID";
+            columnExpression982.Table = table22;
+            column982.Expression = columnExpression982;
+            columnExpression983.ColumnName = "IsApproved";
+            columnExpression983.Table = table22;
+            column983.Expression = columnExpression983;
+            columnExpression984.ColumnName = "IsNotApproved";
+            columnExpression984.Table = table22;
+            column984.Expression = columnExpression984;
+            columnExpression985.ColumnName = "CComments";
+            columnExpression985.Table = table22;
+            column985.Expression = columnExpression985;
+            columnExpression986.ColumnName = "CVerifiedBy";
+            columnExpression986.Table = table22;
+            column986.Expression = columnExpression986;
+            columnExpression987.ColumnName = "ApprovalDate";
+            columnExpression987.Table = table22;
+            column987.Expression = columnExpression987;
+            columnExpression988.ColumnName = "CCFDImplementationID";
+            columnExpression988.Table = table22;
+            column988.Expression = columnExpression988;
+            columnExpression989.ColumnName = "ClassOfDocumentID";
+            columnExpression989.Table = table22;
+            column989.Expression = columnExpression989;
+            columnExpression990.ColumnName = "HODComments";
+            columnExpression990.Table = table22;
+            column990.Expression = columnExpression990;
+            columnExpression991.ColumnName = "HODSignature";
+            columnExpression991.Table = table22;
+            column991.Expression = columnExpression991;
+            columnExpression992.ColumnName = "HODDate";
+            columnExpression992.Table = table22;
+            column992.Expression = columnExpression992;
+            columnExpression993.ColumnName = "DAcceptable";
+            columnExpression993.Table = table22;
+            column993.Expression = columnExpression993;
+            columnExpression994.ColumnName = "DNotAcceptable";
+            columnExpression994.Table = table22;
+            column994.Expression = columnExpression994;
+            columnExpression995.ColumnName = "DVerifiedBy";
+            columnExpression995.Table = table22;
+            column995.Expression = columnExpression995;
+            columnExpression996.ColumnName = "VerifiedDate";
+            columnExpression996.Table = table22;
+            column996.Expression = columnExpression996;
+            columnExpression997.ColumnName = "CCFDImplementationDetailsID";
+            columnExpression997.Table = table22;
+            column997.Expression = columnExpression997;
+            columnExpression998.ColumnName = "DetailsImplementaionID";
+            columnExpression998.Table = table22;
+            column998.Expression = columnExpression998;
+            columnExpression999.ColumnName = "DetailsCloseOFDocumentID";
+            columnExpression999.Table = table22;
+            column999.Expression = columnExpression999;
+            columnExpression1000.ColumnName = "IsRequired";
+            columnExpression1000.Table = table22;
+            column1000.Expression = columnExpression1000;
+            columnExpression1001.ColumnName = "ResponsibiltyTo";
+            columnExpression1001.Table = table22;
+            column1001.Expression = columnExpression1001;
+            columnExpression1002.ColumnName = "DoneBy";
+            columnExpression1002.Table = table22;
+            column1002.Expression = columnExpression1002;
+            columnExpression1003.ColumnName = "DoneByDate";
+            columnExpression1003.Table = table22;
+            column1003.Expression = columnExpression1003;
+            columnExpression1004.ColumnName = "CCFEClosureID";
+            columnExpression1004.Table = table22;
+            column1004.Expression = columnExpression1004;
+            columnExpression1005.ColumnName = "IsSatisfactory";
+            columnExpression1005.Table = table22;
+            column1005.Expression = columnExpression1005;
+            columnExpression1006.ColumnName = "IsNotSatisfactory";
+            columnExpression1006.Table = table22;
+            column1006.Expression = columnExpression1006;
+            columnExpression1007.ColumnName = "Comments";
+            columnExpression1007.Table = table22;
+            column1007.Expression = columnExpression1007;
+            columnExpression1008.ColumnName = "ClosedBy";
+            columnExpression1008.Table = table22;
+            column1008.Expression = columnExpression1008;
+            columnExpression1009.ColumnName = "Date";
+            columnExpression1009.Table = table22;
+            column1009.Expression = columnExpression1009;
+            columnExpression1010.ColumnName = "IsSatisfactoryForNotSatisfactory";
+            columnExpression1010.Table = table22;
+            column1010.Expression = columnExpression1010;
+            columnExpression1011.ColumnName = "NotSatisfactoryClosedBy";
+            columnExpression1011.Table = table22;
+            column1011.Expression = columnExpression1011;
+            columnExpression1012.ColumnName = "NotSatisfactoryDate";
+            columnExpression1012.Table = table22;
+            column1012.Expression = columnExpression1012;
+            selectQuery22.Columns.Add(column872);
+            selectQuery22.Columns.Add(column873);
+            selectQuery22.Columns.Add(column874);
+            selectQuery22.Columns.Add(column875);
+            selectQuery22.Columns.Add(column876);
+            selectQuery22.Columns.Add(column877);
+            selectQuery22.Columns.Add(column878);
+            selectQuery22.Columns.Add(column879);
+            selectQuery22.Columns.Add(column880);
+            selectQuery22.Columns.Add(column881);
+            selectQuery22.Columns.Add(column882);
+            selectQuery22.Columns.Add(column883);
+            selectQuery22.Columns.Add(column884);
+            selectQuery22.Columns.Add(column885);
+            selectQuery22.Columns.Add(column886);
+            selectQuery22.Columns.Add(column887);
+            selectQuery22.Columns.Add(column888);
+            selectQuery22.Columns.Add(column889);
+            selectQuery22.Columns.Add(column890);
+            selectQuery22.Columns.Add(column891);
+            selectQuery22.Columns.Add(column892);
+            selectQuery22.Columns.Add(column893);
+            selectQuery22.Columns.Add(column894);
+            selectQuery22.Columns.Add(column895);
+            selectQuery22.Columns.Add(column896);
+            selectQuery22.Columns.Add(column897);
+            selectQuery22.Columns.Add(column898);
+            selectQuery22.Columns.Add(column899);
+            selectQuery22.Columns.Add(column900);
+            selectQuery22.Columns.Add(column901);
+            selectQuery22.Columns.Add(column902);
+            selectQuery22.Columns.Add(column903);
+            selectQuery22.Columns.Add(column904);
+            selectQuery22.Columns.Add(column905);
+            selectQuery22.Columns.Add(column906);
+            selectQuery22.Columns.Add(column907);
+            selectQuery22.Columns.Add(column908);
+            selectQuery22.Columns.Add(column909);
+            selectQuery22.Columns.Add(column910);
+            selectQuery22.Columns.Add(column911);
+            selectQuery22.Columns.Add(column912);
+            selectQuery22.Columns.Add(column913);
+            selectQuery22.Columns.Add(column914);
+            selectQuery22.Columns.Add(column915);
+            selectQuery22.Columns.Add(column916);
+            selectQuery22.Columns.Add(column917);
+            selectQuery22.Columns.Add(column918);
+            selectQuery22.Columns.Add(column919);
+            selectQuery22.Columns.Add(column920);
+            selectQuery22.Columns.Add(column921);
+            selectQuery22.Columns.Add(column922);
+            selectQuery22.Columns.Add(column923);
+            selectQuery22.Columns.Add(column924);
+            selectQuery22.Columns.Add(column925);
+            selectQuery22.Columns.Add(column926);
+            selectQuery22.Columns.Add(column927);
+            selectQuery22.Columns.Add(column928);
+            selectQuery22.Columns.Add(column929);
+            selectQuery22.Columns.Add(column930);
+            selectQuery22.Columns.Add(column931);
+            selectQuery22.Columns.Add(column932);
+            selectQuery22.Columns.Add(column933);
+            selectQuery22.Columns.Add(column934);
+            selectQuery22.Columns.Add(column935);
+            selectQuery22.Columns.Add(column936);
+            selectQuery22.Columns.Add(column937);
+            selectQuery22.Columns.Add(column938);
+            selectQuery22.Columns.Add(column939);
+            selectQuery22.Columns.Add(column940);
+            selectQuery22.Columns.Add(column941);
+            selectQuery22.Columns.Add(column942);
+            selectQuery22.Columns.Add(column943);
+            selectQuery22.Columns.Add(column944);
+            selectQuery22.Columns.Add(column945);
+            selectQuery22.Columns.Add(column946);
+            selectQuery22.Columns.Add(column947);
+            selectQuery22.Columns.Add(column948);
+            selectQuery22.Columns.Add(column949);
+            selectQuery22.Columns.Add(column950);
+            selectQuery22.Columns.Add(column951);
+            selectQuery22.Columns.Add(column952);
+            selectQuery22.Columns.Add(column953);
+            selectQuery22.Columns.Add(column954);
+            selectQuery22.Columns.Add(column955);
+            selectQuery22.Columns.Add(column956);
+            selectQuery22.Columns.Add(column957);
+            selectQuery22.Columns.Add(column958);
+            selectQuery22.Columns.Add(column959);
+            selectQuery22.Columns.Add(column960);
+            selectQuery22.Columns.Add(column961);
+            selectQuery22.Columns.Add(column962);
+            selectQuery22.Columns.Add(column963);
+            selectQuery22.Columns.Add(column964);
+            selectQuery22.Columns.Add(column965);
+            selectQuery22.Columns.Add(column966);
+            selectQuery22.Columns.Add(column967);
+            selectQuery22.Columns.Add(column968);
+            selectQuery22.Columns.Add(column969);
+            selectQuery22.Columns.Add(column970);
+            selectQuery22.Columns.Add(column971);
+            selectQuery22.Columns.Add(column972);
+            selectQuery22.Columns.Add(column973);
+            selectQuery22.Columns.Add(column974);
+            selectQuery22.Columns.Add(column975);
+            selectQuery22.Columns.Add(column976);
+            selectQuery22.Columns.Add(column977);
+            selectQuery22.Columns.Add(column978);
+            selectQuery22.Columns.Add(column979);
+            selectQuery22.Columns.Add(column980);
+            selectQuery22.Columns.Add(column981);
+            selectQuery22.Columns.Add(column982);
+            selectQuery22.Columns.Add(column983);
+            selectQuery22.Columns.Add(column984);
+            selectQuery22.Columns.Add(column985);
+            selectQuery22.Columns.Add(column986);
+            selectQuery22.Columns.Add(column987);
+            selectQuery22.Columns.Add(column988);
+            selectQuery22.Columns.Add(column989);
+            selectQuery22.Columns.Add(column990);
+            selectQuery22.Columns.Add(column991);
+            selectQuery22.Columns.Add(column992);
+            selectQuery22.Columns.Add(column993);
+            selectQuery22.Columns.Add(column994);
+            selectQuery22.Columns.Add(column995);
+            selectQuery22.Columns.Add(column996);
+            selectQuery22.Columns.Add(column997);
+            selectQuery22.Columns.Add(column998);
+            selectQuery22.Columns.Add(column999);
+            selectQuery22.Columns.Add(column1000);
+            selectQuery22.Columns.Add(column1001);
+            selectQuery22.Columns.Add(column1002);
+            selectQuery22.Columns.Add(column1003);
+            selectQuery22.Columns.Add(column1004);
+            selectQuery22.Columns.Add(column1005);
+            selectQuery22.Columns.Add(column1006);
+            selectQuery22.Columns.Add(column1007);
+            selectQuery22.Columns.Add(column1008);
+            selectQuery22.Columns.Add(column1009);
+            selectQuery22.Columns.Add(column1010);
+            selectQuery22.Columns.Add(column1011);
+            selectQuery22.Columns.Add(column1012);
+            selectQuery22.Name = "View_GetCCFFormReport";
+            selectQuery22.Tables.Add(table22);
+            this.sqlDataSource6.Queries.AddRange(new DevExpress.DataAccess.Sql.SqlQuery[] {
+            selectQuery22});
+            this.sqlDataSource6.ResultSchemaSerializable = resources.GetString("sqlDataSource6.ResultSchemaSerializable");
+            // 
+            // sqlDataSource7
+            // 
+            this.sqlDataSource7.ConnectionName = "Report_Connection";
+            this.sqlDataSource7.Name = "sqlDataSource7";
+            customSqlQuery1.Name = "View_GetCCFFormReport";
+            queryParameter1.Name = "parameter1";
+            queryParameter1.Type = typeof(global::DevExpress.DataAccess.Expression);
+            queryParameter1.Value = new DevExpress.DataAccess.Expression("?parameter1", typeof(System.Guid));
+            customSqlQuery1.Parameters.AddRange(new DevExpress.DataAccess.Sql.QueryParameter[] {
+            queryParameter1});
+            customSqlQuery1.Sql = resources.GetString("customSqlQuery1.Sql");
+            this.sqlDataSource7.Queries.AddRange(new DevExpress.DataAccess.Sql.SqlQuery[] {
+            customSqlQuery1});
+            this.sqlDataSource7.ResultSchemaSerializable = resources.GetString("sqlDataSource7.ResultSchemaSerializable");
+            // 
+            // parameter1
+            // 
+            this.parameter1.Description = "Parameter1";
+            this.parameter1.Name = "parameter1";
+            this.parameter1.Type = typeof(global::System.Guid);
+            this.parameter1.ValueInfo = "00000000-0000-0000-0000-000000000000";
+            dynamicListLookUpSettings1.DataMember = "View_GetCCFFormReport";
+            dynamicListLookUpSettings1.DataSource = this.sqlDataSource10;
+            dynamicListLookUpSettings1.DisplayMember = "DocNo";
+            dynamicListLookUpSettings1.SortMember = null;
+            dynamicListLookUpSettings1.ValueMember = "SessionID";
+            this.parameter1.ValueSourceSettings = dynamicListLookUpSettings1;
+            // 
+            // sqlDataSource9
+            // 
+            this.sqlDataSource9.ConnectionName = "Report_Connection";
+            this.sqlDataSource9.Name = "sqlDataSource9";
+            columnExpression1013.ColumnName = "CCFAInformationID";
+            table23.MetaSerializable = "<Meta X=\"30\" Y=\"30\" Width=\"125\" Height=\"2903\" />";
+            table23.Name = "View_GetCCFFormReport";
+            columnExpression1013.Table = table23;
+            column1013.Expression = columnExpression1013;
+            columnExpression1014.ColumnName = "IsInternalChanges";
+            columnExpression1014.Table = table23;
+            column1014.Expression = columnExpression1014;
+            columnExpression1015.ColumnName = "IsAuthorityDirectedChanges";
+            columnExpression1015.Table = table23;
+            column1015.Expression = columnExpression1015;
+            columnExpression1016.ColumnName = "PersonInCharge";
+            columnExpression1016.Table = table23;
+            column1016.Expression = columnExpression1016;
+            columnExpression1017.ColumnName = "PersonApprove";
+            columnExpression1017.Table = table23;
+            column1017.Expression = columnExpression1017;
+            columnExpression1018.ColumnName = "DepartmentName";
+            columnExpression1018.Table = table23;
+            column1018.Expression = columnExpression1018;
+            columnExpression1019.ColumnName = "EvaluatedByuser";
+            columnExpression1019.Table = table23;
+            column1019.Expression = columnExpression1019;
+            columnExpression1020.ColumnName = "RequlatoryEvaluatedBy";
+            columnExpression1020.Table = table23;
+            column1020.Expression = columnExpression1020;
+            columnExpression1021.ColumnName = "ProductionEvaluatedBy";
+            columnExpression1021.Table = table23;
+            column1021.Expression = columnExpression1021;
+            columnExpression1022.ColumnName = "QualityControlEvaluatedBy";
+            columnExpression1022.Table = table23;
+            column1022.Expression = columnExpression1022;
+            columnExpression1023.ColumnName = "EngineeringEvaluatedBy";
+            columnExpression1023.Table = table23;
+            column1023.Expression = columnExpression1023;
+            columnExpression1024.ColumnName = "StoreEvaluatedBy";
+            columnExpression1024.Table = table23;
+            column1024.Expression = columnExpression1024;
+            columnExpression1025.ColumnName = "OthersEvaluatedBy";
+            columnExpression1025.Table = table23;
+            column1025.Expression = columnExpression1025;
+            columnExpression1026.ColumnName = "QAEvaluatedBy";
+            columnExpression1026.Table = table23;
+            column1026.Expression = columnExpression1026;
+            columnExpression1027.ColumnName = "ClosedBy";
+            columnExpression1027.Table = table23;
+            column1027.Expression = columnExpression1027;
+            columnExpression1028.ColumnName = "NotSatisfactoryClosedBy";
+            columnExpression1028.Table = table23;
+            column1028.Expression = columnExpression1028;
+            columnExpression1029.ColumnName = "CVerifiedBy";
+            columnExpression1029.Table = table23;
+            column1029.Expression = columnExpression1029;
+            columnExpression1030.ColumnName = "D1VerifiedBy";
+            columnExpression1030.Table = table23;
+            column1030.Expression = columnExpression1030;
+            columnExpression1031.ColumnName = "IsSiteTransfer";
+            columnExpression1031.Table = table23;
+            column1031.Expression = columnExpression1031;
+            columnExpression1032.ColumnName = "IsProduct";
+            columnExpression1032.Table = table23;
+            column1032.Expression = columnExpression1032;
+            columnExpression1033.ColumnName = "AEquipment";
+            columnExpression1033.Table = table23;
+            column1033.Expression = columnExpression1033;
+            columnExpression1034.ColumnName = "IsComposition";
+            columnExpression1034.Table = table23;
+            column1034.Expression = columnExpression1034;
+            columnExpression1035.ColumnName = "IsFacility";
+            columnExpression1035.Table = table23;
+            column1035.Expression = columnExpression1035;
+            columnExpression1036.ColumnName = "IsLayout";
+            columnExpression1036.Table = table23;
+            column1036.Expression = columnExpression1036;
+            columnExpression1037.ColumnName = "IsDocument";
+            columnExpression1037.Table = table23;
+            column1037.Expression = columnExpression1037;
+            columnExpression1038.ColumnName = "IsProcess";
+            columnExpression1038.Table = table23;
+            column1038.Expression = columnExpression1038;
+            columnExpression1039.ColumnName = "AControlParameter";
+            columnExpression1039.Table = table23;
+            column1039.Expression = columnExpression1039;
+            columnExpression1040.ColumnName = "IsBatchSize";
+            columnExpression1040.Table = table23;
+            column1040.Expression = columnExpression1040;
+            columnExpression1041.ColumnName = "IsHoldingTime";
+            columnExpression1041.Table = table23;
+            column1041.Expression = columnExpression1041;
+            columnExpression1042.ColumnName = "IsRawMeterial";
+            columnExpression1042.Table = table23;
+            column1042.Expression = columnExpression1042;
+            columnExpression1043.ColumnName = "IsArtwork";
+            columnExpression1043.Table = table23;
+            column1043.Expression = columnExpression1043;
+            columnExpression1044.ColumnName = "IsPackagingMaterial";
+            columnExpression1044.Table = table23;
+            column1044.Expression = columnExpression1044;
+            columnExpression1045.ColumnName = "AVendor";
+            columnExpression1045.Table = table23;
+            column1045.Expression = columnExpression1045;
+            columnExpression1046.ColumnName = "IsShelfLife";
+            columnExpression1046.Table = table23;
+            column1046.Expression = columnExpression1046;
+            columnExpression1047.ColumnName = "IsRegulatory";
+            columnExpression1047.Table = table23;
+            column1047.Expression = columnExpression1047;
+            columnExpression1048.ColumnName = "IsReTestPeriod";
+            columnExpression1048.Table = table23;
+            column1048.Expression = columnExpression1048;
+            columnExpression1049.ColumnName = "Others";
+            columnExpression1049.Table = table23;
+            column1049.Expression = columnExpression1049;
+            columnExpression1050.ColumnName = "DescriptionOfProposedChange";
+            columnExpression1050.Table = table23;
+            column1050.Expression = columnExpression1050;
+            columnExpression1051.ColumnName = "Justification";
+            columnExpression1051.Table = table23;
+            column1051.Expression = columnExpression1051;
+            columnExpression1052.ColumnName = "ProposedImplementationAction";
+            columnExpression1052.Table = table23;
+            column1052.Expression = columnExpression1052;
+            columnExpression1053.ColumnName = "RelatedDeviation";
+            columnExpression1053.Table = table23;
+            column1053.Expression = columnExpression1053;
+            columnExpression1054.ColumnName = "SessionID";
+            columnExpression1054.Table = table23;
+            column1054.Expression = columnExpression1054;
+            columnExpression1055.ColumnName = "CCFBEvaluationID";
+            columnExpression1055.Table = table23;
+            column1055.Expression = columnExpression1055;
+            columnExpression1056.ColumnName = "BAcceptable";
+            columnExpression1056.Table = table23;
+            column1056.Expression = columnExpression1056;
+            columnExpression1057.ColumnName = "BNotAcceptable";
+            columnExpression1057.Table = table23;
+            column1057.Expression = columnExpression1057;
+            columnExpression1058.ColumnName = "IsMinor";
+            columnExpression1058.Table = table23;
+            column1058.Expression = columnExpression1058;
+            columnExpression1059.ColumnName = "IsMajor";
+            columnExpression1059.Table = table23;
+            column1059.Expression = columnExpression1059;
+            columnExpression1060.ColumnName = "IsCritical";
+            columnExpression1060.Table = table23;
+            column1060.Expression = columnExpression1060;
+            columnExpression1061.ColumnName = "BComments";
+            columnExpression1061.Table = table23;
+            column1061.Expression = columnExpression1061;
+            columnExpression1062.ColumnName = "IsProduction";
+            columnExpression1062.Table = table23;
+            column1062.Expression = columnExpression1062;
+            columnExpression1063.ColumnName = "IsEAndM";
+            columnExpression1063.Table = table23;
+            column1063.Expression = columnExpression1063;
+            columnExpression1064.ColumnName = "IsRequlatory";
+            columnExpression1064.Table = table23;
+            column1064.Expression = columnExpression1064;
+            columnExpression1065.ColumnName = "IsQA";
+            columnExpression1065.Table = table23;
+            column1065.Expression = columnExpression1065;
+            columnExpression1066.ColumnName = "IsQC";
+            columnExpression1066.Table = table23;
+            column1066.Expression = columnExpression1066;
+            columnExpression1067.ColumnName = "IsStore";
+            columnExpression1067.Table = table23;
+            column1067.Expression = columnExpression1067;
+            columnExpression1068.ColumnName = "RelatedDeparmentOthers";
+            columnExpression1068.Table = table23;
+            column1068.Expression = columnExpression1068;
+            columnExpression1069.ColumnName = "EvaluatedBy";
+            columnExpression1069.Table = table23;
+            column1069.Expression = columnExpression1069;
+            columnExpression1070.ColumnName = "IsRequlatoryApproval";
+            columnExpression1070.Table = table23;
+            column1070.Expression = columnExpression1070;
+            columnExpression1071.ColumnName = "IsNotificationRequired";
+            columnExpression1071.Table = table23;
+            column1071.Expression = columnExpression1071;
+            columnExpression1072.ColumnName = "RegulatoryOthers";
+            columnExpression1072.Table = table23;
+            column1072.Expression = columnExpression1072;
+            columnExpression1073.ColumnName = "RegulatoryDetails";
+            columnExpression1073.Table = table23;
+            column1073.Expression = columnExpression1073;
+            columnExpression1074.ColumnName = "RegulatoryDate";
+            columnExpression1074.Table = table23;
+            column1074.Expression = columnExpression1074;
+            columnExpression1075.ColumnName = "IsAnalyticalInstrument";
+            columnExpression1075.Table = table23;
+            column1075.Expression = columnExpression1075;
+            columnExpression1076.ColumnName = "IsValidation";
+            columnExpression1076.Table = table23;
+            column1076.Expression = columnExpression1076;
+            columnExpression1077.ColumnName = "IsEnvironmentalMonitoring";
+            columnExpression1077.Table = table23;
+            column1077.Expression = columnExpression1077;
+            columnExpression1078.ColumnName = "IsRawMeterialSpec";
+            columnExpression1078.Table = table23;
+            column1078.Expression = columnExpression1078;
+            columnExpression1079.ColumnName = "IsFinishedProductSpec";
+            columnExpression1079.Table = table23;
+            column1079.Expression = columnExpression1079;
+            columnExpression1080.ColumnName = "IsPackagingMaterialSpec";
+            columnExpression1080.Table = table23;
+            column1080.Expression = columnExpression1080;
+            columnExpression1081.ColumnName = "IsCalibration";
+            columnExpression1081.Table = table23;
+            column1081.Expression = columnExpression1081;
+            columnExpression1082.ColumnName = "IsAnalyticalTestMethod";
+            columnExpression1082.Table = table23;
+            column1082.Expression = columnExpression1082;
+            columnExpression1083.ColumnName = "IsSamplingMethod";
+            columnExpression1083.Table = table23;
+            column1083.Expression = columnExpression1083;
+            columnExpression1084.ColumnName = "BVendor";
+            columnExpression1084.Table = table23;
+            column1084.Expression = columnExpression1084;
+            columnExpression1085.ColumnName = "IsStabilityStudy";
+            columnExpression1085.Table = table23;
+            column1085.Expression = columnExpression1085;
+            columnExpression1086.ColumnName = "IsInProcess";
+            columnExpression1086.Table = table23;
+            column1086.Expression = columnExpression1086;
+            columnExpression1087.ColumnName = "QualityControlOthers";
+            columnExpression1087.Table = table23;
+            column1087.Expression = columnExpression1087;
+            columnExpression1088.ColumnName = "QualityControlDetails";
+            columnExpression1088.Table = table23;
+            column1088.Expression = columnExpression1088;
+            columnExpression1089.ColumnName = "QualityControlDate";
+            columnExpression1089.Table = table23;
+            column1089.Expression = columnExpression1089;
+            columnExpression1090.ColumnName = "IsProductionProcess";
+            columnExpression1090.Table = table23;
+            column1090.Expression = columnExpression1090;
+            columnExpression1091.ColumnName = "IsProductionValidation";
+            columnExpression1091.Table = table23;
+            column1091.Expression = columnExpression1091;
+            columnExpression1092.ColumnName = "BControlParameter";
+            columnExpression1092.Table = table23;
+            column1092.Expression = columnExpression1092;
+            columnExpression1093.ColumnName = "ProductionOthers";
+            columnExpression1093.Table = table23;
+            column1093.Expression = columnExpression1093;
+            columnExpression1094.ColumnName = "ProductionDetails";
+            columnExpression1094.Table = table23;
+            column1094.Expression = columnExpression1094;
+            columnExpression1095.ColumnName = "ProductionDate";
+            columnExpression1095.Table = table23;
+            column1095.Expression = columnExpression1095;
+            columnExpression1096.ColumnName = "IsPiping";
+            columnExpression1096.Table = table23;
+            column1096.Expression = columnExpression1096;
+            columnExpression1097.ColumnName = "BEquipment";
+            columnExpression1097.Table = table23;
+            column1097.Expression = columnExpression1097;
+            columnExpression1098.ColumnName = "IsEngineeringCalibration";
+            columnExpression1098.Table = table23;
+            column1098.Expression = columnExpression1098;
+            columnExpression1099.ColumnName = "IsPreventiveMaintenance";
+            columnExpression1099.Table = table23;
+            column1099.Expression = columnExpression1099;
+            columnExpression1100.ColumnName = "IsUtilityParameter";
+            columnExpression1100.Table = table23;
+            column1100.Expression = columnExpression1100;
+            columnExpression1101.ColumnName = "IsEngineeringFacility";
+            columnExpression1101.Table = table23;
+            column1101.Expression = columnExpression1101;
+            columnExpression1102.ColumnName = "IsQualificationOfEquipment";
+            columnExpression1102.Table = table23;
+            column1102.Expression = columnExpression1102;
+            columnExpression1103.ColumnName = "IsQualificationOfUtility";
+            columnExpression1103.Table = table23;
+            column1103.Expression = columnExpression1103;
+            columnExpression1104.ColumnName = "EngineeringOthers";
+            columnExpression1104.Table = table23;
+            column1104.Expression = columnExpression1104;
+            columnExpression1105.ColumnName = "EngineeringDetails";
+            columnExpression1105.Table = table23;
+            column1105.Expression = columnExpression1105;
+            columnExpression1106.ColumnName = "EngineeringMaintenanceDate";
+            columnExpression1106.Table = table23;
+            column1106.Expression = columnExpression1106;
+            columnExpression1107.ColumnName = "IsQAQualification";
+            columnExpression1107.Table = table23;
+            column1107.Expression = columnExpression1107;
+            columnExpression1108.ColumnName = "IsQAValidation";
+            columnExpression1108.Table = table23;
+            column1108.Expression = columnExpression1108;
+            columnExpression1109.ColumnName = "IsQAVendor";
+            columnExpression1109.Table = table23;
+            column1109.Expression = columnExpression1109;
+            columnExpression1110.ColumnName = "QAOthers";
+            columnExpression1110.Table = table23;
+            column1110.Expression = columnExpression1110;
+            columnExpression1111.ColumnName = "QADetails";
+            columnExpression1111.Table = table23;
+            column1111.Expression = columnExpression1111;
+            columnExpression1112.ColumnName = "QADate";
+            columnExpression1112.Table = table23;
+            column1112.Expression = columnExpression1112;
+            columnExpression1113.ColumnName = "IsStoreRawMaterial";
+            columnExpression1113.Table = table23;
+            column1113.Expression = columnExpression1113;
+            columnExpression1114.ColumnName = "IsStorePackagingMaterial";
+            columnExpression1114.Table = table23;
+            column1114.Expression = columnExpression1114;
+            columnExpression1115.ColumnName = "IsStoreLabel";
+            columnExpression1115.Table = table23;
+            column1115.Expression = columnExpression1115;
+            columnExpression1116.ColumnName = "IsStorageCondition";
+            columnExpression1116.Table = table23;
+            column1116.Expression = columnExpression1116;
+            columnExpression1117.ColumnName = "IsStoreFinishProduct";
+            columnExpression1117.Table = table23;
+            column1117.Expression = columnExpression1117;
+            columnExpression1118.ColumnName = "StoreOthers";
+            columnExpression1118.Table = table23;
+            column1118.Expression = columnExpression1118;
+            columnExpression1119.ColumnName = "StoreDetails";
+            columnExpression1119.Table = table23;
+            column1119.Expression = columnExpression1119;
+            columnExpression1120.ColumnName = "StoreDate";
+            columnExpression1120.Table = table23;
+            column1120.Expression = columnExpression1120;
+            columnExpression1121.ColumnName = "ProposedChangeImpactTo";
+            columnExpression1121.Table = table23;
+            column1121.Expression = columnExpression1121;
+            columnExpression1122.ColumnName = "OthersDetails";
+            columnExpression1122.Table = table23;
+            column1122.Expression = columnExpression1122;
+            columnExpression1123.ColumnName = "OthersDate";
+            columnExpression1123.Table = table23;
+            column1123.Expression = columnExpression1123;
+            columnExpression1124.ColumnName = "EvaluationDate";
+            columnExpression1124.Table = table23;
+            column1124.Expression = columnExpression1124;
+            columnExpression1125.ColumnName = "CCFCAPprovalID";
+            columnExpression1125.Table = table23;
+            column1125.Expression = columnExpression1125;
+            columnExpression1126.ColumnName = "IsApproved";
+            columnExpression1126.Table = table23;
+            column1126.Expression = columnExpression1126;
+            columnExpression1127.ColumnName = "IsNotApproved";
+            columnExpression1127.Table = table23;
+            column1127.Expression = columnExpression1127;
+            columnExpression1128.ColumnName = "CComments";
+            columnExpression1128.Table = table23;
+            column1128.Expression = columnExpression1128;
+            columnExpression1129.ColumnName = "ApprovalDate";
+            columnExpression1129.Table = table23;
+            column1129.Expression = columnExpression1129;
+            columnExpression1130.ColumnName = "CCFDImplementationID";
+            columnExpression1130.Table = table23;
+            column1130.Expression = columnExpression1130;
+            columnExpression1131.ColumnName = "ClassOfDocumentID";
+            columnExpression1131.Table = table23;
+            column1131.Expression = columnExpression1131;
+            columnExpression1132.ColumnName = "HODComments";
+            columnExpression1132.Table = table23;
+            column1132.Expression = columnExpression1132;
+            columnExpression1133.ColumnName = "HODSignature";
+            columnExpression1133.Table = table23;
+            column1133.Expression = columnExpression1133;
+            columnExpression1134.ColumnName = "HODDate";
+            columnExpression1134.Table = table23;
+            column1134.Expression = columnExpression1134;
+            columnExpression1135.ColumnName = "DAcceptable";
+            columnExpression1135.Table = table23;
+            column1135.Expression = columnExpression1135;
+            columnExpression1136.ColumnName = "DNotAcceptable";
+            columnExpression1136.Table = table23;
+            column1136.Expression = columnExpression1136;
+            columnExpression1137.ColumnName = "VerifiedDate";
+            columnExpression1137.Table = table23;
+            column1137.Expression = columnExpression1137;
+            columnExpression1138.ColumnName = "CCFDImplementationDetailsID";
+            columnExpression1138.Table = table23;
+            column1138.Expression = columnExpression1138;
+            columnExpression1139.ColumnName = "DetailsImplementaionID";
+            columnExpression1139.Table = table23;
+            column1139.Expression = columnExpression1139;
+            columnExpression1140.ColumnName = "DetailsCloseOFDocumentID";
+            columnExpression1140.Table = table23;
+            column1140.Expression = columnExpression1140;
+            columnExpression1141.ColumnName = "IsRequired";
+            columnExpression1141.Table = table23;
+            column1141.Expression = columnExpression1141;
+            columnExpression1142.ColumnName = "ResponsibiltyTo";
+            columnExpression1142.Table = table23;
+            column1142.Expression = columnExpression1142;
+            columnExpression1143.ColumnName = "DoneBy";
+            columnExpression1143.Table = table23;
+            column1143.Expression = columnExpression1143;
+            columnExpression1144.ColumnName = "DoneByDate";
+            columnExpression1144.Table = table23;
+            column1144.Expression = columnExpression1144;
+            columnExpression1145.ColumnName = "CCFEClosureID";
+            columnExpression1145.Table = table23;
+            column1145.Expression = columnExpression1145;
+            columnExpression1146.ColumnName = "IsSatisfactory";
+            columnExpression1146.Table = table23;
+            column1146.Expression = columnExpression1146;
+            columnExpression1147.ColumnName = "IsNotSatisfactory";
+            columnExpression1147.Table = table23;
+            column1147.Expression = columnExpression1147;
+            columnExpression1148.ColumnName = "Comments";
+            columnExpression1148.Table = table23;
+            column1148.Expression = columnExpression1148;
+            columnExpression1149.ColumnName = "VersionNo";
+            columnExpression1149.Table = table23;
+            column1149.Expression = columnExpression1149;
+            columnExpression1150.ColumnName = "DocNo";
+            columnExpression1150.Table = table23;
+            column1150.Expression = columnExpression1150;
+            columnExpression1151.ColumnName = "InitiatorDate";
+            columnExpression1151.Table = table23;
+            column1151.Expression = columnExpression1151;
+            columnExpression1152.ColumnName = "Date";
+            columnExpression1152.Table = table23;
+            column1152.Expression = columnExpression1152;
+            columnExpression1153.ColumnName = "IsSatisfactoryForNotSatisfactory";
+            columnExpression1153.Table = table23;
+            column1153.Expression = columnExpression1153;
+            columnExpression1154.ColumnName = "NotSatisfactoryDate";
+            columnExpression1154.Table = table23;
+            column1154.Expression = columnExpression1154;
+            selectQuery23.Columns.Add(column1013);
+            selectQuery23.Columns.Add(column1014);
+            selectQuery23.Columns.Add(column1015);
+            selectQuery23.Columns.Add(column1016);
+            selectQuery23.Columns.Add(column1017);
+            selectQuery23.Columns.Add(column1018);
+            selectQuery23.Columns.Add(column1019);
+            selectQuery23.Columns.Add(column1020);
+            selectQuery23.Columns.Add(column1021);
+            selectQuery23.Columns.Add(column1022);
+            selectQuery23.Columns.Add(column1023);
+            selectQuery23.Columns.Add(column1024);
+            selectQuery23.Columns.Add(column1025);
+            selectQuery23.Columns.Add(column1026);
+            selectQuery23.Columns.Add(column1027);
+            selectQuery23.Columns.Add(column1028);
+            selectQuery23.Columns.Add(column1029);
+            selectQuery23.Columns.Add(column1030);
+            selectQuery23.Columns.Add(column1031);
+            selectQuery23.Columns.Add(column1032);
+            selectQuery23.Columns.Add(column1033);
+            selectQuery23.Columns.Add(column1034);
+            selectQuery23.Columns.Add(column1035);
+            selectQuery23.Columns.Add(column1036);
+            selectQuery23.Columns.Add(column1037);
+            selectQuery23.Columns.Add(column1038);
+            selectQuery23.Columns.Add(column1039);
+            selectQuery23.Columns.Add(column1040);
+            selectQuery23.Columns.Add(column1041);
+            selectQuery23.Columns.Add(column1042);
+            selectQuery23.Columns.Add(column1043);
+            selectQuery23.Columns.Add(column1044);
+            selectQuery23.Columns.Add(column1045);
+            selectQuery23.Columns.Add(column1046);
+            selectQuery23.Columns.Add(column1047);
+            selectQuery23.Columns.Add(column1048);
+            selectQuery23.Columns.Add(column1049);
+            selectQuery23.Columns.Add(column1050);
+            selectQuery23.Columns.Add(column1051);
+            selectQuery23.Columns.Add(column1052);
+            selectQuery23.Columns.Add(column1053);
+            selectQuery23.Columns.Add(column1054);
+            selectQuery23.Columns.Add(column1055);
+            selectQuery23.Columns.Add(column1056);
+            selectQuery23.Columns.Add(column1057);
+            selectQuery23.Columns.Add(column1058);
+            selectQuery23.Columns.Add(column1059);
+            selectQuery23.Columns.Add(column1060);
+            selectQuery23.Columns.Add(column1061);
+            selectQuery23.Columns.Add(column1062);
+            selectQuery23.Columns.Add(column1063);
+            selectQuery23.Columns.Add(column1064);
+            selectQuery23.Columns.Add(column1065);
+            selectQuery23.Columns.Add(column1066);
+            selectQuery23.Columns.Add(column1067);
+            selectQuery23.Columns.Add(column1068);
+            selectQuery23.Columns.Add(column1069);
+            selectQuery23.Columns.Add(column1070);
+            selectQuery23.Columns.Add(column1071);
+            selectQuery23.Columns.Add(column1072);
+            selectQuery23.Columns.Add(column1073);
+            selectQuery23.Columns.Add(column1074);
+            selectQuery23.Columns.Add(column1075);
+            selectQuery23.Columns.Add(column1076);
+            selectQuery23.Columns.Add(column1077);
+            selectQuery23.Columns.Add(column1078);
+            selectQuery23.Columns.Add(column1079);
+            selectQuery23.Columns.Add(column1080);
+            selectQuery23.Columns.Add(column1081);
+            selectQuery23.Columns.Add(column1082);
+            selectQuery23.Columns.Add(column1083);
+            selectQuery23.Columns.Add(column1084);
+            selectQuery23.Columns.Add(column1085);
+            selectQuery23.Columns.Add(column1086);
+            selectQuery23.Columns.Add(column1087);
+            selectQuery23.Columns.Add(column1088);
+            selectQuery23.Columns.Add(column1089);
+            selectQuery23.Columns.Add(column1090);
+            selectQuery23.Columns.Add(column1091);
+            selectQuery23.Columns.Add(column1092);
+            selectQuery23.Columns.Add(column1093);
+            selectQuery23.Columns.Add(column1094);
+            selectQuery23.Columns.Add(column1095);
+            selectQuery23.Columns.Add(column1096);
+            selectQuery23.Columns.Add(column1097);
+            selectQuery23.Columns.Add(column1098);
+            selectQuery23.Columns.Add(column1099);
+            selectQuery23.Columns.Add(column1100);
+            selectQuery23.Columns.Add(column1101);
+            selectQuery23.Columns.Add(column1102);
+            selectQuery23.Columns.Add(column1103);
+            selectQuery23.Columns.Add(column1104);
+            selectQuery23.Columns.Add(column1105);
+            selectQuery23.Columns.Add(column1106);
+            selectQuery23.Columns.Add(column1107);
+            selectQuery23.Columns.Add(column1108);
+            selectQuery23.Columns.Add(column1109);
+            selectQuery23.Columns.Add(column1110);
+            selectQuery23.Columns.Add(column1111);
+            selectQuery23.Columns.Add(column1112);
+            selectQuery23.Columns.Add(column1113);
+            selectQuery23.Columns.Add(column1114);
+            selectQuery23.Columns.Add(column1115);
+            selectQuery23.Columns.Add(column1116);
+            selectQuery23.Columns.Add(column1117);
+            selectQuery23.Columns.Add(column1118);
+            selectQuery23.Columns.Add(column1119);
+            selectQuery23.Columns.Add(column1120);
+            selectQuery23.Columns.Add(column1121);
+            selectQuery23.Columns.Add(column1122);
+            selectQuery23.Columns.Add(column1123);
+            selectQuery23.Columns.Add(column1124);
+            selectQuery23.Columns.Add(column1125);
+            selectQuery23.Columns.Add(column1126);
+            selectQuery23.Columns.Add(column1127);
+            selectQuery23.Columns.Add(column1128);
+            selectQuery23.Columns.Add(column1129);
+            selectQuery23.Columns.Add(column1130);
+            selectQuery23.Columns.Add(column1131);
+            selectQuery23.Columns.Add(column1132);
+            selectQuery23.Columns.Add(column1133);
+            selectQuery23.Columns.Add(column1134);
+            selectQuery23.Columns.Add(column1135);
+            selectQuery23.Columns.Add(column1136);
+            selectQuery23.Columns.Add(column1137);
+            selectQuery23.Columns.Add(column1138);
+            selectQuery23.Columns.Add(column1139);
+            selectQuery23.Columns.Add(column1140);
+            selectQuery23.Columns.Add(column1141);
+            selectQuery23.Columns.Add(column1142);
+            selectQuery23.Columns.Add(column1143);
+            selectQuery23.Columns.Add(column1144);
+            selectQuery23.Columns.Add(column1145);
+            selectQuery23.Columns.Add(column1146);
+            selectQuery23.Columns.Add(column1147);
+            selectQuery23.Columns.Add(column1148);
+            selectQuery23.Columns.Add(column1149);
+            selectQuery23.Columns.Add(column1150);
+            selectQuery23.Columns.Add(column1151);
+            selectQuery23.Columns.Add(column1152);
+            selectQuery23.Columns.Add(column1153);
+            selectQuery23.Columns.Add(column1154);
+            selectQuery23.FilterString = "[View_GetCCFFormReport.SessionID] = ?parameter1";
+            selectQuery23.GroupFilterString = "";
+            selectQuery23.Name = "View_GetCCFFormReport";
+            queryParameter2.Name = "parameter1";
+            queryParameter2.Type = typeof(global::DevExpress.DataAccess.Expression);
+            queryParameter2.Value = new DevExpress.DataAccess.Expression("?parameter1", typeof(System.Guid));
+            selectQuery23.Parameters.AddRange(new DevExpress.DataAccess.Sql.QueryParameter[] {
+            queryParameter2});
+            selectQuery23.Tables.Add(table23);
+            this.sqlDataSource9.Queries.AddRange(new DevExpress.DataAccess.Sql.SqlQuery[] {
+            selectQuery23});
+            this.sqlDataSource9.ResultSchemaSerializable = resources.GetString("sqlDataSource9.ResultSchemaSerializable");
+            // 
+            // PageHeader
+            // 
+            this.PageHeader.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+            this.xrTable1,
+            this.xrLabel229});
+            this.PageHeader.HeightF = 162.2501F;
+            this.PageHeader.Name = "PageHeader";
+            // 
+            // xrTable1
+            // 
+            this.xrTable1.Borders = ((DevExpress.XtraPrinting.BorderSide)(((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
+            | DevExpress.XtraPrinting.BorderSide.Right)));
+            this.xrTable1.Font = new DevExpress.Drawing.DXFont("Arial", 9F);
+            this.xrTable1.LocationFloat = new DevExpress.Utils.PointFloat(10.00001F, 10.00001F);
+            this.xrTable1.Name = "xrTable1";
+            this.xrTable1.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 96F);
+            this.xrTable1.Rows.AddRange(new DevExpress.XtraReports.UI.XRTableRow[] {
+            this.xrTableRow1});
+            this.xrTable1.SizeF = new System.Drawing.SizeF(776.5418F, 111.2084F);
+            this.xrTable1.StylePriority.UseBorders = false;
+            this.xrTable1.StylePriority.UseFont = false;
+            // 
+            // xrTableRow1
+            // 
+            this.xrTableRow1.Cells.AddRange(new DevExpress.XtraReports.UI.XRTableCell[] {
+            this.xrTableCell1,
+            this.xrTableCell2,
+            this.xrTableCell3});
+            this.xrTableRow1.Name = "xrTableRow1";
+            this.xrTableRow1.Weight = 1D;
+            // 
+            // xrTableCell1
+            // 
+            this.xrTableCell1.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+            this.xrLabel222,
+            this.xrPictureBox2});
+            this.xrTableCell1.Multiline = true;
+            this.xrTableCell1.Name = "xrTableCell1";
+            this.xrTableCell1.Text = "xrTableCell1";
+            this.xrTableCell1.Weight = 1D;
+            // 
+            // xrLabel222
+            // 
+            this.xrLabel222.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel222.Font = new DevExpress.Drawing.DXFont("Arial", 9F, DevExpress.Drawing.DXFontStyle.Italic);
+            this.xrLabel222.LocationFloat = new DevExpress.Utils.PointFloat(10.00001F, 65.7084F);
+            this.xrLabel222.Multiline = true;
+            this.xrLabel222.Name = "xrLabel222";
+            this.xrLabel222.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel222.SizeF = new System.Drawing.SizeF(184.4924F, 34.4583F);
+            this.xrLabel222.StylePriority.UseBorders = false;
+            this.xrLabel222.StylePriority.UseFont = false;
+            this.xrLabel222.Text = "Pharmaceutical Pte.Ltd";
+            // 
+            // xrPictureBox2
+            // 
+            this.xrPictureBox2.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrPictureBox2.LocationFloat = new DevExpress.Utils.PointFloat(7.291158F, 10.00001F);
+            this.xrPictureBox2.Name = "xrPictureBox2";
+            this.xrPictureBox2.SizeF = new System.Drawing.SizeF(187.3751F, 41.83334F);
+            this.xrPictureBox2.Sizing = DevExpress.XtraPrinting.ImageSizeMode.ZoomImage;
+            this.xrPictureBox2.StylePriority.UseBorders = false;
+            // 
+            // xrTableCell2
+            // 
+            this.xrTableCell2.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+            this.xrLabel223});
+            this.xrTableCell2.Multiline = true;
+            this.xrTableCell2.Name = "xrTableCell2";
+            this.xrTableCell2.Text = "xrTableCell2";
+            this.xrTableCell2.Weight = 1.3838086205050635D;
+            // 
+            // xrLabel223
+            // 
+            this.xrLabel223.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel223.Font = new DevExpress.Drawing.DXFont("Arial", 9F, DevExpress.Drawing.DXFontStyle.Bold);
+            this.xrLabel223.LocationFloat = new DevExpress.Utils.PointFloat(13.96542F, 34.20842F);
+            this.xrLabel223.Multiline = true;
+            this.xrLabel223.Name = "xrLabel223";
+            this.xrLabel223.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel223.SizeF = new System.Drawing.SizeF(258.6252F, 43.83337F);
+            this.xrLabel223.StylePriority.UseBorders = false;
+            this.xrLabel223.StylePriority.UseFont = false;
+            this.xrLabel223.StylePriority.UseTextAlignment = false;
+            this.xrLabel223.Text = "QUALITY ASSURANCE DEPARTMENT RECORD";
+            this.xrLabel223.TextAlignment = DevExpress.XtraPrinting.TextAlignment.TopCenter;
+            // 
+            // xrTableCell3
+            // 
+            this.xrTableCell3.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+            this.xrLabel224,
+            this.xrPageInfo1,
+            this.xrLabel230,
+            this.xrLabel231,
+            this.xrLabel227,
+            this.xrLabel225});
+            this.xrTableCell3.Multiline = true;
+            this.xrTableCell3.Name = "xrTableCell3";
+            this.xrTableCell3.Text = "xrTableCell3";
+            this.xrTableCell3.Weight = 1.4780477771263973D;
+            // 
+            // xrLabel224
+            // 
+            this.xrLabel224.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel224.LocationFloat = new DevExpress.Utils.PointFloat(5.249603F, 10.00001F);
+            this.xrLabel224.Multiline = true;
+            this.xrLabel224.Name = "xrLabel224";
+            this.xrLabel224.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel224.SizeF = new System.Drawing.SizeF(88.54169F, 22.99999F);
+            this.xrLabel224.StylePriority.UseBorders = false;
+            this.xrLabel224.Text = "DOC .NO:";
+            // 
+            // xrPageInfo1
+            // 
+            this.xrPageInfo1.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrPageInfo1.LocationFloat = new DevExpress.Utils.PointFloat(104.9057F, 77.16675F);
+            this.xrPageInfo1.Name = "xrPageInfo1";
+            this.xrPageInfo1.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 96F);
+            this.xrPageInfo1.SizeF = new System.Drawing.SizeF(174.5402F, 22.99995F);
+            this.xrPageInfo1.StylePriority.UseBorders = false;
+            // 
+            // xrLabel230
+            // 
+            this.xrLabel230.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel230.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[DocNo]")});
+            this.xrLabel230.LocationFloat = new DevExpress.Utils.PointFloat(104.9057F, 10.00001F);
+            this.xrLabel230.Multiline = true;
+            this.xrLabel230.Name = "xrLabel230";
+            this.xrLabel230.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel230.SizeF = new System.Drawing.SizeF(174.5402F, 23F);
+            this.xrLabel230.StylePriority.UseBorders = false;
+            // 
+            // xrLabel231
+            // 
+            this.xrLabel231.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel231.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
+            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[VersionNo]")});
+            this.xrLabel231.LocationFloat = new DevExpress.Utils.PointFloat(104.4054F, 41.33332F);
+            this.xrLabel231.Multiline = true;
+            this.xrLabel231.Name = "xrLabel231";
+            this.xrLabel231.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel231.SizeF = new System.Drawing.SizeF(174.5402F, 23.00002F);
+            this.xrLabel231.StylePriority.UseBorders = false;
+            // 
+            // xrLabel227
+            // 
+            this.xrLabel227.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel227.LocationFloat = new DevExpress.Utils.PointFloat(5.249603F, 77.16675F);
+            this.xrLabel227.Multiline = true;
+            this.xrLabel227.Name = "xrLabel227";
+            this.xrLabel227.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel227.SizeF = new System.Drawing.SizeF(88.54169F, 22.99995F);
+            this.xrLabel227.StylePriority.UseBorders = false;
+            this.xrLabel227.Text = "PAGES:";
+            // 
+            // xrLabel225
+            // 
+            this.xrLabel225.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.xrLabel225.LocationFloat = new DevExpress.Utils.PointFloat(5.249847F, 44.62509F);
+            this.xrLabel225.Multiline = true;
+            this.xrLabel225.Name = "xrLabel225";
+            this.xrLabel225.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel225.SizeF = new System.Drawing.SizeF(88.54144F, 19.70825F);
+            this.xrLabel225.StylePriority.UseBorders = false;
+            this.xrLabel225.Text = "VERSION.NO:";
+            // 
+            // xrLabel229
+            // 
+            this.xrLabel229.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
             | DevExpress.XtraPrinting.BorderSide.Right) 
             | DevExpress.XtraPrinting.BorderSide.Bottom)));
-            this.xrLabel42.LocationFloat = new DevExpress.Utils.PointFloat(15.62535F, 4949.333F);
-            this.xrLabel42.Multiline = true;
-            this.xrLabel42.Name = "xrLabel42";
-            this.xrLabel42.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel42.SizeF = new System.Drawing.SizeF(764.909F, 29.25F);
-            this.xrLabel42.StylePriority.UseBackColor = false;
-            this.xrLabel42.StylePriority.UseBorders = false;
-            this.xrLabel42.Text = "SECTION D :CHANGE IMPLEMENTATION(*Attach Document Copy)";
-            // 
-            // xrPanel2
-            // 
-            this.xrPanel2.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
-            | DevExpress.XtraPrinting.BorderSide.Right) 
-            | DevExpress.XtraPrinting.BorderSide.Bottom)));
-            this.xrPanel2.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
-            this.xrLabel218,
-            this.xrLabel219,
-            this.xrLabel220,
-            this.xrLabel221,
-            this.xrLabel226,
-            this.xrCheckBox80,
-            this.xrLabel135,
-            this.xrLabel43,
-            this.xrLine13,
-            this.xrLabel206,
-            this.xrCheckBox76,
-            this.xrLabel207,
-            this.xrCheckBox77,
-            this.xrLabel208,
-            this.xrLabel209,
-            this.xrLabel211,
-            this.xrLabel212,
-            this.xrLabel210,
-            this.xrLabel213,
-            this.xrLabel214,
-            this.xrCheckBox74,
-            this.xrLabel199,
-            this.xrCheckBox75,
-            this.xrLabel200,
-            this.xrLabel201,
-            this.xrLabel202,
-            this.xrLabel204,
-            this.xrLabel205,
-            this.xrLabel203,
-            this.xrLine12,
-            this.xrLabel188,
-            this.xrLabel191,
-            this.xrLabel192,
-            this.xrLabel193,
-            this.xrLabel194,
-            this.xrLabel195,
-            this.xrLabel196,
-            this.xrLabel197,
-            this.xrLabel198});
-            this.xrPanel2.LocationFloat = new DevExpress.Utils.PointFloat(9.007533F, 5163.792F);
-            this.xrPanel2.Name = "xrPanel2";
-            this.xrPanel2.SizeF = new System.Drawing.SizeF(777.5344F, 998.2476F);
-            this.xrPanel2.StylePriority.UseBorders = false;
-            // 
-            // xrLabel218
-            // 
-            this.xrLabel218.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel218.LocationFloat = new DevExpress.Utils.PointFloat(14.84925F, 935.959F);
-            this.xrLabel218.Multiline = true;
-            this.xrLabel218.Name = "xrLabel218";
-            this.xrLabel218.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel218.SizeF = new System.Drawing.SizeF(112.0386F, 37.54102F);
-            this.xrLabel218.StylePriority.UseBorders = false;
-            this.xrLabel218.Text = "Closed By(Pharmacist):";
-            // 
-            // xrLabel219
-            // 
-            this.xrLabel219.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel219.LocationFloat = new DevExpress.Utils.PointFloat(515.1472F, 953.668F);
-            this.xrLabel219.Multiline = true;
-            this.xrLabel219.Name = "xrLabel219";
-            this.xrLabel219.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel219.SizeF = new System.Drawing.SizeF(48.97162F, 19.83008F);
-            this.xrLabel219.StylePriority.UseBorders = false;
-            this.xrLabel219.Text = "Date:";
-            // 
-            // xrLabel220
-            // 
-            this.xrLabel220.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
-            this.xrLabel220.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[NotSatisfactoryClosedBy]")});
-            this.xrLabel220.LocationFloat = new DevExpress.Utils.PointFloat(146.6209F, 953.668F);
-            this.xrLabel220.Multiline = true;
-            this.xrLabel220.Name = "xrLabel220";
-            this.xrLabel220.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel220.SizeF = new System.Drawing.SizeF(342.9145F, 19.83154F);
-            this.xrLabel220.StylePriority.UseBorders = false;
-            this.xrLabel220.StylePriority.UseTextAlignment = false;
-            this.xrLabel220.Text = "xrLabel220";
-            this.xrLabel220.TextAlignment = DevExpress.XtraPrinting.TextAlignment.TopLeft;
-            // 
-            // xrLabel221
-            // 
-            this.xrLabel221.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
-            this.xrLabel221.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[NotSatisfactoryDate]")});
-            this.xrLabel221.LocationFloat = new DevExpress.Utils.PointFloat(584.1345F, 953.6699F);
-            this.xrLabel221.Multiline = true;
-            this.xrLabel221.Name = "xrLabel221";
-            this.xrLabel221.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel221.SizeF = new System.Drawing.SizeF(163.7578F, 19.8291F);
-            this.xrLabel221.StylePriority.UseBorders = false;
-            this.xrLabel221.Text = "xrLabel221";
-            this.xrLabel221.TextFormatString = "{0:d}";
-            // 
-            // xrLabel226
-            // 
-            this.xrLabel226.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel226.LocationFloat = new DevExpress.Utils.PointFloat(185.7598F, 875.043F);
-            this.xrLabel226.Multiline = true;
-            this.xrLabel226.Name = "xrLabel226";
-            this.xrLabel226.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel226.SizeF = new System.Drawing.SizeF(89.91702F, 23F);
-            this.xrLabel226.StylePriority.UseBorders = false;
-            this.xrLabel226.Text = "Satisfactory";
-            // 
-            // xrCheckBox80
-            // 
-            this.xrCheckBox80.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrCheckBox80.CheckBoxState = DevExpress.XtraPrinting.CheckBoxState.Indeterminate;
-            this.xrCheckBox80.Checked = true;
-            this.xrCheckBox80.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "CheckBoxState", "[IsSatisfactoryForNotSatisfactory]")});
-            this.xrCheckBox80.LocationFloat = new DevExpress.Utils.PointFloat(144.5205F, 875.043F);
-            this.xrCheckBox80.Name = "xrCheckBox80";
-            this.xrCheckBox80.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrCheckBox80.SizeF = new System.Drawing.SizeF(29.0817F, 23F);
-            this.xrCheckBox80.StylePriority.UseBorders = false;
-            // 
-            // xrLabel135
-            // 
-            this.xrLabel135.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel135.LocationFloat = new DevExpress.Utils.PointFloat(14.84925F, 862.543F);
-            this.xrLabel135.Multiline = true;
-            this.xrLabel135.Name = "xrLabel135";
-            this.xrLabel135.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel135.SizeF = new System.Drawing.SizeF(113.2059F, 46.9585F);
-            this.xrLabel135.StylePriority.UseBorders = false;
-            this.xrLabel135.Text = "All completed activities found:";
-            // 
-            // xrLabel43
-            // 
-            this.xrLabel43.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel43.Font = new DevExpress.Drawing.DXFont("Arial", 9F, DevExpress.Drawing.DXFontStyle.Bold);
-            this.xrLabel43.LocationFloat = new DevExpress.Utils.PointFloat(11.9901F, 821.417F);
-            this.xrLabel43.Multiline = true;
-            this.xrLabel43.Name = "xrLabel43";
-            this.xrLabel43.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel43.SizeF = new System.Drawing.SizeF(405.331F, 23F);
-            this.xrLabel43.StylePriority.UseBorders = false;
-            this.xrLabel43.StylePriority.UseFont = false;
-            this.xrLabel43.Text = "*To be filled if completed activities not satisfactory initially";
-            // 
-            // xrLine13
-            // 
-            this.xrLine13.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLine13.LocationFloat = new DevExpress.Utils.PointFloat(4.541365F, 786.333F);
-            this.xrLine13.Name = "xrLine13";
-            this.xrLine13.SizeF = new System.Drawing.SizeF(767.2263F, 4.25F);
-            this.xrLine13.StylePriority.UseBorders = false;
-            // 
-            // xrLabel206
-            // 
-            this.xrLabel206.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel206.LocationFloat = new DevExpress.Utils.PointFloat(19.92028F, 524.3335F);
-            this.xrLabel206.Multiline = true;
-            this.xrLabel206.Name = "xrLabel206";
-            this.xrLabel206.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel206.SizeF = new System.Drawing.SizeF(116.4566F, 40.70898F);
-            this.xrLabel206.StylePriority.UseBorders = false;
-            this.xrLabel206.Text = "All Completed Activities Found:";
-            // 
-            // xrCheckBox76
-            // 
-            this.xrCheckBox76.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrCheckBox76.CheckBoxState = DevExpress.XtraPrinting.CheckBoxState.Indeterminate;
-            this.xrCheckBox76.Checked = true;
-            this.xrCheckBox76.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "CheckBoxState", "[IsSatisfactory]")});
-            this.xrCheckBox76.LocationFloat = new DevExpress.Utils.PointFloat(154.7807F, 542.0425F);
-            this.xrCheckBox76.Name = "xrCheckBox76";
-            this.xrCheckBox76.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrCheckBox76.SizeF = new System.Drawing.SizeF(45.83324F, 23F);
-            this.xrCheckBox76.StylePriority.UseBorders = false;
-            // 
-            // xrLabel207
-            // 
-            this.xrLabel207.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel207.LocationFloat = new DevExpress.Utils.PointFloat(210.5069F, 542.0435F);
-            this.xrLabel207.Multiline = true;
-            this.xrLabel207.Name = "xrLabel207";
-            this.xrLabel207.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel207.SizeF = new System.Drawing.SizeF(100F, 23F);
-            this.xrLabel207.StylePriority.UseBorders = false;
-            this.xrLabel207.Text = "Satisfactory";
-            // 
-            // xrCheckBox77
-            // 
-            this.xrCheckBox77.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrCheckBox77.CheckBoxState = DevExpress.XtraPrinting.CheckBoxState.Indeterminate;
-            this.xrCheckBox77.Checked = true;
-            this.xrCheckBox77.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "CheckBoxState", "[IsNotSatisfactory]")});
-            this.xrCheckBox77.LocationFloat = new DevExpress.Utils.PointFloat(324.7495F, 542.0435F);
-            this.xrCheckBox77.Name = "xrCheckBox77";
-            this.xrCheckBox77.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrCheckBox77.SizeF = new System.Drawing.SizeF(42.58359F, 23F);
-            this.xrCheckBox77.StylePriority.UseBorders = false;
-            // 
-            // xrLabel208
-            // 
-            this.xrLabel208.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel208.LocationFloat = new DevExpress.Utils.PointFloat(378.8557F, 542.0435F);
-            this.xrLabel208.Multiline = true;
-            this.xrLabel208.Name = "xrLabel208";
-            this.xrLabel208.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel208.SizeF = new System.Drawing.SizeF(110.6666F, 23F);
-            this.xrLabel208.StylePriority.UseBorders = false;
-            this.xrLabel208.Text = "Not Satisfactory";
-            // 
-            // xrLabel209
-            // 
-            this.xrLabel209.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel209.LocationFloat = new DevExpress.Utils.PointFloat(15.99773F, 598.2925F);
-            this.xrLabel209.Multiline = true;
-            this.xrLabel209.Name = "xrLabel209";
-            this.xrLabel209.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel209.SizeF = new System.Drawing.SizeF(116.4568F, 22.99951F);
-            this.xrLabel209.StylePriority.UseBorders = false;
-            this.xrLabel209.Text = "Comments( if any):";
-            // 
-            // xrLabel211
-            // 
-            this.xrLabel211.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel211.LocationFloat = new DevExpress.Utils.PointFloat(21.45472F, 725.4995F);
-            this.xrLabel211.Multiline = true;
-            this.xrLabel211.Name = "xrLabel211";
-            this.xrLabel211.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel211.SizeF = new System.Drawing.SizeF(115.2896F, 33.4165F);
-            this.xrLabel211.StylePriority.UseBorders = false;
-            this.xrLabel211.Text = "Closed By(Pharmacist):";
-            // 
-            // xrLabel212
-            // 
-            this.xrLabel212.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel212.LocationFloat = new DevExpress.Utils.PointFloat(504.3198F, 740.0825F);
-            this.xrLabel212.Multiline = true;
-            this.xrLabel212.Name = "xrLabel212";
-            this.xrLabel212.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel212.SizeF = new System.Drawing.SizeF(43.75012F, 18.8335F);
-            this.xrLabel212.StylePriority.UseBorders = false;
-            this.xrLabel212.Text = "Date:";
-            // 
-            // xrLabel210
-            // 
-            this.xrLabel210.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
-            this.xrLabel210.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[Comments]")});
-            this.xrLabel210.LocationFloat = new DevExpress.Utils.PointFloat(150.249F, 598.2935F);
-            this.xrLabel210.Multiline = true;
-            this.xrLabel210.Name = "xrLabel210";
-            this.xrLabel210.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel210.SizeF = new System.Drawing.SizeF(602.5408F, 118.8325F);
-            this.xrLabel210.StylePriority.UseBorders = false;
-            this.xrLabel210.Text = "xrLabel210";
-            // 
-            // xrLabel213
-            // 
-            this.xrLabel213.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
-            this.xrLabel213.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[ClosedBy]")});
-            this.xrLabel213.LocationFloat = new DevExpress.Utils.PointFloat(150.249F, 740.0835F);
-            this.xrLabel213.Multiline = true;
-            this.xrLabel213.Name = "xrLabel213";
-            this.xrLabel213.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel213.SizeF = new System.Drawing.SizeF(342.9146F, 18.83252F);
-            this.xrLabel213.StylePriority.UseBorders = false;
-            this.xrLabel213.StylePriority.UseTextAlignment = false;
-            this.xrLabel213.Text = "xrLabel213";
-            this.xrLabel213.TextAlignment = DevExpress.XtraPrinting.TextAlignment.TopLeft;
-            // 
-            // xrLabel214
-            // 
-            this.xrLabel214.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
-            this.xrLabel214.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[Date]")});
-            this.xrLabel214.LocationFloat = new DevExpress.Utils.PointFloat(557.9412F, 740.0825F);
-            this.xrLabel214.Multiline = true;
-            this.xrLabel214.Name = "xrLabel214";
-            this.xrLabel214.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel214.SizeF = new System.Drawing.SizeF(195.6796F, 18.83105F);
-            this.xrLabel214.StylePriority.UseBorders = false;
-            this.xrLabel214.Text = "xrLabel214";
-            this.xrLabel214.TextFormatString = "{0:d}";
-            // 
-            // xrCheckBox74
-            // 
-            this.xrCheckBox74.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrCheckBox74.CheckBoxState = DevExpress.XtraPrinting.CheckBoxState.Indeterminate;
-            this.xrCheckBox74.Checked = true;
-            this.xrCheckBox74.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "CheckBoxState", "[DAcceptable]")});
-            this.xrCheckBox74.LocationFloat = new DevExpress.Utils.PointFloat(21.31518F, 301.2119F);
-            this.xrCheckBox74.Name = "xrCheckBox74";
-            this.xrCheckBox74.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrCheckBox74.SizeF = new System.Drawing.SizeF(50.58311F, 23F);
-            this.xrCheckBox74.StylePriority.UseBorders = false;
-            // 
-            // xrLabel199
-            // 
-            this.xrLabel199.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel199.LocationFloat = new DevExpress.Utils.PointFloat(86.24352F, 301.2119F);
-            this.xrLabel199.Multiline = true;
-            this.xrLabel199.Name = "xrLabel199";
-            this.xrLabel199.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel199.SizeF = new System.Drawing.SizeF(83.16403F, 23F);
-            this.xrLabel199.StylePriority.UseBorders = false;
-            this.xrLabel199.Text = "Acceptable";
-            // 
-            // xrCheckBox75
-            // 
-            this.xrCheckBox75.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrCheckBox75.CheckBoxState = DevExpress.XtraPrinting.CheckBoxState.Indeterminate;
-            this.xrCheckBox75.Checked = true;
-            this.xrCheckBox75.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "CheckBoxState", "[DNotAcceptable]")});
-            this.xrCheckBox75.LocationFloat = new DevExpress.Utils.PointFloat(189.2582F, 301.2119F);
-            this.xrCheckBox75.Name = "xrCheckBox75";
-            this.xrCheckBox75.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrCheckBox75.SizeF = new System.Drawing.SizeF(37.41635F, 23F);
-            this.xrCheckBox75.StylePriority.UseBorders = false;
-            // 
-            // xrLabel200
-            // 
-            this.xrLabel200.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel200.LocationFloat = new DevExpress.Utils.PointFloat(241.19F, 301.2119F);
-            this.xrLabel200.Multiline = true;
-            this.xrLabel200.Name = "xrLabel200";
-            this.xrLabel200.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel200.SizeF = new System.Drawing.SizeF(104.0844F, 23F);
-            this.xrLabel200.StylePriority.UseBorders = false;
-            this.xrLabel200.Text = "Not Acceptable";
-            // 
-            // xrLabel201
-            // 
-            this.xrLabel201.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel201.LocationFloat = new DevExpress.Utils.PointFloat(17.6496F, 357.75F);
-            this.xrLabel201.Multiline = true;
-            this.xrLabel201.Name = "xrLabel201";
-            this.xrLabel201.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel201.SizeF = new System.Drawing.SizeF(106.9532F, 22.99854F);
-            this.xrLabel201.StylePriority.UseBorders = false;
-            this.xrLabel201.Text = "Verified By:";
-            // 
-            // xrLabel202
-            // 
-            this.xrLabel202.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel202.LocationFloat = new DevExpress.Utils.PointFloat(493.7457F, 357.749F);
-            this.xrLabel202.Multiline = true;
-            this.xrLabel202.Name = "xrLabel202";
-            this.xrLabel202.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel202.SizeF = new System.Drawing.SizeF(42.37469F, 23F);
-            this.xrLabel202.StylePriority.UseBorders = false;
-            this.xrLabel202.Text = "Date:";
-            // 
-            // xrLabel204
-            // 
-            this.xrLabel204.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
-            this.xrLabel204.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[Date]")});
-            this.xrLabel204.LocationFloat = new DevExpress.Utils.PointFloat(543.233F, 357.75F);
-            this.xrLabel204.Multiline = true;
-            this.xrLabel204.Name = "xrLabel204";
-            this.xrLabel204.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel204.SizeF = new System.Drawing.SizeF(205.846F, 22.99951F);
-            this.xrLabel204.StylePriority.UseBorders = false;
-            this.xrLabel204.Text = "xrLabel204";
-            this.xrLabel204.TextFormatString = "{0:d}";
-            // 
-            // xrLabel205
-            // 
-            this.xrLabel205.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.xrLabel205.LocationFloat = new DevExpress.Utils.PointFloat(14.37147F, 476.542F);
-            this.xrLabel205.Multiline = true;
-            this.xrLabel205.Name = "xrLabel205";
-            this.xrLabel205.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel205.SizeF = new System.Drawing.SizeF(759.0435F, 27.1665F);
-            this.xrLabel205.StylePriority.UseBackColor = false;
-            this.xrLabel205.Text = "SECTION E: CHANGE CLOSUER(To be filled by QA)";
-            // 
-            // xrLabel203
-            // 
-            this.xrLabel203.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
-            this.xrLabel203.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[DVerifiedBy]")});
-            this.xrLabel203.LocationFloat = new DevExpress.Utils.PointFloat(138.5771F, 357.75F);
-            this.xrLabel203.Multiline = true;
-            this.xrLabel203.Name = "xrLabel203";
-            this.xrLabel203.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel203.SizeF = new System.Drawing.SizeF(343.6214F, 22.99902F);
-            this.xrLabel203.StylePriority.UseBorders = false;
-            this.xrLabel203.Text = "Acceptable";
-            // 
-            // xrLine12
-            // 
-            this.xrLine12.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLine12.LocationFloat = new DevExpress.Utils.PointFloat(2.308941F, 417.209F);
-            this.xrLine12.Name = "xrLine12";
-            this.xrLine12.SizeF = new System.Drawing.SizeF(771.1061F, 9.458496F);
-            this.xrLine12.StylePriority.UseBorders = false;
-            // 
-            // xrLabel188
-            // 
-            this.xrLabel188.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.xrLabel188.LocationFloat = new DevExpress.Utils.PointFloat(13.57034F, 10F);
-            this.xrLabel188.Multiline = true;
-            this.xrLabel188.Name = "xrLabel188";
-            this.xrLabel188.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel188.SizeF = new System.Drawing.SizeF(756.964F, 29.08398F);
-            this.xrLabel188.StylePriority.UseBackColor = false;
-            this.xrLabel188.Text = "*Discontinue of Implementation(If Applicable)";
-            // 
-            // xrLabel191
-            // 
-            this.xrLabel191.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel191.LocationFloat = new DevExpress.Utils.PointFloat(16.27922F, 64.08545F);
-            this.xrLabel191.Multiline = true;
-            this.xrLabel191.Name = "xrLabel191";
-            this.xrLabel191.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel191.SizeF = new System.Drawing.SizeF(101.4166F, 93.66748F);
-            this.xrLabel191.StylePriority.UseBorders = false;
-            this.xrLabel191.Text = "HOD Comments:";
-            // 
-            // xrLabel192
-            // 
-            this.xrLabel192.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
-            this.xrLabel192.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[HODComments]")});
-            this.xrLabel192.LocationFloat = new DevExpress.Utils.PointFloat(143.4617F, 64.08545F);
-            this.xrLabel192.Multiline = true;
-            this.xrLabel192.Name = "xrLabel192";
-            this.xrLabel192.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel192.SizeF = new System.Drawing.SizeF(605.7706F, 93.66699F);
-            this.xrLabel192.StylePriority.UseBorders = false;
-            this.xrLabel192.Text = "xrLabel192";
-            // 
-            // xrLabel193
-            // 
-            this.xrLabel193.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel193.LocationFloat = new DevExpress.Utils.PointFloat(17.38869F, 173.79F);
-            this.xrLabel193.Multiline = true;
-            this.xrLabel193.Name = "xrLabel193";
-            this.xrLabel193.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel193.SizeF = new System.Drawing.SizeF(99.7879F, 23F);
-            this.xrLabel193.StylePriority.UseBorders = false;
-            this.xrLabel193.Text = "HOD Signature:";
-            // 
-            // xrLabel194
-            // 
-            this.xrLabel194.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel194.LocationFloat = new DevExpress.Utils.PointFloat(481.4608F, 173.79F);
-            this.xrLabel194.Multiline = true;
-            this.xrLabel194.Name = "xrLabel194";
-            this.xrLabel194.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel194.SizeF = new System.Drawing.SizeF(41.08307F, 23F);
-            this.xrLabel194.StylePriority.UseBorders = false;
-            this.xrLabel194.Text = "Date:";
-            // 
-            // xrLabel195
-            // 
-            this.xrLabel195.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
-            this.xrLabel195.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[HODSignature]")});
-            this.xrLabel195.LocationFloat = new DevExpress.Utils.PointFloat(146.52F, 173.79F);
-            this.xrLabel195.Multiline = true;
-            this.xrLabel195.Name = "xrLabel195";
-            this.xrLabel195.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel195.SizeF = new System.Drawing.SizeF(317.3578F, 23F);
-            this.xrLabel195.StylePriority.UseBorders = false;
-            this.xrLabel195.Text = "xrLabel195";
-            // 
-            // xrLabel196
-            // 
-            this.xrLabel196.Borders = DevExpress.XtraPrinting.BorderSide.Bottom;
-            this.xrLabel196.ExpressionBindings.AddRange(new DevExpress.XtraReports.UI.ExpressionBinding[] {
-            new DevExpress.XtraReports.UI.ExpressionBinding("BeforePrint", "Text", "[HODDate]")});
-            this.xrLabel196.LocationFloat = new DevExpress.Utils.PointFloat(537.2561F, 173.79F);
-            this.xrLabel196.Multiline = true;
-            this.xrLabel196.Name = "xrLabel196";
-            this.xrLabel196.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel196.SizeF = new System.Drawing.SizeF(211.1213F, 23F);
-            this.xrLabel196.StylePriority.UseBorders = false;
-            this.xrLabel196.Text = "xrLabel196";
-            this.xrLabel196.TextFormatString = "{0:d}";
-            // 
-            // xrLabel197
-            // 
-            this.xrLabel197.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.xrLabel197.LocationFloat = new DevExpress.Utils.PointFloat(12.7691F, 215.541F);
-            this.xrLabel197.Multiline = true;
-            this.xrLabel197.Name = "xrLabel197";
-            this.xrLabel197.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel197.SizeF = new System.Drawing.SizeF(758.9985F, 30.2915F);
-            this.xrLabel197.StylePriority.UseBackColor = false;
-            this.xrLabel197.Text = "QA Verification";
-            // 
-            // xrLabel198
-            // 
-            this.xrLabel198.Borders = DevExpress.XtraPrinting.BorderSide.None;
-            this.xrLabel198.LocationFloat = new DevExpress.Utils.PointFloat(21.96875F, 263F);
-            this.xrLabel198.Multiline = true;
-            this.xrLabel198.Name = "xrLabel198";
-            this.xrLabel198.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
-            this.xrLabel198.SizeF = new System.Drawing.SizeF(100.9868F, 23F);
-            this.xrLabel198.StylePriority.UseBorders = false;
-            this.xrLabel198.Text = "Status";
-            // 
-            // xrLine1
-            // 
-            this.xrLine1.LineDirection = DevExpress.XtraReports.UI.LineDirection.Vertical;
-            this.xrLine1.LocationFloat = new DevExpress.Utils.PointFloat(10.00001F, 4938.083F);
-            this.xrLine1.Name = "xrLine1";
-            this.xrLine1.SizeF = new System.Drawing.SizeF(3.125F, 225.7085F);
-            // 
-            // xrLine2
-            // 
-            this.xrLine2.LineDirection = DevExpress.XtraReports.UI.LineDirection.Vertical;
-            this.xrLine2.LocationFloat = new DevExpress.Utils.PointFloat(783.4169F, 4938.083F);
-            this.xrLine2.Name = "xrLine2";
-            this.xrLine2.SizeF = new System.Drawing.SizeF(3.125F, 225.7085F);
+            this.xrLabel229.Font = new DevExpress.Drawing.DXFont("Arial", 12F, DevExpress.Drawing.DXFontStyle.Bold);
+            this.xrLabel229.ForeColor = System.Drawing.Color.Black;
+            this.xrLabel229.LocationFloat = new DevExpress.Utils.PointFloat(10.00001F, 121.2084F);
+            this.xrLabel229.Multiline = true;
+            this.xrLabel229.Name = "xrLabel229";
+            this.xrLabel229.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.xrLabel229.SizeF = new System.Drawing.SizeF(776.5419F, 41.04169F);
+            this.xrLabel229.StylePriority.UseBorders = false;
+            this.xrLabel229.StylePriority.UseFont = false;
+            this.xrLabel229.StylePriority.UseForeColor = false;
+            this.xrLabel229.StylePriority.UseTextAlignment = false;
+            this.xrLabel229.Text = "         CHANGE CONTROLL FORM";
+            this.xrLabel229.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
             // 
             // ChangeControlSetupReport
             // 

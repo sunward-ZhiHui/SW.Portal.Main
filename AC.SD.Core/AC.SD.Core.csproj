@@ -104,7 +104,6 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
     <_ContentIncludedByDefault Remove="Pages\HR\Employee.razor" />
-    <_ContentIncludedByDefault Remove="wwwroot\index.html" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Pages\DMS\FileProfileTypeSecurityAccess.razor" />

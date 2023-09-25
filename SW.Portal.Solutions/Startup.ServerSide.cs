@@ -20,6 +20,7 @@ using Blazored.Toast;
 using AC.ShippingDocument.Reporting;
 using Application.Constant;
 using SW.Portal.Solutions.Hubs;
+using Core.FCM;
 
 namespace SW.Portal.Solutions.ServerSide {
 
@@ -50,6 +51,13 @@ namespace SW.Portal.Solutions.ServerSide {
             //services.AddInfrastructureServices(Configuration);
             services.AddInfrastructure(Configuration);
             services.AddApplication();
+
+            services.AddHttpContextAccessor();
+
+            services.AddSingleton<IFcm>(s => new FcmBuilder()
+               .WithApiKey("Your_API_key")
+               .GetFcm()
+           );
 
             //services.AddScoped<IContosoRetailDataProvider, ContosoRetailDataProvider>();
             //services.AddScoped<IRentInfoDataProvider, RentInfoDataProvider>();

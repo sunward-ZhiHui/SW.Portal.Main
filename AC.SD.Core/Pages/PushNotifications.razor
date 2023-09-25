@@ -1,23 +1,76 @@
-﻿@page "/push-notifications"
+﻿@page "/pushnotification"
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime;
 
-<button @onclick="InitializeFirebaseMessaging">Initialize Firebase Messaging</button>
+<h3>Push Notifications</h3>
+
+<div class="alert alert-success">
+    @message
+</div>
 
 @code {
-    private async Task InitializeFirebaseMessaging()
-    {
-        //var messaging = firebase.messaging();
+    private string message = "";
 
-        //try
-        //{
-        //    await messaging.requestPermission();
-        //    console.log('Notification permission granted.');
-        //    const token = await messaging.getToken();
-        //    console.log('Token:', token);
-        //    // Send this token to your server to associate it with the user.
-        //}
-        //catch (error)
-        //{
-        //    console.error('Error obtaining token:', error);
-        //}
+    protected override async Task OnInitializedAsync()
+    {
+        await InitializeFirebase();
+    }
+
+    private async Task InitializeFirebase()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("eval", @"
+                var firebaseConfig = {
+                    apiKey: 'AIzaSyBRv5-8jH-Oj8HIBJHNffhvp8HF5KQgAsU',
+                    authDomain: 'sunwardportal-9e39c.firebaseapp.com',
+                    projectId: 'sunwardportal-9e39c',
+                    storageBucket: 'sunwardportal-9e39c.appspot.com',
+                    messagingSenderId: '701663341939',
+                    appId: '1:701663341939:web:bdf0c935c30ea01c826906',
+                    measurementId: 'G-9HNG9SMNXF'
+                };
+
+                firebase.initializeApp(firebaseConfig);
+
+                const messaging = firebase.messaging();
+
+                messaging.onMessage((payload) => {
+                    const notification = payload.notification;
+                    const message = notification.body;
+                    invokePushNotificationReceived(message);
+                });
+
+                window.initializeFirebase = async (dotnetHelper) => {
+                    try {
+                        await messaging.requestPermission();
+                        const token = await messaging.getToken();
+                        console.log('Firebase Token:', token);
+                    } catch (error) {
+                        console.error('Error initializing Firebase:', error);
+                    }
+                };
+
+                function invokePushNotificationReceived(message) {
+                    DotNet.invokeMethodAsync('YourAppName', 'PushNotificationReceived', message)
+                        .then(() => {})
+                        .catch((error) => {
+                            console.error('Error invoking PushNotificationReceived:', error);
+                        });
+                }
+            ");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    // This method will be called from JavaScript
+    [JSInvokable]
+    public async Task PushNotificationReceived(string data)
+    {
+        message = data;
+        StateHasChanged();
     }
 }

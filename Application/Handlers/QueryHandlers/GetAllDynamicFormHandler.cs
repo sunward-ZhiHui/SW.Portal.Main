@@ -43,7 +43,7 @@ namespace Application.Handlers.QueryHandlers
         }
     }
 
-    public class GetAllDynamicFormLstHandler : IRequestHandler<GetAllDynamicFormLst, List<DynamicForm>>
+    public class GetAllDynamicFormLstHandler : IRequestHandler<GetAllDynamicFormLst, DynamicForm>
     {
 
         private readonly IQueryRepository<AttributeHeader> _queryRepository;
@@ -53,9 +53,9 @@ namespace Application.Handlers.QueryHandlers
 
             _DynamicFormQueryRepository = dynamicFormQueryRepository;
         }
-        public async Task<List<DynamicForm>> Handle(GetAllDynamicFormLst request, CancellationToken cancellationToken)
+        public async Task<DynamicForm> Handle(GetAllDynamicFormLst request, CancellationToken cancellationToken)
         {
-            return (List<DynamicForm>)await _DynamicFormQueryRepository.GetAllSelectedLst(request.ID);
+            return await _DynamicFormQueryRepository.GetAllSelectedLst(request.ID);
         }
     }
 

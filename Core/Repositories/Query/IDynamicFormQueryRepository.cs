@@ -10,7 +10,7 @@ namespace Core.Repositories.Query
 {
     public interface IDynamicFormQueryRepository : IQueryRepository<DynamicForm>
     {
-        Task<IReadOnlyList<DynamicForm>> GetAllSelectedLst(Guid sessionId);
+        Task<DynamicForm> GetAllSelectedLst(Guid sessionId);
         Task<IReadOnlyList<DynamicForm>> GetAllAsync();
        Task<long> Insert(DynamicForm dynamicForm);
        Task<long> Update(DynamicForm dynamicForm);

@@ -13,7 +13,7 @@ namespace Application.Queries
     {
 
     }
-    public class GetAllDynamicFormLst : PagedRequest, IRequest<List<DynamicForm>>
+    public class GetAllDynamicFormLst : PagedRequest, IRequest<DynamicForm>
     {
         public Guid ID { get; set; }
         public GetAllDynamicFormLst(Guid ID)

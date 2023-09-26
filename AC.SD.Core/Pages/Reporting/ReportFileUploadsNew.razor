@@ -389,7 +389,11 @@
 
         if (e.IsNew)
         {
-
+            if (fileName == null)
+            {
+                toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+                return;
+            }
 
             var m = Regex.Match(fileName, @"[\[\]'~#%&*{}<>:?/|\\@! 1,2,3,4,5,6,7,8,9,0""]");
 
@@ -400,12 +404,8 @@
                 //  UploadPopUp = false;
                 return;
             }
-            if (fileName == null)
-            {
-               toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
-               return;
-            }
-            var ex = _reportdocuments.Where(x => x.FileName.ToLower() == fileName.ToLower());
+           
+            var ex = _reportdocuments.Where(x => x.FileName == fileName);
             if (ex.Any())
             {
                 // onShowPopupMessage("Error", "The entered value Already exists.");

@@ -48,6 +48,24 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+
+    public class CreateReportFileNewHandler : IRequestHandler<CreateReportFileQueryNew, Guid?>
+    {
+        private readonly IReportFileUploadsQueryRepository _ReportFileQueryRepository;
+        public CreateReportFileNewHandler(IReportFileUploadsQueryRepository ReportFileQueryRepository)
+        {
+            _ReportFileQueryRepository = ReportFileQueryRepository;
+        }
+
+        public async Task<Guid?> Handle(CreateReportFileQueryNew request, CancellationToken cancellationToken)
+        {
+          
+            var newlist = await _ReportFileQueryRepository.InsertNew(request);
+            return newlist;
+
+        }
+
+    }
     public class EditReportFileHandler : IRequestHandler<EditReportFileQuery, long>
     {
         private readonly IReportFileUploadsQueryRepository _reportFileQueryRepository;
@@ -104,4 +122,5 @@ namespace Application.Handlers.QueryHandlers
             return req;
         }
     }
+    
 }

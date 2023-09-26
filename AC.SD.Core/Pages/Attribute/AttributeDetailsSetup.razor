@@ -1,5 +1,4 @@
-﻿@page "/attributeDetailSetup"
-@using Application.Queries;
+﻿@using Application.Queries;
 @using global::Core.Entities;
 @using MediatR
 @inject IMediator Mediator
@@ -16,8 +15,8 @@
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled ="@DeleteEnabled"/>
-                
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+
             </Items>
         </DxMenu>
     </div>
@@ -29,7 +28,6 @@
         KeyFieldName="AttributeDetailID"
         EditMode="GridEditMode.EditForm"
         SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-        EditorRenderMode="GridEditorRenderMode.Integrated"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
@@ -37,38 +35,38 @@
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20" CustomizeElement="Grid_CustomizeElement"  ValidationEnabled="false"
+        PageSize="20" CustomizeElement="Grid_CustomizeElement"
         EditModelSaving="OnEditModelSaving"
-       
         RowClick="OnRowClick"
-      
+        RowDoubleClick="addEdit"
         FocusedRowEnabled="true"
         AllowSelectRowByClick="true"
         SelectionMode="GridSelectionMode.Single"
         CssClass="ch-360"
         style="height: calc(100vh - 470px);">
     <Columns>
-       
-        <DxGridDataColumn FieldName="AttributeDetailName" Caption="Value ID" MinWidth="80" />
+
+        <DxGridDataColumn FieldName="AttributeDetailName" Caption="Value" MinWidth="80" />
         <DxGridDataColumn FieldName="Description" MinWidth="80" />
         <DxGridDataColumn FieldName="Disabled" Caption="Is Active" MinWidth="80" />
     </Columns>
     <EditFormTemplate Context="EditFormContext">
+       
         @{
             var rolePermission = (AttributeDetails)EditFormContext.EditModel;
         }
         <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Value ID:" ColSpanMd="6">
-                <DxTextBox @bind-Text="@rolePermission.AttributeDetailName" />
+            <DxFormLayoutItem Caption="Value:" ColSpanMd="6">
+                <DxTextBox @bind-Text="@rolePermission.AttributeDetailName" ShowValidationIcon="true" />
                 <ValidationMessage For="@(() => rolePermission.AttributeDetailName)" />
             </DxFormLayoutItem>
             <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
                 <DxTextBox @bind-Text="@rolePermission.Description" />
             </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Disabled:" ColSpanMd="6">
+            <DxFormLayoutItem Caption="Is Active:" ColSpanMd="6">
                 <DxCheckBox @bind-Checked="@rolePermission.Disabled" />
             </DxFormLayoutItem>
-            <ValidationSummary />
+
         </DxFormLayout>
     </EditFormTemplate>
 </DxGrid>
@@ -105,74 +103,45 @@
     public ApplicationUser? applicationUser { get; private set; }
     private AttributeDetails _selectedItems;
     private List<CodeMaster> _stausItems;
-    [Parameter]
-    public long AttributeIDs {get;set;}
     long selectedAttributeID;
-    [Parameter]
-    public Action<long> Attributelst { get; set; }
+    string? ControlType;
     protected override async Task OnInitializedAsync()
     {
-        // _attributesDetails = await Mediator.Send(new GetAllAttributeDetailsQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
-
-        await UpdateLst();
 
     }
     public async Task UpdateLst()
     {
-        _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(AttributeIDs));
-    }
-    public async Task Attributeload(long id,string ControlType)
-    {
-        AttributeIDs = 0;
-        selectedAttributeID = id;
-        _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(id));
         EditEnabled = false;
-        DeleteEnabled = false;
-        if(id == 0)
-        {
-            AddEnabled = false;
-        }
-        else if(ControlType == "ComboBox")
-        {
-            AddEnabled = true;
-        }
-        else
-        {
-            AddEnabled = false;
-        }
-
-
-        StateHasChanged();
-    }
-    public async Task UpdateDataAsync()
-    {
+        DeleteEnabled = false; AddEnabled = false;
         _attributesDetails = await Mediator.Send(new GetAllAttributeLoadQuery(selectedAttributeID));
-        // _attributesDetails = await Mediator.Send(new GetAllAttributeDetailsQuery());
-        if (_selectedItems != null)
+        if (_attributesDetails != null)
         {
-            DeleteEnabled = true;
-            EditEnabled = true;
-        }
-        else
-        {
-            DeleteEnabled = false;
-            EditEnabled = false;
+            _selectedItems = _attributesDetails.FirstOrDefault();
+            DetailGrid.SetFocusedRowIndex(0);
+            if (!string.IsNullOrEmpty(ControlType) && selectedAttributeID > 0)
+            {
+                AddEnabled = true;
+                if (_selectedItems != null)
+                {
+                    DeleteEnabled = true;
+                    EditEnabled = true;
+                }
+                else
+                {
+                    DeleteEnabled = false;
+                    EditEnabled = false;
+                }
+            }
         }
         StateHasChanged();
     }
-    public void AddEnabledEvent(string ControlType)
+    public async Task Attributeload(long id, string controlType)
     {
-        if(ControlType == "ComboBox")
-        {
-            AddEnabled = true;
-        }
-        else
-        {
-            AddEnabled = false;
-        }
-        StateHasChanged();
+        selectedAttributeID = id;
+        ControlType = controlType;
+        await UpdateLst();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -197,73 +166,28 @@
 
         if (e.IsNew)
         {
-            // var ex = _attributesDetails.Where(x => x.Name == editModel.Name);
-            // if (ex.Any())
-            // {
-            //     // onShowPopupMessage("Error", "The entered value Already exists.");
-            //     toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
-            // }
-            if (AttributeIDs == 0)
-            {
-                var createReq = new CreateAttributeDetails
-                    {
+            var createReq = new CreateAttributeDetails
+                {
+                    AttributeDetailName = editModel.AttributeDetailName,
+                    AttributeID = selectedAttributeID,
+                    Description = editModel.Description,
+                    Disabled = editModel.Disabled,
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid()
+                };
 
+            var result = await Mediator.Send(createReq);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
 
-                        AttributeDetailName = editModel.AttributeDetailName,
-                        AttributeID = selectedAttributeID,
-
-                        Description = editModel.Description,
-                        Disabled = editModel.Disabled,
-                        StatusCodeID = 1,
-                        AddedByUserID = applicationUser.UserID,
-
-                        AddedDate = DateTime.Now,
-
-                        SessionId = Guid.NewGuid()
-
-
-                    };
-
-                var result = await Mediator.Send(createReq);
-                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                await UpdateDataAsync();
-            }
-            else
-            {
-
-                var createReq = new CreateAttributeDetails
-                    {
-
-
-                        AttributeDetailName = editModel.AttributeDetailName,
-                        AttributeID = AttributeIDs,
-
-                        Description = editModel.Description,
-                        Disabled = editModel.Disabled,
-                        StatusCodeID = 1,
-                        AddedByUserID = applicationUser.UserID,
-
-                        AddedDate = DateTime.Now,
-
-                        SessionId = Guid.NewGuid()
-
-
-                    };
-
-                var result = await Mediator.Send(createReq);
-                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-
-                await UpdateLst();
-
-            }
-
-
+            await UpdateLst();
         }
         else
         {
             var UpdateReq = new EditAttributeDetails(editModel)
                 {
-
+                    AttributeID = selectedAttributeID,
                     AttributeDetailID = editModel.AttributeDetailID,
                     Description = editModel.Description,
                     Disabled = editModel.Disabled,
@@ -271,34 +195,21 @@
                     SessionId = editModel.SessionId,
                     ModifiedByUserID = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
-
-
                 };
 
             var ans = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            if (AttributeIDs == 0)
-            {
-                await UpdateDataAsync();
-            }
-            else
-            {
-                await UpdateLst();
-            }
-        
+            await UpdateLst();
         }
-
-
     }
     void addNew()
     {
-      
         DetailGrid.StartEditNewRowAsync();
     }
     void addEdit()
     {
         DetailGrid.StartEditDataItemAsync(_selectedItems);
-       
+
     }
     void addDetailDelete()
     {
@@ -306,35 +217,14 @@
     }
     async Task bulkDelete(long id)
     {
-
-
-
-
         var request = new DeleteAttributeDetails(id);
         await Mediator.Send(request);
         Blukdeletepopup = false;
-        if (AttributeIDs == 0)
-        {
-            await UpdateDataAsync();
-        }
-        else
-        {
-            await UpdateLst();
-        }
-       DetailGrid.SetFocusedRowIndex(0);
-
-
-
-
-      
-
-
+        await UpdateLst();
     }
-    void EulaPopupClosed(PopupClosedEventArgs args)
+    async Task EulaPopupClosed(PopupClosedEventArgs args)
     {
-
         Blukdeletepopup = false;
-
-         UpdateLst();
+        await UpdateLst();
     }
 }

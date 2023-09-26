@@ -1,4 +1,5 @@
 ﻿using Core.Entities.Base;
+using Core.Entities.CustomValidations;
 using Core.Entities.Views;
 using System;
 using System.Collections.Generic;
@@ -13,12 +14,12 @@ namespace Core.Entities
     public class AttributeHeader : BaseEntity
     {
         [Key]
-       
+
         public long AttributeID { get; set; }
-       
-      //  [Required]
+        [Required(ErrorMessage = "Attribute Name is Required")]
+        [AttributeCustomValidation]
         public string AttributeName { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Display Name is Required")]
         public string Description { get; set; }
 
         public string ControlType { get; set; }
@@ -26,7 +27,7 @@ namespace Core.Entities
         public string EntryMask { get; set; }
         public string RegExp { get; set; }
         public string ListDefault { get; set; }
-        public bool IsInternal { get; set; }
+        public bool IsInternal { get; set; } = false;
         public bool ContainsPersonalData { get; set; }
         [NotMapped]
         public string ModifiedBy { get; set; }
@@ -34,7 +35,19 @@ namespace Core.Entities
         public string AddedBy { get; set; }
         [NotMapped]
         public int? RowIndex { get; set; }
-       
-
+        [Required(ErrorMessage = "Control Type is Required")]
+        public int? ControlTypeId { get; set; }
+        public bool? IsMultiple { get; set; } = false;
+        public bool? IsRequired { get; set; } = false;
+        public bool? RequiredMessage { get; set; }
+        [NotMapped]
+        public List<AttributeDetails> AttributeDetails { get; set; }=new List<AttributeDetails>();
+        [NotMapped]
+        public string? DataType { get; set; }
+    }
+    public class AttributeHeaderListModel
+    {
+        public List<AttributeHeader> AttributeHeader { get; set; }
+        public List<AttributeDetails> AttributeDetails { get; set; }
     }
 }

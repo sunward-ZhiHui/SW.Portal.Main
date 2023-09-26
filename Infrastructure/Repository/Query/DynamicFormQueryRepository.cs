@@ -22,7 +22,7 @@ namespace Infrastructure.Repository.Query
 
         }
 
-        public  async Task<long> Delete(long id)
+        public async Task<long> Delete(long id)
         {
             try
             {
@@ -66,13 +66,13 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-              
+
                 var query = "SELECT * FROM DynamicForm";
 
                 using (var connection = CreateConnection())
                 {
                     var res = connection.Query<DynamicForm>(query).ToList();
-                   
+
                     foreach (var items in res)
                     {
                         if (items.AttributeID != null && items.AttributeID.Length != 0)
@@ -95,7 +95,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public  async Task<IReadOnlyList<DynamicForm>> GetAllSelectedLst(Guid sessionId)
+        public async Task<DynamicForm> GetAllSelectedLst(Guid sessionId)
         {
             try
             {
@@ -106,7 +106,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DynamicForm>(query, parameters)).ToList();
+                    return (await connection.QueryFirstOrDefaultAsync<DynamicForm>(query, parameters));
                 }
             }
             catch (Exception exp)
@@ -161,7 +161,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public  async Task<long> Update(DynamicForm dynamicForm)
+        public async Task<long> Update(DynamicForm dynamicForm)
         {
             try
             {

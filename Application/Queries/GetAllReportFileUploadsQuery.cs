@@ -35,4 +35,9 @@ namespace Application.Queries
            this.ReportName = reportName;
         }
     }
+    public class CreateReportFileQueryNew : ReportDocuments, IRequest<Guid?>
+    {
+
+        //public byte[] FileContent { get; set; }
+    }
 }

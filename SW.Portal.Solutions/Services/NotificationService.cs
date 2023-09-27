@@ -33,7 +33,7 @@ namespace SW.Portal.Solutions.Services
             {
                 if (notificationModel.IsAndroiodDevice)
                 {
-                    
+
                     /* FCM Sender (Android Device) */
                     //FcmSettings settings = new FcmSettings()
                     //{

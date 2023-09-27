@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.WsTrust;
 using Microsoft.VisualBasic;
+using Newtonsoft.Json;
 using SW.Portal.Solutions.Models;
 using SW.Portal.Solutions.Services;
 using System.Text;
@@ -345,6 +346,47 @@ namespace SW.Portal.Solutions.Controllers
 
             return Ok(response);
 
+        }
+
+        [HttpGet("SendMessage")]
+        public async Task<string> SendMessage()
+        {
+            //var result = await _fcm.SendMessageAsync("/topics/news", "My Message Title", "Message Data", "");
+
+            //await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
+            //var token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
+            var token = new List<string> 
+            {
+                "c-1W1o1jvnE:APA91bFnLX74Xdwn1ej0ptWDHNxMoaVCBV-yJ_14T3OZnaNwudTJcDHdkNFyiQ6fOLkktnUqOrv4nTUBvFXyVv1zkF_spGswkVyXmkMXfEWVtfdtbgc4ox02-P6MsQ5cphnzX0UFlaQQ"
+                
+            };
+
+            var androidNotificationObject = new Dictionary<string, string>();
+            var pushNotificationRequest = new PostItem
+            {
+                notification = new NotificationMessageBody
+                {
+                    title = "Title",
+                    body = "Welcome to all"
+                },
+                data = androidNotificationObject,
+                //registration_ids = new List<string> { token }
+                registration_ids = token 
+            };
+
+            string url = "https://fcm.googleapis.com/fcm/send";
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("key", "=" + "AAAAeo31_Is:APA91bFPh3rj_ZrmfurBTfz_Ahw_Ojo9rA4oNIFoaNThAHUhwtq515F19qD9ICngHp5qs1IBQ1ZePalvD8YOzCKF-va991eN02_TEZtgAE4AWM5hku9rDdQoEZvT47l3mE67LcGpKMuz");
+
+                string serializeRequest = JsonConvert.SerializeObject(pushNotificationRequest);
+                var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));
+                //if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                //{
+                //    //await App.Current.MainPage.DisplayAlert("Notification sent", "notification sent", "OK");
+                //}
+            }
+            return "ok";
         }
     }
 }

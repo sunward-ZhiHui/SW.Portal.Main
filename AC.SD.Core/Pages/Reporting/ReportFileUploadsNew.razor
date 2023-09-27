@@ -458,13 +458,14 @@
             }
             else
             {
-                var UpdateReq = new EditReportFileQuery
+                var UpdateReq = new EditReportFileQueryNew
                     {
                         ReportDocumentID = editModel.ReportDocumentID,
                         Name = editModel.Name,
                         Description = editModel.Description,
                         SessionId = editModel.SessionId,
-                        FileName = editModel.FileName,
+                        FileName = fileName,
+                        ActFileName = editModel.FileName
 
                     };
                 try

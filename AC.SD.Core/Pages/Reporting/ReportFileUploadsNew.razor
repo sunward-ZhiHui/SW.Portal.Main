@@ -1,4 +1,8 @@
-﻿@page "/reportFileUploadNew"
+﻿@* @page "/reportFileUploadNew"
+ *@
+ @page "/reportFileUploads"
+ 
+
 @using Application.Commands;
 @using Application.Queries;
 @using DevExpress.Export;
@@ -306,7 +310,7 @@
         {
             var file = files.FirstOrDefault();
             var name = file.Name;
-            fileName = Path.GetFileNameWithoutExtension(name); ;
+            fileName = Path.GetFileNameWithoutExtension(name); 
             var ext = Path.GetExtension(name);
 
 
@@ -379,6 +383,8 @@
         _selectedItems = _reportdocuments.FirstOrDefault(f => f.ReportDocumentID == (long?)UniqueId);
         EnableUpload = true;
     }
+
+   
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
@@ -449,6 +455,12 @@
         else
         {
 
+            // var lst = _reportdocuments.Where(m => m.FileName == ActFileName);
+            // if (lst.ToList().Count > 0)
+            // {
+            //     fileName = null;
+            // }
+
             var ex = _reportdocuments.Where(x => x.FileName == fileName && x.ReportDocumentID != editModel.ReportDocumentID);
             if (ex.Any())
             {
@@ -464,12 +476,15 @@
                         Name = editModel.Name,
                         Description = editModel.Description,
                         SessionId = editModel.SessionId,
+
                         FileName = fileName,
+
                         ActFileName = editModel.FileName
 
                     };
                 try
                 {
+                   
                     var ans = await Mediator.Send(UpdateReq);
                     if (UpdateReq != null)
                     {
@@ -493,7 +508,7 @@
         }
         await UpdateDataAsync();
        
-
+        await jsRuntime.InvokeAsync<string>("ReloadUrl");
 
 
 

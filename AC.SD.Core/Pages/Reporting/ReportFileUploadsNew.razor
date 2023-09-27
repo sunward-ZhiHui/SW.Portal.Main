@@ -1,0 +1,561 @@
+﻿@page "/reportFileUploadNew"
+@using Application.Commands;
+@using Application.Queries;
+@using DevExpress.Export;
+@inject IJSRuntime jsRuntime
+@using System.IO;
+@using System.Text.RegularExpressions;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using MediatR
+@using Microsoft.Extensions.Configuration;
+@using global::Core.Repositories.Query;
+@inject IConfiguration Configuration;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@using System.Linq;
+@using Microsoft.AspNetCore.Mvc;
+@using Microsoft.EntityFrameworkCore;
+@using System;
+@inject NavigationManager NavigationManager
+@inject IJSRuntime jsRuntime
+
+<style>
+    .dxuc-upload-icon {
+        display: none; /* or any other style to disable or hide the icon */
+    }
+  
+</style>
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@AddFile" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@EditFile" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectedItems.ReportDocumentID))" Enabled="@DownloadEnabled" />
+              @*   <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@OnUpload" Enabled="@EnableUpload" /> *@
+                <DxMenuItem Text="View Document" IconCssClass="fa fa-eye" Click="((e) => onPreView(_selectedItems.FileName))" Enabled="@PreviewEnabled" />
+
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+
+    <DxGrid @ref="Grid" Data="@_reportdocuments" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox" PageSizeSelectorVisible="true"
+    @bind-SelectedDataItems="@SelectedDataItems"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20" CustomizeElement="Grid_CustomizeElement" style="height: calc(100vh - 220px);"
+            CssClass="w-100" AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            FocusedRowEnabled="true"
+            EditModelSaving="@OnEditModelSaving"
+            RowClick="OnRowClick"
+            EditMode ="GridEditMode.EditForm"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
+        <Columns>
+
+            <DxGridDataColumn FieldName="Name" MinWidth="150" />
+            <DxGridDataColumn FieldName="Description" MinWidth="250" />
+            @* <DxGridDataColumn FieldName="FileSize "  MinWidth="150" />*@
+            @* <DxGridDataColumn FieldName="FilePath" Width="180" />*@
+
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var documents = (ReportDocuments)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Name:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@documents.Name" />
+                    <ValidationMessage For="@(() => documents.Name)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+                    <DxTextBox @bind-Text="@documents.Description" />
+                </DxFormLayoutItem>
+                 <DxFormLayoutItem  ColSpanMd="6">
+                <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+                <DxUpload @ref="uploadComponent" Name="files"
+                          Visible="@AttachmentUploadVisible"
+                          AcceptedFileTypes=@AcceptedFileTypes
+                          UploadMode="@UploadMode.OnButtonClick"
+                          FileUploadStart="OnFileUploadStart"
+                          ChunkSize="200000"
+                          AllowMultiFileUpload="true"
+                          ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                          SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                          FileUploaded="@isUploadSuccess"
+                          FileUploadProgressChanged="@OnUploadProgressChanged"
+                          FileUploadStarted="@OnFileUploadStarted"
+                          FileUploadError="@OnUploadError">
+                </DxUpload>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem>
+                   
+
+                    <div style="width:100%;">
+                        @if (ActiveSessionId != null)
+                        {
+                            @if (_reportdocuments != null && _reportdocuments.Any())
+                            {
+                                <ul class="d-flex flex-column-reverse todo-list">
+                                    @foreach (var item in _reportdocuments)
+                                    {
+
+                                        <li class="doc_lst_view">
+                                            <div class="form-check">
+                                                <label class="form-check-label">
+                                                    <span style="font-weight: 600; font-size: 14px;">@item.FileName</span>
+                                                    @{
+                                                        string formattedFileSize = FormatFileSize(item.FileSize);
+                                                    }
+                                                    <span style="font-size: 11px;">  @formattedFileSize</span>
+                                                </label>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+
+                            }
+                        }
+                    </div>
+                </DxFormLayoutItem>
+                <ValidationSummary />
+            </DxFormLayout>
+        </EditFormTemplate>
+    </DxGrid>
+
+    
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="@((e) => bulkDelete(_selectedItems))" />
+    </FooterContentTemplate>
+</DxPopup>
+@* <DxPopup @bind-Visible="@UploadPopUp"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="500px">
+    <BodyContentTemplate>
+        <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
+        <DxUpload @ref="uploadComponent" Name="files"
+                  Visible="@AttachmentUploadVisible"
+                  AcceptedFileTypes=@AcceptedFileTypes
+                  UploadMode="@UploadMode.OnButtonClick"
+                  FileUploadStart="OnFileUploadStart"
+                  ChunkSize="200000"
+                  AllowMultiFileUpload="true"
+                  ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                  SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                  FileUploaded="@isUploadSuccess"
+                  FileUploadProgressChanged="@OnUploadProgressChanged"
+                  FileUploadStarted="@OnFileUploadStarted"
+                  FileUploadError="@OnUploadError">
+        </DxUpload>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="@((e) => OnUploadReport(_selectedItems.SessionId))" />
+    </FooterContentTemplate>
+</DxPopup> *@
+
+@code {
+    private byte[] fileContent;
+    private string fileName;
+    private string uploadStatus;
+    public  bool EnableUpload { get; set; } = false;
+    int SelectedFilesCount { get; set; }
+    int CurrentUplodCount { get; set; }
+    bool UploadPopUp { get; set; } = false;
+    string MyMessage { get; set; }
+    bool AttachmentUploadVisible { get; set; } = false;
+    private DxUpload uploadComponent;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool DownloadEnabled { get; set; } = false;
+    bool PreviewEnabled { get; set; } = false;
+    bool UploadVisible { get; set; } = false;
+    IEnumerable<UploadFileInfo> Files { get; set; }
+    UploadFileInfo FirstFile { get; set; }
+    DxUpload MyUpload { get; set; }
+    ReportDocuments? Data { get; set; } = new ReportDocuments();
+    private ReportDocuments _selectedItems;
+    public ApplicationUser applicationUser { get; private set; }
+    Guid? _sessionId;
+    [Parameter]
+    public string ActiveSessionId { get; set; }
+    [Parameter]
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { ".repx" };
+
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    bool PanelVisible { get; set; }
+    private List<ReportDocuments> _reportdocuments;
+    IGrid Grid { get; set; }
+
+    private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
+    bool isFileUpload = false;
+    string MyError { get; set; }
+    bool ErrorVisible { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    string Message = "Upload";
+    long? AppUserId;
+    protected override async Task OnInitializedAsync()
+    {
+
+        PanelVisible = true;
+        // _sessionId = Guid.NewGuid();
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        AppUserId = applicationUser.UserID;
+        await UpdateDataAsync();
+        PanelVisible = false;
+
+    }
+    void OnUploadProgressChanged(FileUploadEventArgs e)
+    {
+        var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
+    }
+    void OnFileUploadStarted(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
+        InvokeAsync(StateHasChanged);
+    }
+    async Task OnFileUploadStart(FileUploadStartEventArgs e)
+    {
+        Message = "Uploading...";
+
+
+        var SessionId = _sessionId;
+        string BaseUrl = NavigationManager.BaseUri + "api/FileUpload/";
+        string url = BaseUrl + "UploadReportFile?SessionId=" + _sessionId + "&addedByUserId=" + AppUserId;
+        e.UploadUrl = url;
+        await Task.Delay(3000);
+    }
+    async Task UpdateDataAsync()
+    {
+        var model = await Mediator.Send(new GetAllReportFileUploadsQuery());
+        _reportdocuments = model;
+        if (_reportdocuments.Count > 0)
+        {
+            _selectedItems = _reportdocuments.FirstOrDefault();
+
+            EditEnabled = true;
+            DeleteEnabled = true;
+            PreviewEnabled = true;
+            DownloadEnabled = true;
+            StateHasChanged();
+
+        }
+        else
+        {
+            EditEnabled = false;
+            DeleteEnabled = false;
+            PreviewEnabled = false;
+            DownloadEnabled = false;
+            EnableUpload = false;
+        }
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+
+    protected async void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        AttachmentUploadVisible = files.ToList().Count > 0;
+        SelectedFiles.AddRange(files);
+        SelectedFilesCount = files.ToList().Count; //Count current files
+        InvokeAsync(StateHasChanged);
+        if (files.ToList().Count > 0)
+        {
+            var file = files.FirstOrDefault();
+            var name = file.Name;
+            fileName = Path.GetFileNameWithoutExtension(name); ;
+            var ext = Path.GetExtension(name);
+
+
+            if (ext != ".repx")
+            {
+                toastService.ShowToast("The Record Format Is Not Supported", AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+
+
+    }
+    private void isUploadSuccess(FileUploadEventArgs e)
+    {
+        MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
+        toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+        CurrentUplodCount++;
+
+        if (CurrentUplodCount >= SelectedFilesCount)
+        {
+            Message = "Upload";
+
+
+            UpdateDataAsync();
+            UploadPopUp = false;
+        }
+        InvokeAsync(StateHasChanged);
+
+    }
+
+    void OnUploadError(FileUploadErrorEventArgs e)
+    {
+        MyError = e.RequestInfo.ResponseText;
+        ErrorVisible = true;
+        InvokeAsync(StateHasChanged);
+    }
+    public static string FormatFileSize(long bytes)
+    {
+        var unit = 1024;
+        if (bytes < unit) { return $"{bytes} B"; }
+
+        var exp = (int)(Math.Log(bytes) / Math.Log(unit));
+        return $"{bytes / Math.Pow(unit, exp):F2} {("KMGTPE")[exp - 1]}B";
+    }
+    public void AddFile()
+    {
+        Grid.StartEditNewRowAsync();
+    }
+    public async Task onDocDownload(long Id)
+    {
+
+        var lst = _reportdocuments?.FirstOrDefault(a => a.ReportDocumentID == Id);
+
+        var request = new DownloadReportFileRequest
+            {
+                FileName = lst.FileName,
+
+
+            };
+
+        var response = await Mediator.Send(request);
+
+        //  Trigger file download
+        await jsRuntime.InvokeVoidAsync("downloadFile", response.FileName + ".repx", response.FileData, "");
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ReportDocumentID");
+        _selectedItems = _reportdocuments.FirstOrDefault(f => f.ReportDocumentID == (long?)UniqueId);
+        EnableUpload = true;
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+
+        var editModel = (ReportDocuments)e.EditModel;
+
+
+
+        if (e.IsNew)
+        {
+            if (fileName == null)
+            {
+                toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+                return;
+            }
+
+            var m = Regex.Match(fileName, @"[\[\]'~#%&*{}<>:?/|\\@! 1,2,3,4,5,6,7,8,9,0""]");
+
+            if (m.Success)
+            {
+
+                toastService.ShowToast("The File Name DoseNot Contains Special Characters", AC.SD.Core.Services.ToastLevel.Error);
+                //  UploadPopUp = false;
+                return;
+            }
+           
+            var ex = _reportdocuments.Where(x => x.FileName == fileName);
+            if (ex.Any())
+            {
+                // onShowPopupMessage("Error", "The entered value Already exists.");
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+                return;
+            }
+            else
+            {
+
+            var createReq = new CreateReportFileQueryNew
+                    {
+                        Name = editModel.Name,
+                        Description = editModel.Description,
+                      SessionId = Guid.NewGuid(),
+
+
+                    };
+
+            try
+            {
+
+                var result = await Mediator.Send(createReq);
+                if(result != null)
+                {
+                    _sessionId = result;
+                    uploadComponent.UploadAllFiles();
+                    await Task.Delay(5000);
+                }
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+               
+            }
+            catch (Exception eq)
+            {
+                //toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+                //errorMessage = eq.Message;
+                //PopupVisible = true;
+
+            }
+           }
+        }
+        else
+        {
+
+            var ex = _reportdocuments.Where(x => x.FileName == fileName && x.ReportDocumentID != editModel.ReportDocumentID);
+            if (ex.Any())
+            {
+
+
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                var UpdateReq = new EditReportFileQuery
+                    {
+                        ReportDocumentID = editModel.ReportDocumentID,
+                        Name = editModel.Name,
+                        Description = editModel.Description,
+                        SessionId = editModel.SessionId,
+
+                    };
+                try
+                {
+                    var ans = await Mediator.Send(UpdateReq);
+                    if (UpdateReq != null)
+                    {
+                        _sessionId = UpdateReq.SessionId;
+                        uploadComponent.UploadAllFiles();
+                        await Task.Delay(5000);
+                    }
+                    toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+                }
+                catch (Exception eq)
+                {
+                    // toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+                }
+
+            }
+
+        }
+        await UpdateDataAsync();
+       
+
+
+
+
+    }
+    public async Task onPreView(string fileName)
+    {
+        //NavigationManager.NavigateTo("ReportViewer/" + fileName + "");
+        await jsRuntime.InvokeVoidAsync("window.open", "reportFileUploads/ReportViewer/" + fileName + "", "_blank");
+    }
+  
+
+    void EditFile()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+    }
+
+    private async Task HandleFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        var name = file.Name;
+        var ext = Path.GetExtension(name);
+
+
+        var m = Regex.Match(name, @"[\[\]'~#%&*{}<>:?/|\\@! 1,2,3,4,5,6,7,8,9,0""]");
+
+        if (m.Success)
+        {
+            toastService.ShowToast("The File Name DoseNot Contains Special Characters", AC.SD.Core.Services.ToastLevel.Error);
+            return;
+        }
+        if (ext != ".repx")
+        {
+            toastService.ShowToast("The Record Format Is Not Supported", AC.SD.Core.Services.ToastLevel.Error);
+        }
+
+    }
+    async Task bulkDelete(ReportDocuments reportdocument)
+    {
+        //  var dateitem = e.DataItem;
+
+        // var request = new DeleteReportdocumentQuery((long)dateitem);
+        var request = new DeleteReportdocumentQuery(reportdocument.ReportDocumentID, reportdocument.FileName);
+        await Mediator.Send(request);
+        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        Blukdeletepopup = false;
+        await UpdateDataAsync();
+    }
+    void addDelete()
+    {
+        //  Grid.ShowDataItemDeleteConfirmation(_selectedItems);
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+
+        Blukdeletepopup = false;
+
+        UpdateDataAsync();
+    }
+    void OnUpload()
+    {
+        UploadPopUp = true;
+    }
+
+    public async void OnUploadReport(Guid? SessionID)
+    {
+        _sessionId = SessionID;
+        uploadComponent.UploadAllFiles();
+    }
+}

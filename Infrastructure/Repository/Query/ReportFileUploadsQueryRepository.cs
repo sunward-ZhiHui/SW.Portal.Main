@@ -170,6 +170,100 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+
+
+
+        public async Task<Guid?> InsertNew(ReportDocuments reportDocuments)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("Name", reportDocuments.Name);
+                            parameters.Add("Description", reportDocuments.Description);
+                            parameters.Add("SessionId", reportDocuments.SessionId);
+
+                            //parameters.Add("AddedDate", reportDocuments.AddedDate);
+                            //parameters.Add("Iscompleted", reportDocuments.Iscompleted);
+                            //parameters.Add("StatusCodeID", todolist.StatusCodeID);
+
+                            var query = "INSERT INTO ReportDocuments(Name,Description,SessionId)" + "OUTPUT INSERTED.SessionID VALUES" + "(@Name,@Description,@SessionId)";
+
+                            reportDocuments.SessionId = await connection.QuerySingleOrDefaultAsync<Guid?>(query, parameters, transaction);
+                            transaction.Commit();
+                            return reportDocuments.SessionId;
+                        }
+
+
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+
+        public async Task<ReportDocuments> InsertCreateReportDocumentBySession(ReportDocuments value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("Name", value.Name);
+                            parameters.Add("Description", value.Description);
+                            parameters.Add("SessionId", value.SessionId);
+                            parameters.Add("FileName", value.FileName);
+                            //var query = "INSERT INTO [ReportDocuments](Name,Description,SessionId,FileName) " +
+                            //    "OUTPUT INSERTED.ReportDocumentID VALUES " +
+                            //   "(@Name,@Description,@SessionId,@FileName)";
+
+
+                            var query = "Update [ReportDocuments]Set FileName = @FileName Where SessionID = @SessionID";
+
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }   
 

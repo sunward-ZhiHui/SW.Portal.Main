@@ -67,9 +67,9 @@
                     {
                         @foreach (var items in dynamicform._attributesName)
                         {
-                            <span class=""> 
+                            <span class="">
                                 @items.AttributeName,
-                            </span> 
+                            </span>
                         }
                     }
                 </CellDisplayTemplate>
@@ -190,7 +190,7 @@
         OnRowclick(e);
 
 
-        NavigationManager.NavigateTo("DynamicMasterSetup/sampledynamic/" + _selectedItems.SessionID);
+        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + _selectedItems.SessionID);
 
     }
     void addNew()
@@ -273,7 +273,7 @@
     void addEdit()
     {
         Grid.StartEditDataItemAsync(_selectedItems);
-        
+
 
     }
     void addDetailDelete()

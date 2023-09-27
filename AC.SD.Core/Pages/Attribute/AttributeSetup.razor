@@ -1,5 +1,4 @@
-﻿
-@page "/attributesetup"
+﻿@page "/attributesetup"
 @using Application.Queries;
 @using global::Core.Entities;
 @using MediatR
@@ -17,26 +16,26 @@
     <div class="card-body p-0 tooltiptops">
         <div class="row">
             <div class="">
-        <DxMenu CollapseItemsToHamburgerMenu="true"
-                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                DisplayMode="MenuDisplayMode.Desktop">
-            <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                         <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
 
-            </Items>
-        </DxMenu>
+                    </Items>
+                </DxMenu>
             </div>
-            <div class="save_hover"  style="float: left; margin-top: -41px; line-height: 38px; margin-left: 220px; z-index: 9999; width:100px;">
-            <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
-                @if (loading)
-                {
-                    <span class="spinner-border spinner-border-sm mr-1"></span>
-                }
-                <i class="fa fa-save"></i>
-                Save
-            </button>
-        </div>
+            <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 220px; z-index: 9999; width:100px;">
+                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
+                    @if (loading)
+                    {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                    }
+                    <i class="fa fa-save"></i>
+                    Save
+                </button>
+            </div>
 
 
         </div>
@@ -50,73 +49,117 @@
     <div style="height:35%; border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
         <div class="mini-menu-bar-top">
             <div class="mini-menu-bar-heading">
-              
             </div>
 
             <div>
                 <div class="views-accordion">
                     <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnInvalidSubmit="@HandleInvalidSubmit" OnValidSubmit="@HandleValidSubmit">
-    <DataAnnotationsValidator />
-        <DxFormLayout CssClass="w-100">
-            <DxFormLayoutItem Caption="Attribute ID" ColSpanMd="6">
-            <DxComboBox Data="@_attributes"
-                        AllowUserInput="true"
-                        NullText="Select AttributeID..."
-                        ListRenderMode="ListRenderMode.Virtual"
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="AttributeName"
-                        ValueFieldName="AttributeName"
-                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-            @bind-Value="Data.AttributeName"
-            @bind-Text="@Data.AttributeName" ShowValidationIcon="true"
-                        SelectedItemChanged="@((AttributeHeader plant) => SelectedItemChanged(plant))">
-            </DxComboBox>
-           </DxFormLayoutItem>
-           @*   <ValidationMessage For="@(() => Data.AttributeName)" />   *@
-                 
-                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
-                <DxTextBox @bind-Text="@Data.Description"></DxTextBox>
-                <ValidationMessage For="@(() => Data.Description)" />
-            </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Control Type" ColSpanMd="6">
-                <DxComboBox Data="@ControlTypeData"
-                            NullText="Select ControlType..."
-                            FilteringMode="DataGridFilteringMode.Contains"
-                                        SelectedItemChanged="@((string plant) =>SelectedControlChanged(plant))"
-                            @bind-Value="@Data.ControlType" />
-            </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Internal" Visible = "false" ColSpanMd="6">
-               <DxCheckBox @bind-Checked ="Data.IsInternal" ></DxCheckBox>
-            </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Entry Mask" ColSpanMd="6">
-               <DxTextBox @bind-Text ="Data.EntryMask" Enabled = "@MaskEnabled"></DxTextBox>
-            </DxFormLayoutItem>
-            <DxFormLayoutItem Caption="Reg.Exp" ColSpanMd="6">
-                <DxTextBox @bind-Text="Data.RegExp" Enabled ="@RegEnabled"></DxTextBox>
-            </DxFormLayoutItem>
-        <ValidationSummary></ValidationSummary>
-    </DxFormLayout>
-       
-    </EditForm>
+                        <DataAnnotationsValidator />
+                        <DxFormLayout CssClass="w-100">
+                            <DxFormLayoutItem Caption="Add Or Select Attribute " ColSpanMd="6" Visible="isSelectEnabled">
+                                <span style="@isDisplay">
+                                    <DxComboBox Data="@_attributes"
+                                                AllowUserInput="true"
+                                                NullText="Select Attribute..."
+                                                ListRenderMode="ListRenderMode.Virtual"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="AttributeName"
+                                                ValueFieldName="AttributeName"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="Data.AttributeName"
+                                    @bind-Text="Data.AttributeName"
+                                                ShowValidationIcon="true"
+                                                SelectedItemChanged="@((AttributeHeader plant) => SelectedItemChanged(plant))">
+                                        <Buttons>
+                                            <DxEditorButton IconCssClass="fa fa-pencil"
+                                                            Tooltip="Edit an Attribute"
+                                                            Click="@(_ => OnEditButtonClick())" />
+                                        </Buttons>
+                                    </DxComboBox>
+                                    <ValidationMessage For="@(() => Data.AttributeName)" />
+                                </span>
+                                <span style="@isDisplay1">
+                                    <DxComboBox Data="@_attributes"
+                                                AllowUserInput="true"
+                                                NullText="Select Attribute..."
+                                                ListRenderMode="ListRenderMode.Virtual"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="AttributeName"
+                                                ValueFieldName="AttributeName"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="Data.AttributeName"
+                                    @bind-Text="Data.AttributeName"
+                                                ShowValidationIcon="true"
+                                                SelectedItemChanged="@((AttributeHeader plant) => SelectedItemChanged(plant))">
+                                    </DxComboBox>
+                                    <ValidationMessage For="@(() => Data.AttributeName)" />
+                                </span>
+
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Add Or Select Attribute " ColSpanMd="6" Visible="isAddAttributeEnabled">
+                                <DxTextBox @bind-Text="Data.AttributeName">
+                                    <Buttons>
+                                        <DxEditorButton IconCssClass="fa fa-close"
+                                                        Tooltip="Close an Attribute"
+                                                        Click="@(_ => OnCloseButtonClick())" />
+                                    </Buttons>
+                                </DxTextBox>
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="Display Name" ColSpanMd="6">
+                                <DxTextBox @bind-Text="@Data.Description"></DxTextBox>
+                                <ValidationMessage For="@(() => Data.Description)" />
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Control Type" ColSpanMd="6">
+                                <DxComboBox Data="@_controlTypeData"
+                                            NullText="Select ControlType..."
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="CodeValue"
+                                            ValueFieldName="CodeId"
+                                            SelectedItemChanged="@((CodeMaster plant) =>SelectedControlChanged(plant?.CodeId))"
+                                @bind-Value="@Data.ControlTypeId">
+                                    <Columns>
+                                        <DxListEditorColumn FieldName="@nameof(CodeMaster.CodeValue)"
+                                                            Caption="Control Type"
+                                                            Width="100px" />
+                                        <DxListEditorColumn FieldName="@nameof(CodeMaster.CodeDescription)"
+                                                            Caption="Description" Width="300px" />
+
+                                    </Columns>
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Data.ControlTypeId)" />
+                            </DxFormLayoutItem>
+                           @*  <DxFormLayoutItem Caption="Is Multiple" ColSpanMd="6" >
+                                <DxCheckBox @bind-Checked="Data.IsMultiple"></DxCheckBox>
+                            </DxFormLayoutItem> *@
+                            <DxFormLayoutItem Caption="Entry Mask" ColSpanMd="6">
+                                <DxTextBox @bind-Text="Data.EntryMask" Enabled="@MaskEnabled"></DxTextBox>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Reg.Exp" ColSpanMd="6">
+                                <DxTextBox @bind-Text="Data.RegExp" Enabled="@RegEnabled"></DxTextBox>
+                            </DxFormLayoutItem>
+
+                        </DxFormLayout>
+
+                    </EditForm>
                 </div>
             </div>
         </div>
     </div>
     <div style="height:60%;border: 1px solid #b2afaf; overflow: auto; padding:10px;">
-       
 
-            <div class="mini-menu-bar-top">
-                <div class="mini-menu-bar-heading">
-                   
-                </div>
 
-                <div>
-                    <div class="views-accordion">
-                    <AttributeDetailsSetup AttributeIDs="@AttributeIDs" @ref=RefDetails></AttributeDetailsSetup>
-                    </div>
+        <div class="mini-menu-bar-top">
+            <div class="mini-menu-bar-heading">
+            </div>
+
+            <div>
+                <div class="views-accordion">
+                    <AttributeDetailsSetup  @ref=RefDetails></AttributeDetailsSetup>
                 </div>
             </div>
-        
+        </div>
+
     </div>
 </div>
 
@@ -141,54 +184,50 @@
     bool DeleteEnabled { get; set; } = false;
     bool MaskEnabled { get; set; } = false;
     bool RegEnabled { get; set; } = false;
+    bool isMultipleEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
+    bool isSelectEnabled { get; set; } = true;
+    bool isAddAttributeEnabled { get; set; } = false;
     private bool loading;
     private string MyID = "myid";
     long AttributeIDs;
     private List<AttributeHeader>? _attributes;
-   
+    string? isDisplay = "display:none;";
+    string? isDisplay1 = "";
     AttributeHeader Data = new AttributeHeader();
     private List<CodeMaster> _stausItems;
-    List<string> ControlTypeData { get; set; }
     private List<ApplicationUser> _applicationUsers;
     private CodeMaster? codemaster;
     public ApplicationUser? applicationUser { get; private set; }
     private List<AttributeHeader>? _master;
     private List<AttributeHeader>? _SaveLst;
-    AttributeHeader AttributeNamelst= new AttributeHeader();
+    AttributeHeader AttributeNamelst = new AttributeHeader();
+    private List<string> ControlTypeChildData = new List<string> { "ComboBox", "ListBox", "CheckBox", "TagBox", "Radio" };
+
+    private List<CodeMaster> _controlTypeData;
     protected override async Task OnInitializedAsync()
     {
-        // _attributesDetails = await Mediator.Send(new GetAllAttributeDetailsQuery());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
-
-        _attributes = await Mediator.Send(new GetAllAttributeNameHeader());
-      
-        ControlTypeData = new List<string>
-            {
-                 "TextBox","ComboBox","DateEdit","CheckBox","SpinEdit","Memo","TagBox"
-            };
-
+        _controlTypeData = await Mediator.Send(new GetAllCodeMasterQuery("AttributeControlType"));
+        isAddAttributeEnabled = false;
+        isSelectEnabled = true;
+        await loadData();
     }
-
+    async Task loadData()
+    {
+        _attributes = await Mediator.Send(new GetAllAttributeNameHeader());
+        StateHasChanged();
+    }
     void addNew()
     {
-
         Data = new AttributeHeader();
-
-        ControlTypeData = new List<string>
-    {
-          "TextBox","ComboBox","DateEdit","CheckBox","SpinEdit","Memo","TagBox"
-    };
-
-
-        Data.IsInternal = false;
-        RefDetails.Attributeload(0,"");
-
-
-    }
-    void addEdit()
-    {
+        isAddAttributeEnabled = false;
+        isSelectEnabled = true;
+        isDisplay = "display:none;";
+        isDisplay1 = "";
+        RefDetails.Attributeload(0, "");
+        StateHasChanged();
     }
     void addDelete()
     {
@@ -198,113 +237,190 @@
     {
         FormSubmitResult = "";
     }
-  
+
     async Task HandleValidSubmit()
     {
-        var ex = _attributes.Where(x => x.Description == Data.Description || x.AttributeName == Data.AttributeName);
-        if (ex.Any())
+        var ex = _attributes.Where(x => x.AttributeName == Data.AttributeName);
+        if (Data.AttributeID > 0)
         {
-            // onShowPopupMessage("Error", "The entered value Already exists.");
-            toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            var ex1 = _attributes.Where(x => x.AttributeName == Data.AttributeName && x.AttributeID != Data.AttributeID);
+            if (ex1.Any())
+            {
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                await createAttributes();
+                toastService.ShowToast("Attribute Updated  successully.", AC.SD.Core.Services.ToastLevel.Success);
+            }
         }
         else
         {
-            var createReq = new CreateAttributeHeader
-                {
-                     AttributeName= Data.AttributeName,
-                    Description = Data.Description,
-                    ControlType = Data.ControlType,
-                    IsInternal = Data.IsInternal,
-                    EntryMask = Data.EntryMask,
-                    RegExp = Data.RegExp,
-                   
-                    StatusCodeID = 1,
-                    AddedByUserID = applicationUser.UserID,
-                    AddedDate = DateTime.Now,
-                    SessionId = Guid.NewGuid(),
-
-                };
-            var result = await Mediator.Send(createReq);
-            // addNew();
-            AttributeIDs = result;
-            var lst = await Mediator.Send(new GetAllAttributeValues(AttributeIDs));
-            _SaveLst = lst.Where(f => f.ControlType == "ComboBox").ToList();
-            if(_SaveLst.Count > 0)
+            if (ex.Any())
             {
-
-                Data.AttributeName = _SaveLst[0].AttributeName;
-                Data.Description = _SaveLst[0].Description;
-                Data.ControlType = _SaveLst[0].ControlType;
-                Data.EntryMask = _SaveLst[0].EntryMask;
-                Data.RegExp = _SaveLst[0].RegExp;
-              
-                RefDetails.AddEnabledEvent(_SaveLst[0].ControlType);
+                toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
             }
-            _attributes = await Mediator.Send(new GetAllAttributeNameHeader());
-            toastService.ShowToast("Attribute have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
-
+            else
+            {
+                await createAttributes();
+                toastService.ShowToast("Attribute have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
+            }
         }
+    }
+    void OnEditButtonClick()
+    {
+        isAddAttributeEnabled = true;
+        isSelectEnabled = false;
+        StateHasChanged();
+    }
+    void OnCloseButtonClick()
+    {
+        isAddAttributeEnabled = false;
+        isSelectEnabled = true;
+        StateHasChanged();
+    }
+    async Task createAttributes()
+    {
+        var createReq = new CreateAttributeHeader
+            {
+                AttributeID = Data.AttributeID,
+                AttributeName = Data.AttributeName,
+                Description = Data.Description,
+                ControlType = Data.ControlType,
+                IsInternal = Data.IsInternal,
+                EntryMask = Data.EntryMask,
+                RegExp = Data.RegExp,
+                ControlTypeId = Data.ControlTypeId,
+                IsMultiple = Data.IsMultiple,
+                IsRequired = Data.IsRequired,
+                RequiredMessage = Data.RequiredMessage,
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                SessionId = Data.SessionId == null ? Guid.NewGuid() : Data.SessionId,
+            };
+        var result = await Mediator.Send(createReq);
+        if (result > 0)
+        {
+            Data.AttributeID = result;
+            var controlType = _controlTypeData.FirstOrDefault(f => f.CodeId == Data.ControlTypeId)?.CodeValue;
+            if (controlType != null)
+            {
+                var isChildData = ControlTypeChildData.FirstOrDefault(f => controlType.ToLower().Contains(f.ToLower()));
+                if (isChildData != null)
+                {
+                    RefDetails.Attributeload(Data.AttributeID, controlType);
+                }
+                isDisplay1 = "display:none;";
+                isDisplay = "";
+            }
+        }
+        await loadData();
+
+
     }
     async void SelectedItemChanged(AttributeHeader header)
     {
-        if(header != null)
+        isDisplay = "display:none;";
+        isDisplay1 = "";
+        if (header != null)
         {
-            if (header.AttributeName != null)
+            if (header.AttributeID > 0)
             {
-
-                _master = _attributes.Where(c => c.AttributeName == header.AttributeName).ToList();
-
-                Data.Description = _master[0].Description;
-                Data.EntryMask = _master[0].EntryMask;
-                Data.RegExp = _master[0].RegExp;
-                Data.IsInternal = _master[0].IsInternal;
-              
-                Data.ControlType = _master[0].ControlType;
-                if (Data.ControlType == "TextBox" || Data.ControlType == "DateEdit")
+                loadDropDownList(header.AttributeID);
+            }
+        }
+        else
+        {
+            Data.Description = null;
+            Data.EntryMask = null;
+            Data.RegExp = null;
+            Data.IsInternal = false;
+            Data.ControlTypeId = null;
+            Data.IsMultiple = false;
+            Data.IsRequired = false;
+            Data.RequiredMessage = null;
+            Data.AttributeID = 0;
+            Data.AttributeName = null;
+            Data.SessionId = null;
+            if (Data.AttributeID > 0)
+            {
+                loadDropDownList(Data.AttributeID);
+            }
+            else
+            {
+                RefDetails.Attributeload(Data.AttributeID, null);
+            }
+        }
+    }
+    void loadDropDownList(long? AttributeID)
+    {
+        isDisplay = "display:none;";
+        isDisplay1 = "";
+        DeleteEnabled = false;
+        _master = _attributes.Where(c => c.AttributeID == AttributeID).ToList();
+        if (_master != null && _master.Count > 0)
+        {
+            isDisplay = ""; isDisplay1 = "display:none;";
+            Data.Description = _master[0].Description;
+            Data.EntryMask = _master[0].EntryMask;
+            Data.RegExp = _master[0].RegExp;
+            Data.IsInternal = _master[0].IsInternal;
+            Data.ControlTypeId = _master[0].ControlTypeId;
+            Data.IsMultiple = _master[0].IsMultiple;
+            Data.IsRequired = _master[0].IsRequired;
+            Data.RequiredMessage = _master[0].RequiredMessage;
+            Data.AttributeID = _master[0].AttributeID;
+            Data.AttributeName = _master[0].AttributeName;
+            Data.SessionId = _master[0].SessionId;
+            SelectedControlChanged(Data.ControlTypeId);
+            var isChildData = ControlTypeChildData.FirstOrDefault(f => _master[0].ControlType.ToLower().Contains(f.ToLower()));
+            if (isChildData != null)
+            {
+                RefDetails.Attributeload(_master[0].AttributeID, _master[0].ControlType);
+            }
+            else
+            {
+                RefDetails.Attributeload(_master[0].AttributeID, null);
+            }
+            DeleteEnabled = true;
+        }
+        else
+        {
+            RefDetails.Attributeload(Data.AttributeID, null);
+        }
+    }
+    void SelectedControlChanged(int? controlTypeId)
+    {
+        isMultipleEnabled = false;
+        MaskEnabled = false;
+        RegEnabled = false;
+        if (controlTypeId > 0)
+        {
+            var controlType = _controlTypeData.FirstOrDefault(f => f.CodeId == controlTypeId)?.CodeValue;
+            if (!string.IsNullOrEmpty(controlType))
+            {
+                var isChildData = ControlTypeChildData.FirstOrDefault(f => controlType.ToLower().Contains(f.ToLower()));
+                if (isChildData != null)
+                {
+                    isMultipleEnabled = true;
+                }
+                if (controlType == "TextBox")
                 {
                     MaskEnabled = true;
                     RegEnabled = true;
                 }
-                else
-                {
-                    MaskEnabled = false;
-                    RegEnabled = false;
-                }
-
-                RefDetails.Attributeload(_master[0].AttributeID,Data.ControlType);
-                DeleteEnabled = true;
             }
-        }
-
-
-    }
-    async void SelectedControlChanged(string controlType)
-    {
-        if(controlType != null)
-        {
-            if (controlType == "TextBox" || controlType == "DateEdit")
-            {
-                MaskEnabled = true;
-                RegEnabled = true;
-            }
-            else
-            {
-                MaskEnabled = false;
-                RegEnabled = false;
-            }
-
         }
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
-
         Blukdeletepopup = false;
-
-
     }
     async Task bulkDelete(long id)
     {
-
         try
         {
             var request = new DeleteAttributeHeader(id);
@@ -313,16 +429,13 @@
             toastService.ShowToast("Attribute have been Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);
 
             addNew();
-            _attributes = await Mediator.Send(new GetAllAttributeNameHeader());
+            await loadData();
             RefDetails.Attributeload(_master[0].AttributeID, "");
         }
         catch (Exception eq)
         {
             Blukdeletepopup = false;
             toastService.ShowToast("You Must Delete ValueID.", AC.SD.Core.Services.ToastLevel.Error);
-            // errorMessage = eq.Message;
-            // PopupVisible = true;
-
         }
 
     }

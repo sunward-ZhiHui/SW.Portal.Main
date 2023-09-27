@@ -205,12 +205,12 @@
             @{
                 var types = (ToDoNotesHistory)EditFormContext.EditModel;
 
-                if (types.Users != null)
-                {
-                    string userIdsString = types.Users; // Assuming UserIds is a string
-                                                        // Split the comma-separated string and parse into an IEnumerable<long>
-                    types.UserIds = userIdsString.Split(',').Select(long.Parse);
-                }
+                // if (types.Users != null)
+                // {
+                //     string userIdsString = types.Users; // Assuming UserIds is a string
+                //                                         // Split the comma-separated string and parse into an IEnumerable<long>
+                //     types.UserIds = userIdsString.Split(',').Select(long.Parse);
+                // }
 
             }
             <DxFormLayout CssClass="w-100">
@@ -495,7 +495,7 @@
                             Description = editModel.Description,
                             DueDate = editModel.DueDate,
                             RemainDate = editModel.RemainDate,
-                            Users = useridsString,
+                            Users = editModel.Users,
                             StatusCodeID = 1,
                             AddedByUserID = applicationUser.UserID,
                             ModifiedByUserID = applicationUser.UserID,
@@ -536,7 +536,7 @@
                             RemainDate = editModel.RemainDate,
                             AddedByUserID = editModel.AddedByUserID,
                             StatusCodeID = editModel.StatusCodeID,
-                            Users = useridsString,
+                            Users = editModel.Users,
                             ModifiedByUserID = applicationUser.UserID,
                             ModifiedDate = DateTime.Now,
                             AddedDate = editModel.AddedDate,

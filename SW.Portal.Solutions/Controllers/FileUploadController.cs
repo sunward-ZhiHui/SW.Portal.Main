@@ -3,8 +3,10 @@ using Core.EntityModels;
 using Core.Repositories.Query;
 using DevExpress.DocumentServices.ServiceModel.DataContracts;
 using DevExpress.Xpo;
+using DevExpress.XtraReports;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using System.Text.Json;
 namespace SW.Portal.Solutions.Controllers
 {
@@ -14,11 +16,12 @@ namespace SW.Portal.Solutions.Controllers
     {
         private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IDocumentsQueryRepository _documentsqueryrepository;
-
-        public FileUploadController(IWebHostEnvironment host, IDocumentsQueryRepository documentsqueryrepository)
+        private readonly IReportFileUploadsQueryRepository _fileuploadqueryRepository;
+        public FileUploadController(IWebHostEnvironment host, IDocumentsQueryRepository documentsqueryrepository, IReportFileUploadsQueryRepository fileuploadqueryRepository)
         {
             _hostingEnvironment = host;
             _documentsqueryrepository = documentsqueryrepository;
+            _fileuploadqueryRepository = fileuploadqueryRepository;
         }
         [HttpPost]
         [Route("UploadDocumentsBySession")]
@@ -153,6 +156,74 @@ namespace SW.Portal.Solutions.Controllers
                 foreach (var file in dir.GetFiles("*.tmp").Where(f => f.LastWriteTimeUtc.Add(delay) < DateTime.UtcNow))
                     file.Delete();
             }
+        }
+
+
+        [HttpPost]
+        [Route("UploadReportFile")]
+        public async Task<ActionResult> UploadReportFile(IFormFile files, Guid? SessionId, long? addedByUserId)
+        {
+            long ReportdocumentId = 0;
+            // Handling Upload with Chunks
+            string chunkMetadata = Request.Form["chunkMetadata"];
+
+            // Set BasePath
+            string BaseDirectory = System.AppContext.BaseDirectory;
+          //  var reportFolder = Path.Combine(BaseDirectory, "Reports");
+            var serverPaths = Path.Combine(BaseDirectory, "Reports");
+
+            try
+            {
+                if (!string.IsNullOrEmpty(chunkMetadata))
+                {
+                    var metaDataObject = JsonSerializer.Deserialize<ChunkMetadata>(chunkMetadata);
+
+                    // Use tmp File for Upload
+                    var tempFilePath = Path.Combine(serverPaths, metaDataObject.FileName + ".tmp");
+
+                    // Create UploadFolder
+                    if (!System.IO.Directory.Exists(serverPaths))
+                    {
+                        System.IO.Directory.CreateDirectory(serverPaths);
+                    }
+                    // Removes temporary files 
+                    RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
+
+                    // Save FileStream
+                    using (var stream = new FileStream(tempFilePath, FileMode.Append, FileAccess.Write))
+                    {
+                        files.CopyTo(stream);
+                    }
+                    if (metaDataObject.Index == (metaDataObject.TotalCount - 1))
+                    {
+                        var ext = metaDataObject.FileName.Split(".").Last();
+                        var fileName1 = metaDataObject.FileName ;
+                        var FileName = Path.GetFileNameWithoutExtension(metaDataObject.FileName);
+                        var serverPath = serverPaths + @"\" + fileName1;
+
+                        // Upload finished - overwrite/copy file and remove tempFile
+                        System.IO.File.Copy(tempFilePath, Path.Combine(serverPaths, serverPath), true);
+                        System.IO.File.Delete(tempFilePath);
+                        ReportDocuments documents = new ReportDocuments();
+                       
+                        
+                        documents.IsLatest = true;
+                        //documents.IsTemp = true;
+                        documents.FileName = FileName;
+                        documents.ContentType = metaDataObject.FileType;
+                        documents.FileSize = metaDataObject.FileSize;
+                        documents.SessionId = SessionId;
+                        documents.FilePath = serverPath.Replace(Path.Combine(BaseDirectory, "Reports"), "");
+                        var response = await _fileuploadqueryRepository.InsertCreateReportDocumentBySession(documents);
+                        ReportdocumentId = response.ReportDocumentID;
+                   }
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            return Ok(ReportdocumentId.ToString());
         }
     }
 }

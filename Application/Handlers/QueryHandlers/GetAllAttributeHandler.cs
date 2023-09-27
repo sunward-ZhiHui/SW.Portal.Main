@@ -20,7 +20,7 @@ namespace Application.Handlers.QueryHandlers
         public GetAllAttributeHandler(IQueryRepository<AttributeHeader> queryRepository, IAttributeQueryRepository attrubutequeryRepository)
         {
             _queryRepository = queryRepository;
-            _attrubutequeryRepository=attrubutequeryRepository;
+            _attrubutequeryRepository = attrubutequeryRepository;
         }
         public async Task<List<DynamicForm>> Handle(GetAllAttributeHeader request, CancellationToken cancellationToken)
         {
@@ -40,21 +40,6 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<AttributeHeader>> Handle(GetAllAttributeNameHeader request, CancellationToken cancellationToken)
         {
             return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAttributeName();
-        }
-    }
-    public class GetAllAttributeValueHandler : IRequestHandler<GetAllAttributeValues, List<AttributeHeader>>
-    {
-
-        private readonly IQueryRepository<AttributeHeader> _queryRepository;
-        private readonly IAttributeQueryRepository _attrubutequeryRepository;
-        public GetAllAttributeValueHandler( IAttributeQueryRepository attrubutequeryRepository)
-        {
-           
-            _attrubutequeryRepository = attrubutequeryRepository;
-        }
-        public async Task<List<AttributeHeader>> Handle(GetAllAttributeValues request, CancellationToken cancellationToken)
-        {
-            return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAsync(request.ID);
         }
     }
     public class CreateAttributeHandler : IRequestHandler<CreateAttributeHeader, long>

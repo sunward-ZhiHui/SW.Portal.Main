@@ -42,8 +42,7 @@ namespace Application.Handlers.CommandHandler.Attribute
                 throw new ApplicationException(exp.Message);
             }
 
-            var modifiedCustomer = await _attributeHeaderTypeQueryRepository.GetByIdAsync(request.AttributeID);
-            var customerResponse = RoleMapper.Mapper.Map<AttributeHeaderResponse>(modifiedCustomer);
+            var customerResponse = RoleMapper.Mapper.Map<AttributeHeaderResponse>(attributeHeader);
 
             return customerResponse;
         }

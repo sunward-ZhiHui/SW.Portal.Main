@@ -404,7 +404,7 @@
                 //  UploadPopUp = false;
                 return;
             }
-           
+
             var ex = _reportdocuments.Where(x => x.FileName == fileName);
             if (ex.Any())
             {
@@ -415,7 +415,7 @@
             else
             {
 
-            var createReq = new CreateReportFileQueryNew
+                var createReq = new CreateReportFileQueryNew
                     {
                         Name = editModel.Name,
                         Description = editModel.Description,
@@ -424,27 +424,27 @@
 
                     };
 
-            try
-            {
-
-                var result = await Mediator.Send(createReq);
-                if(result != null)
+                try
                 {
-                    _sessionId = result;
-                    uploadComponent.UploadAllFiles();
-                    await Task.Delay(5000);
-                }
-                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-               
-            }
-            catch (Exception eq)
-            {
-                //toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
-                //errorMessage = eq.Message;
-                //PopupVisible = true;
 
+                    var result = await Mediator.Send(createReq);
+                    if(result != null)
+                    {
+                        _sessionId = result;
+                        uploadComponent.UploadAllFiles();
+                        await Task.Delay(5000);
+                    }
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+                }
+                catch (Exception eq)
+                {
+                    //toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+                    //errorMessage = eq.Message;
+                    //PopupVisible = true;
+
+                }
             }
-           }
         }
         else
         {
@@ -464,6 +464,7 @@
                         Name = editModel.Name,
                         Description = editModel.Description,
                         SessionId = editModel.SessionId,
+                        FileName = editModel.FileName,
 
                     };
                 try
@@ -471,9 +472,12 @@
                     var ans = await Mediator.Send(UpdateReq);
                     if (UpdateReq != null)
                     {
-                        _sessionId = UpdateReq.SessionId;
-                        uploadComponent.UploadAllFiles();
-                        await Task.Delay(5000);
+                        if (SelectedFilesCount > 0)
+                        {
+                            _sessionId = UpdateReq.SessionId;
+                            uploadComponent.UploadAllFiles();
+                            await Task.Delay(5000);
+                        }
                     }
                     toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
 

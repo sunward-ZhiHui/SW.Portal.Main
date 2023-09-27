@@ -1,4 +1,8 @@
-﻿@page "/reportFileUploadNew"
+﻿@* @page "/reportFileUploadNew"
+ *@
+ @page "/reportFileUploads"
+ 
+
 @using Application.Commands;
 @using Application.Queries;
 @using DevExpress.Export;
@@ -306,7 +310,7 @@
         {
             var file = files.FirstOrDefault();
             var name = file.Name;
-            fileName = Path.GetFileNameWithoutExtension(name); ;
+            fileName = Path.GetFileNameWithoutExtension(name); 
             var ext = Path.GetExtension(name);
 
 
@@ -379,6 +383,8 @@
         _selectedItems = _reportdocuments.FirstOrDefault(f => f.ReportDocumentID == (long?)UniqueId);
         EnableUpload = true;
     }
+
+   
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
@@ -404,7 +410,7 @@
                 //  UploadPopUp = false;
                 return;
             }
-           
+
             var ex = _reportdocuments.Where(x => x.FileName == fileName);
             if (ex.Any())
             {
@@ -415,7 +421,7 @@
             else
             {
 
-            var createReq = new CreateReportFileQueryNew
+                var createReq = new CreateReportFileQueryNew
                     {
                         Name = editModel.Name,
                         Description = editModel.Description,
@@ -424,30 +430,36 @@
 
                     };
 
-            try
-            {
-
-                var result = await Mediator.Send(createReq);
-                if(result != null)
+                try
                 {
-                    _sessionId = result;
-                    uploadComponent.UploadAllFiles();
-                    await Task.Delay(5000);
-                }
-                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-               
-            }
-            catch (Exception eq)
-            {
-                //toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
-                //errorMessage = eq.Message;
-                //PopupVisible = true;
 
+                    var result = await Mediator.Send(createReq);
+                    if(result != null)
+                    {
+                        _sessionId = result;
+                        uploadComponent.UploadAllFiles();
+                        await Task.Delay(5000);
+                    }
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+                }
+                catch (Exception eq)
+                {
+                    //toastService.ShowToast("Please Select File", AC.SD.Core.Services.ToastLevel.Error);
+                    //errorMessage = eq.Message;
+                    //PopupVisible = true;
+
+                }
             }
-           }
         }
         else
         {
+
+            // var lst = _reportdocuments.Where(m => m.FileName == ActFileName);
+            // if (lst.ToList().Count > 0)
+            // {
+            //     fileName = null;
+            // }
 
             var ex = _reportdocuments.Where(x => x.FileName == fileName && x.ReportDocumentID != editModel.ReportDocumentID);
             if (ex.Any())
@@ -458,22 +470,30 @@
             }
             else
             {
-                var UpdateReq = new EditReportFileQuery
+                var UpdateReq = new EditReportFileQueryNew
                     {
                         ReportDocumentID = editModel.ReportDocumentID,
                         Name = editModel.Name,
                         Description = editModel.Description,
                         SessionId = editModel.SessionId,
 
+                        FileName = fileName,
+
+                        ActFileName = editModel.FileName
+
                     };
                 try
                 {
+                   
                     var ans = await Mediator.Send(UpdateReq);
                     if (UpdateReq != null)
                     {
-                        _sessionId = UpdateReq.SessionId;
-                        uploadComponent.UploadAllFiles();
-                        await Task.Delay(5000);
+                        if (SelectedFilesCount > 0)
+                        {
+                            _sessionId = UpdateReq.SessionId;
+                            uploadComponent.UploadAllFiles();
+                            await Task.Delay(5000);
+                        }
                     }
                     toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
 
@@ -488,7 +508,7 @@
         }
         await UpdateDataAsync();
        
-
+        await jsRuntime.InvokeAsync<string>("ReloadUrl");
 
 
 

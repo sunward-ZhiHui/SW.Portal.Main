@@ -33,16 +33,16 @@ namespace SW.Portal.Solutions.Controllers
                 response.ResponseCode = ResponseCode.Success;
 
                 var lst = await _applicationUserQueryRepository.LoginAuth(loginId, password);
-                if(lst != null)
+                if (lst != null)
                 {
-                    if(lst.Locked)
+                    if (lst.Locked)
                     {
                         response.ResponseCode = ResponseCode.Failure;
                         response.ErrorMessages.Add("Invalid Credentials");
                     }
                     else
                     {
-                        if(lst.InvalidAttempts != 0)
+                        if (lst.InvalidAttempts != 0)
                         {
                             response.ResponseCode = ResponseCode.Failure;
                             response.ErrorMessages.Add("Invalid Password, " + (3 - lst.InvalidAttempts) + " attempt(s) left.");
@@ -52,7 +52,7 @@ namespace SW.Portal.Solutions.Controllers
                             response.Result = _mapper.Map<ApplicationUser>(lst);
                         }
                     }
-                   
+
                 }
 
                 else
@@ -60,7 +60,7 @@ namespace SW.Portal.Solutions.Controllers
                     response.ResponseCode = ResponseCode.Failure;
                     response.ErrorMessages.Add("Invalid User");
                 }
-                                 
+
             }
             catch (Exception ex)
             {
@@ -69,12 +69,12 @@ namespace SW.Portal.Solutions.Controllers
             }
 
             return Ok(response);
-            
+
         }
 
         [HttpPost]
         [Route("UpdateDeviceinfo")]
-        public async Task<ActionResult<ResponseModel<IEnumerable<ReplyConversation>>>> UpdateDeviceinfo(string LoginId, string DeviceType,string TokenID)
+        public async Task<ActionResult<ResponseModel<IEnumerable<ReplyConversation>>>> UpdateDeviceinfo(string LoginId, string DeviceType, string TokenID)
         {
             var response = new ResponseModel<ReplyConversation>();
 
@@ -86,7 +86,7 @@ namespace SW.Portal.Solutions.Controllers
                 if (lst != "-1")
                 {
                     var emailconversations = new ReplyConversation
-                    {                        
+                    {
                         Message = lst.ToString(),
                     };
 
@@ -98,6 +98,24 @@ namespace SW.Portal.Solutions.Controllers
                     response.ErrorMessages.Add("Invalid User");
                 }
 
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetTokenList")]
+        public async Task<ActionResult<ResponseModel<List<UserNotification>>>> GetTokenList()
+        {
+            var response = new ResponseModel<UserNotification>();
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+                var userNotifications = await _applicationUserQueryRepository.GetTokenList();
+                response.Results = userNotifications; // Assign the list of results
             }
             catch (Exception ex)
             {

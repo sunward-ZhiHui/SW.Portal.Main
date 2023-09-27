@@ -5,13 +5,27 @@ using Microsoft.AspNetCore.Components.Web;
 using AC.SD.Core.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Blazored.SessionStorage;
-
+using System;
+using System.IO;
+using Google.Apis.Auth.OAuth2;
+using FirebaseAdmin;
+using FirebaseAdmin.Auth;
+using FirebaseAdmin.Messaging;
+using System.Configuration;
+using SW.Portal.Solutions.Models;
 
 public class Program
 {
     public static async Task Main(string[] args)
     {
         await CreateHostBuilder(args).Build().RunAsync();
+
+
+        FirebaseApp.Create(new AppOptions()
+        {
+            Credential = GoogleCredential.FromFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "serviceAccountKey.json")),
+        });       
+
     }
 
     public static IHostBuilder CreateHostBuilder(string[] args)
@@ -47,6 +61,20 @@ public class Program
             services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();
             services.AddDevExpressServerSideBlazorReportViewer();
             services.AddScoped<ClipboardService>();
+
+            var keys = WebPush.VapidHelper.GenerateVapidKeys();
+            System.Diagnostics.Debug.WriteLine(keys.PrivateKey);
+            System.Diagnostics.Debug.WriteLine(keys.PublicKey);
+
+            services.AddControllersWithViews();
+            
+
+            // Inject IConfiguration to access configuration settings
+            var configuration = context.Configuration;
+
+            // Configure strongly typed settings objects
+            var appSettingsSection = configuration.GetSection("FcmNotification");
+            services.Configure<FcmNotificationSetting>(appSettingsSection);
         }
     }
 }

@@ -37,6 +37,12 @@ namespace SW.Portal.Solutions.ServerSide {
             services.AddBlazoredToast();
             services.AddDevExpressServerSideBlazorReportViewer();
 
+            var keys = WebPush.VapidHelper.GenerateVapidKeys();
+            System.Diagnostics.Debug.WriteLine(keys.PrivateKey);
+            System.Diagnostics.Debug.WriteLine(keys.PublicKey);
+
+            services.AddControllersWithViews();
+
             var optionsBuilder = services.AddOptions();
             optionsBuilder.AddOptions<DemoModel>("AC.SD.Core");
 

@@ -13,11 +13,10 @@ namespace Core.Entities
     {
         [Key]
         public long AttributeDetailID { get; set; }
-
-        public string  AttributeDetailName { get; set; }
+        [Required(ErrorMessage = "Value is Required")]
+        public string?  AttributeDetailName { get; set; }
         public long? AttributeID { get; set; }
-        [Required]
-        public string Description { get; set; }
+        public string? Description { get; set; }
       
         public bool Disabled { get; set; }
         [NotMapped]

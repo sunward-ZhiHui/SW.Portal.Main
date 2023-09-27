@@ -20,15 +20,6 @@ namespace Application.Queries
 
 
     }
-    public class GetAllAttributeValues : PagedRequest, IRequest<List<AttributeHeader>>
-    {
-
-        public long ID { get; set; }
-        public GetAllAttributeValues(long ID)
-        {
-            this.ID = ID;
-        }
-    }
     public class CreateAttributeHeader : AttributeHeader, IRequest<long>
     {
     }
@@ -53,8 +44,8 @@ namespace Application.Queries
     public class GetAllAttributeNameList : PagedRequest, IRequest<List<AttributeHeader>>
     {
 
-        public string ID { get; set; }
-        public GetAllAttributeNameList(string ID)
+        public string? ID { get; set; }
+        public GetAllAttributeNameList(string? ID)
         {
             this.ID = ID;
         }

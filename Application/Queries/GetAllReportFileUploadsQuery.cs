@@ -16,7 +16,7 @@ namespace Application.Queries
     }
     public class CreateReportFileQuery : ReportDocuments, IRequest<long>
     {
-        
+
         public byte[] FileContent { get; set; }
     }
     public class EditReportFileQuery : ReportDocuments, IRequest<long>
@@ -27,12 +27,22 @@ namespace Application.Queries
     public class DeleteReportdocumentQuery : ReportDocuments, IRequest<long>
     {
         public long ReportDocumentID { get; set; }
-      public string ReportName { get; set; }
+        public string ReportName { get; set; }
 
         public DeleteReportdocumentQuery(long Id, string reportName)
         {
             this.ReportDocumentID = Id;
-           this.ReportName = reportName;
+            this.ReportName = reportName;
         }
+    }
+    public class CreateReportFileQueryNew : ReportDocuments, IRequest<Guid?>
+    {
+
+        //public byte[] FileContent { get; set; }
+    }
+
+    public class EditReportFileQueryNew : ReportDocuments, IRequest<long>
+    {
+        public string ActFileName { get; set; }
     }
 }

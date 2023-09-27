@@ -48,6 +48,24 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+
+    public class CreateReportFileNewHandler : IRequestHandler<CreateReportFileQueryNew, Guid?>
+    {
+        private readonly IReportFileUploadsQueryRepository _ReportFileQueryRepository;
+        public CreateReportFileNewHandler(IReportFileUploadsQueryRepository ReportFileQueryRepository)
+        {
+            _ReportFileQueryRepository = ReportFileQueryRepository;
+        }
+
+        public async Task<Guid?> Handle(CreateReportFileQueryNew request, CancellationToken cancellationToken)
+        {
+          
+            var newlist = await _ReportFileQueryRepository.InsertNew(request);
+            return newlist;
+
+        }
+
+    }
     public class EditReportFileHandler : IRequestHandler<EditReportFileQuery, long>
     {
         private readonly IReportFileUploadsQueryRepository _reportFileQueryRepository;
@@ -102,6 +120,40 @@ namespace Application.Handlers.QueryHandlers
            
              var req = await _reportdocumentQueryRepository.Delete(request.ReportDocumentID);
             return req;
+        }
+    }
+    public class EditReportFileNewHandler : IRequestHandler<EditReportFileQueryNew, long>
+    {
+        private readonly IReportFileUploadsQueryRepository _reportFileQueryRepository;
+        public EditReportFileNewHandler(IReportFileUploadsQueryRepository reportFileQueryRepository)
+        {
+            _reportFileQueryRepository = reportFileQueryRepository;
+        }
+
+        public async Task<long> Handle(EditReportFileQueryNew request, CancellationToken cancellationToken)
+        {
+
+
+            if (request.FileName != null)
+            {
+                string BaseDirectory = System.AppContext.BaseDirectory;
+                var reportFolder = Path.Combine(BaseDirectory, "Reports");
+                File.Delete(Path.Combine(reportFolder, request.ActFileName + ".repx"));
+
+              //  File.WriteAllBytes(Path.Combine(reportFolder, request.FileName + ".repx"), request.FileContent);
+            }
+            else
+            {
+                request.FileName = request.ActFileName;
+            }
+
+
+
+
+            var req = await _reportFileQueryRepository.Update(request);
+
+            return req;
+
         }
     }
 }

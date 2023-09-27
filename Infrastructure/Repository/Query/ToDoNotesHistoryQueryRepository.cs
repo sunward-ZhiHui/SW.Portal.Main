@@ -55,18 +55,18 @@ namespace Infrastructure.Repository.Query
                     connection.Open();
                     var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
 
-                    foreach (var items in res)
-                    {
-                        if (items.Users != null && items.Users.Length != 0)
-                        {
-                            string[] userArray = items.Users.Split(',');
-                            var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
-                            var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
-                            items.participant = subQueryResults;
+                    //foreach (var items in res)
+                    //{
+                    //    if (items.Users != null && items.Users.Length != 0)
+                    //    {
+                    //        string[] userArray = items.Users.Split(',');
+                    //        var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
+                    //        var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
+                    //        items.participant = subQueryResults;
 
-                        }
+                    //    }
 
-                    }
+                    //}
 
                     return res;
                 }
@@ -81,10 +81,11 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT TNH.*,EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName FROM ToDoNotesHistory TNH
+                var query = @"SELECT TNH.*,EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,AP.UserName as AssignTo FROM ToDoNotesHistory TNH
                                  INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId  
                                  INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId  
-                                 INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId                             
+                                 INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId  
+								 INNER Join ApplicationUser AP ON AP.UserID = TNH.Users
                                 WHERE TNH.AddedByUserID = @UserId
                                 AND TNH.TopicId IS NOT NULL  AND TNH.TopicId > 0 AND TNH.Status = 'Open'                               
                                 AND CAST(TNH.DueDate AS DATE) <= CAST(GETDATE() AS DATE)
@@ -104,18 +105,18 @@ namespace Infrastructure.Repository.Query
                     connection.Open();
                     var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
 
-                    foreach (var items in res)
-                    {
-                        if (items.Users != null && items.Users.Length != 0)
-                        {
-                            string[] userArray = items.Users.Split(',');
-                            var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
-                            var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
-                            items.participant = subQueryResults;
+                    //foreach (var items in res)
+                    //{
+                    //    if (items.Users != null && items.Users.Length != 0)
+                    //    {
+                    //        string[] userArray = items.Users.Split(',');
+                    //        var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
+                    //        var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
+                    //        items.participant = subQueryResults;
 
-                        }
+                    //    }
 
-                    }
+                    //}
 
                     return res;
                 }
@@ -171,9 +172,13 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT * FROM ToDoNotesHistory
-                            WHERE AddedByUserID = @UserId AND NotesId = @NotesId
-                            ORDER BY Completed ASC";
+
+                var query = @"SELECT TNH. *, Ap.UserName as AssignToList FROM ToDoNotesHistory TNH
+                    Inner join ApplicationUser Ap on Ap.UserID = TNH.Users
+                     WHERE TNH.AddedByUserID = @UserId AND NotesId = @NotesId   ORDER BY Completed ASC";
+                //var query = @"SELECT * FROM ToDoNotesHistory
+                //            WHERE AddedByUserID = @UserId AND NotesId = @NotesId
+                //            ORDER BY Completed ASC";
                 var parameters = new DynamicParameters();
                 parameters.Add("NotesId", NotesId);
                 parameters.Add("UserId", UserId);
@@ -185,18 +190,18 @@ namespace Infrastructure.Repository.Query
                     connection.Open();
                     var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
 
-                    foreach (var items in res)
-                    {
-                        if(items.Users != null && items.Users.Length != 0)
-                        {
-                            string[] userArray = items.Users.Split(',');
-                            var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
-                            var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
-                            items.participant = subQueryResults;
+                    //foreach (var items in res)
+                    //{
+                    //    if(items.Users != null && items.Users.Length != 0)
+                    //    {
+                    //        string[] userArray = items.Users.Split(',');
+                    //        var subQuery = $"SELECT * FROM View_Employee WHERE UserID IN ({string.Join(",", userArray)})";
+                    //        var subQueryResults = connection.Query<ViewEmployee>(subQuery).ToList();
+                    //        items.participant = subQueryResults;
 
-                        }
+                    //    }
                                               
-                    }
+                    //}
 
                     return res;
                 }

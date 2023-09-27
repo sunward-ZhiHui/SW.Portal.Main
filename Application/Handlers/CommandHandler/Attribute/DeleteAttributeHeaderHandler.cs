@@ -23,17 +23,7 @@ namespace Application.Handlers.CommandHandler.Attribute
 
         public async Task<string> Handle(DeleteAttributeHeaderCommand request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var customerEntity = await _attributeHeaderQueryRepository.GetByIdAsync(request.Id);
-
-                await _attribtuteHeaderCommandRepository.DeleteAsync(customerEntity);
-            }
-            catch (Exception exp)
-            {
-                throw (new ApplicationException(exp.Message));
-            }
-
+           
             return "Attribute information has been deleted!";
         }
     }

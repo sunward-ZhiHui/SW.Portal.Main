@@ -1,0 +1,44 @@
+﻿@page "/DynamicMasterSetup/dynamicForms"
+@page "/DynamicMasterSetup/dynamicForms/{SessionIds:guid}"
+@using System.ComponentModel.DataAnnotations;
+@using global::Core.AttributeDynamicData;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+@using global::Core.Helpers;
+@using System.Reflection;
+@using System.Linq.Expressions;
+
+
+
+
+
+@code {
+    [Parameter]
+    public Guid SessionIds { get; set; }
+    private DynamicForm _dynamicform;
+    private List<AttributeHeader> _AttributeHeader;
+    Object Data { get; set; } = new Object();
+    protected override async Task OnInitializedAsync()
+    {
+        _dynamicform = await Mediator.Send(new GetAllDynamicFormLst(SessionIds));
+        if (_dynamicform != null)
+        {
+            var screenId = _dynamicform.ScreenID.Replace(" ", "_");
+            _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform.AttributeID));
+            MyClassBuilder MCB = new MyClassBuilder(screenId);
+            string[] objectNameList = _AttributeHeader.Select(s => s.AttributeName).ToArray();
+            var myclass = MCB.CreateObject(objectNameList, new Type[3] { typeof(string), typeof(string), typeof(string) });
+            Data = myclass;
+        }
+    }
+}
+

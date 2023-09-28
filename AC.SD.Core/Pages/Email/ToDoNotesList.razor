@@ -302,7 +302,11 @@
                         </div>
 
                         <div style="margin-top: 10px; margin-bottom: 10px;">
-                            @if (item.participant != null && item.participant.Any())
+
+                            <span class="ptagtodo">
+                                @item.AssignToList
+                            </span>
+                           @*  @if (item.participant != null && item.participant.Any())
                             {
                                 @foreach (var items in item.participant)
                                 {
@@ -310,7 +314,7 @@
                                         @items.Name,@items.NickName
                                     </span>
                                 }
-                            }
+                            } *@
                         </div>                      
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)</span>
@@ -365,8 +369,8 @@
                             Rows="5" />
                     <ValidationMessage For="@(() => types.Description)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Users" ColSpanMd="12">
-                    <DxTagBox Data="_participant"
+                <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
+                   @*  <DxTagBox Data="_participant"
                               @bind-Values="UserIds"
                               NullText="Select Users..."
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
@@ -379,8 +383,26 @@
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
-                    </DxTagBox>
-                    <ValidationMessage For="@(() => UserIds)" />
+                    </DxTagBox> *@
+
+                    <DxComboBox Data="@_participant"
+                    @bind-Value="@types.Users"
+                                CssClass="cw-480"
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                EditFormat="{0} {1}"
+                                ValueFieldName="UserID" TextFieldName="Name">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
+                                                Caption="Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)"
+                                                Caption="Nick Name" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)"
+                                                Caption="Designation" />
+                            <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)"
+                                                Caption="Company" />
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.Users)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="DueDate:" ColSpanMd="6">
                     <DxDateEdit @bind-Date="@types.DueDate" TimeSectionVisible="true" />
@@ -811,11 +833,11 @@
     {
 
         var editModel = (ToDoNotesHistory)e.EditModel;
-        string useridsString = null;
-        if(UserIds != null)
-        {
-            useridsString = string.Join(",", UserIds);
-        }
+        // string useridsString = null;
+        // if(UserIds != null)
+        // {
+        //     useridsString = string.Join(",", UserIds);
+        // }
 
 
         if (e.IsNew)
@@ -840,7 +862,7 @@
                         Description = editModel.Description,
                         DueDate = editModel.DueDate,
                         RemainDate = editModel.RemainDate,
-                        Users = useridsString,
+                        Users = editModel.Users,
                         StatusCodeID = 1,
                         AddedByUserID = applicationUser.UserID,
                         ModifiedByUserID = applicationUser.UserID,
@@ -881,7 +903,7 @@
                         RemainDate = editModel.RemainDate,
                         AddedByUserID = editModel.AddedByUserID,
                         StatusCodeID = editModel.StatusCodeID,
-                        Users = useridsString,
+                        Users = editModel.Users,
                         ModifiedByUserID = applicationUser.UserID,
                         ModifiedDate = DateTime.Now,
                         AddedDate = editModel.AddedDate,                        
@@ -931,22 +953,22 @@
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
-        if (e.IsNew)
-        {
+        // if (e.IsNew)
+        // {
 
-        }
-        else
-        {
-            var editModel = (ToDoNotesHistory)e.EditModel;
-            var types = (ToDoNotesHistory)e.EditModel;
+        // }
+        // else
+        // {
+        //     var editModel = (ToDoNotesHistory)e.EditModel;
+        //     var types = (ToDoNotesHistory)e.EditModel;
 
-            if (types.Users != null && types.Users.Length != 0)
-            {
-                string userIdsString = types.Users; // Assuming UserIds is a string
-                                                    // Split the comma-separated string and parse into an IEnumerable<long>
-                UserIds = userIdsString.Split(',').Select(long.Parse);
-            }
-        }
+        //     if (types.Users != null && types.Users.Length != 0)
+        //     {
+        //         long userIdsString = types.Users; // Assuming UserIds is a string
+        //                                             // Split the comma-separated string and parse into an IEnumerable<long>
+        //         UserIds = userIdsString.Split(',').Select(long.Parse);
+        //     }
+        // }
     }
     async Task UserList(string userid)
     {

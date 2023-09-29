@@ -188,7 +188,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+                    using (var transactions = connection.BeginTransaction())
                     {
                         try
                         {
@@ -196,12 +196,13 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DocumentId", DocumentId);
                             parameters.Add("IsLatest", 0);
                             var query = "Update Documents SET IsLatest=@IsLatest WHERE DocumentId= @DocumentId";
-                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transactions);
+                            transactions.Commit();
                             return DocumentId;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
+                            transactions.Rollback();
                             throw new Exception(exp.Message, exp);
                         }
                     }

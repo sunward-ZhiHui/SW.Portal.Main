@@ -216,6 +216,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<List<UserNotification>> GetTokenList()
+        {
+            try
+            {
+                var query = "SELECT * FROM UserNotifications";
+                var parameters = new DynamicParameters();
+                //parameters.Add("LoginID", name, DbType.String);
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<UserNotification>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }       
         public async Task<ApplicationUser> GetByUserID(string name)
         {
             try

@@ -292,6 +292,8 @@
     bool Checked { get; set; } = false;
     private List<ViewEmployee>? _participant;
     public IEnumerable<long> UserIds { get; set; }
+    
+
     protected override async Task OnInitializedAsync()
     {
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
@@ -353,7 +355,7 @@
                 TopicId = editModel.TopicId,
                 Status = editModel.Status,
                 ColourCode = editModel.ColourCode
-               
+
             };
 
         var ans = await Mediator.Send(UpdateReq);
@@ -407,7 +409,8 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         var list = _ToDoNotesHistory.FirstOrDefault(f => f.ID == (long?)UniqueId);
-        NavigationManager.NavigateTo($"ViewEmail/" + list.SessionId + "/Todo");
+        //NavigationManager.NavigateTo($"ViewEmail/" + list.SessionId + "/Todo");       
+        NavigationManager.NavigateTo($"ViewEmail/{list.SessionId}/Todo");
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {

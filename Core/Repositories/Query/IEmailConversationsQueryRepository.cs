@@ -41,6 +41,7 @@ namespace Core.Repositories.Query
         Task<List<ViewEmployee>> GetAllConvTopicPListAsync(long ConversationId, long TopicId);
         Task<List<ViewEmployee>> GetAllConvTPListAsync(long TopicId);
         Task<List<ViewEmployee>> GetAllConvAssignToListAsync(long TopicId);
+        Task<List<UserNotification>> GetUserTokenListAsync(long UserId);        
         Task<List<EmailTopicTo>> GetTopicToListAsync(long TopicId);
         Task<List<EmailConversationAssignTo>> GetConversationAssignToList(long ConversationId);
         Task<List<EmailConversations>> GetConversationTopicIdList(long TopicId);        

@@ -14,7 +14,7 @@
 
         public ResponseCode ResponseCode { get; set; }
         public T Result { get; set; }
-        public IList<T> Results { get; set; }        
-        public IList<string> ErrorMessages { get; set; }
+        public List<T> Results { get; set; }        
+        public List<string> ErrorMessages { get; set; }
     }
 }

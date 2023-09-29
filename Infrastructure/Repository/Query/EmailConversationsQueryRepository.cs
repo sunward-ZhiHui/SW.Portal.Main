@@ -110,6 +110,25 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
+         public async Task<List<UserNotification>> GetUserTokenListAsync(long userId)
+        {
+            try
+            {
+                var query = @"select * from UserNotifications where UserId = @userId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("userId", userId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<UserNotification>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<ViewEmployee>> GetAllConvAssignToListAsync(long convId)
         {
             try

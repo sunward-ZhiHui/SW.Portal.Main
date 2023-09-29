@@ -13,10 +13,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Protocols.WsTrust;
 using Microsoft.VisualBasic;
+using Newtonsoft.Json;
 using SW.Portal.Solutions.Models;
 using SW.Portal.Solutions.Services;
 using System.Text;
 using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
+using HtmlAgilityPack;
+using System.Text.RegularExpressions;
+using net.tipstrade.FCMNet.Responses;
+using System.Configuration;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -26,11 +31,13 @@ namespace SW.Portal.Solutions.Controllers
     {
         private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
         private readonly IMediator _mediator;
+        private readonly IConfiguration _configuration;
 
-        public EmailController(IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository)
+        public EmailController(IMediator mediator, IApplicationUserQueryRepository applicationUserQueryRepository, IConfiguration configuration)
         {
             _mediator = mediator;
             _applicationUserQueryRepository = applicationUserQueryRepository;
+            _configuration = configuration;
         }
 
 
@@ -346,5 +353,117 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
 
         }
+
+        [HttpGet("SendMessage")]
+        public async Task<string> SendMessage(long id)
+        {
+            var itm = await _mediator.Send(new GetByIdConversation(id));
+
+            string title = itm.Name;
+
+            byte[] htmlBinaryData = itm.FileData; // Your HTML binary data
+            string htmlContent = System.Text.Encoding.UTF8.GetString(htmlBinaryData);
+
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(htmlContent);
+
+            // string extractedText = doc.DocumentNode.InnerText.Trim();
+
+            string extractedText = HtmlEntity.DeEntitize(doc.DocumentNode.InnerText.Trim());
+            
+            // Remove unwanted line breaks and whitespace
+                extractedText = Regex.Replace(extractedText, @"\s+", " ").Trim();
+
+            string bodymsg = extractedText.Substring(0, Math.Min(20, extractedText.Length));
+
+            var Result = await _mediator.Send(new GetAllConvAssToListQuery(id));
+
+            List<string> tokenStringList = new List<string>();
+
+
+            foreach (var item in Result)
+            {
+                var tokens = await _mediator.Send(new GetUserTokenListQuery(item.UserID.Value));
+
+                foreach(var lst in tokens)
+                {
+                    tokenStringList.Add(lst.TokenID.ToString());
+                }               
+                
+            }
+
+
+            var token = tokenStringList;
+
+            //var result = await _fcm.SendMessageAsync("/topics/news", "My Message Title", "Message Data", "");
+
+            //await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
+            //var token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
+            //var token = new List<string> 
+            //{
+            //    "c-1W1o1jvnE:APA91bFnLX74Xdwn1ej0ptWDHNxMoaVCBV-yJ_14T3OZnaNwudTJcDHdkNFyiQ6fOLkktnUqOrv4nTUBvFXyVv1zkF_spGswkVyXmkMXfEWVtfdtbgc4ox02-P6MsQ5cphnzX0UFlaQQ"
+                
+            //};
+
+            var androidNotificationObject = new Dictionary<string, string>();
+            var pushNotificationRequest = new PostItem
+            {
+                notification = new NotificationMessageBody
+                {
+                    title = title,
+                    body = bodymsg
+                },
+                data = androidNotificationObject,
+                //registration_ids = new List<string> { token }
+                registration_ids = token 
+            };
+
+            string url = "https://fcm.googleapis.com/fcm/send";
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("key", "=" + "AAAAeo31_Is:APA91bFPh3rj_ZrmfurBTfz_Ahw_Ojo9rA4oNIFoaNThAHUhwtq515F19qD9ICngHp5qs1IBQ1ZePalvD8YOzCKF-va991eN02_TEZtgAE4AWM5hku9rDdQoEZvT47l3mE67LcGpKMuz");
+
+                string serializeRequest = JsonConvert.SerializeObject(pushNotificationRequest);
+                var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));
+                //if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                //{
+                //    //await App.Current.MainPage.DisplayAlert("Notification sent", "notification sent", "OK");
+                //}
+            }
+            return "ok";
+        }
+
+        [HttpGet("GetDocumentList")]
+        public async Task<ActionResult<ResponseModel<List<DocumentsView>>>> GetDocumentList(long id)
+        {
+           var DocumentViewUrl = _configuration["DocumentsUrl:DocumentViewer"];
+
+            var response = new ResponseModel<DocumentsView>();
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;
+                var items = await _mediator.Send(new GetSubEmailTopicDocList(id));
+
+
+                var displayResult = items?.Select(doc => new DocumentsView
+                {
+                    DocumentId = doc.DocumentId,
+                    SubjectName = doc.SubjectName,
+                    FileName = doc.FileName,
+                    AddedBy = doc.AddedBy,
+                    AddedDate = doc.AddedDate,
+                    FilePath = DocumentViewUrl + "?url=" + doc.UniqueSessionId
+                }).ToList();
+                response.Results = displayResult;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+
     }
 }

@@ -192,6 +192,24 @@ namespace Application.Queries
             this.EmployeeID = conversationId;
         }
     }
+    public class GetByIdConversation : PagedRequest, IRequest<EmailConversations>
+    {
+        public long Id { get; set; }
+        public GetByIdConversation(long id)
+        {
+            this.Id = id;
+        }
+    }   
+
+    public class GetUserTokenListQuery : PagedRequest, IRequest<List<UserNotification>>
+    {
+        public long UserId { get; set; }
+        public GetUserTokenListQuery(long userId)
+        {
+            this.UserId = userId;
+        }
+    }
+
     public class GetEmailTopicToList : PagedRequest, IRequest<List<EmailTopicTo>>
     {
         public long TopicId { get; set; }

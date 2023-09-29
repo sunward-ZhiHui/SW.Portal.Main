@@ -58,7 +58,7 @@
 
 @code {
     public ApplicationUser applicationUser { get; private set; }
-    
+
 
     DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
     {
@@ -82,7 +82,11 @@
     {
         var checkauthorize = await _localStorageService.GetItem<ApplicationUser>("user");
 
+        var pushToken = await _localStorageService.GetItemOne("PushToken");      
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+
 
         if (checkauthorize == null)
         {
@@ -90,6 +94,10 @@
         }
         else
         {
+            if(pushToken != null)
+            {
+                var rstdata = await Mediator.Send(new AddPushTokenID(applicationUser.LoginID, "Web", pushToken));
+            }            
            // NavigationManager.NavigateTo("/hrms/Dashboard");
         }
 

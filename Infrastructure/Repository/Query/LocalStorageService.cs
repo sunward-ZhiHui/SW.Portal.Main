@@ -41,13 +41,14 @@ namespace Infrastructure.Repository.Query
 
             return JsonSerializer.Deserialize<T>(json);
         }
-        public async Task<string> GetItemOne<T>(string key)
+        public async Task<string> GetItemOne(string key)
         {
-            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "user");
-            if (json == null)
-                return default;
-            var result = JsonSerializer.Deserialize<ApplicationUser>(json).UserName;
-            return result;
+            var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "PushToken");
+            //if (json == null)
+            //    return default;
+            //var result = JsonSerializer.Deserialize<ApplicationUser>(json).UserName;
+            //return result;
+            return json;
         }
 
 

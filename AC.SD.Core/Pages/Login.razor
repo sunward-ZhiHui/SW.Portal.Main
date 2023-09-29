@@ -4,7 +4,10 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @layout LoginLayout
 @inherits LayoutComponentBase
+@using global::Core.Entities;
 @using AC.SD.Core.Data.Account;
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 
 @using System.ComponentModel.DataAnnotations
 @*@using Microsoft.AspNetCore.Components.Authorization*@
@@ -160,7 +163,6 @@
 </div>*@
 
 
-
 @code {
     ResetPassword updatePassword = new ResetPassword();
 
@@ -173,6 +175,12 @@
     string MessageBody = "";
     //[Inject]
     // public Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider AuthenticationStateProviders { get; set; }
+    protected override async void OnInitialized()
+    {
+        
+
+        
+    }
     private async void OnResetPassword()
     {
         loading = true;

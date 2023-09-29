@@ -176,6 +176,7 @@
                                                 CollapseItemsToHamburgerMenu="true"
                                                 CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
                                             <Items>
+                                                <DxMenuItem Text="" IconCssClass="fa fa-undo" Click="@(() => GoBack())" />
                                                 <DxMenuItem Text="" IconCssClass="fa fa-th-list" Click="@(() => ToggleButtonClick())" />
                                                 <DxMenuItem Text="Posts" class="@((isMenuvisible == "Posts" ? "tActive": "tfiles"))" IconCssClass="menu-icon-products menu-icon" Click="@(() => OnMenuItemClick("Posts"))" />
                                                 <DxMenuItem Text="Files" Enabled="@isEnabled" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
@@ -1371,6 +1372,10 @@
         }
 
 
+    }
+    private async Task GoBack()
+    {
+        await JSRuntime.InvokeVoidAsync("history.back");
     }
     private void ToggleButtonClick()
     {

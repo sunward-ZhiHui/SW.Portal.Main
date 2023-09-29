@@ -101,11 +101,12 @@ namespace SW.Portal.Solutions.ServerSide {
                         policy.RequireAuthenticatedUser());
                 });
 
+                services.AddScoped<FirebaseMessagingService>();
                 services.AddScoped<ToastService>();
                 services.AddScoped<Helper>();
                 services.AddServerSideBlazor();
                 services.AddBlazoredToast();
-                services.AddRazorPages();
+                services.AddRazorPages();                
                 services.AddResponseCompression(options => {
                     options.EnableForHttps = true;
                     options.MimeTypes = new[] {

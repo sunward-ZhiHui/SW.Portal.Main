@@ -192,6 +192,15 @@
 </div>@*
 <BlazoredToasts Position="Blazored.Toast.Configuration.ToastPosition.TopRight" Timeout="10" SuccessClass="success-toast-override" SuccessIcon=""/>
 *@
+
+@functions {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await InitializeFirebaseAsync();
+    }
+}
+
 @code {
     string errorMsg = "";
     static readonly int DateTimeNowYear = DateTime.Now.Year;
@@ -237,8 +246,15 @@
     {
         errorBoundary?.Recover();
     }
+    private async Task InitializeFirebaseAsync()
+    {
+        //await JSRuntime.InvokeVoidAsync("registerServiceWorker");
+        //await JSRuntime.InvokeVoidAsync("initializeFirebase");
+              
+    }
     protected override async void OnInitialized()
     {
+        
         ThemeName = Themes.ActiveTheme.Name;
         NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");

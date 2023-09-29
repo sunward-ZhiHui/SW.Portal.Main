@@ -8,7 +8,6 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService;
 
 
-
 <DxTreeView @ref="treeView"
 @bind-FilterString="FilterString"
             FilterMinLength="2"
@@ -31,23 +30,50 @@
 @code {
 
     private DxTreeView treeView;
+    private string previousUri;
     string? FilterString { get; set; }
     public List<PortalMenuModel> portalMenuModel { get; set; }
     public ApplicationUser applicationUser { get; private set; }
     int count = 0;
-    protected override async Task OnInitializedAsync()
+    int scount = 0;
+    string segmentcurrentUri = "";
+    protected override async Task OnParametersSetAsync()
     {
+        previousUri = NavigationManager.Uri;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+        NavigationManager.LocationChanged += OnLocationChanged;
+
+    }
+    
+    void OnLocationChanged(object sender, LocationChangedEventArgs args)
+    {    
+        var currentUri = NavigationManager.Uri;
+        // var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        //var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        // Check if the URL has changed
+        if (currentUri != previousUri)
+        {
+            previousUri = currentUri; // Update the previous URL
+            UpdateSelection(currentUri, true);
+            StateHasChanged();
+        }
+
+        previousUri = currentUri;       
+        
+    }
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-
-        // if (firstRender == true && count == 0)
-        // {
-        //     UpdateSelection(NavigationManager.Uri, true);
-        // }
-        // count++;
+         //if (firstRender == true && count == 0)
+         //{
+         //    UpdateSelection(NavigationManager.Uri, true);
+         //}
+         //count++;
     }
     void UpdateSelection(string currentUri, bool expandNodesToSelection)
     {
@@ -66,6 +92,25 @@
             }
             return false;
         });
+    }
+    public void LoadUpdateSelection(string currentUri, bool expandNodesToSelection)
+    {
+        string uri = NavigationManager.Uri;
+        string baseUri = NavigationManager.BaseUri;
+        treeView.SelectNode(n =>
+        {
+            var dataItem = n.DataItem as PortalMenuModel;
+            string rep1 = uri.Replace(baseUri, "").ToLower();
+            string[] UrlList = rep1.Split("/");
+            if (dataItem != null && UrlList.Length > 0 && UrlList[0] != null && dataItem.Component != null && dataItem.Component.ToLower() == UrlList[0])
+            {
+                if (expandNodesToSelection)
+                    ExpandToSelectedNode(n);
+                return true;
+            }
+            return false;
+        });
+        
     }
     void ExpandToSelectedNode(ITreeViewNodeInfo selectedNode)
     {

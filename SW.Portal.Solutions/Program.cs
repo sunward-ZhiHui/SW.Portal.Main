@@ -61,6 +61,7 @@ public class Program
             services.AddScoped<IDemoStaticResourceService, DemoStaticResourceService>();
             services.AddDevExpressServerSideBlazorReportViewer();
             services.AddScoped<ClipboardService>();
+            services.AddScoped<FirebaseMessagingService>();
 
             var keys = WebPush.VapidHelper.GenerateVapidKeys();
             System.Diagnostics.Debug.WriteLine(keys.PrivateKey);

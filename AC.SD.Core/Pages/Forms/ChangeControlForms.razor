@@ -41,13 +41,13 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@((e) => BackUrl())"  />
-                       
+                        <DxMenuItem Text="Print" IconCssClass="fa fa-print" Click="@((e) => OnPrint())"  />
                        @* <DxMenuItem Text="Draft" IconCssClass="fa fa-save" Enabled="@IsDraftEnabled"  Click="@((e) => addNew(1))" />
                         <DxMenuItem Text="Sent" IconCssClass="fa fa-save" Click="@((e) => addNew(0))" />*@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover" @onclick="@HandleValidSubmit" style="float: left; margin-top: -41px; line-height: 38px; margin-left:100px; z-index: 9999; width:100px;">
+            <div class="save_hover" @onclick="@HandleValidSubmit" style="float: left; margin-top: -41px; line-height: 38px; margin-left:200px; z-index: 9999; width:100px;">
                 <button type="submit" form="@MyID"  class="btnSubmitForm" style="">
                     <i class="fa fa-save"></i>
                     Save
@@ -855,7 +855,7 @@
     private List<View_GetCCFImplementation> _CCFDImplementation;
     private List<View_GetCCFImplementation> sessionIdLst;
     private View_GetCCFImplementation _selectedItems;
-     private List<ChangeControlForm> _changeControlForm;
+    private List<ChangeControlForm> _changeControlForm;
     public ApplicationUser? applicationUser { get; private set; }
     CCFInformationModels DataBySession = new CCFInformationModels();
     protected override async Task OnInitializedAsync()
@@ -868,7 +868,7 @@
         if (SessionIds != null)
         {
             var changecontrollst = await Mediator.Send(new GetAllChangeFormQuery());
-           _changeControlForm = changecontrollst.Where(x => x.SessionId == SessionIds).ToList();
+            _changeControlForm = changecontrollst.Where(x => x.SessionId == SessionIds).ToList();
             DataBySession = await Mediator.Send(new GetAllChangeControlBySession(SessionIds));
             if (DataBySession != null)
             {
@@ -1021,7 +1021,7 @@
                 Data.IsSatisfactoryForNotSatisfactory = DataBySession.IsSatisfactoryForNotSatisfactory;
                 Data.NotSatisfactoryClosedBy = DataBySession.NotSatisfactoryClosedBy;
                 Data.NotSatisfactoryDate = DataBySession.NotSatisfactoryDate;
-               
+
             }
             _CCFDImplementation = await Mediator.Send(new GetAllImplementationQuery(SessionIds));
 
@@ -1461,5 +1461,9 @@
     void BackUrl()
     {
         NavigationManager.NavigateTo("changeControlsetupForm");
+    }
+    async void OnPrint()
+    {
+        await JSRuntime.InvokeVoidAsync("window.open", "reportFileUploads/ReportViewer/" + "ChangeControlSetupReport" + "", "_blank");
     }
 }

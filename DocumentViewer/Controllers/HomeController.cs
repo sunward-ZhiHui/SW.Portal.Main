@@ -54,6 +54,20 @@ namespace DocumentViewer.Controllers
                     {
                         if (!string.IsNullOrEmpty(currentDocuments.FilePath))
                         {
+                            if (currentDocuments.SourceFrom == "FileProfile")
+                            {
+                                GetAllSelectedFilePermissionAsync(currentDocuments);
+                            }
+                            else if (currentDocuments.SourceFrom == "Email")
+                            {
+                                GetEmailFilePermissionAsync(currentDocuments);
+                            }
+                            else
+                            {
+                                HttpContext.Session.SetString("isDownload", "Yes");
+                                HttpContext.Session.SetString("isView", "Yes");
+                            }
+
                             if (currentDocuments.IsNewPath == true)
                             {
                                 fileurl = fileNewUrl + currentDocuments.FilePath;
@@ -63,35 +77,6 @@ namespace DocumentViewer.Controllers
                             {
                                 fileurl = fileOldUrl + currentDocuments.FilePath;
                                 HttpContext.Session.SetString("fileUrl", fileurl);
-                            }
-                            if (currentDocuments.FilterProfileTypeId > 0)
-                            {
-                                GetAllSelectedFilePermissionAsync(currentDocuments);
-                            }
-                            else
-                            {
-                                GetEmailFilePermissionAsync(currentDocuments);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var currentDocumentss = _context.Documents.Where(w => w.SessionId == sessionId).FirstOrDefault();
-                        if (currentDocumentss != null && !string.IsNullOrEmpty(currentDocumentss.FilePath))
-                        {
-                            if (currentDocumentss.IsNewPath == true)
-                            {
-                                fileurl = fileNewUrl + currentDocumentss.FilePath;
-                                HttpContext.Session.SetString("fileUrl", fileurl);
-                            }
-                            else
-                            {
-                                fileurl = fileOldUrl + currentDocumentss.FilePath;
-                                HttpContext.Session.SetString("fileUrl", fileurl);
-                            }
-                            if (currentDocumentss.FilterProfileTypeId > 0)
-                            {
-                                GetAllSelectedFilePermissionAsync(currentDocumentss);
                             }
                         }
                     }

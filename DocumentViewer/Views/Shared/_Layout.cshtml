@@ -21,6 +21,7 @@
     <script src="~/node_modules/devexpress-richedit/dist/dx.richedit.js"></script>
 </head>
 <body>
+    <span style="display:none;" id="fileName_id">@Context.Session.GetString("fileName")</span>
     @if (Context.Session.GetString("user_id") != null)
     {
         <header>
@@ -81,7 +82,7 @@
             const urlParams = new URLSearchParams(queryString);
             const url = urlParams.get('url');
             if (url != null) {
-                var fileName = url.split("/").pop();
+                var fileName = $("#fileName_id").html();
                 $.ajax({
                     url: '@Url.Action("downloadfromurl")',
                     data: { url: url },

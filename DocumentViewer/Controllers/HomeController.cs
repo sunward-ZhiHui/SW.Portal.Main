@@ -39,6 +39,7 @@ namespace DocumentViewer.Controllers
             var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
             var fileNewUrl = _configuration["DocumentsUrl:FileNewUrl"];
             var fileurl = string.Empty;
+            HttpContext.Session.Remove("fileName");
             HttpContext.Session.Remove("invalid");
             HttpContext.Session.Remove("isDownload");
             HttpContext.Session.Remove("isView");
@@ -52,6 +53,8 @@ namespace DocumentViewer.Controllers
                     var currentDocuments = _context.Documents.Where(w => w.UniqueSessionId == sessionId).FirstOrDefault();
                     if (currentDocuments != null)
                     {
+                        HttpContext.Session.SetString("fileName", currentDocuments.FileName);
+
                         if (!string.IsNullOrEmpty(currentDocuments.FilePath))
                         {
                             if (currentDocuments.SourceFrom == "FileProfile")
@@ -153,13 +156,14 @@ namespace DocumentViewer.Controllers
         {
             try
             {
+                
                 string url = HttpContext.Session.GetString("fileUrl");
                 var result = DownloadExtention.GetUrlContent(url);
                 var request = HttpWebRequest.Create(url) as HttpWebRequest;
                 string contentType = "";
-                string filename = "";
+                string filename = HttpContext.Session.GetString("fileName");
                 Uri uri = new Uri(url);
-                filename = uri.LocalPath.Split("/").Last();
+                
                 if (request != null)
                 {
                     var response = request.GetResponse() as HttpWebResponse;
@@ -210,7 +214,8 @@ namespace DocumentViewer.Controllers
                     DocumentsModel documentsModels = new DocumentsModel();
                     documentsModels.UploadedByUserId = s.AddedByUserId;
                     documentsModels.DocumentID = s.DocumentId;
-                    documentsModels.FileName = s.FileName;
+                    documentsModels.FileName =  s.FileName;
+                    HttpContext.Session.SetString("fileUrl", s.FileName);
                     if (setAccess.Count > 0)
                     {
                         var roleDocItem = setAccess.FirstOrDefault(u => u.DocumentId == s.DocumentId);

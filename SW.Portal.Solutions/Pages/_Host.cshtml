@@ -47,13 +47,19 @@
         const messaging = getMessaging();
         //console.log(messaging);
 
-        onMessage(messaging, (payload) => {
-            //console.log('Message received. ', payload);
+        onMessage(messaging, (payload) => {            
+            notificationTitle = payload.notification.title;
+            notificationOptions = {
+                body: payload.notification.body,
+                icon: payload.notification.icon
+            };
+
+            var notification = new Notification(notificationTitle, notificationOptions);
 
         });
         Notification.requestPermission().then((permission) => {
             if (permission === 'granted') {
-                console.log('Notification permission granted.');
+                //console.log('Notification permission granted.');
                 // TODO(developer): Retrieve a registration token for use with FCM.
                 // ...
             } else {
@@ -63,7 +69,7 @@
 
         getToken(messaging).then((currentToken) => {
             if (currentToken) {
-                console.log(currentToken);
+                //console.log(currentToken);
                 saveToken(currentToken);
             } else {
                 // Show permission request UI

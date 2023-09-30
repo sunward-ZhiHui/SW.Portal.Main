@@ -325,7 +325,7 @@ namespace Application.Handlers.QueryHandlers
 
     public class CreateEmailConversationHandler : IRequestHandler<CreateEmailCoversation, long>
     {
-        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;
+        private readonly IEmailConversationsQueryRepository _conversationQueryRepository;        
 
         public CreateEmailConversationHandler(IEmailConversationsQueryRepository conversationQueryRepository)
         {

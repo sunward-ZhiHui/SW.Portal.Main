@@ -332,6 +332,7 @@ namespace SW.Portal.Solutions.Controllers
                     };
 
                     response.Result = emailconversations;
+                    await SendMessage(response.Result.id);
                 }
                 catch (Exception ex)
                 {
@@ -357,6 +358,8 @@ namespace SW.Portal.Solutions.Controllers
         [HttpGet("SendMessage")]
         public async Task<string> SendMessage(long id)
         {
+            var serverToken = _configuration["FcmNotification:ServerKey"];
+
             var itm = await _mediator.Send(new GetByIdConversation(id));
 
             string title = itm.Name;
@@ -421,7 +424,7 @@ namespace SW.Portal.Solutions.Controllers
             string url = "https://fcm.googleapis.com/fcm/send";
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("key", "=" + "AAAAeo31_Is:APA91bFPh3rj_ZrmfurBTfz_Ahw_Ojo9rA4oNIFoaNThAHUhwtq515F19qD9ICngHp5qs1IBQ1ZePalvD8YOzCKF-va991eN02_TEZtgAE4AWM5hku9rDdQoEZvT47l3mE67LcGpKMuz");
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("key", "=" + serverToken);
 
                 string serializeRequest = JsonConvert.SerializeObject(pushNotificationRequest);
                 var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));

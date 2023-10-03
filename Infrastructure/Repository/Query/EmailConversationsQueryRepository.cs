@@ -22,6 +22,7 @@ using Azure.Core;
 using System.Threading;
 using DevExpress.Xpo.DB.Helpers;
 using System.Reflection.Metadata;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Infrastructure.Repository.Query
 {
@@ -1179,6 +1180,10 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
 
+        }
+        public async Task<String> SendPushNotification(long Id)
+        {
+            return "ok";
         }
         public async Task<long> Insert(EmailConversations forumConversations)
         {

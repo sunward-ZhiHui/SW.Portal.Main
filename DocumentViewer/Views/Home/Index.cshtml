@@ -6,7 +6,7 @@
         @if (Model.Type == "image")
         {
             <div style="text-align:center;">
-                <img style="max-width: 100%; max-height: calc(100vh - 155px);" src="@Model.Url" />
+                <img style="max-width: 100%; max-height: calc(100vh - 70px);" src="@Model.Url" />
             </div>
         }
         else
@@ -16,7 +16,7 @@
                 @(
                                                 Html.DevExpress()
                                                                                 .Spreadsheet("spreadsheet")
-                                                                                .Height("calc(100vh - 150px)")
+                                                                                .Height("calc(100vh - 70px)")
                                                                                 .Width("100%")
                                                                                 .ConfirmOnLosingChanges(confirm => confirm.Enabled(false))
                                                                                 .DocumentRequestHandlerUrl(Url.Action("DxDocRequest"))
@@ -29,7 +29,7 @@
                 {
                     @(
                                             Html.DevExpress().RichEdit("DemoRichEdit")
-                                                                                                                .Height("calc(100vh - 150px)")
+                                                                                                                .Height("calc(100vh - 70px)")
                                                                                                                 .Width("100%")
                                                                                                                 .ConfirmOnLosingChanges(c => c.Enabled(false))
                                                                                                                 .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.OpenXml)
@@ -50,7 +50,7 @@
                 {
                     @(
                                                 Html.DevExpress().RichEdit("DemoRichEdit")
-                                                                                                                    .Height("calc(100vh - 150px)")
+                                                                                                                    .Height("calc(100vh - 70px)")
                                                                                                                     .Width("100%")
                                                                                                                     .ConfirmOnLosingChanges(c => c.Enabled(false))
                                                                                                                     .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.PlainText)
@@ -71,11 +71,11 @@
             }
             else if (Model.Extensions == "pdf")
             {
-                <iframe style="width: 100%; height: calc(100vh - 155px);" src="@Model.Url?#toolbar=0"></iframe>
+                <iframe style="width: 100%; height: calc(100vh - 70px);" src="@Model.Url?#toolbar=0"></iframe>
             }
             else if (@Model.Extensions == "webm" || @Model.Extensions == "amv" || @Model.Extensions == "mp4" || @Model.Extensions == "flv" || @Model.Extensions == "vob" || @Model.Extensions == "wmv")
             {
-                <video style="width: 100%; height: calc(100vh - 160px);" controls autoplay>
+                <video style="width: 100%; height: calc(100vh - 70px);" controls autoplay>
                     <source src="@Model.Url" type="video/@Model.Extensions">
                 </video>
             }

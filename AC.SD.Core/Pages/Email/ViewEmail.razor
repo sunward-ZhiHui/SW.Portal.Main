@@ -39,6 +39,7 @@
 @using System.Threading
 @using System.Timers;
 @using DevExpress.Blazor.RichEdit;
+@inject HttpClient httpClient;
 
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 <div class="">
@@ -169,14 +170,16 @@
                             <div class="mb-cc-text">
                                 <div class="card w-100">
                                     <div class="card-body p-0">
-                                        <DxMenu Orientation="Orientation.Horizontal"
+                                                                          
+
+                                          <DxMenu Orientation="Orientation.Horizontal"
                                                 DropDownActionMode="MenuDropDownActionMode.Click"
                                                 DisplayMode="MenuDisplayMode.Desktop"
                                                 Title=""
                                                 CollapseItemsToHamburgerMenu="true"
-                                                CollapseItemToIconMode="MenuCollapseItemToIconMode.All">
-                                            <Items>
-                                                <DxMenuItem Text="" IconCssClass="fa fa-undo" Click="@(() => GoBack())" />
+                                                CollapseItemToIconMode="MenuCollapseItemToIconMode.All">                                               
+                                            <Items> 
+                                                <DxMenuItem Text="" Enabled="@isPage" IconCssClass="fa fa fa-reply" Click="@(() => GoBack())" />
                                                 <DxMenuItem Text="" IconCssClass="fa fa-th-list" Click="@(() => ToggleButtonClick())" />
                                                 <DxMenuItem Text="Posts" class="@((isMenuvisible == "Posts" ? "tActive": "tfiles"))" IconCssClass="menu-icon-products menu-icon" Click="@(() => OnMenuItemClick("Posts"))" />
                                                 <DxMenuItem Text="Files" Enabled="@isEnabled" class="@((isMenuvisible == "Files" ? "tActive": "tfiles"))" IconCssClass="fa fa-paperclip cdspc" Click="@(() => OnMenuItemClick("Files"))" />
@@ -1424,6 +1427,7 @@
     bool isAssignToVisible = false;
     bool isComponentVisible = true;
     bool isEnabled { get; set; } = false;
+    bool isPage { get; set; } = false;
     bool isTodoEnabled { get; set; } = false;
     bool isAddParticipant = false;
     bool isTags = false;
@@ -2730,6 +2734,7 @@
         if(Page == "Todo")
         {
             var page = Page;
+            isPage = true;
             var todolist = await Mediator.Send(new GetByToDoSessionId(TodoSessionId));
             if(todolist.Count > 0)
             {
@@ -3406,7 +3411,7 @@
             return;
         }    
 
-         await msgrichEdit.SaveDocumentAsync();
+        await msgrichEdit.SaveDocumentAsync();
         using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
         byte[] fileContent1 = await msgrichEdit.ExportDocumentAsync(DocumentFormat.Rtf);
         server.LoadDocument(fileContent1);
@@ -3506,6 +3511,11 @@
 
         if (result > 1)
         {
+            //string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+            //string url = BaseUrl + "SendMessage?id="+result;
+            //// Make a GET request to the controller action
+            //var response = await httpClient.GetAsync(url);
+
             //var getRec = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
             //sessionId = getRec.Last().SessionId;
 

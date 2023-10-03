@@ -970,6 +970,16 @@ else
             var result = await Mediator.Send(createReq);
             if (result != null)
             {      
+                 @if (draftId==0)
+                {
+                    var convlist = await Mediator.Send(new GetEmailFullDiscussionList(result));
+
+                    string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                    string url = BaseUrl + "SendMessage?id=" + convlist[0].ID;
+                    // Make a GET request to the controller action
+                    var response = await httpClient.GetAsync(url);
+
+                }
 
                 if (SelectedFilesCount > 0)
                 {

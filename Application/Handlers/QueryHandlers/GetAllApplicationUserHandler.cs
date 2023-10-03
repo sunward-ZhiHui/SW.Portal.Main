@@ -37,4 +37,18 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _applicationUserQueryRepository.GetByUsers(request.Name);
         }
     }
+    public class AddPushTokenIDHandler : IRequestHandler<AddPushTokenID, string>
+    {
+        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
+        private readonly IQueryRepository<ApplicationUser> _queryRepository;
+        public AddPushTokenIDHandler(IApplicationUserQueryRepository applicationUserQueryRepository, IQueryRepository<ApplicationUser> queryRepository)
+        {
+            _applicationUserQueryRepository = applicationUserQueryRepository;
+            _queryRepository = queryRepository;
+        }
+        public async Task<String> Handle(AddPushTokenID request, CancellationToken cancellationToken)
+        {
+            return await _applicationUserQueryRepository.UpdateDeviceId(request.LoginId,request.DeviceType,request.TokenID);
+        }
+    }
 }

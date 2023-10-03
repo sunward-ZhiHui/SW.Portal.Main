@@ -19,11 +19,99 @@
     <link href="~/node_modules/devexpress-aspnetcore-spreadsheet/dist/dx-aspnetcore-spreadsheet.css" rel="stylesheet" />
     <link href="~/node_modules/devexpress-richedit/dist/dx.richedit.css" rel="stylesheet" />
     <script src="~/node_modules/devexpress-richedit/dist/dx.richedit.js"></script>
+    <style>
+
+        /* Style the profile menu container */
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            background-color: #337ab7;
+            color: #fff;
+            padding: 10px 20px;
+            justify-content: space-between;
+        }
+
+        /* Style the dropdown button */
+        .dropbtn {
+            background-color: transparent;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* Style the dropdown content (hidden by default) */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #337ab7;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            right: 0;
+        }
+
+            /* Style dropdown links */
+            .dropdown-content a {
+                color: #fff;
+                padding: 12px 16px;
+                text-decoration: none;
+                display: block;
+            }
+
+                /* Change color on hover */
+                .dropdown-content a:hover {
+                    background-color: #555;
+                }
+
+        /* Show the dropdown menu on hover */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Style the user avatar */
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        /* Style the username */
+        .username {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
+    <span style="display:none;" id="fileName_id">@Context.Session.GetString("fileName")</span>
     @if (Context.Session.GetString("user_id") != null)
     {
         <header>
+        <div class="profile-menu">
+            <div>Sunward Document Viewer</div>
+                <div class="profile-info" style="text-align: right; dwidth: 67%;">
+                <span class="username">@Context.Session.GetString("user_name")</span>
+            </div>
+            <div class="dropdown">
+                <button class="dropbtn">Menu &#9660;</button>
+                <div class="dropdown-content">
+                    @if (Context.Session.GetString("isDownload") == "Yes")
+                    {
+                        <a href="javascript:void(0);" id="downloadClick">Download</a>                       
+                        <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
+                    }
+                    else
+                    {
+                        <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
+                    }
+                </div>
+            </div>
+        </div>
+        </header>
+
+        @*<header>
             <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3" style="background-color: #3f51b5 !important;">
                 <div class="container-fluid">
                     <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="color:white;">Sunward Document Viewer</a>
@@ -43,10 +131,10 @@
                     
                 </div>
             </nav>
-        </header>
+        </header>*@
     }
-    <div style="padding-left:10px;padding-right:10px;">
-        <main role="main" class="pb-3">
+    <div style="">
+        <main role="main" >
             @RenderBody()
         </main>
     </div>
@@ -81,7 +169,7 @@
             const urlParams = new URLSearchParams(queryString);
             const url = urlParams.get('url');
             if (url != null) {
-                var fileName = url.split("/").pop();
+                var fileName = $("#fileName_id").html();
                 $.ajax({
                     url: '@Url.Action("downloadfromurl")',
                     data: { url: url },

@@ -22,8 +22,7 @@ console.log('sw', messaging);
 //});
  
  
-messaging.setBackgroundMessageHandler(function (payload) {
-    alert(1);
+messaging.setBackgroundMessageHandler(function (payload) {   
     console.log('Received background message ', payload);
     // Customize notification here
     const notificationTitle = 'Background Message Title';

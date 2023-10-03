@@ -47,7 +47,7 @@
         const messaging = getMessaging();
         //console.log(messaging);
 
-        onMessage(messaging, (payload) => {            
+        onMessage(messaging, (payload) => {  
             notificationTitle = payload.notification.title;
             notificationOptions = {
                 body: payload.notification.body,

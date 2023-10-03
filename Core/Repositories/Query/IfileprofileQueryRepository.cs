@@ -41,6 +41,7 @@ namespace Core.Repositories.Query
         Task<DocumentTypeModel> GetAllDocumentDeleteAsync();
         Task<DocumentsModel> ReStoreFileProfileTypeAndDocument(DocumentsModel documentsModel);
         Task<IReadOnlyList<DocumentsModel>> GetFileContetTypes();
+        Task<DocumentPermissionModel> GetDocumentUserRoleByUserIDAsync(long? fileProfileTypeId, long? userId);
 
     }
 }

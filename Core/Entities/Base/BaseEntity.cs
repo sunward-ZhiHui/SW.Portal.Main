@@ -17,6 +17,12 @@ namespace Core.Entities.Base
         public int? StatusCodeID { get; set; }
         [NotMapped]
         public int Index { get; set; }
+        [NotMapped]
+        public string? AddedBy { get; set; }
+        [NotMapped]
+        public string? ModifiedBy { get; set; }
+        [NotMapped]
+        public string? StatusCode { get; set; }
 
     }
 }

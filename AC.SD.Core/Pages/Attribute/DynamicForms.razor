@@ -1,11 +1,12 @@
-﻿@page "/DynamicMasterSetup/dynamicForms"
-@page "/DynamicMasterSetup/dynamicForms/{SessionIds:guid}"
+﻿@page "/DynamicMasterSetup/dynamicForms/{SessionId:guid}"
+@page "/DynamicMasterSetup/dynamicForms/{SessionId:guid}/{SessionIds:guid}"
 @using System.ComponentModel.DataAnnotations;
+@using Newtonsoft.Json.Linq;
 @using global::Core.AttributeDynamicData;
 @using global::Core.Entities.Views;
 @using global::Core.Entities;
-@inject IMediator Mediator
 @using Application.Queries;
+@inject IMediator Mediator
 @using MediatR
 @using global::Core.EntityModels;
 @using global::Core.Repositories.Query;
@@ -16,29 +17,466 @@
 @using global::Core.Helpers;
 @using System.Reflection;
 @using System.Linq.Expressions;
+@using Newtonsoft.Json;
 
 
+<div class="card cw-480">
+    <div class="card-header text-center py-3">
+        <h4>@_dynamicform?.Name</h4>
+        @*  <p class="tm-8 mb-0 fw-normal fs-825">
+        Create a new account to see it in action
+        </p> *@
+    </div>
+    <div class="card" style="margin-top: 5px;padding: 5px;">
+        <div class="card-body p-0">
+            <div class="row">
+                <div class="">
+                    <DxMenu CollapseItemsToHamburgerMenu="true"
+                            CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                            DisplayMode="MenuDisplayMode.Desktop">
+                        <Items>
+                            <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                            <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                        </Items>
+                    </DxMenu>
+                </div>
+                <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 200px; z-index: 9999; width:100px;">
+                    <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
+                        @if (loading)
+                        {
+                            <span class="spinner-border spinner-border-sm mr-1"></span>
+                        }
+                        <i class="fa fa-save"></i>
+                        Save
+                    </button>
+                </div>
 
+            </div>
+        </div>
+    </div>
+    <EditForm Model="@Data" id="@MyID"
+              OnValidSubmit="@HandleValidSubmit"
+              OnInvalidSubmit="@HandleInvalidSubmit"
+              Context="EditFormContext">
+        <DataAnnotationsValidator />
 
+        <div class="card-body">
+            @CreateEditFormFields()
+        </div>
+    </EditForm>
+</div>
 
 @code {
     [Parameter]
-    public Guid SessionIds { get; set; }
+    public Guid? SessionIds { get; set; }
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    private bool loading;
     private DynamicForm _dynamicform;
-    private List<AttributeHeader> _AttributeHeader;
+    private DynamicFormData _dynamicformData;
+    private string MyID = Guid.NewGuid().ToString();
+    private AttributeHeaderListModel _AttributeHeader;
     Object Data { get; set; } = new Object();
+    DynamicFormData dynamicFormData = new DynamicFormData();
+    public ApplicationUser applicationUser { get; private set; }
+    public long? dynamicFormDataId { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        _dynamicform = await Mediator.Send(new GetAllDynamicFormLst(SessionIds));
-        if (_dynamicform != null)
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        await loadDynamicForm();
+        base.OnParametersSet();
+    }
+    async Task loadDynamicForm()
+    {
+        if (SessionId != null)
         {
-            var screenId = _dynamicform.ScreenID.Replace(" ", "_");
-            _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform.AttributeID));
-            MyClassBuilder MCB = new MyClassBuilder(screenId);
-            string[] objectNameList = _AttributeHeader.Select(s => s.AttributeName).ToArray();
-            var myclass = MCB.CreateObject(objectNameList, new Type[3] { typeof(string), typeof(string), typeof(string) });
-            Data = myclass;
+            _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId));
+            if (_dynamicform != null)
+            {
+                var screenId = _dynamicform.ScreenID.Replace(" ", "_");
+                _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform));
+                if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
+                {
+                    Type[] typesList = _AttributeHeader.DynamicFormSectionAttribute.Select(s => s.DataType).ToArray();
+                    string[] objectNameList = _AttributeHeader.DynamicFormSectionAttribute.Select(s => s.DynamicAttributeName).ToArray();
+                    MyClassBuilder MCB = new MyClassBuilder(screenId);
+                    var myclass = MCB.CreateObject(objectNameList, typesList);
+                    Data = myclass;
+                    if (SessionIds != null)
+                    {
+                        _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
+                        if (_dynamicformData != null && !string.IsNullOrEmpty(_dynamicformData.DynamicFormItem))
+                        {
+                            if (IsValidJson(_dynamicformData.DynamicFormItem))
+                            {
+                                dynamic jsonObj = JsonConvert.DeserializeObject(_dynamicformData.DynamicFormItem);
+                                _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
+                                {
+                                    var valueType = jsonObj[a.DynamicAttributeName].Type;
+                                    var itemValue = jsonObj[a.DynamicAttributeName];
+                                    if (itemValue is JArray)
+                                    {
+                                        var values = (JArray)itemValue;
+                                        List<long?> listData = values.ToObject<List<long?>>();
+                                        Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, listData);
+                                    }
+                                    else
+                                    {
+
+                                        if (a.ControlType == "TextBox" || a.ControlType == "Memo")
+                                        {
+                                            var values = (string)itemValue;
+                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                        }
+                                        else if (a.ControlType == "ComboBox" || a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                                        {
+                                            long? values = itemValue == null ? null : (long)itemValue;
+                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                        }
+                                        else if (a.ControlType == "CheckBox")
+                                        {
+                                            bool? values = itemValue == null ? false : (bool)itemValue;
+                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                        }
+                                        else if (a.ControlType == "DateEdit")
+                                        {
+                                            DateTime? values = itemValue == null ? null : (DateTime)itemValue;
+                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                        }
+                                        else if (a.ControlType == "TimeEdit")
+                                        {
+                                            TimeSpan? values = itemValue == null ? null : (TimeSpan)itemValue;
+                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                        }
+                                        else if (a.ControlType == "SpinEdit")
+                                        {
+                                            if (a.IsSpinEditType == "decimal")
+                                            {
+                                                decimal? values = itemValue == null ? null : (decimal)itemValue;
+                                                Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                            }
+                                            else
+                                            {
+                                                int? values = itemValue == null ? null : (int)itemValue;
+                                                Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
+    private static bool IsValidJson(string strInput)
+    {
+        if (string.IsNullOrWhiteSpace(strInput)) { return false; }
+        strInput = strInput.Trim();
+        if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
+            (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
+        {
+            try
+            {
+                var obj = JToken.Parse(strInput);
+                return true;
+            }
+            catch (JsonReaderException jex)
+            {
+                //Exception in parsing json
+                return false;
+            }
+            catch (Exception ex) //some other exception
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+    void onsubmitClick()
+    {
+    }
+    void backUrl()
+    {
+        NavigationManager.NavigateTo("DynamicMasterSetup");
+    }
+    void ResetForm()
+    {
+
+    }
+    async Task addNew()
+    {
+        await loadDynamicForm();
+    }
+    async Task HandleValidSubmit()
+    {
+        var datas = Data;
+        string strJson = JsonConvert.SerializeObject(datas);
+        loading = true;
+        if (dynamicFormData.DynamicFormDataId > 0)
+        {
+            var editReq = new InsertOrUpdateDynamicFormData
+                {
+                    DynamicFormDataId = dynamicFormData.DynamicFormDataId,
+                    DynamicFormId = _dynamicform.ID,
+                    DynamicFormItem = strJson,
+                    SessionId = dynamicFormData.SessionId,
+                    ModifiedByUserID = applicationUser.UserID,
+                    AddedByUserID = dynamicFormData.AddedByUserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = 1,
+                    AddedDate = dynamicFormData.AddedDate,
+                };
+
+            await Mediator.Send(editReq);
+            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            loading = false;
+            StateHasChanged();
+        }
+        else
+        {
+            var createReq = new InsertOrUpdateDynamicFormData
+                {
+                    DynamicFormItem = strJson,
+                    DynamicFormId = _dynamicform.ID,
+                    SessionId = Guid.NewGuid(),
+                    AddedByUserID = applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = 1,
+                    AddedDate = DateTime.Now,
+                };
+            var result = await Mediator.Send(createReq);
+            if (result.DynamicFormDataId > 0)
+            {
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                dynamicFormDataId = result.DynamicFormDataId;
+                loading = false;
+            }
+            loading = false;
+            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + createReq.SessionId);
+            StateHasChanged();
+        }
+    }
+    void HandleInvalidSubmit()
+    {
+    }
+    public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
+    {
+        var _AttributeHeaders = _AttributeHeader;
+        var propertyList = Data.GetType().GetProperties();
+        if (_AttributeHeader != null && _AttributeHeader.DynamicFormSection != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
+        {
+            int i = 0; int k = 0;
+            _AttributeHeader.DynamicFormSection.ForEach(a =>
+            {
+                formLayoutBuilder.OpenComponent<DxFormLayout>(i);
+
+                formLayoutBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
+            {
+                layoutItemBuilder.OpenComponent<DxFormLayoutGroup>(i + 1);
+                layoutItemBuilder.AddAttribute(i + 1, "ExpandButtonDisplayMode", GroupExpandButtonDisplayMode.End);
+                layoutItemBuilder.AddAttribute(i + 1, "Expanded", k == 0 ? true : false);
+                layoutItemBuilder.AddAttribute(i + 1, "AnimationType", LayoutAnimationType.Slide);
+                layoutItemBuilder.AddAttribute(i + 1, "Caption", a.SectionName);
+
+                layoutItemBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((itemBuilder) =>
+                {
+                    var dynamicFormSectionAttributeData = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionId == a.DynamicFormSectionId).OrderBy(o => o.SortOrderBy).ToList();
+                    if (dynamicFormSectionAttributeData != null && dynamicFormSectionAttributeData.Count > 0)
+                    {
+                        dynamicFormSectionAttributeData.ForEach(s =>
+        {
+
+            var property = Data.GetType().GetProperty(s.DynamicAttributeName);
+            var propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+            var dataLists = _AttributeHeader.AttributeDetails.Where(x => x.AttributeID == s.AttributeId).ToList();
+            List<AttributeDetails> attributeDetailss = dataLists != null && dataLists.Count > 0 ? dataLists : new List<AttributeDetails>();
+            itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+
+            itemBuilder.AddAttribute(i++, "Caption", s.DisplayName);
+            itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
+            var access = Expression.Property(Expression.Constant(Data), s.DynamicAttributeName);
+            var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.DataType), access);
+            itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
+                     {
+                         var j = 0;
+                         if (s.ControlType == "TextBox")
+                         {
+                             editor.OpenComponent<DxTextBox>(j++);
+                             editor.AddAttribute(j++, "Text", property.GetValue(Data));
+                             editor.AddAttribute(j++, "TextExpression", lambda);
+                             editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                             editor.AddAttribute(j++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
+                             editor.CloseComponent();
+                         }
+                         else if (s.ControlType == "DateEdit")
+                         {
+                             editor.OpenComponent<DxDateEdit<DateTime?>>(j);
+                             editor.AddAttribute(j++, "Date", property.GetValue(Data));
+                             editor.AddAttribute(j++, "DateExpression", lambda);
+                             editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                             editor.AddAttribute(j++, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { property.SetValue(Data, str); }));
+                             editor.CloseComponent();
+                         }
+                         else if (s.ControlType == "TimeEdit")
+                         {
+                             editor.OpenComponent<DxTimeEdit<TimeSpan?>>(j);
+                             editor.AddAttribute(j++, "Time", property.GetValue(Data));
+                             editor.AddAttribute(j++, "TimeExpression", lambda);
+                             editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                             editor.AddAttribute(j++, "TimeChanged", EventCallback.Factory.Create<System.TimeSpan?>(this, str => { property.SetValue(Data, str); }));
+                             editor.CloseComponent();
+                         }
+                         else if (s.ControlType == "Memo")
+                         {
+                             editor.OpenComponent<DxMemo>(j);
+                             editor.AddAttribute(j++, "Text", property.GetValue(Data));
+                             editor.AddAttribute(j++, "TextExpression", lambda);
+                             editor.AddAttribute(j++, "Rows", 5);
+                             editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                             editor.AddAttribute(j++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
+                             editor.CloseComponent();
+                         }
+                         else if (s.ControlType == "SpinEdit")
+                         {
+                             if (propertyType.Name == "Int32")
+                             {
+                                 editor.OpenComponent<DxSpinEdit<int?>>(j);
+                                 editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                                 editor.AddAttribute(j++, "MinValue", 0);
+                                 editor.AddAttribute(j++, "BindValueMode", BindValueMode.OnInput);
+                                 editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                 editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<int?>(this, str => { property.SetValue(Data, str); }));
+                             }
+                             if (propertyType.Name == "Decimal")
+                             {
+                                 editor.OpenComponent<DxSpinEdit<decimal?>>(j);
+                                 editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                                 editor.AddAttribute(j++, "Increment", 0.1M);
+                                 editor.AddAttribute(j++, "MinValue", 0M);
+                                 editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                                 editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { property.SetValue(Data, str); }));
+                             }
+                             editor.AddAttribute(j++, "ValueExpression", lambda);
+                             editor.CloseComponent();
+                         }
+                         else if (s.ControlType == "CheckBox")
+                         {
+                             editor.OpenComponent<DxCheckBox<bool?>>(j);
+                             editor.AddAttribute(j++, "Checked", property.GetValue(Data) ?? false);
+                             editor.AddAttribute(j++, "CheckedExpression", lambda);
+                             //editor.AddAttribute(j++, "LabelPosition", LabelPosition.Right);
+                             editor.AddAttribute(j++, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { property.SetValue(Data, str); }));
+                             editor.CloseComponent();
+                         }
+                         else if (s.ControlType == "RadioGroup")
+                         {
+                             editor.OpenComponent<DxRadioGroup<AttributeDetails, long?>>(j);
+                             editor.AddAttribute(j++, "Items", attributeDetailss);
+                             editor.AddAttribute(j++, "TextFieldName", "AttributeDetailName");
+                             editor.AddAttribute(j++, "ValueFieldName", "AttributeDetailID");
+                             editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                             editor.AddAttribute(j++, "ValueExpression", lambda);
+                             editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
+                             editor.CloseComponent();
+                         }
+                         else if (s.ControlType == "Radio")
+                         {
+                             editor.OpenComponent<DxRadioGroup<AttributeDetails, long?>>(j);
+                             editor.AddAttribute(j++, "Items", attributeDetailss);
+                             editor.AddAttribute(j++, "TextFieldName", "AttributeDetailName");
+                             editor.AddAttribute(j++, "ValueFieldName", "AttributeDetailID");
+                             editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                             editor.AddAttribute(j++, "ValueExpression", lambda);
+                             editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
+                             editor.CloseComponent();
+                         }
+                         else if (s.ControlType == "ComboBox")
+                         {
+                             editor.OpenComponent<DxComboBox<AttributeDetails, long?>>(j);
+                             editor.AddAttribute(j++, "Data", attributeDetailss);
+                             editor.AddAttribute(j++, "TextFieldName", "AttributeDetailName");
+                             editor.AddAttribute(j++, "ValueFieldName", "AttributeDetailID");
+                             editor.AddAttribute(j++, "ListRenderMode", ListRenderMode.Virtual);
+                             editor.AddAttribute(j++, "FilteringMode", DataGridFilteringMode.Contains);
+                             editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                             editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                             editor.AddAttribute(j++, "ValueExpression", lambda);
+                             editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
+                             editor.CloseComponent();
+                         }
+                         else if (s.ControlType == "TagBox")
+                         {
+                             editor.OpenComponent<DxTagBox<AttributeDetails, long?>>(j);
+                             editor.AddAttribute(j++, "Data", attributeDetailss);
+                             editor.AddAttribute(j++, "TextFieldName", "AttributeDetailName");
+                             editor.AddAttribute(j++, "ValueFieldName", "AttributeDetailID");
+                             editor.AddAttribute(j++, "ListRenderMode", ListRenderMode.Virtual);
+                             editor.AddAttribute(j++, "FilteringMode", DataGridFilteringMode.Contains);
+                             editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
+                             editor.AddAttribute(j++, "Values", property.GetValue(Data));
+                             editor.AddAttribute(j++, "ValuesExpression", lambda);
+                             editor.AddAttribute(j++, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { property.SetValue(Data, str); }));
+                             editor.CloseComponent();
+                         }
+                         else if (s.ControlType == "ListBox")
+                         {
+                             editor.OpenComponent<DxListBox<AttributeDetails, long?>>(j);
+                             editor.AddAttribute(j++, "Data", attributeDetailss);
+                             editor.AddAttribute(j++, "TextFieldName", "AttributeDetailName");
+                             editor.AddAttribute(j++, "ValueFieldName", "AttributeDetailID");
+                             editor.AddAttribute(j++, "ListRenderMode", ListRenderMode.Virtual);
+                             editor.AddAttribute(j++, "ShowCheckboxes", true);
+
+                             if (s.IsMultiple == true)
+                             {
+                                 editor.AddAttribute(j++, "Values", property.GetValue(Data));
+                                 editor.AddAttribute(j++, "ValuesExpression", lambda);
+                                 editor.AddAttribute(j++, "SelectionMode", ListBoxSelectionMode.Multiple);
+                                 editor.AddAttribute(j++, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { property.SetValue(Data, str); }));
+                             }
+                             else
+                             {
+                                 editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                                 editor.AddAttribute(j++, "ValueExpression", lambda);
+                                 editor.AddAttribute(j++, "SelectionMode", ListBoxSelectionMode.Single);
+                                 editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
+                             }
+                             editor.CloseComponent();
+                         }
+                     })));
+            itemBuilder.CloseComponent();
+            itemBuilder.OpenElement(i++, "div");
+            itemBuilder.AddAttribute(i++, "class", "text-danger");
+            //itemBuilder.OpenComponent(i++, typeof(ValidationMessage<>).MakeGenericType(s.DataType));
+            // itemBuilder.AddAttribute(i++, "For", lambda);
+            //itemBuilder.CloseComponent();
+            itemBuilder.CloseElement();
+            k++;
+        });
+                    }
+                    itemBuilder.OpenComponent<DxFormLayoutItem>(i++);
+                    itemBuilder.CloseComponent();
+
+                }));
+
+                layoutItemBuilder.CloseComponent();
+            }));
+
+                formLayoutBuilder.CloseComponent();
+            });
+
+        }
+    };
+
+
 }
 

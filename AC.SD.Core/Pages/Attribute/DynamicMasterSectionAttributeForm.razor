@@ -1,0 +1,575 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+
+
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@errorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+</DxPopup>
+
+<DxPopup @bind-Visible="@MessageVisible" HeaderText="@MessageHeader">
+    <BodyTemplate Context="PopupContext">
+        <div class="@((MessageHeader == "Error" ? "TxtRed" : "TxtGreen"))" style="text-align:center; padding: 10px; font-size: 15px;">
+            <span> @MessageBody</span>
+        </div>
+    </BodyTemplate>
+</DxPopup>
+
+<DxLoadingPanel @bind-Visible="PanelAttibuteVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="SMAttributeGrid" Data="@_dynamicFormSectionAttributeData" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="DynamicFormSectionAttributeId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+
+
+        <Columns>
+            @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
+            <DxGridDataColumn FieldName="DynamicFormSectionAttributeId" Visible="false" />
+            <DxGridDataColumn FieldName="AttributeName" Caption="Attribute Name" MinWidth="40" />
+            <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="40" />
+            <DxGridDataColumn FieldName="DisplayName" Caption="Label Name" MinWidth="40" />
+            <DxGridDataColumn FieldName="SortOrderBy" Caption="Sort Order By" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSectionAttribute)context.DataItem;
+                    }
+                    <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-AttributeSection-{item.DynamicFormSectionAttributeId}") onclick="@(() => OnButtonSortOrderByClick(item))" title="@item.SortOrderBy"></i>
+                    @item.SortOrderBy
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="IsMultiple" Caption="Is Multiple" MinWidth="80" />
+            <DxGridDataColumn FieldName="IsRequired" Caption="Is Required" MinWidth="80" />
+            <DxGridDataColumn FieldName="RequiredMessage" Caption="Required Message" MinWidth="80" />
+            <DxGridDataColumn FieldName="ColSpan" Caption="ColSpan" MinWidth="20" />
+            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
+
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (DynamicFormSectionAttribute)EditFormContext.EditModel;
+
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Attribute" ColSpanMd="6">
+                    <DxComboBox Data="@_attributeHeaderData"
+                                NullText="Select Attribute..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                TextFieldName="AttributeName"
+                                ValueFieldName="AttributeID"
+                                SelectedItemChanged="@((AttributeHeader selectName) => SelectedItemChanged(selectName,types))"
+                    @bind-Value="@types.AttributeId">
+                        <Columns>
+                            <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
+                                                Caption="Attribute Name"
+                                                Width="100px" />
+                            <DxListEditorColumn FieldName="@nameof(AttributeHeader.Description)"
+                                                Caption="Label Name"
+                                                Width="100px" />
+                            <DxListEditorColumn FieldName="@nameof(AttributeHeader.ControlType)"
+                                                Caption="Control Type" Width="100px" />
+
+                        </Columns>
+                    </DxComboBox>
+                    <ValidationMessage For="@(() => types.AttributeId)" />
+
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Label Name" ColSpanMd="6">
+                    @{
+                        var types = (DynamicFormSectionAttribute)EditFormContext.EditModel;
+                    }
+                    <DxTextBox @bind-Text="@types.DisplayName" ShowValidationIcon="true" />
+                    <ValidationMessage For="@(() => types.DisplayName)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6" Visible="@(types.ControlTypeId==2704?true:false)">
+                    <DxComboBox Data="@dynamicFormSectionSpinEdit"
+                    @bind-Value="@types.IsSpinEditType"
+                                TextFieldName="Text"
+                                ValueFieldName="Value" ShowValidationIcon="true" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Multiple" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsMultiple" Enabled="@isListMultiple"></DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Required" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsRequired"></DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Required Message" ColSpanMd="6">
+
+                    <DxTextBox @bind-Text="@types.RequiredMessage" />
+                    <ValidationMessage For="@(() => types.RequiredMessage)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Sort Order" ColSpanMd="6">
+                    <DxComboBox Data="@colSpanLists"
+                    @bind-Value="@types.ColSpan"
+                                TextFieldName="Text"
+                                ValueFieldName="Value" ShowValidationIcon="true" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DisplayName" />
+        </TotalSummary>
+
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxFlyout @bind-IsOpen=IsSortOrderByAtrributeOpen
+          PositionTarget=@($"#flyout-overview-target-container-AttributeSection-{_selectedAttributeItems?.DynamicFormSectionAttributeId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Update Sort Order"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          Width="max(25vw, 550px)"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="Sort Order" ColSpanMd="6">
+                <DxComboBox Data="@sortOrderAttributeSectionList"
+                @bind-Value="@_selectedDynamicFormAttributeSectionItems.SortOrderBy"
+                            TextFieldName="Text"
+                            ValueFieldName="Value" ShowValidationIcon="true" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsSortOrderByAtrributeOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateSortOrderAttributeBy()) />
+
+
+    </FooterContentTemplate>
+</DxFlyout>
+@code {
+    [Parameter]
+    public DynamicFormSection Items { get; set; }
+    public long? DynamicFormSectionId { get; set; }
+    bool PanelAttibuteVisible { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private List<DynamicFormSectionAttribute>? _dynamicFormSectionAttributeData;
+    IGrid? SMAttributeGrid { get; set; }
+    private DynamicFormSectionAttribute _selectedAttributeItems;
+    bool DeleteEnabled { get; set; } = false;
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    bool isListMultiple = false;
+    string? errorMessage;
+    string? DeleteerrorMessage;
+    bool MessageVisible { get; set; }
+    string MessageHeader = "Error";
+    string MessageBody = "";
+    private bool loading;
+    bool Blukdeletepopup { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
+    bool IsSortOrderByAtrributeOpen { get; set; } = false;
+    private DynamicFormSectionAttribute _selectAttributelst;
+    public ApplicationUser? applicationUser { get; private set; }
+    private List<DynamicFormSectionSortOrder> sortOrderAttributeSectionList { get; set; }
+    private List<DynamicFormSectionSortOrder> colSpanLists { get; set; } = new List<DynamicFormSectionSortOrder>();
+    private List<AttributeHeader>? _attributeHeaderData;
+    DynamicFormSectionAttribute _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
+    private List<DynamicFormSectionSpinEdit> dynamicFormSectionSpinEdit { get; set; } = new List<DynamicFormSectionSpinEdit>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        DynamicFormSectionId = Items.DynamicFormSectionId;
+
+        for (int val = 1; val <= 12; val++)
+        {
+            if (val % 2 == 0)
+            {
+                DynamicFormSectionSortOrder colSpanList = new DynamicFormSectionSortOrder();
+                colSpanList.Text = val.ToString();
+                colSpanList.Value = val;
+                colSpanLists.Add(colSpanList);
+            }
+        }
+        dynamicFormSectionSpinEdit.Add(new DynamicFormSectionSpinEdit() { Value = "int", Text = "Integer" });
+        dynamicFormSectionSpinEdit.Add(new DynamicFormSectionSpinEdit() { Value = "decimal", Text = "Decimal" });
+        await UpdateDataAsync();
+    }
+    public async Task loadChildData(long? dynamicFormIds)
+    {
+        DynamicFormSectionId = dynamicFormIds;
+        await UpdateDataAsync();
+    }
+    async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (DynamicFormSectionAttribute)e.EditModel;
+        navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
+        isListMultiple = false;
+        if (e.IsNew)
+        {
+            navitems.IsSpinEditType = "int";
+            navitems.ColSpan = 6;
+            //_attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(DynamicFormSectionId, -1));
+        }
+        else
+        {
+            if (navitems.ControlTypeId == 2706)
+            {
+                isListMultiple = true;
+            }
+            //_attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(DynamicFormSectionId, navitems.AttributeId));
+        }
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelAttibuteVisible = true; AddEnabled = false;
+        EditEnabled = false; DeleteEnabled = false;
+
+        if (DynamicFormSectionId > 0)
+        {
+            _attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(-1, -1));
+            AddEnabled = true;
+            _dynamicFormSectionAttributeData = await Mediator.Send(new GetDynamicFormSectionAttribute(DynamicFormSectionId));
+
+            if (_dynamicFormSectionAttributeData.Count > 0)
+            {
+                _selectedAttributeItems = _dynamicFormSectionAttributeData.FirstOrDefault();
+
+                EditEnabled = true;
+                DeleteEnabled = true;
+            }
+        }
+        PanelAttibuteVisible = false;
+        StateHasChanged();
+    }
+
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+    void SelectedItemChanged(AttributeHeader attributeHeader, DynamicFormSectionAttribute data)
+    {
+        data.DisplayName = attributeHeader.Description;
+        data.ControlTypeId = attributeHeader.ControlTypeId;
+        isListMultiple = false;
+        if (attributeHeader != null)
+        {
+            if (attributeHeader.ControlTypeId == 2706)
+            {
+                isListMultiple = true;
+            }
+        }
+        StateHasChanged();
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editModel = (DynamicFormSectionAttribute)e.EditModel;
+        var isMultipleFlag = editModel.ControlTypeId == 2706 ? (editModel.IsMultiple == true ? true : false) : false;
+        var IsSpinEditType = editModel.ControlTypeId == 2704 ? (string.IsNullOrEmpty(editModel.IsSpinEditType) ? null : editModel.IsSpinEditType) : null;
+        if (e.IsNew)
+        {
+            var createReq = new InsertOrUpdateDynamicFormSectionAttribute
+                {
+                    DisplayName = editModel.DisplayName,
+                    DynamicFormSectionId = DynamicFormSectionId,
+                    AttributeId = editModel.AttributeId,
+                    SessionId = Guid.NewGuid(),
+                    AddedByUserID = applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ColSpan = editModel.ColSpan,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = 1,
+                    AddedDate = DateTime.Now,
+                    IsMultiple = isMultipleFlag,
+                    IsRequired = editModel.IsRequired,
+                    RequiredMessage = editModel.RequiredMessage,
+                    IsSpinEditType = IsSpinEditType,
+                };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+
+                errorMessage = eq.Message;
+                PopupVisible = true;
+
+            }
+            await UpdateDataAsync();
+
+
+        }
+        else
+        {
+            var UpdateReq = new InsertOrUpdateDynamicFormSectionAttribute
+                {
+                    DynamicFormSectionAttributeId = editModel.DynamicFormSectionAttributeId,
+                    DisplayName = editModel.DisplayName,
+                    AttributeId = editModel.AttributeId,
+                    DynamicFormSectionId = DynamicFormSectionId,
+                    SessionId = editModel.SessionId,
+                    SortOrderBy = editModel.SortOrderBy,
+                    AddedByUserID = editModel.AddedByUserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ColSpan = editModel.ColSpan,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = 1,
+                    AddedDate = editModel.AddedDate,
+                    IsMultiple = isMultipleFlag,
+                    IsRequired = editModel.IsRequired,
+                    RequiredMessage = editModel.RequiredMessage,
+                    IsSpinEditType = IsSpinEditType,
+
+                };
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+
+    }
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        loading = false;
+        StateHasChanged();
+    }
+    async void ClosePopup()
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        UpdateDataAsync();
+    }
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+
+        var editModel = (DynamicFormSectionAttribute)e.DataItem;
+        var request = new DeleteDynamicFormSectionAttribute(editModel);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        SMAttributeGrid.SetFocusedRowIndex(0);
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void Onclick(DataGridSelection<DynamicFormSectionAttribute> e)
+    {
+
+
+
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormSectionAttributeId");
+        _selectedAttributeItems = _dynamicFormSectionAttributeData.FirstOrDefault(f => f.DynamicFormSectionAttributeId == (long?)UniqueId);
+
+        StateHasChanged();
+
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        SMAttributeGrid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null)
+        {
+
+            if (SelectedDataItems.Count == 1)
+            {
+
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is DynamicFormSectionAttribute dataselectItems)
+                    {
+                        _selectAttributelst = _dynamicFormSectionAttributeData.FirstOrDefault(f => f.DynamicFormSectionAttributeId == dataselectItems.DynamicFormSectionAttributeId);
+                    }
+                }
+                SMAttributeGrid.StartEditDataItemAsync(_selectAttributelst);
+            }
+            else
+            {
+                SMAttributeGrid.StartEditDataItemAsync(_selectedAttributeItems);
+            }
+        }
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is DynamicFormSectionAttribute selectData)
+                    {
+                        var request = new DeleteDynamicFormSectionAttribute(selectData);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        SMAttributeGrid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+
+    }
+    async Task OnUpdateSortOrderAttributeBy()
+    {
+        await Mediator.Send(new UpdateDynamicFormSectionAttributeSortOrder(_selectedDynamicFormAttributeSectionItems));
+        await UpdateDataAsync();
+        SMAttributeGrid.SortBy("SortOrderBy", GridColumnSortOrder.Ascending, 0);
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        IsSortOrderByAtrributeOpen = false;
+    }
+    void OnButtonSortOrderByClick(DynamicFormSectionAttribute dynamicFormSection)
+    {
+        _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
+
+        sortOrderAttributeSectionList = new List<DynamicFormSectionSortOrder>();
+        IsSortOrderByAtrributeOpen = true;
+        if (_dynamicFormSectionAttributeData != null && _dynamicFormSectionAttributeData.Count > 0)
+        {
+            var count = _dynamicFormSectionAttributeData.Count;
+            for (int i = 1; i <= count; i++)
+            {
+                DynamicFormSectionSortOrder dynamicFormSectionSortOrder = new DynamicFormSectionSortOrder();
+                dynamicFormSectionSortOrder.Text = i.ToString();
+                dynamicFormSectionSortOrder.Value = i;
+                sortOrderAttributeSectionList.Add(dynamicFormSectionSortOrder);
+            }
+        }
+        _selectedDynamicFormAttributeSectionItems.SortOrderBy = dynamicFormSection.SortOrderBy;
+        _selectedDynamicFormAttributeSectionItems.ModifiedByUserID = applicationUser.UserID;
+        _selectedDynamicFormAttributeSectionItems.ModifiedDate = DateTime.Now;
+        _selectedDynamicFormAttributeSectionItems.DynamicFormSectionId = dynamicFormSection.DynamicFormSectionId;
+        _selectedDynamicFormAttributeSectionItems.DynamicFormSectionAttributeId = dynamicFormSection.DynamicFormSectionAttributeId;
+        _selectedDynamicFormAttributeSectionItems.SortOrderAnotherBy = dynamicFormSection.SortOrderBy;
+
+        StateHasChanged();
+    }
+}

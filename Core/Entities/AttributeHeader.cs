@@ -19,7 +19,7 @@ namespace Core.Entities
         [Required(ErrorMessage = "Attribute Name is Required")]
         [AttributeCustomValidation]
         public string AttributeName { get; set; }
-        [Required(ErrorMessage = "Display Name is Required")]
+        [Required(ErrorMessage = "Label Name is Required")]
         public string Description { get; set; }
 
         public string ControlType { get; set; }
@@ -40,14 +40,12 @@ namespace Core.Entities
         public bool? IsMultiple { get; set; } = false;
         public bool? IsRequired { get; set; } = false;
         public bool? RequiredMessage { get; set; }
-        [NotMapped]
-        public List<AttributeDetails> AttributeDetails { get; set; }=new List<AttributeDetails>();
-        [NotMapped]
-        public string? DataType { get; set; }
     }
     public class AttributeHeaderListModel
     {
-        public List<AttributeHeader> AttributeHeader { get; set; }
+        public List<DynamicFormSection> DynamicFormSection { get; set; }
+        public List<DynamicFormSectionAttribute> DynamicFormSectionAttribute { get; set; }
         public List<AttributeDetails> AttributeDetails { get; set; }
     }
+
 }

@@ -44,13 +44,13 @@
                     <DxMenuItem Position="ItemPosition.Start" IconCssClass="fa fa-reply " Click="onBack" />
                     <DxMenuItem Text="Profile Type" Position="ItemPosition.Start" style="@isFilterMore">
                         <Items>
-                            <DxMenuItem Text="Add New" IconCssClass="fa fa-add" Click="onAddFileProfileType" />
-                            <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@onEditFileProfileType" />
+                            @* <DxMenuItem Text="Add New" IconCssClass="fa fa-add" Click="onAddFileProfileType" />
+                            <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@onEditFileProfileType" /> *@
                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@onDeleteFileProfileType" />
                         </Items>
                     </DxMenuItem>
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter("Open"))" id=@($"flyout-overview-target-container-FilterDocuments") />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" style="@isFilterMore" />
+                   @*  <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" style="@isFilterMore" /> *@
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-file-excel" Click="onDownload" Enabled="@ondownloadEnabled" style="@isFilterMore" />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
                         <Items>
@@ -242,7 +242,10 @@
                         }
                         @if (item.Type == "Document")
                         {
-                            <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-ExpiryDate-{item.DocumentID}") onclick="@(() => OnButtonExpiryDateClick(item))" title="@expiryDate"></i>
+                            if (isExpiryDateVisible == true)
+                            {
+                                <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-ExpiryDate-{item.DocumentID}") onclick="@(() => OnButtonExpiryDateClick(item))" title="@expiryDate"></i>
+                            }
                             @expiryDate
                         }
                     </CellDisplayTemplate>
@@ -602,6 +605,7 @@
     private string? DocumentViewUrl;
     private string? ServerUrl;
     private string? FileUrl;
+    public bool? isExpiryDateVisible { get; set; } = false;
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
     private DxTreeView _treeFilterDocView;
     string? FilterDocumentString { get; set; }
@@ -632,7 +636,7 @@
     }
     async Task mainPageLoad()
     {
-        isEnablePath = false;
+        isEnablePath = false;isExpiryDateVisible = false;
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         _fileContentList = await Mediator.Send(new GetFileContetTypes());
 
@@ -654,6 +658,7 @@
                 _ParentselectedItems = fileType;
                 if (fileType != null)
                 {
+                    isExpiryDateVisible = _ParentselectedItems.IsExpiryDate == null ? false : _ParentselectedItems.IsExpiryDate;
                     Name = fileType?.FileName;
                     FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
                     FolderPathLists.Add(fileType);
@@ -738,10 +743,11 @@
 
             if (_selectedItems.IsLocked == true)
             {
-                uploadEnabled = false; deleteEnabled = false; DownloadEnabled = true;
-                viewfileEnabled = true; historyEnabled = true; checkoutEnabled = false; checkInEnabled = true;
-                NotifyEnabled = true; releasewikiEnabled = true; copylinkEnabled = true; viewParentEnabled = true;
-                linkdownloadEnabled = true; shareEnabled = true; formdetailsEnabled = true;
+                checkInEnabled = true;
+                uploadEnabled = false; deleteEnabled = false; DownloadEnabled = false;
+                viewfileEnabled = false; historyEnabled = false; checkoutEnabled = false;
+                NotifyEnabled = false; releasewikiEnabled = false; copylinkEnabled = false; viewParentEnabled = false;
+                linkdownloadEnabled = false; shareEnabled = false; formdetailsEnabled = false;
             }
             else
             {
@@ -772,7 +778,9 @@
                         }
                         if (permissionData.IsRead == true)
                         {
-                            DownloadEnabled = true; viewfileEnabled = true;
+                            uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
+                            checkoutEnabled = true; checkInEnabled = false; shareEnabled = true; NotifyEnabled = true; formdetailsEnabled = true; linkdownloadEnabled = true;
+                            renameEnabled = true; releasewikiEnabled = true; viewParentEnabled = true;
                         }
                         if (permissionData.IsListVersion == true)
                         {

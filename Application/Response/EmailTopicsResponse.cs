@@ -36,6 +36,7 @@ namespace Application.Response
         public string? Follow { get; set; }
         public long? OnBehalf { get; set; }
         public bool? Urgent { get; set; }
+        public bool? NotifyUser { get; set; }
         public bool? OverDue { get; set; }
         public bool? IsAllowParticipants { get; set; }
         public int OnDraft { get; set; }

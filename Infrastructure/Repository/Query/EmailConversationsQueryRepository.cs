@@ -540,7 +540,7 @@ namespace Infrastructure.Repository.Query
                 var query = @"SELECT * FROM (
                             SELECT FC.TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
                                 AET.Comment AS ActCommentName,AET.BackURL, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
-                                ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent
+                                ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.NotifyUser
                             FROM EmailConversations FC
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf
                             LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
@@ -808,13 +808,14 @@ namespace Infrastructure.Repository.Query
 
                 var query = @"SELECT FC.Name,FC.ID,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.AddedByUserID,
                                 AET.Comment as ActCommentName,AET.BackURL,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
-                                ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf
+                                ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,FCEP.FirstName,FCEP.LastName
                                 FROM EmailConversations FC  
                                 LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf                                
                                 LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID      
                                 LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID 
+                                LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID 
                                 WHERE FC.ID = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate DESC";
 
 
@@ -1213,9 +1214,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DueDate", forumConversations.DueDate);
                             parameters.Add("IsAllowParticipants", forumConversations.IsAllowParticipants);
                             parameters.Add("Urgent", forumConversations.Urgent);
+                            parameters.Add("NotifyUser", forumConversations.NotifyUser);
                             parameters.Add("IsMobile", forumConversations.IsMobile,DbType.Int32);
 
-                            var query = "INSERT INTO EmailConversations(IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
+                            var query = "INSERT INTO EmailConversations(NotifyUser,IsMobile,Urgent,DueDate,IsAllowParticipants,TopicID,Message,ParticipantId,ReplyId,StatusCodeID,AddedByUserID,SessionId,AddedDate,FileData,Name) OUTPUT INSERTED.ID VALUES (@NotifyUser,@IsMobile,@Urgent,@DueDate,@IsAllowParticipants,@TopicID,@Message,@ParticipantId,@ReplyId,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate,@FileData,@Name)";
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);

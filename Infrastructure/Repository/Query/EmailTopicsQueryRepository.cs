@@ -1391,7 +1391,8 @@ namespace Infrastructure.Repository.Query
 
                         parameterss.Add("isValidateSession", EmailTopics.isValidateSession);
                         parameterss.Add("ActivityEmailTopicId", EmailTopics.ActivityEmailTopicId);
-                        parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);                        
+                        parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);
+                        parameterss.Add("NotifyUser", EmailTopics.NotifyUser);
 
                         connection.Open();
 
@@ -1435,7 +1436,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("FileData", EmailTopics.FileData);
                         parameterss.Add("OnDraft", EmailTopics.OnDraft);
                         parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);
-                        
+                        parameterss.Add("NotifyUser", EmailTopics.NotifyUser);
 
                         parameterss.Add("Follow", EmailTopics.Follow);
                         parameterss.Add("OnBehalf", EmailTopics.OnBehalf);

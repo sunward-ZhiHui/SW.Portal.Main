@@ -359,6 +359,7 @@ namespace SW.Portal.Solutions.Controllers
         public async Task<string> SendMessage(long id)
         {
             var serverToken = _configuration["FcmNotification:ServerKey"];
+            var baseurl = _configuration["DocumentsUrl:BaseUrl"];
 
             var itm = await _mediator.Send(new GetByIdConversation(id));
 
@@ -409,14 +410,19 @@ namespace SW.Portal.Solutions.Controllers
             //};
 
             var androidNotificationObject = new Dictionary<string, string>();
-            var pushNotificationRequest = new PostItem
+            var pushNotificationRequest = new 
             {
-                notification = new NotificationMessageBody
+                notification = new
                 {
                     title = title,
-                    body = bodymsg
+                    body = bodymsg,
+                    click_action = baseurl // Set the click_action here
                 },
-                data = androidNotificationObject,
+                data = new Dictionary<string, string>
+                {
+                    { "click_action", baseurl}                    
+                },
+                //data = androidNotificationObject,
                 //registration_ids = new List<string> { token }
                 registration_ids = token 
             };

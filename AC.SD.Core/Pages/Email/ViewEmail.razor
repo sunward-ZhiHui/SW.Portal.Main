@@ -368,6 +368,10 @@
                                                             @if (item.Urgent.GetValueOrDefault(false))
                                                             {
                                                                 <span class="urgent_icon"><i class="fas fa-bell" style="margin-top: 8px;" aria-hidden="true"></i></span>
+                                                            }                                                            
+                                                            @if (item.NotifyUser.GetValueOrDefault(false))
+                                                            {
+                                                                <span class="primary_color_icon"><i class="fa fa-commenting" style="margin-top: 8px;" aria-hidden="true"></i></span>
                                                             }
                                                             @*<div class="mailbox-read-time pull-right">
                                                                 <DxDateEdit style="width: 190px; float: right;margin-top: -21px;" @bind-Date="@item.DueDate" Mask="dd/MMMM/yyyy" />
@@ -418,9 +422,9 @@
                                                         </div>                                                                                                            
                                                     </div>
                                                 </div>
-                                                @if (!string.IsNullOrEmpty(item.ActCommentName) && !string.IsNullOrEmpty(item.ActUserName))
+                                                @if (!string.IsNullOrEmpty(item.BackURL))
                                                 {    
-                                                    <div class="replybox">
+                                                    <div class="replybox" style="min-height:60px;">
                                                         <div style="font-weight: bold;">Activity Comment
                                                             <div style="float:right; line-height:16px">
                                                                 <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
@@ -777,7 +781,7 @@
                                                                             <DxFormLayoutItem Caption="Due Date" ColSpanMd="5">
                                                                                 <DxDateEdit @bind-Date="@Data.DueDate" Mask="dd/MMMM/yyyy" />
                                                                             </DxFormLayoutItem>
-                                                                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="4">
+                                                                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="3">
                                                                                 <DxCheckBox CssClass="w-100"
                                                                                 @bind-Checked="@Data.IsAllowParticipants"
                                                                                 Alignment="default"
@@ -785,12 +789,20 @@
                                                                                     Allow Add Participants
                                                                                 </DxCheckBox>
                                                                             </DxFormLayoutItem>
-                                                                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="3">
+                                                                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
                                                                                 <DxCheckBox CssClass="w-100"
                                                                                 @bind-Checked="@Data.Urgent"
                                                                                 Alignment="default"
                                                                                 LabelPosition="LabelPosition.Right">
                                                                                    Urgent
+                                                                                </DxCheckBox>
+                                                                            </DxFormLayoutItem>
+                                                                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
+                                                                                <DxCheckBox CssClass="w-100"
+                                                                                @bind-Checked="@Data.NotifyUser"
+                                                                                Alignment="default"
+                                                                                LabelPosition="LabelPosition.Right">
+                                                                                   Notify User
                                                                                 </DxCheckBox>
                                                                             </DxFormLayoutItem>
                                                                          }
@@ -1238,6 +1250,7 @@
     bool PreviewEnabled { get; set; } = false;
     bool docEnabled { get; set; } = false;
     int newSubjectreply = 0;
+    bool isPushNotification { get; set; } = false;
     private CancellationTokenSource cancellationTokenSource;
     private const int AutoRefreshInterval = 10000; // 10 seconds
     private Documents _selectlst;
@@ -3056,6 +3069,7 @@
         Data.DueDate = null;
         Data.IsAllowParticipants = false;
         Data.Urgent = false;
+        Data.NotifyUser = false;
         newSubjectreply = 1;
 
         //await Task.Delay(2700);
@@ -3077,6 +3091,7 @@
         {           
             _replyComment = _discussionList.Where(c => c.ID == id).ToList();
 
+            isPushNotification = _replyComment[0].NotifyUser.GetValueOrDefault(false);
 
             Data.IsAllowParticipants = false;
             Data.DueDate = null;
@@ -3364,7 +3379,7 @@
         {
             await RefMasterSearch.loadLibaryList(txt);
         }
-        
+
     }
     async Task loadTodo_Data()
     {
@@ -3495,6 +3510,7 @@
                 DueDate = Data.DueDate,
                 IsAllowParticipants = Data.IsAllowParticipants,
                 Urgent = Data.Urgent,
+                NotifyUser = Data.NotifyUser,
                 ConIds = ConIds,
                // AllParticipantIds = _assigntoItems.Select(s => s.UserID).ToList(),
                 AllParticipantIds = coId > 0 ? NotificationconcatList : concatList,
@@ -3511,10 +3527,22 @@
 
         if (result > 1)
         {
-            //string BaseUrl = NavigationManager.BaseUri + "api/Email/";
-            //string url = BaseUrl + "SendMessage?id="+result;
-            //// Make a GET request to the controller action
-            //var response = await httpClient.GetAsync(url);
+
+            if(isPushNotification)
+            {
+                string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                string url = BaseUrl + "SendMessage?id="+result;
+                // Make a GET request to the controller action
+                var response = await httpClient.GetAsync(url);                
+            }
+
+            if (Data.NotifyUser.GetValueOrDefault(false))
+            {
+                string BaseUrl = NavigationManager.BaseUri + "api/Email/";
+                string url = BaseUrl + "SendMessage?id="+result;
+                // Make a GET request to the controller action
+                var response = await httpClient.GetAsync(url);
+            }
 
             //var getRec = await Mediator.Send(new GetDiscussionList(long.Parse(@SelectedGroup)));
             //sessionId = getRec.Last().SessionId;

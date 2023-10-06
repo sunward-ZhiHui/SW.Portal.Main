@@ -30,7 +30,7 @@
 @using global::Core.EntityModels;
 <style>
     .txtEditorMsg {
-        height: calc(100vh - 477px);
+        height: calc(100vh - 496px);
     }
     .dxuc-file-list-view
     {
@@ -241,7 +241,16 @@ else
                                     Allow Add Participants
                                 </DxCheckBox>
                             </DxFormLayoutItem>
-                            
+
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
+                                <DxCheckBox CssClass="w-100"
+                                        Enabled="IsActiveSessionId"
+                                        @bind-Checked="@Data.NotifyUser"
+                                        Alignment="default"
+                                        LabelPosition="LabelPosition.Right">
+                                        Notify User
+                                </DxCheckBox>
+                            </DxFormLayoutItem>
 
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />
@@ -511,6 +520,7 @@ else
     //List<ViewEmployee> ids = new List<ViewEmployee>(); 
     [Parameter]
     public string ActiveSessionId { get; set; }
+    public bool IsActiveSessionId { get; set; } = false;
 
     public ApplicationUser? applicationUser { get; private set; }
 
@@ -807,6 +817,7 @@ else
         Data.OverDue = false;
         Data.Urgent = false;
         Data.IsAllowParticipants = false;
+        Data.NotifyUser = false;
         await Task.Delay(3000); // Delay for 2 seconds
         await msgrichEdit.NewDocumentAsync();
 
@@ -855,6 +866,7 @@ else
         Data.Urgent = false;
         Data.OverDue = false;
         Data.IsAllowParticipants = false;
+        Data.NotifyUser = false;
 
         var topics = await Mediator.Send(new GetAllEmailTopics());
         _topics = topics;
@@ -877,6 +889,8 @@ else
 
         if (ActiveSessionId != null)
         {
+            Data.NotifyUser = true;
+            IsActiveSessionId = false;
 
             BackEnabled = true;
             var acttopics = await Mediator.Send(new GetActivityEmailTopics());
@@ -961,6 +975,7 @@ else
         {
             BackEnabled = false;
             IsDraftEnabled = true;
+            IsActiveSessionId = true;
         }
 
 
@@ -1122,6 +1137,7 @@ else
                     DueDate = Data.DueDate,
                     OverDue = Data.OverDue,
                     IsAllowParticipants = Data.IsAllowParticipants,
+                    NotifyUser = Data.NotifyUser,
                     FileData = fileContents,                
                     StatusCodeID = 1,
                     AddedByUserID = applicationAddedByUserID,

@@ -233,6 +233,14 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
+                            <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
+                                <DxCheckBox CssClass="w-100"
+                                        @bind-Checked="@Data.NotifyUser"
+                                        Alignment="default"
+                                        LabelPosition="LabelPosition.Right">
+                                    Notify User
+                                </DxCheckBox>
+                            </DxFormLayoutItem>
                      
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />
@@ -439,7 +447,7 @@ else
     async Task OnFileUploadStart(FileUploadStartEventArgs e)
     {
         Message = "Uploading...";
-        
+
 
 
         var SessionId = _sessionId;
@@ -669,6 +677,7 @@ else
         Data.Urgent = false;
         Data.OverDue = false;
         Data.IsAllowParticipants = false;
+        Data.NotifyUser = false;
         var topics = await Mediator.Send(new GetAllEmailTopics());
         _topics = topics;
         //var appusers = await Mediator.Send(new GetAllApplicationUserQuery());
@@ -711,6 +720,7 @@ else
                 Data.Urgent = actItem[0].Urgent;
                 Data.OverDue = actItem[0].OverDue;
                 Data.IsAllowParticipants = actItem[0].IsAllowParticipants;
+                Data.NotifyUser = actItem[0].NotifyUser;
                 Data.Follow = actItem[0].Follow;
                 Data.SessionId = actItem[0].SessionId;
                 Data.ID = actItem[0].ID;
@@ -963,6 +973,7 @@ else
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
                     IsAllowParticipants = Data.IsAllowParticipants,
+                    NotifyUser = Data.NotifyUser,
                 };
         try
         {

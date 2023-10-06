@@ -423,7 +423,7 @@ body,
     bottom: 0;
     width: 230px;
     overflow: hidden;
-    padding-bottom: calc(3.5rem + 60px);
+    /*padding-bottom: calc(3.5rem + 60px);*/
     box-shadow: inset -140px -8px 30px -100px rgba(0, 0, 0, 0.08);
     z-index: 1029;
 }

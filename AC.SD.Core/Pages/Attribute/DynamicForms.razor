@@ -108,64 +108,82 @@
                     if (SessionIds != null)
                     {
                         _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
-                        if (_dynamicformData != null && !string.IsNullOrEmpty(_dynamicformData.DynamicFormItem))
+                        if (_dynamicformData != null)
                         {
-                            if (IsValidJson(_dynamicformData.DynamicFormItem))
+                            dynamicFormData.DynamicFormDataId = _dynamicformData.DynamicFormDataId;
+                            dynamicFormData.SessionId = _dynamicformData.SessionId;
+                            dynamicFormData.AddedDate = _dynamicformData.AddedDate;
+                            dynamicFormData.AddedByUserID = _dynamicformData.AddedByUserID;
+                            dynamicFormData.DynamicFormCurrentItem = _dynamicformData.DynamicFormItem;
+                            if(!string.IsNullOrEmpty(_dynamicformData.DynamicFormItem))
                             {
-                                dynamic jsonObj = JsonConvert.DeserializeObject(_dynamicformData.DynamicFormItem);
-                                _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
+                                if (IsValidJson(_dynamicformData.DynamicFormItem))
                                 {
-                                    var valueType = jsonObj[a.DynamicAttributeName].Type;
-                                    var itemValue = jsonObj[a.DynamicAttributeName];
-                                    if (itemValue is JArray)
+                                    dynamic jsonObj = JsonConvert.DeserializeObject(_dynamicformData.DynamicFormItem);
+                                    _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
                                     {
-                                        var values = (JArray)itemValue;
-                                        List<long?> listData = values.ToObject<List<long?>>();
-                                        Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, listData);
-                                    }
-                                    else
-                                    {
-
-                                        if (a.ControlType == "TextBox" || a.ControlType == "Memo")
+                                        var Names = jsonObj.ContainsKey(a.DynamicAttributeName);
+                                        if (Names == true)
                                         {
-                                            var values = (string)itemValue;
-                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
-                                        }
-                                        else if (a.ControlType == "ComboBox" || a.ControlType == "Radio" || a.ControlType == "RadioGroup")
-                                        {
-                                            long? values = itemValue == null ? null : (long)itemValue;
-                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
-                                        }
-                                        else if (a.ControlType == "CheckBox")
-                                        {
-                                            bool? values = itemValue == null ? false : (bool)itemValue;
-                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
-                                        }
-                                        else if (a.ControlType == "DateEdit")
-                                        {
-                                            DateTime? values = itemValue == null ? null : (DateTime)itemValue;
-                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
-                                        }
-                                        else if (a.ControlType == "TimeEdit")
-                                        {
-                                            TimeSpan? values = itemValue == null ? null : (TimeSpan)itemValue;
-                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
-                                        }
-                                        else if (a.ControlType == "SpinEdit")
-                                        {
-                                            if (a.IsSpinEditType == "decimal")
+                                            //var valueType = jsonObj[a.DynamicAttributeName].Type;
+                                            var itemValue = jsonObj[a.DynamicAttributeName];
+                                            if (itemValue is JArray)
                                             {
-                                                decimal? values = itemValue == null ? null : (decimal)itemValue;
+                                                var values = (JArray)itemValue;
+                                                List<long?> listData = values.ToObject<List<long?>>();
+                                                Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, listData);
+                                            }
+                                            else if (a.ControlType == "ListBox" && a.IsMultiple == false)
+                                            {
+                                                long? values = itemValue == null ? null : (long)itemValue;
                                                 Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
                                             }
                                             else
                                             {
-                                                int? values = itemValue == null ? null : (int)itemValue;
-                                                Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+
+                                                if (a.ControlType == "TextBox" || a.ControlType == "Memo")
+                                                {
+                                                    var values = (string)itemValue;
+                                                    Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                                }
+                                                else if (a.ControlType == "ComboBox" || a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                                                {
+                                                    long? values = itemValue == null ? null : (long)itemValue;
+                                                    Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                                }
+                                                else if (a.ControlType == "CheckBox")
+                                                {
+                                                    bool? values = itemValue == null ? false : (bool)itemValue;
+                                                    Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                                }
+                                                else if (a.ControlType == "DateEdit")
+                                                {
+                                                    DateTime? values = itemValue == null ? null : (DateTime)itemValue;
+                                                    Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                                }
+                                                else if (a.ControlType == "TimeEdit")
+                                                {
+                                                    TimeSpan? values = itemValue == null ? null : (TimeSpan)itemValue;
+                                                    Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                                }
+
+                                                else if (a.ControlType == "SpinEdit")
+                                                {
+                                                    if (a.IsSpinEditType == "decimal")
+                                                    {
+                                                        decimal? values = itemValue == null ? null : (decimal)itemValue;
+                                                        Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                                    }
+                                                    else
+                                                    {
+                                                        int? values = itemValue == null ? null : (int)itemValue;
+                                                        Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                                    }
+                                                }
                                             }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             }
                         }
                     }
@@ -205,7 +223,7 @@
     }
     void backUrl()
     {
-        NavigationManager.NavigateTo("DynamicMasterSetup");
+        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormList/" + SessionId);
     }
     void ResetForm()
     {
@@ -213,6 +231,7 @@
     }
     async Task addNew()
     {
+        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
         await loadDynamicForm();
     }
     async Task HandleValidSubmit()
@@ -233,6 +252,8 @@
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = 1,
                     AddedDate = dynamicFormData.AddedDate,
+                    AttributeHeader = _AttributeHeader,
+                    ObjectData=Data,
                 };
 
             await Mediator.Send(editReq);
@@ -252,12 +273,15 @@
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = 1,
                     AddedDate = DateTime.Now,
+                    AttributeHeader = _AttributeHeader,
+                    ObjectData = Data,
                 };
             var result = await Mediator.Send(createReq);
             if (result.DynamicFormDataId > 0)
             {
                 toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
                 dynamicFormDataId = result.DynamicFormDataId;
+                dynamicFormData.DynamicFormDataId = dynamicFormDataId.Value;
                 loading = false;
             }
             loading = false;

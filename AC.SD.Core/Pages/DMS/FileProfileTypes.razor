@@ -728,8 +728,8 @@
             moreEnabled = true;
             informationEnabled = true;
             securityEnabled = true;
-            if (FileProfileTypeId > 0)
-            {
+           // if (FileProfileTypeId > 0)
+           // {
                 if (_selectedItems.AddedByUserID == applicationUser.UserID)
                 {
 
@@ -760,13 +760,13 @@
                         }
                     }
                 }
-            }
+           // }
         }
     }
 
     async Task  permissionEnabled()
     {
-       await PermiisionMain();
+        await PermiisionMain();
         var permissionData = _selectedItems.DocumentPermissionData;
         if (_selectedItems != null && _selectedItems.FilterProfileTypeId > 0)
         {
@@ -1007,11 +1007,7 @@
     }
     void onBack()
     {
-        isEnablePath = false;
-        documentSearchModel.SessionId = null;
-        documentSearchModel.FileProfileTypeId = null;
-        documentSearchModel.Type = null;
-        NavigationManager.NavigateTo($"fileprofiletype");
+        openFileProfileMainLink();
     }
     private async Task onCopy()
     {

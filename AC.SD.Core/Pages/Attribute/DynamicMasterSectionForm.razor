@@ -244,6 +244,10 @@
 
                 EditEnabled = true;
                 DeleteEnabled = true;
+                if (_selectedItems.FormUsedCount > 0)
+                {
+                    DeleteEnabled = false;
+                }
             }
         }
         else
@@ -381,7 +385,11 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormSectionId");
         _selectedItems = _dynamicFormSectionData.FirstOrDefault(f => f.DynamicFormSectionId == (long?)UniqueId);
-
+        DeleteEnabled = true;
+        if (_selectedItems.FormUsedCount > 0)
+        {
+            DeleteEnabled = false;
+        }
         StateHasChanged();
 
     }

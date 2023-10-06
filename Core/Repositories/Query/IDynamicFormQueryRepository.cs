@@ -28,6 +28,8 @@ namespace Core.Repositories.Query
         Task<long> InsertDynamicFormAttributeSection(long dynamicFormSectionId, IEnumerable<AttributeHeader> attributeIds,long? userId);
         Task<DynamicFormData> InsertOrUpdateDynamicFormData(DynamicFormData dynamicFormData);
         Task<DynamicFormData> GetDynamicFormDataBySessionIdAsync(Guid? SessionId);
+        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id);
+        Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData);
     }
 
 }

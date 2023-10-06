@@ -40,6 +40,7 @@ namespace Core.Entities
         public bool? IsMultiple { get; set; } = false;
         public bool? IsRequired { get; set; } = false;
         public bool? RequiredMessage { get; set; }
+        public int? FormUsedCount { get; set; }
     }
     public class AttributeHeaderListModel
     {

@@ -116,7 +116,7 @@ namespace Application.Queries
         public long DynamicFormSectionId { get; set; }
         public long? UserId { get; set; }
         public IEnumerable<AttributeHeader> AttributeIds { get; set; }
-        public InsertDynamicFormAttributeSection(long dynamicFormSectionId, IEnumerable<AttributeHeader> attributeIds,long? userId)
+        public InsertDynamicFormAttributeSection(long dynamicFormSectionId, IEnumerable<AttributeHeader> attributeIds, long? userId)
         {
             this.DynamicFormSectionId = dynamicFormSectionId;
             this.AttributeIds = attributeIds;
@@ -136,6 +136,22 @@ namespace Application.Queries
             this.SesionId = SessionId;
         }
     }
-    
+    public class GetDynamicFormDataById : PagedRequest, IRequest<List<DynamicFormData>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormDataById(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class DeleteDynamicFormData : DynamicFormData, IRequest<DynamicFormData>
+    {
+        public DynamicFormData DynamicFormData { get; set; }
+        public DeleteDynamicFormData(DynamicFormData dynamicFormData)
+        {
+            this.DynamicFormData = dynamicFormData;
+        }
+    }
+
 }
 

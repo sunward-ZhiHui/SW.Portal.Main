@@ -1,4 +1,4 @@
-﻿@page "/DynamicMasterSetup"
+﻿@page "/DynamicMasterSetup/dynamicFormList/{SessionId:guid}"
 @using global::Core.Entities.Views;
 
 @inject IMediator Mediator
@@ -21,6 +21,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
+                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
@@ -33,7 +34,7 @@
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-    <DxGrid @ref="Grid" Data="@_dynamicForm" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    <DxGrid @ref="Grid" Data="@_dynamicformDataList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -44,7 +45,7 @@
             style="height: calc(100vh - 220px);"
             CssClass="ch-360"
             FocusedRowEnabled="true"
-            KeyFieldName="ID"
+            KeyFieldName="DynamicFormDataId"
             AllowSelectRowByClick="true"
             RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
@@ -76,39 +77,48 @@
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_selectedItems.ID))" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
     </FooterContentTemplate>
 </DxPopup>
 
 @code {
-
+    [Parameter]
+    public Guid? SessionId { get; set; }
     IGrid Grid { get; set; }
     bool PanelVisible { get; set; }
-    private List<DynamicForm> _dynamicForm;
+    private DynamicForm _dynamicForm;
     public ApplicationUser? applicationUser { get; private set; }
-    private DynamicForm _selectedItems;
+    private DynamicFormData _selectedItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
+    private List<DynamicFormData> _dynamicformDataList;
     protected override async Task OnInitializedAsync()
     {
-       
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
     {
         EditEnabled = false; DeleteEnabled = false;
-        _dynamicForm = await Mediator.Send(new GetAllDynamicForm());
-        PanelVisible = true;
-        if (_dynamicForm != null)
+        if (SessionId != null)
         {
-            EditEnabled = true; DeleteEnabled = true;
-            _selectedItems = _dynamicForm.FirstOrDefault();
-            Grid.SetFocusedRowIndex(0);
+            _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId));
+            if (_dynamicForm != null)
+            {
+                _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID));
+                PanelVisible = true;
+                if (_dynamicformDataList != null)
+                {
+                    EditEnabled = true; DeleteEnabled = true;
+                    _selectedItems = _dynamicformDataList.FirstOrDefault();
+                    Grid.SetFocusedRowIndex(0);
+                }
+            }
+            PanelVisible = false;
+            StateHasChanged();
         }
-        PanelVisible = false;
-        StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -119,24 +129,27 @@
     }
     void OnRowclick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        _selectedItems = _dynamicForm.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormDataId");
+        _selectedItems = _dynamicformDataList.FirstOrDefault(f => f.DynamicFormDataId == (long?)UniqueId);
         EditEnabled = true;
         DeleteEnabled = true;
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowclick(e);
-        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormList/" + _selectedItems.SessionID);
-        //NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + _selectedItems.SessionID);
+        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
     }
     void addNew()
     {
-        NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm");
+        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm/" + _selectedItems.SessionID);
+        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+    }
+    void backUrl()
+    {
+        NavigationManager.NavigateTo("DynamicMasterSetup");
     }
     void addDetailDelete()
     {
@@ -148,9 +161,9 @@
 
         await UpdateDataAsync();
     }
-    async Task bulkDelete(long id)
+    async Task bulkDelete()
     {
-        var request = new DeleteDynamicForm(id);
+        var request = new DeleteDynamicFormData(_selectedItems);
         await Mediator.Send(request);
         Blukdeletepopup = false;
         await UpdateDataAsync();

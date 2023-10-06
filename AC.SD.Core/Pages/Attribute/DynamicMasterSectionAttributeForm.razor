@@ -111,6 +111,7 @@
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="AttributeName"
                                 ValueFieldName="AttributeID"
+                                Enabled="isFormCountUsed"
                                 SelectedItemChanged="@((AttributeHeader selectName) => SelectedItemChanged(selectName,types))"
                     @bind-Value="@types.AttributeId">
                         <Columns>
@@ -241,7 +242,7 @@
     private List<AttributeHeader>? _attributeHeaderData;
     DynamicFormSectionAttribute _selectedDynamicFormAttributeSectionItems = new DynamicFormSectionAttribute();
     private List<DynamicFormSectionSpinEdit> dynamicFormSectionSpinEdit { get; set; } = new List<DynamicFormSectionSpinEdit>();
-
+    bool isFormCountUsed { get; set; } = true;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -268,6 +269,7 @@
     }
     async Task Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
+        isFormCountUsed = true;
         var navitems = (DynamicFormSectionAttribute)e.EditModel;
         navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
         isListMultiple = false;
@@ -275,6 +277,7 @@
         {
             navitems.IsSpinEditType = "int";
             navitems.ColSpan = 6;
+
             //_attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(DynamicFormSectionId, -1));
         }
         else
@@ -283,8 +286,13 @@
             {
                 isListMultiple = true;
             }
+            if (navitems.FormUsedCount > 0)
+            {
+                isFormCountUsed = false;
+            }
             //_attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(DynamicFormSectionId, navitems.AttributeId));
         }
+        StateHasChanged();
     }
     async Task UpdateDataAsync()
     {
@@ -303,6 +311,10 @@
 
                 EditEnabled = true;
                 DeleteEnabled = true;
+                if (_selectedAttributeItems.FormUsedCount > 0)
+                {
+                    DeleteEnabled = false;
+                }
             }
         }
         PanelAttibuteVisible = false;
@@ -452,7 +464,11 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormSectionAttributeId");
         _selectedAttributeItems = _dynamicFormSectionAttributeData.FirstOrDefault(f => f.DynamicFormSectionAttributeId == (long?)UniqueId);
-
+        DeleteEnabled = true;
+        if (_selectedAttributeItems.FormUsedCount > 0)
+        {
+            DeleteEnabled = false;
+        }
         StateHasChanged();
 
     }

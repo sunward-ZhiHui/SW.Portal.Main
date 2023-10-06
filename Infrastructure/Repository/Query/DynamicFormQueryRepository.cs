@@ -5,7 +5,9 @@ using Dapper;
 using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Data.Edm.Library;
+using Microsoft.Data.Edm.Values;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Infrastructure.Repository.Query
 {
@@ -439,10 +442,12 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", dynamicFormId);
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode from DynamicFormSection t1 \r\n" +
+                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,\r\n" +
+                    "(select SUM(t5.FormUsedCount) from DynamicFormSectionAttribute t5 where t5.DynamicFormSectionId=t1.DynamicFormSectionId) as  FormUsedCount\r\n" +
+                    "from DynamicFormSection t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID " +
+                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
                     "WHERE t1.DynamicFormId=@DynamicFormId";
 
                 using (var connection = CreateConnection())
@@ -855,17 +860,20 @@ namespace Infrastructure.Repository.Query
                             if (dynamicFormData.DynamicFormDataId > 0)
                             {
                                 var query = "UPDATE DynamicFormData SET DynamicFormItem = @DynamicFormItem,DynamicFormId =@DynamicFormId," +
-                                    "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID " +
-                                    "WHERE DynamicFormDataId = @DynamicFormDataId";
+                                    "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID " +
+                                    "WHERE DynamicFormDataId = @DynamicFormDataId;\n\r";
+                                query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Update");
                                 await connection.ExecuteAsync(query, parameters, transaction);
 
                             }
                             else
                             {
                                 var query = "INSERT INTO DynamicFormData(DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
-                                    "(@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID)";
-
+                                    "(@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID);\n\r";
+                                query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Add");
                                 dynamicFormData.DynamicFormDataId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+
+
                             }
                             transaction.Commit();
 
@@ -888,6 +896,25 @@ namespace Infrastructure.Repository.Query
                 throw new NotImplementedException();
             }
         }
+        public async Task<DynamicFormData> GetDynamicFormDataBySessionOneAsync(Guid? SessionId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+                var query = "select t1.* from DynamicFormData t1 \r\n" +
+                    "WHERE t1.SessionId=@SessionId";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormData> GetDynamicFormDataBySessionIdAsync(Guid? SessionId)
         {
             try
@@ -903,6 +930,320 @@ namespace Infrastructure.Repository.Query
                 {
                     return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
                 }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormId", id);
+                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.Name,\r\nt5.ScreenID from DynamicFormData t1 \r\n" +
+                    "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
+                    "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                    "JOIN DynamicForm t5 ON t5.ID=t1.DynamicFormID\r\n" +
+                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID WHERE t1.DynamicFormId=@DynamicFormId";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormData>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        private async Task<string> UpdateDynamicFormCurrentSectionAttributeCount(DynamicFormData dynamicFormData)
+        {
+
+            var query = string.Empty;
+            var dynamicCurrentData = await GetDynamicFormDataBySessionOneAsync(dynamicFormData.SessionId);
+            if (dynamicCurrentData != null && !string.IsNullOrEmpty(dynamicCurrentData.DynamicFormItem))
+            {
+                if (IsValidJson(dynamicCurrentData.DynamicFormItem))
+                {
+                    dynamic jsonObj = JsonConvert.DeserializeObject(dynamicCurrentData.DynamicFormItem);
+                    dynamicFormData.AttributeHeader.DynamicFormSection.ForEach(a =>
+                    {
+                        var dynamicFormSectionAttributeData = dynamicFormData.AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionId == a.DynamicFormSectionId).OrderBy(o => o.SortOrderBy).ToList();
+                        if (dynamicFormSectionAttributeData != null && dynamicFormSectionAttributeData.Count > 0)
+                        {
+                            dynamicFormSectionAttributeData.ForEach(s =>
+                            {
+                                var Names = s.DynamicFormSectionAttributeId;
+                                var itemValue = jsonObj[s.DynamicAttributeName];
+                                if (itemValue is JArray)
+                                {
+                                    var values = (JArray)itemValue;
+                                    if (values != null)
+                                    {
+                                        List<long?> listData = values.ToObject<List<long?>>();
+                                        if (listData != null && listData.Count > 0)
+                                        {
+                                            listData.ForEach(l =>
+                                            {
+                                                query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + l + ";\n\r";
+                                            });
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                                    {
+                                        long? Svalues = itemValue == null ? null : (long)itemValue;
+                                        if (Svalues != null)
+                                        {
+                                            query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
+                                        }
+                                    }
+                                    if (s.ControlType == "ListBox" && s.IsMultiple == false)
+                                    {
+                                        long? Svalues = itemValue == null ? null : (long)itemValue;
+                                        if (Svalues != null)
+                                        {
+                                            query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+            return query;
+        }
+        private async Task<string> UpdateDynamicFormSectionAttributeCount(DynamicFormData dynamicFormData, string? Type)
+        {
+            var query = await UpdateDynamicFormCurrentSectionAttributeCount(dynamicFormData);
+            if (dynamicFormData.AttributeHeader != null && dynamicFormData.AttributeHeader.DynamicFormSection != null && dynamicFormData.AttributeHeader.DynamicFormSectionAttribute.Count > 0)
+            {
+                if (!string.IsNullOrEmpty(dynamicFormData.DynamicFormItem))
+                {
+                    if (IsValidJson(dynamicFormData.DynamicFormItem))
+                    {
+                        dynamic jsonObj = JsonConvert.DeserializeObject(dynamicFormData.DynamicFormItem);
+                        dynamicFormData.AttributeHeader.DynamicFormSection.ForEach(a =>
+                        {
+                            var dynamicFormSectionAttributeData = dynamicFormData.AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionId == a.DynamicFormSectionId).OrderBy(o => o.SortOrderBy).ToList();
+                            if (dynamicFormSectionAttributeData != null && dynamicFormSectionAttributeData.Count > 0)
+                            {
+                                dynamicFormSectionAttributeData.ForEach(s =>
+                                {
+                                    var Names = jsonObj.ContainsKey(s.DynamicAttributeName);
+                                    if (Names == true)
+                                    {
+                                        var itemValue = jsonObj[s.DynamicAttributeName];
+                                        if (itemValue is JArray)
+                                        {
+                                            var values = (JArray)itemValue;
+                                            if (values != null)
+                                            {
+                                                List<long?> listData = values.ToObject<List<long?>>();
+                                                if (listData != null && listData.Count > 0)
+                                                {
+                                                    listData.ForEach(l =>
+                                                    {
+                                                        query += "update AttributeDetails set FormUsedCount += 1 where AttributeDetailID =" + l + ";\n\r";
+                                                    });
+
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                                            {
+                                                long? Svalues = itemValue == null ? null : (long)itemValue;
+                                                if (Svalues != null)
+                                                {
+                                                    query += "update AttributeDetails set FormUsedCount += 1 where AttributeDetailID =" + Svalues + ";\n\r";
+                                                }
+                                            }
+                                            if (s.ControlType == "ListBox" && s.IsMultiple == false)
+                                            {
+                                                long? Svalues = itemValue == null ? null : (long)itemValue;
+                                                if (Svalues != null)
+                                                {
+                                                    query += "update AttributeDetails set FormUsedCount += 1 where AttributeDetailID =" + Svalues + ";\n\r";
+                                                }
+                                            }
+                                        }
+                                        if (Type == "Add")
+                                        {
+                                            query += "update DynamicFormSectionAttribute set FormUsedCount += 1 where DynamicFormSectionAttributeID =" + s.DynamicFormSectionAttributeId + ";\n\r";
+                                            query += "update AttributeHeader set FormUsedCount += 1 where AttributeID =" + s.AttributeId + ";\n\r";
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+            return query;
+        }
+        private static bool IsValidJson(string strInput)
+        {
+            if (string.IsNullOrWhiteSpace(strInput)) { return false; }
+            strInput = strInput.Trim();
+            if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
+                (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
+            {
+                try
+                {
+                    var obj = JToken.Parse(strInput);
+                    return true;
+                }
+                catch (JsonReaderException jex)
+                {
+                    //Exception in parsing json
+                    return false;
+                }
+                catch (Exception ex) //some other exception
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private async Task<string> DeleteDynamicFormCurrentSectionAttribute(DynamicFormData dynamicFormData)
+        {
+
+            var query = string.Empty;
+            var dynamicCurrentData = await GetAllAttributeNameByID(dynamicFormData.DynamicFormId);
+            if (dynamicCurrentData != null && !string.IsNullOrEmpty(dynamicFormData.DynamicFormItem))
+            {
+                if (IsValidJson(dynamicFormData.DynamicFormItem))
+                {
+                    dynamic jsonObj = JsonConvert.DeserializeObject(dynamicFormData.DynamicFormItem);
+                    dynamicCurrentData.DynamicFormSection.ForEach(a =>
+                    {
+                        var dynamicFormSectionAttributeData = dynamicCurrentData.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionId == a.DynamicFormSectionId).OrderBy(o => o.SortOrderBy).ToList();
+                        if (dynamicFormSectionAttributeData != null && dynamicFormSectionAttributeData.Count > 0)
+                        {
+                            dynamicFormSectionAttributeData.ForEach(s =>
+                            {
+                                var Names = jsonObj.ContainsKey(s.DynamicAttributeName);
+                                if (Names == true)
+                                {
+                                    var itemValue = jsonObj[s.DynamicAttributeName];
+                                    if (itemValue is JArray)
+                                    {
+                                        var values = (JArray)itemValue;
+                                        if (values != null)
+                                        {
+                                            List<long?> listData = values.ToObject<List<long?>>();
+                                            if (listData != null && listData.Count > 0)
+                                            {
+                                                listData.ForEach(l =>
+                                                {
+                                                    query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + l + ";\n\r";
+                                                });
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                                        {
+                                            long? Svalues = itemValue == null ? null : (long)itemValue;
+                                            if (Svalues != null)
+                                            {
+                                                query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
+                                            }
+                                        }
+                                        else if (s.ControlType == "ListBox" && s.IsMultiple == false)
+                                        {
+                                            long? Svalues = itemValue == null ? null : (long)itemValue;
+                                            if (Svalues != null)
+                                            {
+                                                query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
+                                            }
+                                        }
+                                        else
+                                        {
+
+                                        }
+                                    }
+                                    query += "update DynamicFormSectionAttribute set FormUsedCount -= 1 where DynamicFormSectionAttributeID =" + s.DynamicFormSectionAttributeId + ";\n\r";
+                                    query += "update AttributeHeader set FormUsedCount -= 1 where AttributeID =" + s.AttributeId + ";\n\r";
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+            return query;
+        }
+        private async Task<AttributeHeaderListModel> GetAllAttributeNameByID(long? Id)
+        {
+            try
+            {
+                AttributeHeaderListModel attributeHeaderListModel = new AttributeHeaderListModel();
+                using (var connection = CreateConnection())
+                {
+                    var results = await connection.QueryMultipleAsync(@"select * from DynamicFormSection where DynamicFormID=" + Id + " order by  SortOrderBy asc;" +
+                        "select t1.*,t5.SectionName,t6.AttributeName,t7.CodeValue as ControlType,t5.DynamicFormID from DynamicFormSectionAttribute t1\r\n" +
+                        "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
+                        "JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
+                        "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\nWhere t5.DynamicFormID=" + Id + " order by t1.SortOrderBy asc;");
+                    attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
+                    attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
+                    if (attributeHeaderListModel.DynamicFormSectionAttribute != null)
+                    {
+                        List<long?> attributeIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0).Select(a => a.AttributeId).ToList();
+                        attributeHeaderListModel.DynamicFormSectionAttribute.ForEach(s =>
+                        {
+                            s.AttributeName = string.IsNullOrEmpty(s.AttributeName) ? string.Empty : char.ToUpper(s.AttributeName[0]) + s.AttributeName.Substring(1);
+                            s.DynamicAttributeName = s.DynamicFormSectionAttributeId + "_" + s.AttributeName;
+                        });
+
+                    }
+                    return attributeHeaderListModel;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
+                            var query = "DELETE  FROM DynamicFormData WHERE DynamicFormDataId = @DynamicFormDataId;";
+                            query += await DeleteDynamicFormCurrentSectionAttribute(dynamicFormData);
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            transaction.Commit();
+                            return dynamicFormData;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
             }
             catch (Exception exp)
             {

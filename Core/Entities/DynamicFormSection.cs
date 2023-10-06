@@ -23,6 +23,8 @@ namespace Core.Entities
         public int? SortOrderAnotherBy { get; set; }
         [NotMapped]
         public IEnumerable<AttributeHeader> AttributeIds { get; set; }=new List<AttributeHeader>();
+        [NotMapped]
+        public int? FormUsedCount { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

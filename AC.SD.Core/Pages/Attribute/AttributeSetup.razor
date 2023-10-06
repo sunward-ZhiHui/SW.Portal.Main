@@ -117,6 +117,7 @@
                                             FilteringMode="DataGridFilteringMode.Contains"
                                             TextFieldName="CodeValue"
                                             ValueFieldName="CodeId"
+                                            Enabled="isEdit"
                                             SelectedItemChanged="@((CodeMaster plant) =>SelectedControlChanged(plant?.CodeId))"
                                 @bind-Value="@Data.ControlTypeId">
                                     <Columns>
@@ -189,6 +190,7 @@
     bool Blukdeletepopup { get; set; } = false;
     bool isSelectEnabled { get; set; } = true;
     bool isAddAttributeEnabled { get; set; } = false;
+    bool isEdit { get; set; } = true;
     private bool loading;
     private string MyID = "myid";
     long AttributeIDs;
@@ -228,6 +230,8 @@
         isDisplay = "display:none;";
         isDisplay1 = "";
         RefDetails.Attributeload(0, "");
+        isEdit = true;
+        DeleteEnabled = false;
         StateHasChanged();
     }
     void addDelete()
@@ -264,6 +268,7 @@
             else
             {
                 await createAttributes();
+                DeleteEnabled = true;
                 toastService.ShowToast("Attribute have been saved successully.", AC.SD.Core.Services.ToastLevel.Success);
             }
         }
@@ -327,6 +332,7 @@
     }
     async void SelectedItemChanged(AttributeHeader header)
     {
+        isEdit = true; DeleteEnabled = false;
         isDisplay = "display:none;";
         isDisplay1 = "";
         if (header != null)
@@ -334,7 +340,7 @@
             if (header.AttributeID > 0)
             {
                 loadDropDownList(header.AttributeID);
-            }
+            } 
         }
         else
         {
@@ -381,6 +387,12 @@
             Data.SessionId = _master[0].SessionId;
             SelectedControlChanged(Data.ControlTypeId);
             var isChildData = ControlTypeChildData.FirstOrDefault(f => _master[0].ControlType.ToLower().Contains(f.ToLower()));
+            DeleteEnabled = true;
+            if (_master[0].FormUsedCount > 0)
+            {
+                isEdit = false;
+                DeleteEnabled = false;
+            }
             if (isChildData != null)
             {
                 RefDetails.Attributeload(_master[0].AttributeID, _master[0].ControlType);
@@ -389,7 +401,7 @@
             {
                 RefDetails.Attributeload(_master[0].AttributeID, null);
             }
-            DeleteEnabled = true;
+            
         }
         else
         {

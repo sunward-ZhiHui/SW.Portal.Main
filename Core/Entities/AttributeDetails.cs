@@ -25,6 +25,7 @@ namespace Core.Entities
         public string? ModifiedBy { get; set; }
         [NotMapped]
         public string AddedBy { get; set; }
-        
+        public int? FormUsedCount { get; set; }
+
     }
 }

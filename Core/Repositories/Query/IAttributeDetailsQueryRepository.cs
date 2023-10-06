@@ -17,5 +17,6 @@ namespace Core.Repositories.Query
         Task<long> UpdateAsync(AttributeDetails attributeDetails);
         Task<long> Delete(long id);
         Task<IReadOnlyList<AttributeDetails>> LoadAttributelst(long Id);
+        AttributeDetails AttributeDetailsValueCheckValidation(string? value, long id, long? attributeId);
     }
 }

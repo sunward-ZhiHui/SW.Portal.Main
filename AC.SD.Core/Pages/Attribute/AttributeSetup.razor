@@ -104,9 +104,10 @@
                                                         Click="@(_ => OnCloseButtonClick())" />
                                     </Buttons>
                                 </DxTextBox>
+                                <ValidationMessage For="@(() => Data.AttributeName)" />
                             </DxFormLayoutItem>
 
-                            <DxFormLayoutItem Caption="Display Name" ColSpanMd="6">
+                            <DxFormLayoutItem Caption="Label Name" ColSpanMd="6">
                                 <DxTextBox @bind-Text="@Data.Description"></DxTextBox>
                                 <ValidationMessage For="@(() => Data.Description)" />
                             </DxFormLayoutItem>
@@ -129,8 +130,8 @@
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.ControlTypeId)" />
                             </DxFormLayoutItem>
-                           @*  <DxFormLayoutItem Caption="Is Multiple" ColSpanMd="6" >
-                                <DxCheckBox @bind-Checked="Data.IsMultiple"></DxCheckBox>
+                            @*  <DxFormLayoutItem Caption="Is Multiple" ColSpanMd="6" >
+                            <DxCheckBox @bind-Checked="Data.IsMultiple"></DxCheckBox>
                             </DxFormLayoutItem> *@
                             <DxFormLayoutItem Caption="Entry Mask" ColSpanMd="6">
                                 <DxTextBox @bind-Text="Data.EntryMask" Enabled="@MaskEnabled"></DxTextBox>
@@ -155,7 +156,7 @@
 
             <div>
                 <div class="views-accordion">
-                    <AttributeDetailsSetup  @ref=RefDetails></AttributeDetailsSetup>
+                    <AttributeDetailsSetup @ref=RefDetails></AttributeDetailsSetup>
                 </div>
             </div>
         </div>
@@ -202,7 +203,7 @@
     private List<AttributeHeader>? _master;
     private List<AttributeHeader>? _SaveLst;
     AttributeHeader AttributeNamelst = new AttributeHeader();
-    private List<string> ControlTypeChildData = new List<string> { "ComboBox", "ListBox", "CheckBox", "TagBox", "Radio" };
+    private List<string> ControlTypeChildData = new List<string> { "ComboBox", "ListBox", "TagBox", "Radio" };
 
     private List<CodeMaster> _controlTypeData;
     protected override async Task OnInitializedAsync()
@@ -317,6 +318,9 @@
                 isDisplay = "";
             }
         }
+        isAddAttributeEnabled = false;
+        isSelectEnabled = true;
+        StateHasChanged();
         await loadData();
 
 

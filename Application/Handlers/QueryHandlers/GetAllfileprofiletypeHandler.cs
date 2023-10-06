@@ -503,6 +503,19 @@ namespace Application.Handlers.QueryHandlers
             }
 
         }
+        public class GetDocumentUserRoleByUserIDHandler : IRequestHandler<GetDocumentUserRoleByUserID, DocumentPermissionModel>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public GetDocumentUserRoleByUserIDHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<DocumentPermissionModel> Handle(GetDocumentUserRoleByUserID request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.GetDocumentUserRoleByUserIDAsync(request.Id, request.UserId);
+            }
+        }
+
 
     }
 }

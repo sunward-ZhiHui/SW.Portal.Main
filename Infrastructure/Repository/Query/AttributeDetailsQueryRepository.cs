@@ -219,5 +219,32 @@ namespace Infrastructure.Repository.Query
             }
             throw new NotImplementedException();
         }
+        public AttributeDetails AttributeDetailsValueCheckValidation(string? value, long attributeId, long? attributeDetailId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("AttributeID", attributeId);
+                parameters.Add("AttributeDetailName", value);
+                if (attributeDetailId > 0)
+                {
+                    parameters.Add("AttributeDetailID", attributeDetailId);
+                    query = "SELECT * FROM AttributeDetails Where AttributeDetailID!=@AttributeDetailID AND AttributeDetailName=@AttributeDetailName AND AttributeID = @AttributeID";
+                }
+                else
+                {
+                    query = "SELECT * FROM AttributeDetails Where AttributeDetailName=@AttributeDetailName AND AttributeID = @AttributeID";
+                }
+                using (var connection = CreateConnection())
+                {
+                    return connection.QueryFirstOrDefault<AttributeDetails>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

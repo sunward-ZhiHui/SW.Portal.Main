@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Core.Entities.CustomValidations.AttributeCustomValidation;
 
 namespace Core.Entities
 {
@@ -14,6 +15,7 @@ namespace Core.Entities
         [Key]
         public long AttributeDetailID { get; set; }
         [Required(ErrorMessage = "Value is Required")]
+        [AttributeValueCustomValidation]
         public string?  AttributeDetailName { get; set; }
         public long? AttributeID { get; set; }
         public string? Description { get; set; }

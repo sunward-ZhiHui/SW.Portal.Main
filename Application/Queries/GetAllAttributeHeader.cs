@@ -1,6 +1,7 @@
 ﻿using Application.Queries.Base;
 using Core.Entities;
 using Core.Repositories.Query;
+using DevExpress.XtraReports.Design;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Application.Queries
 {
     public class GetAllAttributeHeader : PagedRequest, IRequest<List<DynamicForm>>
     {
-      
+
 
     }
     public class GetAllAttributeNameHeader : PagedRequest, IRequest<List<AttributeHeader>>
@@ -20,6 +21,17 @@ namespace Application.Queries
 
 
     }
+    public class GetAllAttributeNameNotInDynamicForm : PagedRequest, IRequest<List<AttributeHeader>>
+    {
+        public long? AttributeID { get; set; }
+        public long? DynamicFormSectionId { get; set; }
+        public GetAllAttributeNameNotInDynamicForm(long? dynamicFormSectionId, long? attributeID)
+        {
+            this.DynamicFormSectionId = dynamicFormSectionId;
+            this.AttributeID = attributeID;
+        }
+    }
+
     public class CreateAttributeHeader : AttributeHeader, IRequest<long>
     {
     }
@@ -35,19 +47,19 @@ namespace Application.Queries
     public class DeleteAttributeHeader : PagedRequest, IRequest<long>
     {
         public long AttributeID { get; set; }
-        public DeleteAttributeHeader(long AttributeID)
+        public DeleteAttributeHeader(long attributeID)
         {
-            this.AttributeID = AttributeID;
+            this.AttributeID = attributeID;
         }
     }
 
-    public class GetAllAttributeNameList : PagedRequest, IRequest<List<AttributeHeader>>
+    public class GetAllAttributeNameList : PagedRequest, IRequest<AttributeHeaderListModel>
     {
 
-        public string? ID { get; set; }
-        public GetAllAttributeNameList(string? ID)
+        public DynamicForm DynamicForm { get; set; }
+        public GetAllAttributeNameList(DynamicForm dynamicForm)
         {
-            this.ID = ID;
+            this.DynamicForm = dynamicForm;
         }
     }
 }

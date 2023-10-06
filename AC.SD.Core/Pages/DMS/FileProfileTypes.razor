@@ -45,20 +45,20 @@
                     <DxMenuItem Text="Profile Type" Position="ItemPosition.Start" style="@isFilterMore">
                         <Items>
                             <DxMenuItem Text="Add New" IconCssClass="fa fa-add" Click="onAddFileProfileType" />
-                            <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@onEditFileProfileType" />
+                            <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@onEditFileProfileType" Visible="@isEdit" />
                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@onDeleteFileProfileType" />
                         </Items>
                     </DxMenuItem>
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter("Open"))" id=@($"flyout-overview-target-container-FilterDocuments") />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" style="@isFilterMore" />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-file-excel" Click="onDownload" Enabled="@ondownloadEnabled" style="@isFilterMore" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@securityEnabled" style="@isVisibleParentMore" />
+                    @*  <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-file-excel" Click="onDownload" Enabled="@ondownloadEnabled" style="@isVisibleParentMore" /> *@
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
                         <Items>
                             <DxMenuItem Text="Upload New Documents" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" />
                             <DxMenuItem Text="Reserve Profile Number Series" IconCssClass="fa fa-add" Click="onReserveProfileNumberSeries" />
                         </Items>
                     </DxMenuItem>
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info-circle " Click="onInfo" Enabled=@informationEnabled style="@isFilterMore" />
+                    @*  <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info-circle " Click="onInfo" Enabled=@informationEnabled style="@isFilterMore" /> *@
 
                     <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                         <Items>
@@ -242,7 +242,10 @@
                         }
                         @if (item.Type == "Document")
                         {
-                            <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-ExpiryDate-{item.DocumentID}") onclick="@(() => OnButtonExpiryDateClick(item))" title="@expiryDate"></i>
+                            if (isExpiryDateVisible == true)
+                            {
+                                <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-ExpiryDate-{item.DocumentID}") onclick="@(() => OnButtonExpiryDateClick(item))" title="@expiryDate"></i>
+                            }
                             @expiryDate
                         }
                     </CellDisplayTemplate>
@@ -375,12 +378,12 @@
 </DxFlyout>
 <DxPopup @bind-Visible="@PopupVisibleSecurityAccess"
          ShowFooter="true"
-         HeaderText="Security Access"
+         HeaderText=@($"Security Access-{Name}")
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
          Width="1000px">
     <BodyContentTemplate>
-        <ParentLinkDocuments ParentSelectedFiles="@_selectedItems" LinkProfileSelectedFiles="@LinkProfileSelectedFiles" LinkType="Profile Type"></ParentLinkDocuments>
+        <FileProfileTypeSecurity FileProfileTypeId="@FileProfileTypeId"></FileProfileTypeSecurity>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSecurityAccessPopup())" />
@@ -602,6 +605,7 @@
     private string? DocumentViewUrl;
     private string? ServerUrl;
     private string? FileUrl;
+    public bool? isExpiryDateVisible { get; set; } = false;
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
     private DxTreeView _treeFilterDocView;
     string? FilterDocumentString { get; set; }
@@ -615,6 +619,9 @@
     DateTime? LinkFilterFileprofiletypeTo { get; set; } = null;
     DocumentSearchModel documentSearchModel = new DocumentSearchModel();
     public List<DocumentsModel> _fileContentList { get; set; }
+    DocumentPermissionModel documentPermissionModel = new DocumentPermissionModel();
+    bool isCreateDocument { get; set; } = false;
+    bool isEdit { get; set; } = false;
     bool isEnablePath { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
@@ -632,13 +639,12 @@
     }
     async Task mainPageLoad()
     {
-        isEnablePath = false;
+        isEnablePath = false; isExpiryDateVisible = false; isCreateDocument = false;isEdit = false;
+        documentPermissionModel = new DocumentPermissionModel();
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         _fileContentList = await Mediator.Send(new GetFileContetTypes());
-
         isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;";
         ondownloadEnabled = false; moreEnabled = false; informationEnabled = false; securityEnabled = false;
-
         FolderPathLists = new List<DocumentsModel>();
         documentSearchModel.SessionId = MainSessionId;
         FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
@@ -650,10 +656,11 @@
             var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
             if (fileType != null)
             {
-                isVisibleParentMore = "";
+
                 _ParentselectedItems = fileType;
                 if (fileType != null)
                 {
+                    isExpiryDateVisible = _ParentselectedItems.IsExpiryDate == null ? false : _ParentselectedItems.IsExpiryDate;
                     Name = fileType?.FileName;
                     FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
                     FolderPathLists.Add(fileType);
@@ -697,20 +704,20 @@
                 }
                 _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
 
-                permissionEnabled();
+                await permissionEnabled();
                 Grid.SetFocusedRowIndex(0);
             }
             else
             {
-                PermiisionMain();
+                await PermiisionMain();
             }
             PanelVisible = false;
             StateHasChanged();
         }
     }
-    void PermiisionMain()
+    async Task PermiisionMain()
     {
-        isVisibleMore = "display:none;";
+        isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;"; isCreateDocument = false; isEdit = false;
         DownloadEnabled = false; uploadEnabled = false; copylinkEnabled = false; viewfileEnabled = false;
         deleteEnabled = false; historyEnabled = false; checkoutEnabled = false; checkInEnabled = false;
         shareEnabled = false; NotifyEnabled = false; formdetailsEnabled = false; linkdownloadEnabled = false; formdetailsEnabled = false;
@@ -721,12 +728,45 @@
             moreEnabled = true;
             informationEnabled = true;
             securityEnabled = true;
+            if (FileProfileTypeId > 0)
+            {
+                if (_selectedItems.AddedByUserID == applicationUser.UserID)
+                {
+
+                    if (documentSearchModel.Type != "Search")
+                    {
+                        isVisibleParentMore = "";
+                        isCreateDocument = true;
+                    }
+                    isEdit = true;
+                }
+                else
+                {
+                    var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FileProfileTypeId, applicationUser.UserID));
+                    if (documentPermissionModels != null)
+                    {
+                        documentPermissionModel = documentPermissionModels;
+                        if (documentPermissionModel.IsCreateDocument == true)
+                        {
+                            if (documentSearchModel.Type != "Search")
+                            {
+                                isVisibleParentMore = "";
+                                isCreateDocument = true;
+                            }
+                        }
+                        if (documentPermissionModels.IsEdit == true)
+                        {
+                            isEdit = true;
+                        }
+                    }
+                }
+            }
         }
     }
 
-    public void permissionEnabled()
+    async Task  permissionEnabled()
     {
-        PermiisionMain();
+       await PermiisionMain();
         var permissionData = _selectedItems.DocumentPermissionData;
         if (_selectedItems != null && _selectedItems.FilterProfileTypeId > 0)
         {
@@ -738,10 +778,11 @@
 
             if (_selectedItems.IsLocked == true)
             {
-                uploadEnabled = false; deleteEnabled = false; DownloadEnabled = true;
-                viewfileEnabled = true; historyEnabled = true; checkoutEnabled = false; checkInEnabled = true;
-                NotifyEnabled = true; releasewikiEnabled = true; copylinkEnabled = true; viewParentEnabled = true;
-                linkdownloadEnabled = true; shareEnabled = true; formdetailsEnabled = true;
+                checkInEnabled = true;
+                uploadEnabled = false; deleteEnabled = false; DownloadEnabled = false;
+                viewfileEnabled = false; historyEnabled = false; checkoutEnabled = false;
+                NotifyEnabled = false; releasewikiEnabled = false; copylinkEnabled = false; viewParentEnabled = false;
+                linkdownloadEnabled = false; shareEnabled = false; formdetailsEnabled = false;
             }
             else
             {
@@ -772,7 +813,9 @@
                         }
                         if (permissionData.IsRead == true)
                         {
-                            DownloadEnabled = true; viewfileEnabled = true;
+                            uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
+                            checkoutEnabled = true; checkInEnabled = false; shareEnabled = true; NotifyEnabled = true; formdetailsEnabled = true; linkdownloadEnabled = true;
+                            renameEnabled = true; releasewikiEnabled = true; viewParentEnabled = true;
                         }
                         if (permissionData.IsListVersion == true)
                         {
@@ -867,7 +910,7 @@
         _selectedItems = fileProfileTypeDocuments.FirstOrDefault(f => f.UniqueNo == (long?)UniqueId);
         if (_selectedItems != null)
         {
-            permissionEnabled();
+            await permissionEnabled();
         }
         StateHasChanged();
     }
@@ -977,7 +1020,7 @@
         {
             if (_selectedItems.IsNewPath == true)
             {
-               // var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                // var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
                 var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
                 await ClipboardService.WriteTextAsync(url);
                 toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
@@ -997,7 +1040,7 @@
     }
     void OnSecurity()
     {
-        //  PopupVisibleSecurityAccess = true;
+        PopupVisibleSecurityAccess = true;
     }
     void onDownload()
     {
@@ -1049,7 +1092,7 @@
         {
             if (_selectedItems.IsNewPath == true)
             {
-               // var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
+                // var url = DocumentViewUrl + "?url=" + FileUrl + _selectedItems.FilePath;
                 var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
                 await OpenDocumentPreview(url);
             }
@@ -1095,7 +1138,7 @@
             _selectedItems.IsLocked = true;
             _selectedItems.LockedByUserId = applicationUser.UserID;
             _selectedItems.LockedByUser = applicationUser.UserName;
-            permissionEnabled();
+            await permissionEnabled();
             await Download();
         }
     }

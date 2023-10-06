@@ -21,6 +21,7 @@ using AC.ShippingDocument.Reporting;
 using Application.Constant;
 using SW.Portal.Solutions.Hubs;
 using Core.FCM;
+using Core.Services;
 
 namespace SW.Portal.Solutions.ServerSide {
 
@@ -121,7 +122,7 @@ namespace SW.Portal.Solutions.ServerSide {
                 endpoints.MapBlazorHub();
                 endpoints.MapHub<NotificationHub>(ApplicationConstants.SignalR.HubUrl);
             });
-
+            AppDependencyResolver.Init(app.ApplicationServices);
         }
         public override void Configure(IWebHostBuilder builder) {
             builder.ConfigureAppConfiguration(((context, configurationBuilder) => {

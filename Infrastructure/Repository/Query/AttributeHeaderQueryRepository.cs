@@ -99,54 +99,118 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
-        public async Task<IReadOnlyList<AttributeHeader>> GetAllAttributeNameAsync(string? ID)
+        public async Task<IReadOnlyList<AttributeHeader>> GetAllAttributeNameNotInDynamicForm(long? dynamicFormSectionId, long? attributeID)
+        {
+            try
+            {
+                var query = "select t1.*,t2.CodeValue as ControlType from AttributeHeader t1  JOIN CodeMaster t2 ON t2.CodeID=t1.ControlTypeId WHERE \r\n" +
+                    "t1.AttributeID \r\n" +
+                    "Not In (select t3.AttributeID from DynamicFormSectionAttribute t3 where t3.AttributeID>0  AND t3.DynamicFormSectionID=" + dynamicFormSectionId + ") \r\n" +
+                    "or t1.AttributeID=" + attributeID + "";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<AttributeHeader>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public IReadOnlyList<AttributeHeader> GetAllAttributeNameCheckValidation(string? value)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("AttributeName", value, DbType.Int64);
+                var query = "select * from AttributeHeader where AttributeName=@AttributeName";
+                using (var connection = CreateConnection())
+                {
+                    return connection.Query<AttributeHeader>(query).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm)
         {
             try
             {
                 AttributeHeaderListModel attributeHeaderListModel = new AttributeHeaderListModel();
-                var ids = string.IsNullOrEmpty(ID) ? "-1" : ID;
 
                 using (var connection = CreateConnection())
                 {
-                    var results = await connection.QueryMultipleAsync(@"select t1.*,t2.CodeValue as ControlType from AttributeHeader t1  JOIN CodeMaster t2 ON t2.CodeID=t1.ControlTypeId where " +
-                   "t1.AttributeID in(" + string.Join(',', ids) + ");select * from AttributeDetails WHERE AttributeID in(" + string.Join(',', ids) + ");");
-                    attributeHeaderListModel.AttributeHeader = results.Read<AttributeHeader>().ToList();
-                    attributeHeaderListModel.AttributeDetails = results.Read<AttributeDetails>().ToList();
-                    if (attributeHeaderListModel.AttributeHeader != null)
+                    var results = await connection.QueryMultipleAsync(@"select * from DynamicFormSection where DynamicFormID=" + dynamicForm.ID + " order by  SortOrderBy asc;" +
+                        "select t1.*,t5.SectionName,t6.AttributeName,t7.CodeValue as ControlType,t5.DynamicFormID from DynamicFormSectionAttribute t1\r\n" +
+                        "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
+                        "JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
+                        "JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\nWhere t5.DynamicFormID=" + dynamicForm.ID + " order by t1.SortOrderBy asc;");
+                    attributeHeaderListModel.DynamicFormSection = results.Read<DynamicFormSection>().ToList();
+                    attributeHeaderListModel.DynamicFormSectionAttribute = results.Read<DynamicFormSectionAttribute>().ToList();
+                    if (attributeHeaderListModel.DynamicFormSectionAttribute != null)
                     {
-                        attributeHeaderListModel.AttributeHeader.ForEach(s =>
+                        List<long?> attributeIds = attributeHeaderListModel.DynamicFormSectionAttribute.Where(a => a.AttributeId > 0).Select(a => a.AttributeId).ToList();
+                        attributeHeaderListModel.AttributeDetails = await GetAttributeDetails(attributeIds);
+                        attributeHeaderListModel.DynamicFormSectionAttribute.ForEach(s =>
                         {
-                            s.AttributeName = s.AttributeName.Replace(" ", "_");
-                            if (s.ControlType == "TextBox" || s.ControlType == "ComboBox" || s.ControlType == "Memo" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                            s.AttributeName = string.IsNullOrEmpty(s.AttributeName) ? string.Empty : char.ToUpper(s.AttributeName[0]) + s.AttributeName.Substring(1);
+                            s.DynamicAttributeName = s.DynamicFormSectionAttributeId + "_" + s.AttributeName;
+                            if (s.ControlType == "TextBox" || s.ControlType == "Memo")
                             {
-                                s.DataType = "string";
+                                s.DataType = typeof(string);
                             }
-                            else if (s.ControlType == "DateEdit" || s.ControlType == "TimeEdit")
+                            else if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
                             {
-                                s.DataType = "DateTime";
+                                s.DataType = typeof(long?);
+                            }
+                            else if (s.ControlType == "DateEdit")
+                            {
+                                s.DataType = typeof(DateTime?);
+                            }
+                            else if (s.ControlType == "TimeEdit")
+                            {
+                                s.DataType = typeof(TimeSpan?);
                             }
                             else if (s.ControlType == "SpinEdit")
                             {
-                                s.DataType = "int";
+                                if (s.IsSpinEditType == "decimal")
+                                {
+                                    s.DataType = typeof(decimal?);
+                                }
+                                else
+                                {
+                                    s.DataType = typeof(int?);
+                                }
                             }
                             else if (s.ControlType == "CheckBox")
                             {
-                                s.DataType = "bool";
+                                s.DataType = typeof(bool?);
                             }
-                            else if (s.ControlType == "ListBox" || s.ControlType == "TagBox")
+                            else if (s.ControlType == "TagBox")
                             {
-                                s.DataType = "list";
+                                s.DataType = typeof(IEnumerable<long?>);
+                            }
+                            else if (s.ControlType == "ListBox")
+                            {
+                                if (s.IsMultiple == true)
+                                {
+                                    s.DataType = typeof(IEnumerable<long?>);
+                                }
+                                else
+                                {
+                                    s.DataType = typeof(long?);
+                                }
                             }
                             else
                             {
-                                s.DataType = "string";
+                                s.DataType = typeof(string);
                             }
-                            s.AttributeDetails = attributeHeaderListModel.AttributeDetails.Where(w => w.AttributeID == s.AttributeID).ToList();
                         });
 
                     }
-                    return attributeHeaderListModel.AttributeHeader;
+                    return attributeHeaderListModel;
                 }
             }
             catch (Exception exp)
@@ -155,6 +219,22 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<List<AttributeDetails>> GetAttributeDetails(List<long?> id)
+        {
+            try
+            {
+                id = id != null && id.Count > 0 ? id : new List<long?>() { -1 };
+                var query = "select  * from AttributeDetails where AttributeID in(" + string.Join(',', id) + ")";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<AttributeDetails>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<AttributeHeader> GetByIdAsync(long id)
         {
             try
@@ -174,7 +254,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<IReadOnlyList<DynamicForm>> GetComboBoxLst()
+        public async Task<IReadOnlyList<DynamicForm>> GetComboBoxList()
         {
             try
             {

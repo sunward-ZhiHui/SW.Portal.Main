@@ -37,6 +37,7 @@
         PageSizeSelectorItems="@(new int[] { 5,10,20 })"
         PageSize="20" CustomizeElement="Grid_CustomizeElement"
         EditModelSaving="OnEditModelSaving"
+        CustomizeEditModel="Grid_CustomizeEditModel"
         RowClick="OnRowClick"
         RowDoubleClick="addEdit"
         FocusedRowEnabled="true"
@@ -150,6 +151,14 @@
             e.CssClass = "alt-item";
         }
 
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var newplant = (AttributeDetails)e.EditModel;
+        if (e.IsNew)
+        {
+            newplant.AttributeID = selectedAttributeID;
+        }
     }
     void OnRowClick(GridRowClickEventArgs e)
     {

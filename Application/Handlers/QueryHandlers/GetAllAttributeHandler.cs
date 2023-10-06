@@ -24,7 +24,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DynamicForm>> Handle(GetAllAttributeHeader request, CancellationToken cancellationToken)
         {
-            return (List<DynamicForm>)await _attrubutequeryRepository.GetComboBoxLst();
+            return (List<DynamicForm>)await _attrubutequeryRepository.GetComboBoxList();
         }
     }
     public class GetAllAttributeNameHandler : IRequestHandler<GetAllAttributeNameHeader, List<AttributeHeader>>
@@ -42,6 +42,21 @@ namespace Application.Handlers.QueryHandlers
             return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAttributeName();
         }
     }
+    public class GetAllAttributeNameNotInDynamicFormHandler : IRequestHandler<GetAllAttributeNameNotInDynamicForm, List<AttributeHeader>>
+    {
+
+        private readonly IQueryRepository<AttributeHeader> _queryRepository;
+        private readonly IAttributeQueryRepository _attrubutequeryRepository;
+        public GetAllAttributeNameNotInDynamicFormHandler(IQueryRepository<AttributeHeader> queryRepository, IAttributeQueryRepository attrubutequeryRepository)
+        {
+            _queryRepository = queryRepository;
+            _attrubutequeryRepository = attrubutequeryRepository;
+        }
+        public async Task<List<AttributeHeader>> Handle(GetAllAttributeNameNotInDynamicForm request, CancellationToken cancellationToken)
+        {
+            return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAttributeNameNotInDynamicForm(request.DynamicFormSectionId, request.AttributeID);
+        }
+    }
     public class CreateAttributeHandler : IRequestHandler<CreateAttributeHeader, long>
     {
 
@@ -54,8 +69,8 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<long> Handle(CreateAttributeHeader request, CancellationToken cancellationToken)
         {
-           // return (long)await _attrubutequeryRepository.Insert(request);
-          var lst = await _attrubutequeryRepository.Insert(request);
+            // return (long)await _attrubutequeryRepository.Insert(request);
+            var lst = await _attrubutequeryRepository.Insert(request);
             return lst;
 
         }
@@ -94,7 +109,7 @@ namespace Application.Handlers.QueryHandlers
         }
     }
 
-    public class GetAllAttributeNameListHandler : IRequestHandler<GetAllAttributeNameList, List<AttributeHeader>>
+    public class GetAllAttributeNameListHandler : IRequestHandler<GetAllAttributeNameList, AttributeHeaderListModel>
     {
 
         private readonly IQueryRepository<AttributeHeader> _queryRepository;
@@ -104,9 +119,9 @@ namespace Application.Handlers.QueryHandlers
 
             _attrubutequeryRepository = attrubutequeryRepository;
         }
-        public async Task<List<AttributeHeader>> Handle(GetAllAttributeNameList request, CancellationToken cancellationToken)
+        public async Task<AttributeHeaderListModel> Handle(GetAllAttributeNameList request, CancellationToken cancellationToken)
         {
-            return (List<AttributeHeader>)await _attrubutequeryRepository.GetAllAttributeNameAsync(request.ID);
+            return await _attrubutequeryRepository.GetAllAttributeNameAsync(request.DynamicForm);
         }
     }
 

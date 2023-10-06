@@ -18,7 +18,7 @@ namespace Core.EntityModels
         public string Description { get; set; }
         public long? ParentId { get; set; }
         public string ParentName { get; set; }
-        public bool? IsExpiryDate { get; set; }
+        public bool? IsExpiryDate { get; set; } = false;
         public string ProfileName { get; set; }
         public bool? IsAllowMobileUpload { get; set; }
         public bool? IsDocumentAccess { get; set; }

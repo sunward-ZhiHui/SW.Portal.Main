@@ -1,4 +1,5 @@
-﻿using Core.Entities;
+﻿using Core.AttributeDynamicData;
+using Core.Entities;
 using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query;
@@ -344,6 +345,28 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DocumentPermissionModel> GetDocumentUserRoleByUserIDAsync(long? fileProfileTypeId, long? userId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("FileProfileTypeID", fileProfileTypeId);
+                parameters.Add("UserID", userId);
+                var query = "select  t3.* from DocumentUserRole t1\r\n" +
+                    "JOIN Employee t2 ON t2.UserID=t1.UserID\r\n" +
+                    "JOIN DocumentPermission t4 ON t4.DocumentRoleID=t1.RoleID\r\n" +
+                    "LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus\r\n" +
+                    "Where  t1.FileProfileTypeID=@FileProfileTypeID AND t1.UserID=@UserID AND (t3.Value is null or t3.Value!='Resign')";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query,parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         private string DocumentQueryString()
         {
             var query = "select  " +
@@ -504,7 +527,7 @@ namespace Infrastructure.Repository.Query
                                     FileProfileTypeName = fileProfileType.FirstOrDefault(f => f.FileProfileTypeId == s.FilterProfileTypeId)?.Name,
                                     DocumentParentId = s.DocumentParentId,
                                     TableName = s.TableName,
-                                    UniqueSessionId=s.UniqueSessionId,
+                                    UniqueSessionId = s.UniqueSessionId,
                                     Type = "Document",
                                     AddedDate = s.AddedDate,
                                     AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName,
@@ -875,78 +898,7 @@ namespace Infrastructure.Repository.Query
                             });
                         }
                         DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());
-                        var roleItems = roleItemsList.Where(w => w.FileProfileTypeId == selectedFileProfileTypeID).ToList();
-                        if (roleItems.Count > 0)
-                        {
-                            var roleItem = roleItems.FirstOrDefault(u => u.UserId == userData.UserID);
-                            if (roleItem != null)
-                            {
-                                DocumentTypeModel.DocumentPermissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleItem.RoleId).FirstOrDefault();
-                                if (closedocumentPermission.Count > 0)
-                                {
-                                    var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
-                                    if (userpermission != null)
-                                    {
-                                        DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
-                                    }
-                                    else
-                                    {
-                                        DocumentTypeModel.DocumentPermissionData.IsCloseDocument = false;
-                                    }
-                                }
-                                else
-                                {
-                                    DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
-                                }
-                            }
-                            else
-                            {
-                                if (DocumentTypeModel.DocumentsData.Count > 0)
-                                {
-                                    DocumentTypeModel.DocumentsData.ForEach(p =>
-                                    {
-                                        p.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = false, IsRename = false };
-                                        if (closedocumentPermission.Count > 0)
-                                        {
-                                            var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
-                                            if (userpermission != null)
-                                            {
-                                                p.DocumentPermissionData.IsCloseDocument = true;
-                                            }
-                                            else
-                                            {
-                                                p.DocumentPermissionData.IsCloseDocument = false;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            p.DocumentPermissionData.IsCloseDocument = true;
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                        else
-                        {
 
-                            DocumentTypeModel.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = false };
-                            if (closedocumentPermission.Count > 0)
-                            {
-                                var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
-                                if (userpermission != null)
-                                {
-                                    DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
-                                }
-                                else
-                                {
-                                    DocumentTypeModel.DocumentPermissionData.IsCloseDocument = false;
-                                }
-                            }
-                            else
-                            {
-                                DocumentTypeModel.DocumentPermissionData.IsCloseDocument = true;
-                            }
-                        }
                         DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
                         if (DocumentTypeModel != null)
                         {

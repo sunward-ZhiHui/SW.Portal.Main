@@ -281,6 +281,15 @@ namespace Application.Queries
             this.DocumentsModel = documentsModel;
         }
     }
-    
+    public class GetDocumentUserRoleByUserID : PagedRequest, IRequest<DocumentPermissionModel>
+    {
+        public long? Id { get; private set; }
+        public long? UserId { get; private set; }
+        public GetDocumentUserRoleByUserID(long? id, long? userId)
+        {
+            this.Id = id;
+            this.UserId = userId;
+        }
+    }
 
 }

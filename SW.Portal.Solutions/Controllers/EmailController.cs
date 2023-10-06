@@ -416,7 +416,7 @@ namespace SW.Portal.Solutions.Controllers
                 {
                     title = title,
                     body = bodymsg,
-                    click_action = baseurl // Set the click_action here
+                    click_action = baseurl + "ViewEmail/" + itm.SessionId // Set the click_action here
                 },
                 data = new Dictionary<string, string>
                 {

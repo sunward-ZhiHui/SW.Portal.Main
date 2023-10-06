@@ -1,5 +1,34 @@
-﻿<h3>RealTime</h3>
+﻿@page "/realtime"
+@inject EmailAutoRefresh helloService
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<div class="m-2">
+    <button class="btn btn-dark" @onclick=this.UpdateHello>Update Hello</button>
+</div>
+
+<div class="alert alert-primary">@helloService.HelloMessage</div>
 
 @code {
 
+    // Register the event handler
+    protected override void OnInitialized()
+        => this.helloService.HelloChanged += this.OnHelloChanged;
+
+    private Task UpdateHello()
+    {
+        helloService.NotifyHelloChanged($"Hello Blazor at {DateTime.Now.ToLongTimeString()}");
+        return Task.CompletedTask;
+    }
+
+    public void OnHelloChanged(object? sender, HelloEventArgs e)
+        => InvokeAsync(this.StateHasChanged);
+
+    // We must de-register the even handler
+    public void Dispose()
+        => this.helloService.HelloChanged -= this.OnHelloChanged;
 }

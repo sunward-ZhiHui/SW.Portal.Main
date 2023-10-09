@@ -409,7 +409,7 @@ namespace SW.Portal.Solutions.Controllers
                 
             //};
 
-            var androidNotificationObject = new Dictionary<string, string>();
+            //var androidNotificationObject = new Dictionary<string, string>();
             var pushNotificationRequest = new 
             {
                 notification = new
@@ -420,7 +420,7 @@ namespace SW.Portal.Solutions.Controllers
                 },
                 data = new Dictionary<string, string>
                 {
-                    { "click_action", baseurl}                    
+                    { "url", baseurl}                    
                 },
                 //data = androidNotificationObject,
                 //registration_ids = new List<string> { token }

@@ -37,7 +37,7 @@ namespace Core.Repositories.Query
         Task<List<EmailTopics>> GetTopicSentList(Int64 UserId);
         Task<List<EmailParticipant>> GetParticipantList(Int64 topicId,long UserId);
         Task<List<EmailParticipant>> GetConversationPList(Int64 ConversationId);
-
+        Task<List<EmailParticipant>> GetParticipantbysessionidList(Guid sessionId);
         Task<EmailTopics> GetCustomerByEmail(string email);
         long Insert(EmailTopics EmailTopics);
         long EmailTopicUpdate(EmailTopics EmailTopics);
@@ -50,8 +50,9 @@ namespace Core.Repositories.Query
         Task<long> UpdateTopicArchive(EmailTopics emailTopics);
         Task<long> UpdateTopicUnArchive(EmailTopics emailTopics);
         Task<List<ActivityEmailTopics>> GetByActivityEmailSessionList(Guid sessionId);
+        Task<List<ActivityEmailTopics>> GetActivityEmailListBySession(Guid sessionId);        
         Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId);
-       
+        Task<long> CreateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
         Task<long> Delete(long id);
     }
 }

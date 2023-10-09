@@ -424,12 +424,26 @@
                                                 </div>
                                                 @if (!string.IsNullOrEmpty(item.BackURL))
                                                 {    
+                                                     string ActivityTypes = item.ActivityType == "FileProfileType" ? "Sunward Libraries" : "Activity";
+
                                                     <div class="replybox" style="min-height:60px;">
-                                                        <div style="font-weight: bold;">Activity Comment
+                                                        <div style="font-weight: bold;">
+                                                            @ActivityTypes Comment
                                                             <div style="float:right; line-height:16px">
-                                                                <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
-                                                                    <i class="fa fa-arrow-left"></i> Back
-                                                            </button>
+                                                                @if(item.ActivityType == "FileProfileType")
+                                                                {
+                                                                    <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                        <i class="fa fa-arrow-left"></i> Back
+                                                                    </button>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                        <i class="fa fa-arrow-left"></i> Back
+                                                                    </button>
+
+                                                                }
+                                                                
                                                             </div>
                                                         </div>
                                                         <text>@item.ActCommentName</text>
@@ -2730,7 +2744,7 @@
         Page = Page == null ? "AssignTo" : Page;
 
         var sss = ActiveSessionId;      
-        ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
+        ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];        
         cancellationTokenSource = new CancellationTokenSource();
         StartAutoRefresh();
 
@@ -3074,6 +3088,11 @@
 
         //await Task.Delay(2700);
         //await onRichTxtChangeFontsize(); // Call your other function here
+    }
+    async void onBackFileProfileType(string url)
+    {
+        var urls = BaseUrl + "fileprofiletype/" + url;
+        NavigationManager.NavigateTo(urls);
     }
     async void onBackActivity(string Url)
     {

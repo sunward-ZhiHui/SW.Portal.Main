@@ -22,6 +22,14 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetActivityEmailList : PagedRequest, IRequest<List<ActivityEmailTopics>>
+    {
+        public Guid SessionId { get; private set; }
+        public GetActivityEmailList(Guid SessionId)
+        {
+            this.SessionId = SessionId;
+        }
+    }
     public class GetByActivityEmailSession : PagedRequest, IRequest<List<ActivityEmailTopics>>
     {
         public Guid EmailTopicSessionId { get; private set; }
@@ -228,9 +236,22 @@ namespace Application.Queries
             this.ConversationId = ConversationId;
         }
     }
+    public class GetParticipantbysessionidList : PagedRequest, IRequest<List<EmailParticipant>>
+    {
+        public Guid sessionId { get; private set; }
+        public GetParticipantbysessionidList(Guid sessionId)
+        {
+            this.sessionId = sessionId;
+        }
+    }
+    
     public class CreateEmailTopicParticipant : TopicParticipant, IRequest<long>
     {
         
+    }
+    public class CreateActivityEmail : ActivityEmailTopics, IRequest<long>
+    {
+
     }
     public class UpdateEmailTopicDueDate : EmailTopics, IRequest<long>
     {       

@@ -48,6 +48,7 @@
         border-radius: 4px;
         background: #eef2f0;
         margin-bottom: 10px;
+        min-height:60px;
     }
 </style>
 <div class="card w-100 tooltips" style="margin-bottom:10px;">
@@ -243,8 +244,7 @@ else
                             </DxFormLayoutItem>
 
                             <DxFormLayoutItem Caption="" CssClass="topoverdue" ColSpanMd="2">
-                                <DxCheckBox CssClass="w-100"
-                                        Enabled="IsActiveSessionId"
+                                <DxCheckBox CssClass="w-100"                                       
                                         @bind-Checked="@Data.NotifyUser"
                                         Alignment="default"
                                         LabelPosition="LabelPosition.Right">
@@ -262,9 +262,12 @@ else
 
                             @if (ActiveSessionId != null)
                             {
+
+                                string ActivityTypes = ActivityType == "FileProfileType" ? "Sunward Libraries" : "Activity";
+                                
                                  <DxFormLayoutItem Caption=" " ColSpanMd="12">
                                     <div class="replybox">
-                                        <div style="font-weight: bold;">Activity Comment</div>
+                                        <div style="font-weight: bold;">@ActivityTypes Comment</div>
                                         <text>@ActComment</text>
                                         <div style=" float: right; font-size: 12px;"> @ActUserName  , @ActAddedDate </div>
                                     </div>
@@ -506,6 +509,7 @@ else
     IEnumerable<ForumTypes>? _OnBehalf;
     string? ActComment = "";
     string? ActUserName = "";
+    string? ActivityType = "";
     DateTime? ActAddedDate = DateTime.Now;
     byte[] replyboxHhtmlArray;
     private List<ApplicationUser> _applicationUsers;  
@@ -899,7 +903,7 @@ else
             Guid activeSessionId = Guid.Parse(ActiveSessionId);
             var actItem = acttopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
 
-            if(actItem.Count > 0)
+            if (actItem.Count > 0)
             {
                 isValidateSession = false;
                 //var docId = "70F019EC011241C9807C39BF2BE79136";
@@ -908,7 +912,7 @@ else
                 var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
                 ActUserName = Namelist[0].Name;
                 ActAddedDate = actItem[0].AddedDate;
-
+                ActivityType = actItem[0].ActivityType;
 
                 // string replyboxHtml = @"<div class=""replybox"">
                 //                             <div> <i class=""fa fa-reply"" aria-hidden=""true""></i> Reply</div>
@@ -919,7 +923,7 @@ else
                 //replyboxHhtmlArray = Encoding.UTF8.GetBytes(replyboxHtml);
 
 
-                if(actItem[0].DocumentSessionId != null)
+                if (actItem[0].DocumentSessionId != null)
                 {
                     var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].DocumentSessionId.Value));
                     _documentslst = documentslst;
@@ -946,14 +950,33 @@ else
                 }
 
                 ActivityEmailTopicId = actItem[0].ActivityEmailTopicID;
-                List<long?> ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
-                var filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
+                List<long?> ToidList = new List<long?>();
+                if (actItem[0].ToIds != null)
+                {
+                    ToidList = actItem[0].ToIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
+                }
+
+                var filteredToList = new List<ViewEmployee>();
+                if (ToidList != null)
+                {
+                    filteredToList = plist.Where(c => ToidList.Contains(c.UserID)).ToList();
+                }
+
 
                 //Data.ToIds = filteredToList.Select(s => (long)s.UserID).ToList();
                 IEnumerable<long> Totags = filteredToList.Select(s => (long)s.UserID).ToList();
 
-                List<long?> CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
-                var filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
+                List<long?> CCidList = new List<long?>();
+                if (actItem[0].CcIds != null)
+                {
+                    CCidList = actItem[0].CcIds.Split(',').Select(s => long.TryParse(s, out long result) ? result : (long?)null).ToList();
+                }
+
+                var filteredCCList = new List<ViewEmployee>();
+                if(CCidList != null)
+                {
+                    filteredCCList = plist.Where(c => CCidList.Contains(c.UserID)).ToList();
+                }                
 
                 //Data.CCIds = filteredCCList.Select(s => (long)s.UserID).ToList();
                 IEnumerable<long> CCtags = filteredCCList.Select(s => (long)s.UserID).ToList();
@@ -989,6 +1012,13 @@ else
         SelectedCCIds.Clear();
 
         var lslsl = Data.ToIds;
+
+        if (Data.ToIds.Count() == 0)
+        {
+            toastService.ShowToast("Please Select To", AC.SD.Core.Services.ToastLevel.Error);
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+            return;
+        }
 
         var sToIds = Data.ToIds;
         var sCCIds = Data.CCIds;

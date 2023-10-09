@@ -365,6 +365,19 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _emailTopicsQueryRepository.GetConversationPList(request.ConversationId);
         }
     }
+    public class GetParticipantbysessionidListHandler : IRequestHandler<GetParticipantbysessionidList, List<EmailParticipant>>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetParticipantbysessionidListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailParticipant>> Handle(GetParticipantbysessionidList request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetParticipantbysessionidList(request.sessionId);
+        }
+    }
+    
 
     public class GetByIdEmailTopicListHandler : IRequestHandler<GetByIdEmailTopics, List<EmailTopics>>
     {
@@ -532,7 +545,20 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<ActivityEmailTopics>)await _emailTopicsQueryRepository.GetByActivityEmailSessionList(request.EmailTopicSessionId);
         }
     }
-    
+    public class GetActivityEmailListHandler : IRequestHandler<GetActivityEmailList, List<ActivityEmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetActivityEmailListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<ActivityEmailTopics>> Handle(GetActivityEmailList request, CancellationToken cancellationToken)
+        {
+            return (List<ActivityEmailTopics>)await _emailTopicsQueryRepository.GetActivityEmailListBySession(request.SessionId);
+        }
+    }   
+
 
     public class GetCreateEmailDocumentsHandler : IRequestHandler<GetAllCreateEmailDocumentLst, List<Documents>>
     {
@@ -548,7 +574,22 @@ namespace CMS.Application.Handlers.QueryHandlers
             return (List<Documents>)await _createEmailDocumentsQueryRepository.GetCreateEmailDocumentListAsync(request.SessionId);
         }
     }
-   
+
+    public class CreateActivityEmailHandler : IRequestHandler<CreateActivityEmail,long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public CreateActivityEmailHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<long> Handle(CreateActivityEmail request, CancellationToken cancellationToken)
+        {
+            return (long)await _emailTopicsQueryRepository.CreateActivityEmailAsync(request);
+        }
+    }
+
     public class DeleteDraftFileHandler : IRequestHandler <DeleteDocumentFileQuery , long>
     {
         private readonly IEmailTopicsQueryRepository _draftFileListQueryRepository;

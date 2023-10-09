@@ -509,7 +509,7 @@ namespace Infrastructure.Repository.Query
                 //                          ORDER BY FC.AddedDate ASC";
 
                 var query_NOTUSED = @"SELECT  FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId,
-                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate
+                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,AET.ActivityType
                                 FROM EmailConversations FC  
 								 LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                                 INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = FC.ID AND ECP.UserId = @UserId
@@ -540,7 +540,7 @@ namespace Infrastructure.Repository.Query
                 var query = @"SELECT * FROM (
                             SELECT FC.TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
                                 AET.Comment AS ActCommentName,AET.BackURL, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
-                                ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.NotifyUser
+                                ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.NotifyUser,AET.ActivityType
                             FROM EmailConversations FC
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf
                             LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
@@ -808,7 +808,7 @@ namespace Infrastructure.Repository.Query
 
                 var query = @"SELECT FC.Name,FC.ID,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.AddedByUserID,
                                 AET.Comment as ActCommentName,AET.BackURL,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
-                                ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,FCEP.FirstName,FCEP.LastName
+                                ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType
                                 FROM EmailConversations FC  
                                 LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf                                
                                 LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId

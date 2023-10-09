@@ -1314,6 +1314,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailParticipant>> GetParticipantbysessionidList(Guid sessionId)
+        {
+            try
+            {
+                var query = @"SELECT * FROM EmailConversationParticipant WHERE SessionId = @sessionId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("sessionId", sessionId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    return (await connection.QueryAsync<EmailParticipant>(query, parameters)).ToList();                    
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<EmailTopics> GetCustomerByEmail(string name)
         {
             try
@@ -1496,6 +1516,53 @@ namespace Infrastructure.Repository.Query
                     catch (Exception exp)
                     {
                         throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
+        public async Task<long> CreateActivityEmailAsync(ActivityEmailTopics activityEmailTopics)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("SubjectName", activityEmailTopics.SubjectName);
+                            parameters.Add("Comment", activityEmailTopics.Comment);
+                            parameters.Add("ActivityType", activityEmailTopics.ActivityType);
+                            parameters.Add("SessionId", activityEmailTopics.SessionId);
+                            parameters.Add("BackURL", activityEmailTopics.BackURL);
+                            parameters.Add("SessionId", activityEmailTopics.SessionId);
+                            parameters.Add("DocumentSessionId", activityEmailTopics.DocumentSessionId);
+                            parameters.Add("AddedByUserID", activityEmailTopics.AddedByUserID);
+                            parameters.Add("AddedDate", activityEmailTopics.AddedDate);
+
+                            var query = "INSERT INTO ActivityEmailTopics(SubjectName,Comment,ActivityType,SessionId,BackURL,DocumentSessionId,AddedByUserID,AddedDate) VALUES (@SubjectName,@Comment,@ActivityType,@SessionId,@BackURL,@DocumentSessionId,@AddedByUserID,@AddedDate)";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
                     }
                 }
 
@@ -1745,6 +1812,28 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
 
+        }
+        public async Task<List<ActivityEmailTopics>> GetActivityEmailListBySession(Guid sessionId)
+        {
+            try
+            {
+
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionID", sessionId, DbType.Guid);
+
+                var query = @"SELECT * from ActivityEmailTopics WHERE SessionId = @SessionID AND ActivityType='FileProfileType'";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ActivityEmailTopics>(query, parameters)).ToList();
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
         public async Task<List<ActivityEmailTopics>> GetByActivityEmailSessionList(Guid sessionId)
         {

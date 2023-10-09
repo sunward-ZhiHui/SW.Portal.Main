@@ -32,6 +32,7 @@ namespace Core.Entities
         [NotMapped]
         public string ActionName { get; set;}
         public string BackURL { get; set; }
+        public bool? IsDraft { get; set; }
 
     }
 }

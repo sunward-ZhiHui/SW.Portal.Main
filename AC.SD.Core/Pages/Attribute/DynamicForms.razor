@@ -60,7 +60,7 @@
               Context="EditFormContext">
         <DataAnnotationsValidator />
 
-        <div class="card-body">
+        <div class="card-body" style="margin-top:5px;">
             @CreateEditFormFields()
         </div>
     </EditForm>
@@ -97,7 +97,7 @@
             if (_dynamicform != null)
             {
                 var screenId = _dynamicform.ScreenID.Replace(" ", "_");
-                _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform));
+                _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID));
                 if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                 {
                     Type[] typesList = _AttributeHeader.DynamicFormSectionAttribute.Select(s => s.DataType).ToArray();
@@ -115,7 +115,7 @@
                             dynamicFormData.AddedDate = _dynamicformData.AddedDate;
                             dynamicFormData.AddedByUserID = _dynamicformData.AddedByUserID;
                             dynamicFormData.DynamicFormCurrentItem = _dynamicformData.DynamicFormItem;
-                            if(!string.IsNullOrEmpty(_dynamicformData.DynamicFormItem))
+                            if (!string.IsNullOrEmpty(_dynamicformData.DynamicFormItem))
                             {
                                 if (IsValidJson(_dynamicformData.DynamicFormItem))
                                 {
@@ -253,7 +253,7 @@
                     StatusCodeID = 1,
                     AddedDate = dynamicFormData.AddedDate,
                     AttributeHeader = _AttributeHeader,
-                    ObjectData=Data,
+                    ObjectData = Data,
                 };
 
             await Mediator.Send(editReq);
@@ -301,6 +301,30 @@
             int i = 0; int k = 0;
             _AttributeHeader.DynamicFormSection.ForEach(a =>
             {
+                var isReadonly = false;
+                var isVisible = false;
+                if (a.IsPermissionCount > 0)
+                {
+                    if (a.IsVisible == true)
+                    {
+                        if (a.IsLoginUsers > 0)
+                        {
+                            isVisible = true;
+                            if (a.IsReadWrite == true)
+                            {
+                                isReadonly = true;
+                            }
+                            if (a.IsReadOnly == true)
+                            {
+                                isReadonly = false;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    isVisible = true; isReadonly = true;
+                }
                 formLayoutBuilder.OpenComponent<DxFormLayout>(i);
 
                 formLayoutBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((layoutItemBuilder) =>
@@ -310,7 +334,7 @@
                 layoutItemBuilder.AddAttribute(i + 1, "Expanded", k == 0 ? true : false);
                 layoutItemBuilder.AddAttribute(i + 1, "AnimationType", LayoutAnimationType.Slide);
                 layoutItemBuilder.AddAttribute(i + 1, "Caption", a.SectionName);
-
+                layoutItemBuilder.AddAttribute(i + 1, "Visible", isVisible);
                 layoutItemBuilder.AddAttribute(1, "ChildContent", (RenderFragment)((itemBuilder) =>
                 {
                     var dynamicFormSectionAttributeData = _AttributeHeader.DynamicFormSectionAttribute.Where(w => w.DynamicFormSectionId == a.DynamicFormSectionId).OrderBy(o => o.SortOrderBy).ToList();
@@ -329,6 +353,7 @@
             itemBuilder.AddAttribute(i++, "ColSpanMd", s.ColSpan);
             var access = Expression.Property(Expression.Constant(Data), s.DynamicAttributeName);
             var lambda = Expression.Lambda(typeof(Func<>).MakeGenericType(s.DataType), access);
+
             itemBuilder.AddAttribute(i++, "Template", (RenderFragment<Object>)((context) => ((editor) =>
                      {
                          var j = 0;
@@ -337,6 +362,7 @@
                              editor.OpenComponent<DxTextBox>(j++);
                              editor.AddAttribute(j++, "Text", property.GetValue(Data));
                              editor.AddAttribute(j++, "TextExpression", lambda);
+                             editor.AddAttribute(j++, "Enabled", isReadonly);
                              editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                              editor.AddAttribute(j++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                              editor.CloseComponent();
@@ -346,6 +372,7 @@
                              editor.OpenComponent<DxDateEdit<DateTime?>>(j);
                              editor.AddAttribute(j++, "Date", property.GetValue(Data));
                              editor.AddAttribute(j++, "DateExpression", lambda);
+                             editor.AddAttribute(j++, "Enabled", isReadonly);
                              editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                              editor.AddAttribute(j++, "DateChanged", EventCallback.Factory.Create<System.DateTime?>(this, str => { property.SetValue(Data, str); }));
                              editor.CloseComponent();
@@ -355,6 +382,7 @@
                              editor.OpenComponent<DxTimeEdit<TimeSpan?>>(j);
                              editor.AddAttribute(j++, "Time", property.GetValue(Data));
                              editor.AddAttribute(j++, "TimeExpression", lambda);
+                             editor.AddAttribute(j++, "Enabled", isReadonly);
                              editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                              editor.AddAttribute(j++, "TimeChanged", EventCallback.Factory.Create<System.TimeSpan?>(this, str => { property.SetValue(Data, str); }));
                              editor.CloseComponent();
@@ -365,6 +393,7 @@
                              editor.AddAttribute(j++, "Text", property.GetValue(Data));
                              editor.AddAttribute(j++, "TextExpression", lambda);
                              editor.AddAttribute(j++, "Rows", 5);
+                             editor.AddAttribute(j++, "Enabled", isReadonly);
                              editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                              editor.AddAttribute(j++, "TextChanged", EventCallback.Factory.Create<System.String>(this, str => { property.SetValue(Data, str); }));
                              editor.CloseComponent();
@@ -376,6 +405,7 @@
                                  editor.OpenComponent<DxSpinEdit<int?>>(j);
                                  editor.AddAttribute(j++, "Value", property.GetValue(Data));
                                  editor.AddAttribute(j++, "MinValue", 0);
+                                 editor.AddAttribute(j++, "Enabled", isReadonly);
                                  editor.AddAttribute(j++, "BindValueMode", BindValueMode.OnInput);
                                  editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                                  editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<int?>(this, str => { property.SetValue(Data, str); }));
@@ -385,6 +415,7 @@
                                  editor.OpenComponent<DxSpinEdit<decimal?>>(j);
                                  editor.AddAttribute(j++, "Value", property.GetValue(Data));
                                  editor.AddAttribute(j++, "Increment", 0.1M);
+                                 editor.AddAttribute(j++, "Enabled", isReadonly);
                                  editor.AddAttribute(j++, "MinValue", 0M);
                                  editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                                  editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<decimal?>(this, str => { property.SetValue(Data, str); }));
@@ -397,6 +428,7 @@
                              editor.OpenComponent<DxCheckBox<bool?>>(j);
                              editor.AddAttribute(j++, "Checked", property.GetValue(Data) ?? false);
                              editor.AddAttribute(j++, "CheckedExpression", lambda);
+                             editor.AddAttribute(j++, "Enabled", isReadonly);
                              //editor.AddAttribute(j++, "LabelPosition", LabelPosition.Right);
                              editor.AddAttribute(j++, "CheckedChanged", EventCallback.Factory.Create<bool?>(this, str => { property.SetValue(Data, str); }));
                              editor.CloseComponent();
@@ -408,6 +440,7 @@
                              editor.AddAttribute(j++, "TextFieldName", "AttributeDetailName");
                              editor.AddAttribute(j++, "ValueFieldName", "AttributeDetailID");
                              editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                             editor.AddAttribute(j++, "Enabled", isReadonly);
                              editor.AddAttribute(j++, "ValueExpression", lambda);
                              editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
                              editor.CloseComponent();
@@ -419,6 +452,7 @@
                              editor.AddAttribute(j++, "TextFieldName", "AttributeDetailName");
                              editor.AddAttribute(j++, "ValueFieldName", "AttributeDetailID");
                              editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                             editor.AddAttribute(j++, "Enabled", isReadonly);
                              editor.AddAttribute(j++, "ValueExpression", lambda);
                              editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
                              editor.CloseComponent();
@@ -433,6 +467,7 @@
                              editor.AddAttribute(j++, "FilteringMode", DataGridFilteringMode.Contains);
                              editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                              editor.AddAttribute(j++, "Value", property.GetValue(Data));
+                             editor.AddAttribute(j++, "Enabled", isReadonly);
                              editor.AddAttribute(j++, "ValueExpression", lambda);
                              editor.AddAttribute(j++, "ValueChanged", EventCallback.Factory.Create<long?>(this, str => { property.SetValue(Data, str); }));
                              editor.CloseComponent();
@@ -448,6 +483,7 @@
                              editor.AddAttribute(j++, "ClearButtonDisplayMode", DataEditorClearButtonDisplayMode.Auto);
                              editor.AddAttribute(j++, "Values", property.GetValue(Data));
                              editor.AddAttribute(j++, "ValuesExpression", lambda);
+                             editor.AddAttribute(j++, "Enabled", isReadonly);
                              editor.AddAttribute(j++, "ValuesChanged", EventCallback.Factory.Create<IEnumerable<long?>>(this, str => { property.SetValue(Data, str); }));
                              editor.CloseComponent();
                          }
@@ -457,6 +493,7 @@
                              editor.AddAttribute(j++, "Data", attributeDetailss);
                              editor.AddAttribute(j++, "TextFieldName", "AttributeDetailName");
                              editor.AddAttribute(j++, "ValueFieldName", "AttributeDetailID");
+                             editor.AddAttribute(j++, "Enabled", isReadonly);
                              editor.AddAttribute(j++, "ListRenderMode", ListRenderMode.Virtual);
                              editor.AddAttribute(j++, "ShowCheckboxes", true);
 

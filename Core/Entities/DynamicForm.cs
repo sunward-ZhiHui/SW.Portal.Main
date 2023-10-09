@@ -20,6 +20,7 @@ namespace Core.Entities
         [DynamicFormCustomValidation]
         public string ScreenID { get; set; }
 
+        public bool? IsApproval { get; set; } = false;
         public string AttributeID { get; set; }
         public Guid SessionID { get; set; }
         [NotMapped]

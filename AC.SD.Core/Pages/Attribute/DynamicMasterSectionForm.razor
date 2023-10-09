@@ -20,6 +20,7 @@
             <Items>
                 <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Add Permission" IconCssClass="fa fa-user-lock" Click="@addPermission" Enabled="@EditEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
             </Items>
         </DxMenu>
@@ -178,7 +179,23 @@
 
     </FooterContentTemplate>
 </DxFlyout>
+<DxPopup @bind-Visible="@addPermissionEnabled"
+         ShowFooter="true"
+         HeaderText="Add Permission"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AddPermissionSection SelectedItems="@_selectedItems" applicationUser="@applicationUser"></AddPermissionSection>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAddPermissionEnabled())" />
+    </FooterContentTemplate>
+</DxPopup>
+
+
 @code {
+    [Parameter]
     public long? dynamicFormId { get; set; }
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
@@ -202,6 +219,7 @@
     bool EditEnabled { get; set; } = false;
     bool AddEnabled { get; set; } = false;
     bool IsSortOrderByOpen { get; set; } = false;
+    bool addPermissionEnabled { get; set; } = false;
     private DynamicFormSection _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
     private List<DynamicFormSectionSortOrder> sortOrderList { get; set; }
@@ -209,7 +227,7 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-
+        await UpdateDataAsync();
     }
     public async Task loadChildData(long? dynamicFormIds)
     {
@@ -221,7 +239,7 @@
         var navitems = (DynamicFormSection)e.EditModel;
         if (e.IsNew)
         {
-           // _attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(-1, -1));
+            // _attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(-1, -1));
         }
         else
         {
@@ -282,6 +300,9 @@
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = 1,
                     AddedDate = DateTime.Now,
+                    IsReadOnly = editModel.IsReadOnly == true ? true : false,
+                    IsVisible = editModel.IsVisible == true ? true : false,
+                    IsReadWrite = editModel.IsReadWrite == true ? true : false,
                 };
 
             try
@@ -315,6 +336,9 @@
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = 1,
                     AddedDate = editModel.AddedDate,
+                    IsReadOnly = editModel.IsReadOnly,
+                    IsVisible = editModel.IsVisible,
+                    IsReadWrite = editModel.IsReadWrite,
 
                 };
             var result = await Mediator.Send(UpdateReq);
@@ -508,5 +532,14 @@
         _selectedDynamicFormSectionItems.SortOrderAnotherBy = dynamicFormSection.SortOrderBy;
 
         StateHasChanged();
+    }
+    void addPermission()
+    {
+        addPermissionEnabled = true;
+    }
+    async Task CloseAddPermissionEnabled()
+    {
+        await UpdateDataAsync();
+        addPermissionEnabled = false;
     }
 }

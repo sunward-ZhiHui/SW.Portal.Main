@@ -53,5 +53,37 @@ namespace Core.Entities.CustomValidations
             return ValidationResult.Success;
         }
     }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DynamicFormApprovalCustomValidation : ValidationAttribute
+    {
+        private IServiceProvider serviceProvider;
+
+        public DynamicFormApprovalCustomValidation()
+        {
+            serviceProvider = AppDependencyResolver.Current.GetService<IServiceProvider>();
+        }
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value != null)
+            {
+                var dynamicFormApprovalId = validationContext.ObjectType.GetProperty("DynamicFormApprovalId");
+                long dynamicFormApprovalID = (long)dynamicFormApprovalId.GetValue(validationContext.ObjectInstance, null);
+                var DynamicFormId = validationContext.ObjectType.GetProperty("DynamicFormId");
+                long dynamicFormID = (long)DynamicFormId.GetValue(validationContext.ObjectInstance, null);
+                long? s = (long?)value;
+
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var service = scope.ServiceProvider.GetService<IDynamicFormQueryRepository>();
+                    var results = service.GetDynamicFormApprovalUserCheckValidation(dynamicFormID, dynamicFormApprovalID, s);
+                    if (results != null)
+                    {
+                        return new ValidationResult("User already exits", new[] { validationContext.MemberName });
+                    }
+                }
+            }
+            return ValidationResult.Success;
+        }
+    }
 
 }

@@ -10,7 +10,7 @@ namespace Core.Repositories.Query
 {
     public interface IAttributeQueryRepository : IQueryRepository<AttributeHeader>
     {
-        Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm);
+        Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm,long? UserId);
         Task<IReadOnlyList<AttributeHeader>> GetAllAttributeName();
         Task<IReadOnlyList<DynamicForm>> GetComboBoxList();
         Task<long> Insert(AttributeHeader attributeHeader);

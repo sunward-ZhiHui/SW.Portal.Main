@@ -20,11 +20,14 @@ namespace Core.Entities
         [DynamicFormCustomValidation]
         public string ScreenID { get; set; }
 
+        public bool? IsApproval { get; set; } = false;
         public string AttributeID { get; set; }
         public Guid SessionID { get; set; }
         [NotMapped]
         public IEnumerable<long> AttributeIds { get; set; }
         [NotMapped]
-        public List<AttributeHeader>? _attributesName { get; set; }
+        public List<AttributeHeader>? AttributesName { get; set; }
+        [NotMapped]
+        public List<DynamicFormApproval>? DynamicFormApproval {  get; set; }
     }
 }

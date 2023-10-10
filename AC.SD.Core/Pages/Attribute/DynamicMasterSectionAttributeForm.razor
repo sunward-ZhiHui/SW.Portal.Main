@@ -136,9 +136,10 @@
                     <DxTextBox @bind-Text="@types.DisplayName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.DisplayName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6" Visible="@(types.ControlTypeId==2704?true:false)">
+                <DxFormLayoutItem Caption="SpinEdit Type" ColSpanMd="6" >
                     <DxComboBox Data="@dynamicFormSectionSpinEdit"
                     @bind-Value="@types.IsSpinEditType"
+                                Enabled="@IsSpinEditTypeEnabled"
                                 TextFieldName="Text"
                                 ValueFieldName="Value" ShowValidationIcon="true" />
                 </DxFormLayoutItem>
@@ -225,6 +226,7 @@
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     bool isListMultiple = false;
+    bool IsSpinEditTypeEnabled { get; set; } = false;
     string? errorMessage;
     string? DeleteerrorMessage;
     bool MessageVisible { get; set; }
@@ -272,7 +274,7 @@
         isFormCountUsed = true;
         var navitems = (DynamicFormSectionAttribute)e.EditModel;
         navitems.IsSpinEditType = string.IsNullOrEmpty(navitems.IsSpinEditType) ? "int" : navitems.IsSpinEditType;
-        isListMultiple = false;
+        isListMultiple = false; IsSpinEditTypeEnabled = false;
         if (e.IsNew)
         {
             navitems.IsSpinEditType = "int";
@@ -282,13 +284,19 @@
         }
         else
         {
-            if (navitems.ControlTypeId == 2706)
-            {
-                isListMultiple = true;
-            }
             if (navitems.FormUsedCount > 0)
             {
-                isFormCountUsed = false;
+            }
+            else
+            {
+                if (navitems.ControlTypeId == 2706)
+                {
+                    isListMultiple = true;
+                }
+                if (navitems.ControlTypeId == 2704)
+                {
+                    IsSpinEditTypeEnabled = true;
+                }
             }
             //_attributeHeaderData = await Mediator.Send(new GetAllAttributeNameNotInDynamicForm(DynamicFormSectionId, navitems.AttributeId));
         }
@@ -331,12 +339,16 @@
     {
         data.DisplayName = attributeHeader.Description;
         data.ControlTypeId = attributeHeader.ControlTypeId;
-        isListMultiple = false;
+        isListMultiple = false; IsSpinEditTypeEnabled = false;
         if (attributeHeader != null)
         {
             if (attributeHeader.ControlTypeId == 2706)
             {
                 isListMultiple = true;
+            }
+            if (attributeHeader.ControlTypeId == 2704)
+            {
+                IsSpinEditTypeEnabled = true;
             }
         }
         StateHasChanged();

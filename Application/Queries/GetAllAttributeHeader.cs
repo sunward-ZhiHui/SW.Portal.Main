@@ -57,9 +57,11 @@ namespace Application.Queries
     {
 
         public DynamicForm DynamicForm { get; set; }
-        public GetAllAttributeNameList(DynamicForm dynamicForm)
+        public long? UserId { get; set; }
+        public GetAllAttributeNameList(DynamicForm dynamicForm, long? userId)
         {
             this.DynamicForm = dynamicForm;
+            this.UserId = userId;
         }
     }
 }

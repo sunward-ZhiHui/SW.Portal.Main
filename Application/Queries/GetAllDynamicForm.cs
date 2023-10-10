@@ -1,6 +1,7 @@
 ﻿using Application.Queries.Base;
 using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -152,6 +153,81 @@ namespace Application.Queries
             this.DynamicFormData = dynamicFormData;
         }
     }
+    public class GetDynamicFormApproval : PagedRequest, IRequest<List<DynamicFormApproval>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormApproval(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class InsertOrUpdateDynamicFormApproval : DynamicFormApproval, IRequest<DynamicFormApproval>
+    {
 
+    }
+    public class DeleteDynamicFormApproval : DynamicFormApproval, IRequest<DynamicFormApproval>
+    {
+        public DynamicFormApproval DynamicFormApproval { get; set; }
+        public DeleteDynamicFormApproval(DynamicFormApproval dynamicFormApproval)
+        {
+            this.DynamicFormApproval = dynamicFormApproval;
+        }
+    }
+    public class UpdateDynamicFormApprovalSortOrder : PagedRequest, IRequest<DynamicFormApproval>
+    {
+        public DynamicFormApproval DynamicFormApproval { get; private set; }
+        public UpdateDynamicFormApprovalSortOrder(DynamicFormApproval dynamicFormApproval)
+        {
+            this.DynamicFormApproval = dynamicFormApproval;
+        }
+    }
+    public class GetDynamicFormApprovalUpdateDescriptionField : PagedRequest, IRequest<DynamicFormApproval>
+    {
+        public DynamicFormApproval DynamicFormApproval { get; private set; }
+        public GetDynamicFormApprovalUpdateDescriptionField(DynamicFormApproval dynamicFormApproval)
+        {
+            this.DynamicFormApproval = dynamicFormApproval;
+        }
+    }
+    public class InsertDynamicFormSectionSecurity : PagedRequest, IRequest<DynamicFormSectionSecurity>
+    {
+        public DynamicFormSectionSecurity DynamicFormSectionSecurity { get; private set; }
+        public InsertDynamicFormSectionSecurity(DynamicFormSectionSecurity dynamicFormSectionSecurity)
+        {
+            this.DynamicFormSectionSecurity = dynamicFormSectionSecurity;
+        }
+    }
+    public class GetDynamicFormSectionSecurityList : PagedRequest, IRequest<List<DynamicFormSectionSecurity>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormSectionSecurityList(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class DeleteDynamicFormSectionSecurity : DynamicFormSectionSecurity, IRequest<long>
+    {
+        public long? Id { get; set; }
+        public List<long?> Ids { get; set; }
+        public DeleteDynamicFormSectionSecurity(long? id, List<long?> ids)
+        {
+            this.Id = id;
+            this.Ids = ids;
+        }
+    }
+    public class InsertDynamicFormApproved : DynamicFormApproved, IRequest<DynamicFormApproved>
+    {
+
+    }
+    public class GetDynamicFormApprovedByID : PagedRequest, IRequest<DynamicFormApproved>
+    {
+        public long? DynamicFormDataId { get; set; }
+        public long? ApprovalUserId { get; set; }
+        public GetDynamicFormApprovedByID(long? dynamicFormDataId, long? approvalUserId)
+        {
+            this.DynamicFormDataId = dynamicFormDataId;
+            this.ApprovalUserId = approvalUserId;
+        }
+    }
 }
 

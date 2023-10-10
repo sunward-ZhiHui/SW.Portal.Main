@@ -725,45 +725,50 @@
         deleteEnabled = false; historyEnabled = false; checkoutEnabled = false; checkInEnabled = false;
         shareEnabled = false; NotifyEnabled = false; formdetailsEnabled = false; linkdownloadEnabled = false; formdetailsEnabled = false;
         renameEnabled = false; releasewikiEnabled = false; viewParentEnabled = false;
-        if (_selectedItems != null || FileProfileTypeId > 0)
+        if (_selectedItems != null)
         {
-            ondownloadEnabled = true;
-            moreEnabled = true;
-            informationEnabled = true;
-            securityEnabled = true;
-            // if (FileProfileTypeId > 0)
-            // {
-            if (_selectedItems.AddedByUserID == applicationUser.UserID)
+            var FileProfileTypeIds = _selectedItems.FilterProfileTypeId > 0 ? _selectedItems.FilterProfileTypeId : _selectedItems.FileProfileTypeId;
+            var fileTypeData = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeIds).FirstOrDefault();
+            if (fileTypeData != null)
             {
-
-                if (documentSearchModel.Type != "Search")
+                ondownloadEnabled = true;
+                moreEnabled = true;
+                informationEnabled = true;
+                securityEnabled = true;
+                if (fileTypeData != null)
                 {
-                    isVisibleParentMore = "";
-                    isCreateDocument = true;
-                }
-                isEdit = true;
-            }
-            else
-            {
-                var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FileProfileTypeId, applicationUser.UserID));
-                if (documentPermissionModels != null)
-                {
-                    documentPermissionModel = documentPermissionModels;
-                    if (documentPermissionModel.IsCreateDocument == true)
+                    if (fileTypeData.AddedByUserID == applicationUser.UserID)
                     {
+
                         if (documentSearchModel.Type != "Search")
                         {
                             isVisibleParentMore = "";
                             isCreateDocument = true;
                         }
-                    }
-                    if (documentPermissionModels.IsEdit == true)
-                    {
                         isEdit = true;
+                    }
+                    else
+                    {
+                        var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeData.FileProfileTypeId, applicationUser.UserID));
+                        if (documentPermissionModels != null)
+                        {
+                            documentPermissionModel = documentPermissionModels;
+                            if (documentPermissionModel.IsCreateDocument == true)
+                            {
+                                if (documentSearchModel.Type != "Search")
+                                {
+                                    isVisibleParentMore = "";
+                                    isCreateDocument = true;
+                                }
+                            }
+                            if (documentPermissionModels.IsEdit == true)
+                            {
+                                isEdit = true;
+                            }
+                        }
                     }
                 }
             }
-            // }
         }
     }
 

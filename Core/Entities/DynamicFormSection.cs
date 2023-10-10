@@ -19,12 +19,20 @@ namespace Core.Entities
         public long? DynamicFormId { get; set; }
 
         public int? SortOrderBy { get; set; }
+        public bool? IsReadWrite { get; set; }=false;
+        public bool? IsReadOnly { get; set; } = false;
+
+        public bool? IsVisible { get; set; } = false;   
         [NotMapped]
         public int? SortOrderAnotherBy { get; set; }
         [NotMapped]
         public IEnumerable<AttributeHeader> AttributeIds { get; set; }=new List<AttributeHeader>();
         [NotMapped]
         public int? FormUsedCount { get; set; }
+        [NotMapped]
+        public int? IsPermissionCount { get; set; }
+        [NotMapped]
+        public int? IsLoginUsers { get; set; }
     }
     public class DynamicFormSectionSortOrder
     {

@@ -2,6 +2,7 @@
 @using Application.Common.Helper;
 @using Application.Queries;
 @using Application.Response;
+@using Markdig;
 @using Microsoft.AspNetCore.Http;
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
@@ -452,6 +453,7 @@
 
                                                 }
                                                 <div class="uk-card-body">
+                                                    
                                                     <div>
                                                         @{
                                                             byte[] htmlBinaryData = item.FileData; // Your HTML binary data
@@ -459,6 +461,7 @@
                                                             @((MarkupString)htmlContent)
                                                         }                                                        
                                                     </div>
+                                                   @* <CopyToClipboardButton Text="htmlContent" />*@
                                                 @*    <p class="uk-text-success">                                                       
                                                         <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@item.FileData" />                                                      
                                                     </p>*@
@@ -574,15 +577,16 @@
                                                                                     </div>*@
                                                                                 </h5>
                                                                             </div> 
-
+                                                                           
                                                                             @{
                                                                                 byte[] htmlBinaryData1 = items.FileData; // Your HTML binary data
                                                                                 string htmlContent1 = System.Text.Encoding.UTF8.GetString(htmlBinaryData1);
+                                                                                //string btxt = Markdown.ToHtml(htmlContent1);
+                                                                                //<CopyToClipboardButton Text="@btxt" />
                                                                                 <div style="padding: 10px;">
                                                                                     @((MarkupString)htmlContent1)
                                                                                 </div>
-                                                                            }
-
+                                                                            }                                                                           
 
                                                                             @if(items.IsMobile == 1)
                                                                             {

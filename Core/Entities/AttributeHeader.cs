@@ -16,7 +16,7 @@ namespace Core.Entities
         [Key]
 
         public long AttributeID { get; set; }
-        [Required(ErrorMessage = "Attribute Name is Required")]
+        [Required(ErrorMessage = "Field Name is Required")]
         [AttributeCustomValidation]
         public string AttributeName { get; set; }
         [Required(ErrorMessage = "Label Name is Required")]

@@ -56,11 +56,11 @@
                     <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnInvalidSubmit="@HandleInvalidSubmit" OnValidSubmit="@HandleValidSubmit">
                         <DataAnnotationsValidator />
                         <DxFormLayout CssClass="w-100">
-                            <DxFormLayoutItem Caption="Add Or Select Attribute " ColSpanMd="6" Visible="isSelectEnabled">
+                            <DxFormLayoutItem Caption="Add Or Select Field " ColSpanMd="6" Visible="isSelectEnabled">
                                 <span style="@isDisplay">
                                     <DxComboBox Data="@_attributes"
                                                 AllowUserInput="true"
-                                                NullText="Select Attribute..."
+                                                NullText="Select Field Name..."
                                                 ListRenderMode="ListRenderMode.Virtual"
                                                 FilteringMode="DataGridFilteringMode.Contains"
                                                 TextFieldName="AttributeName"
@@ -81,7 +81,7 @@
                                 <span style="@isDisplay1">
                                     <DxComboBox Data="@_attributes"
                                                 AllowUserInput="true"
-                                                NullText="Select Attribute..."
+                                                NullText="Select Field..."
                                                 ListRenderMode="ListRenderMode.Virtual"
                                                 FilteringMode="DataGridFilteringMode.Contains"
                                                 TextFieldName="AttributeName"
@@ -96,7 +96,7 @@
                                 </span>
 
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Add Or Select Attribute " ColSpanMd="6" Visible="isAddAttributeEnabled">
+                            <DxFormLayoutItem Caption="Add Or Select Field " ColSpanMd="6" Visible="isAddAttributeEnabled">
                                 <DxTextBox @bind-Text="Data.AttributeName">
                                     <Buttons>
                                         <DxEditorButton IconCssClass="fa fa-close"
@@ -118,6 +118,7 @@
                                             TextFieldName="CodeValue"
                                             ValueFieldName="CodeId"
                                             Enabled="isEdit"
+                                            EditFormat="{0}-{1}"
                                             SelectedItemChanged="@((CodeMaster plant) =>SelectedControlChanged(plant?.CodeId))"
                                 @bind-Value="@Data.ControlTypeId">
                                     <Columns>

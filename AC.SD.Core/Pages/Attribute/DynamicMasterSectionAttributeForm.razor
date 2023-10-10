@@ -78,7 +78,7 @@
         <Columns>
             @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="DynamicFormSectionAttributeId" Visible="false" />
-            <DxGridDataColumn FieldName="AttributeName" Caption="Attribute Name" MinWidth="40" />
+            <DxGridDataColumn FieldName="AttributeName" Caption="Field Name" MinWidth="40" />
             <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="40" />
             <DxGridDataColumn FieldName="DisplayName" Caption="Label Name" MinWidth="40" />
             <DxGridDataColumn FieldName="SortOrderBy" Caption="Sort Order By" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" MinWidth="40">
@@ -105,9 +105,9 @@
 
             }
             <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Attribute" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Field Name" ColSpanMd="6">
                     <DxComboBox Data="@_attributeHeaderData"
-                                NullText="Select Attribute..."
+                                NullText="Select Field..."
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="AttributeName"
                                 ValueFieldName="AttributeID"
@@ -116,7 +116,7 @@
                     @bind-Value="@types.AttributeId">
                         <Columns>
                             <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
-                                                Caption="Attribute Name"
+                                                Caption="Field Name"
                                                 Width="100px" />
                             <DxListEditorColumn FieldName="@nameof(AttributeHeader.Description)"
                                                 Caption="Label Name"

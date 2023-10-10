@@ -812,7 +812,7 @@
                     {
                         if (permissionData.IsUpdateDocument == true)
                         {
-                            uploadEnabled = true; checkoutEnabled = true; checkInEnabled = false; releasewikiEnabled = true;
+                            uploadEnabled = true; historyEnabled = true; checkoutEnabled = true; checkInEnabled = false; releasewikiEnabled = true;
                             linkdownloadEnabled = true; formdetailsEnabled = true; viewParentEnabled = true;
                         }
                         if (permissionData.IsDelete == true)
@@ -821,9 +821,7 @@
                         }
                         if (permissionData.IsRead == true)
                         {
-                            uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
-                            checkoutEnabled = true; checkInEnabled = false; shareEnabled = true; NotifyEnabled = true; formdetailsEnabled = true; linkdownloadEnabled = true;
-                            renameEnabled = true; releasewikiEnabled = true; viewParentEnabled = true;
+                             DownloadEnabled = true; viewfileEnabled = true; releasewikiEnabled = true;
                         }
                         if (permissionData.IsListVersion == true)
                         {

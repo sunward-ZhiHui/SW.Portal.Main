@@ -16,7 +16,7 @@ namespace Core.Entities
         public long? DynamicFormSectionId { get; set; }
         [Required(ErrorMessage = "Label Name is Required")]
         public string? DisplayName { get; set; }
-        [Required(ErrorMessage = "Attribute is Required")]
+        [Required(ErrorMessage = "Field Name is Required")]
         public long? AttributeId { get; set; }
 
         public int? SortOrderBy { get; set; }

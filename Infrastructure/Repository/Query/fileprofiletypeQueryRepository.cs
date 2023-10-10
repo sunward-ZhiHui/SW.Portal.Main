@@ -906,6 +906,40 @@ namespace Infrastructure.Repository.Query
                             DocumentTypeModel.TotalDocument = DocumentTypeModel.DocumentsData.ToList().Count();
                             DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
                         }
+                        var roleItems = roleItemsList.Where(w => w.FileProfileTypeId == selectedFileProfileTypeID).ToList();
+                        if (roleItems.Count > 0)
+                        {
+                            var roleItem = roleItems.FirstOrDefault(u => u.UserId == userData.UserID);
+                            if (roleItem != null)
+                            {
+                            }
+                            else
+                            {
+                                if (DocumentTypeModel.DocumentsData.Count > 0)
+                                {
+                                    DocumentTypeModel.DocumentsData.ForEach(p =>
+                                    {
+                                        p.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = false, IsRename = false };
+                                        if (closedocumentPermission.Count > 0)
+                                        {
+                                            var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
+                                            if (userpermission != null)
+                                            {
+                                                p.DocumentPermissionData.IsCloseDocument = true;
+                                            }
+                                            else
+                                            {
+                                                p.DocumentPermissionData.IsCloseDocument = false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            p.DocumentPermissionData.IsCloseDocument = true;
+                                        }
+                                    });
+                                }
+                            }
+                        }
                     }
                 }
                 return DocumentTypeModel;

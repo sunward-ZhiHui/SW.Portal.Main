@@ -20,8 +20,7 @@
 @using Newtonsoft.Json;
 
 <style scoped>
-    .save_hover_Visible
-    {
+    .save_hover_Visible {
         float: left;
         margin-top: -41px;
         line-height: 38px;
@@ -134,7 +133,7 @@
     }
     async Task loadDynamicForm()
     {
-        isApproval = false;isApproved = true;
+        isApproval = false; isApproved = true;
         dynamicFormApproval = new DynamicFormApproved();
         _dynamicformData = null; isVisibleButton = "";
         if (SessionId != null)
@@ -143,38 +142,58 @@
             {
                 _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
             }
-            _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId));
+            _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
             if (_dynamicform != null)
             {
                 if (_dynamicform.IsApproval == true && _dynamicform.DynamicFormApproval != null && _dynamicform.DynamicFormApproval.Count > 0)
                 {
-                    var userExits = _dynamicform.DynamicFormApproval.FirstOrDefault(f => f.ApprovalUserId == applicationUser.UserID);
+                    var dynamicFormApprovalItems = _dynamicform.DynamicFormApproval.OrderBy(o => o.SortOrderBy);
+                    var userExits = dynamicFormApprovalItems.FirstOrDefault(f => f.ApprovalUserId == applicationUser.UserID);
                     if (userExits != null)
                     {
+                        var notApproved = _dynamicform.DynamicFormApproval.Where(z => z.Approved == null).OrderBy(o => o.SortOrderBy).ToList();
+                        var isApprovedListData = _dynamicform.DynamicFormApproval.Where(z => z.Approved == 1).OrderBy(o => o.SortOrderBy).ToList();
                         if (_dynamicformData != null)
                         {
-                            var isApprovedList = await Mediator.Send(new GetDynamicFormApprovedByID(_dynamicformData.DynamicFormDataId, applicationUser.UserID));
-                            if (isApprovedList != null)
-                            {
-                                dynamicFormApproval.ApprovedDescription = isApprovedList.ApprovedDescription;
-                                dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
-                                dynamicFormApproval.DynamicFormApprovedId = isApprovedList.DynamicFormApprovedId;
-                                dynamicFormApproval.IsApproved = isApprovedList.IsApproved;
-                                isApproval = true;
-                                isApproved = false; isVisibleButton = "display:none;";
-                            }
-                            else
+                            var isNotApproved = notApproved.OrderBy(o => o.SortOrderBy).FirstOrDefault()?.ApprovalUserId;
+                            if (isNotApproved == applicationUser.UserID)
                             {
                                 dynamicFormApproval.ApprovedDescription = userExits.Description;
                                 dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
                                 isApproval = true;
                             }
+                            var isApprovedAs = isApprovedListData.FirstOrDefault(f => f.ApprovalUserId == applicationUser.UserID);
+                            if (isApprovedAs != null)
+                            {
+                                var isApprovedList = await Mediator.Send(new GetDynamicFormApprovedByID(_dynamicformData.DynamicFormDataId, applicationUser.UserID));
+                                if (isApprovedList != null)
+                                {
+
+                                    dynamicFormApproval.ApprovedDescription = isApprovedList.ApprovedDescription;
+                                    dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
+                                    dynamicFormApproval.DynamicFormApprovedId = isApprovedList.DynamicFormApprovedId;
+                                    dynamicFormApproval.IsApproved = isApprovedList.IsApproved;
+                                    isApproval = true;
+                                    isApproved = false; isVisibleButton = "display:none;";
+                                }
+                                else
+                                {
+                                    dynamicFormApproval.ApprovedDescription = userExits.Description;
+                                    dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
+                                    isApproval = true;
+                                }
+                            }
                         }
                         else
                         {
-                            dynamicFormApproval.ApprovedDescription = userExits.Description;
-                            dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
-                            isApproval = true;
+                             isApproval = false;
+                            var isNotApproved = notApproved.OrderBy(o => o.SortOrderBy).FirstOrDefault()?.ApprovalUserId;
+                            if (isNotApproved == applicationUser.UserID)
+                            {
+                                dynamicFormApproval.ApprovedDescription = userExits.Description;
+                                dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
+                                isApproval = true;
+                            }
                         }
                     }
                     else

@@ -68,7 +68,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<DynamicForm> Handle(GetAllDynamicFormList request, CancellationToken cancellationToken)
         {
-            return await _DynamicFormQueryRepository.GetAllSelectedList(request.ID);
+            return await _DynamicFormQueryRepository.GetAllSelectedList(request.ID,request.DynamicFormDataId);
         }
     }
 

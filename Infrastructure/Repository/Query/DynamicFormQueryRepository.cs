@@ -109,7 +109,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<DynamicForm> GetAllSelectedList(Guid? sessionId)
+        public async Task<DynamicForm> GetAllSelectedList(Guid? sessionId, long? DynamicFormDataId)
         {
             try
             {
@@ -123,7 +123,7 @@ namespace Infrastructure.Repository.Query
                     var result = (await connection.QueryFirstOrDefaultAsync<DynamicForm>(query, parameters));
                     if (result != null)
                     {
-                        result.DynamicFormApproval = (List<DynamicFormApproval>?)await GetDynamicFormApprovalByID(result.ID);
+                        result.DynamicFormApproval = (List<DynamicFormApproval>?)await GetDynamicFormApprovalByID(result.ID, DynamicFormDataId);
                     }
                     return result;
                 }
@@ -133,13 +133,16 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DynamicFormApproval>> GetDynamicFormApprovalByID(long? dynamicFormId)
+        public async Task<IReadOnlyList<DynamicFormApproval>> GetDynamicFormApprovalByID(long? dynamicFormId, long? DynamicFormDataId)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", dynamicFormId);
-                var query = "select t1.*\r\n" + " FROM DynamicFormApproval t1 WHERE t1.DynamicFormId=@DynamicFormId order by t1.sortorderby asc;";
+                parameters.Add("DynamicFormDataId", DynamicFormDataId);
+                var query = "select t1.*,\r\n" +
+                    "(select t2.IsApproved from DynamicFormApproved t2 WHERE t2.DynamicFormApprovalID=t1.DynamicFormApprovalID AND t2.DynamicFormDataID=@DynamicFormDataId) as Approved\r\n" +
+                    " FROM DynamicFormApproval t1 WHERE t1.DynamicFormId=@DynamicFormId order by t1.sortorderby asc;";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DynamicFormApproval>(query, parameters)).ToList();
@@ -150,7 +153,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<DynamicFormApproved> GetDynamicFormApprovedByID(long? dynamicFormDataId,long? approvalUserId)
+        public async Task<DynamicFormApproved> GetDynamicFormApprovedByID(long? dynamicFormDataId, long? approvalUserId)
         {
             try
             {
@@ -1266,6 +1269,33 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<string> DeleteDynamicFormApproved(DynamicFormData dynamicFormData)
+        {
+            var stringData = string.Empty;
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
+                var query = "select  * from DynamicFormApproved where  DynamicFormDataId=@DynamicFormDataId";
+
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<DynamicFormApproved>(query, parameters)).ToList();
+                    if (result != null && result.Count > 0)
+                    {
+                        result.ForEach(s =>
+                        {
+                            stringData += "update DynamicFormApproval set ApprovedCountUsed -= 1 where ApprovedCountUsed>0 AND DynamicFormApprovalId =" + s.DynamicFormApprovalId + ";\n\r";
+                        });
+                    }
+                }
+                return stringData;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData)
         {
             try
@@ -1280,8 +1310,11 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
-                            var query = "DELETE  FROM DynamicFormData WHERE DynamicFormDataId = @DynamicFormDataId;";
-                            query += await DeleteDynamicFormCurrentSectionAttribute(dynamicFormData);
+                            
+                            var query = await DeleteDynamicFormCurrentSectionAttribute(dynamicFormData);
+                            query += await DeleteDynamicFormApproved(dynamicFormData);
+                            query += "DELETE  FROM DynamicFormApproved WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
+                            query += "DELETE  FROM DynamicFormData WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
                             transaction.Commit();
                             return dynamicFormData;

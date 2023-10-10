@@ -18,9 +18,11 @@ namespace Application.Queries
     public class GetAllDynamicFormList : PagedRequest, IRequest<DynamicForm>
     {
         public Guid? ID { get; set; }
-        public GetAllDynamicFormList(Guid? ID)
+        public long? DynamicFormDataId { get; set; }
+        public GetAllDynamicFormList(Guid? ID, long? dynamicFormDataId)
         {
             this.ID = ID;
+            this.DynamicFormDataId = dynamicFormDataId;
         }
     }
     public class CreateDynamicForm : DynamicForm, IRequest<long>

@@ -403,4 +403,33 @@ namespace Application.Handlers.QueryHandlers
             return await _DynamicFormQueryRepository.DeleteDynamicFormSectionSecurity(request.Id,request.Ids);
         }
     }
+    public class InsertDynamicFormApprovedHandler : IRequestHandler<InsertDynamicFormApproved, DynamicFormApproved>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertDynamicFormApprovedHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormApproved> Handle(InsertDynamicFormApproved request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertDynamicFormApproved(request);
+
+
+        }
+    }
+    public class GetDynamicFormApprovedByIDHandler : IRequestHandler<GetDynamicFormApprovedByID, DynamicFormApproved>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormApprovedByIDHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicFormApproved> Handle(GetDynamicFormApprovedByID request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetDynamicFormApprovedByID(request.DynamicFormDataId,request.ApprovalUserId);
+        }
+
+
+    }
 }

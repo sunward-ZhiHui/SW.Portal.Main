@@ -215,5 +215,19 @@ namespace Application.Queries
             this.Ids = ids;
         }
     }
+    public class InsertDynamicFormApproved : DynamicFormApproved, IRequest<DynamicFormApproved>
+    {
+
+    }
+    public class GetDynamicFormApprovedByID : PagedRequest, IRequest<DynamicFormApproved>
+    {
+        public long? DynamicFormDataId { get; set; }
+        public long? ApprovalUserId { get; set; }
+        public GetDynamicFormApprovedByID(long? dynamicFormDataId, long? approvalUserId)
+        {
+            this.DynamicFormDataId = dynamicFormDataId;
+            this.ApprovalUserId = approvalUserId;
+        }
+    }
 }
 

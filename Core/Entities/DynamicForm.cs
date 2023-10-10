@@ -26,6 +26,8 @@ namespace Core.Entities
         [NotMapped]
         public IEnumerable<long> AttributeIds { get; set; }
         [NotMapped]
-        public List<AttributeHeader>? _attributesName { get; set; }
+        public List<AttributeHeader>? AttributesName { get; set; }
+        [NotMapped]
+        public List<DynamicFormApproval>? DynamicFormApproval {  get; set; }
     }
 }

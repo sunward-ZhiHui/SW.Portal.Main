@@ -224,6 +224,8 @@
     public ApplicationUser? applicationUser { get; private set; }
     private List<DynamicFormSectionSortOrder> sortOrderList { get; set; }
     DynamicFormSection _selectedDynamicFormSectionItems = new DynamicFormSection();
+    [Parameter]
+    public Action<bool?> RevokeBack { get; set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -535,10 +537,12 @@
     }
     void addPermission()
     {
+        RevokeBack?.Invoke(true);
         addPermissionEnabled = true;
     }
     async Task CloseAddPermissionEnabled()
     {
+        RevokeBack?.Invoke(false);
         await UpdateDataAsync();
         addPermissionEnabled = false;
     }

@@ -120,7 +120,48 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryFirstOrDefaultAsync<DynamicForm>(query, parameters));
+                    var result = (await connection.QueryFirstOrDefaultAsync<DynamicForm>(query, parameters));
+                    if (result != null)
+                    {
+                        result.DynamicFormApproval = (List<DynamicFormApproval>?)await GetDynamicFormApprovalByID(result.ID);
+                    }
+                    return result;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormApproval>> GetDynamicFormApprovalByID(long? dynamicFormId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormId", dynamicFormId);
+                var query = "select t1.*\r\n" + " FROM DynamicFormApproval t1 WHERE t1.DynamicFormId=@DynamicFormId order by t1.sortorderby asc;";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormApproval>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormApproved> GetDynamicFormApprovedByID(long? dynamicFormDataId,long? approvalUserId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormDataId", dynamicFormDataId);
+                parameters.Add("ApprovalUserId", approvalUserId);
+                var query = "select t1.*,t2.ApprovalUserId FROM DynamicFormApproved t1 JOIN DynamicFormApproval t2  ON t2.DynamicFormApprovalID=t1.DynamicFormApprovalID " +
+                    "Where t1.DynamicFormDataId=@DynamicFormDataId AND t2.ApprovalUserId=@ApprovalUserId order by t2.sortorderby asc";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DynamicFormApproved>(query, parameters);
                 }
             }
             catch (Exception exp)
@@ -1259,6 +1300,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
         public async Task<IReadOnlyList<DynamicFormApproval>> GetDynamicFormApprovalAsync(long? dynamicFormId)
         {
             try
@@ -1852,6 +1894,52 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormApproved> InsertDynamicFormApproved(DynamicFormApproved dynamicForm)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DynamicFormApprovedId", dynamicForm.DynamicFormApprovedId);
+                            parameters.Add("DynamicFormApprovalId", dynamicForm.DynamicFormApprovalId);
+                            parameters.Add("DynamicFormDataId", dynamicForm.DynamicFormDataId);
+                            parameters.Add("IsApproved", dynamicForm.IsApproved);
+                            parameters.Add("ApprovedDescription", dynamicForm.ApprovedDescription);
+                            var query = "INSERT INTO DynamicFormApproved(DynamicFormApprovalId,IsApproved,ApprovedDescription,DynamicFormDataId)  " +
+                                  "OUTPUT INSERTED.DynamicFormApprovedId VALUES " +
+                                 "(@DynamicFormApprovalId,@IsApproved,@ApprovedDescription,@DynamicFormDataId);\n\r";
+                            query += "update DynamicFormApproval set ApprovedCountUsed += 1 where DynamicFormApprovalId =" + dynamicForm.DynamicFormApprovalId + ";\n\r";
+                            dynamicForm.DynamicFormApprovedId = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return dynamicForm;
+                        }
+
+
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
             }
         }
     }

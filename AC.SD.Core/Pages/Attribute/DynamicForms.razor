@@ -19,7 +19,17 @@
 @using System.Linq.Expressions;
 @using Newtonsoft.Json;
 
-
+<style scoped>
+    .save_hover_Visible
+    {
+        float: left;
+        margin-top: -41px;
+        line-height: 38px;
+        margin-left: 200px;
+        z-index: 9999;
+        width: 100px;
+    }
+</style>
 <div class="card cw-480">
     <div class="card-header text-center py-3">
         <h4>@_dynamicform?.Name</h4>
@@ -40,7 +50,7 @@
                         </Items>
                     </DxMenu>
                 </div>
-                <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 200px; z-index: 9999; width:100px;">
+                <div class="save_hover_Visible" style="@isVisibleButton">
                     <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
                         @if (loading)
                         {
@@ -59,18 +69,46 @@
               OnInvalidSubmit="@HandleInvalidSubmit"
               Context="EditFormContext">
         <DataAnnotationsValidator />
-
-        <div class="card-body" style="margin-top:5px;">
-            @CreateEditFormFields()
-        </div>
+        <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabIndex" TabClick="OnTabClick">
+            <DxTabPage Text="Form">
+                <div class="card-body" style="margin-top:5px;">
+                    @CreateEditFormFields()
+                </div>
+            </DxTabPage>
+            <DxTabPage Text="Approval" Visible="@isApproval">
+                <DxFormLayout CssClass="w-100" style="padding:10px;">
+                    <DxFormLayoutItem Caption="" ColSpanMd="12">
+                        <DxCheckBox @bind-Checked="dynamicFormApproval.IsApproved" LabelPosition="LabelPosition.Right" Enabled="@isApproved">Approved</DxCheckBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                        <DxMemo @bind-Text="@dynamicFormApproval.ApprovedDescription" Rows="5" ShowValidationIcon="true" Enabled="@isApproved" />
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </DxTabPage>
+        </DxTabs>
     </EditForm>
 </div>
-
+<DxPopup @bind-Visible="@isApprovedPopup"
+         ShowFooter="true"
+         HeaderText="Approved From"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Are you sure want to Approved?
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="HandleFormValidSubmit" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     [Parameter]
     public Guid? SessionIds { get; set; }
     [Parameter]
     public Guid? SessionId { get; set; }
+    public int ActiveTabIndex { get; set; } = 0;
     private bool loading;
     private DynamicForm _dynamicform;
     private DynamicFormData _dynamicformData;
@@ -80,6 +118,11 @@
     DynamicFormData dynamicFormData = new DynamicFormData();
     public ApplicationUser applicationUser { get; private set; }
     public long? dynamicFormDataId { get; set; }
+    bool isApproval { get; set; } = false;
+    bool isApprovedPopup { get; set; } = false;
+    bool isApproved { get; set; } = true;
+    string isVisibleButton { get; set; } = "";
+    private DynamicFormApproved dynamicFormApproval = new DynamicFormApproved();
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -91,11 +134,54 @@
     }
     async Task loadDynamicForm()
     {
+        isApproval = false;isApproved = true;
+        dynamicFormApproval = new DynamicFormApproved();
+        _dynamicformData = null; isVisibleButton = "";
         if (SessionId != null)
         {
+            if (SessionIds != null)
+            {
+                _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
+            }
             _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId));
             if (_dynamicform != null)
             {
+                if (_dynamicform.IsApproval == true && _dynamicform.DynamicFormApproval != null && _dynamicform.DynamicFormApproval.Count > 0)
+                {
+                    var userExits = _dynamicform.DynamicFormApproval.FirstOrDefault(f => f.ApprovalUserId == applicationUser.UserID);
+                    if (userExits != null)
+                    {
+                        if (_dynamicformData != null)
+                        {
+                            var isApprovedList = await Mediator.Send(new GetDynamicFormApprovedByID(_dynamicformData.DynamicFormDataId, applicationUser.UserID));
+                            if (isApprovedList != null)
+                            {
+                                dynamicFormApproval.ApprovedDescription = isApprovedList.ApprovedDescription;
+                                dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
+                                dynamicFormApproval.DynamicFormApprovedId = isApprovedList.DynamicFormApprovedId;
+                                dynamicFormApproval.IsApproved = isApprovedList.IsApproved;
+                                isApproval = true;
+                                isApproved = false; isVisibleButton = "display:none;";
+                            }
+                            else
+                            {
+                                dynamicFormApproval.ApprovedDescription = userExits.Description;
+                                dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
+                                isApproval = true;
+                            }
+                        }
+                        else
+                        {
+                            dynamicFormApproval.ApprovedDescription = userExits.Description;
+                            dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
+                            isApproval = true;
+                        }
+                    }
+                    else
+                    {
+                        //isVisibleButton = "display:none;";
+                    }
+                }
                 var screenId = _dynamicform.ScreenID.Replace(" ", "_");
                 _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID));
                 if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
@@ -105,91 +191,91 @@
                     MyClassBuilder MCB = new MyClassBuilder(screenId);
                     var myclass = MCB.CreateObject(objectNameList, typesList);
                     Data = myclass;
-                    if (SessionIds != null)
+                    if (_dynamicformData != null)
                     {
-                        _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
-                        if (_dynamicformData != null)
+                        dynamicFormData.DynamicFormDataId = _dynamicformData.DynamicFormDataId;
+                        dynamicFormData.SessionId = _dynamicformData.SessionId;
+                        dynamicFormData.AddedDate = _dynamicformData.AddedDate;
+                        dynamicFormData.AddedByUserID = _dynamicformData.AddedByUserID;
+                        dynamicFormData.DynamicFormCurrentItem = _dynamicformData.DynamicFormItem;
+                        if (!string.IsNullOrEmpty(_dynamicformData.DynamicFormItem))
                         {
-                            dynamicFormData.DynamicFormDataId = _dynamicformData.DynamicFormDataId;
-                            dynamicFormData.SessionId = _dynamicformData.SessionId;
-                            dynamicFormData.AddedDate = _dynamicformData.AddedDate;
-                            dynamicFormData.AddedByUserID = _dynamicformData.AddedByUserID;
-                            dynamicFormData.DynamicFormCurrentItem = _dynamicformData.DynamicFormItem;
-                            if (!string.IsNullOrEmpty(_dynamicformData.DynamicFormItem))
+                            if (IsValidJson(_dynamicformData.DynamicFormItem))
                             {
-                                if (IsValidJson(_dynamicformData.DynamicFormItem))
+                                dynamic jsonObj = JsonConvert.DeserializeObject(_dynamicformData.DynamicFormItem);
+                                _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
                                 {
-                                    dynamic jsonObj = JsonConvert.DeserializeObject(_dynamicformData.DynamicFormItem);
-                                    _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
+                                    var Names = jsonObj.ContainsKey(a.DynamicAttributeName);
+                                    if (Names == true)
                                     {
-                                        var Names = jsonObj.ContainsKey(a.DynamicAttributeName);
-                                        if (Names == true)
+                                        //var valueType = jsonObj[a.DynamicAttributeName].Type;
+                                        var itemValue = jsonObj[a.DynamicAttributeName];
+                                        if (itemValue is JArray)
                                         {
-                                            //var valueType = jsonObj[a.DynamicAttributeName].Type;
-                                            var itemValue = jsonObj[a.DynamicAttributeName];
-                                            if (itemValue is JArray)
+                                            var values = (JArray)itemValue;
+                                            List<long?> listData = values.ToObject<List<long?>>();
+                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, listData);
+                                        }
+                                        else if (a.ControlType == "ListBox" && a.IsMultiple == false)
+                                        {
+                                            long? values = itemValue == null ? null : (long)itemValue;
+                                            Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                        }
+                                        else
+                                        {
+
+                                            if (a.ControlType == "TextBox" || a.ControlType == "Memo")
                                             {
-                                                var values = (JArray)itemValue;
-                                                List<long?> listData = values.ToObject<List<long?>>();
-                                                Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, listData);
+                                                var values = (string)itemValue;
+                                                Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
                                             }
-                                            else if (a.ControlType == "ListBox" && a.IsMultiple == false)
+                                            else if (a.ControlType == "ComboBox" || a.ControlType == "Radio" || a.ControlType == "RadioGroup")
                                             {
                                                 long? values = itemValue == null ? null : (long)itemValue;
                                                 Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
                                             }
-                                            else
+                                            else if (a.ControlType == "CheckBox")
                                             {
+                                                bool? values = itemValue == null ? false : (bool)itemValue;
+                                                Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                            }
+                                            else if (a.ControlType == "DateEdit")
+                                            {
+                                                DateTime? values = itemValue == null ? null : (DateTime)itemValue;
+                                                Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                            }
+                                            else if (a.ControlType == "TimeEdit")
+                                            {
+                                                TimeSpan? values = itemValue == null ? null : (TimeSpan)itemValue;
+                                                Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
+                                            }
 
-                                                if (a.ControlType == "TextBox" || a.ControlType == "Memo")
+                                            else if (a.ControlType == "SpinEdit")
+                                            {
+                                                if (a.IsSpinEditType == "decimal")
                                                 {
-                                                    var values = (string)itemValue;
+                                                    decimal? values = itemValue == null ? null : (decimal)itemValue;
                                                     Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
                                                 }
-                                                else if (a.ControlType == "ComboBox" || a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                                                else
                                                 {
-                                                    long? values = itemValue == null ? null : (long)itemValue;
+                                                    int? values = itemValue == null ? null : (int)itemValue;
                                                     Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
-                                                }
-                                                else if (a.ControlType == "CheckBox")
-                                                {
-                                                    bool? values = itemValue == null ? false : (bool)itemValue;
-                                                    Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
-                                                }
-                                                else if (a.ControlType == "DateEdit")
-                                                {
-                                                    DateTime? values = itemValue == null ? null : (DateTime)itemValue;
-                                                    Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
-                                                }
-                                                else if (a.ControlType == "TimeEdit")
-                                                {
-                                                    TimeSpan? values = itemValue == null ? null : (TimeSpan)itemValue;
-                                                    Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
-                                                }
-
-                                                else if (a.ControlType == "SpinEdit")
-                                                {
-                                                    if (a.IsSpinEditType == "decimal")
-                                                    {
-                                                        decimal? values = itemValue == null ? null : (decimal)itemValue;
-                                                        Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
-                                                    }
-                                                    else
-                                                    {
-                                                        int? values = itemValue == null ? null : (int)itemValue;
-                                                        Data.GetType().GetProperty(a.DynamicAttributeName).SetValue(Data, values);
-                                                    }
                                                 }
                                             }
                                         }
-                                    });
-                                }
+                                    }
+                                });
                             }
                         }
                     }
                 }
             }
         }
+        StateHasChanged();
+    }
+    void OnTabClick(TabClickEventArgs e)
+    {
     }
     private static bool IsValidJson(string strInput)
     {
@@ -234,7 +320,7 @@
         NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
         await loadDynamicForm();
     }
-    async Task HandleValidSubmit()
+    async Task HandleFormValidSubmit()
     {
         var datas = Data;
         string strJson = JsonConvert.SerializeObject(datas);
@@ -256,9 +342,13 @@
                     ObjectData = Data,
                 };
 
-            await Mediator.Send(editReq);
-            toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            loading = false;
+            var result = await Mediator.Send(editReq);
+            if (result.DynamicFormDataId > 0)
+            {
+                toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                loading = false;
+                await onApproved();
+            }
             StateHasChanged();
         }
         else
@@ -283,11 +373,57 @@
                 dynamicFormDataId = result.DynamicFormDataId;
                 dynamicFormData.DynamicFormDataId = dynamicFormDataId.Value;
                 loading = false;
+                await onApproved();
             }
             loading = false;
             NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + createReq.SessionId);
             StateHasChanged();
         }
+    }
+    async Task HandleValidSubmit()
+    {
+        if (isApproval == true && dynamicFormApproval.IsApproved == true)
+        {
+            isApprovedPopup = true;
+        }
+        else
+        {
+            await HandleFormValidSubmit();
+        }
+    }
+    async Task onApproved()
+    {
+        if (isApproval == true)
+        {
+            if (dynamicFormApproval.IsApproved == true)
+            {
+                var createReq = new InsertDynamicFormApproved
+                    {
+                        DynamicFormId = _dynamicform.ID,
+                        DynamicFormDataId = dynamicFormData.DynamicFormDataId,
+                        DynamicFormApprovedId = dynamicFormApproval.DynamicFormApprovedId,
+                        DynamicFormApprovalId = dynamicFormApproval.DynamicFormApprovalId,
+                        ApprovedDescription = dynamicFormApproval.ApprovedDescription,
+                        IsApproved = dynamicFormApproval.IsApproved,
+                    };
+                var result = await Mediator.Send(createReq);
+                if (result.DynamicFormApprovedId > 0)
+                {
+                    dynamicFormApproval.DynamicFormApprovedId = result.DynamicFormApprovedId;
+                    isApprovedPopup = false;
+
+                    isApproved = false; isVisibleButton = "display:none;";
+                }
+            }
+        }
+    }
+    async Task OnApprovedForm()
+    {
+        await HandleFormValidSubmit();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        isApprovedPopup = false;
     }
     void HandleInvalidSubmit()
     {
@@ -303,21 +439,35 @@
             {
                 var isReadonly = false;
                 var isVisible = false;
-                if (a.IsPermissionCount > 0)
+                if (isApproval == false)
                 {
-                    if (a.IsVisible == true)
+                    if (a.IsPermissionCount == 0 && a.IsLoginUsers == 0)
                     {
-                        if (a.IsLoginUsers > 0)
+                        isVisible = true; isReadonly = true;
+                    }
+                    else
+                    {
+                        if (a.IsPermissionCount > 0)
                         {
-                            isVisible = true;
-                            if (a.IsReadWrite == true)
+                            if (a.IsVisible == true)
                             {
-                                isReadonly = true;
+                                if (a.IsLoginUsers > 0)
+                                {
+                                    isVisible = true;
+                                    if (a.IsReadWrite == true)
+                                    {
+                                        isReadonly = true;
+                                    }
+                                    if (a.IsReadOnly == true)
+                                    {
+                                        isReadonly = false;
+                                    }
+                                }
                             }
-                            if (a.IsReadOnly == true)
-                            {
-                                isReadonly = false;
-                            }
+                        }
+                        else
+                        {
+                            isVisible = true; isReadonly = true;
                         }
                     }
                 }

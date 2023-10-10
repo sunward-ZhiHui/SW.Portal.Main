@@ -15,6 +15,16 @@
 @inject NavigationManager NavigationManager
 @page "/DynamicMasterSetup/DynamicMasterForm"
 @page "/DynamicMasterSetup/DynamicMasterForm/{SessionIds:guid}"
+<style scoped>
+    .save_hover_Master_From_1
+    {
+        float: left;
+        margin-top: -41px;
+        line-height: 38px;
+        margin-left: 200px;
+        width: 100px;
+    }
+</style>
 <div class="card" style="margin-bottom:10px; margin-left:-12px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -28,7 +38,7 @@
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 200px; width:100px;">
+            <div class="save_hover_Master_From_1" style="@_zindex">
                 <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
                     @if (loading)
                     {
@@ -75,7 +85,7 @@
                     <DxFormLayout CssClass="w-100">
                         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex" RenderMode="TabsRenderMode.Default" TabClick=@OnTabClick>
                             <DxFormLayoutTabPage Caption="Section Entry">
-                                <DynamicMasterSectionForm @ref="refDynamicMasterSectionForm" dynamicFormId="@dynamicFormId"></DynamicMasterSectionForm>
+                                <DynamicMasterSectionForm @ref="refDynamicMasterSectionForm" dynamicFormId="@dynamicFormId" RevokeBack="BackPermissionPopUp"></DynamicMasterSectionForm>
                             </DxFormLayoutTabPage>
                             <DxFormLayoutTabPage Caption="Approval Level Entry" Visible=IsApprovalEnabled>
                                 <DynamicFormApprovals @ref="refDynamicFormApproval" dynamicFormId="@dynamicFormId"></DynamicFormApprovals>
@@ -98,7 +108,6 @@
     public Guid? SessionIds { get; set; }
     public DynamicForm _dynamicFormData;
     private bool loading;
-    string MasterType = "MasterPrice";
     private string MyID = "myid";
     long? EmployeeIds { get; set; }
     bool EditEnabledTab { get; set; } = false;
@@ -107,6 +116,7 @@
     DynamicForm Data = new DynamicForm();
     View_SalesOrderMasterPricing _salesOrderItem = new View_SalesOrderMasterPricing();
     public ApplicationUser applicationUser { get; private set; }
+    string _zindex = "z-index: 9999;";
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -164,7 +174,7 @@
         }
         else if (e.TabIndex == 1)
         {
-           // await refDynamicFormApproval.loadChildData(dynamicFormId);
+            // await refDynamicFormApproval.loadChildData(dynamicFormId);
         }
     }
     void backUrl()
@@ -184,6 +194,18 @@
     void onsubmitClick()
     {
         ActiveSubTabIndex = 0;
+    }
+    void BackPermissionPopUp(bool? Status)
+    {
+        if(Status==true)
+        {
+            _zindex = "";
+        }
+        else
+        {
+            _zindex = "z-index: 9999;";
+        }
+        StateHasChanged();
     }
     async Task HandleValidSubmit()
     {

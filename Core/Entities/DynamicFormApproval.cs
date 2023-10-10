@@ -25,5 +25,6 @@ namespace Core.Entities
         public string? ApprovalUser { get; set; }
         [NotMapped]
         public int? SortOrderAnotherBy { get; set; }
+        public int? ApprovedCountUsed { get; set; } = 0;
     }
 }

@@ -90,7 +90,12 @@
                     @{
                         var item = (DynamicFormApproval)context.DataItem;
                     }
-                    <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-RenameFilename-{item.DynamicFormApprovalId}") onclick="@(() => OnButtonSortOrderByClick(item))" title="@item.SortOrderBy"></i>
+                    @if (item.ApprovedCountUsed > 0)
+                    { }
+                    else
+                    {
+                        <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-RenameFilename-{item.DynamicFormApprovalId}") onclick="@(() => OnButtonSortOrderByClick(item))" title="@item.SortOrderBy"></i>
+                    }
                     @item.SortOrderBy
                 </CellDisplayTemplate>
             </DxGridDataColumn>
@@ -99,7 +104,12 @@
                     @{
                         var item = (DynamicFormApproval)context.DataItem;
                     }
-                    <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-Description-{item.DynamicFormApprovalId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.Description"></i>
+                    @if (item.ApprovedCountUsed > 0)
+                    { }
+                    else
+                    {
+                        <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-Description-{item.DynamicFormApprovalId}") onclick="@(() => OnButtonDescriptionClick(item))" title="@item.Description"></i>
+                    }
                     <span title="@item.Description">@item.Description</span>
                 </CellDisplayTemplate>
             </DxGridDataColumn>
@@ -285,7 +295,10 @@
             if (_dynamicFormApprovalData.Count > 0)
             {
                 _selectedItems = _dynamicFormApprovalData.FirstOrDefault();
-                if (_selectedItems.IsApproved != true)
+                if (_selectedItems.ApprovedCountUsed > 0)
+                {
+                }
+                else
                 {
                     EditEnabledApproval = true;
                     DeleteEnabledApproval = true;
@@ -326,7 +339,7 @@
                     SortOrderBy = editModel.SortOrderBy,
                     IsApproved = editModel.IsApproved,
                     AddedDate = DateTime.Now,
-                    Description=editModel.Description,
+                    Description = editModel.Description,
                 };
 
             try
@@ -357,7 +370,7 @@
                     StatusCodeID = 1,
                     AddedDate = editModel.AddedDate,
                     Description = editModel.Description,
-                    DynamicFormApprovalId=editModel.DynamicFormApprovalId,
+                    DynamicFormApprovalId = editModel.DynamicFormApprovalId,
 
                 };
             var result = await Mediator.Send(UpdateReq);
@@ -420,7 +433,7 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DynamicFormApprovalId");
         _selectedItems = _dynamicFormApprovalData.FirstOrDefault(f => f.DynamicFormApprovalId == (long?)UniqueId);
         DeleteEnabledApproval = true; EditEnabledApproval = true;
-        if (_selectedItems.IsApproved == true)
+        if (_selectedItems.ApprovedCountUsed > 0)
         {
             EditEnabledApproval = false;
             DeleteEnabledApproval = false;
@@ -453,14 +466,18 @@
                         _selectlst = _dynamicFormApprovalData.FirstOrDefault(f => f.DynamicFormApprovalId == dataselectItems.DynamicFormApprovalId);
                     }
                 }
-                if (_selectlst.IsApproved != true)
+                if (_selectlst.ApprovedCountUsed > 0)
+                { }
+                else
                 {
                     SMApprovalGrid.StartEditDataItemAsync(_selectlst);
                 }
             }
             else
             {
-                if (_selectedItems.IsApproved != true)
+                if (_selectedItems.ApprovedCountUsed > 0)
+                { }
+                else
                 {
                     SMApprovalGrid.StartEditDataItemAsync(_selectedItems);
                 }
@@ -521,11 +538,16 @@
         _selectedDynamicFormSectionItems = new DynamicFormApproval();
 
         sortOrderList = new List<DynamicFormSectionSortOrder>();
-        IsSortOrderByOpen = true;
+        IsSortOrderByOpen = true; IsDescriptionOpen = false;
         if (_dynamicFormApprovalData != null && _dynamicFormApprovalData.Count > 0)
         {
+            var SortOrderWithOutApproved = _dynamicFormApprovalData.Where(w => w.ApprovedCountUsed == 0).OrderBy(o => o.SortOrderBy).FirstOrDefault()?.SortOrderBy;
+            if (SortOrderWithOutApproved == null || SortOrderWithOutApproved==0)
+            {
+                SortOrderWithOutApproved = 1;
+            }
             var count = _dynamicFormApprovalData.Count;
-            for (int i = 1; i <= count; i++)
+            for (int? i = SortOrderWithOutApproved; i <= count; i++)
             {
                 DynamicFormSectionSortOrder dynamicFormSectionSortOrder = new DynamicFormSectionSortOrder();
                 dynamicFormSectionSortOrder.Text = i.ToString();

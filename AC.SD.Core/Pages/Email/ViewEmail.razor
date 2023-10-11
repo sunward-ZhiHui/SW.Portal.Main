@@ -2800,8 +2800,17 @@
                 }
                 else
                 {
+                    var elst = await Mediator.Send(new GetListBySession(ActiveSessionId));
+                    
+                    SelectedGroup = elst[0].ID.ToString();
                     RTopicId = 0;
-                    SelectedGroup = "0";
+
+                    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+                    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
+                    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                    _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
+
+                    
                     await LoadData();
 
                     //if (long.Parse(@SelectedGroup) > 0)

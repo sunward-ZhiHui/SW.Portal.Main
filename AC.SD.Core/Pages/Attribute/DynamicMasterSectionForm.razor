@@ -104,16 +104,16 @@
                     <DxTextBox @bind-Text="@types.SectionName" ShowValidationIcon="true" />
                     <ValidationMessage For="@(() => types.SectionName)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Attribute" ColSpanMd="6">
+                <DxFormLayoutItem Caption="Field Name" ColSpanMd="6">
                     <DxTagBox Data="@_attributeHeaderData"
-                              NullText="Select Attribute..."
+                              NullText="Select Field..."
                               FilteringMode="DataGridFilteringMode.Contains"
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ListRenderMode="ListRenderMode.Virtual"
                               EditFormat="{0}"
                     @bind-Values="@types.AttributeIds">
                         <DxListEditorColumn FieldName="@nameof(AttributeHeader.AttributeName)"
-                                            Caption="Attribute Name"
+                                            Caption="Field Name"
                                             Width="100px" />
                         <DxListEditorColumn FieldName="@nameof(AttributeHeader.Description)"
                                             Caption="Label Name"

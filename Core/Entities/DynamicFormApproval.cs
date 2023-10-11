@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    public class DynamicFormApproval:BaseEntity
+    public class DynamicFormApproval : BaseEntity
     {
         [Key]
         public long DynamicFormApprovalId { get; set; }
         public long? DynamicFormId { get; set; }
-        [Required(ErrorMessage ="User is Required")]
+        [Required(ErrorMessage = "User is Required")]
         [DynamicFormApprovalCustomValidation]
         public long? ApprovalUserId { get; set; }
         public int? SortOrderBy { get; set; }
@@ -26,5 +26,7 @@ namespace Core.Entities
         [NotMapped]
         public int? SortOrderAnotherBy { get; set; }
         public int? ApprovedCountUsed { get; set; } = 0;
+        [NotMapped]
+        public int? Approved { get; set; }
     }
 }

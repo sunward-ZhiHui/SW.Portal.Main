@@ -104,7 +104,7 @@
         EditEnabled = false; DeleteEnabled = false;
         if (SessionId != null)
         {
-            _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId));
+            _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId,-1));
             if (_dynamicForm != null)
             {
                 _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID));

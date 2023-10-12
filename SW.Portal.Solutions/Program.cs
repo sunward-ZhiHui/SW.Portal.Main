@@ -51,6 +51,12 @@ public class Program
         static void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
 
+            //Enable CORS
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            });
+
             services.AddOptions();
             services.AddControllers();
             services.AddHttpContextAccessor();

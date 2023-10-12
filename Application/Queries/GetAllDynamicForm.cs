@@ -231,5 +231,29 @@ namespace Application.Queries
             this.ApprovalUserId = approvalUserId;
         }
     }
+    public class InsertOrUpdateDynamicFormApproved : DynamicFormData, IRequest<DynamicFormData>
+    {
+        public DynamicFormData DynamicFormData { get; set; }
+        public InsertOrUpdateDynamicFormApproved(DynamicFormData dynamicFormData)
+        {
+            this.DynamicFormData = dynamicFormData;
+        }
+    }
+    public class GetDynamicFormApprovedList : PagedRequest, IRequest<List<DynamicFormApproved>>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormApprovedList(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class UpdateDynamicFormApprovedByStaus : DynamicFormApproved, IRequest<DynamicFormApproved>
+    {
+        public DynamicFormApproved DynamicFormApproved { get; set; }
+        public UpdateDynamicFormApprovedByStaus(DynamicFormApproved dynamicFormApproved)
+        {
+            this.DynamicFormApproved = dynamicFormApproved;
+        }
+    }
 }
 

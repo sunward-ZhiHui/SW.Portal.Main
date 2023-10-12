@@ -24,7 +24,14 @@
         float: left;
         margin-top: -41px;
         line-height: 38px;
-        margin-left: 200px;
+        margin-left: 450px;
+        z-index: 9999;
+        width: 100px;
+    }
+
+    .save_hover_Approval_Visible {
+        float: left;
+        margin-top: -41px;
         z-index: 9999;
         width: 100px;
     }
@@ -46,6 +53,8 @@
                         <Items>
                             <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                             <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                            <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="@onClickApprove" Enabled="@IsApprovalApproved" id=@($"flyout-overview-target-container-Description-Approve") />
+                            <DxMenuItem Text="@RejectName" IconCssClass="fa fa-ban" Click="@onClickReject" Enabled="@IsApprovalRejected" id=@($"flyout-overview-target-container-Description-Reject") />
                         </Items>
                     </DxMenu>
                 </div>
@@ -57,6 +66,16 @@
                         }
                         <i class="fa fa-save"></i>
                         Save
+                    </button>
+                </div>
+                <div class="save_hover_Approval_Visible" style="@IsSendApprovalVisible">
+                    <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitApprovalClick">
+                        @if (loading)
+                        {
+                            <span class="spinner-border spinner-border-sm mr-1"></span>
+                        }
+                        <i class="fa fa-save"></i>
+                        Send Approval
                     </button>
                 </div>
 
@@ -74,15 +93,26 @@
                     @CreateEditFormFields()
                 </div>
             </DxTabPage>
+            @*  <DxTabPage Text="Approval" Visible="@isApproval"> *@
             <DxTabPage Text="Approval" Visible="@isApproval">
-                <DxFormLayout CssClass="w-100" style="padding:10px;">
-                    <DxFormLayoutItem Caption="" ColSpanMd="12">
-                        <DxCheckBox @bind-Checked="dynamicFormApproval.IsApproved" LabelPosition="LabelPosition.Right" Enabled="@isApproved">Approved</DxCheckBox>
-                    </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Description" ColSpanMd="12">
-                        <DxMemo @bind-Text="@dynamicFormApproval.ApprovedDescription" Rows="5" ShowValidationIcon="true" Enabled="@isApproved" />
-                    </DxFormLayoutItem>
-                </DxFormLayout>
+                <DxGrid Data="_dynamicFormApprovedList" style="padding:10px;"
+                        KeyFieldName="DynamicFormApprovedId">
+                    <Columns>
+                        <DxGridDataColumn FieldName="ApprovalUser" Caption="User" />
+                        <DxGridDataColumn FieldName="ApprovedStatus" Caption="Status" />
+                        <DxGridDataColumn FieldName="ApprovedDescription" Caption="Description" />
+                        <DxGridDataColumn FieldName="ApprovedByUser" Caption="Added By" />
+                        <DxGridDataColumn FieldName="ApprovedDate" Caption="Added Date" />
+                    </Columns>
+                </DxGrid>
+                @*  <DxFormLayout CssClass="w-100" style="padding:10px;">
+                <DxFormLayoutItem Caption="" ColSpanMd="12">
+                <DxCheckBox @bind-Checked="dynamicFormApproval.IsApproved" LabelPosition="LabelPosition.Right" Enabled="@isApproved">Approved</DxCheckBox>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                <DxMemo @bind-Text="@dynamicFormApproval.ApprovedDescription" Rows="5" ShowValidationIcon="true" Enabled="@isApproved" />
+                </DxFormLayoutItem>
+                </DxFormLayout> *@
             </DxTabPage>
         </DxTabs>
     </EditForm>
@@ -102,6 +132,30 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="HandleFormValidSubmit" />
     </FooterContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=IsDescriptionOpen
+          PositionTarget=@($"#flyout-overview-target-container-Description-{ApproveRejectName}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText=@($"{ApproveRejectName} Description")
+          FooterVisible="true"
+          CloseOnOutsideClick="false"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+                <DxMemo @bind-Text="@dynamicFormApproval.ApprovedDescription" CssClass="cw-480" Rows="5" />
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="@ApproveRejectName" Click=@(()=> OnUpdateDescription()) />
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
     [Parameter]
     public Guid? SessionIds { get; set; }
@@ -109,6 +163,7 @@
     public Guid? SessionId { get; set; }
     public int ActiveTabIndex { get; set; } = 0;
     private bool loading;
+    public bool IsDescriptionOpen { get; set; } = false;
     private DynamicForm _dynamicform;
     private DynamicFormData _dynamicformData;
     private string MyID = Guid.NewGuid().ToString();
@@ -121,7 +176,16 @@
     bool isApprovedPopup { get; set; } = false;
     bool isApproved { get; set; } = true;
     string isVisibleButton { get; set; } = "";
+    bool IsSendApproval { get; set; } = false;
+    string IsSendApprovalVisible { get; set; } = "display:none;";
+    bool IsApprovalApproved { get; set; } = false;
+    bool IsApprovalRejected { get; set; } = false;
+    bool IsSave { get; set; } = true; bool IsApprovalSave { get; set; } = true;
+    string? ApproveName { get; set; } = "Approve";
+    string? RejectName { get; set; } = "Reject";
+    string? ApproveRejectName { get; set; } = "Approve";
     private DynamicFormApproved dynamicFormApproval = new DynamicFormApproved();
+    private List<DynamicFormApproved>? _dynamicFormApprovedList;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -133,74 +197,135 @@
     }
     async Task loadDynamicForm()
     {
-        isApproval = false; isApproved = true;
+        isApproval = false; isApproved = true; IsSendApproval = false; IsSendApprovalVisible = "display:none;"; ApproveRejectName = "Approve";
+        IsApprovalApproved = false; IsApprovalRejected = false; IsApprovalSave = false; IsDescriptionOpen = false;
         dynamicFormApproval = new DynamicFormApproved();
-        _dynamicformData = null; isVisibleButton = "";
+        _dynamicformData = null; isVisibleButton = ""; IsSave = true;
         if (SessionId != null)
         {
             if (SessionIds != null)
             {
                 _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
+                if (_dynamicformData != null)
+                {
+                    IsSendApproval = _dynamicformData.IsSendApproval == true ? true : false;
+                    if (_dynamicformData.IsApproval == true)
+                    {
+                        if (_dynamicformData.IsSendApproval == true)
+                        {
+                            IsSendApprovalVisible = "display:none;"; IsApprovalSave = false;
+                        }
+                        else
+                        {
+                            IsSendApprovalVisible = ""; IsApprovalSave = true;
+                        }
+                    }
+                    _dynamicFormApprovedList = await Mediator.Send(new GetDynamicFormApprovedList(_dynamicformData.DynamicFormDataId));
+                    if (_dynamicFormApprovedList != null)
+                    {
+                        var notApproved = _dynamicFormApprovedList.Where(z => z.IsApproved != true).OrderBy(o => o.DynamicFormApprovedId).ToList();
+                        var isApprovedListData = _dynamicFormApprovedList.Where(z => z.IsApproved == true).OrderBy(o => o.DynamicFormApprovedId).ToList();
+                        var isNotApproved = notApproved.OrderBy(o => o.DynamicFormApprovedId).FirstOrDefault()?.UserId;
+                        if (isNotApproved == applicationUser.UserID)
+                        {
+                            var UserApproveData = notApproved.FirstOrDefault(a => a.UserId == applicationUser.UserID);
+                            if (UserApproveData != null)
+                            {
+                                dynamicFormApproval.ApprovedDescription = UserApproveData?.ApprovedDescription;
+                                dynamicFormApproval.DynamicFormApprovalId = UserApproveData?.DynamicFormApprovalId;
+                                dynamicFormApproval.DynamicFormApprovedId = UserApproveData.DynamicFormApprovedId;
+                                dynamicFormApproval.DynamicFormDataId = UserApproveData.DynamicFormDataId;
+                                if (IsSendApproval == true)
+                                {
+                                    if (UserApproveData.IsApproved == false)
+                                    {
+                                        IsApprovalApproved = true;
+                                        IsApprovalRejected = false;
+                                    }
+                                    else if (UserApproveData.IsApproved == true)
+                                    {
+                                        IsApprovalApproved = false;
+                                        IsApprovalRejected = true;
+                                    }
+                                    else
+                                    {
+                                        IsApprovalApproved = true;
+                                        IsApprovalRejected = true;
+                                    }
+
+                                }
+                            }
+                            isApproval = true;
+                        }
+                        var isApprovedAs = isApprovedListData.FirstOrDefault(f => f.UserId == applicationUser.UserID);
+                        if (isApprovedAs != null)
+                        {
+                            isVisibleButton = "display:none;"; IsSave = false;
+                            isApproval = true;
+                        }
+                    }
+
+                }
             }
             _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
             if (_dynamicform != null)
             {
-                if (_dynamicform.IsApproval == true && _dynamicform.DynamicFormApproval != null && _dynamicform.DynamicFormApproval.Count > 0)
-                {
-                    var dynamicFormApprovalItems = _dynamicform.DynamicFormApproval.OrderBy(o => o.SortOrderBy);
-                    var userExits = dynamicFormApprovalItems.FirstOrDefault(f => f.ApprovalUserId == applicationUser.UserID);
-                    if (userExits != null)
-                    {
-                        var notApproved = _dynamicform.DynamicFormApproval.Where(z => z.Approved == null).OrderBy(o => o.SortOrderBy).ToList();
-                        var isApprovedListData = _dynamicform.DynamicFormApproval.Where(z => z.Approved == 1).OrderBy(o => o.SortOrderBy).ToList();
-                        if (_dynamicformData != null)
-                        {
-                            var isNotApproved = notApproved.OrderBy(o => o.SortOrderBy).FirstOrDefault()?.ApprovalUserId;
-                            if (isNotApproved == applicationUser.UserID)
-                            {
-                                dynamicFormApproval.ApprovedDescription = userExits.Description;
-                                dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
-                                isApproval = true;
-                            }
-                            var isApprovedAs = isApprovedListData.FirstOrDefault(f => f.ApprovalUserId == applicationUser.UserID);
-                            if (isApprovedAs != null)
-                            {
-                                var isApprovedList = await Mediator.Send(new GetDynamicFormApprovedByID(_dynamicformData.DynamicFormDataId, applicationUser.UserID));
-                                if (isApprovedList != null)
-                                {
+                // if (_dynamicform.IsApproval == true && _dynamicform.DynamicFormApproval != null && _dynamicform.DynamicFormApproval.Count > 0)
+                // {
+                //     var dynamicFormApprovalItems = _dynamicform.DynamicFormApproval.OrderBy(o => o.SortOrderBy);
+                //     var userExits = dynamicFormApprovalItems.FirstOrDefault(f => f.ApprovalUserId == applicationUser.UserID);
+                //     if (userExits != null)
+                //     {
+                //         var notApproved = _dynamicform.DynamicFormApproval.Where(z => z.Approved == null).OrderBy(o => o.SortOrderBy).ToList();
+                //         var isApprovedListData = _dynamicform.DynamicFormApproval.Where(z => z.Approved == 1).OrderBy(o => o.SortOrderBy).ToList();
+                //         if (_dynamicformData != null)
+                //         {
+                //             var isNotApproved = notApproved.OrderBy(o => o.SortOrderBy).FirstOrDefault()?.ApprovalUserId;
+                //             if (isNotApproved == applicationUser.UserID)
+                //             {
+                //                 dynamicFormApproval.ApprovedDescription = userExits.Description;
+                //                 dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
+                //                 isApproval = true;
+                //             }
+                //             var isApprovedAs = isApprovedListData.FirstOrDefault(f => f.ApprovalUserId == applicationUser.UserID);
+                //             if (isApprovedAs != null)
+                //             {
+                //                 var isApprovedList = await Mediator.Send(new GetDynamicFormApprovedByID(_dynamicformData.DynamicFormDataId, applicationUser.UserID));
+                //                 if (isApprovedList != null)
+                //                 {
 
-                                    dynamicFormApproval.ApprovedDescription = isApprovedList.ApprovedDescription;
-                                    dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
-                                    dynamicFormApproval.DynamicFormApprovedId = isApprovedList.DynamicFormApprovedId;
-                                    dynamicFormApproval.IsApproved = isApprovedList.IsApproved;
-                                    isApproval = true;
-                                    isApproved = false; isVisibleButton = "display:none;";
-                                }
-                                else
-                                {
-                                    dynamicFormApproval.ApprovedDescription = userExits.Description;
-                                    dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
-                                    isApproval = true;
-                                }
-                            }
-                        }
-                        else
-                        {
-                             isApproval = false;
-                            var isNotApproved = notApproved.OrderBy(o => o.SortOrderBy).FirstOrDefault()?.ApprovalUserId;
-                            if (isNotApproved == applicationUser.UserID)
-                            {
-                                dynamicFormApproval.ApprovedDescription = userExits.Description;
-                                dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
-                                isApproval = true;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //isVisibleButton = "display:none;";
-                    }
-                }
+                //                     dynamicFormApproval.ApprovedDescription = isApprovedList.ApprovedDescription;
+                //                     dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
+                //                     dynamicFormApproval.DynamicFormApprovedId = isApprovedList.DynamicFormApprovedId;
+                //                     dynamicFormApproval.IsApproved = isApprovedList.IsApproved;
+                //                     isApproval = true;
+                //                     isApproved = false; isVisibleButton = "display:none;";
+                //                 }
+                //                 else
+                //                 {
+                //                     dynamicFormApproval.ApprovedDescription = userExits.Description;
+                //                     dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
+                //                     isApproval = true;
+                //                 }
+                //             }
+                //         }
+                //         else
+                //         {
+                //             isApproval = false;
+                //             var isNotApproved = notApproved.OrderBy(o => o.SortOrderBy).FirstOrDefault()?.ApprovalUserId;
+                //             if (isNotApproved == applicationUser.UserID)
+                //             {
+                //                 dynamicFormApproval.ApprovedDescription = userExits.Description;
+                //                 dynamicFormApproval.DynamicFormApprovalId = userExits.DynamicFormApprovalId;
+                //                 isApproval = true;
+                //             }
+                //         }
+                //     }
+                //     else
+                //     {
+                //         isVisibleButton = "display:none;";
+                //     }
+                // }
                 var screenId = _dynamicform.ScreenID.Replace(" ", "_");
                 _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicform, applicationUser.UserID));
                 if (_AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
@@ -217,6 +342,7 @@
                         dynamicFormData.AddedDate = _dynamicformData.AddedDate;
                         dynamicFormData.AddedByUserID = _dynamicformData.AddedByUserID;
                         dynamicFormData.DynamicFormCurrentItem = _dynamicformData.DynamicFormItem;
+                        dynamicFormData.DynamicFormId = _dynamicformData.DynamicFormId;
                         if (!string.IsNullOrEmpty(_dynamicformData.DynamicFormItem))
                         {
                             if (IsValidJson(_dynamicformData.DynamicFormItem))
@@ -293,6 +419,42 @@
         }
         StateHasChanged();
     }
+    void onClickApprove()
+    {
+        ApproveRejectName = "Approve";
+        IsDescriptionOpen = true;
+        dynamicFormApproval.IsApproved = true;
+    }
+    void onClickReject()
+    {
+        ApproveRejectName = "Reject";
+        IsDescriptionOpen = true;
+        dynamicFormApproval.IsApproved = false;
+    }
+    async Task OnUpdateDescription()
+    {
+        await UpdateStatusApproval();
+        IsDescriptionOpen = false;
+    }
+    async Task UpdateStatusApproval()
+    {
+        dynamicFormApproval.ApprovedByUserId = applicationUser.UserID;
+        dynamicFormApproval.ApprovedDate = DateTime.Now;
+        var response = await Mediator.Send(new UpdateDynamicFormApprovedByStaus(dynamicFormApproval));
+        if (response != null)
+        {
+            if (response.IsApproved == true)
+            {
+                toastService.ShowToast("Satus Approved Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            if (response.IsApproved == false)
+            {
+                toastService.ShowToast("Satus Rejected Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            dynamicFormApproval = new DynamicFormApproved();
+            await loadDynamicForm();
+        }
+    }
     void OnTabClick(TabClickEventArgs e)
     {
     }
@@ -323,8 +485,16 @@
             return false;
         }
     }
+    void onsubmitApprovalClick()
+    {
+        IsSendApproval = true;
+    }
     void onsubmitClick()
     {
+        if (IsSendApproval != true)
+        {
+            IsSendApproval = false;
+        }
     }
     void backUrl()
     {
@@ -337,67 +507,108 @@
     async Task addNew()
     {
         NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
-        await loadDynamicForm();
     }
     async Task HandleFormValidSubmit()
     {
-        var datas = Data;
-        string strJson = JsonConvert.SerializeObject(datas);
-        loading = true;
-        if (dynamicFormData.DynamicFormDataId > 0)
+        if (IsSave == true || IsApprovalSave == true)
         {
-            var editReq = new InsertOrUpdateDynamicFormData
-                {
-                    DynamicFormDataId = dynamicFormData.DynamicFormDataId,
-                    DynamicFormId = _dynamicform.ID,
-                    DynamicFormItem = strJson,
-                    SessionId = dynamicFormData.SessionId,
-                    ModifiedByUserID = applicationUser.UserID,
-                    AddedByUserID = dynamicFormData.AddedByUserID,
-                    ModifiedDate = DateTime.Now,
-                    StatusCodeID = 1,
-                    AddedDate = dynamicFormData.AddedDate,
-                    AttributeHeader = _AttributeHeader,
-                    ObjectData = Data,
-                };
+            var datas = Data;
+            string strJson = JsonConvert.SerializeObject(datas);
+            loading = true;
+            dynamicFormData.DynamicFormId = _dynamicform.ID;
+            if (dynamicFormData.DynamicFormDataId > 0)
+            {
+                var editReq = new InsertOrUpdateDynamicFormData
+                    {
+                        DynamicFormDataId = dynamicFormData.DynamicFormDataId,
+                        DynamicFormId = _dynamicform.ID,
+                        DynamicFormItem = strJson,
+                        SessionId = dynamicFormData.SessionId,
+                        ModifiedByUserID = applicationUser.UserID,
+                        AddedByUserID = dynamicFormData.AddedByUserID,
+                        ModifiedDate = DateTime.Now,
+                        StatusCodeID = 1,
+                        AddedDate = dynamicFormData.AddedDate,
+                        AttributeHeader = _AttributeHeader,
+                        ObjectData = Data,
+                        IsSendApproval = IsSendApproval,
+                    };
 
-            var result = await Mediator.Send(editReq);
-            if (result.DynamicFormDataId > 0)
-            {
-                toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                loading = false;
-                await onApproved();
-            }
-            StateHasChanged();
-        }
-        else
-        {
-            var createReq = new InsertOrUpdateDynamicFormData
+                var result = await Mediator.Send(editReq);
+                if (result.DynamicFormDataId > 0)
                 {
-                    DynamicFormItem = strJson,
-                    DynamicFormId = _dynamicform.ID,
-                    SessionId = Guid.NewGuid(),
-                    AddedByUserID = applicationUser.UserID,
-                    ModifiedByUserID = applicationUser.UserID,
-                    ModifiedDate = DateTime.Now,
-                    StatusCodeID = 1,
-                    AddedDate = DateTime.Now,
-                    AttributeHeader = _AttributeHeader,
-                    ObjectData = Data,
-                };
-            var result = await Mediator.Send(createReq);
-            if (result.DynamicFormDataId > 0)
-            {
-                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                dynamicFormDataId = result.DynamicFormDataId;
-                dynamicFormData.DynamicFormDataId = dynamicFormDataId.Value;
-                loading = false;
-                await onApproved();
+                    if (IsSendApproval == true)
+                    {
+                        if (_dynamicFormApprovedList == null)
+                        {
+                            await InsertOrUpdateDynamicFormApprovedData(dynamicFormData);
+                            await loadDynamicForm();
+                        }
+                        else
+                        {
+                            if (_dynamicFormApprovedList.Count == 0)
+                            {
+                                await InsertOrUpdateDynamicFormApprovedData(dynamicFormData);
+                                await loadDynamicForm();
+                            }
+                        }
+                    }
+                    toastService.ShowToast("Record updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    loading = false;
+                    //await onApproved();
+                }
+                StateHasChanged();
             }
-            loading = false;
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + createReq.SessionId);
-            StateHasChanged();
+            else
+            {
+                var createReq = new InsertOrUpdateDynamicFormData
+                    {
+                        DynamicFormItem = strJson,
+                        DynamicFormId = _dynamicform.ID,
+                        SessionId = Guid.NewGuid(),
+                        AddedByUserID = applicationUser.UserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        ModifiedDate = DateTime.Now,
+                        StatusCodeID = 1,
+                        AddedDate = DateTime.Now,
+                        AttributeHeader = _AttributeHeader,
+                        ObjectData = Data,
+                        IsSendApproval = IsSendApproval,
+                    };
+                var result = await Mediator.Send(createReq);
+                if (result.DynamicFormDataId > 0)
+                {
+                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                    dynamicFormDataId = result.DynamicFormDataId;
+                    dynamicFormData.DynamicFormDataId = dynamicFormDataId.Value;
+                    if (IsSendApproval == true)
+                    {
+                        if (_dynamicFormApprovedList == null)
+                        {
+                            await InsertOrUpdateDynamicFormApprovedData(dynamicFormData);
+                            await loadDynamicForm();
+                        }
+                        else
+                        {
+                            if (_dynamicFormApprovedList.Count == 0)
+                            {
+                                await InsertOrUpdateDynamicFormApprovedData(dynamicFormData);
+                                await loadDynamicForm();
+                            }
+                        }
+                    }
+                    loading = false;
+                    // await onApproved();
+                }
+                loading = false;
+                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + createReq.SessionId);
+                StateHasChanged();
+            }
         }
+    }
+    async Task InsertOrUpdateDynamicFormApprovedData(DynamicFormData dynamicFormData)
+    {
+        var response = await Mediator.Send(new InsertOrUpdateDynamicFormApproved(dynamicFormData));
     }
     async Task HandleValidSubmit()
     {

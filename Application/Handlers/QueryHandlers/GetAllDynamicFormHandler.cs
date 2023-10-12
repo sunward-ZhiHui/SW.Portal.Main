@@ -432,4 +432,48 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class InsertOrUpdateDynamicFormApprovedHandler : IRequestHandler<InsertOrUpdateDynamicFormApproved, DynamicFormData>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public InsertOrUpdateDynamicFormApprovedHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormData> Handle(InsertOrUpdateDynamicFormApproved request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertOrUpdateDynamicFormApproved(request.DynamicFormData);
+
+
+        }
+    }
+    public class GetDynamicFormApprovedListHandler : IRequestHandler<GetDynamicFormApprovedList, List<DynamicFormApproved>>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormApprovedListHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<List<DynamicFormApproved>> Handle(GetDynamicFormApprovedList request, CancellationToken cancellationToken)
+        {
+            return (List<DynamicFormApproved>)await _dynamicFormQueryRepository.GetDynamicFormApprovedList(request.Id);
+        }
+
+
+    }
+    public class UpdateDynamicFormApprovedByStausHandler : IRequestHandler<UpdateDynamicFormApprovedByStaus, DynamicFormApproved>
+    {
+        private readonly IDynamicFormQueryRepository _queryRepository;
+        public UpdateDynamicFormApprovedByStausHandler(IDynamicFormQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+
+        }
+        public async Task<DynamicFormApproved> Handle(UpdateDynamicFormApprovedByStaus request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.UpdateDynamicFormApprovedByStaus(request.DynamicFormApproved);
+
+
+        }
+    }
 }

@@ -3,6 +3,7 @@ using Core.Entities.Views;
 using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
+using DevExpress.Xpo.DB.Helpers;
 using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Data.Edm.Library;
@@ -910,10 +911,11 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", dynamicFormData.AddedDate, DbType.DateTime);
                             parameters.Add("ModifiedDate", dynamicFormData.ModifiedDate, DbType.DateTime);
                             parameters.Add("StatusCodeID", dynamicFormData.StatusCodeID);
+                            parameters.Add("IsSendApproval", dynamicFormData.IsSendApproval);
                             if (dynamicFormData.DynamicFormDataId > 0)
                             {
                                 var query = "UPDATE DynamicFormData SET DynamicFormItem = @DynamicFormItem,DynamicFormId =@DynamicFormId," +
-                                    "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID " +
+                                    "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsSendApproval=@IsSendApproval " +
                                     "WHERE DynamicFormDataId = @DynamicFormDataId;\n\r";
                                 query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Update");
                                 await connection.ExecuteAsync(query, parameters, transaction);
@@ -921,12 +923,61 @@ namespace Infrastructure.Repository.Query
                             }
                             else
                             {
-                                var query = "INSERT INTO DynamicFormData(DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
-                                    "(@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID);\n\r";
+                                var query = "INSERT INTO DynamicFormData(DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsSendApproval)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
+                                    "(@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval);\n\r";
                                 query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Add");
                                 dynamicFormData.DynamicFormDataId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
 
 
+                            }
+                            transaction.Commit();
+
+                            return dynamicFormData;
+                        }
+
+
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public async Task<DynamicFormData> InsertOrUpdateDynamicFormApproved(DynamicFormData dynamicFormData)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var query = string.Empty;
+                            var _dynamicFormApproval = (List<DynamicFormApproval>?)await GetDynamicFormApprovalByID(dynamicFormData.DynamicFormId, dynamicFormData.DynamicFormDataId);
+                            if (_dynamicFormApproval != null)
+                            {
+
+                                _dynamicFormApproval.ForEach(s =>
+                                {
+                                    query += "INSERT INTO DynamicFormApproved(DynamicFormApprovalID,DynamicFormDataID,ApprovedDescription,UserID)VALUES " +
+                                    "(" + s.DynamicFormApprovalId + "," + dynamicFormData.DynamicFormDataId + ",'" + s.Description + "'," + s.ApprovalUserId + ");\n\r";
+                                });
+                                if (!string.IsNullOrEmpty(query))
+                                {
+                                    await connection.ExecuteAsync(query, null, transaction);
+                                }
                             }
                             transaction.Commit();
 
@@ -974,10 +1025,12 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode from DynamicFormData t1 \r\n" +
+                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.IsApproval from DynamicFormData t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID WHERE t1.SessionId=@SessionId";
+                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
+                    "JOIN DynamicForm t5 ON t5.ID=t1.DynamicFormId\r\n" +
+                    "WHERE t1.SessionId=@SessionId";
 
                 using (var connection = CreateConnection())
                 {
@@ -1310,7 +1363,7 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
-                            
+
                             var query = await DeleteDynamicFormCurrentSectionAttribute(dynamicFormData);
                             query += await DeleteDynamicFormApproved(dynamicFormData);
                             query += "DELETE  FROM DynamicFormApproved WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
@@ -1973,6 +2026,70 @@ namespace Infrastructure.Repository.Query
             catch (Exception exp)
             {
                 throw new NotImplementedException();
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormApproved>> GetDynamicFormApprovedList(long? DynamicFormDataId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DynamicFormDataId", DynamicFormDataId);
+                var query = "select t1.*,t3.Value as EmployeeStatus,t4.UserName as ApprovedByUser,\r\n" +
+                    "CONCAT(case when t2.NickName is NULL then  t2.FirstName ELSE  t2.NickName END,' | ',t2.LastName) as ApprovalUser,\r\nCASE WHEN t1.IsApproved=1  THEN 'Approved' WHEN t1.IsApproved =0 THEN 'Rejected' ELSE 'Pending' END AS ApprovedStatus\r\n" +
+                    "FROM DynamicFormApproved t1 \r\n" +
+                    "JOIN Employee t2 ON t1.UserID=t2.UserID \r\n" +
+                    "LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus\r\n" +
+                     "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ApprovedByUserId\r\n" +
+                    "Where t1.DynamicFormDataID=@DynamicFormDataId AND (t3.Value is null or t3.Value!='Resign')\r\norder by t1.DynamicFormApprovedID asc";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormApproved>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DynamicFormApproved> UpdateDynamicFormApprovedByStaus(DynamicFormApproved dynamicFormApproved)
+        {
+            try
+            {
+                using (var connections = CreateConnection())
+                {
+
+                    connections.Open();
+                    using (var transactions = connections.BeginTransaction())
+                    {
+                        try
+                        {
+                            var query = string.Empty;
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DynamicFormDataId", dynamicFormApproved.DynamicFormDataId);
+                            parameters.Add("DynamicFormApprovedId", dynamicFormApproved.DynamicFormApprovedId);
+                            parameters.Add("ApprovedDescription", dynamicFormApproved.ApprovedDescription);
+                            parameters.Add("IsApproved", dynamicFormApproved.IsApproved);
+                            parameters.Add("ApprovedByUserId", dynamicFormApproved.ApprovedByUserId);
+                            parameters.Add("ApprovedDate", dynamicFormApproved.ApprovedDate);
+                            query += " UPDATE DynamicFormApproved SET DynamicFormDataId=@DynamicFormDataId,IsApproved=@IsApproved,ApprovedDescription=@ApprovedDescription,ApprovedByUserId=@ApprovedByUserId,ApprovedDate=@ApprovedDate WHERE DynamicFormApprovedId = @DynamicFormApprovedId;\r\n";
+                            if (!string.IsNullOrEmpty(query))
+                            {
+                                await connections.QuerySingleOrDefaultAsync<long>(query, parameters, transactions);
+                            }
+                            transactions.Commit();
+                            return dynamicFormApproved;
+                        }
+                        catch (Exception exp)
+                        {
+                            transactions.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
             }
         }
     }

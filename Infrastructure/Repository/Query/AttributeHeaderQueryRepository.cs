@@ -303,13 +303,15 @@ namespace Infrastructure.Repository.Query
                                 parameters.Add("ControlTypeId", attributeHeader.ControlTypeId);
                                 parameters.Add("IsMultiple", attributeHeader.IsMultiple);
                                 parameters.Add("IsRequired", attributeHeader.IsRequired);
+                                parameters.Add("DropDownTypeId", attributeHeader.DropDownTypeId);
+                                parameters.Add("DataSourceId", attributeHeader.DataSourceId);
                                 parameters.Add("RequiredMessage", attributeHeader.RequiredMessage, DbType.String);
                                 var Addquerys = "UPDATE AttributeHeader SET AttributeName = @AttributeName,IsInternal=@IsInternal,Description=@Description," +
                                     "ControlType=@ControlType,EntryMask=@EntryMask, " +
                                     "RegExp=@RegExp,ModifiedByUserID=@ModifiedByUserID, " +
                                     "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID, " +
                                     "ControlTypeId=@ControlTypeId,IsMultiple=@IsMultiple, " +
-                                    "IsRequired=@IsRequired,RequiredMessage=@RequiredMessage " +
+                                    "IsRequired=@IsRequired,RequiredMessage=@RequiredMessage,DropDownTypeId=@DropDownTypeId,DataSourceId=@DataSourceId " +
                                     "WHERE  AttributeID = @AttributeID";
                                 await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters, transaction);
                             }
@@ -318,7 +320,8 @@ namespace Infrastructure.Repository.Query
                                 parameters.Add("AttributeName", attributeHeader.AttributeName, DbType.String);
                                 parameters.Add("IsInternal", attributeHeader.IsInternal);
                                 parameters.Add("Description", attributeHeader.Description, DbType.String);
-
+                                parameters.Add("DropDownTypeId", attributeHeader.DropDownTypeId);
+                                parameters.Add("DataSourceId", attributeHeader.DataSourceId);
                                 parameters.Add("ControlType", attributeHeader.ControlType);
                                 parameters.Add("EntryMask", attributeHeader.EntryMask);
                                 parameters.Add("RegExp", attributeHeader.RegExp);
@@ -332,9 +335,9 @@ namespace Infrastructure.Repository.Query
                                 parameters.Add("RequiredMessage", attributeHeader.RequiredMessage, DbType.String);
 
 
-                                var query = @"INSERT INTO AttributeHeader(AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID,ControlTypeId,IsMultiple,IsRequired,RequiredMessage) 
+                                var query = @"INSERT INTO AttributeHeader(AttributeName,IsInternal,Description,ControlType,EntryMask,RegExp,AddedByUserID,AddedDate,SessionId,StatusCodeID,ControlTypeId,IsMultiple,IsRequired,RequiredMessage,DropDownTypeId,DataSourceId) 
               OUTPUT INSERTED.AttributeID  -- Replace 'YourIDColumn' with the actual column name of your IDENTITY column
-              VALUES (@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID,@ControlTypeId,@IsMultiple,@IsRequired,@RequiredMessage)";
+              VALUES (@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID,@ControlTypeId,@IsMultiple,@IsRequired,@RequiredMessage,@DropDownTypeId,@DataSourceId)";
 
                                 var insertedId = await connection.ExecuteScalarAsync<int>(query, parameters, transaction);
                                 attributeHeader.AttributeID = insertedId;

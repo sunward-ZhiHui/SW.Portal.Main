@@ -119,7 +119,7 @@
                                             ValueFieldName="CodeId"
                                             Enabled="isEdit"
                                             EditFormat="{0}-{1}"
-                                            SelectedItemChanged="@((CodeMaster plant) =>SelectedControlChanged(plant?.CodeId))"
+                                            SelectedItemChanged="@((CodeMaster plant) =>SelectedControlChanged(plant?.CodeId,"Add"))"
                                 @bind-Value="@Data.ControlTypeId">
                                     <Columns>
                                         <DxListEditorColumn FieldName="@nameof(CodeMaster.CodeValue)"
@@ -132,8 +132,27 @@
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.ControlTypeId)" />
                             </DxFormLayoutItem>
-                            @*  <DxFormLayoutItem Caption="Is Multiple" ColSpanMd="6" >
-                            <DxCheckBox @bind-Checked="Data.IsMultiple"></DxCheckBox>
+                           @*  <DxFormLayoutItem Caption="Dropdown Type" ColSpanMd="6" Visible="@isDropDownType">
+                                <DxComboBox Data="@DropDownTypeItems"
+                                            NullText="Select Dropdown Type..."
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="Text"
+                                            ValueFieldName="Value"
+                                            SelectedItemChanged="@((DropDownOptionsModel plant) =>SelectedDropDownTypeChanged(plant))"
+                                @bind-Value="@Data.DropDownTypeId">
+                                </DxComboBox>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Data Source" ColSpanMd="6" Visible="@isDataSource">
+                                <DxComboBox Data="@DataSourceItems"
+                                            NullText="Select Data Source..."
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            TextFieldName="Text"
+                                            ValueFieldName="Value"
+                                @bind-Value="@Data.DataSourceId">
+
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => Data.DataSourceId)" />
                             </DxFormLayoutItem> *@
                             <DxFormLayoutItem Caption="Entry Mask" ColSpanMd="6">
                                 <DxTextBox @bind-Text="Data.EntryMask" Enabled="@MaskEnabled"></DxTextBox>
@@ -178,7 +197,7 @@
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_master[0].AttributeID))" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
     </FooterContentTemplate>
 </DxPopup>
 @code {
@@ -207,16 +226,31 @@
     private List<AttributeHeader>? _SaveLst;
     AttributeHeader AttributeNamelst = new AttributeHeader();
     private List<string> ControlTypeChildData = new List<string> { "ComboBox", "ListBox", "TagBox", "Radio" };
-
+    private List<DropDownOptionsModel> DropDownTypeItems { get; set; } = new List<DropDownOptionsModel>();
+    private List<DropDownOptionsModel> DataSourceItems { get; set; } = new List<DropDownOptionsModel>();
     private List<CodeMaster> _controlTypeData;
+    bool isDropDownType { get; set; } = false;
+    bool isDataSource { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
+        DropDownTypeItems.Add(new DropDownOptionsModel() { Value = "InBuild", Text = "InBuild" });
+        DropDownTypeItems.Add(new DropDownOptionsModel() { Value = "DataSource", Text = "Data Source" });
+        loadDataSourceItems();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
         _controlTypeData = await Mediator.Send(new GetAllCodeMasterQuery("AttributeControlType"));
         isAddAttributeEnabled = false;
         isSelectEnabled = true;
         await loadData();
+    }
+    void loadDataSourceItems()
+    {
+        DataSourceItems.Add(new DropDownOptionsModel() { Value = "Employee", Text = "Employee" });
+        DataSourceItems.Add(new DropDownOptionsModel() { Value = "NAVCustomer", Text = "Customer" });
+        DataSourceItems.Add(new DropDownOptionsModel() { Value = "NavItems", Text = "Nav Items" });
+        DataSourceItems.Add(new DropDownOptionsModel() { Value = "NAVVendor", Text = "Vendor" });
+        DataSourceItems.Add(new DropDownOptionsModel() { Value = "Plant", Text = "Company" });
+        DataSourceItems.Add(new DropDownOptionsModel() { Value = "Department", Text = "Department" });
     }
     async Task loadData()
     {
@@ -233,6 +267,8 @@
         RefDetails.Attributeload(0, "");
         isEdit = true;
         DeleteEnabled = false;
+        isDropDownType = false;
+        isDataSource = false;
         StateHasChanged();
     }
     void addDelete()
@@ -288,6 +324,8 @@
     }
     async Task createAttributes()
     {
+        string? DropDownTypeId = Data.ControlTypeId == 2702 || Data.ControlTypeId == 2708 ? Data.DropDownTypeId : null;
+        string? dataSourceId = Data.ControlTypeId == 2702 || Data.ControlTypeId == 2708 ? Data.DataSourceId : null;
         var createReq = new CreateAttributeHeader
             {
                 AttributeID = Data.AttributeID,
@@ -307,6 +345,8 @@
                 ModifiedByUserID = applicationUser.UserID,
                 ModifiedDate = DateTime.Now,
                 SessionId = Data.SessionId == null ? Guid.NewGuid() : Data.SessionId,
+                DataSourceId = dataSourceId,
+                DropDownTypeId = DropDownTypeId,
             };
         var result = await Mediator.Send(createReq);
         if (result > 0)
@@ -318,7 +358,18 @@
                 var isChildData = ControlTypeChildData.FirstOrDefault(f => controlType.ToLower().Contains(f.ToLower()));
                 if (isChildData != null)
                 {
-                    RefDetails.Attributeload(Data.AttributeID, controlType);
+                    if (Data.DropDownTypeId != "DataSource")
+                    {
+                        RefDetails.Attributeload(Data.AttributeID, controlType);
+                    }
+                    else
+                    {
+                        RefDetails.Attributeload(Data.AttributeID, null);
+                    }
+                }
+                else
+                {
+                    RefDetails.Attributeload(Data.AttributeID, null);
                 }
                 isDisplay1 = "display:none;";
                 isDisplay = "";
@@ -334,6 +385,7 @@
     async void SelectedItemChanged(AttributeHeader header)
     {
         isEdit = true; DeleteEnabled = false;
+        isDropDownType = false; isDataSource = false;
         isDisplay = "display:none;";
         isDisplay1 = "";
         if (header != null)
@@ -341,7 +393,7 @@
             if (header.AttributeID > 0)
             {
                 loadDropDownList(header.AttributeID);
-            } 
+            }
         }
         else
         {
@@ -356,6 +408,8 @@
             Data.AttributeID = 0;
             Data.AttributeName = null;
             Data.SessionId = null;
+            Data.DataSourceId = null;
+            Data.DropDownTypeId = null;
             if (Data.AttributeID > 0)
             {
                 loadDropDownList(Data.AttributeID);
@@ -370,7 +424,7 @@
     {
         isDisplay = "display:none;";
         isDisplay1 = "";
-        DeleteEnabled = false;
+        DeleteEnabled = false; Data.DropDownTypeId = null;
         _master = _attributes.Where(c => c.AttributeID == AttributeID).ToList();
         if (_master != null && _master.Count > 0)
         {
@@ -386,7 +440,9 @@
             Data.AttributeID = _master[0].AttributeID;
             Data.AttributeName = _master[0].AttributeName;
             Data.SessionId = _master[0].SessionId;
-            SelectedControlChanged(Data.ControlTypeId);
+            Data.DataSourceId = _master[0].DataSourceId;
+            Data.DropDownTypeId = _master[0].DropDownTypeId;
+            SelectedControlChanged(Data.ControlTypeId,"Edit");
             var isChildData = ControlTypeChildData.FirstOrDefault(f => _master[0].ControlType.ToLower().Contains(f.ToLower()));
             DeleteEnabled = true;
             if (_master[0].FormUsedCount > 0)
@@ -394,26 +450,51 @@
                 isEdit = false;
                 DeleteEnabled = false;
             }
+            if (Data.DropDownTypeId == "DataSource")
+            {
+                isDataSource = true;
+            }
             if (isChildData != null)
             {
-                RefDetails.Attributeload(_master[0].AttributeID, _master[0].ControlType);
+                if (Data.DropDownTypeId != "DataSource")
+                {
+                    RefDetails.Attributeload(_master[0].AttributeID, _master[0].ControlType);
+                }
+                else
+                {
+                    RefDetails.Attributeload(Data.AttributeID, null);
+                }
             }
             else
             {
                 RefDetails.Attributeload(_master[0].AttributeID, null);
             }
-            
         }
         else
         {
             RefDetails.Attributeload(Data.AttributeID, null);
         }
     }
-    void SelectedControlChanged(int? controlTypeId)
+    void SelectedDropDownTypeChanged(DropDownOptionsModel MyString)
+    {
+        isDataSource = false;
+        if (MyString != null && MyString.Value == "DataSource")
+        {
+            isDataSource = true;
+        }
+        StateHasChanged();
+    }
+    void SelectedControlChanged(int? controlTypeId,string type)
     {
         isMultipleEnabled = false;
         MaskEnabled = false;
-        RegEnabled = false;
+        RegEnabled = false; isDropDownType = false;
+        isDataSource = false;
+        if (type == "Add")
+        {
+            Data.DropDownTypeId = "InBuild";
+            Data.DataSourceId = null;
+        }
         if (controlTypeId > 0)
         {
             var controlType = _controlTypeData.FirstOrDefault(f => f.CodeId == controlTypeId)?.CodeValue;
@@ -430,17 +511,25 @@
                     RegEnabled = true;
                 }
             }
+            if (controlTypeId == 2702 || controlTypeId == 2708)
+            {
+                if (Data.AttributeID == 0)
+                {
+                    Data.DropDownTypeId = "InBuild";
+                }
+                isDropDownType = true;
+            }
         }
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
         Blukdeletepopup = false;
     }
-    async Task bulkDelete(long id)
+    async Task bulkDelete()
     {
         try
         {
-            var request = new DeleteAttributeHeader(id);
+            var request = new DeleteAttributeHeader(Data.AttributeID);
             await Mediator.Send(request);
             Blukdeletepopup = false;
             toastService.ShowToast("Attribute have been Deleted successully.", AC.SD.Core.Services.ToastLevel.Success);

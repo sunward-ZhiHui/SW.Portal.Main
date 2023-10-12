@@ -102,14 +102,15 @@
     async Task UpdateDataAsync()
     {
         EditEnabled = false; DeleteEnabled = false;
+
         if (SessionId != null)
         {
-            _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId,-1));
+            _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1));
             if (_dynamicForm != null)
             {
                 _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID));
                 PanelVisible = true;
-                if (_dynamicformDataList != null)
+                if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
                     EditEnabled = true; DeleteEnabled = true;
                     _selectedItems = _dynamicformDataList.FirstOrDefault();

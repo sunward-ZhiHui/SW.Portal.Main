@@ -41,6 +41,9 @@ namespace Core.Repositories.Query
         Task<long> DeleteDynamicFormSectionSecurity(long? Id, List<long?> Ids);
         Task<DynamicFormApproved> InsertDynamicFormApproved(DynamicFormApproved dynamicForm);
         Task<DynamicFormApproved> GetDynamicFormApprovedByID(long? dynamicFormDataId, long? approvalUserId);
+        Task<DynamicFormData> InsertOrUpdateDynamicFormApproved(DynamicFormData dynamicFormData);
+        Task<IReadOnlyList<DynamicFormApproved>> GetDynamicFormApprovedList(long? DynamicFormDataId);
+        Task<DynamicFormApproved> UpdateDynamicFormApprovedByStaus(DynamicFormApproved dynamicFormApproved);
     }
 
 }

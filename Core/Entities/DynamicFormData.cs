@@ -13,7 +13,7 @@ namespace Core.Entities
     {
         public long DynamicFormDataId { get; set; }
         public string? DynamicFormItem { get; set; }
-
+        public bool? IsSendApproval { get; set; } = false;
         public long? DynamicFormId { get; set; }
         [NotMapped]
         public AttributeHeaderListModel? AttributeHeader { get; set; }
@@ -25,5 +25,7 @@ namespace Core.Entities
         public string? Name { get; set; }
         [NotMapped]
         public string? ScreenID { get; set; }
+        [NotMapped]
+        public bool? IsApproval { get; set; }
     }
 }

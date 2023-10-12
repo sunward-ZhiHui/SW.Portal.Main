@@ -28,6 +28,8 @@ namespace Core.Entities
         public string RegExp { get; set; }
         public string ListDefault { get; set; }
         public bool IsInternal { get; set; } = false;
+        public string? DropDownTypeId { get; set; } = null;
+        public string? DataSourceId { get; set; }
         public bool ContainsPersonalData { get; set; }
         [NotMapped]
         public string ModifiedBy { get; set; }
@@ -48,5 +50,9 @@ namespace Core.Entities
         public List<DynamicFormSectionAttribute> DynamicFormSectionAttribute { get; set; }
         public List<AttributeDetails> AttributeDetails { get; set; }
     }
-
+    public class DropDownOptionsModel
+    {
+        public string? Value { get; set; }
+        public string? Text { get; set; }
+    }
 }

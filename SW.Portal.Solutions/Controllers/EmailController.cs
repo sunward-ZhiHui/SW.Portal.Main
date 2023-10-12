@@ -22,6 +22,7 @@ using HtmlAgilityPack;
 using System.Text.RegularExpressions;
 using net.tipstrade.FCMNet.Responses;
 using System.Configuration;
+using DevExpress.XtraRichEdit.Import.Html;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -65,9 +66,9 @@ namespace SW.Portal.Solutions.Controllers
             }
             else
             {
-                result = new List<Core.Entities.EmailTopics>();               
+                result = new List<Core.Entities.EmailTopics>();
             }
-            
+
             var displayResult = result?.Select(topic => new EmailTopicViewModel
             {
                 id = topic.ID,
@@ -80,7 +81,7 @@ namespace SW.Portal.Solutions.Controllers
                 onBehalf = topic.OnBehalf,
                 onBehalfName = topic.OnBehalfName,
                 addedDate = topic.StartDate,
-                addedByUserID =  topic.AddedByUserID,
+                addedByUserID = topic.AddedByUserID,
                 mode = mode,
                 userId = UserId
             }).ToList();
@@ -96,7 +97,7 @@ namespace SW.Portal.Solutions.Controllers
                 });
 
 
-                var mapper = new Mapper(config);               
+                var mapper = new Mapper(config);
                 response.Results = mapper.Map<List<EmailTopics>>(displayResult);
             }
             catch (Exception ex)
@@ -194,7 +195,7 @@ namespace SW.Portal.Solutions.Controllers
                 replyCount = conversations.ReplyConversation.Count(),
                 ReplyConversation = conversations.ReplyConversation?.Select(rconversation => new ReplyConversationModel
                 {
-                    id= rconversation.ID,
+                    id = rconversation.ID,
                     replyId = rconversation.ReplyId,
                     participantId = rconversation.ParticipantId,
                     userName = rconversation.UserName,
@@ -210,16 +211,16 @@ namespace SW.Portal.Solutions.Controllers
                     addedDate = rconversation.AddedDate,
                     sessionId = rconversation.SessionId,
                     isAllowParticipants = rconversation.IsAllowParticipants,
-                    
 
-                }).ToList(),               
+
+                }).ToList(),
                 urgent = conversations.Urgent,
                 isAllowParticipants = conversations.IsAllowParticipants,
                 dueDate = conversations.DueDate,
                 onBehalf = conversations.OnBehalf,
                 onBehalfName = conversations.OnBehalfName,
                 addedDate = conversations.AddedDate,
-                addedByUserID = conversations.AddedByUserID,                
+                addedByUserID = conversations.AddedByUserID,
                 userId = UserId
             }).ToList();
 
@@ -236,7 +237,7 @@ namespace SW.Portal.Solutions.Controllers
             }
 
             return Ok(response);
-        }      
+        }
         [HttpGet("GetOnReplyList")]
         public async Task<IActionResult> GetOnReplyList(long Id, long UserId)
         {
@@ -296,9 +297,9 @@ namespace SW.Portal.Solutions.Controllers
                     byte[] bytes = Encoding.UTF8.GetBytes(input_string);
                     string encodedString = Encoding.UTF8.GetString(bytes);
                     string htmlContent = $"<html><body>{encodedString}</body></html>";
-                    byte[] htmlBinaryData = Encoding.UTF8.GetBytes(htmlContent);             
+                    byte[] htmlBinaryData = Encoding.UTF8.GetBytes(htmlContent);
 
-               
+
                     var createReq = new CreateEmailCoversation
                     {
                         TopicID = emailConversations.TopicID,
@@ -345,11 +346,11 @@ namespace SW.Portal.Solutions.Controllers
                 //return Ok(result);
             }
             else
-            {                
+            {
                 response.ResponseCode = ResponseCode.Failure;
                 response.ErrorMessages.Add("Your request is invalid. Please check your Assign To");
             }
-           
+
 
             return Ok(response);
 
@@ -363,6 +364,8 @@ namespace SW.Portal.Solutions.Controllers
 
             var itm = await _mediator.Send(new GetByIdConversation(id));
 
+            var sid = await _mediator.Send(new GetByIdEmailTopics(itm.TopicID));
+
             string title = itm.Name;
 
             byte[] htmlBinaryData = itm.FileData; // Your HTML binary data
@@ -374,9 +377,9 @@ namespace SW.Portal.Solutions.Controllers
             // string extractedText = doc.DocumentNode.InnerText.Trim();
 
             string extractedText = HtmlEntity.DeEntitize(doc.DocumentNode.InnerText.Trim());
-            
+
             // Remove unwanted line breaks and whitespace
-                extractedText = Regex.Replace(extractedText, @"\s+", " ").Trim();
+            extractedText = Regex.Replace(extractedText, @"\s+", " ").Trim();
 
             string bodymsg = extractedText.Substring(0, Math.Min(20, extractedText.Length));
 
@@ -384,47 +387,46 @@ namespace SW.Portal.Solutions.Controllers
 
             List<string> tokenStringList = new List<string>();
 
-
+            var hosturls = baseurl + "ViewEmail/" + sid[0].SessionId;
             foreach (var item in Result)
             {
                 var tokens = await _mediator.Send(new GetUserTokenListQuery(item.UserID.Value));
-
-                foreach(var lst in tokens)
+                if(tokens.Count > 0)
                 {
-                    tokenStringList.Add(lst.TokenID.ToString());
-                }               
-                
+                    foreach (var lst in tokens)
+                    {
+                        //tokenStringList.Add(lst.TokenID.ToString());
+
+                        await PushNotification(lst.TokenID.ToString(), title, bodymsg, hosturls);
+                    }
+
+                }
+               
+
             }
-
-
-            var token = tokenStringList;
-
-            //var result = await _fcm.SendMessageAsync("/topics/news", "My Message Title", "Message Data", "");
-
-            //await CrossFirebaseCloudMessaging.Current.CheckIfValidAsync();
-            //var token = await CrossFirebaseCloudMessaging.Current.GetTokenAsync();
-            //var token = new List<string> 
-            //{
-            //    "c-1W1o1jvnE:APA91bFnLX74Xdwn1ej0ptWDHNxMoaVCBV-yJ_14T3OZnaNwudTJcDHdkNFyiQ6fOLkktnUqOrv4nTUBvFXyVv1zkF_spGswkVyXmkMXfEWVtfdtbgc4ox02-P6MsQ5cphnzX0UFlaQQ"
-                
-            //};
-
-            //var androidNotificationObject = new Dictionary<string, string>();
-            var pushNotificationRequest = new 
+         
+            return "ok";
+        }
+        [HttpGet("PushNotification")]
+        public async Task<string> PushNotification(string token, string title,string message,string hosturl)
+        {
+            var serverToken = _configuration["FcmNotification:ServerKey"];
+            var baseurl = _configuration["DocumentsUrl:BaseUrl"];
+            var pushNotificationRequest = new
             {
                 notification = new
                 {
                     title = title,
-                    body = bodymsg,
-                    click_action = baseurl + "ViewEmail/" + itm.SessionId // Set the click_action here
+                    body = message,
+                    icon = baseurl + "_content/AC.SD.Core/images/SWLogo.png",
+                    click_action = hosturl
                 },
-                data = new Dictionary<string, string>
-                {
-                    { "url", baseurl}                    
-                },
-                //data = androidNotificationObject,
-                //registration_ids = new List<string> { token }
-                registration_ids = token 
+                //data = new Dictionary<string, string>
+                //{
+                //    { "url", hosturl}
+                //},              
+                registration_ids = new List<string> { token }
+                //registration_ids = token
             };
 
             string url = "https://fcm.googleapis.com/fcm/send";
@@ -433,11 +435,7 @@ namespace SW.Portal.Solutions.Controllers
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("key", "=" + serverToken);
 
                 string serializeRequest = JsonConvert.SerializeObject(pushNotificationRequest);
-                var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));
-                //if (response.StatusCode == System.Net.HttpStatusCode.OK)
-                //{
-                //    //await App.Current.MainPage.DisplayAlert("Notification sent", "notification sent", "OK");
-                //}
+                var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));               
             }
             return "ok";
         }

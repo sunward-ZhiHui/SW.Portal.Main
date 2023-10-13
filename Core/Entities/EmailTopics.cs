@@ -82,6 +82,14 @@ namespace Core.Entities
         public long ActivityEmailTopicId { get; set; }
         [NotMapped]
         public long EmailCount { get; set; }
+        [NotMapped]
+        public long GroupTag { get; set; }
+        [NotMapped]
+        public long CategoryTag { get; set; }
+        [NotMapped]
+        public long ActionTag { get; set; }
+        [NotMapped]
+        public string actName { get; set; }
 
     }
 }

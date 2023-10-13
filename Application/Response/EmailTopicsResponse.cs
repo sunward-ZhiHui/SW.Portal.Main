@@ -45,6 +45,9 @@ namespace Application.Response
         public bool? isValidateSession { get; set; }
         [NotMapped]
         public long ActivityEmailTopicId { get; set;}
-            
+        public long? GroupTag { get; set; }
+        public long? CategoryTag { get; set; }
+        public long? ActionTag { get; set; }
+        public string actName { get; set; }
     }
 }

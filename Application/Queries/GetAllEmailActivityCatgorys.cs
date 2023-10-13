@@ -37,5 +37,13 @@ namespace Application.Queries
         {
             this.ID = ID;
         }
-    }    
+    }
+    public class GetAllemailCategory : PagedRequest, IRequest<List<EmailActivityCatgorys>>
+    {
+        public long TopicId { get; set; }
+        public GetAllemailCategory(long TopicId)
+        {
+            this.TopicId = TopicId;
+        }
+    }
 }

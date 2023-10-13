@@ -1414,6 +1414,11 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);
                         parameterss.Add("NotifyUser", EmailTopics.NotifyUser);
 
+                        parameterss.Add("GroupTag", EmailTopics.GroupTag);
+                        parameterss.Add("CategoryTag", EmailTopics.CategoryTag);
+                        parameterss.Add("ActionTag", EmailTopics.ActionTag);
+                        parameterss.Add("actName", EmailTopics.actName);
+
                         connection.Open();
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Update_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);

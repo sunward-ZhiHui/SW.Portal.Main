@@ -2,8 +2,23 @@
 @inject DemoThemeService Themes
 @implements IDisposable
 @implements IDemoThemeLoadNotifier
+@using Application.Constant;
+@using Application.Queries;
+@using AC.SD.Core.Data.Account;
+@using global::Core.Repositories.Query;
+@using global::Core.Entities;
+@using MediatR
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 
 <div class="themeswitcher-container shadow @StateCssClass">
+    <div style="width:100%;" class="themeswitcher-group card-header list-group-item">
+        <span style="font-weight:bold">@applicationUser?.UserName</span>        
+        <NavLink style="float:right;transform: rotate(181deg);" href="javascrtpit:void(0);" @onclick="@logout" RenderStyle="@ButtonRenderStyle.Secondary"><i class="fa fa-sign-out" aria-hidden="true"></i></NavLink>
+    </div>
+    <div class="themeswitcher-group card-header list-group-item">
+        <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Change Password</NavLink>
+    </div>
     @if(IsLoaded) {
         <DxScrollView id="themesMenu">
             <div class="list-group list-group-flush">
@@ -18,7 +33,55 @@
     }
 </div>
 
+<DxPopup @bind-Visible="@PopupUpdatePasseordVisible"
+         CloseOnOutsideClick="false"
+         HeaderText="Change Password"
+         ShowFooter="false">
+    <BodyTemplate Context="PopupContext">
+        <EditForm Model="@updatePassword" OnValidSubmit="OnValidSubmit" style="padding:10px;">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label>Old Password</label>
+                <InputText @bind-Value="updatePassword.OldPassword" type="password" class="form-control" />
+                <ValidationMessage For="@(() => updatePassword.OldPassword)" />
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <InputText @bind-Value="updatePassword.Password" type="password" class="form-control" />
+                <ValidationMessage For="@(() => updatePassword.Password)" />
+            </div>
+            <div class="form-group">
+                <label>Confirm New Password</label>
+                <InputText @bind-Value="updatePassword.ConfirmPassword" type="password" class="form-control" />
+                <ValidationMessage For="@(() => updatePassword.ConfirmPassword)" />
+            </div>
+            <button disabled="@loading" class="btn btn-primary" style="float:right; margin-top:10px;">
+                @if (loading)
+                {
+                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                }
+                Update Password
+            </button>
+        </EditForm>
+    </BodyTemplate>
+    <FooterContentTemplate>
+
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Cancel"
+                  Click="@context.CloseCallback" />
+    </FooterContentTemplate>
+</DxPopup>
+
+<DxPopup @bind-Visible="@MessageVisible"
+         HeaderText="@MessageHeader"
+         BodyText="@MessageBody" />
+
 @code {
+    private bool loading;
+    bool MessageVisible { get; set; }
+    string MessageHeader = "";
+    string MessageBody = "";
+    UpdatePassword updatePassword = new UpdatePassword();
+    bool PopupUpdatePasseordVisible { get; set; }
     [Parameter]
     public bool Shown { get; set; }
     [Parameter]
@@ -27,13 +90,66 @@
     public string ThemeName { get; set; }
     [Parameter]
     public EventCallback<string> ThemeNameChanged { get; set; }
+    public ApplicationUser applicationUser { get; private set; }
+    [Inject]
+    NavigationManager NavigationManager { get; set; }
 
     string StateCssClass { get { return IsLoaded ? ((Shown? "themeswitcher-container-shown" : "themeswitcher-container-hidden")) : ""; } }
     bool IsLoaded { get; set; }
 
-    protected override void OnInitialized() {
+    protected override async void OnInitialized()
+    {
         base.OnInitialized();
         Themes.ThemeLoadNotifier = this;
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+
+    private async void OnValidSubmit()
+    {
+        loading = true;
+        var request = new UpdateUserPasswordRequest
+            {
+                UserID = applicationUser.UserID,
+                LoginID = applicationUser.LoginID,
+                OldPassword = updatePassword.OldPassword,
+                NewPassword = updatePassword.Password
+            };
+        var response = await Mediator.Send(request);
+        if (response != null)
+        {
+            if (response.StatusCodeID == -1)
+            {
+                loading = false;
+                onShowPopupMessage("Message", "Old Password and New Password has been same");
+            }
+            else
+            {
+                if (response.LoginID != null)
+                {
+                    loading = false;
+                    PopupUpdatePasseordVisible = false;
+                    StateHasChanged();
+                    updatePassword.Password = "";
+                    updatePassword.ConfirmPassword = "";
+                    updatePassword.OldPassword = "";
+                    onShowPopupMessage("Message", "Password Update Successfully");
+                }
+                else
+                {
+                    loading = false;
+                    onShowPopupMessage("Message", "Old Password Incorrect");
+                }
+            }
+        }
+
+    }
+    private async void onShowPopupMessage(string headerText, string bodyText)
+    {
+        MessageVisible = true;
+        MessageBody = bodyText;
+        MessageHeader = headerText;
+        StateHasChanged();
     }
 
     async Task ThemeSwitcherItem_Click(DemoTheme theme) {
@@ -51,6 +167,29 @@
             Shown = shown;
             await ShownChanged.InvokeAsync(shown);
         }
+    }
+
+    private async void logout()
+    {
+        var pushToken = await _localStorageService.GetItemOne("PushToken");
+        if (pushToken != null)
+        {
+            var rstdata = await Mediator.Send(new DeletePushTokenID(pushToken));
+
+
+            if(rstdata > 0)
+            {
+                await _localStorageService.RemoveItem("user");
+                NavigationManager.NavigateTo("account/logout");
+            }
+        }
+        else
+        {
+            await _localStorageService.RemoveItem("user");
+            NavigationManager.NavigateTo("account/logout");
+        }
+
+       
     }
 
     protected override void OnAfterRender(bool firstRender) {

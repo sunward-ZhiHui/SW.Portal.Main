@@ -121,7 +121,9 @@ namespace SW.Portal.Solutions.ServerSide {
                         };
                 });
                 services.AddControllers().AddJsonOptions(ConfigureJsonOptions);
-                services.AddDemoServices();                
+                services.AddDemoServices();
+                services.AddSingleton<RealtimeService>();
+                services.AddSingleton<EmailAutoRefresh>();
 
                 //services.AddSingleton<ISalesInfoDataProvider, SalesInfoDataProvider>();
                 //services.AddSingleton<IExperimentResultDataProvider, ExperimentResultDataProvider>();

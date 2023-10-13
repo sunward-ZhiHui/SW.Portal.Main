@@ -2,6 +2,8 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Blazored.Toast;
+using AC.SD.Core.Services;
+
 namespace DevExpress.Blazor.DocumentMetadata {
 
     interface IMetadataEntity {
@@ -30,6 +32,8 @@ namespace DevExpress.Blazor.DocumentMetadata {
         public static IServiceCollection AddDocumentMetadata(this IServiceCollection services) {
             services.TryAddSingleton<DocumentMetadataSetup>(_ => new DocumentMetadataSetup());
             services.AddScoped<DocumentMetadataService>();
+            services.AddSingleton<RealtimeService>();
+            services.AddSingleton<EmailAutoRefresh>();
             services.AddScoped<IDocumentMetadataService>(sp => sp.GetService<DocumentMetadataService>());
             services.AddScoped<IDocumentMetadataCollection>(sp => sp.GetService<DocumentMetadataService>());
             services.AddScoped<IObservable<Renderer>, DocumentMetadataObserver>();

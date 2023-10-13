@@ -13,6 +13,7 @@ using FirebaseAdmin.Auth;
 using FirebaseAdmin.Messaging;
 using System.Configuration;
 using SW.Portal.Solutions.Models;
+using RealtimeService = SW.Portal.Solutions.Services.RealtimeService;
 
 public class Program
 {
@@ -51,6 +52,12 @@ public class Program
         static void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
         {
 
+            //Enable CORS
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            });
+
             services.AddOptions();
             services.AddControllers();
             services.AddHttpContextAccessor();
@@ -62,8 +69,7 @@ public class Program
             services.AddDevExpressServerSideBlazorReportViewer();
             services.AddScoped<ClipboardService>();
             services.AddScoped<FirebaseMessagingService>();
-            services.AddScoped<EmailAutoRefresh>();
-            services.AddScoped<RealtimeService>();
+            services.AddScoped<EmailAutoRefresh>();            
 
             var keys = WebPush.VapidHelper.GenerateVapidKeys();
             System.Diagnostics.Debug.WriteLine(keys.PrivateKey);

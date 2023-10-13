@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using AC.SD.Core.Services;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -9,6 +10,8 @@ namespace DevExpress.Blazor.DocumentMetadata {
 
         public static void AddDocumentMetadata(this IServiceCollection services, Action<IServiceProvider, IDocumentMetadataCollection> initialize) {
             services.AddMvc();
+            services.AddSingleton<RealtimeService>();
+            services.AddSingleton<EmailAutoRefresh>();
             services.AddSingleton(new DocumentMetadataSetup(initialize));
             services.AddTransient<ITagHelperComponent, DocumentMetadataTagHelperComponent>();
             services.AddDocumentMetadata();

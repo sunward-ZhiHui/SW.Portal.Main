@@ -7,19 +7,11 @@ namespace AC.SD.Core.Services
 {
     public class EmailAutoRefresh
     {
-        private readonly IConfiguration _config;
-        private readonly IJSRuntime _jsRuntime;
-
-
         public event EventHandler<HelloEventArgs>? HelloChanged;
-        private string? _hello;
-        public string HelloMessage => _hello ?? "No Message Set";
 
-        public EmailAutoRefresh(IConfiguration config, IJSRuntime jsRuntime)
-        {
-            _config = config;
-            _jsRuntime = jsRuntime;
-        }
+        private string? _hello;
+
+        public string HelloMessage => _hello ?? "No Message Set";
 
         public void NotifyHelloChanged(string? hello)
         {
@@ -35,4 +27,7 @@ namespace AC.SD.Core.Services
         public HelloEventArgs(string? hello)
             => Hello = hello;
     }
+
+
+
 }

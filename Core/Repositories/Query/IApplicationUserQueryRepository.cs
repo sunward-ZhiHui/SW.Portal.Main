@@ -21,6 +21,7 @@ namespace Core.Repositories.Query
         Task<UserNotification> GetUserNotificationValidatation(long UserId, string DeviceType, string TokenID);
         Task<List<UserNotification>> GetTokenList();
         Task<string> UpdateDeviceId(string LoginID, string DeviceType,string TokenID);
+        Task<long> DeleteDeviceId(string TokenID);
         Task<ApplicationUser> UpdatePasswordUser(long UserID, string NewPassword, string OldPassword, string LoginID);
         Task<ApplicationUser> ForGotPasswordUser(string LoginID, string NewPassword);
         Task<ApplicationUser> UnLockedPassword(string LoginID, string NewPassword);

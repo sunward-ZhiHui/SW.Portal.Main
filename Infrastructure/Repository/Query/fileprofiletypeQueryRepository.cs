@@ -345,21 +345,50 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<DocumentPermissionModel> GetDocumentUserRoleByUserIDAsync(long? fileProfileTypeId, long? userId)
+        public async Task<int> GetDocumentUserRoleByUserIDExitsAsync(long? fileProfileTypeId)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("FileProfileTypeID", fileProfileTypeId);
-                parameters.Add("UserID", userId);
-                var query = "select  t3.* from DocumentUserRole t1\r\n" +
-                    "JOIN Employee t2 ON t2.UserID=t1.UserID\r\n" +
-                    "JOIN DocumentPermission t4 ON t4.DocumentRoleID=t1.RoleID\r\n" +
-                    "LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus\r\n" +
-                    "Where  t1.FileProfileTypeID=@FileProfileTypeID AND t1.UserID=@UserID AND (t3.Value is null or t3.Value!='Resign')";
+                var query = "select  t1.* from DocumentUserRole t1\r\n" +
+                    "Where  t1.FileProfileTypeID=@FileProfileTypeID";
                 using (var connection = CreateConnection())
                 {
-                    return await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query,parameters);
+                    return (await connection.QueryAsync<int>(query, parameters)).Count();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentPermissionModel> GetDocumentUserRoleByUserIDAsync(long? fileProfileTypeId, long? userId)
+        {
+            try
+            {
+                var Exits = await GetDocumentUserRoleByUserIDExitsAsync(fileProfileTypeId);
+                if (Exits > 0)
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("FileProfileTypeID", fileProfileTypeId);
+                    parameters.Add("UserID", userId);
+                    var query = "select  t4.* from DocumentUserRole t1\r\n" +
+                        "JOIN Employee t2 ON t2.UserID=t1.UserID\r\n" +
+                        "JOIN DocumentPermission t4 ON t4.DocumentRoleID=t1.RoleID\r\n" +
+                        "LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus\r\n" +
+                        "Where  t1.FileProfileTypeID=@FileProfileTypeID AND t1.UserID=@UserID AND (t3.Value is null or t3.Value!='Resign')";
+                    using (var connection = CreateConnection())
+                    {
+                        return await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
+                    }
+                }
+                else
+                {
+                    DocumentPermissionModel documentPermissionModel = new DocumentPermissionModel();
+                    documentPermissionModel.DocumentPermissionID = -1;
+                    documentPermissionModel.IsPermissionExits = true;
+                    return documentPermissionModel;
                 }
             }
             catch (Exception exp)
@@ -2008,6 +2037,40 @@ namespace Infrastructure.Repository.Query
                 {
                     return (await connection.QueryAsync<DocumentsModel>(query)).ToList();
                 }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentUserRoleModel> UpdateDocumentUserRole(DocumentUserRoleModel documentUserRoleModel)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentUserRoleID", documentUserRoleModel.DocumentUserRoleID);
+                            parameters.Add("RoleID", documentUserRoleModel.RoleID);
+                            var Addquerys = "UPDATE DocumentUserRole SET RoleID = @RoleID WHERE  DocumentUserRoleID = @DocumentUserRoleID";
+                            await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters, transaction);
+                            transaction.Commit();
+
+                            return documentUserRoleModel;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
             }
             catch (Exception exp)
             {

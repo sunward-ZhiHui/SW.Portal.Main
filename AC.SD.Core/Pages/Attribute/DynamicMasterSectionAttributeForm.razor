@@ -94,6 +94,7 @@
             <DxGridDataColumn FieldName="IsRequired" Caption="Is Required" MinWidth="80" />
             <DxGridDataColumn FieldName="RequiredMessage" Caption="Required Message" MinWidth="80" />
             <DxGridDataColumn FieldName="ColSpan" Caption="ColSpan" MinWidth="20" />
+            <DxGridDataColumn FieldName="IsDisplayTableHeader" Caption="Is Table Header" MinWidth="20" />
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
 
@@ -159,6 +160,9 @@
                     @bind-Value="@types.ColSpan"
                                 TextFieldName="Text"
                                 ValueFieldName="Value" ShowValidationIcon="true" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Is Table Header" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="types.IsDisplayTableHeader"></DxCheckBox>
                 </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
@@ -378,6 +382,7 @@
                     IsRequired = editModel.IsRequired,
                     RequiredMessage = editModel.RequiredMessage,
                     IsSpinEditType = IsSpinEditType,
+                    IsDisplayTableHeader=editModel.IsDisplayTableHeader,
                 };
 
             try
@@ -416,6 +421,7 @@
                     IsRequired = editModel.IsRequired,
                     RequiredMessage = editModel.RequiredMessage,
                     IsSpinEditType = IsSpinEditType,
+                    IsDisplayTableHeader = editModel.IsDisplayTableHeader,
 
                 };
             var ans = await Mediator.Send(UpdateReq);

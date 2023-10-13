@@ -43,7 +43,10 @@ namespace Core.EntityModels
         public bool? IsShare { get; set; }
         public bool? IsCloseDocument { get; set; }
 
-
+        public bool? IsEditFolder { get; set; } = true;
+        public bool? IsDeleteFolder { get; set; } = true;
+        public bool? IsEmail { get; set; } = true;
+        public bool? IsReserveProfileNumber { get; set; } = true;
         //DocumentUserRole
         public long DocumentUserRoleID { get; set; }
         public long? UserID { get; set; }
@@ -54,5 +57,6 @@ namespace Core.EntityModels
         public long? FolderID { get; set; }
         public string FolderName { get; set; }
         public long? FolderAddedByUserID { get; set; }
+        public bool? IsPermissionExits { get; set; } = false;
     }
 }

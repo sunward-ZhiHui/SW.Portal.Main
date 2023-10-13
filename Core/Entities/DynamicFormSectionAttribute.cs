@@ -22,6 +22,7 @@ namespace Core.Entities
         public int? SortOrderBy { get; set; }
         public bool? IsMultiple { get; set; } = false;
         public bool? IsRequired { get; set; } = false;
+        public bool? IsDisplayTableHeader { get; set; } = false;
         public string? RequiredMessage { get; set; }
         public string? IsSpinEditType { get; set; }
         public int? FormUsedCount { get; set; }

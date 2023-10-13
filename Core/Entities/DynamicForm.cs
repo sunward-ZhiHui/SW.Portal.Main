@@ -14,7 +14,7 @@ namespace Core.Entities
     {
         [Key]
         public long ID { get; set; }
-        [Required(ErrorMessage = "Name is Required")]
+        [Required(ErrorMessage = "Form Name is Required")]
         public string Name { get; set; }
         [Required(ErrorMessage = "Screen Name is Required")]
         [DynamicFormCustomValidation]

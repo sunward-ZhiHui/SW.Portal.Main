@@ -515,7 +515,18 @@ namespace Application.Handlers.QueryHandlers
                 return await _fileprofileQueryRepository.GetDocumentUserRoleByUserIDAsync(request.Id, request.UserId);
             }
         }
-
+        public class UpdateDocumentUserRoleHandler : IRequestHandler<UpdateDocumentUserRole, DocumentUserRoleModel>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public UpdateDocumentUserRoleHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<DocumentUserRoleModel> Handle(UpdateDocumentUserRole request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.UpdateDocumentUserRole(request.DocumentUserRoleModel);
+            }
+        }
 
     }
 }

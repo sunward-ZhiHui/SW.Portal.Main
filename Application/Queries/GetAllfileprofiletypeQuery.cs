@@ -31,7 +31,7 @@ namespace Application.Queries
             this.FileProfileTypeID = fileProfileTypeID;
         }
     }
-    
+
     public class GetAllSelectedfileprofiletypeQuery : PagedRequest, IRequest<DocumentTypeModel>
     {
         public DocumentSearchModel DocumentSearchModel { get; private set; }
@@ -183,7 +183,7 @@ namespace Application.Queries
             this.Id = id;
         }
     }
-    
+
     public class InsertFileProfileTypeAccess : PagedRequest, IRequest<DocumentUserRoleModel>
     {
         public DocumentUserRoleModel DocumentUserRole { get; private set; }
@@ -229,7 +229,7 @@ namespace Application.Queries
     public class GetFileContetTypes : PagedRequest, IRequest<List<DocumentsModel>>
     {
     }
-    
+
     public class InsertCreateDocument : PagedRequest, IRequest<DocumentsUploadModel>
     {
         public DocumentsUploadModel DocumentsUploadModel { get; private set; }
@@ -291,5 +291,14 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
+    public class UpdateDocumentUserRole : PagedRequest, IRequest<DocumentUserRoleModel>
+    {
+        public DocumentUserRoleModel DocumentUserRoleModel { get; private set; }
+        public UpdateDocumentUserRole(DocumentUserRoleModel documentUserRoleModel)
+        {
+            this.DocumentUserRoleModel = documentUserRoleModel;
+        }
+    }
+
 
 }

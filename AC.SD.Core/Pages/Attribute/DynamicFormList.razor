@@ -1,4 +1,5 @@
 ﻿@page "/DynamicMasterSetup/dynamicFormList/{SessionId:guid}"
+@using System.Dynamic;
 @using global::Core.Entities.Views;
 
 @inject IMediator Mediator
@@ -11,7 +12,8 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
-
+@using Newtonsoft.Json.Linq;
+@using Newtonsoft.Json;
 
 
 
@@ -29,12 +31,23 @@
         </DxMenu>
     </div>
 </div>
+<div class="demo-breadcrumbs-container theme-blazing-berry">
+    <div class="breadcrumb">
+        <div class="demo-breadcrumbs sidebar-hidden">
+            <!--!-->
+
+            <div class="items">
+                <a href="javascript:void(0);">@_dynamicForm?.Name</a>
+            </div>
+        </div>
+    </div>
+</div>
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
                 Text="Fetching Data...">
-    <DxGrid @ref="Grid" Data="@_dynamicformDataList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    <DxGrid @ref="Grid" Data="@_dynamicformObjectDataList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             PagerNavigationMode="PagerNavigationMode.InputBox"
@@ -45,7 +58,6 @@
             style="height: calc(100vh - 220px);"
             CssClass="ch-360"
             FocusedRowEnabled="true"
-            KeyFieldName="DynamicFormDataId"
             AllowSelectRowByClick="true"
             RowClick="OnRowclick"
             CustomizeElement="Grid_CustomizeElement"
@@ -55,10 +67,11 @@
             RowDoubleClick="OnRowDoubleClick">
 
         <Columns>
-            <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="Screen Name" />
+            @* <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="Screen Name" />
             <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" /> *@
+            @BuildDataColumns();
         </Columns>
     </DxGrid>
 </DxLoadingPanel>
@@ -93,32 +106,197 @@
     bool DeleteEnabled { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     private List<DynamicFormData> _dynamicformDataList;
+    private AttributeHeaderListModel _AttributeHeader;
+    private List<DropDownOptionsModel> dataColumnNames = new List<DropDownOptionsModel>();
+    private List<object>? _dynamicformObjectDataList = new List<object>();
+    private static int colRowNameWidthInPx = 200;
+    private static int colDataWidthInPx = 100;
+    public List<DynamicFormSectionAttribute> _dynamicFormSectionAttributeList { get; set; }
+    private string colDataWidth = $"{colDataWidthInPx}px";
+    private string colRowNameWidth = $"{colRowNameWidthInPx}px";
     protected override async Task OnInitializedAsync()
     {
-
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+    }
+    protected override async Task OnParametersSetAsync()
+    {
         await UpdateDataAsync();
+        base.OnParametersSet();
     }
     async Task UpdateDataAsync()
     {
-        EditEnabled = false; DeleteEnabled = false;
-
+        _selectedItems = null;
+        dataColumnNames = new List<DropDownOptionsModel>();
+        EditEnabled = false; DeleteEnabled = false; _dynamicformObjectDataList = new List<object>();
+        dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
+        // dataColumnNames.Add(new DropDownOptionsModel() { Value = "ScreenID", Text = "Screen Name", Type = "Form" });
+        // dataColumnNames.Add(new DropDownOptionsModel() { Value = "Name", Text = "Name", Type = "Form" });
         if (SessionId != null)
         {
             _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1));
             if (_dynamicForm != null)
             {
+                _AttributeHeader = await Mediator.Send(new GetAllAttributeNameList(_dynamicForm, applicationUser.UserID));
+                if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
+                {
+                    _dynamicFormSectionAttributeList = _AttributeHeader.DynamicFormSectionAttribute;
+                    _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
+                    {
+                        dataColumnNames.Add(new DropDownOptionsModel() { Value = a.DynamicAttributeName, Text = a.DisplayName, Type = "DynamicForm", Id = a.DynamicFormSectionAttributeId, IsVisible = a.IsDisplayTableHeader });
+                    });
+                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
+                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
+                }
+                else
+                {
+                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
+                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
+                }
+
                 _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID));
                 PanelVisible = true;
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
+                    _dynamicformDataList.ForEach(s =>
+                    {
+                        dynamic jsonObj = new object();
+                        if (IsValidJson(s.DynamicFormItem))
+                        {
+                            jsonObj = JsonConvert.DeserializeObject(s.DynamicFormItem);
+                        }
+                        IDictionary<string, object> objectData = new ExpandoObject();
+                        objectData["DynamicFormDataId"] = s.DynamicFormDataId;
+                        objectData["SessionId"] = s.SessionId;
+                        objectData["ScreenID"] = s.ScreenID;
+                        objectData["Name"] = s.Name;
+                        objectData["ModifiedBy"] = s.ModifiedBy;
+                        objectData["ModifiedDate"] = s.ModifiedDate;
+                        if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
+                        {
+                            _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
+                            {
+                                string attrName = a.DynamicAttributeName;
+                                var Names = jsonObj.ContainsKey(attrName);
+                                if (Names == true)
+                                {
+                                    var itemValue = jsonObj[attrName];
+                                    if (itemValue is JArray)
+                                    {
+                                        List<long?> listData = itemValue.ToObject<List<long?>>();
+                                        var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null).Select(s => s.AttributeDetailName).ToList();
+                                        objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                    }
+                                    else
+                                    {
+                                        if (a.ControlType == "ComboBox" || a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                                        {
+                                            long? Svalues = itemValue == null ? null : (long)itemValue;
+                                            if (Svalues != null)
+                                            {
+                                                var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null).Select(s => s.AttributeDetailName).ToList();
+                                                objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                            }
+                                            else
+                                            {
+                                                objectData[attrName] = string.Empty;
+                                            }
+                                        }
+                                        else if (a.ControlType == "ListBox" && a.IsMultiple == false)
+                                        {
+                                            long? Svalues = itemValue == null ? null : (long)itemValue;
+                                            if (Svalues != null)
+                                            {
+                                                var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues).ToList();
+                                                objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
+                                            }
+                                            else
+                                            {
+                                                objectData[attrName] = string.Empty;
+                                            }
+                                        }
+                                        else if (a.ControlType == "DateEdit")
+                                        {
+                                            DateTime? values = itemValue == null ? null : (DateTime)itemValue;
+                                            objectData[attrName] = values;
+                                        }
+                                        else if (a.ControlType == "TimeEdit")
+                                        {
+                                            TimeSpan? values = itemValue == null ? null : (TimeSpan)itemValue;
+                                            objectData[attrName] = values;
+                                        }
+                                        else if (a.ControlType == "SpinEdit")
+                                        {
+                                            if (a.IsSpinEditType == "decimal")
+                                            {
+                                                decimal? values = itemValue == null ? null : (decimal)itemValue;
+                                                objectData[attrName] = values;
+                                            }
+                                            else
+                                            {
+                                                int? values = itemValue == null ? null : (int)itemValue;
+                                                objectData[attrName] = values;
+                                            }
+                                        }
+                                        else if (a.ControlType == "CheckBox")
+                                        {
+                                            bool? values = itemValue == null ? false : (bool)itemValue;
+                                            objectData[attrName] = values;
+                                        }
+                                        else
+                                        {
+                                            objectData[attrName] = (string)itemValue;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    objectData[attrName] = string.Empty;
+                                }
+
+
+                            });
+                        }
+                        _dynamicformObjectDataList.Add(objectData);
+                    });
                     EditEnabled = true; DeleteEnabled = true;
                     _selectedItems = _dynamicformDataList.FirstOrDefault();
                     Grid.SetFocusedRowIndex(0);
                 }
             }
+            else
+            {
+                dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
+                dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
+            }
             PanelVisible = false;
             StateHasChanged();
+        }
+    }
+    private static bool IsValidJson(string strInput)
+    {
+        if (string.IsNullOrWhiteSpace(strInput)) { return false; }
+        strInput = strInput.Trim();
+        if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
+            (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
+        {
+            try
+            {
+                var obj = JToken.Parse(strInput);
+                return true;
+            }
+            catch (JsonReaderException jex)
+            {
+                //Exception in parsing json
+                return false;
+            }
+            catch (Exception ex) //some other exception
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
         }
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -160,7 +338,7 @@
     {
         Blukdeletepopup = false;
 
-        await UpdateDataAsync();
+        // await UpdateDataAsync();
     }
     async Task bulkDelete()
     {
@@ -168,8 +346,30 @@
         await Mediator.Send(request);
         Blukdeletepopup = false;
         await UpdateDataAsync();
+    }
+    private RenderFragment BuildDataColumns()
+    {
+        RenderFragment columns = b =>
+        {
+            int counter = 0;
+            if (dataColumnNames != null)
+            {
+                dataColumnNames.ForEach(s =>
+                {
+                    int count = 0;
+                    b.OpenComponent(counter, typeof(DxGridDataColumn));
+                    b.AddAttribute(count + 1, "FieldName", s.Value);
+                    b.AddAttribute(count + 1, "AllowSort", true);
+                    b.AddAttribute(count + 1, "SortMode", DevExpress.Blazor.GridColumnSortMode.Custom);
+                    // b.AddAttribute(count + 1, "TextAlignment", DevExpress.Blazor.GridTextAlignment.Right);
+                    // b.AddAttribute(count + 1, "Width", colDataWidth);
+                    b.AddAttribute(count + 1, "Caption", s.Text);
+                    b.AddAttribute(count + 1, "Visible", s.IsVisible);
+                    b.CloseComponent();
+                });
+            }
+        };
 
-
-
+        return columns;
     }
 }

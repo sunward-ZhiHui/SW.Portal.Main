@@ -46,6 +46,7 @@ namespace Core.Repositories.Query
         Task<EmailTopics> GetTopicListAsync();      
         Task<long> UpdateDueDate(EmailTopics EmailTopics);
         Task<long> UpdateSubjectDueDate(EmailConversations emailConversations);
+        Task<long> UpdateSubjectName(EmailConversations emailConversations);
         Task<long> UpdateTopicClose(EmailTopics EmailTopics);
         Task<long> UpdateTopicArchive(EmailTopics emailTopics);
         Task<long> UpdateTopicUnArchive(EmailTopics emailTopics);

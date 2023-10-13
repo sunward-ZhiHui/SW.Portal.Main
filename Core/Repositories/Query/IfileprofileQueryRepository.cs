@@ -42,6 +42,7 @@ namespace Core.Repositories.Query
         Task<DocumentsModel> ReStoreFileProfileTypeAndDocument(DocumentsModel documentsModel);
         Task<IReadOnlyList<DocumentsModel>> GetFileContetTypes();
         Task<DocumentPermissionModel> GetDocumentUserRoleByUserIDAsync(long? fileProfileTypeId, long? userId);
+        Task<DocumentUserRoleModel> UpdateDocumentUserRole(DocumentUserRoleModel documentUserRoleModel);
 
     }
 }

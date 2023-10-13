@@ -471,6 +471,23 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
+    public class UpdateEmailSubjectNameHandler : IRequestHandler<UpdateEmailSubjectName, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public UpdateEmailSubjectNameHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+
+        }
+
+        public async Task<long> Handle(UpdateEmailSubjectName request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.UpdateSubjectName(request);
+            return req;
+        }
+    }
+    
     public class UpdateEmailTopicClosedHandler : IRequestHandler<UpdateEmailTopicClosed, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;

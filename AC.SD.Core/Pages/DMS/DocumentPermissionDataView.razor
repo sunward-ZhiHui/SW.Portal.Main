@@ -3,15 +3,23 @@
 @if (documentPermissionData != null)
 {
     <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="Read" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@documentPermissionData.IsRead" Enabled="false" />
-        </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Create Folder" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsCreateFolder" Enabled="false" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Edit Folder" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermissionData.IsEditFolder" Enabled="false" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Delete Folder" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermissionData.IsDeleteFolder" Enabled="false" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Create Document" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsCreateDocument" Enabled="false" />
         </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Read" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermissionData.IsRead" Enabled="false" />
+        </DxFormLayoutItem>
+       
+       
         <DxFormLayoutItem Caption="Edit" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsEdit" Enabled="false" />
         </DxFormLayoutItem>
@@ -29,6 +37,12 @@
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Delete" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsDelete" Enabled="false" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Email" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermissionData.IsEmail" Enabled="false" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Reserve Profile Number Series" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermissionData.IsReserveProfileNumber" Enabled="false" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="List Version" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsListVersion" Enabled="false" />

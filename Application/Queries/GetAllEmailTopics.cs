@@ -259,6 +259,9 @@ namespace Application.Queries
     public class UpdateEmailTopicSubjectDueDate : EmailConversations, IRequest<long>
     {
     }
+    public class UpdateEmailSubjectName : EmailConversations, IRequest<long>
+    {
+    }
     public class UpdateEmailTopicClosed : EmailTopics, IRequest<long>
     {       
     }

@@ -991,6 +991,7 @@
             <Items>
                 <DxMenuItem IconCssClass="fa fa-calendar" @onclick="onSubjectDueDatePop" Text="Due Date" />
                 <DxMenuItem IconCssClass="fa fa-text-width" @onclick="@(() => onMarkasAllRead(CurrentEmailConversations.ID))" Text="Mark as all read" />
+                <DxMenuItem IconCssClass="fa fa-font" @onclick="onRenameSubjectPop" Text="Rename Subject" />
             </Items>
         </DxMenu>
     </BodyTextTemplate>
@@ -1097,6 +1098,28 @@
         </EditForm>           
         </div>
        
+    </BodyTemplate>
+</DxPopup>
+
+<DxPopup @bind-Visible="@isRenameSubject" HeaderText="Rename Subject">
+    <BodyTemplate Context="PopupContext">
+        <div style="padding:10px;">
+
+            <EditForm Model="@_dataSubjectName" OnValidSubmit="@SubmitSubjectName" class="w-800">
+                <DataAnnotationsValidator />
+                <div class="row">
+                    <div class="col-md-12" style="padding-bottom: 12px">
+                        <label for="DueDate"> Subject Name: </label>
+                        <DxTextBox @bind-Text="@_dataSubjectName.SubjectName" ShowValidationIcon="true" NullText="Subject Name" />
+                        <ValidationMessage For="@(() => _dataSubjectName.SubjectName)" />
+                    </div>
+                    <div class="col-md-12">
+                        <DxButton SubmitFormOnClick="true" style="float: right;" Text="Submit" RenderStyle="ButtonRenderStyle.Primary" />
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+
     </BodyTemplate>
 </DxPopup>
 
@@ -1302,6 +1325,7 @@
     bool IsOpen { get; set; } = false;
     bool IsOpenFlyout { get; set; } = false;
     bool isOpenSubjectPop { get; set; } = false;
+    bool isOpenSubjectNamePop { get; set; } = false;
     string dynamicShowSubject = "showOpenSubject_";    
     Selection selection; 
     Selection richSelection { get; set; }
@@ -1425,12 +1449,18 @@
     {
         [Required(ErrorMessage = "Remarks is required")]
         public string? Remarks { get; set; }
-    }   
+    }  
+    private class SubjectNameModel
+    {
+        [Required(ErrorMessage = "Subject Name is required")]
+        public string? SubjectName { get; set; } 
+    }
     private DxUpload uploadComponent;  
 
     private Model _dataDuDate = new Model();
     private Model _dataSubjectDuDate = new Model();
     private ModelClose _dataTopicClose = new ModelClose();
+    private SubjectNameModel _dataSubjectName = new SubjectNameModel();
 
     string ClosedMsg { get; set; }
     DateTime? DateTimeValue { get; set; }
@@ -1451,6 +1481,7 @@
     bool isFileUpload = false;
     bool isDueDate =false;
     bool isSubjectDueDate = false;
+    bool isRenameSubject = false;
     bool isTopicClosed = false;
     bool isTopicCategoryClosed = false;
     bool isArchiveClosed = false;
@@ -1858,6 +1889,12 @@
     {
         isSubjectDueDate = true;       
     }
+    async void onRenameSubjectPop()
+    {
+        _dataSubjectName.SubjectName = CurrentEmailConversations.Name;
+        isRenameSubject = true;
+        
+    }
     async void SubmitDueDate()
     {
         var UpdateReq = new UpdateEmailTopicDueDate
@@ -1905,6 +1942,47 @@
             await LoadReplyData();
         }
         isOpenSubjectPop = false;
+        StateHasChanged();
+    }
+    async void SubmitSubjectName()
+    {
+        var UpdateReq = new UpdateEmailSubjectName
+            {
+                //ID = long.Parse(@SelectedGroup),
+                ID = CurrentEmailConversations.ID,
+                TopicID = CurrentEmailConversations.TopicID,
+                Name = _dataSubjectName.SubjectName,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now
+            };
+
+        var result = await Mediator.Send(UpdateReq);
+
+        isRenameSubject = false;
+        //onShowPopupMessage("success", "Updated DueDate Successfully");
+        if (RTopicId == 0)
+        {
+            await LoadData();
+        }
+        else
+        {
+            await LoadReplyData();
+        }
+        isOpenSubjectPop = false;
+
+
+
+        if(isLeftMenuvisible == "AssignTo")
+        {
+            await RefAssignTo.onAssignToGridRefresh(long.Parse(@SelectedGroup));
+        }
+
+        if (isLeftMenuvisible == "All")
+        {
+            await RefAssignAll.onAssignAllGridRefresh(long.Parse(@SelectedGroup));
+        }
+
+
         StateHasChanged();
     }
     async void SubmitTopicClose()

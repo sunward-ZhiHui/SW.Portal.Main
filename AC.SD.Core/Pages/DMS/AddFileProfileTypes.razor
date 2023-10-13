@@ -86,7 +86,7 @@
 </div>
 
 @code {
-    
+
     [Parameter]
     public Guid? SessionId { get; set; }
     [Parameter]
@@ -106,7 +106,7 @@
     protected override async Task OnInitializedAsync()
     {
         _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        
+
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -119,16 +119,63 @@
         }
         if (FileProfileTypeId > 0)
         {
-
             var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
             if (fileType != null)
             {
+                var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(FileProfileTypeId, _applicationUser.UserID));
+                if (Type == "Add")
+                {
+                    if (fileType.AddedByUserID == _applicationUser.UserID)
+                    {
+                    }
+                    else
+                    {
+                        if (documentPermissionModels != null)
+                        {
+                            if (documentPermissionModels.IsCreateFolder == true)
+                            {
 
+                            }
+                            else
+                            {
+                                NavigationManager.NavigateTo("fileprofiletype/" + SessionId);
+                            }
+                        }
+                        else
+                        {
+                            NavigationManager.NavigateTo("fileprofiletype/" + SessionId);
+                        }
+                    }
+                }
+                if (Type == "Edit")
+                {
+                    if (fileType.AddedByUserID == _applicationUser.UserID)
+                    {
+                    }
+                    else
+                    {
+                        if (documentPermissionModels != null)
+                        {
+                            if (documentPermissionModels.IsEditFolder == true)
+                            {
+
+                            }
+                            else
+                            {
+                                NavigationManager.NavigateTo("fileprofiletype/" + SessionId);
+                            }
+                        }
+                        else
+                        {
+                            NavigationManager.NavigateTo("fileprofiletype/" + SessionId);
+                        }
+                    }
+                }
                 FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
                 FolderPathLists.Add(fileType);
             }
         }
-        
+
         base.OnParametersSet();
     }
     private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)

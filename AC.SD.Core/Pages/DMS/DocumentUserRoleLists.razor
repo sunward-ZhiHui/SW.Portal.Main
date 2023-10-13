@@ -12,6 +12,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
+                <DxMenuItem Text="Update Role" IconCssClass="fa fa-pencil" Click="@onUpdateClick" Id=@($"flyout-overview-target-container-FilterDocuments-{TypeRole}") Enabled="@updateEnabled" />
                 <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
             </Items>
         </DxMenu>
@@ -40,6 +41,7 @@
             CssClass="ch-360"
             style="height: calc(100vh - 420px);"
             FocusedRowEnabled="true"
+            RowClick="OnRowClick"
             SelectedDataItemsChanged="@SelectedDataItemsChanged"
             AllowSelectRowByClick="true">
         <Columns>
@@ -82,33 +84,74 @@
 
 
 </DxPopup>
+<DxFlyout @bind-IsOpen=IsFilterOpen
+          PositionTarget=@($"#flyout-overview-target-container-FilterDocuments-{TypeRole}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Update Role"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          CloseOnOutsideClick="false"
+          Width="max(25vw, 550px)"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="User Role" ColSpanMd="6">
+                <DxComboBox Data="@_documentRoleList"
+                            NullText="Select User Role..."
+                            ListRenderMode="ListRenderMode.Virtual"
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="DocumentRoleName"
+                            ValueFieldName="DocumentRoleId"
+                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                @bind-Value="@documentUserRoleModel.RoleID" ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateRoleDocuments()) />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click=@(()=> IsFilterOpen=false) />
 
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
+    bool IsFilterOpen { get; set; } = false;
     IGrid? SMGrid { get; set; }
     bool DeleteEnabled { get; set; } = false;
+    bool updateEnabled { get; set; } = false;
     [Parameter]
     public long? FileProfileTypeId { get; set; }
+    [Parameter]
+    public string? TypeRole { get; set; }
     public List<DocumentUserRoleModel> _documentUserRoleLists { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
     bool PanelVisible { get; set; }
     bool Blukdeletepopup { get; set; } = false;
     string? DeleteerrorMessage;
+
     bool PopupVisible { get; set; } = false;
+    private DocumentUserRoleModel _selectedItems;
+    DocumentUserRoleModel documentUserRoleModel = new DocumentUserRoleModel();
     DxPopup? popup;
+    public List<DocumentRole> _documentRoleList { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        _documentRoleList = await Mediator.Send(new GetDocumentRoles());
         await loadData(FileProfileTypeId);
     }
     public async Task loadData(long? fileProfileTypeId)
     {
-        DeleteEnabled = false;
+        DeleteEnabled = false; updateEnabled = false;
         _documentUserRoleLists = new List<DocumentUserRoleModel>();
         if (fileProfileTypeId > 0)
         {
             _documentUserRoleLists = await Mediator.Send(new GetDocumentUserRoleList(fileProfileTypeId));
             if (_documentUserRoleLists.Count > 0)
             {
-                DeleteEnabled = true;
+                _selectedItems = _documentUserRoleLists.FirstOrDefault();
+                DeleteEnabled = true; updateEnabled = true;
             }
         }
         StateHasChanged();
@@ -116,6 +159,27 @@
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            updateEnabled = false;
+
+        }
+        else
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is DocumentUserRoleModel dataselectItems)
+                    {
+                        _selectedItems = (DocumentUserRoleModel)item;
+                    }
+                }
+            }
+            updateEnabled = true;
+
+        }
     }
     void addDelete()
     {
@@ -131,6 +195,29 @@
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentUserRoleID");
+        _selectedItems = _documentUserRoleLists.FirstOrDefault(f => f.DocumentUserRoleID == (long?)UniqueId);
+        StateHasChanged();
+    }
+    void onUpdateClick()
+    {
+        IsFilterOpen = true;
+        documentUserRoleModel = new DocumentUserRoleModel();
+        documentUserRoleModel.RoleID = _selectedItems.RoleID;
+        documentUserRoleModel.DocumentUserRoleID = _selectedItems.DocumentUserRoleID;
+    }
+    async Task OnUpdateRoleDocuments()
+    {
+        if (documentUserRoleModel.RoleID > 0)
+        {
+            await Mediator.Send(new UpdateDocumentUserRole(documentUserRoleModel));
+            await loadData(FileProfileTypeId);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            IsFilterOpen = false;
+        }
     }
     async Task bulkDelete()
     {

@@ -54,5 +54,8 @@ namespace Core.Entities
     {
         public string? Value { get; set; }
         public string? Text { get; set; }
+        public long? Id { get; set; }
+        public string? Type { get; set; }
+        public bool? IsVisible { get; set; } = true;
     }
 }

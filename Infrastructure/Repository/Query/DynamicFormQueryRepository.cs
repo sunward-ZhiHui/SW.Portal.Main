@@ -448,12 +448,13 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("IsMultiple", dynamicFormSection.IsMultiple);
                             parameters.Add("RequiredMessage", dynamicFormSection.RequiredMessage, DbType.String);
                             parameters.Add("IsSpinEditType", dynamicFormSection.IsSpinEditType, DbType.String);
+                            parameters.Add("IsDisplayTableHeader", dynamicFormSection.IsDisplayTableHeader);
                             if (dynamicFormSection.DynamicFormSectionAttributeId > 0)
                             {
 
                                 var query = "UPDATE DynamicFormSectionAttribute SET DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
                                     "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,IsSpinEditType=@IsSpinEditType," +
-                                    "StatusCodeID=@StatusCodeID,ColSpan=@ColSpan,SortOrderBy=@SortOrderBys,IsRequired=@IsRequired,IsMultiple=@IsMultiple,RequiredMessage=@RequiredMessage " +
+                                    "StatusCodeID=@StatusCodeID,ColSpan=@ColSpan,SortOrderBy=@SortOrderBys,IsRequired=@IsRequired,IsMultiple=@IsMultiple,RequiredMessage=@RequiredMessage,IsDisplayTableHeader=@IsDisplayTableHeader " +
                                     "WHERE DynamicFormSectionAttributeId = @DynamicFormSectionAttributeId";
                                 await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -462,9 +463,9 @@ namespace Infrastructure.Repository.Query
                             {
                                 parameters.Add("SortOrderBy", GeDynamicFormSectionAttributeSort(dynamicFormSection.DynamicFormSectionId));
                                 var query = "INSERT INTO DynamicFormSectionAttribute(DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
-                                    "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple,RequiredMessage,IsSpinEditType) VALUES " +
+                                    "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple,RequiredMessage,IsSpinEditType,IsDisplayTableHeader) VALUES " +
                                     "(@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
-                                    "@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@ColSpan,@DynamicFormSectionId,@IsRequired,@IsMultiple,@RequiredMessage,@IsSpinEditType)";
+                                    "@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@ColSpan,@DynamicFormSectionId,@IsRequired,@IsMultiple,@RequiredMessage,@IsSpinEditType,@IsDisplayTableHeader)";
 
                                 dynamicFormSection.DynamicFormSectionAttributeId = await connection.ExecuteAsync(query, parameters, transaction);
                             }
@@ -520,7 +521,9 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormSectionId", dynamicFormSectionId);
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.SectionName,t6.ControlTypeId,t6.AttributeName,t7.CodeValue as ControlType from DynamicFormSectionAttribute t1 \r\n" +
+                var query = "select t1.*," +
+                    "(case when t1.IsDisplayTableHeader is NULL then  0 ELSE t1.IsDisplayTableHeader END) as IsDisplayTableHeader," +
+                    "t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.SectionName,t6.ControlTypeId,t6.AttributeName,t7.CodeValue as ControlType from DynamicFormSectionAttribute t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
                     "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
@@ -1056,7 +1059,18 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DynamicFormData>(query, parameters)).ToList();
+                    var result = (await connection.QueryAsync<DynamicFormData>(query, parameters)).ToList();
+                    if (result != null && result.Count > 0)
+                    {
+                        result.ForEach(s =>
+                        {
+                            if (s.DynamicFormItem != null && IsValidJson(s.DynamicFormItem))
+                            {
+                                s.ObjectData = JsonConvert.DeserializeObject(s.DynamicFormItem);
+                            }
+                        });
+                    }
+                    return result;
                 }
             }
             catch (Exception exp)

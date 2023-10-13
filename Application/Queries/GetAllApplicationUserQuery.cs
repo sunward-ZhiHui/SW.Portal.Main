@@ -22,6 +22,15 @@ namespace Application.Queries
            
         }
     }
+    public class DeletePushTokenID : PagedRequest, IRequest<long>
+    {      
+        public string TokenID { get; set; }
+        public DeletePushTokenID(string tokenId)
+        {  
+            this.TokenID = tokenId;
+        }
+    }
+    
     public class GetAllApplicationUserByLoginIDQuery : PagedRequest, IRequest<ApplicationUser>
     {
         public string Name { get; set; }

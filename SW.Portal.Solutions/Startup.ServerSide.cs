@@ -37,6 +37,8 @@ namespace SW.Portal.Solutions.ServerSide {
             services.AddServerSideBlazor().AddCircuitOptions(x => x.DetailedErrors = detailedErrors);
             services.AddBlazoredToast();
             services.AddDevExpressServerSideBlazorReportViewer();
+            services.AddSingleton<RealtimeService>();
+            services.AddSingleton<EmailAutoRefresh>();
 
             var keys = WebPush.VapidHelper.GenerateVapidKeys();
             System.Diagnostics.Debug.WriteLine(keys.PrivateKey);

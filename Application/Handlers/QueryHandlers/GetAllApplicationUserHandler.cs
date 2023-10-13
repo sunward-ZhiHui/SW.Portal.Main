@@ -51,4 +51,18 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _applicationUserQueryRepository.UpdateDeviceId(request.LoginId,request.DeviceType,request.TokenID);
         }
     }
+    public class DeleteTokenIDHandler : IRequestHandler<DeletePushTokenID, long>
+    {
+        private readonly IApplicationUserQueryRepository _applicationUserQueryRepository;
+        private readonly IQueryRepository<ApplicationUser> _queryRepository;
+        public DeleteTokenIDHandler(IApplicationUserQueryRepository applicationUserQueryRepository, IQueryRepository<ApplicationUser> queryRepository)
+        {
+            _applicationUserQueryRepository = applicationUserQueryRepository;
+            _queryRepository = queryRepository;
+        }
+        public async Task<long> Handle(DeletePushTokenID request, CancellationToken cancellationToken)
+        {
+            return await _applicationUserQueryRepository.DeleteDeviceId(request.TokenID);
+        }
+    }
 }

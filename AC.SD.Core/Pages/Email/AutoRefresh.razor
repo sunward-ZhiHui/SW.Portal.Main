@@ -1,5 +1,6 @@
 ﻿@page "/autorefresh"
 @inject RealtimeService service
+@inject EmailAutoRefresh helloService
 
 <style>
     body {
@@ -22,6 +23,15 @@
     }
 </style>
 
+
+
+<div class="m-2">
+    <button class="btn btn-dark" @onclick=this.UpdateHello>Update Hello</button>
+</div>
+
+<div class="alert alert-primary">@helloService.HelloMessage</div>
+
+
 <div class="container">
     <div class="rotate" style="transform: rotateX(@(service.a + "deg")) rotateY(@(service.b + "deg"));">
     </div>
@@ -33,5 +43,19 @@
     protected override async Task OnInitializedAsync()
     {
         service.UpdateEvent += async () => await InvokeAsync(() => this.StateHasChanged());
+        this.helloService.HelloChanged += this.OnHelloChanged;
     }
+
+    private Task UpdateHello()
+    {
+        helloService.NotifyHelloChanged($"Hello Blazor at {DateTime.Now.ToLongTimeString()}");
+        return Task.CompletedTask;
+    }
+
+    public void OnHelloChanged(object? sender, HelloEventArgs e)
+        => InvokeAsync(this.StateHasChanged);
+
+    // We must de-register the even handler
+    public void Dispose()
+        => this.helloService.HelloChanged -= this.OnHelloChanged;
 }

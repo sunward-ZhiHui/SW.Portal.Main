@@ -48,6 +48,8 @@ namespace AC.SD.Core
                 //    Culture = "en-US"
                 //});
             });
+            services.AddSingleton<RealtimeService>();
+            services.AddSingleton<EmailAutoRefresh>();
             services.AddBlazoredToast();
             services.AddDocumentMetadata(ConfigureMetadata);
             services.AddSingleton<DemoConfiguration>();

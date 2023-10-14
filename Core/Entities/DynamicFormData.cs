@@ -27,5 +27,32 @@ namespace Core.Entities
         public string? ScreenID { get; set; }
         [NotMapped]
         public bool? IsApproval { get; set; }
+        [NotMapped]
+        public bool? IsApproved { get; set; }
+        [NotMapped]
+        public string? ApprovalStatus { get; set; }
+        [NotMapped]
+        public int? ApprovalStatusId { get; set; }
+        [NotMapped]
+        public string? RejectedUser { get; set; }
+        [NotMapped]
+        public DateTime? RejectedDate { get; set; }
+        [NotMapped]
+
+        public long? RejectedUserId { get; set; }
+        [NotMapped]
+        public string? PendingUser { get; set; }
+        [NotMapped]
+        public long? PendingUserId { get; set; }
+        [NotMapped]
+        public string? ApprovedUser { get; set; }
+        [NotMapped]
+        public DateTime? ApprovedDate { get; set; }
+        [NotMapped]
+        public long? ApprovedUserId { get; set; }
+        [NotMapped]
+        public List<DynamicFormApproved> DynamicFormApproved { get; set; }
+        [NotMapped]
+        public string? StatusName { get; set; }
     }
 }

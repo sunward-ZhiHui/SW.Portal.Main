@@ -147,6 +147,10 @@ namespace Application.Queries
     {
 
     }
+    public class GetDocumentRoleList : PagedRequest, IRequest<List<DocumentRole>>
+    {
+
+    }
     public class GetDocumentProfiles : PagedRequest, IRequest<List<DocumentProfileNoSeriesModel>>
     {
 
@@ -300,5 +304,40 @@ namespace Application.Queries
         }
     }
 
+    public class InsertOrUpdateDocumentRole : DocumentRole, IRequest<DocumentRole>
+    {
 
+    }
+    public class InsertOrUpdateDocumentPermission : DocumentPermission, IRequest<DocumentPermission>
+    {
+        public DocumentPermission DocumentPermission { get; private set; }
+        public InsertOrUpdateDocumentPermission(DocumentPermission documentPermission)
+        {
+            this.DocumentPermission = documentPermission;
+        }
+    }
+    public class DeleteDocumentRole : DocumentRole, IRequest<DocumentRole>
+    {
+        public DocumentRole DocumentRole { get; private set; }
+        public DeleteDocumentRole(DocumentRole documentRole)
+        {
+            this.DocumentRole = documentRole;
+        }
+    }
+    public class GetDocumentPermissionData : DocumentRole, IRequest<DocumentPermission>
+    {
+        public long? Id { get; private set; }
+        public GetDocumentPermissionData(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class DeleteDocumentPermissions : PagedRequest, IRequest<long?>
+    {
+        public long? Id { get; private set; }
+        public DeleteDocumentPermissions(long? id)
+        {
+            this.Id = id;
+        }
+    }
 }

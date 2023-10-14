@@ -1,0 +1,118 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager Navigator
+
+<DxFormLayout CssClass="w-100">
+    <DxFormLayoutItem Caption="Create Folder" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsCreateFolder" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Edit Folder" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsEditFolder" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Delete Folder" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsDeleteFolder" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Create Document" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsCreateDocument" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Read" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsRead" />
+    </DxFormLayoutItem>
+
+
+    <DxFormLayoutItem Caption="Edit" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsEdit" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Rename" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsRename" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Check Out" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsUpdateDocument" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Copy" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsCopy" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Move" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsMove" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Delete" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsDelete" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Email" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsSendEmail" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Reserve Profile Number Series" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsReserveProfileNumber" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="List Version" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsListVersion" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Invitation" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsInvitation" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Document Notes" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsDiscussion" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Enable Document Status" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsDocumentAccess" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Enable Create Task" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsCreateTask" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Enable Profile Type Info" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsEnableProfileTypeInfo" />
+    </DxFormLayoutItem>
+</DxFormLayout>
+@code {
+    [Parameter]
+    public long? DocumentRoleId { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    DocumentPermission documentPermission = new DocumentPermission();
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await loadDataList();
+    }
+    async Task loadDataList()
+    {
+        documentPermission = new DocumentPermission();
+        if (DocumentRoleId > 0)
+        {
+            var permissions = await Mediator.Send(new GetDocumentPermissionData(DocumentRoleId));
+            documentPermission.DocumentRoleId = DocumentRoleId;
+            if (permissions != null)
+            {
+                documentPermission = permissions;
+            }
+        }
+    }
+    public async Task savePermission()
+    {
+        if (DocumentRoleId > 0)
+        {
+            documentPermission.StatusCodeId = documentPermission.StatusCodeId == null ? 1 : documentPermission.StatusCodeId;
+            documentPermission.AddedByUserId = documentPermission.AddedByUserId == null ? applicationUser.UserID : documentPermission.AddedByUserId;
+            documentPermission.ModifiedByUserId = documentPermission.ModifiedByUserId == null ? applicationUser.UserID : documentPermission.ModifiedByUserId;
+            documentPermission.AddedDate = documentPermission.AddedDate == null ? DateTime.Now : documentPermission.AddedDate;
+            documentPermission.ModifiedDate = documentPermission.ModifiedDate == null ? DateTime.Now : documentPermission.ModifiedDate;
+            var request = new InsertOrUpdateDocumentPermission(documentPermission);
+            var response = await Mediator.Send(request);
+            if (response.DocumentPermissionId > 0)
+            {
+                await loadDataList();
+                toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+        }
+        // RevokeBack?.Invoke();
+    }
+}

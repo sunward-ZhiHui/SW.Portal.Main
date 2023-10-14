@@ -1045,10 +1045,31 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DynamicFormApproved>> GetDynamicFormApprovedByAll()
+        {
+            try
+            {
+                var query = "select t1.*,t4.UserName as ApprovedByUser,\r\n" +
+                   "CONCAT(case when t2.NickName is NULL then  t2.FirstName ELSE  t2.NickName END,' | ',t2.LastName) as ApprovalUser,\r\n" +
+                   "CASE WHEN t1.IsApproved=1  THEN 'Approved' WHEN t1.IsApproved =0 THEN 'Rejected' ELSE 'Pending' END AS ApprovedStatus\r\n" +
+                   "FROM DynamicFormApproved t1 \r\n" +
+                   "JOIN Employee t2 ON t1.UserID=t2.UserID \r\n" +
+                   "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ApprovedByUserId order by t1.DynamicFormApprovedId asc;\r\n";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormApproved>(query, null)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id)
         {
             try
             {
+                var resultData = await GetDynamicFormApprovedByAll();
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", id);
                 var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.Name,\r\nt5.ScreenID from DynamicFormData t1 \r\n" +
@@ -1067,6 +1088,66 @@ namespace Infrastructure.Repository.Query
                             if (s.DynamicFormItem != null && IsValidJson(s.DynamicFormItem))
                             {
                                 s.ObjectData = JsonConvert.DeserializeObject(s.DynamicFormItem);
+                            }
+                            if (s.IsSendApproval == true)
+                            {
+                                var approvedList = resultData.Where(w => w.DynamicFormDataId == s.DynamicFormDataId).ToList();
+                                if (approvedList != null && approvedList.Count() > 0)
+                                {
+                                    s.DynamicFormApproved = approvedList;
+                                    var approved = approvedList.Where(w => w.IsApproved == true).ToList();
+                                    var approvedPending = approvedList.Where(w => w.IsApproved == null).ToList();
+                                    if (approved != null && approved.Count() > 0 && approvedList.Count() == approved.Count())
+                                    {
+                                        s.ApprovalStatusId = 4;
+                                        s.ApprovalStatus = "Approved Done";
+                                        s.StatusName = "Completed";
+                                    }
+                                    else
+                                    {
+                                        var rejected = approvedList.Where(w => w.IsApproved == false).FirstOrDefault();
+                                        if (rejected != null)
+                                        {
+                                            s.IsApproved = rejected.IsApproved;
+                                            s.ApprovalStatusId = 3;
+                                            s.ApprovalStatus = "Rejected";
+                                            s.RejectedDate = rejected.ApprovedDate;
+                                            s.RejectedUserId = rejected.UserId;
+                                            s.RejectedUser = rejected.ApprovalUser;
+                                            s.StatusName = "Rejected";
+                                        }
+                                        else
+                                        {
+                                            if (approvedPending != null && approvedPending.Count > 0)
+                                            {
+                                                if (approved != null && approved.Count() > 0)
+                                                {
+                                                    var isapproved = approved.OrderByDescending(o => o.DynamicFormApprovedId).FirstOrDefault(w => w.IsApproved == true);
+                                                    if (isapproved != null)
+                                                    {
+                                                        s.IsApproved = isapproved.IsApproved;
+                                                        s.ApprovalStatusId = 2;
+                                                        s.ApprovalStatus = "Approved";
+                                                        s.ApprovedDate = isapproved.ApprovedDate;
+                                                        s.ApprovedUserId = isapproved.UserId;
+                                                        s.ApprovedUser = isapproved.ApprovalUser;
+                                                    }
+                                                }
+                                                var isapprovedPending = approvedPending.OrderBy(o => o.DynamicFormApprovedId).FirstOrDefault(w => w.IsApproved == null);
+                                                if (isapprovedPending != null)
+                                                {
+                                                    s.IsApproved = isapprovedPending.IsApproved;
+                                                    s.ApprovalStatusId = 1;
+                                                    s.ApprovalStatus = "Pending";
+                                                    s.PendingUserId = isapprovedPending.UserId;
+                                                    s.PendingUser = isapprovedPending.ApprovalUser;
+                                                    s.StatusName = "Pending";
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
                             }
                         });
                     }
@@ -2054,7 +2135,7 @@ namespace Infrastructure.Repository.Query
                     "JOIN Employee t2 ON t1.UserID=t2.UserID \r\n" +
                     "LEFT JOIN ApplicationMasterDetail t3 ON t3.ApplicationMasterDetailID=t2.AcceptanceStatus\r\n" +
                      "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ApprovedByUserId\r\n" +
-                    "Where t1.DynamicFormDataID=@DynamicFormDataId AND (t3.Value is null or t3.Value!='Resign')\r\norder by t1.DynamicFormApprovedID asc";
+                    "Where t1.DynamicFormDataID=@DynamicFormDataId \r\norder by t1.DynamicFormApprovedID asc";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DynamicFormApproved>(query, parameters)).ToList();

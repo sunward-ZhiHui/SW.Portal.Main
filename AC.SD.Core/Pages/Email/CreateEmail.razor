@@ -923,7 +923,7 @@ else
     }
     protected override async Task OnInitializedAsync() {  
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
-        _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108"));
+        _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         onloadSession();
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;

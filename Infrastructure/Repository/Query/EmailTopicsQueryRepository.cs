@@ -1554,8 +1554,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DocumentSessionId", activityEmailTopics.DocumentSessionId);
                             parameters.Add("AddedByUserID", activityEmailTopics.AddedByUserID);
                             parameters.Add("AddedDate", activityEmailTopics.AddedDate);
+                            parameters.Add("ManufacturingProcessId", activityEmailTopics.ManufacturingProcessId);
+                            parameters.Add("CategoryActionId", activityEmailTopics.CategoryActionId);
 
-                            var query = "INSERT INTO ActivityEmailTopics(SubjectName,Comment,ActivityType,SessionId,BackURL,DocumentSessionId,AddedByUserID,AddedDate) VALUES (@SubjectName,@Comment,@ActivityType,@SessionId,@BackURL,@DocumentSessionId,@AddedByUserID,@AddedDate)";
+                            var query = "INSERT INTO ActivityEmailTopics(SubjectName,Comment,ActivityType,SessionId,BackURL,DocumentSessionId,AddedByUserID,AddedDate,ManufacturingProcessId,CategoryActionId) VALUES (@SubjectName,@Comment,@ActivityType,@SessionId,@BackURL,@DocumentSessionId,@AddedByUserID,@AddedDate,@ManufacturingProcessId,@CategoryActionId)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 

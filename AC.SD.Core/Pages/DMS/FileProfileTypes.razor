@@ -15,6 +15,9 @@
 @using global::Core.Repositories.Query;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Application.Command.ApplicationMasterChilds;
+@using Application.Command.ApplicationMasterDetails;
+
 @using System;
 @using System.IO;
 <style>
@@ -1042,7 +1045,7 @@
         else
         {
             NavigationManager.NavigateTo($"fileprofiletype/AddFileProfileTypes/Add/" + MainSessionId);
-            
+
         }
 
     }
@@ -1233,6 +1236,90 @@
     }
     async Task onFileProfileTypeEmail()
     {
+        var lst = FolderPathLists;
+        string groupTag = "";
+
+        long grouptTagId = 0;
+        long catTagId = 0;
+
+        List<string> tagStringList = new List<string>();
+
+        for(var j=0; j < FolderPathLists.Count; j++)
+        {           
+            var ckl = FolderPathLists[j].FileName;
+
+            if (j == 0)
+            {
+                groupTag = ckl; // Assign the first element to groupTag
+            }
+            else
+            {
+                tagStringList.Add(ckl); // Add other elements to tagStringList
+            }
+        }
+
+        string tagString = string.Join("_", tagStringList);
+
+        var  tagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("122"));
+
+        var cktagItem = tagItems.Where(x=>x.Value == groupTag).ToList();
+        if(cktagItem.Count > 0)
+        {
+            grouptTagId = cktagItem[0].ApplicationMasterChildId;
+        }
+        else
+        {
+            var request = new CreateApplicationMasterChildCommand
+                {
+                    ApplicationMasterParentId = 122,
+                    ParentId = null,
+                    Description = groupTag,
+                    Value = groupTag,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeId = 1,
+                    SessionId = Guid.NewGuid(),
+                };
+            var rlt =  await Mediator.Send(request);
+            grouptTagId = rlt.ApplicationMasterChildId;
+        }
+
+        if (!string.IsNullOrEmpty(tagString))
+        {
+            var catItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(grouptTagId));
+
+            var ckcatItem = catItems.Where(x => x.Value == tagString).ToList();
+            if(ckcatItem.Count > 0)
+            {
+                catTagId = ckcatItem[0].ApplicationMasterChildId;
+            }
+            else
+            {
+                var request = new CreateApplicationMasterChildCommand
+                    {
+                        ApplicationMasterParentId = 123,
+                        ParentId = grouptTagId,
+                        Description = tagString,
+                        Value = tagString,
+                        AddedByUserId = applicationUser.UserID,
+                        ModifiedByUserId = applicationUser.UserID,
+                        AddedDate = DateTime.Now,
+                        ModifiedDate = DateTime.Now,
+                        StatusCodeId = 1,
+                        SessionId = Guid.NewGuid(),
+                    };
+                var rlt = await Mediator.Send(request);
+                catTagId = rlt.ApplicationMasterChildId;
+
+                await createApplicationMasterChild(124, catTagId, "Review");
+                await createApplicationMasterChild(124, catTagId, "Discussion");
+            }           
+        }
+
+
+
         var items = await Mediator.Send(new GetActivityEmailList(_selectedItems.SessionID.Value));
 
         if (items.Count == 0)
@@ -1250,7 +1337,10 @@
                     BackURL = MainSessionId.ToString(),
                     DocumentSessionId = _selectedItems.SessionID,
                     AddedByUserID = applicationUser.UserID,
-                    AddedDate = DateTime.Now
+                    AddedDate = DateTime.Now,
+                    ManufacturingProcessId = grouptTagId,
+                    CategoryActionId = catTagId
+
                 };
 
             var result = await Mediator.Send(createReq);
@@ -1290,6 +1380,24 @@
             }
 
         }
+    }
+    async Task createApplicationMasterChild(long MasterParentId,long ParentId,string notes)
+    {
+        
+        var request = new CreateApplicationMasterChildCommand
+            {
+                ApplicationMasterParentId = MasterParentId,
+                ParentId = ParentId,
+                Description = notes,
+                Value = notes,
+                AddedByUserId = applicationUser.UserID,
+                ModifiedByUserId = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now,
+                StatusCodeId = 1,
+                SessionId = Guid.NewGuid(),
+            };
+        await Mediator.Send(request);
     }
     void onViewparentDocuments()
     {

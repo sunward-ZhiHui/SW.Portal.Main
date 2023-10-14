@@ -269,7 +269,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108"));
+        _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
 
         var tId = TopicId;
         PanelVisible = true;       

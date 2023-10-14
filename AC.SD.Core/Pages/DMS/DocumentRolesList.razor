@@ -1,0 +1,438 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@inject AC.SD.Core.Services.ToastService toastService
+@using global::Core.Repositories.Query;
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+<style>
+    .alt-item > td {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .header-bold span {
+        font-weight: 700;
+    }
+
+</style>
+@page "/documentRoles"
+
+<div id="NavHeader">
+    <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+        <div class="card-body p-0">
+            <DxMenu CollapseItemsToHamburgerMenu="true"
+                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                    DisplayMode="MenuDisplayMode.Desktop">
+                <Items>
+                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                    <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                    <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+                    <DxMenuItem Text="Permission" Enabled="@EditEnabled">
+                        <Items>
+                            <DxMenuItem Text="Add/Edit Permission" IconCssClass="fa fa-add" Click="onAddPermission" />
+                            <DxMenuItem Text="Delete Permission" IconCssClass="fa fa-remove" Click="onDeletePermission" />
+                        </Items>
+                    </DxMenuItem>
+                    <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
+                </Items>
+            </DxMenu>
+        </div>
+    </div>
+    <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
+        <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                Data="_documentRole"
+                ShowGroupPanel="true" ShowGroupedColumns="true"
+                KeyFieldName="DocumentRoleId"
+                EditModelSaving="Grid_EditModelSaving"
+                CustomizeEditModel="Grid_CustomizeEditModel"
+                CustomizeElement="Grid_CustomizeElement"
+                ShowSearchBox="true"
+                PagerNavigationMode="PagerNavigationMode.InputBox"
+                PageSizeSelectorVisible="true"
+                PageSizeSelectorAllRowsItemVisible="true"
+                PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                PageSize="20"
+                SelectionMode="GridSelectionMode.Multiple"
+                SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                AutoExpandAllGroupRows="true"
+                CssClass="ch-360"
+                style="height: calc(100vh - 270px);"
+                FocusedRowEnabled="true"
+                RowDoubleClick="OnRowDoubleClick"
+                SelectedDataItemsChanged="@SelectedDataItemsChanged"
+                RowClick="OnRowClick"
+                AllowSelectRowByClick="true">
+            <Columns>
+                <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+                <DxGridDataColumn FieldName="DocumentRoleId" Visible="false" />
+                <DxGridDataColumn FieldName="DocumentRoleName" Caption="Role Name" />
+                <DxGridDataColumn FieldName="DocumentRoleDescription" Caption="Role Description" />
+                <DxGridDataColumn FieldName="AddedBy" />
+                <DxGridDataColumn FieldName="AddedDate" />
+                <DxGridDataColumn FieldName="ModifiedBy" />
+                <DxGridDataColumn FieldName="ModifiedDate" />
+
+            </Columns>
+
+            <EditFormTemplate Context="EditFormContext">
+                @{
+                    var plant = (DocumentRole)EditFormContext.EditModel;
+                }
+                <DxFormLayout CssClass="w-100">
+
+                    <DxFormLayoutItem Caption="Role Name" ColSpanMd="6">
+                        <DxTextBox @bind-Text="@plant.DocumentRoleName" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.DocumentRoleName)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                        <DxMemo @bind-Text="@plant.DocumentRoleDescription" Rows="5" ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => plant.DocumentRoleDescription)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+                        <DxComboBox Data="@_stausItems"
+                                    NullText="Select Status..."
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="CodeValue"
+                                    ValueFieldName="CodeId"
+                        @bind-Value="@plant.StatusCodeId"
+                                    ShowValidationIcon="true">
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => plant.StatusCodeId)" />
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditFormTemplate>
+            <TotalSummary>
+                <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="DocumentRoleName" />
+            </TotalSummary>
+        </DxGrid>
+    </DxLoadingPanel>
+</div>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="Delete" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+
+
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+
+
+</DxPopup>
+<DxPopup @bind-Visible="@PopupVisibleSecurityAccess"
+         ShowFooter="true"
+         HeaderText=@($"Role-{Name}")
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AddOrEditDocumentPermission @ref="refAddOrEditDocumentPermission" DocumentRoleId="@_selectedItems?.DocumentRoleId" applicationUser="@applicationUser" RevokeBack="CloseSecurityAccessPopup"></AddOrEditDocumentPermission>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSecurityAccessPopup())" />
+        <DxButton RenderStyle="ButtonRenderStyle.Primary" Text="Save" Click="@(() => SaveSecurityAccessPopup())" />
+
+    </FooterContentTemplate>
+</DxPopup>
+
+<DxPopup @bind-Visible="@deletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupPermissionClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="onDeletePermissionData" />
+    </FooterContentTemplate>
+</DxPopup>
+
+
+@code {
+    private AddOrEditDocumentPermission? refAddOrEditDocumentPermission;
+    private List<DocumentRole> _documentRole;
+    private List<ViewPlants>? _plantItems;
+    IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    bool PopupVisibleSecurityAccess { get; set; } = false;
+    bool PanelVisible { get; set; }
+    bool EditEnabled { get; set; } = true;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    private DocumentRole? _selectedItems;
+    private List<CodeMaster> _stausItems;
+    bool DeleteEnabled { get; set; } = false;
+    public ApplicationUser applicationUser { get; private set; }
+    DxPopup? popup;
+    string? Name;
+    bool PopupVisible { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    bool deletepopup { get; set; } = false;
+    [Parameter]
+    public Action<bool?> RevokeBack { get; set; }
+    string? DeleteerrorMessage;
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true; EditEnabled = false; DeleteEnabled = false; Name = string.Empty;
+        _documentRole = await Mediator.Send(new GetDocumentRoleList());
+        PanelVisible = false;
+        if (_documentRole.Count > 0)
+        {
+            _selectedItems = _documentRole.FirstOrDefault();
+            Name = _selectedItems.DocumentRoleName;
+            EditEnabled = true; DeleteEnabled = true;
+            Grid.SetFocusedRowIndex(0);
+            Grid.ClearSelection();
+            StateHasChanged();
+        }
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is DocumentRole dataselectItems)
+                    {
+                        _selectedItems = (DocumentRole)item;
+                    }
+                }
+            }
+            EditEnabled = true;
+        }
+    }
+    void onAddPermission()
+    {
+        PopupVisibleSecurityAccess = true;
+    }
+    void onDeletePermission()
+    {
+        deletepopup = true;
+    }
+    async Task onDeletePermissionData()
+    {
+        try
+        {
+            if (_selectedItems != null)
+            {
+                var request = new DeleteDocumentPermissions(_selectedItems.DocumentRoleId);
+                await Mediator.Send(request);
+                deletepopup = false;
+                toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+                Grid.SetFocusedRowIndex(0);
+            }
+        }
+        catch (Exception eq)
+        {
+            deletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editablePlant = (DocumentRole)e.EditModel;
+        if (e.IsNew)
+        {
+            await AddOrUpdate(editablePlant);
+            toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+        else
+        {
+            await AddOrUpdate(editablePlant);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
+    }
+    async Task AddOrUpdate(DocumentRole editablePlant)
+    {
+        var request = new InsertOrUpdateDocumentRole
+            {
+                DocumentRoleId = editablePlant.DocumentRoleId,
+                DocumentRoleName = editablePlant.DocumentRoleName,
+                DocumentRoleDescription = editablePlant.DocumentRoleDescription,
+                StatusCodeId = editablePlant.StatusCodeId,
+                AddedDate = editablePlant.AddedDate == null ? DateTime.Now : editablePlant.AddedDate,
+                ModifiedDate = editablePlant.ModifiedDate == null ? DateTime.Now : editablePlant.ModifiedDate,
+                AddedByUserId = editablePlant.AddedByUserId == null ? applicationUser.UserID : editablePlant.AddedByUserId,
+                ModifiedByUserId = editablePlant.ModifiedByUserId == null ? applicationUser.UserID : editablePlant.ModifiedByUserId,
+            };
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+    }
+    void EulaPopupPermissionClosed(PopupClosedEventArgs args)
+    {
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+    }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        if (e.IsNew)
+        {
+            var newplant = (DocumentRole)e.EditModel;
+            newplant.DocumentRoleDescription = null;
+            newplant.DocumentRoleName = null;
+            newplant.StatusCodeId = 1;
+        }
+    }
+    void addNew()
+    {
+        Grid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentRoleId");
+        _selectedItems = _documentRole.FirstOrDefault(f => f.DocumentRoleId == (long?)UniqueId);
+        Name = _selectedItems.DocumentRoleName;
+        EditEnabled = true; DeleteEnabled = true;
+        StateHasChanged();
+    }
+    public async Task OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void CloseSecurityAccessPopup()
+    {
+        InvokeAsync(UpdateDataAsync);
+        PopupVisibleSecurityAccess = false;
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is DocumentRole plants)
+                    {
+                        var request = new DeleteDocumentRole(plants);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        // await UpdateDataAsync();
+    }
+    async Task ExportXlsx_Click()
+    {
+        if (SelectedDataItems != null)
+        {
+
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = true,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+        else
+        {
+            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                {
+
+                    ExportSelectedRowsOnly = false,
+                    CustomizeCell = OnCustomizeCell
+
+                });
+        }
+    }
+    async Task ExportXls_Click()
+    {
+        await Grid.ExportToXlsAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = ExportSelectedRowsOnly,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async void SaveSecurityAccessPopup()
+    {
+        await refAddOrEditDocumentPermission.savePermission();
+    }
+}

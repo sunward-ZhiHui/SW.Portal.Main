@@ -146,11 +146,13 @@
                     });
                     dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
                     dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
+                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
                 }
                 else
                 {
                     dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedBy", Text = "ModifiedBy", Type = "Form" });
                     dataColumnNames.Add(new DropDownOptionsModel() { Value = "ModifiedDate", Text = "ModifiedDate", Type = "Form" });
+                    dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
                 }
 
                 _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID));
@@ -171,6 +173,7 @@
                         objectData["Name"] = s.Name;
                         objectData["ModifiedBy"] = s.ModifiedBy;
                         objectData["ModifiedDate"] = s.ModifiedDate;
+                        objectData["StatusName"] = s.StatusName;
                         if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
                             _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>

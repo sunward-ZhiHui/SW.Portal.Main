@@ -527,6 +527,81 @@ namespace Application.Handlers.QueryHandlers
                 return await _fileprofileQueryRepository.UpdateDocumentUserRole(request.DocumentUserRoleModel);
             }
         }
+        public class GetDocumentRoleListHandler : IRequestHandler<GetDocumentRoleList, List<DocumentRole>>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public GetDocumentRoleListHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<List<DocumentRole>> Handle(GetDocumentRoleList request, CancellationToken cancellationToken)
+            {
+                return (List<DocumentRole>)await _fileprofileQueryRepository.GetDocumentRoleList();
+            }
 
+        }
+        public class InsertOrUpdateDocumentRoleHandler : IRequestHandler<InsertOrUpdateDocumentRole, DocumentRole>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public InsertOrUpdateDocumentRoleHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<DocumentRole> Handle(InsertOrUpdateDocumentRole request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.InsertOrUpdateDocumentRole(request);
+            }
+
+        }
+        public class DeleteDocumentRoleHandler : IRequestHandler<DeleteDocumentRole, DocumentRole>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public DeleteDocumentRoleHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<DocumentRole> Handle(DeleteDocumentRole request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.DeleteDocumentRole(request.DocumentRole);
+            }
+
+        }
+        public class GetDocumentPermissionDataHandler : IRequestHandler<GetDocumentPermissionData, DocumentPermission>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public GetDocumentPermissionDataHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<DocumentPermission> Handle(GetDocumentPermissionData request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.GetDocumentPermissionData(request.Id);
+            }
+        }
+        public class InsertOrUpdateDocumentPermissionHandler : IRequestHandler<InsertOrUpdateDocumentPermission, DocumentPermission>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public InsertOrUpdateDocumentPermissionHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<DocumentPermission> Handle(InsertOrUpdateDocumentPermission request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.InsertOrUpdateDocumentPermission(request.DocumentPermission);
+            }
+        }
+        public class DeleteDocumentPermissionsHandler : IRequestHandler<DeleteDocumentPermissions, long?>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public DeleteDocumentPermissionsHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<long?> Handle(DeleteDocumentPermissions request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.DeleteDocumentPermissions(request.Id);
+            }
+
+        }
     }
 }

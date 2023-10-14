@@ -12,24 +12,24 @@ namespace Core.Entities
         [Key]
         public long DocumentPermissionId { get; set; }
         public long? DocumentId { get; set; }
-        public bool? IsRead { get; set; }
-        public bool? IsCreateFolder { get; set; }
-        public bool? IsCreateDocument { get; set; }
-        public bool? IsSetAlert { get; set; }
-        public bool? IsEditIndex { get; set; }
-        public bool? IsRename { get; set; }
-        public bool? IsUpdateDocument { get; set; }
-        public bool? IsCopy { get; set; }
-        public bool? IsMove { get; set; }
-        public bool? IsDelete { get; set; }
-        public bool? IsRelationship { get; set; }
-        public bool? IsListVersion { get; set; }
-        public bool? IsInvitation { get; set; }
-        public bool? IsSendEmail { get; set; }
-        public bool? IsDiscussion { get; set; }
-        public bool? IsAccessControl { get; set; }
-        public bool? IsAuditTrail { get; set; }
-        public bool? IsRequired { get; set; }
+        public bool? IsRead { get; set; } = false;
+        public bool? IsCreateFolder { get; set; } = false;
+        public bool? IsCreateDocument { get; set; } = false;
+        public bool? IsSetAlert { get; set; } = false;
+        public bool? IsEditIndex { get; set; } = false;
+        public bool? IsRename { get; set; } = false;
+        public bool? IsUpdateDocument { get; set; } = false;
+        public bool? IsCopy { get; set; } = false;
+        public bool? IsMove { get; set; } = false;
+        public bool? IsDelete { get; set; } = false;
+        public bool? IsRelationship { get; set; } = false;
+        public bool? IsListVersion { get; set; } = false;
+        public bool? IsInvitation { get; set; } = false;
+        public bool? IsSendEmail { get; set; } = false;
+        public bool? IsDiscussion { get; set; } = false;
+        public bool? IsAccessControl { get; set; } = false;
+        public bool? IsAuditTrail { get; set; } = false;
+        public bool? IsRequired { get; set; } = false;
         public int? StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime? AddedDate { get; set; }
@@ -37,13 +37,16 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public long? FolderId { get; set; }
         public long? DocumentRoleId { get; set; }
-        public bool? IsFileDelete { get; set; }
-        public bool? IsEdit { get; set; }
-        public bool? IsGrantAdminPermission { get; set; }
-        public bool? IsDocumentAccess { get; set; }
-        public bool? IsCreateTask { get; set; }
-        public bool? IsEnableProfileTypeInfo { get; set; }
-        public bool? IsShare { get; set; }
-        public bool? IsCloseDocument { get; set; }
+        public bool? IsFileDelete { get; set; } = false;
+        public bool? IsEdit { get; set; } = false;
+        public bool? IsGrantAdminPermission { get; set; } = false;
+        public bool? IsDocumentAccess { get; set; } = false;
+        public bool? IsCreateTask { get; set; } = false;
+        public bool? IsEnableProfileTypeInfo { get; set; } = false;
+        public bool? IsShare { get; set; } = false;
+        public bool? IsCloseDocument { get; set; } = false;
+        public bool? IsEditFolder { get; set; } = false;
+        public bool? IsDeleteFolder { get; set; } = false;
+        public bool? IsReserveProfileNumber { get; set; } = false;
     }
 }

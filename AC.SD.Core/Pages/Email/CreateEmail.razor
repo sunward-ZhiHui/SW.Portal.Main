@@ -561,6 +561,7 @@ else
     bool IsOpen { get; set; } = false;
     private string? FileUrl;
     private string? ProductActivityBaseUrl;
+    private string? BaseUrl;
     bool BackEnabled { get; set; } = false;
 
 
@@ -928,6 +929,7 @@ else
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
 
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -1265,6 +1267,10 @@ else
                     ActivityEmailTopicId = ActivityEmailTopicId,
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
+                    GroupTag = CategoryData.GroupTag,
+                    CategoryTag = CategoryData.CategoryTag,
+                    ActionTag = CategoryData.ActionTag,
+                    actName = CategoryData.Name,
                 };
        
 
@@ -1275,22 +1281,22 @@ else
 
             if (result != null)
             {  
-                var CreateTagReq = new CreateEmailActivityCatgorysQuery
-                    {
-                        GroupTag = CategoryData.GroupTag,
-                        CategoryTag = CategoryData.CategoryTag,
-                        ActionTag = CategoryData.ActionTag,
-                        Name = CategoryData.Name,
-                        TopicId = result,
-                        // Description = editModel.Description,
-                        StatusCodeID = 1,
-                        AddedByUserID = applicationUser.UserID,
-                        ModifiedByUserID = applicationUser.UserID,
-                        AddedDate = DateTime.Now,
-                        ModifiedDate = DateTime.Now,
-                        SessionId = Guid.NewGuid()
-                    };
-                var tagresult = await Mediator.Send(CreateTagReq);
+                //var CreateTagReq = new CreateEmailActivityCatgorysQuery
+                //    {
+                //        GroupTag = CategoryData.GroupTag,
+                //        CategoryTag = CategoryData.CategoryTag,
+                //        ActionTag = CategoryData.ActionTag,
+                //        Name = CategoryData.Name,
+                //        TopicId = result,
+                //        // Description = editModel.Description,
+                //        StatusCodeID = 1,
+                //        AddedByUserID = applicationUser.UserID,
+                //        ModifiedByUserID = applicationUser.UserID,
+                //        AddedDate = DateTime.Now,
+                //        ModifiedDate = DateTime.Now,
+                //        SessionId = Guid.NewGuid()
+                //    };
+                //var tagresult = await Mediator.Send(CreateTagReq);
                 @if (draftId==0)
                 {
                     var convlist = await Mediator.Send(new GetEmailFullDiscussionList(result));
@@ -1403,8 +1409,17 @@ else
         Guid activeSessionId = Guid.Parse(ActiveSessionId);
         var actItem = activityEmailTopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
 
-        var url = ProductActivityBaseUrl + actItem[0].BackURL;
-        NavigationManager.NavigateTo(url);
+
+        if(actItem[0].ActivityType == "FileProfileType")
+        {
+            var urls = BaseUrl + "fileprofiletype/" + actItem[0].BackURL;
+            NavigationManager.NavigateTo(urls);
+        }
+        else
+        {
+            var url = ProductActivityBaseUrl + actItem[0].BackURL;
+            NavigationManager.NavigateTo(url);
+        }       
 
     }
 

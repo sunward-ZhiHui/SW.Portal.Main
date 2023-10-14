@@ -1477,6 +1477,11 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("isValidateSession", EmailTopics.isValidateSession);
                         parameterss.Add("ActivityEmailTopicId", EmailTopics.ActivityEmailTopicId);
 
+                        parameterss.Add("GroupTag", EmailTopics.GroupTag);
+                        parameterss.Add("CategoryTag", EmailTopics.CategoryTag);
+                        parameterss.Add("ActionTag", EmailTopics.ActionTag);
+                        parameterss.Add("ActName", EmailTopics.actName);
+
                         connection.Open();
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Ins_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);

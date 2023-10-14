@@ -36,10 +36,7 @@ namespace Core.Entities
         [NotMapped]
         public string ActionName { get; set;}
         public string BackURL { get; set; }
-        public bool? IsDraft { get; set; }
-        public long ManufacturingProcessId { get; set; }
-        public long CategoryActionId { get; set; }
-        public long ActionId { get; set; }
+        public bool? IsDraft { get; set; }       
 
     }
 }

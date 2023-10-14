@@ -82,4 +82,19 @@ namespace Application.Handlers.QueryHandlers
             return newlist;
         }
     }
+
+    public class GetAllemailCategoryHandler : IRequestHandler<GetAllemailCategory, List<EmailActivityCatgorys>>
+    {
+
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public GetAllemailCategoryHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+        public async Task<List<EmailActivityCatgorys>> Handle(GetAllemailCategory request, CancellationToken cancellationToken)
+        {
+            return (List<EmailActivityCatgorys>)await _emailactyqueryRepository.GetAllemailCategoryAsync(request.TopicId);
+
+        }
+    }
 }

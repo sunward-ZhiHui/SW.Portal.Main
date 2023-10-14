@@ -30,6 +30,7 @@ namespace Application.Queries
             this.SessionId = SessionId;
         }
     }
+  
     public class GetByActivityEmailSession : PagedRequest, IRequest<List<ActivityEmailTopics>>
     {
         public Guid EmailTopicSessionId { get; private set; }
@@ -257,6 +258,9 @@ namespace Application.Queries
     {       
     }
     public class UpdateEmailTopicSubjectDueDate : EmailConversations, IRequest<long>
+    {
+    }
+    public class UpdateEmailSubjectName : EmailConversations, IRequest<long>
     {
     }
     public class UpdateEmailTopicClosed : EmailTopics, IRequest<long>

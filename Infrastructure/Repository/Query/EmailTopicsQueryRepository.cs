@@ -1414,6 +1414,11 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("IsAllowParticipants", EmailTopics.IsAllowParticipants);
                         parameterss.Add("NotifyUser", EmailTopics.NotifyUser);
 
+                        parameterss.Add("GroupTag", EmailTopics.GroupTag);
+                        parameterss.Add("CategoryTag", EmailTopics.CategoryTag);
+                        parameterss.Add("ActionTag", EmailTopics.ActionTag);
+                        parameterss.Add("actName", EmailTopics.actName);
+
                         connection.Open();
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Update_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
@@ -1652,7 +1657,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
 
-        }
+        }        
         public async Task<long> UpdateSubjectDueDate(EmailConversations emailConversations)
         {
             try
@@ -1673,6 +1678,73 @@ namespace Infrastructure.Repository.Query
                             var query = " UPDATE EmailConversations SET DueDate = @DueDate WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<long> UpdateSubjectName(EmailConversations emailConversations)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("Name", emailConversations.Name);
+                            parameters.Add("ID", emailConversations.ID);
+                            parameters.Add("TopicId", emailConversations.TopicID);
+
+                            parameters.Add("ModifiedByUserID", emailConversations.ModifiedByUserID);
+                            parameters.Add("ModifiedDate", emailConversations.ModifiedDate);
+
+
+                            var query = " UPDATE EmailConversations SET Name = @Name,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
+                            var subquery = "UPDATE EmailConversations SET Name = @Name,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ReplyId = @ID";
+                            var emailquery = "UPDATE EmailTopics SET TopicName = @Name,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
+
+
+                            var ckquery = "SELECT TOP 1 ID FROM EmailConversations WHERE TopicID = @TopicId AND ReplyId = 0 ORDER BY ID";
+                            var actresult = await connection.QueryAsync<EmailConversations>(ckquery, parameters, transaction);
+
+
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var rowsAffected1 = await connection.ExecuteAsync(subquery, parameters, transaction);
+
+                            // Check if there are any results in the actresult
+                            if (actresult != null && actresult.Any())
+                            {
+                                var firstResult = actresult.FirstOrDefault();
+
+                                // Check if the first record's ID matches the ID from emailConversations
+                                if (firstResult != null && firstResult.ID == emailConversations.ID)
+                                {
+                                    // Execute another SQL query (emailquery) with the same parameters
+                                    var rowsAffected2 = await connection.ExecuteAsync(emailquery, parameters, transaction);
+                                }
+                            }
 
                             transaction.Commit();
 

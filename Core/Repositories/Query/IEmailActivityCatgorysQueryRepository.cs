@@ -13,6 +13,7 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<EmailActivityCatgorys>> GetAllAsync();        
         Task<IReadOnlyList<EmailActivityCatgorys>> GetAllTopicCategoryAsync(long TopicId);
+        Task<IReadOnlyList<EmailActivityCatgorys>> GetAllemailCategoryAsync(long TopicId);
         Task<long> Insert(EmailActivityCatgorys emailActivityCatgorys);
         Task<long> UpdateAsync(EmailActivityCatgorys emailActivityCatgorys);
         Task<long> DeleteAsync(long id);

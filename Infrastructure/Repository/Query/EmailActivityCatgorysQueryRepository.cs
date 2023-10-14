@@ -200,5 +200,26 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
+        public async Task<IReadOnlyList<EmailActivityCatgorys>> GetAllemailCategoryAsync(long TopicId)
+        {
+            
+                try
+                {
+                    var parameters = new DynamicParameters();
+                    parameters.Add("TopicId", TopicId);
+                    var query = "select * from EmailActivityCatgorys where TopicId = @TopicId";
+
+                    using (var connection = CreateConnection())
+                    {
+                        return (await connection.QueryAsync<EmailActivityCatgorys>(query, parameters)).ToList();
+                    }
+                }
+                catch (Exception exp)
+                {
+                    throw new Exception(exp.Message, exp);
+                }
+            
+        }
     }
 }

@@ -130,10 +130,28 @@ else
                 <div class="row">
                     <div class="col-md-12">
                         <DxFormLayout>
-                            <DxFormLayoutItem Caption="From" ColSpanMd="12">
+                            <DxFormLayoutItem Caption="From" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="To" ColSpanMd="12">
+
+
+                              <DxFormLayoutItem Caption="Group" ColSpanMd="4">
+                                <DxComboBox Data="@_groupTagItems"
+                                            NullText="Select Group..."
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="Value"
+                                            ValueFieldName="ApplicationMasterChildId"
+                                            Enabled="@isEnabled"
+                                           
+                                            @bind-Value="@CategoryData.GroupTag"
+                                             ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                             SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedGroupTagChanged(applicationMasterChildModel))"
+                                             ShowValidationIcon="true">
+                                 </DxComboBox>
+                                <ValidationMessage For="@(() => CategoryData.GroupTag)" />
+                            </DxFormLayoutItem>
+
+                            <DxFormLayoutItem Caption="To" ColSpanMd="8">
                                 <DxTagBox Data="_Toparticipant"
                                      @bind-Values="Data.ToIds"
                                      NullText="Select To..."                                     
@@ -151,7 +169,24 @@ else
                                 </DxTagBox>
                                 <ValidationMessage For="@(() => Data.ToIds)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="CC" ColSpanMd="12">
+
+                               <DxFormLayoutItem Caption="Category" ColSpanMd="4">
+                                <DxComboBox Data="@_categoryTagItems"
+                                            NullText="Select Category..."
+                                            Enabled="@isEnabled"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="Value"
+                                            ValueFieldName="ApplicationMasterChildId"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                            @bind-Value="@CategoryData.CategoryTag"
+                                            SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => CategoryData.CategoryTag)" />
+                </DxFormLayoutItem>
+                          
+
+
+                            <DxFormLayoutItem Caption="CC" ColSpanMd="8">
                                 <DxTagBox NullText="Select Cc..."
                                       Data="_CCparticipant"
                                       @bind-Values="@Data.CCIds"
@@ -176,8 +211,25 @@ else
                                           
                                            
                                 </DxTagBox>
-                            </DxFormLayoutItem>                            
-                            <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="12">
+                            </DxFormLayoutItem>
+
+
+
+                            <DxFormLayoutItem Caption="Action" ColSpanMd="4">
+                                <DxComboBox Data="@_actionTagItems"
+                                            NullText="Select Action..."
+                                            Enabled="@isEnabled"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="Value"
+                                            ValueFieldName="ApplicationMasterChildId"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@CategoryData.ActionTag">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => CategoryData.ActionTag)" />
+                            </DxFormLayoutItem>
+
+
+                            <DxFormLayoutItem Caption="On Behalf of" ColSpanMd="8">
                                 <DxComboBox Data="@_OnBehalfparticipant"
                                         NullText="Select OnBehalf..."
                                         FilteringMode="DataGridFilteringMode.Contains"
@@ -206,7 +258,20 @@ else
                                         </DxComboBox>
                             </DxFormLayoutItem>
 
-
+                            <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="4">
+                                <DxComboBox Data="@_AllCategory"
+                                            AllowUserInput="true"
+                                            NullText="Select Others Tag..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="Name"
+                                            ValueFieldName="Name"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@CategoryData.Name"
+                                @bind-Text="@CategoryData.Name" ShowValidationIcon="true">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => CategoryData.Name)" />
+                            </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Follow" ColSpanMd="3">
                                 <DxComboBox Data="@Follow"
                                         NullText="Select Follow..."
@@ -252,6 +317,8 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
+
+                            
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
@@ -351,6 +418,12 @@ else
 
 
 @code {
+    private List<EmailActivityCatgorys> _AllCategory;
+    EmailActivityCatgorys? CategoryData { get; set; } = new EmailActivityCatgorys();
+    bool isEnabled { get; set; } = true;
+    private List<ApplicationMasterChildModel> _groupTagItems;
+    private List<ApplicationMasterChildModel> _categoryTagItems;
+    private List<ApplicationMasterChildModel> _actionTagItems;
     int SelectedFilesCount { get; set; }
     int CurrentUplodCount { get; set; }
     string MyMessage { get; set; }
@@ -848,8 +921,9 @@ else
             properties.FontSize = 14;
         });
     }
-    protected override async Task OnInitializedAsync() {       
-
+    protected override async Task OnInitializedAsync() {  
+        _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
+        _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108"));
         onloadSession();
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
@@ -1187,12 +1261,31 @@ else
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
                 };
+       
+
         try
         {
             //_sessionId = createReq.SessionId;
             var result = await Mediator.Send(createReq);
+
             if (result != null)
-            {                
+            {  
+                var CreateTagReq = new CreateEmailActivityCatgorysQuery
+                    {
+                        GroupTag = CategoryData.GroupTag,
+                        CategoryTag = CategoryData.CategoryTag,
+                        ActionTag = CategoryData.ActionTag,
+                        Name = CategoryData.Name,
+                        TopicId = result,
+                        // Description = editModel.Description,
+                        StatusCodeID = 1,
+                        AddedByUserID = applicationUser.UserID,
+                        ModifiedByUserID = applicationUser.UserID,
+                        AddedDate = DateTime.Now,
+                        ModifiedDate = DateTime.Now,
+                        SessionId = Guid.NewGuid()
+                    };
+                var tagresult = await Mediator.Send(CreateTagReq);
                 @if (draftId==0)
                 {
                     var convlist = await Mediator.Send(new GetEmailFullDiscussionList(result));
@@ -1203,7 +1296,7 @@ else
                     var response = await httpClient.GetAsync(url);
 
                 }
-               
+
                 ///await Task.Delay(5000); // Delay for 5 seconds
                 //   onShowPopupMessage("success", "Topic have been saved successully");
                 ActivityEmailTopicId = 0;
@@ -1240,7 +1333,7 @@ else
                     await JSRuntime.InvokeAsync<string>("hideLoading");
                 }
 
-               
+
             }
             else
             {
@@ -1300,7 +1393,7 @@ else
 
     }
 
-  async void onBack()
+    async void onBack()
     {
         Guid activeSessionId = Guid.Parse(ActiveSessionId);
         var actItem = activityEmailTopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
@@ -1310,7 +1403,47 @@ else
 
     }
 
-
+    async void selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+        if (applicationMasterChildModel != null)
+        {
+            GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
+            //_categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(applicationMasterChildModel.ApplicationMasterChildId));
+        }
+        else
+        {
+            GroupTagChanged(-1);
+            CategoryTagChange(-1);
+        }
+    }
+    async void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    {
+        if (applicationMasterChildModel != null)
+        {
+            // _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+            CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId);
+        }
+        else
+        {
+            CategoryTagChange(-1);
+        }
+    }
+    async void GroupTagChanged(long? ApplicationMasterChildId)
+    {
+        if (ApplicationMasterChildId != null)
+        {
+            _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
+        }
+        StateHasChanged();
+    }
+    async void CategoryTagChange(long? ApplicationMasterChildID)
+    {
+        if (ApplicationMasterChildID != null)
+        {
+            _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+        }
+        StateHasChanged();
+    }
 
     //private async Task OpenUrlInNewTab(string url)
     //{

@@ -785,6 +785,8 @@ else
                     var Taglst = await Mediator.Send(new GetAllemailCategory(actItem[0].ID));
                     _TagEmailList = Taglst;
                 }
+                GroupTagChanged(_TagEmailList[0].GroupTag);
+                CategoryTagChange(_TagEmailList[0].CategoryTag);
                 var filteredToList = await Mediator.Send(new GetByIdEmailTopicTo(actItem[0].ID));
                 var filteredCCList = await Mediator.Send(new GetByIdEmailTopicCC(actItem[0].ID));
 
@@ -802,7 +804,6 @@ else
                 Data.StartDate = actItem[0].StartDate;
                 Data.DueDate = actItem[0].DueDate;
                 CategoryData.GroupTag = _TagEmailList[0].GroupTag;
-              //  selectedCategoryChanged(_TagEmailList);
                 CategoryData.CategoryTag = _TagEmailList[0].CategoryTag;
                 CategoryData.ActionTag = _TagEmailList[0].ActionTag;
                 CategoryData.Name = _TagEmailList[0].Name;

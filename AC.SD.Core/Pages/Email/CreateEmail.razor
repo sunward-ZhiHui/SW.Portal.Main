@@ -982,13 +982,18 @@ else
                 isValidateSession = false;
                 //var docId = "70F019EC011241C9807C39BF2BE79136";
                 //Guid docSessionId = Guid.Parse(docId);
+               await  GroupTagChanged(actItem[0].ManufacturingProcessId);
+                await CategoryTagChange(actItem[0].CategoryActionId);
 
                 var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
                 ActUserName = Namelist[0].Name;
                 ActAddedDate = actItem[0].AddedDate;
                 ActivityType = actItem[0].ActivityType;
                 ActivityType = actItem[0].ActivityType;
-
+                CategoryData.GroupTag = actItem[0].ManufacturingProcessId;
+                CategoryData.CategoryTag = actItem[0].CategoryActionId;
+               CategoryData.ActionTag = actItem[0].ActionId;
+              
                 if (actItem[0].ActivityType != "FileProfileType")
                 {
                     Data.IsAllowParticipants = true;
@@ -1428,7 +1433,7 @@ else
             CategoryTagChange(-1);
         }
     }
-    async void GroupTagChanged(long? ApplicationMasterChildId)
+    async Task GroupTagChanged(long? ApplicationMasterChildId)
     {
         if (ApplicationMasterChildId != null)
         {
@@ -1436,7 +1441,7 @@ else
         }
         StateHasChanged();
     }
-    async void CategoryTagChange(long? ApplicationMasterChildID)
+    async Task CategoryTagChange(long? ApplicationMasterChildID)
     {
         if (ApplicationMasterChildID != null)
         {

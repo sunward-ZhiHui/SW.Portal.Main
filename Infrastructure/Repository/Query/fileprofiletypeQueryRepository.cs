@@ -260,6 +260,22 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DocumentRole>> GetDocumentRoleList()
+        {
+            try
+            {
+                var query = "select  t1.*,t2.UserName as AddedBy,t2.UserName as ModifiedBy,t4.CodeValue as StatusCode from DocumentRole t1 \r\nLEFT JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\nLEFT JOIN CodeMaster t4 ON  t4.CodeID=t1.StatusCodeID\r\nwhere t1.StatusCodeID=1";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentRole>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<Fileprofiletype>> GetFileprofiletypeAsync()
         {
             try
@@ -2062,6 +2078,285 @@ namespace Infrastructure.Repository.Query
                             transaction.Commit();
 
                             return documentUserRoleModel;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentRole> InsertOrUpdateDocumentRole(DocumentRole documentRole)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentRoleId", documentRole.DocumentRoleId);
+                            parameters.Add("DocumentRoleName", documentRole.DocumentRoleName, DbType.String);
+                            parameters.Add("DocumentRoleDescription", documentRole.DocumentRoleDescription, DbType.String);
+                            parameters.Add("AddedByUserID", documentRole.AddedByUserId);
+                            parameters.Add("ModifiedByUserID", documentRole.ModifiedByUserId);
+                            parameters.Add("AddedDate", documentRole.AddedDate, DbType.DateTime);
+                            parameters.Add("ModifiedDate", documentRole.ModifiedDate, DbType.DateTime);
+                            parameters.Add("StatusCodeID", documentRole.StatusCodeId);
+                            if (documentRole.DocumentRoleId > 0)
+                            {
+                                var query = " UPDATE DocumentRole SET DocumentRoleName = @DocumentRoleName,DocumentRoleDescription =@DocumentRoleDescription,\n\r" +
+                                    "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID\n\r" +
+                                    "WHERE DocumentRoleId = @DocumentRoleId";
+                                await connection.ExecuteAsync(query, parameters, transaction);
+
+                            }
+                            else
+                            {
+                                var query = "INSERT INTO DocumentRole(DocumentRoleName,DocumentRoleDescription,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID)  " +
+                                    "OUTPUT INSERTED.DocumentRoleId VALUES " +
+                                    "(@DocumentRoleName,@DocumentRoleDescription,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID)";
+
+                                documentRole.DocumentRoleId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            }
+                            transaction.Commit();
+
+                            return documentRole;
+                        }
+
+
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public DocumentRole GetDocumentRoleNameCheckValidation(string? value, long id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DocumentRoleName", value);
+                if (id > 0)
+                {
+                    parameters.Add("DocumentRoleId", id);
+
+                    query = "SELECT * FROM DocumentRole Where DocumentRoleId!=@DocumentRoleId AND DocumentRoleName = @DocumentRoleName";
+                }
+                else
+                {
+                    query = "SELECT * FROM DocumentRole Where DocumentRoleName = @DocumentRoleName";
+                }
+                using (var connection = CreateConnection())
+                {
+                    return connection.QueryFirstOrDefault<DocumentRole>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentRole> DeleteDocumentRole(DocumentRole value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentRoleId", value.DocumentRoleId);
+                            var query = "DELETE FROM DocumentRole WHERE " +
+                                "DocumentRoleId= @DocumentRoleId";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentPermission> GetDocumentPermissionData(long? id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("DocumentRoleId", id);
+
+                query = "SELECT * FROM DocumentPermission Where DocumentRoleId=@DocumentRoleId";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QuerySingleOrDefaultAsync<DocumentPermission>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentPermission> InsertOrUpdateDocumentPermission(DocumentPermission documentPermission)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentPermissionId", documentPermission.DocumentPermissionId);
+                            parameters.Add("DocumentRoleId", documentPermission.DocumentRoleId);
+                            parameters.Add("AddedByUserID", documentPermission.AddedByUserId);
+                            parameters.Add("ModifiedByUserID", documentPermission.ModifiedByUserId);
+                            parameters.Add("AddedDate", documentPermission.AddedDate, DbType.DateTime);
+                            parameters.Add("ModifiedDate", documentPermission.ModifiedDate, DbType.DateTime);
+                            parameters.Add("StatusCodeID", documentPermission.StatusCodeId);
+
+                            parameters.Add("IsRead", documentPermission.IsRead);
+                            parameters.Add("IsCreateFolder", documentPermission.IsCreateFolder);
+                            parameters.Add("IsCreateDocument", documentPermission.IsCreateDocument);
+                            parameters.Add("IsSetAlert", documentPermission.IsSetAlert);
+                            parameters.Add("IsEditIndex", documentPermission.IsEditIndex);
+                            parameters.Add("IsRename", documentPermission.IsRename);
+                            parameters.Add("IsUpdateDocument", documentPermission.IsUpdateDocument);
+                            parameters.Add("IsCopy", documentPermission.IsCopy);
+                            parameters.Add("IsMove", documentPermission.IsMove);
+                            parameters.Add("IsDelete", documentPermission.IsDelete);
+                            parameters.Add("IsRelationship", documentPermission.IsRelationship);
+                            parameters.Add("IsListVersion", documentPermission.IsListVersion);
+                            parameters.Add("IsInvitation", documentPermission.IsInvitation);
+                            parameters.Add("IsSendEmail", documentPermission.IsSendEmail);
+                            parameters.Add("IsDiscussion", documentPermission.IsDiscussion);
+                            parameters.Add("IsAccessControl", documentPermission.IsAccessControl);
+                            parameters.Add("IsAuditTrail", documentPermission.IsAuditTrail);
+                            parameters.Add("IsRequired", documentPermission.IsRequired);
+                            parameters.Add("IsFileDelete", documentPermission.IsFileDelete);
+                            parameters.Add("IsEdit", documentPermission.IsEdit);
+                            parameters.Add("IsGrantAdminPermission", documentPermission.IsGrantAdminPermission);
+                            parameters.Add("IsDocumentAccess", documentPermission.IsDocumentAccess);
+                            parameters.Add("IsCreateTask", documentPermission.IsCreateTask);
+                            parameters.Add("IsEnableProfileTypeInfo", documentPermission.IsEnableProfileTypeInfo);
+                            parameters.Add("IsShare", documentPermission.IsShare);
+                            parameters.Add("IsCloseDocument", documentPermission.IsCloseDocument);
+                            parameters.Add("IsEditFolder", documentPermission.IsEditFolder);
+                            parameters.Add("IsDeleteFolder", documentPermission.IsDeleteFolder);
+                            parameters.Add("IsReserveProfileNumber", documentPermission.IsReserveProfileNumber);
+
+                            if (documentPermission.DocumentPermissionId > 0)
+                            {
+                                var query = " UPDATE DocumentPermission SET DocumentRoleId=@DocumentRoleId,\n\r" +
+                                    "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,\n\r" +
+                                    "IsRead=@IsRead,IsCreateFolder=@IsCreateFolder,IsCreateDocument=@IsCreateDocument,\r\n" +
+                                    "IsSetAlert=@IsSetAlert,IsEditIndex=@IsEditIndex,\r\n" +
+                                    "IsRename=@IsRename,IsUpdateDocument=@IsUpdateDocument,IsCopy=@IsCopy,IsMove=@IsMove,IsDelete=@IsDelete,IsRelationship=@IsRelationship,\r\n" +
+                                    "IsListVersion=@IsListVersion,IsInvitation=@IsInvitation,IsSendEmail=@IsSendEmail,IsDiscussion=@IsDiscussion,IsAccessControl=@IsAccessControl,\r\n" +
+                                    "IsAuditTrail=@IsAuditTrail,IsRequired=@IsRequired,IsFileDelete=@IsFileDelete,\r\n" +
+                                    "IsEdit=@IsEdit,IsGrantAdminPermission=@IsGrantAdminPermission,IsDocumentAccess=@IsDocumentAccess,IsCreateTask=@IsCreateTask,\r\n" +
+                                    "IsEnableProfileTypeInfo=@IsEnableProfileTypeInfo,IsShare=@IsShare,\r\n" +
+                                    "IsCloseDocument=@IsCloseDocument,IsEditFolder=@IsEditFolder,\r\n" +
+                                    "IsDeleteFolder=@IsDeleteFolder,IsReserveProfileNumber=@IsReserveProfileNumber\r\n" +
+                                    "WHERE DocumentPermissionId = @DocumentPermissionId";
+                                await connection.ExecuteAsync(query, parameters, transaction);
+
+                            }
+                            else
+                            {
+                                var query = "INSERT INTO DocumentPermission(DocumentRoleId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsRead,\r\n" +
+                                    "IsCreateFolder,\r\nIsCreateDocument,\r\nIsSetAlert,\r\n IsEditIndex,\r\n" +
+                                    "IsRename,\r\n IsUpdateDocument,\r\n" + "IsCopy,\r\nIsMove,\r\n" +
+                                    "IsDelete,\r\nIsRelationship,\r\n IsListVersion,\r\n IsInvitation,\r\nIsSendEmail,\r\nIsDiscussion,\r\nIsAccessControl,\r\n IsAuditTrail,\r\n" +
+                                    "IsRequired,\r\nIsFileDelete,\r\nIsEdit,\r\n" +
+                                    " IsGrantAdminPermission,\r\nIsDocumentAccess,\r\nIsCreateTask,\r\nIsEnableProfileTypeInfo,\r\nIsShare,\r\nIsCloseDocument,\r\nIsEditFolder,\r\n" +
+                                    "IsDeleteFolder,\r\nIsReserveProfileNumber)\r\n" +
+                                    "OUTPUT INSERTED.DocumentPermissionId VALUES\r\n" +
+                                    "(@DocumentRoleId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsRead,\r\n@IsCreateFolder,\r\n@IsCreateDocument,\r\n" +
+                                    "@IsSetAlert,\r\n@IsEditIndex,\r\n@IsRename,\r\n@IsUpdateDocument,\r\n@IsCopy,\r\n@IsMove,\r\n@IsDelete,\r\n@IsRelationship,\r\n" +
+                                    "@IsListVersion,\r\n@IsInvitation,\r\n@IsSendEmail,\r\n@IsDiscussion,\r\n@IsAccessControl,\r\n@IsAuditTrail,\r\n@IsRequired,\r\n" +
+                                    "@IsFileDelete,\r\n@IsEdit,\r\n@IsGrantAdminPermission,\r\n@IsDocumentAccess,\r\n@IsCreateTask,\r\n" +
+                                    "@IsEnableProfileTypeInfo,\r\n@IsShare,\r\n@IsCloseDocument,\r\n@IsEditFolder,\r\n@IsDeleteFolder,@IsReserveProfileNumber)";
+
+                                documentPermission.DocumentPermissionId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            }
+                            transaction.Commit();
+
+                            return documentPermission;
+                        }
+
+
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public async Task<long?> DeleteDocumentPermissions(long? Id)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentRoleId", Id);
+                            var query = "DELETE FROM DocumentPermission WHERE " +
+                                "DocumentRoleId= @DocumentRoleId";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return Id;
                         }
                         catch (Exception exp)
                         {

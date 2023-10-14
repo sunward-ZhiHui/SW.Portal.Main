@@ -43,6 +43,13 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DocumentsModel>> GetFileContetTypes();
         Task<DocumentPermissionModel> GetDocumentUserRoleByUserIDAsync(long? fileProfileTypeId, long? userId);
         Task<DocumentUserRoleModel> UpdateDocumentUserRole(DocumentUserRoleModel documentUserRoleModel);
+        Task<IReadOnlyList<DocumentRole>> GetDocumentRoleList();
+        Task<DocumentRole> InsertOrUpdateDocumentRole(DocumentRole documentRole);
+        Task<DocumentRole> DeleteDocumentRole(DocumentRole documentRole);
+        DocumentRole GetDocumentRoleNameCheckValidation(string? value, long id);
+        Task<DocumentPermission> GetDocumentPermissionData(long? id);
+        Task<DocumentPermission> InsertOrUpdateDocumentPermission(DocumentPermission documentPermission);
+        Task<long?> DeleteDocumentPermissions(long? Id);
 
     }
 }

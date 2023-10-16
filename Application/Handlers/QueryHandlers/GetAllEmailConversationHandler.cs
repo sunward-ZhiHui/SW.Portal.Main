@@ -304,7 +304,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<Documents>> Handle(GetEmailTopicDocList request, CancellationToken cancellationToken)
         {
-            return (List<Documents>)await _conversationQueryRepository.GetTopicDocListAsync(request.TopicId);
+            return (List<Documents>)await _conversationQueryRepository.GetTopicDocListAsync(request.TopicId,request.UserId,request.Option);
         }
     }
     public class GetSubEmailTopicDocListHandler : IRequestHandler<GetSubEmailTopicDocList, List<Documents>>
@@ -336,7 +336,15 @@ namespace Application.Handlers.QueryHandlers
         public async Task<long> Handle(CreateEmailCoversation request, CancellationToken cancellationToken)
         {
             var req = await _conversationQueryRepository.Insert(request);
-            var updatereq = await _conversationQueryRepository.LastUserIDUpdate(request.ReplyId,request.AddedByUserID.Value);
+            if(request.ReplyId == 0)
+            {
+                var updatereq = await _conversationQueryRepository.LastUserIDUpdate(req, request.AddedByUserID.Value);
+            }
+            else
+            {
+                var updatereq = await _conversationQueryRepository.LastUserIDUpdate(request.ReplyId, request.AddedByUserID.Value);
+            }
+            
             
             var conversationAssignTo = new EmailConversationAssignTo();
             conversationAssignTo.ConversationId = req;

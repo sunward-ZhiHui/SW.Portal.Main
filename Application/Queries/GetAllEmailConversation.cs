@@ -126,9 +126,13 @@ namespace Application.Queries
     public class GetEmailTopicDocList : PagedRequest, IRequest<List<Documents>>
     {
         public long TopicId { get; private set; }
-        public GetEmailTopicDocList(long TopicId)
+        public long UserId { get; private set; }
+        public string Option { get; private set; }
+        public GetEmailTopicDocList(long TopicId, long userId, string option)
         {
             this.TopicId = TopicId;
+            UserId = userId;
+            Option = option;
         }
     }
     public class GetSubEmailTopicDocList : PagedRequest, IRequest<List<Documents>>

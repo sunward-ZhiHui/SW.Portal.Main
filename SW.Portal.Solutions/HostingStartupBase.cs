@@ -57,7 +57,7 @@ namespace SW.Portal.Solutions.ServerSide {
                 app.UseAuthentication();
                 app.UseHttpsRedirection();
                 app.UseStaticFiles();
-               
+                app.UseCors("AllowOrigin");
 
                 app.UseResponseCompression();
                 app.UseRouting();
@@ -124,6 +124,11 @@ namespace SW.Portal.Solutions.ServerSide {
                 services.AddDemoServices();
                 services.AddSingleton<RealtimeService>();
                 services.AddSingleton<EmailAutoRefresh>();
+                //Enable CORS
+                services.AddCors(c =>
+                {
+                    c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+                });
 
                 //services.AddSingleton<ISalesInfoDataProvider, SalesInfoDataProvider>();
                 //services.AddSingleton<IExperimentResultDataProvider, ExperimentResultDataProvider>();

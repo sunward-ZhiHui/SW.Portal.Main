@@ -16,7 +16,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<EmailConversations>> GetAllAsync();
         Task<long> Insert(EmailConversations company);
         Task<String> SendPushNotification(long Id);
-        Task<long> LastUserIDUpdate(long ReplyId,long UserId);
+        Task<long> LastUserIDUpdate(long ReplyId,long UserId);        
         Task<long> InsertAssignTo(EmailConversationAssignTo forumConversationAssignTo);
         Task<long> InsertAssignTo_sp(EmailConversationAssignTo emailConversationAssignTo);
         Task<long> InsertEmailNotifications(EmailNotifications forumNotifications);
@@ -34,7 +34,7 @@ namespace Core.Repositories.Query
         Task<List<EmailConversations>> GetConversationListAsync(Int64 Id);
         Task<List<EmailConversations>> GetTopConversationListAsync(Int64 TopicId);
         Task<List<EmailConversations>> GetReplyDiscussionListAsync(Int64 TopicId,long UserId);
-        Task<List<Documents>> GetTopicDocListAsync(long TopicId);
+        Task<List<Documents>> GetTopicDocListAsync(long TopicId,long UserId,string option);
         Task<List<Documents>> GetSubTopicDocListAsync(long TopicId);
         Task<List<EmailAssignToList>> GetAllAssignToListAsync(long TopicId);
         Task<List<ViewEmployee>> GetAllPListAsync(long TopicId);        

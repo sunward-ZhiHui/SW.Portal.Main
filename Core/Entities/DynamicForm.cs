@@ -15,10 +15,10 @@ namespace Core.Entities
         [Key]
         public long ID { get; set; }
         [Required(ErrorMessage = "Form Name is Required")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Required(ErrorMessage = "Screen Name is Required")]
         [DynamicFormCustomValidation]
-        public string ScreenID { get; set; }
+        public string? ScreenID { get; set; }
 
         public bool? IsApproval { get; set; } = false;
         public string AttributeID { get; set; }

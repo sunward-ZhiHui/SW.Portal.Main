@@ -1477,6 +1477,11 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("isValidateSession", EmailTopics.isValidateSession);
                         parameterss.Add("ActivityEmailTopicId", EmailTopics.ActivityEmailTopicId);
 
+                        parameterss.Add("GroupTag", EmailTopics.GroupTag);
+                        parameterss.Add("CategoryTag", EmailTopics.CategoryTag);
+                        parameterss.Add("ActionTag", EmailTopics.ActionTag);
+                        parameterss.Add("ActName", EmailTopics.actName);
+
                         connection.Open();
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Ins_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
@@ -1554,8 +1559,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DocumentSessionId", activityEmailTopics.DocumentSessionId);
                             parameters.Add("AddedByUserID", activityEmailTopics.AddedByUserID);
                             parameters.Add("AddedDate", activityEmailTopics.AddedDate);
+                            parameters.Add("ManufacturingProcessId", activityEmailTopics.ManufacturingProcessId);
+                            parameters.Add("CategoryActionId", activityEmailTopics.CategoryActionId);
 
-                            var query = "INSERT INTO ActivityEmailTopics(SubjectName,Comment,ActivityType,SessionId,BackURL,DocumentSessionId,AddedByUserID,AddedDate) VALUES (@SubjectName,@Comment,@ActivityType,@SessionId,@BackURL,@DocumentSessionId,@AddedByUserID,@AddedDate)";
+                            var query = "INSERT INTO ActivityEmailTopics(SubjectName,Comment,ActivityType,SessionId,BackURL,DocumentSessionId,AddedByUserID,AddedDate,ManufacturingProcessId,CategoryActionId) VALUES (@SubjectName,@Comment,@ActivityType,@SessionId,@BackURL,@DocumentSessionId,@AddedByUserID,@AddedDate,@ManufacturingProcessId,@CategoryActionId)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 

@@ -561,6 +561,7 @@ else
     bool IsOpen { get; set; } = false;
     private string? FileUrl;
     private string? ProductActivityBaseUrl;
+    private string? BaseUrl;
     bool BackEnabled { get; set; } = false;
 
 
@@ -923,11 +924,12 @@ else
     }
     protected override async Task OnInitializedAsync() {  
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
-        _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108"));
+        _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         onloadSession();
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
 
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -982,13 +984,18 @@ else
                 isValidateSession = false;
                 //var docId = "70F019EC011241C9807C39BF2BE79136";
                 //Guid docSessionId = Guid.Parse(docId);
+               await  GroupTagChanged(actItem[0].ManufacturingProcessId);
+                await CategoryTagChange(actItem[0].CategoryActionId);
 
                 var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
                 ActUserName = Namelist[0].Name;
                 ActAddedDate = actItem[0].AddedDate;
                 ActivityType = actItem[0].ActivityType;
                 ActivityType = actItem[0].ActivityType;
-
+                CategoryData.GroupTag = actItem[0].ManufacturingProcessId;
+                CategoryData.CategoryTag = actItem[0].CategoryActionId;
+               CategoryData.ActionTag = actItem[0].ActionId;
+              
                 if (actItem[0].ActivityType != "FileProfileType")
                 {
                     Data.IsAllowParticipants = true;
@@ -1260,6 +1267,10 @@ else
                     ActivityEmailTopicId = ActivityEmailTopicId,
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
+                    GroupTag = CategoryData.GroupTag,
+                    CategoryTag = CategoryData.CategoryTag,
+                    ActionTag = CategoryData.ActionTag,
+                    actName = CategoryData.Name,
                 };
        
 
@@ -1270,22 +1281,22 @@ else
 
             if (result != null)
             {  
-                var CreateTagReq = new CreateEmailActivityCatgorysQuery
-                    {
-                        GroupTag = CategoryData.GroupTag,
-                        CategoryTag = CategoryData.CategoryTag,
-                        ActionTag = CategoryData.ActionTag,
-                        Name = CategoryData.Name,
-                        TopicId = result,
-                        // Description = editModel.Description,
-                        StatusCodeID = 1,
-                        AddedByUserID = applicationUser.UserID,
-                        ModifiedByUserID = applicationUser.UserID,
-                        AddedDate = DateTime.Now,
-                        ModifiedDate = DateTime.Now,
-                        SessionId = Guid.NewGuid()
-                    };
-                var tagresult = await Mediator.Send(CreateTagReq);
+                //var CreateTagReq = new CreateEmailActivityCatgorysQuery
+                //    {
+                //        GroupTag = CategoryData.GroupTag,
+                //        CategoryTag = CategoryData.CategoryTag,
+                //        ActionTag = CategoryData.ActionTag,
+                //        Name = CategoryData.Name,
+                //        TopicId = result,
+                //        // Description = editModel.Description,
+                //        StatusCodeID = 1,
+                //        AddedByUserID = applicationUser.UserID,
+                //        ModifiedByUserID = applicationUser.UserID,
+                //        AddedDate = DateTime.Now,
+                //        ModifiedDate = DateTime.Now,
+                //        SessionId = Guid.NewGuid()
+                //    };
+                //var tagresult = await Mediator.Send(CreateTagReq);
                 @if (draftId==0)
                 {
                     var convlist = await Mediator.Send(new GetEmailFullDiscussionList(result));
@@ -1398,8 +1409,17 @@ else
         Guid activeSessionId = Guid.Parse(ActiveSessionId);
         var actItem = activityEmailTopics.Where(c => c.SessionId == activeSessionId && c.EmailTopicSessionId == null).ToList();
 
-        var url = ProductActivityBaseUrl + actItem[0].BackURL;
-        NavigationManager.NavigateTo(url);
+
+        if(actItem[0].ActivityType == "FileProfileType")
+        {
+            var urls = BaseUrl + "fileprofiletype/" + actItem[0].BackURL;
+            NavigationManager.NavigateTo(urls);
+        }
+        else
+        {
+            var url = ProductActivityBaseUrl + actItem[0].BackURL;
+            NavigationManager.NavigateTo(url);
+        }       
 
     }
 
@@ -1428,7 +1448,7 @@ else
             CategoryTagChange(-1);
         }
     }
-    async void GroupTagChanged(long? ApplicationMasterChildId)
+    async Task GroupTagChanged(long? ApplicationMasterChildId)
     {
         if (ApplicationMasterChildId != null)
         {
@@ -1436,7 +1456,7 @@ else
         }
         StateHasChanged();
     }
-    async void CategoryTagChange(long? ApplicationMasterChildID)
+    async Task CategoryTagChange(long? ApplicationMasterChildID)
     {
         if (ApplicationMasterChildID != null)
         {

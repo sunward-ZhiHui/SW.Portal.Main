@@ -13,6 +13,10 @@ namespace Core.Entities
     {
         [Key]
         public long ActivityEmailTopicID { get; set; }
+
+        public long ManufacturingProcessId { get; set; }
+        public long CategoryActionId { get; set; }
+        public long ActionId { get; set; }
         public string SubjectName { get; set; }
         public Guid? SessionId { get; set; }
         public Guid? DocumentSessionId { get; set; }
@@ -32,7 +36,7 @@ namespace Core.Entities
         [NotMapped]
         public string ActionName { get; set;}
         public string BackURL { get; set; }
-        public bool? IsDraft { get; set; }
+        public bool? IsDraft { get; set; }       
 
     }
 }

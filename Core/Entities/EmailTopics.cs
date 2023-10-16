@@ -89,7 +89,7 @@ namespace Core.Entities
         [NotMapped]
         public long ActionTag { get; set; }
         [NotMapped]
-        public string actName { get; set; }
+        public string? actName { get; set; }
 
     }
 }

@@ -728,7 +728,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
-        _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108"));
+        _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -783,8 +783,23 @@ else
                 if (actItem[0].ID != null)
                 {
                     var Taglst = await Mediator.Send(new GetAllemailCategory(actItem[0].ID));
-                    _TagEmailList = Taglst;
+                    if(Taglst.Count > 0)
+                    {
+                        _TagEmailList = Taglst;
+                    }
+
                 }
+
+                if(_TagEmailList != null)
+                {
+                    if (_TagEmailList[0].GroupTag != null)
+                    {
+                        GroupTagChanged(_TagEmailList[0].GroupTag);
+                        CategoryTagChange(_TagEmailList[0].CategoryTag);
+                    }
+                }              
+                
+                
                 var filteredToList = await Mediator.Send(new GetByIdEmailTopicTo(actItem[0].ID));
                 var filteredCCList = await Mediator.Send(new GetByIdEmailTopicCC(actItem[0].ID));
 
@@ -801,11 +816,10 @@ else
                 Data.AddedDate = actItem[0].AddedDate;
                 Data.StartDate = actItem[0].StartDate;
                 Data.DueDate = actItem[0].DueDate;
-                CategoryData.GroupTag = _TagEmailList[0].GroupTag;
-              //  selectedCategoryChanged(_TagEmailList);
-                CategoryData.CategoryTag = _TagEmailList[0].CategoryTag;
-                CategoryData.ActionTag = _TagEmailList[0].ActionTag;
-                CategoryData.Name = _TagEmailList[0].Name;
+                CategoryData.GroupTag = _TagEmailList == null ? null : _TagEmailList[0].GroupTag;
+                CategoryData.CategoryTag = _TagEmailList == null ? null : _TagEmailList[0].CategoryTag;
+                CategoryData.ActionTag = _TagEmailList == null ? null : _TagEmailList[0].ActionTag;
+                CategoryData.Name = _TagEmailList == null ? null : _TagEmailList[0].Name;
                 await msgrichEdit.SaveDocumentAsync();
                 using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
                 byte[] fileContent1 = actItem[0].FileData;

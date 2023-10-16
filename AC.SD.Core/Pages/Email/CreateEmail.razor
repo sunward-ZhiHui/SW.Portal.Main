@@ -877,6 +877,7 @@ else
     private async void onRestText()
     {
         Data = new EmailTopics();
+        CategoryData = new EmailActivityCatgorys();
         SelectedDataItems = null;
         SelectedCCItems = null;
         SelectedToItems = null;        
@@ -896,6 +897,10 @@ else
         Data.Urgent = false;
         Data.IsAllowParticipants = false;
         Data.NotifyUser = false;
+        CategoryData.GroupTag = null;
+        CategoryData.ActionTag = null;
+        CategoryData.CategoryTag = null;
+        CategoryData.Name = null;
         await Task.Delay(3000); // Delay for 2 seconds
         await msgrichEdit.NewDocumentAsync();
 
@@ -1281,22 +1286,7 @@ else
 
             if (result != null)
             {  
-                //var CreateTagReq = new CreateEmailActivityCatgorysQuery
-                //    {
-                //        GroupTag = CategoryData.GroupTag,
-                //        CategoryTag = CategoryData.CategoryTag,
-                //        ActionTag = CategoryData.ActionTag,
-                //        Name = CategoryData.Name,
-                //        TopicId = result,
-                //        // Description = editModel.Description,
-                //        StatusCodeID = 1,
-                //        AddedByUserID = applicationUser.UserID,
-                //        ModifiedByUserID = applicationUser.UserID,
-                //        AddedDate = DateTime.Now,
-                //        ModifiedDate = DateTime.Now,
-                //        SessionId = Guid.NewGuid()
-                //    };
-                //var tagresult = await Mediator.Send(CreateTagReq);
+                
                 @if (draftId==0)
                 {
                     var convlist = await Mediator.Send(new GetEmailFullDiscussionList(result));

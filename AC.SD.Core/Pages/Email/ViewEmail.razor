@@ -3024,7 +3024,8 @@
             //#endregion
 
 
-            if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
+            //if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
+            if(true)
             {
                 var plist = await Mediator.Send(new GetAllEmployeeListQuery());
                 //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();

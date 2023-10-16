@@ -22,28 +22,13 @@
                     <Items>
                         <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                         <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 220px; z-index: 9999; width:100px;">
-                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" style="">
-                    @if (loading)
-                    {
-                        <span class="spinner-border spinner-border-sm mr-1"></span>
-                    }
-                    <i class="fa fa-save"></i>
-                    Save
-                </button>
-            </div>
-
-
         </div>
     </div>
 </div>
-
-
-
 
 <div class="col-md-12" style="height: calc(100vh - 200px);">
     <div style="height:35%; border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
@@ -53,7 +38,7 @@
 
             <div>
                 <div class="views-accordion">
-                    <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnInvalidSubmit="@HandleInvalidSubmit" OnValidSubmit="@HandleValidSubmit">
+                    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
                         <DxFormLayout CssClass="w-100">
                             <DxFormLayoutItem Caption="Add Or Select Field " ColSpanMd="6" Visible="isSelectEnabled">
@@ -201,7 +186,7 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-    string FormSubmitResult = "";
+    EditContext _editContext;
     private AttributeDetailsSetup? RefDetails { get; set; }
     bool DeleteEnabled { get; set; } = false;
     bool MaskEnabled { get; set; } = false;
@@ -233,6 +218,7 @@
     bool isDataSource { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
+        _editContext = new EditContext(Data);
         DropDownTypeItems.Add(new DropDownOptionsModel() { Value = "InBuild", Text = "InBuild" });
         DropDownTypeItems.Add(new DropDownOptionsModel() { Value = "DataSource", Text = "Data Source" });
         loadDataSourceItems();
@@ -259,7 +245,20 @@
     }
     void addNew()
     {
-        Data = new AttributeHeader();
+        _editContext = new EditContext(Data);
+        Data.Description = null;
+        Data.EntryMask = null;
+        Data.RegExp = null;
+        Data.IsInternal = false;
+        Data.ControlTypeId = null;
+        Data.IsMultiple = false;
+        Data.IsRequired = false;
+        Data.RequiredMessage = null;
+        Data.AttributeID = 0;
+        Data.AttributeName = null;
+        Data.SessionId = null;
+        Data.DataSourceId = null;
+        Data.DropDownTypeId = null;
         isAddAttributeEnabled = false;
         isSelectEnabled = true;
         isDisplay = "display:none;";
@@ -275,11 +274,13 @@
     {
         Blukdeletepopup = true;
     }
-    void HandleInvalidSubmit()
+    private async Task SubmitFormExternally()
     {
-        FormSubmitResult = "";
+        if (_editContext.Validate())
+        {
+            await this.HandleValidSubmit();
+        }
     }
-
     async Task HandleValidSubmit()
     {
         var ex = _attributes.Where(x => x.AttributeName == Data.AttributeName);

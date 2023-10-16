@@ -16,8 +16,7 @@
 @page "/DynamicMasterSetup/DynamicMasterForm"
 @page "/DynamicMasterSetup/DynamicMasterForm/{SessionIds:guid}"
 <style scoped>
-    .save_hover_Master_From_1
-    {
+    .save_hover_Master_From_1 {
         float: left;
         margin-top: -41px;
         line-height: 38px;
@@ -35,29 +34,18 @@
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                         <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover_Master_From_1" style="@_zindex">
-                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
-                    @if (loading)
-                    {
-                        <span class="spinner-border spinner-border-sm mr-1"></span>
-                    }
-                    <i class="fa fa-save"></i>
-                    Save
-                </button>
-            </div>
-
         </div>
     </div>
 </div>
 
-
 <div class="">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
         <div class="cw-480" style="margin-top:10px;">
-            <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+            <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
 
@@ -101,6 +89,7 @@
 
 </div>
 @code {
+    EditContext _editContext;
     public long? dynamicFormId { get; set; }
     private DynamicFormApprovals refDynamicFormApproval;
     private DynamicMasterSectionForm refDynamicMasterSectionForm;
@@ -113,12 +102,13 @@
     bool EditEnabledTab { get; set; } = false;
     bool IsApprovalEnabled { get; set; } = false;
     int ActiveSubTabIndex { get; set; } = 0;
-    DynamicForm Data = new DynamicForm();
+    private DynamicForm Data = new DynamicForm();
     View_SalesOrderMasterPricing _salesOrderItem = new View_SalesOrderMasterPricing();
     public ApplicationUser applicationUser { get; private set; }
     string _zindex = "z-index: 9999;";
     protected override async Task OnInitializedAsync()
     {
+        _editContext = new EditContext(Data);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
     protected override async Task OnParametersSetAsync()
@@ -126,13 +116,31 @@
         await OnParametersSetLoadAsync();
         base.OnParametersSet();
     }
+    private async Task SubmitFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleValidSubmit();
+        }
+    }
     async Task OnParametersSetLoadAsync()
     {
-        Data = new DynamicForm();
+        _editContext = new EditContext(Data);
         Data.AddedDate = DateTime.Now;
         Data.AddedBy = applicationUser.UserName;
+        Data.ID = 0;
+        Data.IsApproval = false;
         IsApprovalEnabled = false;
         dynamicFormId = -1;
+        Data.ModifiedByUserID = null;
+        Data.AddedByUserID = null;
+        Data.ModifiedDate = null;
+        Data.ModifiedBy = null;
+        Data.ScreenID = null;
+        Data.Name = null;
+        Data.SessionId = null;
+        Data.StatusCodeID = null;
+        Data.IsApproval = false;
         if (SessionIds != null)
         {
             var dynamicFormData = await Mediator.Send(new GetDynamicFormBySession(SessionIds));
@@ -152,7 +160,7 @@
                 Data.SessionId = dynamicFormData.SessionId;
                 Data.StatusCodeID = dynamicFormData.StatusCodeID;
                 Data.IsApproval = dynamicFormData.IsApproval == true ? true : false;
-                if(Data.IsApproval==true)
+                if (Data.IsApproval == true)
                 {
                     IsApprovalEnabled = true;
                 }
@@ -168,7 +176,7 @@
     }
     async Task OnTabClick(TabClickEventArgs e)
     {
-        if (e.TabIndex==0)
+        if (e.TabIndex == 0)
         {
             await refDynamicMasterSectionForm.loadChildData(dynamicFormId);
         }
@@ -187,17 +195,21 @@
         ActiveSubTabIndex = 0;
         NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm");
     }
-    void addNew()
+    async Task addNew()
     {
-        NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm");
-    }
-    void onsubmitClick()
-    {
-        ActiveSubTabIndex = 0;
+        if (SessionIds!=null)
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm");
+        }
+        else
+        {
+            await OnParametersSetLoadAsync();
+        }
+
     }
     void BackPermissionPopUp(bool? Status)
     {
-        if(Status==true)
+        if (Status == true)
         {
             _zindex = "";
         }
@@ -222,7 +234,7 @@
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = 1,
                     AddedDate = DateTime.Now,
-                    IsApproval=Data.IsApproval,
+                    IsApproval = Data.IsApproval,
                 };
 
             await Mediator.Send(editReq);
@@ -243,7 +255,7 @@
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = 1,
                     AddedDate = DateTime.Now,
-                    IsApproval=Data.IsApproval,
+                    IsApproval = Data.IsApproval,
                 };
             var result = await Mediator.Send(createReq);
             if (result > 0)

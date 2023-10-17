@@ -405,6 +405,35 @@ namespace Infrastructure.Repository.Query
             }
         }
 
+        public async Task<List<EmailTopics>> GetTopicHomeList(long UserId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("Option", "SELECT_EMAIL_HOME");
+
+                        connection.Open();
+
+                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<long> SetPinTopicToList(long id)
         {
             try
@@ -935,6 +964,35 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("UserId", UserId);
                         parameters.Add("TopicId", TopicId);
                         parameters.Add("Option", "SUB_SELECT_ALL");
+
+                        connection.Open();
+
+                        var result = connection.Query<EmailTopics>("sp_Select_Sub_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<EmailTopics>> GetSubTopicHomeList(long TopicId, long UserId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("TopicId", TopicId);
+                        parameters.Add("Option", "SUB_SELECT_EMAIL_HOME");
 
                         connection.Open();
 

@@ -1272,7 +1272,12 @@
 
         string tagString = string.Join("_", tagStringList);
 
-        var tagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("122"));
+        if (string.IsNullOrEmpty(tagString))
+        {
+            tagString = groupTag;
+        }
+
+        var  tagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("122"));
 
         var cktagItem = tagItems.Where(x => x.Value == groupTag).ToList();
         if (cktagItem.Count > 0)

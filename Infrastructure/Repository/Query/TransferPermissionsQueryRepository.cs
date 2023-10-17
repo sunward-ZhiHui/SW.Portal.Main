@@ -272,7 +272,8 @@ namespace Infrastructure.Repository.Query
                     {
                         try
                         {
-                            List<long?> ids = new List<long?>();
+                            //List<long?> ids = new List<long?>();
+                            var query = string.Empty;
                             if (EmailConversations != null && EmailConversations.Count > 0)
                             {
                                 EmailConversations.ForEach(s =>
@@ -280,16 +281,23 @@ namespace Infrastructure.Repository.Query
                                     var result = CheckTransferPermissionsEmailConversationParticipant(s, userId);
                                     if (result == null)
                                     {
-                                        ids.Add(s.ID);
+                                        query += "Update EmailConversationParticipant set UserID=" + userId + " WHERE  ID in(" + s.ID + ");\n\r";
+                                        
+                                        // ids.Add(s.ID);
+                                    }
+                                    else
+                                    {
+                                        var result1 = CheckTransferPermissionsEmailConversationParticipant(s, s.UserId);
+                                        if(result1 != null)
+                                        {
+                                            query += "DELETE FROM  EmailConversationParticipant WHERE ID = " + result1.ID + ";\n\r";
+                                        }
                                     }
                                 });
                             }
-                            if (userId > 0 && ids.Count > 0)
-                            {
-                                var parameters = new DynamicParameters();
-                                var query = "Update EmailConversationParticipant set UserID=" + userId + " WHERE  ID in(" + string.Join(',', ids) + ")";
-                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-
+                            if (!string.IsNullOrEmpty(query))
+                            {  
+                                await connection.QuerySingleOrDefaultAsync<long>(query, null, transaction);
                             }
                             transaction.Commit();
                             return EmailConversations.FirstOrDefault();

@@ -174,8 +174,8 @@ namespace Infrastructure.Repository.Query
             {
 
                 var query = @"SELECT TNH. *, Ap.UserName as AssignToList FROM ToDoNotesHistory TNH
-                    Inner join ApplicationUser Ap on Ap.UserID = TNH.Users
-                     WHERE TNH.AddedByUserID = @UserId AND NotesId = @NotesId   ORDER BY Completed ASC";
+                    LEFT join ApplicationUser Ap on Ap.UserID = TNH.Users
+                     WHERE TNH.AddedByUserID = @UserId AND TNH.NotesId = @NotesId   ORDER BY Completed ASC";
                 //var query = @"SELECT * FROM ToDoNotesHistory
                 //            WHERE AddedByUserID = @UserId AND NotesId = @NotesId
                 //            ORDER BY Completed ASC";

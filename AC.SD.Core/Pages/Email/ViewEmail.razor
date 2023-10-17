@@ -1893,7 +1893,7 @@
     {
         _dataSubjectName.SubjectName = CurrentEmailConversations.Name;
         isRenameSubject = true;
-        
+
     }
     async void SubmitDueDate()
     {
@@ -2333,7 +2333,7 @@
     }
     public async Task onDocDownload(long Id)
     {
-        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup))); 
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup),applicationUser.UserID,isLeftMenuvisible)); 
         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
 
         //var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
@@ -2342,7 +2342,7 @@
     }
     public async Task onDocDownload_old(long Id)
     {
-        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup))); 
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
 
 
@@ -2512,11 +2512,11 @@
         }
     }
     private async Task loadTopicDocList()
-    {
+    {        
         if(long.Parse(@SelectedGroup) > 0)
         {
             //await JSRuntime.InvokeAsync<string>("showLoading");
-            _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));          
+            _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
             //await JSRuntime.InvokeAsync<string>("hideLoading");
 
 
@@ -3024,7 +3024,8 @@
             //#endregion
 
 
-            if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
+            //if (_replyComment[0].IsAllowParticipants.GetValueOrDefault(false))
+            if(true)
             {
                 var plist = await Mediator.Send(new GetAllEmployeeListQuery());
                 //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
@@ -3185,10 +3186,12 @@
         var urls = BaseUrl + "fileprofiletype/" + url;
         NavigationManager.NavigateTo(urls);
     }
-    async void onBackActivity(string Url)
+    private void onBackActivity(string Url)
     {
         var url = ProductActivityBaseUrl + Url;
-        NavigationManager.NavigateTo(url);
+        string script = $"window.open('{url}', '_blank');";
+        JSRuntime.InvokeVoidAsync("eval", script);
+        //NavigationManager.NavigateTo(url,true);
     }
     private async Task onreply(long id)
     {

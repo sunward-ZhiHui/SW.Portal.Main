@@ -6,6 +6,7 @@ using Infrastructure.Repository.Query;
 using Microsoft.AspNetCore.Mvc;
 using SW.Portal.Solutions.Models;
 using SW.Portal.Solutions.Services;
+using LoginModel = SW.Portal.Solutions.Models.LoginModel;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -24,7 +25,7 @@ namespace SW.Portal.Solutions.Controllers
 
         [HttpPost]
         [Route("Login")]
-        public async Task<ActionResult<ResponseModel<IEnumerable<ApplicationUser>>>> Login(string loginId, string password)
+        public async Task<ActionResult<ResponseModel<IEnumerable<ApplicationUser>>>> Login([FromBody] LoginModel loginModel)
         {
             var response = new ResponseModel<ApplicationUser>();
 
@@ -32,7 +33,7 @@ namespace SW.Portal.Solutions.Controllers
             {
                 response.ResponseCode = ResponseCode.Success;
 
-                var lst = await _applicationUserQueryRepository.LoginAuth(loginId, password);
+                var lst = await _applicationUserQueryRepository.LoginAuth(loginModel.loginId, loginModel.password);
                 if (lst != null)
                 {
                     if (lst.Locked)

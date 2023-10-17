@@ -995,20 +995,50 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<Documents>> GetTopicDocListAsync(long TopicId, long UserId,string option)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("TopicId", TopicId);
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("Option", option);
 
-        public async Task<List<Documents>> GetTopicDocListAsync(long TopicId)
+                        connection.Open();
+
+                        var result = connection.Query<Documents>("sp_Select_EmailDocList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<Documents>> GetTopicDocListAsync_old(long TopicId,long UserId)
         {
             try
             {
 
                 var query = @"select FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId from EmailConversations FC 
                                 INNER JOIN Documents D on D.SessionID = FC.SessionId
+                                INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = FC.ID
 								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID
 								LEFT JOIN Employee EMP ON EMP.UserID = D.ModifiedByUserID
-                                where FC.TopicID = @TopicId";
+                                where FC.TopicID = @TopicId AND ECP.UserId = @UserId";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId, DbType.Int64);
+                parameters.Add("UserId", UserId, DbType.Int64);
 
                 using (var connection = CreateConnection())
                 {
@@ -1139,7 +1169,7 @@ namespace Infrastructure.Repository.Query
 			{
 				throw new Exception(exp.Message, exp);
 			}
-		}
+		} 
         public async Task<long> LastUserIDUpdate(long ReplyId,long UserId)
         {
             try

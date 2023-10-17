@@ -68,6 +68,12 @@ namespace SW.Portal.Solutions.ServerSide {
                .GetFcm()
            );
 
+            //Enable CORS
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            });
+
             //services.AddScoped<IContosoRetailDataProvider, ContosoRetailDataProvider>();
             //services.AddScoped<IRentInfoDataProvider, RentInfoDataProvider>();
 
@@ -115,7 +121,7 @@ namespace SW.Portal.Solutions.ServerSide {
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.UseCors("AllowOrigin");
             app.UseStaticFiles();
             //app.UseStaticFiles(new StaticFileOptions {
             //    ServeUnknownFileTypes = true

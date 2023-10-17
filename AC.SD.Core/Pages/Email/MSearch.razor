@@ -1485,12 +1485,8 @@
     }
     public async Task onDocDownload(long Id)
     {
-        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup))); 
-        var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
-
-
-
-       
+        _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, "Library"));
+        var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);      
       
 
         var request = new DownloadFileRequest
@@ -1585,7 +1581,7 @@
         if(long.Parse(@SelectedGroup) > 0)
         {
             //await JSRuntime.InvokeAsync<string>("showLoading");
-            _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup)));          
+            _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, "Library"));
             //await JSRuntime.InvokeAsync<string>("hideLoading");
 
 

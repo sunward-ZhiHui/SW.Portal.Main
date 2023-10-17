@@ -24,6 +24,7 @@ namespace Core.Repositories.Query
         Task<long> UpdateMarkasAllReadList(Int64 Id,long userId);
         Task<long> UpdateMarkasunReadList(Int64 Id);
         Task<List<EmailTopics>> GetTopicAllList(Int64 UserId);
+        Task<List<EmailTopics>> GetTopicHomeList(Int64 UserId);
         Task<List<EmailTopics>> GetTopicMasterSearchList(EmailSearch emailSearch);        
         Task<List<EmailTopics>> GetTopicCCList(Int64 UserId);
         Task<List<EmailTopics>> GetTopicDraftList(Int64 UserId);
@@ -33,7 +34,7 @@ namespace Core.Repositories.Query
         Task<List<EmailTopics>> GetSubTopicCCList(Int64 TopicId, long UserId);
         Task<List<EmailTopics>> GetSubTopicSentList(Int64 TopicId, long UserId);
         Task<List<EmailTopics>> GetSubTopicAllList(Int64 TopicId, long UserId);
-
+        Task<List<EmailTopics>> GetSubTopicHomeList(Int64 TopicId, long UserId);
         Task<List<EmailTopics>> GetTopicSentList(Int64 UserId);
         Task<List<EmailParticipant>> GetParticipantList(Int64 topicId,long UserId);
         Task<List<EmailParticipant>> GetConversationPList(Int64 ConversationId);

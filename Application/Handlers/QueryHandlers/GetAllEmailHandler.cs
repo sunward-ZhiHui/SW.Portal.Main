@@ -169,6 +169,21 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
     }
 
+    public class GetEmailTopicHomeHandler : IRequestHandler<GetEmailTopicHome, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetEmailTopicHomeHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetEmailTopicHome request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetTopicHomeList(request.UserId);
+
+        }
+    }
+
     public class GetEmailMasterSearchAllHandler : IRequestHandler<GetEmailMasterSearchAll, List<EmailTopics>>
     {
 
@@ -293,6 +308,20 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<EmailTopics>> Handle(GetSubEmailTopicAll request, CancellationToken cancellationToken)
         {
             return await _emailTopicsQueryRepository.GetSubTopicAllList(request.TopicId, request.UserId);
+
+        }
+    }
+    public class GetSubEmailTopicHomeHandler : IRequestHandler<GetSubEmailTopicHome, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetSubEmailTopicHomeHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetSubEmailTopicHome request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetSubTopicHomeList(request.TopicId, request.UserId);
 
         }
     }

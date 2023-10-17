@@ -113,6 +113,14 @@ namespace Application.Queries
             this.UserId = UserId;
         }
     }
+    public class GetEmailTopicHome : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long UserId { get; private set; }
+        public GetEmailTopicHome(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
     public class GetEmailMasterSearchAll : EmailSearch, IRequest<List<EmailTopics>>
     {       
        
@@ -184,6 +192,16 @@ namespace Application.Queries
         public long TopicId { get; private set; }
         public long UserId { get; private set; }
         public GetSubEmailTopicAll(long ID, long UserId)
+        {
+            this.TopicId = ID;
+            this.UserId = UserId;
+        }
+    }
+    public class GetSubEmailTopicHome : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long TopicId { get; private set; }
+        public long UserId { get; private set; }
+        public GetSubEmailTopicHome(long ID, long UserId)
         {
             this.TopicId = ID;
             this.UserId = UserId;

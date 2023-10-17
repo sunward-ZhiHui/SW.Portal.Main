@@ -42,13 +42,13 @@ namespace Core.Entities.CustomValidations
                     {
                         var service = scope.ServiceProvider.GetService<IDynamicFormQueryRepository>();
                         var results = service.GetDynamicFormScreenNameCheckValidation(s, otherPropertyValue);
-                        if(results!=null)
+                        if (results != null)
                         {
                             return new ValidationResult("Screen Name already exits", new[] { validationContext.MemberName });
                         }
                     }
                 }
-                
+
             }
             return ValidationResult.Success;
         }
@@ -81,6 +81,20 @@ namespace Core.Entities.CustomValidations
                         return new ValidationResult("User already exits", new[] { validationContext.MemberName });
                     }
                 }
+            }
+            return ValidationResult.Success;
+        }
+    }
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class DynamicFormApprovalIsUploadCustomValidation : ValidationAttribute
+    {
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+
+            var datas = (DynamicForm)validationContext.ObjectInstance;
+            if (datas.IsUpload == true && datas.FileProfileTypeId == null)
+            {
+                return new ValidationResult("FileProfile is Required", new[] { validationContext.MemberName });
             }
             return ValidationResult.Success;
         }

@@ -21,7 +21,14 @@ namespace Core.Entities
         public string? ScreenID { get; set; }
 
         public bool? IsApproval { get; set; } = false;
-        public string AttributeID { get; set; }
+        public string? AttributeID { get; set; }
+        
+        public bool IsUpload { get; set; } = false;
+        public bool? IsMultipleUpload { get; set; } = false;
+        //[Required]
+        [DynamicFormApprovalIsUploadCustomValidation]
+        public long? FileProfileTypeId { get; set; }
+        public bool? IsProfileNoGenerate { get; set; } = false;
         public Guid SessionID { get; set; }
         [NotMapped]
         public IEnumerable<long> AttributeIds { get; set; }
@@ -29,5 +36,7 @@ namespace Core.Entities
         public List<AttributeHeader>? AttributesName { get; set; }
         [NotMapped]
         public List<DynamicFormApproval>? DynamicFormApproval {  get; set; }
+        [NotMapped]
+        public string? FileProfileTypeName { get; set; }
     }
 }

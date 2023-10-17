@@ -67,7 +67,7 @@
                     <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                         <Items>
                             <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
-                           @*  <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Visible="@DownloadEnabled" />
+                            @*  <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Visible="@DownloadEnabled" />
                             <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Visible="@uploadEnabled" /> *@
                             <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Visible="@renameEnabled" />
                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDeleteDocument" Visible="@deleteEnabled" />
@@ -620,7 +620,7 @@
     DocumentSearchModel documentSearchModel = new DocumentSearchModel();
     public List<DocumentsModel> _fileContentList { get; set; }
     DocumentPermissionModel documentPermissionModel = new DocumentPermissionModel();
-    bool isEdit { get; set; } = false; bool isDelete { get; set; } = false; bool isCreateFolder { get; set; } = false;bool isCreateSubFolder { get; set; } = false;
+    bool isEdit { get; set; } = false; bool isDelete { get; set; } = false; bool isCreateFolder { get; set; } = false; bool isCreateSubFolder { get; set; } = false;
     bool isEnablePath { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
@@ -638,7 +638,7 @@
     }
     async Task mainPageLoad()
     {
-        isEnablePath = false; isExpiryDateVisible = false; isEdit = false; isDelete = false; isCreateFolder = true;isCreateSubFolder = false;
+        isEnablePath = false; isExpiryDateVisible = false; isEdit = false; isDelete = false; isCreateFolder = true; isCreateSubFolder = false;
         documentPermissionModel = new DocumentPermissionModel();
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         _fileContentList = await Mediator.Send(new GetFileContetTypes());
@@ -720,7 +720,7 @@
         DownloadEnabled = false; uploadEnabled = false; copylinkEnabled = false; viewfileEnabled = false; EmailEnabled = false;
         deleteEnabled = false; historyEnabled = false; checkoutEnabled = false; checkInEnabled = false;
         formdetailsEnabled = false; linkdownloadEnabled = false; formdetailsEnabled = false;
-        if(MainSessionId!=null)
+        if (MainSessionId != null)
         {
             isCreateFolder = false;
         }
@@ -760,7 +760,10 @@
 
                     if (documentSearchModel.Type != "Search")
                     {
-                        isVisibleParentMore = "";
+                        if (MainSessionId != null)
+                        {
+                            isVisibleParentMore = "";
+                        }
                         moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true;
                         isEdit = true; isDelete = true; isCreateSubFolder = true;
                     }
@@ -775,7 +778,10 @@
                         {
                             if (documentSearchModel.Type != "Search")
                             {
-                                isVisibleParentMore = "";
+                                if (MainSessionId != null)
+                                {
+                                    isVisibleParentMore = "";
+                                }
                                 moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true;
                                 isEdit = true; isDelete = true; isCreateSubFolder = true;
                             }
@@ -787,7 +793,10 @@
                             {
                                 if (documentSearchModel.Type != "Search")
                                 {
-                                    isVisibleParentMore = "";
+                                    if (MainSessionId != null)
+                                    {
+                                        isVisibleParentMore = "";
+                                    }
                                     moreEnabled = true; isCreateDocumentEnabled = true;
                                 }
                             }
@@ -795,7 +804,10 @@
                             {
                                 if (documentSearchModel.Type != "Search")
                                 {
-                                    isVisibleParentMore = "";
+                                    if (MainSessionId != null)
+                                    {
+                                        isVisibleParentMore = "";
+                                    }
                                     moreEnabled = true; IsReserveProfileNumberEnabled = true;
                                 }
                             }
@@ -1038,7 +1050,7 @@
     }
     void onAddSubFileProfileType()
     {
-        if(MainSessionId==null)
+        if (MainSessionId == null)
         {
             NavigationManager.NavigateTo($"fileprofiletype/AddFileProfileTypes/Add/" + _selectedItems.SessionID);
         }
@@ -1244,8 +1256,8 @@
 
         List<string> tagStringList = new List<string>();
 
-        for(var j=0; j < FolderPathLists.Count; j++)
-        {           
+        for (var j = 0; j < FolderPathLists.Count; j++)
+        {
             var ckl = FolderPathLists[j].FileName;
 
             if (j == 0)
@@ -1260,10 +1272,10 @@
 
         string tagString = string.Join("_", tagStringList);
 
-        var  tagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("122"));
+        var tagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("122"));
 
-        var cktagItem = tagItems.Where(x=>x.Value == groupTag).ToList();
-        if(cktagItem.Count > 0)
+        var cktagItem = tagItems.Where(x => x.Value == groupTag).ToList();
+        if (cktagItem.Count > 0)
         {
             grouptTagId = cktagItem[0].ApplicationMasterChildId;
         }
@@ -1282,7 +1294,7 @@
                     StatusCodeId = 1,
                     SessionId = Guid.NewGuid(),
                 };
-            var rlt =  await Mediator.Send(request);
+            var rlt = await Mediator.Send(request);
             grouptTagId = rlt.ApplicationMasterChildId;
         }
 
@@ -1291,7 +1303,7 @@
             var catItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(grouptTagId));
 
             var ckcatItem = catItems.Where(x => x.Value == tagString).ToList();
-            if(ckcatItem.Count > 0)
+            if (ckcatItem.Count > 0)
             {
                 catTagId = ckcatItem[0].ApplicationMasterChildId;
             }
@@ -1315,7 +1327,7 @@
 
                 await createApplicationMasterChild(124, catTagId, "Review");
                 await createApplicationMasterChild(124, catTagId, "Discussion");
-            }           
+            }
         }
 
 
@@ -1381,9 +1393,9 @@
 
         }
     }
-    async Task createApplicationMasterChild(long MasterParentId,long ParentId,string notes)
+    async Task createApplicationMasterChild(long MasterParentId, long ParentId, string notes)
     {
-        
+
         var request = new CreateApplicationMasterChildCommand
             {
                 ApplicationMasterParentId = MasterParentId,

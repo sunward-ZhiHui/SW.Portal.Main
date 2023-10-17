@@ -117,7 +117,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("sessionId", sessionId);
 
-                var query = "SELECT * FROM DynamicForm Where SessionID = @sessionId";
+                var query = "SELECT t1.*,t2.NAme as FileProfileTypeName FROM DynamicForm t1 LEFT JOIN FileProfileType t2 ON t2.FileProfileTypeID=t1.FileProfileTypeID  Where t1.SessionID = @sessionId";
 
                 using (var connection = CreateConnection())
                 {
@@ -225,9 +225,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", dynamicForm.ModifiedDate, DbType.DateTime);
                             parameters.Add("StatusCodeID", dynamicForm.StatusCodeID);
                             parameters.Add("IsApproval", dynamicForm.IsApproval);
-
-                            var query = "INSERT INTO DynamicForm(Name,ScreenID,SessionID,AttributeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsApproval) VALUES " +
-                                "(@Name,@ScreenID,@SessionID,@AttributeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsApproval)";
+                            parameters.Add("FileProfileTypeId", dynamicForm.FileProfileTypeId);
+                            parameters.Add("IsUpload", dynamicForm.IsUpload);
+                            var query = "INSERT INTO DynamicForm(Name,ScreenID,SessionID,AttributeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsApproval,FileProfileTypeId,IsUpload) VALUES " +
+                                "(@Name,@ScreenID,@SessionID,@AttributeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsApproval,@FileProfileTypeId,@IsUpload)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -277,8 +278,10 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", dynamicForm.ModifiedDate, DbType.DateTime);
                             parameters.Add("StatusCodeID", dynamicForm.StatusCodeID);
                             parameters.Add("IsApproval", dynamicForm.IsApproval);
+                            parameters.Add("FileProfileTypeId", dynamicForm.FileProfileTypeId);
+                            parameters.Add("IsUpload", dynamicForm.IsUpload);
                             var query = " UPDATE DynamicForm SET AttributeID = @AttributeID,Name =@Name,ScreenID =@ScreenID,ModifiedByUserID=@ModifiedByUserID," +
-                                "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsApproval=@IsApproval WHERE ID = @ID";
+                                "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsApproval=@IsApproval,IsUpload=@IsUpload,FileProfileTypeId=@FileProfileTypeId WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -1028,13 +1031,11 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.IsApproval from DynamicFormData t1 \r\n" +
-                    "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
-                    "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
+                var query = "select t1.*,t2.UserName as AddedBy,\r\nt3.UserName as ModifiedBy,t4.CodeValue as StatusCode,\r\nt5.IsApproval,t5.FileProfileTypeID,t6.Name as FileProfileTypeName,\r\n" +
+                    "(SELECT COUNT(SessionId) from Documents t7 WHERE t7.SessionId=t1.SessionId) as isDocuments\r\n" +
+                    "from DynamicFormData t1 \r\nJOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\nJOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
                     "JOIN DynamicForm t5 ON t5.ID=t1.DynamicFormId\r\n" +
-                    "WHERE t1.SessionId=@SessionId";
-
+                    "LEFT JOIN FileProfileType t6 ON t6.FileProfileTypeID=t5.FileProfileTypeID\r\nWHERE t1.SessionId=@SessionId";
                 using (var connection = CreateConnection())
                 {
                     return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);

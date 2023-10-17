@@ -9,12 +9,14 @@ using System.Threading.Tasks;
 
 namespace Core.Entities
 {
-    public class DynamicFormData: BaseEntity
+    public class DynamicFormData : BaseEntity
     {
         public long DynamicFormDataId { get; set; }
         public string? DynamicFormItem { get; set; }
         public bool? IsSendApproval { get; set; } = false;
         public long? DynamicFormId { get; set; }
+        public Guid? FileProfileSessionID { get; set; }
+
         [NotMapped]
         public AttributeHeaderListModel? AttributeHeader { get; set; }
         [NotMapped]
@@ -54,5 +56,11 @@ namespace Core.Entities
         public List<DynamicFormApproved> DynamicFormApproved { get; set; }
         [NotMapped]
         public string? StatusName { get; set; }
+        [NotMapped]
+        public long? FileProfileTypeId { get; set; }
+        [NotMapped]
+        public string? FileProfileTypeName { get; set; }
+        [NotMapped]
+        public int? isDocuments { get; set; } = 0;
     }
 }

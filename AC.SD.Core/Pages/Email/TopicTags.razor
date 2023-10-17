@@ -276,6 +276,12 @@
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
+
+        if(_topicCategorys[0].IsTagDelete.GetValueOrDefault(false))
+        {
+            DeleteEnabled = false;
+        }
+
         PanelVisible = false;       
 
         //if (_topicCategorys.Count > 0)
@@ -490,7 +496,16 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
         _selectedItems = _topicCategorys.FirstOrDefault(f => f.ID == (long?)UniqueId);
-        DeleteEnabled = true;
+
+        if (_selectedItems.IsTagDelete.GetValueOrDefault(false))
+        {
+            DeleteEnabled = false;
+        }
+        else
+        {
+            DeleteEnabled = true;
+        }
+        
         EditEnabled = true;
         StateHasChanged();
     }

@@ -10,14 +10,15 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-@page "/MyDayNew"
+@page "/MyDay"
 
 <div class="">
     <div class="main-container">
         <div class="content-container row">
             <div class="@leftTodoDisplay" style="@styleTreeDisplay overflow-x: hidden;">
                 <div class="mini-menu-bar-top">
-                    <MyDueTodo NotesId="ReloadGrid"></MyDueTodo>
+                    @*<MyDueTodo NotesId="ReloadGrid"></MyDueTodo>*@
+                    <MyDayNew></MyDayNew>
                 </div>
             </div>
             <div class="@RighttodoDisplay">

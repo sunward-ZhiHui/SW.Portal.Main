@@ -27,6 +27,7 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionId { get; set; }
         public int? StatusCodeID { get; set; }
+        public bool? IsTagDelete { get; set; }
         public long? AddedByUserID { get; set; }
         [NotMapped]
         public string ModifiedBy { get; set; }

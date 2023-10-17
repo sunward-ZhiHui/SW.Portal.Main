@@ -1,5 +1,4 @@
-﻿@page "/MyDay"
-@using Application.Commands;
+﻿@using Application.Commands;
 @using Application.Queries;
 @using Application.Response;
 @using MediatR
@@ -23,10 +22,8 @@
         <DxMenu CollapseItemsToHamburgerMenu="true"
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
-            <Items>
-               
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled"/>
-               
+            <Items>               
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled"/>               
             </Items>
         </DxMenu>
     </div>

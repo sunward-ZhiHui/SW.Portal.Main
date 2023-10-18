@@ -1,0 +1,350 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using Newtonsoft.Json;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject ClipboardService ClipboardService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager Navigator
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Auto">
+            <Items>
+                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@onBack" />
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Copy Share Link" IconCssClass="fa fa-share-alt" Click="@addCopyLink" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="SMShareGrid" Data="@_documentDmsShareList" EditModelSaving="@OnEditModelSaving" DataItemDeleting="@OnDeleteDataItem" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            KeyFieldName="DocumentDmsShareId"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            CustomizeElement="Grid_CustomizeElement"
+            CustomizeEditModel="Grid_CustomizeEditModel"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Single"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
+
+
+        <Columns>
+            <DxGridDataColumn FieldName="DocumentDmsShareId" Visible="false" />
+            <DxGridDataColumn FieldName="IsExpiry" Caption="Is Expiry" MinWidth="40" />
+            <DxGridDataColumn FieldName="ExpiryDate" Caption="Expiry Date" MinWidth="40">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentDmsShare)context.DataItem;
+                        var expiryDate = (item.ExpiryDate != null ? Application.Common.Helper.Helper.FormatDate(item.ExpiryDate.Value) : null);
+                    }
+                    @expiryDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
+
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <EditFormTemplate Context="EditFormContext">
+            @{
+                var types = (DocumentDmsShare)EditFormContext.EditModel;
+            }
+            <DxFormLayout CssClass="w-100">
+                <DxFormLayoutItem Caption="Expiry Enable" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@types.IsExpiry" />
+                    <ValidationMessage For="@(() => types.IsExpiry)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="6">
+                    <DxDateEdit NullText="Select a Expiry Date..." @bind-Date="@types.ExpiryDate"  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
+                    <ValidationMessage For="@(() => types.ExpiryDate)" />
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </EditFormTemplate>
+
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SectionName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    [Parameter]
+    public DocumentsModel selectedItems { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    bool Blukdeletepopup { get; set; } = false;
+    public List<DocumentDmsShare> _documentDmsShareList { get; set; }
+    bool PanelVisible { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    bool DeleteEnabled { get; set; } = false;
+    bool EditEnabled { get; set; } = false;
+    bool AddEnabled { get; set; } = false;
+    IGrid? SMShareGrid { get; set; }
+    private DocumentDmsShare _selectedItems;
+    DxPopup? popup;
+    bool PopupVisible { get; set; } = false;
+    string? errorMessage;
+    string? DeleteerrorMessage;
+    private string? DocumentViewUrl;
+    protected override async Task OnInitializedAsync()
+    {
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true; AddEnabled = true;
+        EditEnabled = false; DeleteEnabled = false;
+        if (selectedItems.DocumentID > 0)
+        {
+            _documentDmsShareList = await Mediator.Send(new GetDocumentDMSShareList(selectedItems.SessionId));
+            if (_documentDmsShareList.Count > 0)
+            {
+                _selectedItems = _documentDmsShareList.FirstOrDefault();
+                EditEnabled = true;
+                DeleteEnabled = true;
+            }
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentDmsShareId");
+        _selectedItems = _documentDmsShareList.FirstOrDefault(f => f.DocumentDmsShareId == (long?)UniqueId);
+        DeleteEnabled = true;
+        StateHasChanged();
+
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+        var navitems = (DocumentDmsShare)e.EditModel;
+        if (e.IsNew)
+        {
+        }
+        else
+        {
+        }
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+        var editModel = (DocumentDmsShare)e.EditModel;
+
+        if (e.IsNew)
+        {
+            var createReq = new InsertOrUpdateDocumentDmsShare
+                {
+                    IsDeleted = editModel.IsDeleted,
+                    IsExpiry = editModel.IsExpiry,
+                    DocumentId = selectedItems.DocumentID,
+                    DocSessionId = selectedItems.SessionID,
+                    ExpiryDate = editModel.ExpiryDate,
+                    SessionId = Guid.NewGuid(),
+                    AddedByUserID = applicationUser.UserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = 1,
+                    AddedDate = DateTime.Now,
+                };
+
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+
+                errorMessage = eq.Message;
+                PopupVisible = true;
+
+            }
+            await UpdateDataAsync();
+
+
+        }
+        else
+        {
+            var UpdateReq = new InsertOrUpdateDocumentDmsShare
+                {
+                    DocumentDmsShareId = editModel.DocumentDmsShareId,
+                    IsDeleted = editModel.IsDeleted,
+                    IsExpiry = editModel.IsExpiry,
+                    DocumentId = selectedItems.DocumentID,
+                    DocSessionId = selectedItems.SessionID,
+                    ExpiryDate = editModel.ExpiryDate,
+                    SessionId = editModel.SessionId,
+                    AddedByUserID = editModel.AddedByUserID,
+                    ModifiedByUserID = applicationUser.UserID,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeID = 1,
+                    AddedDate = editModel.AddedDate,
+                };
+            var result = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
+
+        }
+
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+        addEdit();
+    }
+    void addNew()
+    {
+        SMShareGrid.StartEditNewRowAsync();
+
+    }
+    void addEdit()
+    {
+        if (SelectedDataItems != null)
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is DocumentDmsShare dataselectItems)
+                    {
+                        var _selectlst = _documentDmsShareList.FirstOrDefault(f => f.DocumentDmsShareId == dataselectItems.DocumentDmsShareId);
+                        SMShareGrid.StartEditDataItemAsync(_selectlst);
+                    }
+                }
+
+            }
+            else
+            {
+                SMShareGrid.StartEditDataItemAsync(_selectedItems);
+            }
+        }
+
+    }
+    async Task EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+        await UpdateDataAsync();
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
+    }
+    private async Task addCopyLink()
+    {
+        var url = DocumentViewUrl+"viewFile/" + "?url=" + _selectedItems.SessionId;
+        await ClipboardService.WriteTextAsync(url);
+        toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
+    }
+    async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
+    {
+
+        var editModel = (DocumentDmsShare)e.DataItem;
+        var request = new DeleteDocumentDmsShare(editModel);
+        await Mediator.Send(request);
+        await UpdateDataAsync();
+        SMShareGrid.SetFocusedRowIndex(0);
+
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is DocumentDmsShare selectData)
+                    {
+                        var request = new DeleteDocumentDmsShare(selectData);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await UpdateDataAsync();
+                        SMShareGrid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            DeleteerrorMessage = eq.Message;
+            PopupVisible = true;
+        }
+
+        await UpdateDataAsync();
+
+
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+            EditEnabled = false;
+        }
+        else
+        {
+            EditEnabled = true;
+        }
+
+    }
+}

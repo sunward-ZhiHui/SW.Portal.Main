@@ -75,7 +75,7 @@
                             <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Visible="@checkInEnabled" Click="onCheckin" />
                             <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Visible="@historyEnabled" />
                             <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Visible="@copylinkEnabled" />
-
+                            <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Visible="@shareEnabled" />
                             <DxMenuItem Text="Link Document" IconCssClass="fa fa-link" Click="onLinkDocuments" Visible="@linkdownloadEnabled" />
                             <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Visible="@formdetailsEnabled" />
                             <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewparentDocuments" Visible="@viewParentEnabled" />
@@ -539,8 +539,18 @@
         </div>
     </FooterContentTemplate>
 </DxFlyout>
+<DxPopup @bind-Visible="@PopupShareDocuments"
+         HeaderText="Share Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <ShareDocuments @ref="refShareDocuments" selectedItems="@_selectedItems" applicationUser="@applicationUser" RevokeBack="BackShareDoc"></ShareDocuments>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
-    private UploadDoumentFiles refUploadDoumentFiles;
+    private UploadDoumentFiles refUploadDoumentFiles; private ShareDocuments refShareDocuments;
     private UploadDocumentUpdateFiles refUploadDocumentUpdateFiles;
     IGrid Grid { get; set; }
     [Parameter]
@@ -560,7 +570,7 @@
     public bool PopupVisibleLinkDocument { get; set; } = false;
     public bool PopupVisibleSecurityAccess { get; set; } = false;
     public bool IsExpiryDateOpen { get; set; } = false;
-    public bool loading { get; set; } = false;
+    public bool loading { get; set; } = false; public bool PopupShareDocuments { get; set; } = false;
     string onShowMain = "";
     string onUploadVisible = "display:none;";
     public DocumentsModel selectedFiles { get; set; }
@@ -597,6 +607,7 @@
     public bool viewParentEnabled { get; set; } = false;
     public bool renameEnabled { get; set; } = false;
     public bool moreEnabled { get; set; } = false;
+    public bool shareEnabled { get; set; } = false;
     public bool isCreateDocumentEnabled { get; set; } = false;
     public bool IsReserveProfileNumberEnabled { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
@@ -718,7 +729,7 @@
     {
         isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;"; isEdit = false; isDelete = false; isCreateFolder = true; isCreateSubFolder = false;
         DownloadEnabled = false; uploadEnabled = false; copylinkEnabled = false; viewfileEnabled = false; EmailEnabled = false;
-        deleteEnabled = false; historyEnabled = false; checkoutEnabled = false; checkInEnabled = false;
+        deleteEnabled = false; historyEnabled = false; checkoutEnabled = false; checkInEnabled = false; shareEnabled = false;
         formdetailsEnabled = false; linkdownloadEnabled = false; formdetailsEnabled = false;
         if (MainSessionId != null)
         {
@@ -845,7 +856,7 @@
         if (_selectedItems != null && _selectedItems.FilterProfileTypeId > 0)
         {
             isVisibleMore = "";
-            moreEnabled = true; DownloadEnabled = false;
+            moreEnabled = true; DownloadEnabled = false;shareEnabled = false; 
             uploadEnabled = false; copylinkEnabled = false; viewfileEnabled = false; deleteEnabled = false; historyEnabled = false; EmailEnabled = false;
             checkoutEnabled = false; checkInEnabled = false;
             linkdownloadEnabled = false; formdetailsEnabled = false; renameEnabled = false; viewParentEnabled = false;
@@ -855,7 +866,7 @@
                 checkInEnabled = true;
                 uploadEnabled = false; deleteEnabled = false; DownloadEnabled = false; EmailEnabled = false;
                 viewfileEnabled = false; historyEnabled = false; checkoutEnabled = false;
-                copylinkEnabled = false; viewParentEnabled = false;
+                copylinkEnabled = false; viewParentEnabled = false; shareEnabled = false;
                 linkdownloadEnabled = false; formdetailsEnabled = false;
             }
             else
@@ -864,7 +875,7 @@
                 {
                     uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
                     checkoutEnabled = true; checkInEnabled = false; formdetailsEnabled = true; linkdownloadEnabled = true;
-                    renameEnabled = true; viewParentEnabled = true; EmailEnabled = true;
+                    renameEnabled = true; viewParentEnabled = true; EmailEnabled = true;shareEnabled = true; 
                     if (_selectedItems.IsLocked == true)
                     {
                         checkoutEnabled = false;
@@ -899,6 +910,10 @@
                         if (permissionData.IsRename == true)
                         {
                             renameEnabled = true;
+                        }
+                        if (permissionData.IsShare == true)
+                        {
+                            shareEnabled = true;
                         }
                         if (permissionData.IsSendEmail == true)
                         {
@@ -1498,6 +1513,11 @@
     {
         PopupVisibleSecurityAccess = false;
     }
+    void BackShareDoc()
+    {
+        PopupShareDocuments = false;
+        StateHasChanged();
+    }
     async void BackUpload()
     {
         onShowMain = "";
@@ -1730,5 +1750,9 @@
     {
         var url = NavigationManager.BaseUri.ToString() + "fileprofiletype/" + documentModel.FileProfileTypeSessionId + "/" + documentModel.SessionID;
         await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    void onShare()
+    {
+        PopupShareDocuments = true;
     }
 }

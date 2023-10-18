@@ -133,6 +133,14 @@
             </nav>
         </header>*@
     }
+    @if (Context.Session.GetString("Share") == "isShare")
+    {
+        <header>
+            <div class="profile-menu">
+                <div>Sunward Document Viewer</div>
+            </div>
+        </header>
+    }
     <div style="">
         <main role="main" >
             @RenderBody()

@@ -340,4 +340,24 @@ namespace Application.Queries
             this.Id = id;
         }
     }
+
+    public class InsertOrUpdateDocumentDmsShare : DocumentDmsShare, IRequest<DocumentDmsShare>
+    {
+    }
+    public class GetDocumentDMSShareList : PagedRequest, IRequest<List<DocumentDmsShare>>
+    {
+        public Guid? SessionId { get; private set; }
+        public GetDocumentDMSShareList(Guid? sessionId)
+        {
+            this.SessionId = sessionId;
+        }
+    }
+    public class DeleteDocumentDmsShare : DocumentDmsShare, IRequest<DocumentDmsShare>
+    {
+        public DocumentDmsShare DocumentDmsShare { get; private set; }
+        public DeleteDocumentDmsShare(DocumentDmsShare documentDmsShare)
+        {
+            this.DocumentDmsShare = documentDmsShare;
+        }
+    }
 }

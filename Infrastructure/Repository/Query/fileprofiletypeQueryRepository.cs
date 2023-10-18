@@ -2372,5 +2372,123 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DocumentDmsShare>> GetDocumentDMSShareList(Guid? docSessionID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("DocSessionID", docSessionID);
+                var query = "select t1.*,t2.FileName,\r\nt3.UserName as AddedBy,t4.UserName as ModifiedBy,t5.CodeValue as StatusCode\r\nfrom DocumentDmsShare t1 \r\n" +
+                    "JOIN Documents t2 ON t2.DocumentID=t1.DocumentID\r\n" +
+                    "LEFT JOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID\r\n" +
+                    "LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ModifiedByUserID\r\n" +
+                    "LEFT JOIN CodeMaster t5 ON  t5.CodeID=t1.StatusCodeID where (t1.IsDeleted=0 OR t1.IsDeleted is Null) AND t1.DocSessionID=@docSessionID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentDmsShare>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentDmsShare> InsertOrUpdateDocumentDmsShare(DocumentDmsShare documentDmsShare)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentDmsShareId", documentDmsShare.DocumentDmsShareId);
+                            parameters.Add("DocSessionId", documentDmsShare.DocSessionId, DbType.Guid);
+                            parameters.Add("SessionId", documentDmsShare.SessionId, DbType.Guid);
+                            parameters.Add("DocumentId", documentDmsShare.DocumentId);
+                            parameters.Add("IsExpiry", documentDmsShare.IsExpiry);
+                            parameters.Add("ExpiryDate", documentDmsShare.ExpiryDate, DbType.DateTime);
+                            parameters.Add("AddedByUserID", documentDmsShare.AddedByUserID);
+                            parameters.Add("ModifiedByUserID", documentDmsShare.ModifiedByUserID);
+                            parameters.Add("AddedDate", documentDmsShare.AddedDate, DbType.DateTime);
+                            parameters.Add("ModifiedDate", documentDmsShare.ModifiedDate, DbType.DateTime);
+                            parameters.Add("StatusCodeID", documentDmsShare.StatusCodeID);
+                            parameters.Add("IsDeleted", documentDmsShare.IsDeleted);
+                            if (documentDmsShare.DocumentDmsShareId > 0)
+                            {
+                                var query = " UPDATE DocumentDmsShare SET DocSessionId = @DocSessionId,SessionId =@SessionId,DocumentId=@DocumentId,IsExpiry=@IsExpiry,ExpiryDate=@ExpiryDate,\n\r" +
+                                    "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsDeleted=@IsDeleted\n\r" +
+                                    "WHERE DocumentDmsShareId = @DocumentDmsShareId";
+                                await connection.ExecuteAsync(query, parameters, transaction);
+
+                            }
+                            else
+                            {
+                                var query = "INSERT INTO DocumentDmsShare(DocSessionId,SessionId,DocumentId,IsExpiry,ExpiryDate,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsDeleted)  " +
+                                    "OUTPUT INSERTED.DocumentDmsShareId VALUES " +
+                                    "(@DocSessionId,@SessionId,@DocumentId,@IsExpiry,@ExpiryDate,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsDeleted)";
+
+                                documentDmsShare.DocumentDmsShareId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            }
+                            transaction.Commit();
+
+                            return documentDmsShare;
+                        }
+
+
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public async Task<DocumentDmsShare> DeleteDocumentDmsShare(DocumentDmsShare value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocumentDmsShareId", value.DocumentDmsShareId);
+                            parameters.Add("IsDeleted", 1);
+                            var query = "Update DocumentDmsShare SET IsDeleted=@IsDeleted WHERE DocumentDmsShareId= @DocumentDmsShareId";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

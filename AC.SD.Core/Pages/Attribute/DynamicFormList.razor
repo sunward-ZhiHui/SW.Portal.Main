@@ -1,5 +1,4 @@
-﻿@page "/DynamicMasterSetup/dynamicFormList/{SessionId:guid}"
-@using System.Dynamic;
+﻿@using System.Dynamic;
 @using global::Core.Entities.Views;
 
 @inject IMediator Mediator
@@ -319,19 +318,68 @@
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowclick(e);
-        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string names = "DynamicMasterSetupList";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+
+        }
     }
     void addNew()
     {
-        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string names = "DynamicMasterSetupList";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
+
+        }
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string names = "DynamicMasterSetupList";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+
+        }
+        
     }
-    void backUrl()
+    async Task backUrl()
     {
-        NavigationManager.NavigateTo("DynamicMasterSetup");
+        string str = NavigationManager.Uri;
+        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
+        string[] UrlList = rep1.Split("/");
+        string names = "DynamicMasterSetupList";
+        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetupList");
+        }
+        else
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup");
+            
+        }
     }
     void addDetailDelete()
     {

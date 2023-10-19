@@ -50,6 +50,9 @@ namespace Core.Repositories.Query
         Task<DocumentPermission> GetDocumentPermissionData(long? id);
         Task<DocumentPermission> InsertOrUpdateDocumentPermission(DocumentPermission documentPermission);
         Task<long?> DeleteDocumentPermissions(long? Id);
+        Task<IReadOnlyList<DocumentDmsShare>> GetDocumentDMSShareList(Guid? docSessionID);
+        Task<DocumentDmsShare> InsertOrUpdateDocumentDmsShare(DocumentDmsShare documentDmsShare);
+        Task<DocumentDmsShare> DeleteDocumentDmsShare(DocumentDmsShare value);
 
     }
 }

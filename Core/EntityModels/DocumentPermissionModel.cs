@@ -34,13 +34,13 @@ namespace Core.EntityModels
         public bool? IsRequired { get; set; } = true;
         public bool? IsEdit { get; set; } = true;
         public bool? IsFileDelete { get; set; } = true;
-        public bool? IsGrantAdminPermission { get; set; }
+        public bool? IsGrantAdminPermission { get; set; } = true;
         public bool? IsDocumentAccess { get; set; }
         public bool? IsCreateTask { get; set; }
         public long? FolderCreatedBy { get; set; }
         public long? FilelockedBy { get; set; }
         public bool? IsEnableProfileTypeInfo { get; set; }
-        public bool? IsShare { get; set; }
+        public bool? IsShare { get; set; } = true;
         public bool? IsCloseDocument { get; set; }
 
         public bool? IsEditFolder { get; set; } = true;

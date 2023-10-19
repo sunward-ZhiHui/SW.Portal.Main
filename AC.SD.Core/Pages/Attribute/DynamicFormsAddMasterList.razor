@@ -1,0 +1,9 @@
+﻿@page "/DynamicMasterSetupList/dynamicForms/{SessionId:guid}"
+@page "/DynamicMasterSetupList/dynamicForms/{SessionId:guid}/{SessionIds:guid}"
+<DynamicForms SessionId="@SessionId" SessionIds="@SessionIds"></DynamicForms>
+@code {
+    [Parameter]
+    public Guid? SessionIds { get; set; }
+    [Parameter]
+    public Guid? SessionId { get; set; }
+}

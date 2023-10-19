@@ -1,0 +1,7 @@
+﻿@page "/DynamicMasterSetup/dynamicFormMasterList/{SessionId:guid}"
+
+<DynamicFormList SessionId="@SessionId"></DynamicFormList>
+@code {
+    [Parameter]
+    public Guid? SessionId { get; set; }
+}

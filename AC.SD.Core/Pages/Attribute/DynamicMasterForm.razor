@@ -4,6 +4,7 @@
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @using global::Core.Repositories.Query;
+@using global::Core.EntityModels;
 @inject IMediator Mediator
 @using DevExpress.Export
 @using Application.Response;
@@ -57,6 +58,7 @@
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Screen Name" ColSpanMd="6">
                         <DxTextBox @bind-Text="@Data.ScreenID"></DxTextBox>
+                        
                         <ValidationMessage For="@(() => Data.ScreenID)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Form Name" ColSpanMd="6">
@@ -66,6 +68,27 @@
                     <DxFormLayoutItem Caption="Approval Level" ColSpanMd="6">
                         <DxCheckBox @bind-Checked="@Data.IsApproval"></DxCheckBox>
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Is Enable Upload" ColSpanMd="6">
+                        <DxCheckBox @bind-Checked="@Data.IsUpload"></DxCheckBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="6" Visible="@Data.IsUpload">
+                        <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+                                                Tooltip="Select File ProfileType"
+                                                Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                            </Buttons>
+                        </DxTextBox>
+                        <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
+                        <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
+                    </DxFormLayoutItem>
+
+                    @*  <DxFormLayoutItem Caption="Is Generate ProfileNo" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@Data.IsProfileNoGenerate"></DxCheckBox>
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Is Multiple Upload" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@Data.IsMultipleUpload"></DxCheckBox>
+                    </DxFormLayoutItem> *@
                 </DxFormLayout>
             </EditForm>
             <div class="row align-items-end" style="border-top: 1px solid #d5d4d4; margin-top:10px;">
@@ -88,7 +111,50 @@
 
 
 </div>
+<DxFlyout @bind-IsOpen=IsFileProfileTypeFilterDocOpen
+          PositionTarget=@($"#flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Select FileProfile Type"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick="false"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+            <DxFormLayoutItem Caption="">
+                <DxTreeView @ref="_treeFilterDocView"
+                @bind-FilterString="FilterDocumentString"
+                            ShowFilterPanel="true"
+                            FilterMode="NavigationFilterMode.EntireBranch"
+                            Data="@fileProfileTypeDocumentsAll"
+                            AllowSelectNodes="true"
+                            SelectionChanged="@SelectionChanged">
+                    <DataMappings>
+                        <DxTreeViewDataMapping Text="FileName"
+                                               Key="DocumentID"
+                                               ParentKey="ParentId" />
+                    </DataMappings>
+                </DxTreeView>
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public bool IsFileProfileTypeFilterDocOpen { get; set; }
+    private DxTreeView _treeFilterDocView;
+    string? FilterDocumentString { get; set; }
     EditContext _editContext;
     public long? dynamicFormId { get; set; }
     private DynamicFormApprovals refDynamicFormApproval;
@@ -106,10 +172,12 @@
     View_SalesOrderMasterPricing _salesOrderItem = new View_SalesOrderMasterPricing();
     public ApplicationUser applicationUser { get; private set; }
     string _zindex = "z-index: 9999;";
+    string? LinkFilterFileprofiletypeName { get; set; } = null;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
     }
     protected override async Task OnParametersSetAsync()
     {
@@ -141,6 +209,7 @@
         Data.SessionId = null;
         Data.StatusCodeID = null;
         Data.IsApproval = false;
+        Data.IsUpload = false; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null;
         if (SessionIds != null)
         {
             var dynamicFormData = await Mediator.Send(new GetDynamicFormBySession(SessionIds));
@@ -159,6 +228,13 @@
                 Data.Name = dynamicFormData.Name;
                 Data.SessionId = dynamicFormData.SessionId;
                 Data.StatusCodeID = dynamicFormData.StatusCodeID;
+                Data.IsUpload = dynamicFormData.IsUpload;
+                Data.FileProfileTypeId = dynamicFormData.FileProfileTypeId;
+                if (Data.IsUpload == true && dynamicFormData.FileProfileTypeId > 0)
+                {
+                    var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, dynamicFormData.FileProfileTypeId);
+                    LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+                }
                 Data.IsApproval = dynamicFormData.IsApproval == true ? true : false;
                 if (Data.IsApproval == true)
                 {
@@ -197,7 +273,7 @@
     }
     async Task addNew()
     {
-        if (SessionIds!=null)
+        if (SessionIds != null)
         {
             NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm");
         }
@@ -235,6 +311,8 @@
                     StatusCodeID = 1,
                     AddedDate = DateTime.Now,
                     IsApproval = Data.IsApproval,
+                    IsUpload = Data.IsUpload,
+                    FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
                 };
 
             await Mediator.Send(editReq);
@@ -256,6 +334,7 @@
                     StatusCodeID = 1,
                     AddedDate = DateTime.Now,
                     IsApproval = Data.IsApproval,
+                    FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
                 };
             var result = await Mediator.Send(createReq);
             if (result > 0)
@@ -270,5 +349,66 @@
 
             StateHasChanged();
         }
+    }
+    void OnButtonFileProfileTypeLinDocClick()
+    {
+        IsFileProfileTypeFilterDocOpen = true;
+    }
+    protected void SelectionChanged(TreeViewNodeEventArgs e)
+    {
+        if (e.NodeInfo?.DataItem != null)
+        {
+            var nodeName = e.NodeInfo.DataItem as DocumentsModel;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, nodeName.FileProfileTypeId);
+            LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            Data.FileProfileTypeId = nodeName.FileProfileTypeId;
+        }
+        IsFileProfileTypeFilterDocOpen = false;
+        StateHasChanged();
+    }
+    private List<FileProfileTypeModel>
+        GetFileProfileTypePath(List<DocumentsModel>
+        foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel>
+        foldersList = new List<FileProfileTypeModel>
+        ();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string>
+                                    FolderPathLists = new List<string>
+                                        ();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel>
+        foldersListItems, DocumentsModel s, List<string>
+        foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
     }
 }

@@ -1,4 +1,4 @@
-﻿@page "/DynamicMasterSetup"
+﻿@page "/DynamicMasterSetupList"
 @using global::Core.Entities.Views;
 
 @inject IMediator Mediator
@@ -21,9 +21,10 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+               @*  <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                 <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" /> *@
+                <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" />
             </Items>
         </DxMenu>
     </div>
@@ -92,7 +93,7 @@
     bool Blukdeletepopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
-       
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await UpdateDataAsync();
     }
@@ -127,7 +128,11 @@
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowclick(e);
-        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _selectedItems.SessionID);
+        NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicFormList/" + _selectedItems.SessionID);
+    }
+    void OpenNewForm()
+    {
+        NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicFormList/" + _selectedItems.SessionID);
     }
     void addNew()
     {

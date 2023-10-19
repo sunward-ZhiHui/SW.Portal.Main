@@ -20,15 +20,22 @@
     <DxFormLayoutItem Caption="Delete Folder" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsDeleteFolder" />
     </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Grand Security Permission" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsGrantAdminPermission" />
+    </DxFormLayoutItem>
+
+
+
     <DxFormLayoutItem Caption="Create Document" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsCreateDocument" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Reserve Profile Number Series" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsReserveProfileNumber" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Read" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsRead" />
     </DxFormLayoutItem>
-
-
-    <DxFormLayoutItem Caption="Edit" ColSpanMd="6">
+    <DxFormLayoutItem Caption="Download" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsEdit" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Rename" ColSpanMd="6">
@@ -37,7 +44,7 @@
     <DxFormLayoutItem Caption="Check Out" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsUpdateDocument" />
     </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Copy" ColSpanMd="6">
+    <DxFormLayoutItem Caption="Share" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsCopy" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Move" ColSpanMd="6">
@@ -46,16 +53,16 @@
     <DxFormLayoutItem Caption="Delete" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsDelete" />
     </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Email" ColSpanMd="6">
+   @*  <DxFormLayoutItem Caption="Email" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsSendEmail" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Reserve Profile Number Series" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsReserveProfileNumber" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="List Version" ColSpanMd="6">
+    </DxFormLayoutItem> *@
+    <DxFormLayoutItem Caption="History" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsListVersion" />
     </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Invitation" ColSpanMd="6">
+    <DxFormLayoutItem Caption="Enable Info" ColSpanMd="6">
+        <DxCheckBox @bind-Checked="@documentPermission.IsEnableProfileTypeInfo" />
+    </DxFormLayoutItem>
+   @*  <DxFormLayoutItem Caption="Invitation" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsInvitation" />
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Document Notes" ColSpanMd="6">
@@ -66,10 +73,8 @@
     </DxFormLayoutItem>
     <DxFormLayoutItem Caption="Enable Create Task" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsCreateTask" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Enable Profile Type Info" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsEnableProfileTypeInfo" />
-    </DxFormLayoutItem>
+    </DxFormLayoutItem> *@
+   
 </DxFormLayout>
 @code {
     [Parameter]

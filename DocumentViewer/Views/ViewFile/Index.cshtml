@@ -1,0 +1,916 @@
+﻿@model SpreadsheetDocumentContentFromBytes
+
+@if (@Model.Id > 0)
+{
+    @if (Model.Type == "image")
+    {
+        <div style="text-align:center;">
+            <img style="max-width: 100%; max-height: calc(100vh - 70px);" src="@Model.Url" />
+        </div>
+    }
+    else
+    {
+        @if (@Model.Extensions == "xls" || @Model.Extensions == "xlsx")
+        {
+            if (@Model.Extensions == "xlsx")
+            {
+                @(
+                           Html.DevExpress()
+                           .Spreadsheet("spreadsheet")
+                           .Height("calc(100vh - 70px)")
+                           .Width("100%")
+                           .ConfirmOnLosingChanges(confirm => confirm.Enabled(false))
+                           .DocumentRequestHandlerUrl(Url.Action("DxDocRequest"))
+                           .Open(@Model.DocumentId, DevExpress.Spreadsheet.DocumentFormat.Xlsx, @Model.ContentAccessorByBytes).ReadOnly(true)
+                                   )
+            }
+            else if (@Model.Extensions == "xls")
+            {
+                @(
+                               Html.DevExpress()
+                               .Spreadsheet("spreadsheet")
+                               .Height("calc(100vh - 70px)")
+                               .Width("100%")
+                               .ConfirmOnLosingChanges(confirm => confirm.Enabled(false))
+                               .DocumentRequestHandlerUrl(Url.Action("DxDocRequest"))
+                               .Open(@Model.DocumentId, DevExpress.Spreadsheet.DocumentFormat.Xls, @Model.ContentAccessorByBytes).ReadOnly(true)
+                                       )
+            }
+            else
+            {
+                <div id="notfound">
+                    <div class="notfound">
+                        <div>
+                            <div class="notfound-404">
+                                <h1>!</h1>
+                            </div>
+                            <h2>file format error can't open the file<br></h2>
+                        </div>
+                        <p>Unable to load document please Download Driectly@*<a href="#">Back to homepage</a>*@</p>
+                    </div>
+                </div>
+                <style>
+
+                    #notfound .notfound {
+                        position: absolute;
+                        left: 50%;
+                        top: 50%;
+                        -webkit-transform: translate(-50%, -50%);
+                        -ms-transform: translate(-50%, -50%);
+                        transform: translate(-50%, -50%);
+                    }
+
+                    .notfound {
+                        max-width: 520px;
+                        width: 100%;
+                        line-height: 1.4;
+                    }
+
+                        .notfound > div:first-child {
+                            padding-left: 200px;
+                            padding-top: 12px;
+                            height: 170px;
+                            margin-bottom: 20px;
+                        }
+
+                        .notfound .notfound-404 {
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            width: 170px;
+                            height: 170px;
+                            background: #e01818;
+                            border-radius: 7px;
+                            -webkit-box-shadow: 0px 0px 0px 10px #e01818 inset, 0px 0px 0px 20px #fff inset;
+                            box-shadow: 0px 0px 0px 10px #e01818 inset, 0px 0px 0px 20px #fff inset;
+                        }
+
+                            .notfound .notfound-404 h1 {
+                                font-family: 'Chango', cursive;
+                                color: #fff;
+                                font-size: 118px;
+                                margin: 0px;
+                                position: absolute;
+                                left: 50%;
+                                top: 50%;
+                                -webkit-transform: translate(-50%, -50%);
+                                -ms-transform: translate(-50%, -50%);
+                                transform: translate(-50%, -50%);
+                                display: inline-block;
+                                height: 60px;
+                                line-height: 60px;
+                            }
+
+                        .notfound h2 {
+                            font-family: 'Chango', cursive;
+                            font-size: 24px;
+                            color: #222;
+                            font-weight: 400;
+                            text-transform: uppercase;
+                            margin: 0px;
+                            line-height: 1.1;
+                        }
+
+                        .notfound p {
+                            font-family: 'Montserrat', sans-serif;
+                            font-size: 16px;
+                            font-weight: 400;
+                            color: #222;
+                            margin-top: 5px;
+                        }
+
+                        .notfound a {
+                            font-family: 'Montserrat', sans-serif;
+                            color: #e01818;
+                            font-weight: 400;
+                            text-decoration: none;
+                        }
+                </style>
+
+            }
+
+        }
+        else if (@Model.Extensions == "doc" || @Model.Extensions == "docx" || @Model.Extensions == "txt")
+        {
+            if (@Model.Extensions == "doc" || @Model.Extensions == "docx")
+            {
+                if (@Model.Extensions == "docx")
+                {
+                    @(
+                               Html.DevExpress().RichEdit("DemoRichEdit")
+                               .Height("calc(100vh - 70px)")
+                               .Width("100%")
+                               .ConfirmOnLosingChanges(c => c.Enabled(false))
+                               .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.OpenXml)
+                               .ContextMenu(cm => cm
+                               .Enabled(false)
+                               ).Ribbon(ribbon => ribbon
+                               .Tabs(tabs =>
+                               {
+                                   tabs.RemoveByTitle("File");
+                               }).Tabs(tabs =>
+                               {
+                                   tabs.RemoveByTitle("Mail Merge");
+                               })
+                               ).ReadOnly(true))
+                }
+                else
+                {
+                    <div id="notfound">
+                        <div class="notfound">
+                            <div>
+                                <div class="notfound-404">
+                                    <h1>!</h1>
+                                </div>
+                                <h2>file format error can't open the file<br></h2>
+                            </div>
+                            <p>Unable to load document please Download Driectly@*<a href="#">Back to homepage</a>*@</p>
+                        </div>
+                    </div>
+                    <style>
+
+                        #notfound .notfound {
+                            position: absolute;
+                            left: 50%;
+                            top: 50%;
+                            -webkit-transform: translate(-50%, -50%);
+                            -ms-transform: translate(-50%, -50%);
+                            transform: translate(-50%, -50%);
+                        }
+
+                        .notfound {
+                            max-width: 520px;
+                            width: 100%;
+                            line-height: 1.4;
+                        }
+
+                            .notfound > div:first-child {
+                                padding-left: 200px;
+                                padding-top: 12px;
+                                height: 170px;
+                                margin-bottom: 20px;
+                            }
+
+                            .notfound .notfound-404 {
+                                position: absolute;
+                                left: 0;
+                                top: 0;
+                                width: 170px;
+                                height: 170px;
+                                background: #e01818;
+                                border-radius: 7px;
+                                -webkit-box-shadow: 0px 0px 0px 10px #e01818 inset, 0px 0px 0px 20px #fff inset;
+                                box-shadow: 0px 0px 0px 10px #e01818 inset, 0px 0px 0px 20px #fff inset;
+                            }
+
+                                .notfound .notfound-404 h1 {
+                                    font-family: 'Chango', cursive;
+                                    color: #fff;
+                                    font-size: 118px;
+                                    margin: 0px;
+                                    position: absolute;
+                                    left: 50%;
+                                    top: 50%;
+                                    -webkit-transform: translate(-50%, -50%);
+                                    -ms-transform: translate(-50%, -50%);
+                                    transform: translate(-50%, -50%);
+                                    display: inline-block;
+                                    height: 60px;
+                                    line-height: 60px;
+                                }
+
+                            .notfound h2 {
+                                font-family: 'Chango', cursive;
+                                font-size: 24px;
+                                color: #222;
+                                font-weight: 400;
+                                text-transform: uppercase;
+                                margin: 0px;
+                                line-height: 1.1;
+                            }
+
+                            .notfound p {
+                                font-family: 'Montserrat', sans-serif;
+                                font-size: 16px;
+                                font-weight: 400;
+                                color: #222;
+                                margin-top: 5px;
+                            }
+
+                            .notfound a {
+                                font-family: 'Montserrat', sans-serif;
+                                color: #e01818;
+                                font-weight: 400;
+                                text-decoration: none;
+                            }
+                    </style>
+                }
+
+
+            }
+            else
+            {
+                @(
+                            Html.DevExpress().RichEdit("DemoRichEdit")
+                            .Height("calc(100vh - 70px)")
+                            .Width("100%")
+                            .ConfirmOnLosingChanges(c => c.Enabled(false))
+                            .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.PlainText)
+                            .ContextMenu(cm => cm
+                            .Enabled(false)
+                            ).Ribbon(ribbon => ribbon
+                            .Tabs(tabs =>
+                            {
+                                tabs.RemoveByTitle("File");
+                            }).Tabs(tabs =>
+                            {
+                                tabs.RemoveByTitle("Mail Merge");
+                            })
+                            ).ReadOnly(true))
+            }
+
+        }
+        else if (Model.Extensions == "pdf")
+        {
+            <iframe style="width: 100%; height: calc(100vh - 70px);" src="@Model.Url?#toolbar=0"></iframe>
+        }
+        else if (@Model.Extensions == "webm" || @Model.Extensions == "amv" || @Model.Extensions == "mp4" || @Model.Extensions == "flv" || @Model.Extensions == "vob" || @Model.Extensions == "wmv")
+        {
+            <video style="width: 100%; height: calc(100vh - 70px);" controls autoplay>
+                <source src="@Model.Url" type="video/@Model.Extensions">
+            </video>
+        }
+        else
+        {
+            <div>Invalid Url.</div>
+        }
+    }
+}
+else
+{
+    if (@Model.Id==-1)
+    {
+        <style scoped>
+
+            .container {
+                width: 75%;
+                max-width: 700px;
+                /* margin: 1.5rem auto;*/
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .compcontainer svg {
+                max-width: 100%;
+                max-height: 100%;
+                animation: bouncy 1300ms linear infinite;
+            }
+
+            .content {
+                background: #fff1f1;
+            }
+
+            .content-footer {
+                background: #fff1f1;
+            }
+
+            .demo-content-container {
+                background: #fff1f1;
+            }
+
+            bouncy {
+                0%
+
+            {
+                transform: translateY(10px) translateX(0) rotate(0);
+            }
+
+            25% {
+                transform: translateX(-10px) rotate(-10deg);
+            }
+
+            50% {
+                transform: translateX(0) rotate(0deg);
+            }
+
+            75% {
+                transform: translateX(10px) rotate(10deg);
+            }
+
+            100% {
+                transform: translateY(10px) translateX(0) rotate(0);
+            }
+
+            }
+
+            .compcontainer {
+                width: 75%;
+                height: 13rem;
+                padding: 1rem 0;
+            }
+
+            .container .header {
+                color: #fb3958;
+                font-size: 5em;
+                font-weight: 700;
+                text-align: center;
+                text-shadow: 2px 2px 5px #b1041f;
+            }
+
+            .instructions {
+                background: #FEFEFE;
+                width: 80%;
+                height: auto;
+                padding: 1rem;
+                border: 1px solid #DCDCDC;
+                border-radius: 0.25rem;
+            }
+
+                .instructions h2 {
+                    font-size: 1.25em;
+                    line-height: 1.3;
+                    color: #e30528;
+                }
+
+                .instructions .step {
+                    display: flex;
+                    flex-direction: row;
+                    width: 100%;
+                    height: 1.5rem;
+                    margin: 0.5rem 0;
+                }
+
+                    .instructions .step p {
+                        display: inline-block;
+                        width: 80%;
+                        line-height: 1.5;
+                        padding-left: 0.5rem;
+                    }
+
+        </style>
+        <body class="bg-purple" style="background: #fff1f1;">
+            <div class="container">
+                <div class="compcontainer">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90.5 74.769">
+                        <path fill="#C7CCDB" d="M58.073 74.769H32.426l6.412-19.236h12.824z"></path>
+                        <path fill="#373F45" d="M90.5 52.063c0 1.917-2.025 3.471-4.525 3.471H4.525C2.025 55.534 0 53.98 0 52.063V3.471C0 1.554 2.026 0 4.525 0h81.449c2.5 0 4.525 1.554 4.525 3.471v48.592z"></path>
+                        <path fill="#F1F2F2" d="M84.586 46.889c0 1.509-1.762 2.731-3.936 2.731H9.846c-2.172 0-3.933-1.223-3.933-2.731V8.646c0-1.508 1.761-2.732 3.933-2.732H80.65c2.174 0 3.936 1.225 3.936 2.732v38.243z"></path>
+                        <path fill="#A2A7A5" d="M16.426 5.913L8.051 23h13l-6.875 12.384L26.75 46.259l-8.375-11.375L26.75 20H14.625l6.801-14.087zM68.551 49.62l-8.375-17.087h13l-6.875-12.384L78.875 9.274 70.5 20.649l8.375 14.884H66.75l6.801 14.087z"></path>
+                    </svg>
+                </div>
+                <h1 class="header">404 ERROR</h1>
+                <div class="instructions">
+                    <h2>The URL is no longer valid</h2>
+                    <p>In the meantime, you can:</p>
+                    <div class="step">
+                        @* <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 489.711 489.711">
+                <path d="M112.156,97.111c72.3-65.4,180.5-66.4,253.8-6.7l-58.1,2.2c-7.5,0.3-13.3,6.5-13,14c0.3,7.3,6.3,13,13.5,13    c0.2,0,0.3,0,0.5,0l89.2-3.3c7.3-0.3,13-6.2,13-13.5v-1c0-0.2,0-0.3,0-0.5v-0.1l0,0l-3.3-88.2c-0.3-7.5-6.6-13.3-14-13    c-7.5,0.3-13.3,6.5-13,14l2.1,55.3c-36.3-29.7-81-46.9-128.8-49.3c-59.2-3-116.1,17.3-160,57.1c-60.4,54.7-86,137.9-66.8,217.1    c1.5,6.2,7,10.3,13.1,10.3c1.1,0,2.1-0.1,3.2-0.4c7.2-1.8,11.7-9.1,9.9-16.3C36.656,218.211,59.056,145.111,112.156,97.111z"></path>
+                <path d="M462.456,195.511c-1.8-7.2-9.1-11.7-16.3-9.9c-7.2,1.8-11.7,9.1-9.9,16.3c16.9,69.6-5.6,142.7-58.7,190.7    c-37.3,33.7-84.1,50.3-130.7,50.3c-44.5,0-88.9-15.1-124.7-44.9l58.8-5.3c7.4-0.7,12.9-7.2,12.2-14.7s-7.2-12.9-14.7-12.2l-88.9,8    c-7.4,0.7-12.9,7.2-12.2,14.7l8,88.9c0.6,7,6.5,12.3,13.4,12.3c0.4,0,0.8,0,1.2-0.1c7.4-0.7,12.9-7.2,12.2-14.7l-4.8-54.1    c36.3,29.4,80.8,46.5,128.3,48.9c3.8,0.2,7.6,0.3,11.3,0.3c55.1,0,107.5-20.2,148.7-57.4    C456.056,357.911,481.656,274.811,462.456,195.511z"></path>
+                </svg> *@
+                        <span>Contact the administrator to obtain permission</span>
+                    </div>
+
+                </div>
+            </div>
+        </body>
+    }
+    else
+    {
+    <style scoped>
+        @@import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300);
+
+        body {
+            background-color: #335B67;
+            background: -ms-radial-gradient(ellipse at center, #335B67 0%, #2C3E50 100%) fixed no-repeat;
+            background: -moz-radial-gradient(ellipse at center, #335B67 0%, #2C3E50 100%) fixed no-repeat;
+            background: -o-radial-gradient(ellipse at center, #335B67 0%, #2C3E50 100%) fixed no-repeat;
+            background: -webkit-gradient(radial, center center, 0, center center, 497, color-stop(0, #335B67), color-stop(1, #2C3E50));
+            background: -webkit-radial-gradient(ellipse at center, #335B67 0%, #2C3E50 100%) fixed no-repeat;
+            background: radial-gradient(ellipse at center, #335B67 0%, #2C3E50 100%) fixed no-repeat;
+            font-family: 'Source Sans Pro', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            margin: 0px;
+        }
+
+        ::selection {
+            background-color: rgba(0,0,0,0.2);
+        }
+
+        ::-moz-selection {
+            background-color: rgba(0,0,0,0.2);
+        }
+
+
+        a {
+            color: white;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.5s ease;
+            -moz-transition: all 0.5s ease;
+            -o-transition: all 0.5s ease;
+            -webkit-transition: all 0.5s ease;
+            margin-right: 10px;
+        }
+
+            a:last-child {
+                margin-right: 0px;
+            }
+
+            a:hover {
+                text-shadow: 0px 0px 1px rgba(255,255,255,.5);
+                border-bottom: 1px solid rgba(255,255,255,1);
+            }
+
+        #noscript-warning {
+            width: 100%;
+            text-align: center;
+            background-color: rgba(0,0,0,0.2);
+            font-weight: 300;
+            color: white;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+
+
+        /* === WRAP === */
+
+        #wrap {
+            width: 80%;
+            max-width: 1400px;
+            margin: 0 auto;
+            height: auto;
+            position: relative;
+            margin-top: 8%;
+        }
+
+
+
+        /* === MAIN TEXT CONTENT === */
+
+        #main-content {
+            float: right;
+            max-width: 45%;
+            color: white;
+            font-weight: 300;
+            font-size: 18px;
+            padding-bottom: 40px;
+            line-height: 28px;
+        }
+
+            #main-content h1 {
+                margin: 0px;
+                font-weight: 400;
+                font-size: 42px;
+                margin-bottom: 40px;
+                line-height: normal;
+            }
+
+
+
+        /* === WORDSEARCH === */
+
+        #wordsearch {
+            width: 45%;
+            float: left;
+        }
+
+            #wordsearch ul {
+                margin: 0px;
+                padding: 0px;
+            }
+
+                #wordsearch ul li {
+                    float: left;
+                    width: 12%;
+                    background-color: rgba(0,0,0,.2);
+                    list-style: none;
+                    margin-right: 0.5%;
+                    margin-bottom: 0.5%;
+                    padding: 0;
+                    display: block;
+                    text-align: center;
+                    color: rgba(255,255,255,0.7);
+                    text-transform: uppercase;
+                    overflow: hidden;
+                    font-size: 24px;
+                    font-size: 1.6vw;
+                    font-weight: 300;
+                    transition: background-color 0.75s ease;
+                    -moz-transition: background-color 0.75s ease;
+                    -webkit-transition: background-color 0.75s ease;
+                    -o-transition: background-color 0.75s ease;
+                }
+
+                    #wordsearch ul li.selected {
+                        background-color: rgba(26,188,156,0.7);
+                        color: rgba(255,255,255,1);
+                        font-weight: 400;
+                    }
+
+
+
+        /* === SEARCH FORM === */
+
+        #search {
+            margin-top: 30px;
+        }
+
+            #search input[type='text'] {
+                width: 88%;
+                height: 41px;
+                padding-left: 15px;
+                padding-rigt: 15px;
+                box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                background-color: rgba(0,0,0,0.2);
+                border: none;
+                outline: none;
+                -webkit-appearance: none;
+                font-size: 16px;
+                font-weight: 300;
+                color: white;
+                font-family: 'Source Sans Pro', sans-serif;
+                transition: all 0.5s ease;
+                -moz-transition: all 0.5s ease;
+                -o-transition: all 0.5s ease;
+                -webkit-transition: all 0.5s ease;
+                border-radius: 0px;
+            }
+
+            #search .input-search {
+                width: 10%;
+                float: right;
+                height: 41px;
+                background-color: rgba(0,0,0,0.2);
+                outline: none;
+                border: none;
+                -webkit-appearance: none;
+                font-family: 'Source Sans Pro', sans-serif;
+                color: white;
+                font-weight: 300;
+                font-size: 16px;
+                cursor: pointer;
+                transition: all 0.5s ease;
+                -moz-transition: all 0.5s ease;
+                -o-transition: all 0.5s ease;
+                -webkit-transition: all 0.5s ease;
+                text-align: center;
+            }
+
+                #search .input-search:hover {
+                    background-color: rgba(26,188,156,0.7);
+                }
+
+
+
+        /* === RESPONSIVE CSS === */
+
+        @@media all and (max-width: 899px) {
+            #wrap {
+                width: 90%;
+            }
+        }
+
+        @@media all and (max-width: 799px) {
+            #wrap {
+                width: 90%;
+                height: auto;
+                margin-top: 40px;
+                top: 0%;
+            }
+
+            #wordsearch {
+                width: 90%;
+                float: none;
+                margin: 0 auto;
+            }
+
+                #wordsearch ul li {
+                    font-size: 4vw;
+                }
+
+            #main-content {
+                float: none;
+                width: 90%;
+                max-width: 90%;
+                margin: 0 auto;
+                margin-top: 30px;
+                text-align: justify;
+            }
+
+                #main-content h1 {
+                    text-align: left;
+                }
+
+            #search input[type='text'] {
+                width: 84%;
+            }
+
+            #search .input-search {
+                width: 15%;
+            }
+        }
+
+        @@media all and (max-width: 499px) {
+            #main-content h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+    <div id="wrap">
+        <div id="wordsearch">
+            <ul>
+                <li>k</li>
+
+                <li>v</li>
+
+                <li>n</li>
+
+                <li>z</li>
+
+                <li>i</li>
+
+                <li>x</li>
+
+                <li>m</li>
+
+                <li>e</li>
+
+                <li>t</li>
+
+                <li>a</li>
+
+                <li>x</li>
+
+                <li>l</li>
+
+                <li class="one">4</li>
+
+                <li class="two">0</li>
+
+                <li class="three">4</li>
+
+                <li>y</li>
+
+                <li>y</li>
+
+                <li>w</li>
+
+                <li>v</li>
+
+                <li>b</li>
+
+                <li>o</li>
+
+                <li>q</li>
+
+                <li>d</li>
+
+                <li>y</li>
+
+                <li>p</li>
+
+                <li>a</li>
+
+                <li class="four">p</li>
+
+                <li class="five">a</li>
+
+                <li class="six">g</li>
+
+                <li class="seven">e</li>
+
+                <li>v</li>
+
+                <li>j</li>
+
+                <li>a</li>
+
+                <li class="eight">n</li>
+
+                <li class="nine">o</li>
+
+                <li class="ten">t</li>
+
+                <li>s</li>
+
+                <li>c</li>
+
+                <li>e</li>
+
+                <li>w</li>
+
+                <li>v</li>
+
+                <li>x</li>
+
+                <li>e</li>
+
+                <li>p</li>
+
+                <li>c</li>
+
+                <li>f</li>
+
+                <li>h</li>
+
+                <li>q</li>
+
+                <li>e</li>
+
+                <li class="eleven">f</li>
+
+                <li class="twelve">o</li>
+
+                <li class="thirteen">u</li>
+
+                <li class="fourteen">n</li>
+
+                <li class="fifteen">d</li>
+
+                <li>s</li>
+
+                <li>w</li>
+
+                <li>q</li>
+
+                <li>v</li>
+
+                <li>o</li>
+
+                <li>s</li>
+
+                <li>m</li>
+
+                <li>v</li>
+
+                <li>f</li>
+
+                <li>u</li>
+            </ul>
+        </div>
+
+        <div id="main-content">
+            <h1>We couldn't find what you were looking for.</h1>
+
+            <p>
+                Unfortunately the page you were looking for could not be found. It may be
+                temporarily unavailable, moved or no longer exist.
+            </p>
+
+            <p>
+                Check the URL you entered for any mistakes and try again. Alternatively, search
+                for whatever is missing or take a look around the rest of our site.
+            </p>
+
+        </div>
+    </div>
+    @section Scripts{
+    <script type="text/javascript">
+        $(function () {
+            var liWidth = $("li").css("width");
+            $("li").css("height", liWidth);
+            $("li").css("lineHeight", liWidth);
+            var totalHeight = $("#wordsearch").css("width");
+            $("#wordsearch").css("height", totalHeight);
+        });
+        causeRepaintsOn = $("h1, h2, h3, p");
+        $(window).resize(function () {
+            causeRepaintsOn.css("z-index", 1);
+        });
+        $(window).on('resize', function () {
+            var liWidth = $(".one").css("width");
+            $("li").css("height", liWidth);
+            $("li").css("lineHeight", liWidth);
+            var totalHeight = $("#wordsearch").css("width");
+            $("#wordsearch").css("height", totalHeight);
+        });
+
+
+
+        $(function () {
+            /* 4 */
+            $(this).delay(1500).queue(function () {
+                $(".one").addClass("selected");
+                $(this).dequeue();
+            })
+                /* 0 */
+                .delay(500).queue(function () {
+                    $(".two").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* 4 */
+                .delay(500).queue(function () {
+                    $(".three").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* P */
+                .delay(500).queue(function () {
+                    $(".four").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* A */
+                .delay(500).queue(function () {
+                    $(".five").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* G */
+                .delay(500).queue(function () {
+                    $(".six").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* E */
+                .delay(500).queue(function () {
+                    $(".seven").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* N */
+                .delay(500).queue(function () {
+                    $(".eight").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* O */
+                .delay(500).queue(function () {
+                    $(".nine").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* T */
+                .delay(500).queue(function () {
+                    $(".ten").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* F */
+                .delay(500).queue(function () {
+                    $(".eleven").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* O */
+                .delay(500).queue(function () {
+                    $(".twelve").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* U */
+                .delay(500).queue(function () {
+                    $(".thirteen").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* N */
+                .delay(500).queue(function () {
+                    $(".fourteen").addClass("selected");
+                    $(this).dequeue();
+                })
+                /* D */
+                .delay(500).queue(function () {
+                    $(".fifteen").addClass("selected");
+                    $(this).dequeue()
+                });
+        });
+
+
+    </script>
+    }
+}
+}
+}

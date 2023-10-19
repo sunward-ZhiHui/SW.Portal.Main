@@ -603,5 +603,47 @@ namespace Application.Handlers.QueryHandlers
             }
 
         }
+
+
+        public class GetDocumentDMSShareListHandler : IRequestHandler<GetDocumentDMSShareList, List<DocumentDmsShare>>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public GetDocumentDMSShareListHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<List<DocumentDmsShare>> Handle(GetDocumentDMSShareList request, CancellationToken cancellationToken)
+            {
+                return (List<DocumentDmsShare>)await _fileprofileQueryRepository.GetDocumentDMSShareList(request.SessionId);
+            }
+
+        }
+
+        public class InsertOrUpdateDocumentDmsShareHandler : IRequestHandler<InsertOrUpdateDocumentDmsShare, DocumentDmsShare>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public InsertOrUpdateDocumentDmsShareHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<DocumentDmsShare> Handle(InsertOrUpdateDocumentDmsShare request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.InsertOrUpdateDocumentDmsShare(request);
+            }
+        }
+
+        public class DeleteDocumentDmsShareHandler : IRequestHandler<DeleteDocumentDmsShare, DocumentDmsShare>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public DeleteDocumentDmsShareHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<DocumentDmsShare> Handle(DeleteDocumentDmsShare request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.DeleteDocumentDmsShare(request.DocumentDmsShare);
+            }
+
+        }
     }
 }

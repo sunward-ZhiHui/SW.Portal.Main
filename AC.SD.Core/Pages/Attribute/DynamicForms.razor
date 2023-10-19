@@ -234,7 +234,7 @@
                                 if (_dynamicformData.IsSendApproval == true)
                                 {
                                     IsSendApprovalVisible = false; IsApprovalSave = false;
-                                    isVisibleButton = false; IsSave = false;
+                                    isVisibleButton = false; IsSave = false;IsUploadEnabled = false;
                                 }
                                 else
                                 {
@@ -254,7 +254,7 @@
                         var isNotApproved = _dynamicform.DynamicFormApproval.OrderBy(o => o.SortOrderBy).FirstOrDefault(f => f.ApprovalUserId == applicationUser.UserID)?.ApprovalUserId;
                         if (isNotApproved == applicationUser.UserID)
                         {
-                            isApproval = true;
+                            isApproval = false;
                         }
                     }
                 }
@@ -1149,6 +1149,17 @@
                                      }
                                  }
                              }
+                             editor.AddAttribute(j + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
+                             {
+                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(j + 1);
+                                 layoutItemBuilders.AddAttribute(j + 1, "FieldName", "AttributeDetailName");
+                                 layoutItemBuilders.AddAttribute(j + 1, "Caption", "Name");
+                                 layoutItemBuilders.CloseComponent();
+                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(j + 1);
+                                 layoutItemBuilders.AddAttribute(j + 1, "FieldName", "Description");
+                                 layoutItemBuilders.AddAttribute(j + 1, "Caption", "Description");
+                                 layoutItemBuilders.CloseComponent();
+                             }));
                              editor.CloseComponent();
                              if (s.IsRequired == true)
                              {
@@ -1198,6 +1209,17 @@
                                      }
                                  }
                              }
+                             editor.AddAttribute(j + 1, "ChildContent", (RenderFragment)((layoutItemBuilders) =>
+                             {
+                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(j + 1);
+                                 layoutItemBuilders.AddAttribute(j + 1, "FieldName", "AttributeDetailName");
+                                 layoutItemBuilders.AddAttribute(j + 1, "Caption", "Name");
+                                 layoutItemBuilders.CloseComponent();
+                                 layoutItemBuilders.OpenComponent<DxListEditorColumn>(j + 1);
+                                 layoutItemBuilders.AddAttribute(j + 1, "FieldName", "Description");
+                                 layoutItemBuilders.AddAttribute(j + 1, "Caption", "Description");
+                                 layoutItemBuilders.CloseComponent();
+                             }));
                              editor.CloseComponent();
                              if (s.IsRequired == true)
                              {

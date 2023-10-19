@@ -22,19 +22,20 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@onsubmitClick" Enabled="isSaveEnabled" />
                     </Items>
                 </DxMenu>
             </div>
-            <div class="save_hover" style="@IsdisplayButton">
-                <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
-                    @if (loading)
-                    {
-                        <span class="spinner-border spinner-border-sm mr-1"></span>
-                    }
-                    <i class="fa fa-save"></i>
-                    Save
-                </button>
-            </div>
+            @*   <div class="save_hover" style="@IsdisplayButton">
+            <button type="submit" form="@MyID" disabled="@loading" class="btnSubmitForm" onclick="@onsubmitClick">
+            @if (loading)
+            {
+            <span class="spinner-border spinner-border-sm mr-1"></span>
+            }
+            <i class="fa fa-save"></i>
+            Save
+            </button>
+            </div> *@
         </div>
     </div>
 </div>
@@ -71,15 +72,15 @@
     <div class="cw-480 ch-220" style="margin-top:10px;">
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex" RenderMode="TabsRenderMode.OnDemand" TabClick="OnTabClick">
-                <DxFormLayoutTabPage Caption="File Profile Type">
+                <DxFormLayoutTabPage Caption="File Profile Type" Visible="isEditProfileType">
                     <AddOrEditFileProfileType @ref="refAddOrEditFileProfileType" SessionId="@SessionId" Type="@Type"></AddOrEditFileProfileType>
                 </DxFormLayoutTabPage>
-                <DxFormLayoutTabPage Caption="Security Access" Visible=@IsFileProfileTypeId>
+                <DxFormLayoutTabPage Caption="Security Access" Visible=@IsGrantAdminPermission>
                     <FileProfileTypeSecurity FileProfileTypeId="@FileProfileTypeId"></FileProfileTypeSecurity>
                 </DxFormLayoutTabPage>
-                <DxFormLayoutTabPage Caption="Upload Details Form" Visible=@IsFileProfileTypeId>
-                    <UploadDetailsSetUpForm FileProfileTypeId="@FileProfileTypeId"></UploadDetailsSetUpForm>
-                </DxFormLayoutTabPage>
+                @* <DxFormLayoutTabPage Caption="Upload Details Form" Visible=@IsFileProfileTypeId>
+                <UploadDetailsSetUpForm FileProfileTypeId="@FileProfileTypeId"></UploadDetailsSetUpForm>
+                </DxFormLayoutTabPage> *@
             </DxFormLayoutTabPages>
         </DxFormLayout>
     </div>
@@ -97,7 +98,9 @@
     public ApplicationUser _applicationUser { get; private set; }
     private bool loading;
     bool IsFileProfileTypeId { get; set; } = false;
-
+    bool isEditProfileType { get; set; } = true;
+    bool IsGrantAdminPermission { get; set; } = false;
+    bool isSaveEnabled { get; set; } = true;
     private string MyID = "myid";
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
@@ -110,6 +113,7 @@
     }
     protected override async Task OnParametersSetAsync()
     {
+        isEditProfileType = true; isSaveEnabled = true;
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         FolderPathLists = new List<DocumentsModel>();
         FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == SessionId)?.FileProfileTypeId;
@@ -119,6 +123,7 @@
         }
         if (FileProfileTypeId > 0)
         {
+            isEditProfileType = false; isSaveEnabled = false;
             var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
             if (fileType != null)
             {
@@ -127,6 +132,8 @@
                 {
                     if (fileType.AddedByUserID == _applicationUser.UserID)
                     {
+                        isSaveEnabled = true;
+                        isEditProfileType = true;
                     }
                     else
                     {
@@ -134,16 +141,10 @@
                         {
                             if (documentPermissionModels.IsCreateFolder == true)
                             {
+                                isSaveEnabled = true;
+                                isEditProfileType = true;
+                            }
 
-                            }
-                            else
-                            {
-                                NavigationManager.NavigateTo("fileprofiletype/" + SessionId);
-                            }
-                        }
-                        else
-                        {
-                            NavigationManager.NavigateTo("fileprofiletype/" + SessionId);
                         }
                     }
                 }
@@ -151,6 +152,9 @@
                 {
                     if (fileType.AddedByUserID == _applicationUser.UserID)
                     {
+                        isSaveEnabled = true;
+                        isEditProfileType = true;
+                        IsGrantAdminPermission = true;
                     }
                     else
                     {
@@ -158,17 +162,16 @@
                         {
                             if (documentPermissionModels.IsEditFolder == true)
                             {
+                                isSaveEnabled = true;
+                                isEditProfileType = true;
 
                             }
-                            else
+                            if (documentPermissionModels.IsGrantAdminPermission == true)
                             {
-                                NavigationManager.NavigateTo("fileprofiletype/" + SessionId);
+                                IsGrantAdminPermission = true;
                             }
                         }
-                        else
-                        {
-                            NavigationManager.NavigateTo("fileprofiletype/" + SessionId);
-                        }
+
                     }
                 }
                 FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
@@ -190,15 +193,14 @@
     }
     void OnTabClick(TabClickEventArgs e)
     {
-        var style = "float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;";
-        IsdisplayButton = "display:none;";
+        isSaveEnabled = false;
         if (e.TabIndex == 0)
         {
-            IsdisplayButton = style;
+            isSaveEnabled = true;
         }
         else
         {
-            IsdisplayButton = style + "display:none;";
+            isSaveEnabled = false;
         }
         StateHasChanged();
     }
@@ -206,9 +208,9 @@
     {
         NavigationManager.NavigateTo("fileprofiletype/" + SessionId);
     }
-    void onsubmitClick()
+    async Task onsubmitClick()
     {
-        refAddOrEditFileProfileType.onsubmitClick();
+        await refAddOrEditFileProfileType.onsubmitClick();
     }
     public void openFileProfileLink(DocumentsModel documentsModel)
     {

@@ -13,8 +13,7 @@
 <div class="" style="margin-top: 10px;margin-left: 11px;">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;padding:10px;">
         <div class="cw-480" style="margin-top:10px;">
-            <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
-
+                <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
                     <DxFormLayoutItem Caption="Profile" ColSpanMd="6">
@@ -102,6 +101,7 @@
     public Guid? SessionId { get; set; }
     [Parameter]
     public string Type { get; set; }
+    EditContext _editContext;
     public ApplicationUser _applicationUser { get; private set; }
     private bool loading;
     private string MyID = "myid";
@@ -112,6 +112,7 @@
     public long? FileProfileTypeId { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        _editContext = new EditContext(Data);
         _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
         _shelfLifeDurationItems = await Mediator.Send(new GetAllCodeMasterQuery("RecurrenceType"));
@@ -131,8 +132,12 @@
             }
         }
     }
-    public void onsubmitClick()
+    public async Task onsubmitClick()
     {
+        if (_editContext.Validate())
+        {
+            await this.HandleValidSubmit();
+        }
     }
     public async Task HandleValidSubmit()
     {

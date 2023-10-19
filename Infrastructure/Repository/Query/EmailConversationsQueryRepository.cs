@@ -74,6 +74,29 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
+        }        
+        public async Task<List<EmailConversations>> GetBySessionConversationList(string SessionId)
+        {
+            try
+            {
+                var query = @"SELECT * FROM EmailConversations  WHERE SessionId = @SessionId";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+
+                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
+
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
 
         public async Task<IReadOnlyList<ViewEmployee>> GetAddConversationPListAsync(long ConversationId)

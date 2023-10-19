@@ -1369,6 +1369,30 @@
         }
         else if (itemlst[0].EmailTopicSessionId == null)
         {
+            var sessionId = _selectedItems.SessionID;
+            string filePath = _selectedItems.FileName;
+            string subjectName = Path.GetFileNameWithoutExtension(filePath);
+
+            var createReq = new UpdateActivityEmail
+                {
+                    SubjectName = subjectName,
+                    Comment = _selectedItems.Description,
+                    ActivityType = "FileProfileType",
+                    SessionId = _selectedItems.SessionID,
+                    BackURL = MainSessionId.ToString(),
+                    DocumentSessionId = _selectedItems.SessionID,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ManufacturingProcessId = grouptTagId,
+                    CategoryActionId = catTagId,
+                    ActivityEmailTopicID = itemlst[0].ActivityEmailTopicID
+
+                };
+
+            var result = await Mediator.Send(createReq);
+
+
+
             NavigationManager.NavigateTo("CreateEmail/" + _selectedItems.SessionID + "");
         }
         else

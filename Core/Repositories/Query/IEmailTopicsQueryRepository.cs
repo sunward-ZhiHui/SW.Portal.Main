@@ -18,6 +18,7 @@ namespace Core.Repositories.Query
         Task<List<EmailTopics>> GetByIdTopicToList(Int64 UserId);
         Task<List<EmailTopics>> GetByIdTopicCCList(Int64 UserId);
         Task<List<EmailTopics>> GetTopicToList(Int64 UserId);
+        Task<List<EmailTopics>> GetTopicToSearchList(string SearchTxt ,Int64 UserId);        
         Task<long> SetPinTopicToList(Int64 Id);
         Task<long> UnSetPinTopicToList(Int64 Id);
         Task<long> UpdateMarkasReadList(Int64 Id);
@@ -55,6 +56,7 @@ namespace Core.Repositories.Query
         Task<List<ActivityEmailTopics>> GetActivityEmailListBySession(Guid sessionId);        
         Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId);
         Task<long> CreateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
+        Task<long> UpdateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
         Task<long> Delete(long id);
     }
 }

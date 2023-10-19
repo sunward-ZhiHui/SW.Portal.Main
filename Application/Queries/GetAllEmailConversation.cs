@@ -14,6 +14,14 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetListByConversationSession : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public string SessionId { get; private set; }
+        public GetListByConversationSession(string SessionId)
+        {
+            this.SessionId = SessionId;
+        }
+    }
     public class CreateEmailCoversation : EmailConversations, IRequest<long>
     {
         public string SearchString { get; set; }

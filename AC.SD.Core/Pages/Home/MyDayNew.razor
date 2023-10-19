@@ -398,8 +398,8 @@
     {
         var ststusupdate = await Mediator.Send(new StatusChangedQuery(id));
 
-
-        _ToDoNotesHistory = await Mediator.Send(new GetMyToDoDueDate(applicationUser.UserID));
+        await UpdateDataAsync();
+     //   _ToDoNotesHistory = await Mediator.Send(new GetMyToDoDueDate(applicationUser.UserID));
 
     }
     void OnRowDoubleClick(GridRowClickEventArgs e)

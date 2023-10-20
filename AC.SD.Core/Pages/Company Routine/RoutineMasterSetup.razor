@@ -1,0 +1,193 @@
+﻿@page "/RoutineMasterSetup"
+@using global::Core.Entities.Views;
+
+@inject IMediator Mediator
+@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
+
+
+
+
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+       @* <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>*@
+
+        <DxFormLayout>
+            <DxFormLayoutItem Caption="Location" ColSpanMd="6">
+                <DxComboBox Data="@_applicationMasterChildAssetCatalogItems"
+                            NullText="Select Catalog..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ApplicationMasterChildId"
+                            @bind-Value="@plant.AssetCatalogId"
+                            SelectedItemChanged="@((ApplicationMasterChildModel plantSelect) => SelectedItemCatalogChanged(plantSelect.ApplicationMasterChildId))"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+               
+            </DxFormLayoutItem>
+
+          
+        </DxFormLayout>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" Data="@_dynamicForm" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            style="height: calc(100vh - 220px);"
+            CssClass="ch-360"
+            FocusedRowEnabled="true"
+            KeyFieldName="ID"
+            AllowSelectRowByClick="true"
+            RowClick="OnRowclick"
+            CustomizeElement="Grid_CustomizeElement"
+            AutoExpandAllGroupRows="true"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            RowDoubleClick="OnRowDoubleClick">
+
+        <Columns>
+           
+            <DxGridDataColumn FieldName="Company" Caption="Company" MinWidth="50" />
+            <DxGridDataColumn FieldName="TicketNo" Caption="Ticket No" MinWidth="50" />
+            <DxGridDataColumn FieldName="AddedDate" MinWidth="50" Caption="Date" />
+            <DxGridDataColumn FieldName="LocationName" Caption="Location" MinWidth="50" />
+            <DxGridDataColumn FieldName="ManufacturingProcessChild" Caption="Routine" MinWidth="50" />
+            <DxGridDataColumn FieldName="ProdActivityCategoryChild" Caption="Category" MinWidth="50" />
+            <DxGridDataColumn FieldName="ProdActivityActionChild" MinWidth="50" Caption="Action" />
+            <DxGridDataColumn FieldName="LineComment" Caption="Comment" MinWidth="50" />
+            <DxGridDataColumn FieldName="ProdActivityResult" Caption="Result" MinWidth="50" />
+            <DxGridDataColumn FieldName="VisaMaster" Caption="Routine Master" MinWidth="50" />
+            <DxGridDataColumn FieldName="RoutineStatus" MinWidth="50" Caption="Routine Status" />
+            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
+            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
+        </Columns>
+    </DxGrid>
+</DxLoadingPanel>
+
+
+
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+   
+</DxPopup>
+
+@code {
+
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    private List<ProductionActivityRoutineAppLine> _dynamicForm;
+    public ApplicationUser? applicationUser { get; private set; }
+    private ProductionActivityRoutineAppLine _selectedItems;
+    private List<ApplicationMasterChildModel> _applicationMasterChildAssetCatalogItems;
+    private List<ApplicationMasterChildModel> _applicationMasterChildSectionItems;
+    private List<ApplicationMasterChildModel> _applicationMasterChildSubSectionItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _applicationMasterChildAssetCatalogItems = await Mediator.Send(new GetAllApplicationMasterChildQuery("113"));
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        EditEnabled = false; DeleteEnabled = false;
+        _dynamicForm = await Mediator.Send(new GetAllRoutine());
+        PanelVisible = true;
+        if (_dynamicForm != null)
+        {
+            EditEnabled = true; DeleteEnabled = true;
+            _selectedItems = _dynamicForm.FirstOrDefault();
+            Grid.SetFocusedRowIndex(0);
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    void OnRowclick(GridRowClickEventArgs e)
+    {
+        //var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        //_selectedItems = _dynamicForm.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        //EditEnabled = true;
+        //DeleteEnabled = true;
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowclick(e);
+        //NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _selectedItems.SessionID);
+    }
+    void addNew()
+    {
+       // NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm");
+    }
+    void addEdit()
+    {
+       // NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm/" + _selectedItems.SessionID);
+    }
+    void addDetailDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async Task EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        Blukdeletepopup = false;
+
+        await UpdateDataAsync();
+    }
+    async Task SelectedItemCatalogChanged(long? values)
+    {
+        _applicationMasterChildSubSectionItems = new List<ApplicationMasterChildModel>();
+        _applicationMasterChildSectionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(values));
+    }
+    async Task bulkDelete(long id)
+    {
+        var request = new DeleteDynamicForm(id);
+        await Mediator.Send(request);
+        Blukdeletepopup = false;
+        await UpdateDataAsync();
+
+
+
+    }
+}

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.JSInterop;
 using Microsoft.VisualBasic;
+using NAV;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static DevExpress.Xpo.DB.DataStoreLongrunnersWatch;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Infrastructure.Repository.Query
 {
@@ -452,6 +454,23 @@ namespace Infrastructure.Repository.Query
                     "from Documents ";
             return query;
         }
+        public async Task<IReadOnlyList<DocumentDmsShare>> GeDocumentDmsShareAsync(List<Guid?> documentIds)
+        {
+            try
+            {
+                var lists = string.Join(',', documentIds.Select(i => $"'{i}'"));
+                var query = "select  DocumentDmsShareId,DocumentId,isDeleted,DocSessionId from DocumentDmsShare where (isDeleted is null or isDeleted=0) AND DocSessionId in(" + lists + ")";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DocumentDmsShare>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<Notes>> GeNotesAsync(List<long> documentIds)
         {
             try
@@ -789,6 +808,8 @@ namespace Infrastructure.Repository.Query
                         var documents = (await connection.QueryAsync<Documents>(query, parameters)).ToList();
                         if (documents != null && documents.Count > 0)
                         {
+                            var sessionIds = documents.Select(a => a.SessionId).ToList();
+                            var docShares = await GeDocumentDmsShareAsync(sessionIds);
                             var docIds = documents.Select(a => a.DocumentId).ToList();
                             var notes = await GeNotesAsync(docIds);
                             var taskMasternotes = await GetTaskMasterAsync(docIds);
@@ -804,18 +825,11 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.UniqueNo = counts;
                                 var setAccessFlag = roleItemsList.Where(a => a.UserId == userData.UserID && a.DocumentId == s.DocumentId).Count();
                                 documentsModels.NotesCount = notes.Where(a => a.DocumentId == s.DocumentId).Count();
-                                documentsModels.NotesColor = "";
-                                var taskNotesCount = taskMasternotes.Where(a => a.SourceId == s.DocumentId).Count();
-                                if (taskNotesCount > 0)
+                                documentsModels.SharesCount = 0;
+                                var sharesCountCount = docShares.Where(a => a.DocSessionId == s.SessionId).Count();
+                                if (sharesCountCount > 0)
                                 {
-                                    documentsModels.NotesColor = "green";
-                                }
-                                else
-                                {
-                                    if (documentsModels.NotesCount > 0)
-                                    {
-                                        documentsModels.NotesColor = "blue";
-                                    }
+                                    documentsModels.SharesCount = sharesCountCount;
                                 }
                                 documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
                                 documentsModels.SetAccessFlag = setAccessFlag > 0 ? true : false;
@@ -880,40 +894,6 @@ namespace Infrastructure.Repository.Query
                                 {
                                     documentsModels.ItemsAllWithCreateTask = true;
                                 }
-                                if (setAccess.Count > 0)
-                                {
-                                    var roleDocItem = setAccess.FirstOrDefault(u => u.DocumentId == s.DocumentId);
-                                    if (roleDocItem != null)
-                                    {
-                                        var roleItem = setAccess.FirstOrDefault(u => u.UserId == userData.UserID && u.DocumentId == s.DocumentId);
-                                        if (roleItem != null)
-                                        {
-                                            var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleItem.RoleId).FirstOrDefault();
-                                            documentsModels.DocumentPermissionData = permissionData;
-                                        }
-                                        else
-                                        {
-                                            documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = true, IsRename = false, IsCopy = false, IsCreateFolder = false, IsEdit = false, IsMove = false, IsShare = false, IsFileDelete = false };
-                                        }
-                                    }
-                                    else
-                                    {
-                                        var filprofilepermission = setAccess.FirstOrDefault(u => u.FileProfileTypeId == s.FilterProfileTypeId && u.DocumentId == null && u.UserId == userData.UserID);
-                                        if (filprofilepermission != null)
-                                        {
-                                            var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)filprofilepermission.RoleId).FirstOrDefault();
-                                            documentsModels.DocumentPermissionData = permissionData;
-                                        }
-                                        else
-                                        {
-                                            documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = true, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = true, IsCopy = true, IsCreateFolder = true, IsEdit = true, IsMove = true, IsShare = true, IsFileDelete = true };
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = false };
-                                }
                                 documentsModels.IsExpiryDate = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsExpiryDate;
                                 var description = linkfileProfileTypes?.Where(f => f.FileProfileTypeId == selectedFileProfileTypeID && f.TransactionSessionId == s.SessionId && f.DocumentId == s.DocumentId).FirstOrDefault()?.Description;
                                 if (description != null)
@@ -924,67 +904,18 @@ namespace Infrastructure.Repository.Query
                                 {
                                     documentsModels.Description = s.Description;
                                 }
-                                if (documentsModels.DocumentPermissionData != null)
-                                {
-                                    if (documentsModels.DocumentPermissionData.IsRead == true)
-                                    {
-                                        documentsModel.Add(documentsModels);
-                                    }
-                                    else if (documentsModels.DocumentPermissionData.IsRead == false)
-                                    {
-
-                                    }
-                                }
-                                else
-                                {
                                     documentsModel.Add(documentsModels);
-                                }
                                 counts++;
                             });
                         }
                         DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());
-
                         DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
                         if (DocumentTypeModel != null)
                         {
                             DocumentTypeModel.IsExpiryDate = DocumentTypeModel.DocumentsData.FirstOrDefault()?.IsExpiryDate;
                             DocumentTypeModel.TotalDocument = DocumentTypeModel.DocumentsData.ToList().Count();
                             DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
-                        }
-                        var roleItems = roleItemsList.Where(w => w.FileProfileTypeId == selectedFileProfileTypeID).ToList();
-                        if (roleItems.Count > 0)
-                        {
-                            var roleItem = roleItems.FirstOrDefault(u => u.UserId == userData.UserID);
-                            if (roleItem != null)
-                            {
-                            }
-                            else
-                            {
-                                if (DocumentTypeModel.DocumentsData.Count > 0)
-                                {
-                                    DocumentTypeModel.DocumentsData.ForEach(p =>
-                                    {
-                                        p.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = false, IsRename = false };
-                                        if (closedocumentPermission.Count > 0)
-                                        {
-                                            var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
-                                            if (userpermission != null)
-                                            {
-                                                p.DocumentPermissionData.IsCloseDocument = true;
-                                            }
-                                            else
-                                            {
-                                                p.DocumentPermissionData.IsCloseDocument = false;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            p.DocumentPermissionData.IsCloseDocument = true;
-                                        }
-                                    });
-                                }
-                            }
-                        }
+                        }                        
                     }
                 }
                 return DocumentTypeModel;
@@ -2386,7 +2317,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DocumentDmsShare>(query,parameters)).ToList();
+                    return (await connection.QueryAsync<DocumentDmsShare>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -2420,19 +2351,20 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", documentDmsShare.ModifiedDate, DbType.DateTime);
                             parameters.Add("StatusCodeID", documentDmsShare.StatusCodeID);
                             parameters.Add("IsDeleted", documentDmsShare.IsDeleted);
+                            parameters.Add("Description", documentDmsShare.Description, DbType.String);
                             if (documentDmsShare.DocumentDmsShareId > 0)
                             {
                                 var query = " UPDATE DocumentDmsShare SET DocSessionId = @DocSessionId,SessionId =@SessionId,DocumentId=@DocumentId,IsExpiry=@IsExpiry,ExpiryDate=@ExpiryDate,\n\r" +
-                                    "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsDeleted=@IsDeleted\n\r" +
+                                    "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsDeleted=@IsDeleted,Description=@Description\n\r" +
                                     "WHERE DocumentDmsShareId = @DocumentDmsShareId";
                                 await connection.ExecuteAsync(query, parameters, transaction);
 
                             }
                             else
                             {
-                                var query = "INSERT INTO DocumentDmsShare(DocSessionId,SessionId,DocumentId,IsExpiry,ExpiryDate,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsDeleted)  " +
+                                var query = "INSERT INTO DocumentDmsShare(DocSessionId,SessionId,DocumentId,IsExpiry,ExpiryDate,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsDeleted,Description)  " +
                                     "OUTPUT INSERTED.DocumentDmsShareId VALUES " +
-                                    "(@DocSessionId,@SessionId,@DocumentId,@IsExpiry,@ExpiryDate,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsDeleted)";
+                                    "(@DocSessionId,@SessionId,@DocumentId,@IsExpiry,@ExpiryDate,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsDeleted,@Description)";
 
                                 documentDmsShare.DocumentDmsShareId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             }

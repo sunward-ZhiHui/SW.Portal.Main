@@ -1,0 +1,150 @@
+﻿@page "/ProductionActivitys"
+@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+
+<div class="card w-100 tooltips" style="margin-bottom:10px;">
+    <div class="card-body p-0 tooltiptops">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col-md-12" style="height: calc(100vh - 200px);">
+    <div style="height:35%; border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
+        <div class="mini-menu-bar-top">
+            <div class="mini-menu-bar-heading">
+            </div>
+
+            <div>
+                <div class="views-accordion">
+                    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+
+                        <DxFormLayout CssClass="w-100">
+                            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                             
+                                <DxComboBox Data="@_plantItems"
+                                            NullText="Select Company..."
+                                            SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="Description"
+                                            ValueFieldName="PlantID"
+                                            @bind-Value="Data.CompanyID"
+                                         
+                                            ShowValidationIcon="true">
+                                </DxComboBox>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
+                                <DxComboBox Data="@_ponumberActivities"
+                                            NullText="Select ProdOrderNo..."
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="prodOrderNo"
+                                            ValueFieldName="NavprodOrderLineId"
+                                             @bind-Value="Data.ProdOrderNo"
+                                            ShowValidationIcon="true">
+                                </DxComboBox>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Location" ColSpanMd="6">
+                                <DxComboBox Data="@_productionActivities"
+                                            NullText="Select Loctaion..."
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="DeropdownName"
+                                            ValueFieldName="ICTMasterID"
+                                            @bind-Value="Data.LocationID"
+                                            ShowValidationIcon="true">
+                                </DxComboBox>
+                            </DxFormLayoutItem>
+                        </DxFormLayout>
+
+                    </EditForm>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="height:60%;border: 1px solid #b2afaf; overflow: auto; padding:10px;">
+
+
+        <div class="mini-menu-bar-top">
+            <div class="mini-menu-bar-heading">
+            </div>
+
+            <div>
+                <div class="views-accordion">
+                    <DxTabs RenderMode="TabsRenderMode.AllTabs" TabsPosition="TabsPosition.Top">
+                        <DxTabPage Text="Production Order Details">
+                            <PAAppline></PAAppline>
+                        </DxTabPage>
+                        <DxTabPage Text="Production Order Details">
+
+                        </DxTabPage>
+                    </DxTabs>
+
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+@code {
+
+    EditContext _editContext;
+    private List<ViewPlants> _plantItems;
+    private List<ProductionActivityApp> _productionActivities;
+    private List<ProductionActivityApp> _ponumberActivities;
+    ProductionActivityApp Data = new ProductionActivityApp();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        //_productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery());
+
+    }
+    void addDelete()
+    {
+
+    }
+    async Task HandleValidSubmit()
+    {
+    }
+    private async Task SubmitFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleValidSubmit();
+        }
+    }
+    async void SelectedItemChanged(long? companyid)
+    {
+        if (companyid > 0)
+        {
+            _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(companyid));
+            StateHasChanged();
+            if (_productionActivities.Count > 0)
+            {
+                _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(companyid));
+                StateHasChanged();
+            }
+
+        }
+    }
+}
+
+

@@ -156,6 +156,9 @@ namespace Infrastructure
             services.AddTransient<IDynamicFormQueryRepository, DynamicFormQueryRepository>();
             services.AddTransient<IRoutineQueryRepository, RoutineQueryRepository>();
             services.AddTransient<ITransferPermissionsQueryRepository, TransferPermissionsQueryRepository>();
+            services.AddTransient<IProductionActivityQueryRepository,ProductionActivityAppLineQueryRepository>();
+            services.AddTransient<IProductionActivityAppQueryRepository,ProductionActivityAppQueryRepository>();
+           
             return services;
         }
     }

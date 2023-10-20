@@ -66,6 +66,7 @@
                     @expiryDate
                 </CellDisplayTemplate>
             </DxGridDataColumn>
+            <DxGridDataColumn FieldName="Description" Caption="Description" MinWidth="40" />
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" Width="180" />
 
@@ -80,9 +81,12 @@
                     <DxCheckBox @bind-Checked="@types.IsExpiry" />
                     <ValidationMessage For="@(() => types.IsExpiry)" />
                 </DxFormLayoutItem>
-                <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="6">
-                    <DxDateEdit NullText="Select a Expiry Date..." @bind-Date="@types.ExpiryDate"  ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
+                <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="6" Enabled=@types.IsExpiry>
+                    <DxDateEdit NullText="Select a Expiry Date..." @bind-Date="@types.ExpiryDate" ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" CssClass="cw-320" />
                     <ValidationMessage For="@(() => types.ExpiryDate)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="Description:" ColSpanMd="12">
+                    <DxMemo @bind-Text="@types.Description" CssClass="cw-480" Rows="5" />
                 </DxFormLayoutItem>
             </DxFormLayout>
         </EditFormTemplate>
@@ -181,7 +185,7 @@
                     IsExpiry = editModel.IsExpiry,
                     DocumentId = selectedItems.DocumentID,
                     DocSessionId = selectedItems.SessionID,
-                    ExpiryDate = editModel.ExpiryDate,
+                    ExpiryDate = editModel.IsExpiry==true?editModel.ExpiryDate:null,
                     SessionId = Guid.NewGuid(),
                     AddedByUserID = applicationUser.UserID,
                     ModifiedByUserID = applicationUser.UserID,
@@ -215,7 +219,7 @@
                     IsExpiry = editModel.IsExpiry,
                     DocumentId = selectedItems.DocumentID,
                     DocSessionId = selectedItems.SessionID,
-                    ExpiryDate = editModel.ExpiryDate,
+                    ExpiryDate = editModel.IsExpiry == true ? editModel.ExpiryDate : null,
                     SessionId = editModel.SessionId,
                     AddedByUserID = editModel.AddedByUserID,
                     ModifiedByUserID = applicationUser.UserID,
@@ -276,7 +280,7 @@
     }
     private async Task addCopyLink()
     {
-        var url = DocumentViewUrl+"viewFile/" + "?url=" + _selectedItems.SessionId;
+        var url = DocumentViewUrl + "viewFile/" + "?url=" + _selectedItems.SessionId;
         await ClipboardService.WriteTextAsync(url);
         toastService.ShowToast("Copied", AC.SD.Core.Services.ToastLevel.Info);
     }

@@ -287,11 +287,12 @@ namespace DocumentViewer.Controllers
                     }
                 }
                 var IsRead = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsRead == true ? "Yes" : "No";
+                var isDownload = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsEdit == true ? "Yes" : "No";
                 if (userId == documentsModel.FirstOrDefault()?.UploadedByUserId)
                 {
-                    IsRead = "Yes";
+                    IsRead = "Yes"; isDownload = "Yes";
                 }
-                HttpContext.Session.SetString("isDownload", IsRead);
+                HttpContext.Session.SetString("isDownload", isDownload);
                 HttpContext.Session.SetString("isView", IsRead);
             }
         }

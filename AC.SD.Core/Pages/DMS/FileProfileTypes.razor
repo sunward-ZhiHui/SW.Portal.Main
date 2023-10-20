@@ -56,7 +56,7 @@
                         </Items>
                     </DxMenuItem>
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter("Open"))" id=@($"flyout-overview-target-container-FilterDocuments") />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@isEdit" style="@isVisibleParentMore" />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
                         <Items>
                             <DxMenuItem Text="Upload New Documents" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" Visible="isCreateDocumentEnabled" />
@@ -67,17 +67,14 @@
                     <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                         <Items>
                             <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
-                            @*  <DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="Download" Visible="@DownloadEnabled" />
-                            <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="onUpload" Visible="@uploadEnabled" /> *@
                             <DxMenuItem Text="Rename" IconCssClass="fa fa-pencil" Click="onRename" Visible="@renameEnabled" />
                             <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="onDeleteDocument" Visible="@deleteEnabled" />
                             <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Visible="@checkoutEnabled" />
                             <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Visible="@checkInEnabled" Click="onCheckin" />
                             <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Visible="@historyEnabled" />
-                            <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Visible="@copylinkEnabled" />
-                            <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Visible="@shareEnabled" />
+                            <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Visible="@copylinkEnabled" />
                             <DxMenuItem Text="Link Document" IconCssClass="fa fa-link" Click="onLinkDocuments" Visible="@linkdownloadEnabled" />
-                            <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Visible="@formdetailsEnabled" />
+                            @* <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Visible="@formdetailsEnabled" /> *@
                             <DxMenuItem Text="View Parent Documents" IconCssClass="fa fa-paperclip" Click="onViewparentDocuments" Visible="@viewParentEnabled" />
                             <DxMenuItem Text="Email" IconCssClass="fa fa-envelope" Click="onFileProfileTypeEmail" Visible="EmailEnabled" />
                         </Items>
@@ -134,6 +131,8 @@
                 ColumnResizeMode="GridColumnResizeMode.NextColumn"
                 FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                 ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                SearchText="@searchText"
+                SearchTextChanged="OnSearchTextChanged"
                 PagerNavigationMode="PagerNavigationMode.InputBox"
                 PageSizeSelectorVisible="true"
                 PageSizeSelectorAllRowsItemVisible="true"
@@ -161,6 +160,10 @@
                         }
                         @if (item.Type == "Document")
                         {
+                            @if (item.SharesCount > 0)
+                            {
+                                <i class="fa fa-share-alt" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@item.FileName"></i>
+                            }
                             @if (item.Extension == "xlsx" || item.Extension == "xls")
                             {
                                 <i class="fa fa-file-excel" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@item.FileName"></i>
@@ -556,7 +559,7 @@
     [Parameter]
     public Guid? MainSessionId { get; set; }
     //public Guid? SessionId { get; set; }
-
+    string? searchText { get; set; }
     [Parameter]
     public Guid? DocSessionId { get; set; }
     bool Blukdeletepopup { get; set; } = false;
@@ -581,7 +584,7 @@
     bool PanelVisible { get; set; }
     DocumentLinkModel LinkProfileSelectedFiles = new DocumentLinkModel();
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
-    private DocumentsModel _selectedItems;
+    private DocumentsModel? _selectedItems;
     public string? DeleteProfileTypeName { get; set; }
     public long? DeletefileProfileTypeId { get; set; }
     public long? DeleteParentfileProfileTypeId { get; set; }
@@ -631,7 +634,8 @@
     DocumentSearchModel documentSearchModel = new DocumentSearchModel();
     public List<DocumentsModel> _fileContentList { get; set; }
     DocumentPermissionModel documentPermissionModel = new DocumentPermissionModel();
-    bool isEdit { get; set; } = false; bool isDelete { get; set; } = false; bool isCreateFolder { get; set; } = false; bool isCreateSubFolder { get; set; } = false;
+    bool isEdit { get; set; } = false;
+    bool IsGrantAdminPermission { get; set; } = false; bool isDelete { get; set; } = false; bool isCreateFolder { get; set; } = false; bool isCreateSubFolder { get; set; } = false;
     bool isEnablePath { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
@@ -641,7 +645,17 @@
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
 
     }
-
+    async Task OnSearchTextChanged(string? newSearchText)
+    {
+        if (newSearchText != null)
+        {
+            _selectedItems = null;
+        }
+        else
+        {
+            await mainPageLoad();
+        }
+    }
     protected override async Task OnParametersSetAsync()
     {
         await mainPageLoad();
@@ -649,7 +663,7 @@
     }
     async Task mainPageLoad()
     {
-        isEnablePath = false; isExpiryDateVisible = false; isEdit = false; isDelete = false; isCreateFolder = true; isCreateSubFolder = false;
+        isEnablePath = false; isExpiryDateVisible = false; isEdit = false; IsGrantAdminPermission = false; isDelete = false; isCreateFolder = true; isCreateSubFolder = false;
         documentPermissionModel = new DocumentPermissionModel();
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         _fileContentList = await Mediator.Send(new GetFileContetTypes());
@@ -727,7 +741,7 @@
     }
     async Task PermiisionMain()
     {
-        isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;"; isEdit = false; isDelete = false; isCreateFolder = true; isCreateSubFolder = false;
+        isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;"; isEdit = false; IsGrantAdminPermission = false; isDelete = false; isCreateFolder = true; isCreateSubFolder = false;
         DownloadEnabled = false; uploadEnabled = false; copylinkEnabled = false; viewfileEnabled = false; EmailEnabled = false;
         deleteEnabled = false; historyEnabled = false; checkoutEnabled = false; checkInEnabled = false; shareEnabled = false;
         formdetailsEnabled = false; linkdownloadEnabled = false; formdetailsEnabled = false;
@@ -776,7 +790,7 @@
                             isVisibleParentMore = "";
                         }
                         moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true;
-                        isEdit = true; isDelete = true; isCreateSubFolder = true;
+                        isEdit = true; isDelete = true; isCreateSubFolder = true; IsGrantAdminPermission = true;
                     }
 
                 }
@@ -794,7 +808,7 @@
                                     isVisibleParentMore = "";
                                 }
                                 moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true;
-                                isEdit = true; isDelete = true; isCreateSubFolder = true;
+                                isEdit = true; isDelete = true; isCreateSubFolder = true; IsGrantAdminPermission = true;
                             }
                         }
                         else
@@ -836,6 +850,13 @@
                                     isDelete = true;
                                 }
                             }
+                            if (documentPermissionModels.IsGrantAdminPermission == true)
+                            {
+                                if (documentSearchModel.Type != "Search")
+                                {
+                                    IsGrantAdminPermission = true;
+                                }
+                            }
                             if (documentPermissionModels.IsCreateFolder == true)
                             {
                                 if (documentSearchModel.Type != "Search")
@@ -852,11 +873,11 @@
     async Task permissionEnabled()
     {
         await PermiisionMain();
-        var permissionData = _selectedItems.DocumentPermissionData;
+        //var permissionData = _selectedItems.DocumentPermissionData;
         if (_selectedItems != null && _selectedItems.FilterProfileTypeId > 0)
         {
             isVisibleMore = "";
-            moreEnabled = true; DownloadEnabled = false;shareEnabled = false; 
+            moreEnabled = true; DownloadEnabled = false; shareEnabled = false;
             uploadEnabled = false; copylinkEnabled = false; viewfileEnabled = false; deleteEnabled = false; historyEnabled = false; EmailEnabled = false;
             checkoutEnabled = false; checkInEnabled = false;
             linkdownloadEnabled = false; formdetailsEnabled = false; renameEnabled = false; viewParentEnabled = false;
@@ -875,7 +896,7 @@
                 {
                     uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
                     checkoutEnabled = true; checkInEnabled = false; formdetailsEnabled = true; linkdownloadEnabled = true;
-                    renameEnabled = true; viewParentEnabled = true; EmailEnabled = true;shareEnabled = true; 
+                    renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
                     if (_selectedItems.IsLocked == true)
                     {
                         checkoutEnabled = false;
@@ -884,50 +905,70 @@
                 }
                 else
                 {
+                    EmailEnabled = true;
+                    var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FilterProfileTypeId, applicationUser.UserID));
                     if (permissionData != null)
                     {
-                        if (permissionData.IsUpdateDocument == true)
+                        if (permissionData.IsPermissionExits == true)
                         {
-                            uploadEnabled = true; historyEnabled = true; checkoutEnabled = true; checkInEnabled = false;
-                            linkdownloadEnabled = true; formdetailsEnabled = true; viewParentEnabled = true;
+                            uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
+                            checkoutEnabled = true; checkInEnabled = false; formdetailsEnabled = true; linkdownloadEnabled = true;
+                            renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
+                            if (_selectedItems.IsLocked == true)
+                            {
+                                checkoutEnabled = false;
+                                checkInEnabled = true;
+                            }
                         }
-                        if (permissionData.IsDelete == true)
+                        else
                         {
-                            deleteEnabled = true;
+                            if (permissionData.IsUpdateDocument == true)
+                            {
+                                checkoutEnabled = true; checkInEnabled = false;
+                                linkdownloadEnabled = true; viewParentEnabled = true;
+                            }
+                            if (permissionData.IsDelete == true)
+                            {
+                                deleteEnabled = true;
+                            }
+                            if (permissionData.IsEdit == true)
+                            {
+                                DownloadEnabled = true;
+                            }
+                            if (permissionData.IsRead == true)
+                            {
+                                viewfileEnabled = true;
+                            }
+                            if (permissionData.IsListVersion == true)
+                            {
+                                historyEnabled = true;
+                            }
+                            if (permissionData.IsCopy == true)
+                            {
+                                copylinkEnabled = true;
+                            }
+                            if (permissionData.IsRename == true)
+                            {
+                                renameEnabled = true;
+                            }
+                            if (permissionData.IsShare == true)
+                            {
+                                shareEnabled = true;
+                            }
+                            if (permissionData.IsSendEmail == true)
+                            {
+                                //EmailEnabled = true;
+                            }
+
+                            if (_selectedItems.IsLocked == true)
+                            {
+                                checkoutEnabled = false;
+                                checkInEnabled = true;
+                            }
                         }
-                        if (permissionData.IsRead == true)
-                        {
-                            DownloadEnabled = true; viewfileEnabled = true;
-                        }
-                        if (permissionData.IsListVersion == true)
-                        {
-                            historyEnabled = true;
-                        }
-                        if (permissionData.IsCopy == true)
-                        {
-                            copylinkEnabled = true;
-                        }
-                        if (permissionData.IsRename == true)
-                        {
-                            renameEnabled = true;
-                        }
-                        if (permissionData.IsShare == true)
-                        {
-                            shareEnabled = true;
-                        }
-                        if (permissionData.IsSendEmail == true)
-                        {
-                            EmailEnabled = true;
-                        }
-                    }
-                    if (_selectedItems.IsLocked == true)
-                    {
-                        checkoutEnabled = false;
-                        checkInEnabled = true;
                     }
                 }
             }
-
         }
         StateHasChanged();
     }
@@ -1292,7 +1333,7 @@
             tagString = groupTag;
         }
 
-        var  tagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("122"));
+        var tagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("122"));
 
         var cktagItem = tagItems.Where(x => x.Value == groupTag).ToList();
         if (cktagItem.Count > 0)
@@ -1396,6 +1437,30 @@
         }
         else if (itemlst[0].EmailTopicSessionId == null)
         {
+            var sessionId = _selectedItems.SessionID;
+            string filePath = _selectedItems.FileName;
+            string subjectName = Path.GetFileNameWithoutExtension(filePath);
+
+            var createReq = new UpdateActivityEmail
+                {
+                    SubjectName = subjectName,
+                    Comment = _selectedItems.Description,
+                    ActivityType = "FileProfileType",
+                    SessionId = _selectedItems.SessionID,
+                    BackURL = MainSessionId.ToString(),
+                    DocumentSessionId = _selectedItems.SessionID,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ManufacturingProcessId = grouptTagId,
+                    CategoryActionId = catTagId,
+                    ActivityEmailTopicID = itemlst[0].ActivityEmailTopicID
+
+                };
+
+            var result = await Mediator.Send(createReq);
+
+
+
             NavigationManager.NavigateTo("CreateEmail/" + _selectedItems.SessionID + "");
         }
         else

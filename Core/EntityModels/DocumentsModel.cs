@@ -180,6 +180,7 @@ namespace Core.EntityModels
         public bool? ItemsAllWithCreateTask { get; set; } = false;
         public bool? CalandarPermissionFlag { get; set; } = false;
         public long? NotesCount { get; set; }
+        public long? SharesCount { get; set; }
         public string NotesColor { get; set; }
         public string FilePath { get; set; }
         public string? FileSizes { get; set; }

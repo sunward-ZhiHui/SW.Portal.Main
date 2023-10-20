@@ -142,8 +142,7 @@
 
                 <DxFormLayoutItem Caption="Action" ColSpanMd="6">
                     <DxComboBox Data="@_actionTagItems"
-                                NullText="Select Action..."
-                                Enabled="@isEnabled"
+                                NullText="Select Action..."                                
                                 FilteringMode="DataGridFilteringMode.Contains"
                                 TextFieldName="Value"
                                 ValueFieldName="ApplicationMasterChildId"
@@ -277,10 +276,15 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _topicCategorys = await Mediator.Send(new GetAllTopicCategory(TopicId));
 
-        if(_topicCategorys[0].IsTagDelete.GetValueOrDefault(false))
+        if(_topicCategorys.Count > 0)
         {
-            DeleteEnabled = false;
+            if (_topicCategorys[0].IsTagDelete.GetValueOrDefault(false))
+            {
+                DeleteEnabled = false;
+            }
+
         }
+
 
         PanelVisible = false;       
 
@@ -479,7 +483,22 @@
         }
         else
         {
-            var editModel = (EmailActivityCatgorys)e.EditModel;            
+            
+            var editModel = (EmailActivityCatgorys)e.EditModel;             
+
+            if (string.IsNullOrEmpty(editModel.ActivityType))
+            {
+                isEnabled = true;
+            }
+            else if (editModel.ActivityType == "Email")
+            {
+                isEnabled = true;
+            }
+            else
+            {
+                isEnabled = false;
+            }
+
             GroupTagChanged(editModel.GroupTag);            
             CategoryTagChange(editModel.CategoryTag);
         }
@@ -505,7 +524,7 @@
         {
             DeleteEnabled = true;
         }
-        
+
         EditEnabled = true;
         StateHasChanged();
     }
@@ -521,7 +540,7 @@
 
     }
     void addEdit()
-    {
+    {        
 
         //if (SelectedDataItems.Count == 1)
         //{

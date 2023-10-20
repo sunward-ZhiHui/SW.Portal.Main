@@ -1,0 +1,98 @@
+﻿@page "/ProActivityAppLine"
+@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+
+<DxGrid @ref="AppLine"
+        Data="_AppLines"
+        KeyFieldName="ProductionActivityAppLineID"
+        EditMode="GridEditMode.EditForm"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20" CustomizeElement="Grid_CustomizeElement"
+        EditModelSaving="OnEditModelSaving"
+        CustomizeEditModel="Grid_CustomizeEditModel"
+        RowClick="OnRowClick"
+        RowDoubleClick="addEdit"
+        FocusedRowEnabled="true"
+        AllowSelectRowByClick="true"
+        SelectionMode="GridSelectionMode.Single"
+        CssClass="ch-360"
+        style="height: calc(100vh - 470px);">
+    <Columns>
+
+        <DxGridDataColumn FieldName="CommentImageType" Caption="Type" MinWidth="180" />
+        <DxGridDataColumn FieldName="Process" Caption="Process" MinWidth="180" />
+        <DxGridDataColumn FieldName="Action" Caption="Action" MinWidth="180" />
+        <DxGridDataColumn FieldName="Result" Caption="Result" MinWidth="180" />
+        <DxGridDataColumn FieldName="Category" Caption="Category" MinWidth="180" />
+        <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180" />
+        <DxGridDataColumn FieldName="" Caption="Name" MinWidth="180" />
+        <DxGridDataColumn FieldName="" Caption="Actions" MinWidth="180" />
+        <DxGridDataColumn FieldName="ModifiedBy" Caption="ModifiedBy" MinWidth="180" />
+        <DxGridDataColumn FieldName="ModifiedDate" Caption="ModifiedDate" MinWidth="180" />
+    </Columns>
+    @*<EditFormTemplate Context="EditFormContext">
+
+    @{
+    var rolePermission = (ProductionActivityAppLine)EditFormContext.EditModel;
+    }
+    <DxFormLayout CssClass="w-100">
+    <DxFormLayoutItem Caption="Value:" ColSpanMd="6">
+    <DxTextBox @bind-Text="@rolePermission.AttributeDetailName" ShowValidationIcon="true" />
+    <ValidationMessage For="@(() => rolePermission.AttributeDetailName)" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
+    <DxTextBox @bind-Text="@rolePermission.Description" />
+    </DxFormLayoutItem>
+    <DxFormLayoutItem Caption="Is Active:" ColSpanMd="6">
+    <DxCheckBox @bind-Checked="@rolePermission.Disabled" />
+    </DxFormLayoutItem>
+
+    </DxFormLayout>
+    </EditFormTemplate>*@
+</DxGrid>
+@code {
+
+    IGrid? AppLine { get; set; }
+    
+    private List<ProductionActivityAppLine> _AppLines;
+  
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        
+         var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery());
+         _AppLines = Lines;
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+    }
+    void addEdit()
+    {
+    }
+}
+
+

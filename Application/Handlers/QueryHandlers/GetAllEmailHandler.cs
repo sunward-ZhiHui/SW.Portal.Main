@@ -83,6 +83,19 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _emailTopicsQueryRepository.GetTopicToList(request.UserId);
         }
     }
+    public class GetEmailTopicToSearchHandler : IRequestHandler<GetEmailTopicToSearch, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetEmailTopicToSearchHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetEmailTopicToSearch request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetTopicToSearchList(request.SearchTxt,request.UserId);
+        }
+    }
     public class SetPinEmailTopicToHandler : IRequestHandler<SetPinEmailTopicTo, long>
     {
 
@@ -633,6 +646,21 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<long> Handle(CreateActivityEmail request, CancellationToken cancellationToken)
         {
             return (long)await _emailTopicsQueryRepository.CreateActivityEmailAsync(request);
+        }
+    }
+
+    public class UpdateActivityEmailHandler : IRequestHandler<UpdateActivityEmail, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public UpdateActivityEmailHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<long> Handle(UpdateActivityEmail request, CancellationToken cancellationToken)
+        {
+            return (long)await _emailTopicsQueryRepository.UpdateActivityEmailAsync(request);
         }
     }
 

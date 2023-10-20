@@ -5,6 +5,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using MediatR
 @inject IMediator Mediator
+@inject NavigationManager NavigationManager
 
 <style scoped>
     .subviewEmail .dxbl-grid-header-row {
@@ -91,8 +92,14 @@
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ReplyId");
         SelectedId = UniqueId.ToString();
 
+
+        var lst = await Mediator.Send(new GetByIdConversation(long.Parse(SelectedId)));
+
+        //var lst = _forumTopicTo.Where(x => x.ReplyId == long.Parse(SelectedId)).FirstOrDefault();
+
+        NavigationManager.NavigateTo($"ViewEmail/{lst.SessionId}/Email");
         //long rId = (long.Parse(@SelectedId));
-        RId?.Invoke(SelectedId);
+        //RId?.Invoke(SelectedId);
 
         //await LoadData();
         // functionService.onSubViewEmailClick(rid);

@@ -90,6 +90,8 @@ namespace Core.Entities
         public long ActionTag { get; set; }
         [NotMapped]
         public string? actName { get; set; }
+        [NotMapped]
+        public string? ActivityType { get; set;}
 
     }
 }

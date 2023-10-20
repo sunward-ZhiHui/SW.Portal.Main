@@ -586,7 +586,7 @@ else
     IEnumerable<ForumTypes>? _OnBehalf;
     string? ActComment = "";
     string? ActUserName = "";
-    string? ActivityType = "";
+    string? ActivityType = "Email";
     DateTime? ActAddedDate = DateTime.Now;
     byte[] replyboxHhtmlArray;
     private List<ApplicationUser> _applicationUsers;  
@@ -999,8 +999,7 @@ else
                 var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
                 ActUserName = Namelist[0].Name;
                 ActAddedDate = actItem[0].AddedDate;
-                ActivityType = actItem[0].ActivityType;
-                ActivityType = actItem[0].ActivityType;
+                ActivityType = actItem[0].ActivityType;                
                 CategoryData.GroupTag = actItem[0].ManufacturingProcessId;
                 CategoryData.CategoryTag = actItem[0].CategoryActionId;
                 CategoryData.ActionTag = actItem[0].ActionId;
@@ -1297,6 +1296,7 @@ else
                     CategoryTag = CategoryData.CategoryTag,
                     ActionTag = CategoryData.ActionTag,
                     actName = CategoryData.Name,
+                    ActivityType = ActivityType
                 };
        
 

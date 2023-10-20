@@ -1556,6 +1556,7 @@
     }
     void BackShareDoc()
     {
+        InvokeAsync(loadFileProfileData);
         PopupShareDocuments = false;
         StateHasChanged();
     }

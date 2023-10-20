@@ -155,6 +155,7 @@ namespace Infrastructure
             services.AddTransient<IAttributeDetailsQueryRepository, AttributeDetailsQueryRepository>();
             services.AddTransient<IDynamicFormQueryRepository, DynamicFormQueryRepository>();
             services.AddTransient<ITransferPermissionsQueryRepository, TransferPermissionsQueryRepository>();
+            services.AddTransient<ISettingsQueryRepository, SettingsQueryRepository>();
             return services;
         }
     }

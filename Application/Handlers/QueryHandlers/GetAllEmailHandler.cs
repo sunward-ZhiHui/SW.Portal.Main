@@ -80,7 +80,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetEmailTopicTo request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicToList(request.UserId);
+            return await _emailTopicsQueryRepository.GetTopicToList(request.UserId,request.SearchTxt);
         }
     }
     public class GetEmailTopicToSearchHandler : IRequestHandler<GetEmailTopicToSearch, List<EmailTopics>>
@@ -177,7 +177,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetEmailTopicAll request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicAllList(request.UserId);
+            return await _emailTopicsQueryRepository.GetTopicAllList(request.UserId,request.SearchTxt);
 
         }
     }
@@ -221,7 +221,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetEmailTopicCC request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicCCList(request.UserId);
+            return await _emailTopicsQueryRepository.GetTopicCCList(request.UserId,request.SearchTxt);
 
         }
     }
@@ -290,7 +290,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetSubEmailTopicTo request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetSubTopicToList(request.TopicId,request.UserId);
+            return await _emailTopicsQueryRepository.GetSubTopicToList(request.TopicId,request.UserId, request.SearchTxt);
 
         }
     }
@@ -320,7 +320,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetSubEmailTopicAll request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetSubTopicAllList(request.TopicId, request.UserId);
+            return await _emailTopicsQueryRepository.GetSubTopicAllList(request.TopicId, request.UserId,request.SearchTxt);
 
         }
     }
@@ -348,7 +348,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetSubEmailTopicCC request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetSubTopicCCList(request.TopicId, request.UserId);
+            return await _emailTopicsQueryRepository.GetSubTopicCCList(request.TopicId, request.UserId, request.SearchTxt);
 
         }
     }
@@ -362,7 +362,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetSubEmailTopicSent request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetSubTopicSentList(request.TopicId, request.UserId);
+            return await _emailTopicsQueryRepository.GetSubTopicSentList(request.TopicId, request.UserId, request.SearchTxt);
 
         }
     }
@@ -377,7 +377,7 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailTopics>> Handle(GetSentTopic request, CancellationToken cancellationToken)
         {
-            return await _emailTopicsQueryRepository.GetTopicSentList(request.UserId);
+            return await _emailTopicsQueryRepository.GetTopicSentList(request.UserId,request.SearchTxt);
 
         }
     }

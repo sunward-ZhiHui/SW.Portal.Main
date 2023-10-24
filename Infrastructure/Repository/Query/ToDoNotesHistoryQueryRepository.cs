@@ -88,7 +88,7 @@ namespace Infrastructure.Repository.Query
 								 INNER Join ApplicationUser AP ON AP.UserID = TNH.Users
                                 WHERE TNH.AddedByUserID = @UserId
                                 AND TNH.TopicId IS NOT NULL  AND TNH.TopicId > 0 AND TNH.Status = 'Open'                               
-                                AND CAST(TNH.DueDate AS DATE) <= CAST(GETDATE() AS DATE)
+                                AND CAST(TNH.DueDate AS DATE) BETWEEN CAST(GETDATE() AS DATE) AND DATEADD(DAY, 7, CAST(GETDATE() AS DATE))
                                 ORDER BY TNH.DueDate DESC";
                 // var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(RemainDate AS DATE) = CAST(GETDATE() AS DATE)";
                 //var query = @"SELECT TNH.*,EC.Name AS SubjectName FROM ToDoNotesHistory TNH

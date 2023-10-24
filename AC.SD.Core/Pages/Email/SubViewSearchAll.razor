@@ -67,7 +67,7 @@
     {
         PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _forumTopicTo = await Mediator.Send(new GetSubEmailTopicTo(Items.ID, applicationUser.UserID));
+        _forumTopicTo = await Mediator.Send(new GetSubEmailTopicTo(Items.ID, applicationUser.UserID, "NULL"));
         PanelVisible = false;
     }
 

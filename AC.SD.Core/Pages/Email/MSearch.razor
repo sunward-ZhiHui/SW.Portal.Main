@@ -882,7 +882,7 @@
     {
         PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
         PanelVisible = false;
 
     } 
@@ -1865,9 +1865,9 @@
     }
     private async Task LoadGridData()
     {
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
+        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
         _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
     }
     public void Dispose()
@@ -1881,9 +1881,9 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
         await JSRuntime.InvokeAsync<string>("showLoading");
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
+        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }

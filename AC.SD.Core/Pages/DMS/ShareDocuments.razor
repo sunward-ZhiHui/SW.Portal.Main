@@ -185,14 +185,16 @@
                     IsExpiry = editModel.IsExpiry,
                     DocumentId = selectedItems.DocumentID,
                     DocSessionId = selectedItems.SessionID,
-                    ExpiryDate = editModel.IsExpiry==true?editModel.ExpiryDate:null,
+                    ExpiryDate = editModel.IsExpiry == true ? editModel.ExpiryDate : null,
                     SessionId = Guid.NewGuid(),
                     AddedByUserID = applicationUser.UserID,
                     ModifiedByUserID = applicationUser.UserID,
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = 1,
                     AddedDate = DateTime.Now,
+                    Description = editModel.Description,
                 };
+
 
             try
             {
@@ -226,6 +228,7 @@
                     ModifiedDate = DateTime.Now,
                     StatusCodeID = 1,
                     AddedDate = editModel.AddedDate,
+                    Description = editModel.Description,
                 };
             var result = await Mediator.Send(UpdateReq);
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);

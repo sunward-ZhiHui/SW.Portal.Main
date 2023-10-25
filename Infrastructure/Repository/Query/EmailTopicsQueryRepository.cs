@@ -376,7 +376,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailTopics>> GetTopicAllList(long UserId)
+        public async Task<List<EmailTopics>> GetTopicAllList(long UserId,string searchTxt)
         {
             try
             {
@@ -386,6 +386,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", searchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_ALL");
 
                         connection.Open();
@@ -631,7 +632,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailTopics>> GetTopicToList(long UserId)
+        public async Task<List<EmailTopics>> GetTopicToList(long UserId, string? searchTxt)
         {
             try
             {
@@ -640,7 +641,8 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         var parameters = new DynamicParameters();
-                        parameters.Add("UserId", UserId);                        
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", searchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_TO");
 
                         connection.Open();
@@ -689,7 +691,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailTopics>> GetTopicCCList(long UserId)
+        public async Task<List<EmailTopics>> GetTopicCCList(long UserId, string searchTxt)
         {
             try
             {
@@ -699,6 +701,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", searchTxt);                        
                         parameters.Add("Option", "SELECT_ASSIGN_CC");
 
                         connection.Open();
@@ -718,7 +721,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailTopics>> GetTopicSentList(long UserId)
+        public async Task<List<EmailTopics>> GetTopicSentList(long UserId,string searchTxt)
         {
             try
             {
@@ -728,6 +731,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", searchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_SENT");
 
                         connection.Open();
@@ -798,7 +802,7 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         var parameters = new DynamicParameters();
-                        parameters.Add("TopicId", TopicId);
+                        parameters.Add("TopicId", TopicId);                        
                         parameters.Add("Option", "EMAIL_DRAFT_DELETE");                       
                         connection.Open();
                         var task = connection.ExecuteAsync("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
@@ -891,7 +895,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailTopics>> GetSubTopicToList(long TopicId, long UserId)
+        public async Task<List<EmailTopics>> GetSubTopicToList(long TopicId, long UserId,string SearchTxt)
         {
             try
             {
@@ -902,6 +906,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("TopicId", TopicId);
+                        parameters.Add("searchtxt", SearchTxt);                        
                         parameters.Add("Option", "SUB_SELECT_TO");
 
                         connection.Open();
@@ -921,7 +926,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailTopics>> GetSubTopicCCList(long TopicId, long UserId)
+        public async Task<List<EmailTopics>> GetSubTopicCCList(long TopicId, long UserId,string SearchTxt)
         {
             try
             {
@@ -932,6 +937,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("TopicId", TopicId);
+                        parameters.Add("searchtxt", SearchTxt);
                         parameters.Add("Option", "SUB_SELECT_CC");
 
                         connection.Open();
@@ -951,7 +957,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailTopics>> GetSubTopicSentList(long TopicId, long UserId)
+        public async Task<List<EmailTopics>> GetSubTopicSentList(long TopicId, long UserId,string SearchTxt)
         {
             try
             {
@@ -962,6 +968,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("TopicId", TopicId);
+                        parameters.Add("searchtxt", SearchTxt);
                         parameters.Add("Option", "SUB_SELECT_SENT");
 
                         connection.Open();
@@ -981,7 +988,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailTopics>> GetSubTopicAllList(long TopicId, long UserId)
+        public async Task<List<EmailTopics>> GetSubTopicAllList(long TopicId, long UserId,string SearchTxt)
         {
             try
             {
@@ -992,6 +999,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("TopicId", TopicId);
+                        parameters.Add("searchtxt", SearchTxt);
                         parameters.Add("Option", "SUB_SELECT_ALL");
 
                         connection.Open();

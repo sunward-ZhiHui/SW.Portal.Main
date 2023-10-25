@@ -94,7 +94,7 @@
     }
     public async Task onAssignAllGridRefresh(long tid)
     {
-        _emailTopicDueDate = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID));
+        _emailTopicDueDate = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL"));
         if (RefSubAssignAll != null)
         {
             await RefSubAssignAll.onSubAssignAllGridRefresh(tid);

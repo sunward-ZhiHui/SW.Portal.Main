@@ -43,26 +43,26 @@ namespace SW.Portal.Solutions.Controllers
 
 
         [HttpGet("GetEmailList")]
-        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetList(string mode, long UserId)
+        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetList(string mode, long UserId,string SearchTxt)
         {
             List<Core.Entities.EmailTopics> result = null;
             var response = new ResponseModel<EmailTopicViewModel>();
 
             if (mode == "To")
             {
-                result = await _mediator.Send(new GetEmailTopicTo(UserId));
+                result = await _mediator.Send(new GetEmailTopicTo(UserId,SearchTxt));
             }
             else if (mode == "CC")
             {
-                result = await _mediator.Send(new GetEmailTopicCC(UserId));
+                result = await _mediator.Send(new GetEmailTopicCC(UserId, SearchTxt));
             }
             else if (mode == "Sent")
             {
-                result = await _mediator.Send(new GetSentTopic(UserId));
+                result = await _mediator.Send(new GetSentTopic(UserId, SearchTxt));
             }
             else if (mode == "All")
             {
-                result = await _mediator.Send(new GetEmailTopicAll(UserId));
+                result = await _mediator.Send(new GetEmailTopicAll(UserId, SearchTxt));
             }
             else
             {
@@ -163,26 +163,26 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpGet("GetSubEmailList")]
-        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetSubList(string mode, long Id, long UserId)
+        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetSubList(string mode, long Id, long UserId,string SearchTxt)
         {
             List<Core.Entities.EmailTopics> subResult = null;
             var response = new ResponseModel<EmailTopicViewModel>();
 
             if (mode == "To")
             {
-                subResult = await _mediator.Send(new GetSubEmailTopicTo(Id, UserId));
+                subResult = await _mediator.Send(new GetSubEmailTopicTo(Id, UserId, SearchTxt));
             }
             else if (mode == "CC")
             {
-                subResult = await _mediator.Send(new GetSubEmailTopicCC(Id, UserId));
+                subResult = await _mediator.Send(new GetSubEmailTopicCC(Id, UserId, SearchTxt));
             }
             else if (mode == "Sent")
             {
-                subResult = await _mediator.Send(new GetSubEmailTopicSent(Id, UserId));
+                subResult = await _mediator.Send(new GetSubEmailTopicSent(Id, UserId, SearchTxt));
             }
             else if (mode == "All")
             {
-                subResult = await _mediator.Send(new GetSubEmailTopicAll(Id, UserId));
+                subResult = await _mediator.Send(new GetSubEmailTopicAll(Id, UserId, SearchTxt));
             }
             else
             {

@@ -77,7 +77,7 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID,"NULL"));
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

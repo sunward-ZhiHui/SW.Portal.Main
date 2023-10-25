@@ -28,7 +28,7 @@ namespace Core.Repositories.Query
         long DeleteParticipant(TopicParticipant topicParticipant);
         Task<EmailConversations> GetByIdAsync(Int64 id);        
         Task<List<EmailConversations>> GetFullDiscussionListAsync(Int64 TopicId);
-        Task<List<EmailConversations>> GetDiscussionListAsync(Int64 TopicId,Int64 UserId);
+        Task<List<EmailConversations>> GetDiscussionListAsync(Int64 TopicId,Int64 UserId,string Option);
         Task<List<EmailConversations>> GetDemoEmailFileDataListAsync();
         Task<long> GetDemoUpdateEmailFileDataListAsync(long id, Byte[] fileData);
         Task<List<EmailConversations>> GetValidUserListAsync(Int64 TopicId, Int64 UserId);        

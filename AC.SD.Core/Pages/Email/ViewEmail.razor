@@ -925,7 +925,7 @@
                                 SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
                                 <Columns>
                                 @*    <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
-                                    <DxGridDataColumn FieldName="FileIndex" Caption="#" Width="35px" FixedPosition="GridColumnFixedPosition.Left"></DxGridDataColumn>
+                                    @*<DxGridDataColumn FieldName="FileIndex" Caption="#" Width="35px" FixedPosition="GridColumnFixedPosition.Left"></DxGridDataColumn>*@
                                     <DxGridDataColumn FieldName="SubjectName" MinWidth="200" FixedPosition="GridColumnFixedPosition.Left"  />
                                     <DxGridDataColumn FieldName="FileName" MinWidth="200" />
 
@@ -2388,9 +2388,13 @@
         _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup),applicationUser.UserID,isLeftMenuvisible)); 
         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
 
-        //var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
-        var url = DocumentViewUrl + "?url=" + lst.UniqueSessionId;
-        await OpenDocumentPreview(url);
+        if(lst != null)
+        {
+             //var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
+            var url = DocumentViewUrl + "?url=" + lst.UniqueSessionId;
+            await OpenDocumentPreview(url);
+        }
+       
     }
     public async Task onDocDownload_old(long Id)
     {
@@ -2605,7 +2609,7 @@
         // Cid = getconid[0].ID;
         Cid = 0;
         SelectedReplyId = getconid[0].ID.ToString();
-        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
+        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID,isLeftMenuvisible));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
         _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup))); 
@@ -2785,7 +2789,7 @@
                 var getconid = await Mediator.Send(new GetTopConversationList(Tid));
                 //Cid = getconid[0].ID;
                 Cid = 0;
-                _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
+                _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
                 _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
                 _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup)));

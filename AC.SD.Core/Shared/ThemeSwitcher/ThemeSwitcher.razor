@@ -13,8 +13,8 @@
 
 <div class="themeswitcher-container shadow @StateCssClass">
     <div style="width:100%;" class="themeswitcher-group card-header list-group-item">
-        <span style="font-weight:bold">@applicationUser?.UserName</span>        
-        <NavLink style="float:right;transform: rotate(181deg);" href="javascrtpit:void(0);" @onclick="@logout" RenderStyle="@ButtonRenderStyle.Secondary"><i class="fa fa-sign-out" aria-hidden="true"></i></NavLink>
+        <span style="font-weight:bold">@applicationUser?.UserName</span>   
+        <span class="btnhand" style="float:right;transform: rotate(181deg);" @onclick="@logout"><i class="fa fa-sign-out" aria-hidden="true"></i></span>
     </div>
     <div class="themeswitcher-group card-header list-group-item">
         <NavLink href="javascrtpit:void(0);" RenderStyle="@ButtonRenderStyle.Secondary" @onclick="@(() => PopupUpdatePasseordVisible = true)">Change Password</NavLink>
@@ -180,13 +180,20 @@
             if(rstdata > 0)
             {
                 await _localStorageService.RemoveItem("user");
-                NavigationManager.NavigateTo("account/logout");
+                NavigationManager.NavigateTo($"account/logout");
+                StateHasChanged();
+            }
+            else
+            {
+                NavigationManager.NavigateTo($"account/logout");
+                StateHasChanged();
             }
         }
         else
         {
             await _localStorageService.RemoveItem("user");
-            NavigationManager.NavigateTo("account/logout");
+            NavigationManager.NavigateTo($"account/logout");
+            StateHasChanged();
         }
 
        

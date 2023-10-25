@@ -10,6 +10,13 @@ body,
     overflow: hidden;
     overscroll-behavior: none;
 }
+.dxbl-wait-indicator {
+    --dxbl-wait-indicator-color: white;
+}
+
+.dxbl-btn.dxbl-lg {
+    --dxbl-btn-line-height: 1.5rem;
+}
 .ptagtodo {
     margin-right: 5px;
     background: #e5e5e5;
@@ -215,7 +222,9 @@ body,
 .demo-header.navbar .navbar-toggler:hover .navbar-toggler-icon {
     background-color: currentColor !important;
 }
-
+.btnhand:hover {
+    cursor: pointer;
+}
 .demo-header.navbar .demo-btn-container {
     margin-left: auto;
     align-items: center;

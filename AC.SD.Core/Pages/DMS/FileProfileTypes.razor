@@ -395,11 +395,20 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseSecurityAccessPopup())" />
     </FooterContentTemplate>
 </DxPopup>
-<div style="@onUploadVisible">
+@* <div style="@onUploadVisible">
+ *@
 
-    <UploadDoumentFiles @ref="refUploadDoumentFiles" UploadDocFormID="UploadDocFormID" RevokeBack="BackUpload"></UploadDoumentFiles>
-
-</div>
+<DxPopup @bind-Visible="@PopupNewUpload"
+         HeaderText="Upload Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <UploadDoumentFiles @ref="refUploadDoumentFiles" applicationUser="@applicationUser" selectedFiles="@_ParentselectedItems" UploadDocFormID="UploadDocFormID" RevokeBack="BackUpload"></UploadDoumentFiles>
+    </BodyContentTemplate>
+</DxPopup>
+@* </div> *@
 <DxPopup @bind-Visible="@PopupUpload"
          HeaderText="Upload Documents"
          CloseOnOutsideClick="false"
@@ -576,6 +585,7 @@
     public bool loading { get; set; } = false; public bool PopupShareDocuments { get; set; } = false;
     string onShowMain = "";
     string onUploadVisible = "display:none;";
+    bool PopupNewUpload { get; set; } = false;
     public DocumentsModel selectedFiles { get; set; }
     public long? FileProfileTypeId { get; set; }
     private List<DocumentsModel> fileProfileTypeDocuments { get; set; }
@@ -914,8 +924,11 @@
                     isVisibleMore = "";
                     if (_selectedItems.IsLocked == true)
                     {
-                        checkoutEnabled = false;
                         checkInEnabled = true;
+                        uploadEnabled = false; deleteEnabled = false; DownloadEnabled = false; EmailEnabled = false;
+                        viewfileEnabled = false; historyEnabled = false; checkoutEnabled = false;
+                        copylinkEnabled = false; viewParentEnabled = false; shareEnabled = false;
+                        linkdownloadEnabled = false; formdetailsEnabled = false; renameEnabled = false;
                     }
                     else
                     {
@@ -947,7 +960,7 @@
                     uploadEnabled = false; deleteEnabled = false; DownloadEnabled = false; EmailEnabled = false;
                     viewfileEnabled = false; historyEnabled = false; checkoutEnabled = false;
                     copylinkEnabled = false; viewParentEnabled = false; shareEnabled = false;
-                    linkdownloadEnabled = false; formdetailsEnabled = false;
+                    linkdownloadEnabled = false; formdetailsEnabled = false; renameEnabled = false;
                 }
                 else
                 {
@@ -1282,9 +1295,10 @@
     }
     async Task onUploadFileProfileType()
     {
-        await refUploadDoumentFiles.loadData(_ParentselectedItems, applicationUser);
-        onShowMain = "display:none;";
-        onUploadVisible = "";
+        PopupNewUpload = true;
+        //await refUploadDoumentFiles.loadData(_ParentselectedItems, applicationUser);
+        // onShowMain = "display:none;";
+        //  onUploadVisible = "";
         StateHasChanged();
     }
     void onUpload()
@@ -1652,6 +1666,7 @@
     }
     async void BackUpload()
     {
+        PopupNewUpload = false;
         onShowMain = "";
         onUploadVisible = "display:none;";
         PopupUpload = false;

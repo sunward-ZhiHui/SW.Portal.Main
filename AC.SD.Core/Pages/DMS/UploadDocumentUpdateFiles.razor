@@ -33,22 +33,12 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentCheckInSelectButton" Enabled="@checkInloading" />
+                        <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="@onSubmitCheckInUploadFormClick" Enabled="@checkInloading" />
                     </Items>
                 </DxMenu>
             </div>
-            <div class="@IsUploadExt" style="float: left; margin-top: -40px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
-                <div id="attachmentCheckInSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
-            </div>
-            <div class="@IsUploadExt" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 8px; z-index: 9999; width:100px;">
-                <button type="submit" form="@UploadDocFormID" disabled="@checkInloading" class="btn border-primary btn-primary m-1 handline" onclick="@onSubmitCheckInUploadFormClick">
-                    @if (checkInloading)
-                    {
-                        <span class="spinner-border spinner-border-sm mr-1"></span>
-                    }
-                    <i class="fa fa-upload"></i>
-                    @Message
-                </button>
-            </div>
+
         </div>
     </div>
 </div>
@@ -68,7 +58,7 @@
 <div class="" style="margin-left:10px;">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
         <div class="cw-480" style="margin-top:10px;">
-            <EditForm Model="@Data" id="@UploadDocFormID" Context="EditFormContext" OnValidSubmit="@HandleValidCheckInSubmit">
+            <EditForm EditContext="this._editContext" Context="EditFormContext" Context="EditFormContext" OnValidSubmit="@HandleValidCheckInSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
                     <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="6" Visible="@isExpiryDate">
@@ -77,7 +67,9 @@
                     <DxFormLayoutItem Caption="Description" ColSpanMd="6">
                         <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="" ColSpanMd="12">
+                </DxFormLayout>
+            </EditForm>
+                   @*  <DxFormLayoutItem Caption="" ColSpanMd="12"> *@
 
                         <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
                             <DxUpload @ref="uploadCheckInComponent" Name="files"
@@ -96,13 +88,13 @@
                             </DxUpload>
 
                         </div>
-                    </DxFormLayoutItem>
-                </DxFormLayout>
-            </EditForm>
+                   @*  </DxFormLayoutItem> *@
+               
         </div>
     </div>
 </div>
 @code {
+    EditContext _editContext;
     [Parameter]
     public DocumentsModel selectedItems { get; set; }
     [Parameter]
@@ -110,7 +102,7 @@
     [Parameter]
     public ApplicationUser applicationUser { get; set; }
     string UploadDocFormID = "UploadDocCheckInForm";
-    public bool checkInloading { get; set; } = false;
+    public bool checkInloading { get; set; } = true;
     string Message = "Upload";
     [Parameter]
     public Action RevokeBack { get; set; }
@@ -127,6 +119,7 @@
     public List<DocumentsUploadModel> TempSetIds = new List<DocumentsUploadModel>();
     protected override async Task OnInitializedAsync()
     {
+        _editContext = new EditContext(Data);
         IsUploadExt = "";
         if (selectedItems != null)
         {
@@ -196,7 +189,7 @@
             if (SelectedFilesCount == 1)
             {
                 Message = "Uploading...";
-                checkInloading = true;
+                checkInloading = false;
                 string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
                 string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + FileProfileSessionId + "&addedByUserId=" + applicationUser.UserID + "&IsNewSession=true&SourceFrom=FileProfile";
                 e.UploadUrl = url;
@@ -240,14 +233,14 @@
         var ext = e.FileInfo.Name.Split(".").Last();
         Data.FilePath = @"Documents\" + FileProfileSessionId + @"\" + filesessionIds + "." + ext;
         Data.FileSessionId = FileProfileSessionId;
-       // Data.SourceFrom = "FileProfile";
+        // Data.SourceFrom = "FileProfile";
         var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
         if (response.SessionId != null)
         {
             var MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
             toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
             Message = "Upload";
-            checkInloading = false;
+            checkInloading = true;
             backUrl();
         }
 
@@ -257,7 +250,7 @@
         var MyError = e.RequestInfo.ResponseText;
         toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
         Message = "Upload";
-        checkInloading = false;
+        checkInloading = true;
         InvokeAsync(StateHasChanged);
     }
     void OnUploadProgressChanged(FileUploadEventArgs e)
@@ -270,22 +263,25 @@
     }
     void onSubmitCheckInUploadFormClick()
     {
-        if (SelectedFilesCount > 0)
+        if (_editContext.Validate())
         {
-            if (SelectedFilesCount == 1)
+            if (SelectedFilesCount > 0)
             {
-                uploadCheckInComponent.UploadAllFiles();
-            }
-            else
-            {
-                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
-                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+                if (SelectedFilesCount == 1)
+                {
+                    this.HandleValidCheckInSubmit();
+                }
+                else
+                {
+                    var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                    toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+                }
             }
         }
 
     }
     void HandleValidCheckInSubmit()
     {
-
+        uploadCheckInComponent.UploadAllFiles();
     }
 }

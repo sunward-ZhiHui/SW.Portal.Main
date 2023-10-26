@@ -72,13 +72,30 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<IReadOnlyList<ViewEmployee>> GetAllUserWithoutStatusAsync()
         {
+            List<ViewEmployee> ViewEmployees = new List<ViewEmployee>();
             try
             {
-                var query = "select  * from View_Employee";
+                var query = "select  * from view_GetEmployee";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ViewEmployee>(query)).Distinct().ToList();
+                    var result = (await connection.QueryAsync<ViewEmployee>(query)).ToList();
+                    if (result == null || result.Count == 0)
+                    {
+
+                    }
+                    else
+                    {
+                        result.ForEach(s =>
+                        {
+                            var empCount = ViewEmployees.Where(w => w.EmployeeID == s.EmployeeID).Count();
+                            if (empCount == 0)
+                            {
+                                ViewEmployees.Add(s);
+                            }
+                        });
+                    }
+                    return ViewEmployees;
                 }
             }
             catch (Exception exp)
@@ -186,7 +203,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public  async Task<IReadOnlyList<ApplicationPermission>> GetAllApplicationPermissionAsync(Int64 RoleId)
+        public async Task<IReadOnlyList<ApplicationPermission>> GetAllApplicationPermissionAsync(Int64 RoleId)
         {
             try
             {
@@ -211,5 +228,5 @@ namespace Infrastructure.Repository.Query
             }
         }
     }
-    
+
 }

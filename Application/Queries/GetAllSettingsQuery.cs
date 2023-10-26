@@ -38,4 +38,13 @@ namespace Application.Queries
             this.AccessType = accessType;
         }
     }
+    public class GetDMSAccessByUser : PagedRequest, IRequest<OpenAccessUserLink>
+    {
+        public long? UserId { get; set; }
+        public GetDMSAccessByUser(long? userId)
+        {
+            this.UserId = userId;
+        }
+    }
+    
 }

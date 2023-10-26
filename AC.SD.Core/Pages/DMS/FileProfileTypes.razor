@@ -1469,7 +1469,7 @@
             var checkusers = plist.Where(t => t.UserId == applicationUser.UserID).ToList();
             if (checkusers.Count > 0)
             {
-                NavigationManager.NavigateTo("ViewEmail/" + itemlst[0].EmailTopicSessionId + "");
+                NavigationManager.NavigateTo("ViewEmail/" + itemlst[0].EmailTopicSessionId + "/Email");
             }
             else
             {

@@ -23,6 +23,8 @@ namespace Core.Entities
         public long? UserId { get; set; }
         public long? UserGroupId { get; set; }
         public long? LevelId { get; set; }
+        public bool? IsDmsCreateMainFolder { get; set; }=false;
+        public bool? IsDmsAccess { get; set; } = false;
         public string? UserName { get; set; }
         [NotMapped]
         public string? AccessType { get; set; }

@@ -3,6 +3,7 @@
 @if (documentPermissionData != null)
 {
     <DxFormLayout CssClass="w-100">
+        <DxFormLayoutGroup Caption="Folder Permission" ColSpanMd="12">
         <DxFormLayoutItem Caption="Create Folder" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsCreateFolder" Enabled="false" />
         </DxFormLayoutItem>
@@ -15,6 +16,8 @@
         <DxFormLayoutItem Caption="Grand Security Permission" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsGrantAdminPermission" />
         </DxFormLayoutItem>
+        </DxFormLayoutGroup>
+        <DxFormLayoutGroup Caption="Document Permission" ColSpanMd="12">
         <DxFormLayoutItem Caption="Create Document" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsCreateDocument" Enabled="false" />
         </DxFormLayoutItem>
@@ -64,6 +67,7 @@
         <DxFormLayoutItem Caption="Enable Info" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsEnableProfileTypeInfo" Enabled="false" />
         </DxFormLayoutItem>
+        </DxFormLayoutGroup>
     </DxFormLayout>
 }
 else

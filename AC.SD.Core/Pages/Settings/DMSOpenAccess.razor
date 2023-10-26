@@ -21,7 +21,7 @@
                                   Context="EditFormContext">
                             <DataAnnotationsValidator />
                             <DxFormLayout>
-                                <DxFormLayoutItem Caption="Users" ColSpanMd="7">
+                                <DxFormLayoutItem Caption="Users" ColSpanMd="6">
                                     <DxTagBox Data="_usersList"
                                     @bind-Values="Data.SelectUserIDs"
                                               NullText="Select To..."
@@ -39,11 +39,24 @@
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
                                     </DxTagBox>
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem ColSpanMd="2">
+                                @if (AccessType == "DMSAccess")
+                                {
+                                    <DxFormLayoutItem Caption="Is DMS Open Access" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsAccess"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Is Create Main Folder" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsCreateMainFolder"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                }
+                                <DxFormLayoutItem ColSpanMd="2" Context="fl_context">
                                     <DxButton SubmitFormOnClick="true"
-                                              Text="Save"
-                                              style="margin-bottom: 20px;"
-                                              RenderStyle="ButtonRenderStyle.Primary" />
+                                              Enabled="!isSending"
+                                              RenderStyle="ButtonRenderStyle.Primary">
+                                        <div class="d-flex">
+                                            <DxWaitIndicator Visible="isSending" />
+                                            <span class="mx-2">@Message</span>
+                                        </div>
+                                    </DxButton>
                                 </DxFormLayoutItem>
                             </DxFormLayout>
                         </EditForm>
@@ -63,7 +76,7 @@
                                   Context="EditFormContext">
                             <DataAnnotationsValidator />
                             <DxFormLayout>
-                                <DxFormLayoutItem Caption="User Group" ColSpanMd="7">
+                                <DxFormLayoutItem Caption="User Group" ColSpanMd="6">
                                     <DxTagBox Data="_userGroupsList"
                                     @bind-Values="Data.SelectUserGroupIDs"
                                               NullText="Select To..."
@@ -76,11 +89,24 @@
                                         <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
                                     </DxTagBox>
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem ColSpanMd="2">
+                                @if (AccessType == "DMSAccess")
+                                {
+                                    <DxFormLayoutItem Caption="Is DMS Open Access" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsAccess"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Is Create Main Folder" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsCreateMainFolder"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                }
+                                <DxFormLayoutItem ColSpanMd="2" Context="fl_context">
                                     <DxButton SubmitFormOnClick="true"
-                                              Text="Save"
-                                              style="margin-bottom: 20px;"
-                                              RenderStyle="ButtonRenderStyle.Primary" />
+                                              Enabled="!isSending"
+                                              RenderStyle="ButtonRenderStyle.Primary">
+                                        <div class="d-flex">
+                                            <DxWaitIndicator Visible="isSending" />
+                                            <span class="mx-2">@Message</span>
+                                        </div>
+                                    </DxButton>
                                 </DxFormLayoutItem>
                             </DxFormLayout>
                         </EditForm>
@@ -113,11 +139,24 @@
                                         <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
                                     </DxTagBox>
                                 </DxFormLayoutItem>
-                                <DxFormLayoutItem ColSpanMd="2">
+                                @if (AccessType == "DMSAccess")
+                                {
+                                    <DxFormLayoutItem Caption="Is DMS Open Access" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsAccess"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Is Create Main Folder" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsCreateMainFolder"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                }
+                                <DxFormLayoutItem ColSpanMd="2" Context="fl_context">
                                     <DxButton SubmitFormOnClick="true"
-                                              Text="Save"
-                                              style="margin-bottom: 20px;"
-                                              RenderStyle="ButtonRenderStyle.Primary" />
+                                              Enabled="!isSending"
+                                              RenderStyle="ButtonRenderStyle.Primary">
+                                        <div class="d-flex">
+                                            <DxWaitIndicator Visible="isSending" />
+                                            <span class="mx-2">@Message</span>
+                                        </div>
+                                    </DxButton>
                                 </DxFormLayoutItem>
                             </DxFormLayout>
 
@@ -139,7 +178,8 @@
     private OpenAccessUsersList? refDocumentUserRoleListsLevel;
     [Parameter]
     public string? AccessType { get; set; }
-
+    bool isSending = false;
+    string Message => isSending ? "Pls Wait Saving..." : "Save";
     [Parameter]
     public long? OpenAccessUserId { get; set; }
     public ApplicationUser _applicationUser { get; private set; }
@@ -162,6 +202,14 @@
     public async Task loadMainData(string accessType)
     {
         Data.AccessType = accessType;
+        if (accessType == "DMSAccess")
+        {
+
+        }
+        else
+        {
+            Data.IsDmsCreateMainFolder = false; Data.IsDmsAccess = false;
+        }
         _openAccessUser = await Mediator.Send(new GetOpenAccessUser(accessType));
         if (_openAccessUser != null)
         {
@@ -214,26 +262,34 @@
     }
     async Task HandleValidSubmit()
     {
+        isSending = true;
+        if (AccessType == "DMSAccess")
+        {
+            if(Data.IsDmsAccess==false && Data.IsDmsCreateMainFolder==false)
+            {
+                isSending = false;
+                toastService.ShowToast("Checkbox Select Anyone must.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                await HandleValidSaving();
+            }
+        }
+        else
+        {
+            await HandleValidSaving();
+        }
+    }
+    async Task HandleValidSaving()
+    {
         var response = await Mediator.Send(new InsertOpenAccessUserLink(Data));
         if (response.OpenAccessUserId > 0)
         {
             OpenAccessUserId = response.OpenAccessUserId;
             toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
             await refDocumentUserRoleListsUser.loadData(OpenAccessUserId, AccessType);
+            isSending = false;
         }
-        // if (Data.Type == "User")
-        // {
-        //     await refDocumentUserRoleListsUser.loadData(OpenAccessUserId, AccessType);
-        // }
-        // if (Data.Type == "UserGroup")
-        // {
-        //     await refDocumentUserRoleListsUserGroup.loadData(OpenAccessUserId, AccessType);
-        // }
-        // if (Data.Type == "Level")
-        // {
-        //     await refDocumentUserRoleListsLevel.loadData(OpenAccessUserId, AccessType);
-        // }
-
     }
     void HandleInvalidSubmit()
     {

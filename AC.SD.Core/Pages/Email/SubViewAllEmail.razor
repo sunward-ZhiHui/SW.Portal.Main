@@ -80,12 +80,12 @@
     {
         PanelVisible = true;      
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _forumTopicTo = await Mediator.Send(new GetSubEmailTopicAll(Items.ID, applicationUser.UserID));
+        _forumTopicTo = await Mediator.Send(new GetSubEmailTopicAll(Items.ID, applicationUser.UserID,"NULL"));
         PanelVisible = false;
     }
     public async Task onSubAssignAllGridRefresh(long id)
     {
-        _forumTopicTo = await Mediator.Send(new GetSubEmailTopicAll(id, applicationUser.UserID));
+        _forumTopicTo = await Mediator.Send(new GetSubEmailTopicAll(id, applicationUser.UserID, "NULL"));
     }
     async Task OnEmailAllRowClick(GridRowClickEventArgs e)
     {

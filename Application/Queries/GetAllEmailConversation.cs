@@ -66,10 +66,12 @@ namespace Application.Queries
     {
         public long TopicId { get; private set; }
         public long UserId { get; private set; }
-        public GetEmailDiscussionList(long TopicId,long UserId)
+        public string Option { get; private set; }
+        public GetEmailDiscussionList(long TopicId,long UserId,string option)
         {
             this.TopicId = TopicId;
             this.UserId = UserId;
+            this.Option = option;
         }
     }
     public class GetDemoEmailFileDataList : PagedRequest, IRequest<List<EmailConversations>>

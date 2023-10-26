@@ -58,9 +58,11 @@ namespace Application.Queries
     public class GetEmailTopicTo : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }
-        public GetEmailTopicTo(long UserId)
+        public string SearchTxt { get; private set; }
+        public GetEmailTopicTo(long UserId,string searchTxt)
         {
             this.UserId = UserId;
+            this.SearchTxt = searchTxt;
         }
     }
     public class GetEmailTopicToSearch : PagedRequest, IRequest<List<EmailTopics>>
@@ -119,9 +121,11 @@ namespace Application.Queries
     public class GetEmailTopicAll : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }
-        public GetEmailTopicAll(long UserId)
+        public string SearchTxt { get; private set; }
+        public GetEmailTopicAll(long UserId, string searchTxt)
         {
             this.UserId = UserId;
+            this.SearchTxt = searchTxt;
         }
     }
     public class GetEmailTopicAllSearch : PagedRequest, IRequest<List<EmailTopics>>
@@ -150,9 +154,11 @@ namespace Application.Queries
     public class GetEmailTopicCC : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }
-        public GetEmailTopicCC(long UserId)
+        public string SearchTxt { get; private set; }
+        public GetEmailTopicCC(long UserId,string searchTxt)
         {
             this.UserId = UserId;
+            this.SearchTxt = searchTxt;
         }
     }
     public class GetEmailTopicCCSearch : PagedRequest, IRequest<List<EmailTopics>>
@@ -201,10 +207,12 @@ namespace Application.Queries
     {
         public long TopicId { get; private set; }
         public long UserId { get; private set; }
-        public GetSubEmailTopicTo(long ID,long UserId)
+        public string SearchTxt { get; private set; }
+        public GetSubEmailTopicTo(long ID,long UserId, string searchTxt)
         {
             this.TopicId = ID;
             this.UserId = UserId;
+            SearchTxt = searchTxt;
         }
     }
     public class GetSubEmailSearchAll : PagedRequest, IRequest<List<EmailTopics>>
@@ -223,10 +231,12 @@ namespace Application.Queries
     {
         public long TopicId { get; private set; }
         public long UserId { get; private set; }
-        public GetSubEmailTopicAll(long ID, long UserId)
+        public string SearchTxt { get; private set; }
+        public GetSubEmailTopicAll(long ID, long UserId, string searchTxt)
         {
             this.TopicId = ID;
             this.UserId = UserId;
+            this.SearchTxt = searchTxt;
         }
     }
     public class GetSubEmailTopicHome : PagedRequest, IRequest<List<EmailTopics>>
@@ -243,29 +253,35 @@ namespace Application.Queries
     {
         public long TopicId { get; private set; }
         public long UserId { get; private set; }
-        public GetSubEmailTopicCC(long ID, long UserId)
+        public string SearchTxt { get; private set; }
+        public GetSubEmailTopicCC(long ID, long UserId, string searchTxt)
         {
             this.TopicId = ID;
             this.UserId = UserId;
+            this.SearchTxt = searchTxt;
         }
     }
     public class GetSubEmailTopicSent : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long TopicId { get; private set; }
         public long UserId { get; private set; }
-        public GetSubEmailTopicSent(long ID, long UserId)
+        public string SearchTxt { get; private set; }
+        public GetSubEmailTopicSent(long ID, long UserId, string searchTxt)
         {
             this.TopicId = ID;
             this.UserId = UserId;
+            this.SearchTxt = searchTxt;
         }
     }
    
     public class GetSentTopic : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }
-        public GetSentTopic(long UserId)
+        public string SearchTxt { get; private set; }
+        public GetSentTopic(long UserId,string searchTxt)
         {
             this.UserId = UserId;
+            this.SearchTxt = searchTxt;
         }
     }
     public class GetSentTopicSearch : PagedRequest, IRequest<List<EmailTopics>>

@@ -94,7 +94,7 @@
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID));
+        _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID,"NULL"));
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -114,7 +114,7 @@
     }
     public async Task onAssignAllGridRefresh(long tid)
     {
-        _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID));
+        _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID,"NULL"));
         if(RefSubAssignAll != null)
         {
             await RefSubAssignAll.onSubAssignAllGridRefresh(tid);

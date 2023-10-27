@@ -10,71 +10,85 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
 
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@onBack" />
+                <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@savePermission" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
 <DxFormLayout CssClass="w-100">
-    <DxFormLayoutItem Caption="Create Folder" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsCreateFolder" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Edit Folder" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsEditFolder" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Delete Folder" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsDeleteFolder" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Grand Security Permission" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsGrantAdminPermission" />
-    </DxFormLayoutItem>
+    <DxFormLayoutGroup Caption="Folder Permission" ColSpanMd="12">
+        <DxFormLayoutItem Caption="Create Folder" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsCreateFolder" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Edit Folder" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsEditFolder" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Delete Folder" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsDeleteFolder" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Grand Security Permission" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsGrantAdminPermission" />
+        </DxFormLayoutItem>
+    </DxFormLayoutGroup>
+    <DxFormLayoutGroup Caption="Document Permission" ColSpanMd="12">
 
 
-
-    <DxFormLayoutItem Caption="Create Document" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsCreateDocument" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Reserve Profile Number Series" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsReserveProfileNumber" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Read" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsRead" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Download" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsEdit" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Rename" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsRename" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Check Out" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsUpdateDocument" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Share" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsCopy" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Move" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsMove" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Delete" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsDelete" />
-    </DxFormLayoutItem>
-   @*  <DxFormLayoutItem Caption="Email" ColSpanMd="6">
+        <DxFormLayoutItem Caption="Create Document" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsCreateDocument" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Reserve Profile Number Series" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsReserveProfileNumber" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Read" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsRead" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Download" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsEdit" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Rename" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsRename" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Check Out" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsUpdateDocument" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Share" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsCopy" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Move" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsMove" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Delete" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsDelete" />
+        </DxFormLayoutItem>
+        @*  <DxFormLayoutItem Caption="Email" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsSendEmail" />
-    </DxFormLayoutItem> *@
-    <DxFormLayoutItem Caption="History" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsListVersion" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Enable Info" ColSpanMd="6">
-        <DxCheckBox @bind-Checked="@documentPermission.IsEnableProfileTypeInfo" />
-    </DxFormLayoutItem>
-   @*  <DxFormLayoutItem Caption="Invitation" ColSpanMd="6">
+        </DxFormLayoutItem> *@
+        <DxFormLayoutItem Caption="History" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsListVersion" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Enable Info" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsEnableProfileTypeInfo" />
+        </DxFormLayoutItem>
+        @*  <DxFormLayoutItem Caption="Invitation" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsInvitation" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Document Notes" ColSpanMd="6">
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Document Notes" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsDiscussion" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Enable Document Status" ColSpanMd="6">
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Enable Document Status" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsDocumentAccess" />
-    </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Enable Create Task" ColSpanMd="6">
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Enable Create Task" ColSpanMd="6">
         <DxCheckBox @bind-Checked="@documentPermission.IsCreateTask" />
-    </DxFormLayoutItem> *@
-   
+        </DxFormLayoutItem> *@
+    </DxFormLayoutGroup>
 </DxFormLayout>
 @code {
     [Parameter]
@@ -118,6 +132,9 @@
                 toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
             }
         }
-        // RevokeBack?.Invoke();
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
     }
 }

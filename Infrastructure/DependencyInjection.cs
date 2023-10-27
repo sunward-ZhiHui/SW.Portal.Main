@@ -158,6 +158,7 @@ namespace Infrastructure
             services.AddTransient<IProductionActivityQueryRepository,ProductionActivityAppLineQueryRepository>();
             services.AddTransient<IProductionActivityAppQueryRepository,ProductionActivityAppQueryRepository>();
            
+            services.AddTransient<ISettingsQueryRepository, SettingsQueryRepository>();
             return services;
         }
     }

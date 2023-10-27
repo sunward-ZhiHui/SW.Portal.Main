@@ -33,6 +33,7 @@ namespace Core.Entities
         public string ModifiedBy { get; set; }
         [NotMapped]
         public string AddedBy { get; set; }
+        public string? ActivityType { get; set; }
     }
 
 

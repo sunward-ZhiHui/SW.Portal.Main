@@ -120,7 +120,7 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         @if (Page == "AssignTo")
         {
-            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
         }
        
     }
@@ -139,7 +139,7 @@
     }   
     public async Task onAssignToGridRefresh(long tid)
     {
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
         if(RefSubAssignTo != null)
         {
             await RefSubAssignTo.onSubAssignToGridRefresh(tid);
@@ -147,7 +147,7 @@
     }
     async Task onGridRefresh()
     {
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
     }
     async Task onPin(long Id)
     {           

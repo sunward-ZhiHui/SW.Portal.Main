@@ -123,14 +123,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  *,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\n" +
-                    "FileProfileTypeID as DocumentID,\r\n" +
-                    "Profile as ProfileNo,\r\n" +
-                    "CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n" +
-                    "CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\n" +
-                    "CONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\n" +
-                    "CONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\nAND IsLatest=1  \r\nAND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\nOR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n" +
-                    "from view_FileProfileTypeDocument t2";
+                var query = "select  *,SessionId as FileProfileTypeSessionId,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\nFileProfileTypeID as DocumentID,\r\nProfile as ProfileNo,\r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\nCONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID AND (tt.isDelete is null or tt.isdelete=0)),' ','items') as FileSizes,\r\nCONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID AND IsLatest=1 AND  (isDelete is null or isDelete=0) AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\nfrom view_FileProfileTypeDocument t2 ";
                 if (selectedFileProfileTypeID == null)
                 {
                     query += "\r\nWhere parentid is null AND IsDelete is null or IsDelete=0";
@@ -398,7 +391,18 @@ namespace Infrastructure.Repository.Query
                         "Where  t1.FileProfileTypeID=@FileProfileTypeID AND t1.UserID=@UserID AND (t3.Value is null or t3.Value!='Resign')";
                     using (var connection = CreateConnection())
                     {
-                        return await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
+                        var result= await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
+                       // if (result != null)
+                       // {
+                            return result;
+                        /*}
+                        else
+                        {
+                            DocumentPermissionModel documentPermissionModel = new DocumentPermissionModel();
+                            documentPermissionModel.DocumentPermissionID = -1;
+                            documentPermissionModel.IsPermissionExits = true;
+                            return documentPermissionModel;
+                        }*/
                     }
                 }
                 else
@@ -766,8 +770,8 @@ namespace Infrastructure.Repository.Query
                     var appUsers = await GetApplicationUserAsync();
                     var fileProfileType = await GetFileprofiletypeAsync();
                     var linkfileProfileTypes = await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds);
-                    var roleItemsList = await GetDocumentUserRoleAsync(documentSearchModel.FileProfileTypeIds);
-                    var closedocumentPermission = await GetCloseDocumentPermissionAsync(documentSearchModel.FileProfileTypeIds);
+                    //var roleItemsList = await GetDocumentUserRoleAsync(documentSearchModel.FileProfileTypeIds);
+                    //var closedocumentPermission = await GetCloseDocumentPermissionAsync(documentSearchModel.FileProfileTypeIds);
                     List<long?> linkfileProfileTypeDocumentids = new List<long?>();
                     linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
                     var parameters = new DynamicParameters();
@@ -811,9 +815,9 @@ namespace Infrastructure.Repository.Query
                             var sessionIds = documents.Select(a => a.SessionId).ToList();
                             var docShares = await GeDocumentDmsShareAsync(sessionIds);
                             var docIds = documents.Select(a => a.DocumentId).ToList();
-                            var notes = await GeNotesAsync(docIds);
-                            var taskMasternotes = await GetTaskMasterAsync(docIds);
-                            var setAccess = roleItemsList;
+                            // var notes = await GeNotesAsync(docIds);
+                            //var taskMasternotes = await GetTaskMasterAsync(docIds);
+                            // var setAccess = roleItemsList;
                             documents.ForEach(s =>
                             {
                                 var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
@@ -823,8 +827,8 @@ namespace Infrastructure.Repository.Query
                                 var fileName = s.FileName?.Split(name);
                                 DocumentsModel documentsModels = new DocumentsModel();
                                 documentsModels.UniqueNo = counts;
-                                var setAccessFlag = roleItemsList.Where(a => a.UserId == userData.UserID && a.DocumentId == s.DocumentId).Count();
-                                documentsModels.NotesCount = notes.Where(a => a.DocumentId == s.DocumentId).Count();
+                                //var setAccessFlag = roleItemsList.Where(a => a.UserId == userData.UserID && a.DocumentId == s.DocumentId).Count();
+                                //documentsModels.NotesCount = notes.Where(a => a.DocumentId == s.DocumentId).Count();
                                 documentsModels.SharesCount = 0;
                                 var sharesCountCount = docShares.Where(a => a.DocSessionId == s.SessionId).Count();
                                 if (sharesCountCount > 0)
@@ -832,7 +836,7 @@ namespace Infrastructure.Repository.Query
                                     documentsModels.SharesCount = sharesCountCount;
                                 }
                                 documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
-                                documentsModels.SetAccessFlag = setAccessFlag > 0 ? true : false;
+                                //documentsModels.SetAccessFlag = setAccessFlag > 0 ? true : false;
                                 documentsModels.SessionId = s.SessionId;
                                 documentsModels.DocumentID = s.DocumentId;
                                 documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
@@ -878,22 +882,6 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.ProfileNo = s.ProfileNo;
                                 documentsModels.FilePath = s.FilePath;
                                 documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
-                                if (documentsModels.isDocumentAccess == true && (documentsModels.IsEnableCreateTask == false || documentsModels.IsEnableCreateTask == null))
-                                {
-                                    documentsModels.ItemsAllFlag = true;
-                                }
-                                if (documentsModels.isDocumentAccess != true && (documentsModels.IsEnableCreateTask == false || documentsModels.IsEnableCreateTask == null))
-                                {
-                                    documentsModels.ItemsFlag = true;
-                                }
-                                if (documentsModels.isDocumentAccess != true && documentsModels.IsEnableCreateTask == true)
-                                {
-                                    documentsModels.ItemsWithCreateTask = true;
-                                }
-                                if (documentsModels.isDocumentAccess == true && documentsModels.IsEnableCreateTask == true)
-                                {
-                                    documentsModels.ItemsAllWithCreateTask = true;
-                                }
                                 documentsModels.IsExpiryDate = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsExpiryDate;
                                 var description = linkfileProfileTypes?.Where(f => f.FileProfileTypeId == selectedFileProfileTypeID && f.TransactionSessionId == s.SessionId && f.DocumentId == s.DocumentId).FirstOrDefault()?.Description;
                                 if (description != null)
@@ -904,7 +892,7 @@ namespace Infrastructure.Repository.Query
                                 {
                                     documentsModels.Description = s.Description;
                                 }
-                                    documentsModel.Add(documentsModels);
+                                documentsModel.Add(documentsModels);
                                 counts++;
                             });
                         }
@@ -915,7 +903,7 @@ namespace Infrastructure.Repository.Query
                             DocumentTypeModel.IsExpiryDate = DocumentTypeModel.DocumentsData.FirstOrDefault()?.IsExpiryDate;
                             DocumentTypeModel.TotalDocument = DocumentTypeModel.DocumentsData.ToList().Count();
                             DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
-                        }                        
+                        }
                     }
                 }
                 return DocumentTypeModel;
@@ -1811,8 +1799,9 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DocumentsModel>> GetAllFileProfileDeleteAsync()
+        public async Task<IReadOnlyList<DocumentsModel>> GetAllFileProfileDeleteAsync(ApplicationUser userData)
         {
+            List<DocumentsModel> documentsModel = new List<DocumentsModel>();
             try
             {
                 var query = "select  *,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\n" +
@@ -1826,7 +1815,39 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DocumentsModel>(query)).ToList();
+                    var result = (await connection.QueryAsync<DocumentsModel>(query)).ToList();
+                    if (result != null && result.Count > 0)
+                    {
+                        var documentPermission = await GetDocumentPermissionByRoll();
+                        var FileProfileTypeIds = result.Select(s => s.FileProfileTypeId).Distinct().ToList();
+                        var roleItemsList = await GetDocumentUserRoleAsync(FileProfileTypeIds);
+                        result.ForEach(s =>
+                        {
+                            var isPerAccess = 0;
+                            var exits = roleItemsList.Where(f => f.FileProfileTypeId == s.FilterProfileTypeId).ToList();
+                            if (exits.Count > 0)
+                            {
+                                var userExits = exits.FirstOrDefault(f => f.UserId == userData.UserID);
+                                if (userExits != null)
+                                {
+                                    var per = documentPermission.FirstOrDefault(d => d.DocumentRoleID == userExits.RoleId);
+                                    if (per != null && per.IsDelete == true)
+                                    {
+                                        isPerAccess = 1;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                isPerAccess = 1;
+                            }
+                            if (isPerAccess == 1 || s.AddedByUserID == userData.UserID)
+                            {
+                                documentsModel.Add(s);
+                            }
+                        });
+                    }
+                    return documentsModel;
                 }
             }
             catch (Exception exp)
@@ -1836,14 +1857,15 @@ namespace Infrastructure.Repository.Query
         }
         public async Task<DocumentTypeModel> GetAllDocumentDeleteAsync()
         {
+            var userData = await _localStorageService.GetItem<ApplicationUser>("user");
             DocumentTypeModel DocumentTypeModel = new DocumentTypeModel();
             List<DocumentsModel> documentsModel = new List<DocumentsModel>();
             try
             {
-                var docs = await GetAllFileProfileDeleteAsync();
+                var docs = await GetAllFileProfileDeleteAsync(userData);
                 var counts = docs != null ? (docs.Count + 1) : 1;
                 DocumentTypeModel.DocumentsData.AddRange(docs);
-                var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+
                 var appUsers = await GetApplicationUserAsync();
                 var fileProfileType = await GetFileprofiletypeAsync();
                 var parameters = new DynamicParameters();
@@ -1854,64 +1876,88 @@ namespace Infrastructure.Repository.Query
                     var documents = (await connection.QueryAsync<Documents>(query)).ToList();
                     if (documents != null && documents.Count > 0)
                     {
+                        var documentPermission = await GetDocumentPermissionByRoll();
+                        var FileProfileTypeIds = documents.Select(s => s.FilterProfileTypeId).Distinct().ToList();
+                        var roleItemsList = await GetDocumentUserRoleAsync(FileProfileTypeIds);
                         documents.ForEach(s =>
                         {
-                            var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
-                            var lastIndex = s.FileName != null ? s.FileName.LastIndexOf(".") : 0;
-                            lastIndex = lastIndex > 0 ? lastIndex : 0;
-                            var name = s.FileName != null ? s.FileName?.Substring(lastIndex) : "";
-                            var fileName = s.FileName?.Split(name);
-                            DocumentsModel documentsModels = new DocumentsModel();
-                            documentsModels.UniqueNo = counts;
-                            documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
-                            documentsModels.SessionId = s.SessionId;
-                            documentsModels.DocumentID = s.DocumentId;
-                            documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
-                            documentsModels.ContentType = s.ContentType;
-                            documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
-                            documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
-                            documentsModels.UploadDate = s.UploadDate;
-                            documentsModels.SessionID = s.SessionId;
-                            documentsModels.FileProfileTypeId = s.FilterProfileTypeId;
-                            documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
-                            documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
-                            documentsModels.ProfileID = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.ProfileId;
-                            documentsModels.DocumentParentId = s.DocumentParentId;
-                            documentsModels.TableName = s.TableName;
-                            documentsModels.IsMobileUpload = s.IsMobileUpload;
-                            documentsModels.Type = "Document";
-                            documentsModels.ExpiryDate = s.ExpiryDate;
-                            documentsModels.FileIndex = s.FileIndex;
-                            documentsModels.TotalDocument = documentcount == 1 ? 1 : (documentcount + 1);
-                            documentsModels.UploadedByUserId = s.AddedByUserId;
-                            documentsModels.ModifiedByUserID = s.ModifiedByUserId;
-                            documentsModels.AddedDate = s.UploadDate;
-                            documentsModels.ModifiedDate = s.ModifiedDate;
-                            documentsModels.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
-                            documentsModels.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
-                            documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
-                            documentsModels.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
-                            documentsModels.IsLocked = s.IsLocked;
-                            documentsModels.LockedByUserId = s.LockedByUserId;
-                            documentsModels.LockedDate = s.LockedDate;
-                            documentsModels.IsNewPath = s.IsNewPath;
-                            documentsModels.AddedByUserID = s.AddedByUserId;
-                            documentsModels.IsCompressed = s.IsCompressed;
-                            documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
-                            documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;
-                            documentsModels.IsEnableCreateTask = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsEnableCreateTask;
-                            documentsModels.CloseDocumentId = s.CloseDocumentId;
-                            documentsModels.CssClass = s.CloseDocumentId != null && s.CloseDocumentId == 2561 ? "blue-grey lighten - 3" : "transparent";
-                            documentsModels.ProfileNo = s.ProfileNo;
-                            documentsModels.FilePath = s.FilePath;
-                            documentsModels.DeleteByDate = s.DeleteByDate;
-                            documentsModels.DeleteByUserID = s.DeleteByUserID;
-                            documentsModels.DeleteByUser = appUsers.FirstOrDefault(f => f.UserID == s.DeleteByUserID)?.UserName;
-                            documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
+                            var isPerAccess = 0;
+                            var exits = roleItemsList.Where(f => f.FileProfileTypeId == s.FilterProfileTypeId).ToList();
+                            if (exits.Count > 0)
+                            {
+                                var userExits = exits.FirstOrDefault(f => f.UserId == userData.UserID);
+                                if (userExits != null)
+                                {
+                                    var per = documentPermission.FirstOrDefault(d => d.DocumentRoleID == userExits.RoleId);
+                                    if (per != null && per.IsDelete == true)
+                                    {
+                                        isPerAccess = 1;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                isPerAccess = 1;
+                            }
+                            if (isPerAccess == 1 || s.AddedByUserId == userData.UserID)
+                            {
+                                var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
+                                var lastIndex = s.FileName != null ? s.FileName.LastIndexOf(".") : 0;
+                                lastIndex = lastIndex > 0 ? lastIndex : 0;
+                                var name = s.FileName != null ? s.FileName?.Substring(lastIndex) : "";
+                                var fileName = s.FileName?.Split(name);
+                                DocumentsModel documentsModels = new DocumentsModel();
+                                documentsModels.UniqueNo = counts;
+                                documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
+                                documentsModels.SessionId = s.SessionId;
+                                documentsModels.DocumentID = s.DocumentId;
+                                documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
+                                documentsModels.ContentType = s.ContentType;
+                                documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
+                                documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
+                                documentsModels.UploadDate = s.UploadDate;
+                                documentsModels.SessionID = s.SessionId;
+                                documentsModels.FileProfileTypeId = s.FilterProfileTypeId;
+                                documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
+                                documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
+                                documentsModels.ProfileID = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.ProfileId;
+                                documentsModels.DocumentParentId = s.DocumentParentId;
+                                documentsModels.TableName = s.TableName;
+                                documentsModels.IsMobileUpload = s.IsMobileUpload;
+                                documentsModels.Type = "Document";
+                                documentsModels.ExpiryDate = s.ExpiryDate;
+                                documentsModels.FileIndex = s.FileIndex;
+                                documentsModels.TotalDocument = documentcount == 1 ? 1 : (documentcount + 1);
+                                documentsModels.UploadedByUserId = s.AddedByUserId;
+                                documentsModels.ModifiedByUserID = s.ModifiedByUserId;
+                                documentsModels.AddedDate = s.UploadDate;
+                                documentsModels.ModifiedDate = s.ModifiedDate;
+                                documentsModels.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
+                                documentsModels.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
+                                documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                                documentsModels.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                                documentsModels.IsLocked = s.IsLocked;
+                                documentsModels.LockedByUserId = s.LockedByUserId;
+                                documentsModels.LockedDate = s.LockedDate;
+                                documentsModels.IsNewPath = s.IsNewPath;
+                                documentsModels.AddedByUserID = s.AddedByUserId;
+                                documentsModels.IsCompressed = s.IsCompressed;
+                                documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
+                                documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;
+                                documentsModels.IsEnableCreateTask = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsEnableCreateTask;
+                                documentsModels.CloseDocumentId = s.CloseDocumentId;
+                                documentsModels.CssClass = s.CloseDocumentId != null && s.CloseDocumentId == 2561 ? "blue-grey lighten - 3" : "transparent";
+                                documentsModels.ProfileNo = s.ProfileNo;
+                                documentsModels.FilePath = s.FilePath;
+                                documentsModels.DeleteByDate = s.DeleteByDate;
+                                documentsModels.DeleteByUserID = s.DeleteByUserID;
+                                documentsModels.DeleteByUser = appUsers.FirstOrDefault(f => f.UserID == s.DeleteByUserID)?.UserName;
+                                documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
 
-                            documentsModel.Add(documentsModels);
+                                documentsModel.Add(documentsModels);
 
-                            counts++;
+                                counts++;
+                            }
                         });
                     }
                     DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());

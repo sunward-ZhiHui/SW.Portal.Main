@@ -14,6 +14,14 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
+    public class GetListByConversationSession : PagedRequest, IRequest<List<EmailConversations>>
+    {
+        public string SessionId { get; private set; }
+        public GetListByConversationSession(string SessionId)
+        {
+            this.SessionId = SessionId;
+        }
+    }
     public class CreateEmailCoversation : EmailConversations, IRequest<long>
     {
         public string SearchString { get; set; }
@@ -58,10 +66,12 @@ namespace Application.Queries
     {
         public long TopicId { get; private set; }
         public long UserId { get; private set; }
-        public GetEmailDiscussionList(long TopicId,long UserId)
+        public string Option { get; private set; }
+        public GetEmailDiscussionList(long TopicId,long UserId,string option)
         {
             this.TopicId = TopicId;
             this.UserId = UserId;
+            this.Option = option;
         }
     }
     public class GetDemoEmailFileDataList : PagedRequest, IRequest<List<EmailConversations>>

@@ -43,26 +43,26 @@ namespace SW.Portal.Solutions.Controllers
 
 
         [HttpGet("GetEmailList")]
-        public async Task<ActionResult<ResponseModel<IEnumerable<EmailTopics>>>> GetList(string mode, long UserId)
+        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetList(string mode, long UserId,string SearchTxt)
         {
             List<Core.Entities.EmailTopics> result = null;
-            var response = new ResponseModel<EmailTopics>();
+            var response = new ResponseModel<EmailTopicViewModel>();
 
             if (mode == "To")
             {
-                result = await _mediator.Send(new GetEmailTopicTo(UserId));
+                result = await _mediator.Send(new GetEmailTopicTo(UserId,SearchTxt));
             }
             else if (mode == "CC")
             {
-                result = await _mediator.Send(new GetEmailTopicCC(UserId));
+                result = await _mediator.Send(new GetEmailTopicCC(UserId, SearchTxt));
             }
             else if (mode == "Sent")
             {
-                result = await _mediator.Send(new GetSentTopic(UserId));
+                result = await _mediator.Send(new GetSentTopic(UserId, SearchTxt));
             }
             else if (mode == "All")
             {
-                result = await _mediator.Send(new GetEmailTopicAll(UserId));
+                result = await _mediator.Send(new GetEmailTopicAll(UserId, SearchTxt));
             }
             else
             {
@@ -83,22 +83,76 @@ namespace SW.Portal.Solutions.Controllers
                 addedDate = topic.StartDate,
                 addedByUserID = topic.AddedByUserID,
                 mode = mode,
-                userId = UserId
+                userId = UserId,
+                addedDateYear = topic.StartDate.Year,               
+                addedDateDay = topic.StartDate.ToString("dd-MMM"),
+                addedTime = topic.StartDate.ToString("hh:mm tt")
+            }).ToList();
+
+            try
+            {
+                response.ResponseCode = ResponseCode.Success;               
+                response.Results =displayResult;
+            }
+            catch (Exception ex)
+            {
+                response.ResponseCode = ResponseCode.Failure;
+                response.ErrorMessages.Add(ex.Message);
+            }
+
+            return Ok(response);
+        }
+        [HttpGet("GetEmailSearchList")]
+        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetSearchList(string mode,string SearchTxt, long UserId)
+        {
+            List<Core.Entities.EmailTopics> result = null;
+            var response = new ResponseModel<EmailTopicViewModel>();
+
+            if (mode == "To")
+            {
+                result = await _mediator.Send(new GetEmailTopicToSearch(SearchTxt,UserId));
+            }
+            else if (mode == "CC")
+            {
+                result = await _mediator.Send(new GetEmailTopicCCSearch(SearchTxt,UserId));
+            }
+            else if (mode == "Sent")
+            {
+                result = await _mediator.Send(new GetSentTopicSearch(SearchTxt,UserId));
+            }
+            else if (mode == "All")
+            {
+                result = await _mediator.Send(new GetEmailTopicAllSearch(SearchTxt,UserId));
+            }
+            else
+            {
+                result = new List<Core.Entities.EmailTopics>();
+            }
+
+            var displayResult = result?.Select(topic => new EmailTopicViewModel
+            {
+                id = topic.ID,
+                topicName = topic.TopicName,
+                firstName = topic.FirstName,
+                lastName = topic.LastName,
+                urgent = topic.Urgent,
+                isAllowParticipants = topic.IsAllowParticipants,
+                dueDate = topic.DueDate,
+                onBehalf = topic.OnBehalf,
+                onBehalfName = topic.OnBehalfName,
+                addedDate = topic.StartDate,
+                addedByUserID = topic.AddedByUserID,
+                mode = mode,
+                userId = UserId,
+                addedDateYear = topic.StartDate.Year,
+                addedDateDay = topic.StartDate.ToString("dd-MMM"),
+                addedTime = topic.StartDate.ToString("hh:mm tt")
             }).ToList();
 
             try
             {
                 response.ResponseCode = ResponseCode.Success;
-
-                // Add AutoMapper configuration here
-                var config = new MapperConfiguration(cfg => {
-                    cfg.CreateMap<EmailTopicViewModel, EmailTopics>();
-                    cfg.CreateMap<EmailTopics, EmailTopicViewModel>();
-                });
-
-
-                var mapper = new Mapper(config);
-                response.Results = mapper.Map<List<EmailTopics>>(displayResult);
+                response.Results = displayResult;
             }
             catch (Exception ex)
             {
@@ -109,33 +163,33 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpGet("GetSubEmailList")]
-        public async Task<ActionResult<ResponseModel<IEnumerable<EmailTopics>>>> GetSubList(string mode, long Id, long UserId)
+        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetSubList(string mode, long Id, long UserId,string SearchTxt)
         {
             List<Core.Entities.EmailTopics> subResult = null;
-            var response = new ResponseModel<EmailTopics>();
+            var response = new ResponseModel<EmailTopicViewModel>();
 
             if (mode == "To")
             {
-                subResult = await _mediator.Send(new GetSubEmailTopicTo(Id, UserId));
+                subResult = await _mediator.Send(new GetSubEmailTopicTo(Id, UserId, SearchTxt));
             }
             else if (mode == "CC")
             {
-                subResult = await _mediator.Send(new GetSubEmailTopicCC(Id, UserId));
+                subResult = await _mediator.Send(new GetSubEmailTopicCC(Id, UserId, SearchTxt));
             }
             else if (mode == "Sent")
             {
-                subResult = await _mediator.Send(new GetSubEmailTopicSent(Id, UserId));
+                subResult = await _mediator.Send(new GetSubEmailTopicSent(Id, UserId, SearchTxt));
             }
             else if (mode == "All")
             {
-                subResult = await _mediator.Send(new GetSubEmailTopicAll(Id, UserId));
+                subResult = await _mediator.Send(new GetSubEmailTopicAll(Id, UserId, SearchTxt));
             }
             else
             {
                 subResult = new List<Core.Entities.EmailTopics>();
             }
 
-            var displayResult = subResult?.Select(topic => new EmailTopicViewModel
+            var displayResults = subResult?.Select(topic => new EmailTopicViewModel
             {
                 id = topic.ID,
                 replyId = topic.ReplyId,
@@ -150,7 +204,10 @@ namespace SW.Portal.Solutions.Controllers
                 addedDate = topic.StartDate,
                 addedByUserID = topic.AddedByUserID,
                 mode = mode,
-                userId = UserId
+                userId = UserId,
+                addedDateYear = topic.StartDate.Year,                
+                addedDateDay = topic.StartDate.ToString("dd-MMM"),
+                addedTime = topic.StartDate.ToString("hh:mm tt")
             }).ToList();
 
             try
@@ -158,14 +215,15 @@ namespace SW.Portal.Solutions.Controllers
                 response.ResponseCode = ResponseCode.Success;
 
                 // Add AutoMapper configuration here
-                var config = new MapperConfiguration(cfg => {
-                    cfg.CreateMap<EmailTopicViewModel, EmailTopics>();
-                    cfg.CreateMap<EmailTopics, EmailTopicViewModel>();
-                });
+                //var config = new MapperConfiguration(cfg => {
+                //    cfg.CreateMap<EmailTopicViewModel, EmailTopics>();
+                //    cfg.CreateMap<EmailTopics, EmailTopicViewModel>();
+                //});
 
 
-                var mapper = new Mapper(config);
-                response.Results = mapper.Map<List<EmailTopics>>(displayResult);
+                //var mapper = new Mapper(config);
+                //response.Results = mapper.Map<List<EmailTopics>>(displayResult);
+                response.Results = displayResults;
             }
             catch (Exception ex)
             {

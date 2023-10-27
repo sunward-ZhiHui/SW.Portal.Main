@@ -17,25 +17,26 @@ namespace Core.Repositories.Query
         Task<List<EmailTopics>> GetBySessionTopicList(string SessionId);        
         Task<List<EmailTopics>> GetByIdTopicToList(Int64 UserId);
         Task<List<EmailTopics>> GetByIdTopicCCList(Int64 UserId);
-        Task<List<EmailTopics>> GetTopicToList(Int64 UserId);
+        Task<List<EmailTopics>> GetTopicToList(Int64 UserId,string SearchTxt);
+        Task<List<EmailTopics>> GetTopicToSearchList(string SearchTxt ,Int64 UserId);        
         Task<long> SetPinTopicToList(Int64 Id);
         Task<long> UnSetPinTopicToList(Int64 Id);
         Task<long> UpdateMarkasReadList(Int64 Id);
         Task<long> UpdateMarkasAllReadList(Int64 Id,long userId);
         Task<long> UpdateMarkasunReadList(Int64 Id);
-        Task<List<EmailTopics>> GetTopicAllList(Int64 UserId);
+        Task<List<EmailTopics>> GetTopicAllList(Int64 UserId,string SearchTxt);
         Task<List<EmailTopics>> GetTopicHomeList(Int64 UserId);
         Task<List<EmailTopics>> GetTopicMasterSearchList(EmailSearch emailSearch);        
-        Task<List<EmailTopics>> GetTopicCCList(Int64 UserId);
+        Task<List<EmailTopics>> GetTopicCCList(Int64 UserId,string SearchTxt);
         Task<List<EmailTopics>> GetTopicDraftList(Int64 UserId);
         long DeleteTopicDraftList(Int64 TopicId);
-        Task<List<EmailTopics>> GetSubTopicToList(Int64 TopicId,long UserId);
+        Task<List<EmailTopics>> GetSubTopicToList(Int64 TopicId,long UserId,string SearchTxt);
         Task<List<EmailTopics>> GetSubTopicSearchAllList(Int64 TopicId, long UserId,string SearchTxt);        
-        Task<List<EmailTopics>> GetSubTopicCCList(Int64 TopicId, long UserId);
-        Task<List<EmailTopics>> GetSubTopicSentList(Int64 TopicId, long UserId);
-        Task<List<EmailTopics>> GetSubTopicAllList(Int64 TopicId, long UserId);
+        Task<List<EmailTopics>> GetSubTopicCCList(Int64 TopicId, long UserId, string SearchTxt);
+        Task<List<EmailTopics>> GetSubTopicSentList(Int64 TopicId, long UserId, string SearchTxt);
+        Task<List<EmailTopics>> GetSubTopicAllList(Int64 TopicId, long UserId, string SearchTxt);
         Task<List<EmailTopics>> GetSubTopicHomeList(Int64 TopicId, long UserId);
-        Task<List<EmailTopics>> GetTopicSentList(Int64 UserId);
+        Task<List<EmailTopics>> GetTopicSentList(Int64 UserId,string searchTxt);
         Task<List<EmailParticipant>> GetParticipantList(Int64 topicId,long UserId);
         Task<List<EmailParticipant>> GetConversationPList(Int64 ConversationId);
         Task<List<EmailParticipant>> GetParticipantbysessionidList(Guid sessionId);
@@ -55,6 +56,7 @@ namespace Core.Repositories.Query
         Task<List<ActivityEmailTopics>> GetActivityEmailListBySession(Guid sessionId);        
         Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId);
         Task<long> CreateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
+        Task<long> UpdateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
         Task<long> Delete(long id);
     }
 }

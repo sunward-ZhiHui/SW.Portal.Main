@@ -1,0 +1,297 @@
+﻿@using Application.Queries;
+@using MediatR;
+@inject IMediator Mediator
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+<div style="width:100%;">
+    <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabSecIndex" TabsPosition="TabsPosition.Top" TabClick="OnTabClick">
+        <DxTabPage Text="User" TabIconCssClass="tabs-icon-home tabs-icon">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <EditForm Model="@Data" id="User1"
+                                  OnValidSubmit="@HandleValidSubmit"
+                                  OnInvalidSubmit="@HandleInvalidSubmit"
+                                  Context="EditFormContext">
+                            <DataAnnotationsValidator />
+                            <DxFormLayout>
+                                <DxFormLayoutItem Caption="Users" ColSpanMd="6">
+                                    <DxTagBox Data="_usersList"
+                                    @bind-Values="Data.SelectUserIDs"
+                                              NullText="Select To..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="UserID"
+                                              TextFieldName="FirstName"
+                                              FilteringMode="DataGridFilteringMode.Contains"
+                                              EditFormat="{0}-{1}"
+                                              SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedUserItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual">
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.LastName)" Caption="Last Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.DesignationName)" Caption="Designation" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
+                                    </DxTagBox>
+                                </DxFormLayoutItem>
+                                @if (AccessType == "DMSAccess")
+                                {
+                                    <DxFormLayoutItem Caption="Is DMS Open Access" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsAccess"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Is Create Main Folder" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsCreateMainFolder"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                }
+                                <DxFormLayoutItem ColSpanMd="2" Context="fl_context">
+                                    <DxButton SubmitFormOnClick="true"
+                                              Enabled="!isSending"
+                                              RenderStyle="ButtonRenderStyle.Primary">
+                                        <div class="d-flex">
+                                            <DxWaitIndicator Visible="isSending" />
+                                            <span class="mx-2">@Message</span>
+                                        </div>
+                                    </DxButton>
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+                        </EditForm>
+
+                    </div>
+                </div>
+            </div>
+
+        </DxTabPage>
+        <DxTabPage Text="User Group" TabIconCssClass="tabs-icon-products tabs-icon">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <EditForm Model="@Data" id="User2"
+                                  OnValidSubmit="@HandleValidSubmit"
+                                  OnInvalidSubmit="@HandleInvalidSubmit"
+                                  Context="EditFormContext">
+                            <DataAnnotationsValidator />
+                            <DxFormLayout>
+                                <DxFormLayoutItem Caption="User Group" ColSpanMd="6">
+                                    <DxTagBox Data="_userGroupsList"
+                                    @bind-Values="Data.SelectUserGroupIDs"
+                                              NullText="Select To..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="UserGroupId"
+                                              TextFieldName="Name"
+                                              SelectedItemsChanged="@((IEnumerable<UserGroup> values) => onSelectedUserGroupItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual">
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Name)" Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
+                                    </DxTagBox>
+                                </DxFormLayoutItem>
+                                @if (AccessType == "DMSAccess")
+                                {
+                                    <DxFormLayoutItem Caption="Is DMS Open Access" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsAccess"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Is Create Main Folder" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsCreateMainFolder"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                }
+                                <DxFormLayoutItem ColSpanMd="2" Context="fl_context">
+                                    <DxButton SubmitFormOnClick="true"
+                                              Enabled="!isSending"
+                                              RenderStyle="ButtonRenderStyle.Primary">
+                                        <div class="d-flex">
+                                            <DxWaitIndicator Visible="isSending" />
+                                            <span class="mx-2">@Message</span>
+                                        </div>
+                                    </DxButton>
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+                        </EditForm>
+                    </div>
+
+                </div>
+            </div>
+        </DxTabPage>
+        <DxTabPage Text="Level" TabIconCssClass="tabs-icon-support tabs-icon">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <EditForm Model="@Data" id="User3"
+                                  OnValidSubmit="@HandleValidSubmit"
+                                  OnInvalidSubmit="@HandleInvalidSubmit"
+                                  Context="EditFormContext">
+                            <DataAnnotationsValidator />
+                            <DxFormLayout>
+                                <DxFormLayoutItem Caption="Level Master" ColSpanMd="6">
+                                    <DxTagBox Data="_levelMasterLists"
+                                    @bind-Values="Data.SelectLevelMasterIDs"
+                                              NullText="Select To..."
+                                              ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                              ValueFieldName="LevelID"
+                                              TextFieldName="Name"
+                                              SelectedItemsChanged="@((IEnumerable<ViewLevel> values) => onSelectedLevelItemsChanged(values))"
+                                              ListRenderMode="ListRenderMode.Virtual">
+                                        <DxListEditorColumn FieldName="@nameof(ViewLevel.Name)" Caption="Name" />
+                                        <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
+                                    </DxTagBox>
+                                </DxFormLayoutItem>
+                                @if (AccessType == "DMSAccess")
+                                {
+                                    <DxFormLayoutItem Caption="Is DMS Open Access" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsAccess"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                    <DxFormLayoutItem Caption="Is Create Main Folder" ColSpanMd="2">
+                                        <DxCheckBox @bind-Checked="Data.IsDmsCreateMainFolder"></DxCheckBox>
+                                    </DxFormLayoutItem>
+                                }
+                                <DxFormLayoutItem ColSpanMd="2" Context="fl_context">
+                                    <DxButton SubmitFormOnClick="true"
+                                              Enabled="!isSending"
+                                              RenderStyle="ButtonRenderStyle.Primary">
+                                        <div class="d-flex">
+                                            <DxWaitIndicator Visible="isSending" />
+                                            <span class="mx-2">@Message</span>
+                                        </div>
+                                    </DxButton>
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+
+                        </EditForm>
+
+                    </div>
+
+                </div>
+            </div>
+        </DxTabPage>
+    </DxTabs>
+    <div class="col-md-12">
+        <OpenAccessUsersList @ref="refDocumentUserRoleListsUser" AccessType="@AccessType" TypeRole="Level" OpenAccessUserId="@OpenAccessUserId"></OpenAccessUsersList>
+    </div>
+</div>
+@code {
+    private OpenAccessUsersList? refDocumentUserRoleListsUser;
+    private OpenAccessUsersList? refDocumentUserRoleListsUserGroup;
+    private OpenAccessUsersList? refDocumentUserRoleListsLevel;
+    [Parameter]
+    public string? AccessType { get; set; }
+    bool isSending = false;
+    string Message => isSending ? "Pls Wait Saving..." : "Save";
+    [Parameter]
+    public long? OpenAccessUserId { get; set; }
+    public ApplicationUser _applicationUser { get; private set; }
+    private OpenAccessUser _openAccessUser { get; set; }
+
+    private List<UserGroup> _userGroupsList { get; set; }
+    public List<ViewLevel> _levelMasterLists { get; set; }
+    private List<ViewEmployee>? _usersList;
+    OpenAccessUserLink Data = new OpenAccessUserLink();
+    bool IsOpen { get; set; } = false;
+    bool IsOpenUserGroup { get; set; } = false;
+    bool IsOpenLevel { get; set; } = false;
+    public DocumentPermissionModel? documentPermissionData { get; set; }
+    int ActiveTabSecIndex { get; set; } = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await loadMainData(AccessType);
+    }
+    public async Task loadMainData(string accessType)
+    {
+        Data.AccessType = accessType;
+        if (accessType == "DMSAccess")
+        {
+
+        }
+        else
+        {
+            Data.IsDmsCreateMainFolder = false; Data.IsDmsAccess = false;
+        }
+        _openAccessUser = await Mediator.Send(new GetOpenAccessUser(accessType));
+        if (_openAccessUser != null)
+        {
+            OpenAccessUserId = _openAccessUser.OpenAccessUserId;
+        }
+        Data.OpenAccessUserId = OpenAccessUserId;
+        Data.AddedByUserID = _applicationUser.UserID;
+        Data.StatusCodeID = 1;
+        Data.ModifiedByUserID = _applicationUser.UserID;
+        _userGroupsList = await Mediator.Send(new GetUserGroups());
+        _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
+        _usersList = await Mediator.Send(new GetAllEmployeeQuery());
+        Data.Type = "User";
+        await refDocumentUserRoleListsUser.loadData(OpenAccessUserId, accessType);
+    }
+    async void OnTabClick(TabClickEventArgs e)
+    {
+        if (e.TabIndex == 0)
+        {
+            Data.Type = "User";
+            // await refDocumentUserRoleListsUser.loadData(OpenAccessUserId, AccessType);
+        }
+        if (e.TabIndex == 1)
+        {
+            Data.Type = "UserGroup";
+            //  await refDocumentUserRoleListsUserGroup.loadData(OpenAccessUserId, AccessType);
+        }
+        if (e.TabIndex == 2)
+        {
+            Data.Type = "Level";
+            // await refDocumentUserRoleListsLevel.loadData(OpenAccessUserId, AccessType);
+        }
+
+        StateHasChanged();
+    }
+    void onSelectedUserItemsChanged(IEnumerable<ViewEmployee> values)
+    {
+        ActiveTabSecIndex = 0;
+        StateHasChanged();
+    }
+    void onSelectedUserGroupItemsChanged(IEnumerable<UserGroup> values)
+    {
+        ActiveTabSecIndex = 1;
+        StateHasChanged();
+    }
+    void onSelectedLevelItemsChanged(IEnumerable<ViewLevel> values)
+    {
+        ActiveTabSecIndex = 2;
+        StateHasChanged();
+    }
+    async Task HandleValidSubmit()
+    {
+        isSending = true;
+        if (AccessType == "DMSAccess")
+        {
+            if(Data.IsDmsAccess==false && Data.IsDmsCreateMainFolder==false)
+            {
+                isSending = false;
+                toastService.ShowToast("Checkbox Select Anyone must.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+            else
+            {
+                await HandleValidSaving();
+            }
+        }
+        else
+        {
+            await HandleValidSaving();
+        }
+    }
+    async Task HandleValidSaving()
+    {
+        var response = await Mediator.Send(new InsertOpenAccessUserLink(Data));
+        if (response.OpenAccessUserId > 0)
+        {
+            OpenAccessUserId = response.OpenAccessUserId;
+            toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await refDocumentUserRoleListsUser.loadData(OpenAccessUserId, AccessType);
+            isSending = false;
+        }
+    }
+    void HandleInvalidSubmit()
+    {
+    }
+}

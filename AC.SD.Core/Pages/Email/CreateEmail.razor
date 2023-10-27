@@ -61,7 +61,12 @@
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@((e) => onBack())" Enabled = "@BackEnabled" />
                         <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onRestText" />
-                        <DxMenuItem Text="Sent" IconCssClass="fa fa-save" Click="@SubmitSentForm" />
+                        <DxMenuItem Text="Sent" Enabled="!isSending" IconCssClass="fa fa-save" Click="@SubmitSentForm">
+                            <div class="d-flex">
+                                <DxWaitIndicator Visible="isSending" />
+                                <span class="mx-2">@Message</span>
+                            </div>
+                        </DxMenuItem>
                         <DxMenuItem Text="Draft" IconCssClass="fab fa-stack-overflow" Click="@SubmitDraftForm" />
                        @* <DxMenuItem Text="Draft" IconCssClass="fa fa-save" Enabled="@IsDraftEnabled"  Click="@((e) => addNew(1))" />
                         <DxMenuItem Text="Sent" IconCssClass="fa fa-save" Click="@((e) => addNew(0))" />*@
@@ -420,6 +425,7 @@ else
 
 
 @code {
+    bool isSending = false;
     EditContext _editContext;
     private List<EmailActivityCatgorys> _AllCategory;
     EmailActivityCatgorys? CategoryData { get; set; } = new EmailActivityCatgorys();
@@ -537,7 +543,7 @@ else
 
     bool IsDraftEnabled { get; set; } = false;
     [Parameter]
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF",".msg",".ai"};
     private DxUpload uploadComponent;
     Guid? _sessionId;
     string MyError { get; set; }
@@ -586,7 +592,7 @@ else
     IEnumerable<ForumTypes>? _OnBehalf;
     string? ActComment = "";
     string? ActUserName = "";
-    string? ActivityType = "";
+    string? ActivityType = "Email";
     DateTime? ActAddedDate = DateTime.Now;
     byte[] replyboxHhtmlArray;
     private List<ApplicationUser> _applicationUsers;  
@@ -705,6 +711,7 @@ else
         {
             BackEnabled = false;
             NavigationManager.NavigateTo($"CreateEmail");
+            JSRuntime.InvokeAsync<string>("ReloadUrl");
         }
         else
         {
@@ -999,8 +1006,7 @@ else
                 var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
                 ActUserName = Namelist[0].Name;
                 ActAddedDate = actItem[0].AddedDate;
-                ActivityType = actItem[0].ActivityType;
-                ActivityType = actItem[0].ActivityType;
+                ActivityType = actItem[0].ActivityType;                
                 CategoryData.GroupTag = actItem[0].ManufacturingProcessId;
                 CategoryData.CategoryTag = actItem[0].CategoryActionId;
                 CategoryData.ActionTag = actItem[0].ActionId;
@@ -1118,6 +1124,7 @@ else
 
     async Task HandleValidSubmit()
     {        
+        isSending = true;
         await JSRuntime.InvokeAsync<string>("showLoading");
         participantIds.Clear();
         selectedToIds.Clear();
@@ -1130,6 +1137,7 @@ else
             Data.ToIds = null;
             toastService.ShowToast("Please Select To", AC.SD.Core.Services.ToastLevel.Error);
             await JSRuntime.InvokeAsync<string>("hideLoading");
+            isSending = false;
             return;
         }
 
@@ -1231,6 +1239,7 @@ else
         {
             toastService.ShowToast("Please Enter Messages", AC.SD.Core.Services.ToastLevel.Error);
             await JSRuntime.InvokeAsync<string>("hideLoading");
+            isSending = false;
             if (draftId == 0)
             {
                 loading = false;
@@ -1297,6 +1306,7 @@ else
                     CategoryTag = CategoryData.CategoryTag,
                     ActionTag = CategoryData.ActionTag,
                     actName = CategoryData.Name,
+                    ActivityType = ActivityType
                 };
        
 
@@ -1344,6 +1354,7 @@ else
                     {
                         BackEnabled = false;
                         NavigationManager.NavigateTo($"CreateEmail");
+                        JSRuntime.InvokeAsync<string>("ReloadUrl");
                     }
                     else
                     {
@@ -1353,6 +1364,7 @@ else
 
                     onRestText();
                     await JSRuntime.InvokeAsync<string>("hideLoading");
+                    isSending = false;
                 }
 
 
@@ -1361,12 +1373,14 @@ else
             {
                 onShowPopupMessage("Error", result.ToString());
                 await JSRuntime.InvokeAsync<string>("hideLoading");
+                isSending = false;
             }
         }
         catch (Exception eq)
         {
             onShowPopupMessage("Error", eq.Message);
             await JSRuntime.InvokeAsync<string>("hideLoading");
+            isSending = false;
         }
 
 

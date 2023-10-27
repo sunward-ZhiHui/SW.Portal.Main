@@ -32,21 +32,10 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentSelectButton" Enabled="@loading" />
+                        <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="@onsubmitUploadFromClick" Enabled="@loading" />
                     </Items>
                 </DxMenu>
-            </div>
-            <div class="" style="float: left; margin-top: -40px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
-                <div id="attachmentSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
-            </div>
-            <div class="" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 8px; z-index: 9999; width:100px;">
-                <button type="submit" form="@UploadDocFormID" disabled="@loading" class="btn border-primary btn-primary m-1 handline" onclick="@onsubmitUploadFromClick">
-                    @if (loading)
-                    {
-                        <span class="spinner-border spinner-border-sm mr-1"></span>
-                    }
-                    <i class="fa fa-upload"></i>
-                    @Message
-                </button>
             </div>
 
         </div>
@@ -57,11 +46,11 @@
 <div class="" style="margin-left:10px;">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
         <div class="cw-480" style="margin-top:10px;">
-            <EditForm Model="@Data" id="@UploadDocFormID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+            <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
 
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
-                    <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10" >
+                    <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10">
                         <DxTextBox @bind-Text=@FileprofiletypeName Enabled="IsFileProfileTypeShow">
                             <Buttons>
                                 <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-FileProfileTypeOpen")
@@ -187,28 +176,29 @@
                     <DxFormLayoutItem Caption="Description" ColSpanMd="6">
                         <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="" ColSpanMd="12">
-
-                        <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
-                            <DxUpload @ref="uploadComponent" Name="files"
-                                      Visible="@AttachmentUploadVisible"
-                                      AcceptedFileTypes=@AcceptedFileTypes
-                                      ChunkSize="200000"
-                                      UploadMode="@UploadMode.OnButtonClick"
-                                      FileUploadStart="OnFileUploadStart"
-                                      AllowMultiFileUpload="true"
-                                      ExternalSelectButtonCssSelector="#attachmentSelectButton"
-                                      SelectedFilesChanged="@AttachmentSelectedFilesChanged"
-                                      FileUploaded="@isUploadSuccess"
-                                      FileUploadProgressChanged="@OnUploadProgressChanged"
-                                      FileUploadStarted="@OnFileUploadStarted"
-                                      FileUploadError="@OnUploadError">
-                            </DxUpload>
-
-                        </div>
-                    </DxFormLayoutItem>
                 </DxFormLayout>
             </EditForm>
+            @* <DxFormLayoutItem Caption="" ColSpanMd="12"> *@
+
+            <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
+                <DxUpload @ref="uploadComponent" Name="files"
+                          Visible="@AttachmentUploadVisible"
+                          AcceptedFileTypes=@AcceptedFileTypes
+                          ChunkSize="200000"
+                          UploadMode="@UploadMode.OnButtonClick"
+                          FileUploadStart="OnFileUploadStart"
+                          AllowMultiFileUpload="true"
+                          ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                          SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                          FileUploaded="@isUploadSuccess"
+                          FileUploadProgressChanged="@OnUploadProgressChanged"
+                          FileUploadStarted="@OnFileUploadStarted"
+                          FileUploadError="@OnUploadError">
+                </DxUpload>
+
+            </div>
+            @*  </DxFormLayoutItem> *@
+
         </div>
     </div>
 </div>
@@ -225,7 +215,7 @@
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
-            <DxFormLayoutItem Caption="" >
+            <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeView"
                 @bind-FilterString="FilterString"
                             Data="@fileProfileTypeDocumentsAll"
@@ -251,7 +241,10 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    EditContext _editContext;
+    [Parameter]
     public DocumentsModel selectedFiles { get; set; }
+    [Parameter]
     public ApplicationUser applicationUser { get; set; }
     [Parameter]
     public Action RevokeBack { get; set; }
@@ -260,7 +253,7 @@
     private DxTreeView _treeView;
     string FilterString { get; set; }
     public string FileprofiletypeName { get; set; }
-    public bool loading { get; set; } = false;
+    public bool loading { get; set; } = true;
     public bool IsFileProfileTypeOpen { get; set; }
     string Message = "Upload";
     public bool IsFileProfileTypeShow { get; set; } = false;
@@ -287,10 +280,12 @@
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
-
+        _editContext = new EditContext(Data);
+        await loadData(selectedFiles, applicationUser);
     }
     public async Task loadData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser)
     {
+        _editContext = new EditContext(Data);
         IsFileProfileTypeShow = false;
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         isPlant = false;
@@ -299,7 +294,7 @@
         Data.PlantId = 0; Data.DepartmentId = 0;
         Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
         TempSetIds = new List<DocumentsUploadModel>();
-        loading = false;
+        loading = true;
         Message = "Upload";
         uploadComponent.RemoveAllFiles();
         CurrentUplodCount = 0;
@@ -427,7 +422,7 @@
     void OnFileUploadStart(FileUploadStartEventArgs e)
     {
         Message = "Uploading...";
-        loading = true;
+        loading = false;
         var SessionId = new Guid(e.FileInfo.Guid);
         DocumentsUploadModel TempSetId = new DocumentsUploadModel();
         TempSetId.SessionId = SessionId;
@@ -452,7 +447,7 @@
         if (CurrentUplodCount >= SelectedFilesCount)
         {
             Message = "Upload";
-            loading = false;
+            loading = true;
             backUrl();
         }
 
@@ -462,7 +457,7 @@
         MyError = e.RequestInfo.ResponseText;
         toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
         Message = "Upload";
-        loading = false;
+        loading = true;
         InvokeAsync(StateHasChanged);
     }
     void OnFileUploadStarted(FileUploadEventArgs e)
@@ -523,6 +518,10 @@
 
     public void onsubmitUploadFromClick()
     {
+        if (_editContext.Validate())
+        {
+            this.HandleValidSubmit();
+        }
     }
     void HandleValidSubmit()
     {

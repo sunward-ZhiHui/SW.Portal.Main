@@ -24,10 +24,11 @@ namespace Core.Repositories.Query
         Task<long> Delete(EmailConversations company);
         Task<IReadOnlyList<ViewEmployee>> GetAllParticipantAsync(long topicId);
         Task<IReadOnlyList<ViewEmployee>> GetAddConversationPListAsync(long ConversationId);        
+        Task<List<EmailConversations>> GetBySessionConversationList(string SessionId);
         long DeleteParticipant(TopicParticipant topicParticipant);
         Task<EmailConversations> GetByIdAsync(Int64 id);        
         Task<List<EmailConversations>> GetFullDiscussionListAsync(Int64 TopicId);
-        Task<List<EmailConversations>> GetDiscussionListAsync(Int64 TopicId,Int64 UserId);
+        Task<List<EmailConversations>> GetDiscussionListAsync(Int64 TopicId,Int64 UserId,string Option);
         Task<List<EmailConversations>> GetDemoEmailFileDataListAsync();
         Task<long> GetDemoUpdateEmailFileDataListAsync(long id, Byte[] fileData);
         Task<List<EmailConversations>> GetValidUserListAsync(Int64 TopicId, Int64 UserId);        

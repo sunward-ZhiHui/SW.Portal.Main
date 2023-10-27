@@ -30,12 +30,12 @@
                     <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
                     <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
                     <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
-                    <DxMenuItem Text="Permission" Enabled="@EditEnabled">
-                        <Items>
-                            <DxMenuItem Text="Add/Edit Permission" IconCssClass="fa fa-add" Click="onAddPermission" />
-                            <DxMenuItem Text="Delete Permission" IconCssClass="fa fa-remove" Click="onDeletePermission" />
-                        </Items>
-                    </DxMenuItem>
+                      <DxMenuItem Text="Permission" Enabled="@EditEnabled">
+                         <Items>
+                             <DxMenuItem Text="Add/Edit Permission" IconCssClass="fa fa-add" Click="onAddPermission" />
+                             <DxMenuItem Text="Delete Permission" IconCssClass="fa fa-remove" Click="onDeletePermission" />
+                         </Items>
+                     </DxMenuItem> 
                     <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportXlsx_Click" />
                 </Items>
             </DxMenu>
@@ -142,7 +142,7 @@
 
 </DxPopup>
 <DxPopup @bind-Visible="@PopupVisibleSecurityAccess"
-         ShowFooter="true"
+         ShowFooter="false"
          HeaderText=@($"Role-{Name}")
          CloseOnOutsideClick="false"
          ShowCloseButton="false"

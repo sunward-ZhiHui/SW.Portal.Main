@@ -48,6 +48,7 @@ namespace Application.Response
         public long? GroupTag { get; set; }
         public long? CategoryTag { get; set; }
         public long? ActionTag { get; set; }
-        public string? actName { get; set; }        
+        public string? actName { get; set; }     
+        public string? ActivityType { get; set;}
     }
 }

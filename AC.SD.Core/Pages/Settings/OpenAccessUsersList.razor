@@ -1,0 +1,203 @@
+﻿@using global::Core.EntityModels;
+@using global::Core.Entities;
+@using MediatR;
+@inject IMediator Mediator
+@using Application.Queries;
+@inject AC.SD.Core.Services.ToastService toastService
+
+
+<div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Desktop">
+            <Items>
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="SMGrid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_documentUserRoleLists"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            KeyFieldName="OpenAccessUserLinkId"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 420px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="OpenAccessUserLinkId" Visible="false" />
+            <DxGridDataColumn FieldName="FullName" Caption="Name" MinWidth="170" />
+            <DxGridDataColumn FieldName="DepartmentName" Caption="Department" MinWidth="170" />
+            <DxGridDataColumn FieldName="DesignationName" Caption="Designation" MinWidth="170" />
+            @if (AccessType == "DMSAccess")
+            {
+                <DxGridDataColumn FieldName="IsDmsAccess" Caption="Dms Access" />
+                <DxGridDataColumn FieldName="IsDmsCreateMainFolder" Caption="Create MainFolder" />
+            }
+            <DxGridCommandColumn Width="160px" Visible="false" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FullName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @ref="popup" HeaderText="Delete User Role" ShowCloseButton="true" @bind-Visible="@PopupVisible">
+
+
+    <div class="text-center">
+        <p>@DeleteerrorMessage</p>
+
+        <DxButton Text="OK" Click="@(() => ClosePopup())" />
+    </div>
+
+
+</DxPopup>
+
+@code {
+    IGrid? SMGrid { get; set; }
+    bool DeleteEnabled { get; set; } = false;
+    [Parameter]
+    public long? OpenAccessUserId { get; set; }
+    [Parameter]
+    public string? AccessType { get; set; }
+    [Parameter]
+    public string? TypeRole { get; set; }
+    public List<OpenAccessUserLink> _documentUserRoleLists { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    bool PanelVisible { get; set; }
+    bool Blukdeletepopup { get; set; } = false;
+    string? DeleteerrorMessage;
+
+    bool PopupVisible { get; set; } = false;
+    private OpenAccessUserLink _selectedItems;
+    OpenAccessUserLink documentUserRoleModel = new OpenAccessUserLink();
+    DxPopup? popup;
+    protected override async Task OnInitializedAsync()
+    {
+        await loadData(OpenAccessUserId, AccessType);
+    }
+    public async Task loadData(long? openAccessUserId, string? accessType)
+    {
+        DeleteEnabled = false;
+        _documentUserRoleLists = new List<OpenAccessUserLink>();
+        if (openAccessUserId > 0)
+        {
+            _documentUserRoleLists = await Mediator.Send(new GetAllSettingsQuery(openAccessUserId));
+            if (_documentUserRoleLists.Count > 0)
+            {
+                _selectedItems = _documentUserRoleLists.FirstOrDefault();
+                DeleteEnabled = true;
+            }
+        }
+        StateHasChanged();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+        }
+        else
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is OpenAccessUserLink dataselectItems)
+                    {
+                        _selectedItems = (OpenAccessUserLink)item;
+                    }
+                }
+            }
+
+        }
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    async void ClosePopup()
+    {
+        PopupVisible = false;
+        await loadData(OpenAccessUserId, AccessType);
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        Blukdeletepopup = false;
+        PopupVisible = false;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "OpenAccessUserLinkId");
+        _selectedItems = _documentUserRoleLists.FirstOrDefault(f => f.OpenAccessUserLinkId == (long?)UniqueId);
+        StateHasChanged();
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is OpenAccessUserLink dataItem)
+                    {
+                        var request = new DeleteOpenAccessUserLink(dataItem);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await loadData(OpenAccessUserId, AccessType);
+                        SMGrid.SetFocusedRowIndex(0);
+                    }
+
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            //DeleteerrorMessage = eq.Message;
+            //PopupVisible = true;
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+}

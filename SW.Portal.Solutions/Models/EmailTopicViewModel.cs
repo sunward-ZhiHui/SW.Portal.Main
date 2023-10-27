@@ -16,5 +16,8 @@
         public long? addedByUserID { get; set; }
         public string? mode { get;set; }
         public long userId { get; set; }
+        public int? addedDateYear { get; set; }        
+        public string? addedDateDay { get; set; }
+        public string? addedTime { get; set; }
     }
 }

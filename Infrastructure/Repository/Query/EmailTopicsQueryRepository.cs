@@ -376,7 +376,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailTopics>> GetTopicAllList(long UserId)
+        public async Task<List<EmailTopics>> GetTopicAllList(long UserId,string searchTxt)
         {
             try
             {
@@ -386,6 +386,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", searchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_ALL");
 
                         connection.Open();
@@ -631,7 +632,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailTopics>> GetTopicToList(long UserId)
+        public async Task<List<EmailTopics>> GetTopicToList(long UserId, string? searchTxt)
         {
             try
             {
@@ -640,7 +641,8 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         var parameters = new DynamicParameters();
-                        parameters.Add("UserId", UserId);                        
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", searchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_TO");
 
                         connection.Open();
@@ -659,8 +661,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
-        public async Task<List<EmailTopics>> GetTopicCCList(long UserId)
+        public async Task<List<EmailTopics>> GetTopicToSearchList(string SearchTxt, long UserId)
         {
             try
             {
@@ -670,6 +671,37 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", SearchTxt);
+                        parameters.Add("Option", "SELECT_ASSIGN_TO_SEARCH");
+
+                        connection.Open();
+
+                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicSearchList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<EmailTopics>> GetTopicCCList(long UserId, string searchTxt)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", searchTxt);                        
                         parameters.Add("Option", "SELECT_ASSIGN_CC");
 
                         connection.Open();
@@ -689,7 +721,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailTopics>> GetTopicSentList(long UserId)
+        public async Task<List<EmailTopics>> GetTopicSentList(long UserId,string searchTxt)
         {
             try
             {
@@ -699,6 +731,7 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
+                        parameters.Add("searchtxt", searchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_SENT");
 
                         connection.Open();
@@ -769,7 +802,7 @@ namespace Infrastructure.Repository.Query
                     try
                     {
                         var parameters = new DynamicParameters();
-                        parameters.Add("TopicId", TopicId);
+                        parameters.Add("TopicId", TopicId);                        
                         parameters.Add("Option", "EMAIL_DRAFT_DELETE");                       
                         connection.Open();
                         var task = connection.ExecuteAsync("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
@@ -862,7 +895,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailTopics>> GetSubTopicToList(long TopicId, long UserId)
+        public async Task<List<EmailTopics>> GetSubTopicToList(long TopicId, long UserId,string SearchTxt)
         {
             try
             {
@@ -873,6 +906,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("TopicId", TopicId);
+                        parameters.Add("searchtxt", SearchTxt);                        
                         parameters.Add("Option", "SUB_SELECT_TO");
 
                         connection.Open();
@@ -892,7 +926,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailTopics>> GetSubTopicCCList(long TopicId, long UserId)
+        public async Task<List<EmailTopics>> GetSubTopicCCList(long TopicId, long UserId,string SearchTxt)
         {
             try
             {
@@ -903,6 +937,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("TopicId", TopicId);
+                        parameters.Add("searchtxt", SearchTxt);
                         parameters.Add("Option", "SUB_SELECT_CC");
 
                         connection.Open();
@@ -922,7 +957,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailTopics>> GetSubTopicSentList(long TopicId, long UserId)
+        public async Task<List<EmailTopics>> GetSubTopicSentList(long TopicId, long UserId,string SearchTxt)
         {
             try
             {
@@ -933,6 +968,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("TopicId", TopicId);
+                        parameters.Add("searchtxt", SearchTxt);
                         parameters.Add("Option", "SUB_SELECT_SENT");
 
                         connection.Open();
@@ -952,7 +988,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailTopics>> GetSubTopicAllList(long TopicId, long UserId)
+        public async Task<List<EmailTopics>> GetSubTopicAllList(long TopicId, long UserId,string SearchTxt)
         {
             try
             {
@@ -963,6 +999,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("UserId", UserId);
                         parameters.Add("TopicId", TopicId);
+                        parameters.Add("searchtxt", SearchTxt);
                         parameters.Add("Option", "SUB_SELECT_ALL");
 
                         connection.Open();
@@ -1539,6 +1576,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("CategoryTag", EmailTopics.CategoryTag);
                         parameterss.Add("ActionTag", EmailTopics.ActionTag);
                         parameterss.Add("ActName", EmailTopics.actName);
+                        parameterss.Add("ActivityType", EmailTopics.ActivityType);                        
 
                         connection.Open();
 
@@ -1621,6 +1659,56 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("CategoryActionId", activityEmailTopics.CategoryActionId);
 
                             var query = "INSERT INTO ActivityEmailTopics(SubjectName,Comment,ActivityType,SessionId,BackURL,DocumentSessionId,AddedByUserID,AddedDate,ManufacturingProcessId,CategoryActionId) VALUES (@SubjectName,@Comment,@ActivityType,@SessionId,@BackURL,@DocumentSessionId,@AddedByUserID,@AddedDate,@ManufacturingProcessId,@CategoryActionId)";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<long> UpdateActivityEmailAsync(ActivityEmailTopics activityEmailTopics)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("SubjectName", activityEmailTopics.SubjectName);
+                            parameters.Add("Comment", activityEmailTopics.Comment);
+                            parameters.Add("ActivityType", activityEmailTopics.ActivityType);
+                            parameters.Add("SessionId", activityEmailTopics.SessionId);
+                            parameters.Add("BackURL", activityEmailTopics.BackURL);
+                            parameters.Add("SessionId", activityEmailTopics.SessionId);
+                            parameters.Add("DocumentSessionId", activityEmailTopics.DocumentSessionId);
+                            parameters.Add("AddedByUserID", activityEmailTopics.AddedByUserID);
+                            parameters.Add("AddedDate", activityEmailTopics.AddedDate);
+                            parameters.Add("ManufacturingProcessId", activityEmailTopics.ManufacturingProcessId);
+                            parameters.Add("CategoryActionId", activityEmailTopics.CategoryActionId);
+                            parameters.Add("ActivityEmailTopicID", activityEmailTopics.ActivityEmailTopicID);                            
+
+                            var query = "UPDATE ActivityEmailTopics SET SubjectName = @SubjectName,Comment = @Comment,ActivityType = @ActivityType,AddedByUserID = @AddedByUserID,AddedDate = @AddedDate,ManufacturingProcessId = @ManufacturingProcessId,CategoryActionId = @CategoryActionId WHERE ActivityEmailTopicID = @ActivityEmailTopicID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
@@ -1739,10 +1827,34 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("DueDate", emailConversations.DueDate);
                             parameters.Add("ID", emailConversations.ID);
+                            parameters.Add("TopicId", emailConversations.TopicID);
+                            parameters.Add("ModifiedByUserID", emailConversations.ModifiedByUserID);
+                            parameters.Add("ModifiedDate", emailConversations.ModifiedDate);
 
-                            var query = " UPDATE EmailConversations SET DueDate = @DueDate WHERE ID = @ID";
+                            var query = " UPDATE EmailConversations SET DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @ID";
+
+                            var emailquery = "UPDATE EmailTopics SET DueDate = @DueDate,ModifiedByUserID = @ModifiedByUserID,ModifiedDate = @ModifiedDate WHERE ID = @TopicId";
+
+                            var ckquery = "SELECT TOP 1 ID FROM EmailConversations WHERE TopicID = @TopicId AND ReplyId = 0 ORDER BY ID";
+                            var actresult = await connection.QueryAsync<EmailConversations>(ckquery, parameters, transaction);
+
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            // Check if there are any results in the actresult
+                            if (actresult != null && actresult.Any())
+                            {
+                                var firstResult = actresult.FirstOrDefault();
+
+                                // Check if the first record's ID matches the ID from emailConversations
+                                if (firstResult != null && firstResult.ID == emailConversations.ID)
+                                {
+                                    // Execute another SQL query (emailquery) with the same parameters
+                                    var rowsAffected2 = await connection.ExecuteAsync(emailquery, parameters, transaction);
+                                }
+                            }
+
+
 
                             transaction.Commit();
 

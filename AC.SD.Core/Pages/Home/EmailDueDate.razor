@@ -9,6 +9,7 @@
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
+@inject NavigationManager NavigationManager
 
 <DxGrid @ref="EmailDueDateGrid" SearchText="@GridSearchText"
         Data="_emailTopicDueDate"
@@ -24,50 +25,24 @@
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
         CssClass="w-100" style="height: calc(100vh - 200px);"
-        RowClick="OnEmailToRowClick"
+        RowClick="OnEmailDueRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">
-    <Columns>
+    <Columns>        
         <DxGridDataColumn FieldName="SessionId" Caption="SessionID" FilterRowValue='@filterrowname' FilterRowEditorVisible="false" FilterRowOperatorType="GridFilterRowOperatorType.Contains" MinWidth="250" Visible=false />
-        @* <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
-        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />*@
-        <DxGridDataColumn FieldName="FirstName" Caption="">
+        <DxGridDataColumn FieldName="FirstName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="100" />
+        <DxGridDataColumn FieldName="TopicName" Caption="Subject Name" MinWidth="250" />
+        <DxGridDataColumn FieldName="DueDate" Width="180">
             <CellDisplayTemplate>
                 @{
                     var item = (EmailTopics)context.DataItem;
                 }
-                <div style="width:100%" class="@((item.NotificationCount > 0 ? "markasTextColor" : "unmarkasTextColor"))">
-                    <strong>
-                        @item.FirstName
-                        @if (item.NotificationCount != 0)
-                        {
-                            <span class="notificationCount">@item.NotificationCount</span>
-                        }
-                        @if (item.Urgent.GetValueOrDefault(false))
-                        {
-                            <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
-                        }
-
-                        @if (item.OnBehalf == applicationUser.UserID)
-                        {
-                            <span class="onbehalf_icon"><i class="fa fa-info-circle" aria-hidden="true"></i></span>
-                        }
-                        @if (item.IsAllowParticipants.GetValueOrDefault(false))
-                        {
-                            <span class="primary_color_icon"><i class="fa fa-users" aria-hidden="true"></i></span>
-                        }
-                    </strong>
-                    <div>
-                        <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</span>
-                        <text>@item.TopicName</text>
-                    </div>
-                </div>
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.DueDate)</span>
             </CellDisplayTemplate>
         </DxGridDataColumn>
-        @*  <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />  *@
     </Columns>
     <DetailRowTemplate>
-        <EmailSubDueDate @ref=RefSubAssignAll Items="(EmailTopics)context.DataItem" />
+        <EmailSubDueDate Items="(EmailTopics)context.DataItem" />
     </DetailRowTemplate>
     <TotalSummary>
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
@@ -105,17 +80,21 @@
             e.CssClass += "non-selectable-row";
         }
     }
-    async Task OnEmailToRowClick(GridRowClickEventArgs e)
+    async Task OnEmailDueRowClick(GridRowClickEventArgs e)
     {
-        //var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        //SelectedGroup = UniqueId.ToString();
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        SelectedGroup = UniqueId.ToString();
+
+        var lst = _emailTopicDueDate.Where(x => x.ID == long.Parse(SelectedGroup)).FirstOrDefault();   
+        
+        NavigationManager.NavigateTo($"ViewEmail/{lst.SessionId}/Email");
         //ATopicId?.Invoke(SelectedGroup);
         ////await LoadData();
-        //StateHasChanged();
+        StateHasChanged();
     }
     public async Task onAssignAllGridRefresh(long tid)
     {
-        _emailTopicDueDate = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID));
+        _emailTopicDueDate = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL"));
         if (RefSubAssignAll != null)
         {
             await RefSubAssignAll.onSubAssignAllGridRefresh(tid);

@@ -925,7 +925,7 @@
                                 SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
                                 <Columns>
                                 @*    <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
-                                    <DxGridDataColumn FieldName="FileIndex" Caption="#" Width="35px" FixedPosition="GridColumnFixedPosition.Left"></DxGridDataColumn>
+                                    @*<DxGridDataColumn FieldName="FileIndex" Caption="#" Width="35px" FixedPosition="GridColumnFixedPosition.Left"></DxGridDataColumn>*@
                                     <DxGridDataColumn FieldName="SubjectName" MinWidth="200" FixedPosition="GridColumnFixedPosition.Left"  />
                                     <DxGridDataColumn FieldName="FileName" MinWidth="200" />
 
@@ -990,6 +990,7 @@
         <DxMenu Orientation="Orientation.Horizontal">
             <Items>
                 <DxMenuItem IconCssClass="fa fa-calendar" @onclick="onSubjectDueDatePop" Text="Due Date" />
+                <DxMenuItem IconCssClass="fa fa-ban" @onclick="onCancelDueDatePop" Text="Cancel Due Date" />
                 <DxMenuItem IconCssClass="fa fa-text-width" @onclick="@(() => onMarkasAllRead(CurrentEmailConversations.ID))" Text="Mark as all read" />
                 <DxMenuItem IconCssClass="fa fa-font" @onclick="onRenameSubjectPop" Text="Rename Subject" />
             </Items>
@@ -1072,6 +1073,20 @@
     </BodyTemplate>
 </DxPopup>
 
+<DxPopup @bind-Visible="@isCancelDueDate"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>Do you want to Cancel Due Date this Subject <span class="txthighlite"> @_cancelSubjectName </span> </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+          <DxButton style="align-items" Text="Yes" Click="@((e) => SubmitCancelDueDate())" RenderStyle="ButtonRenderStyle.Secondary"/>
+    </FooterContentTemplate>
+
+</DxPopup>
 
 <DxPopup @bind-Visible="@isSubjectDueDate" HeaderText="Subject Due Date">
     <BodyTemplate Context="PopupContext">
@@ -1334,8 +1349,8 @@
     bool ErrorVisible { get; set; } = false;
     string MyError { get; set; }
     [Parameter]
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF" };
-    public List<string> AllowedFileExtensions { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",".txt",".pdf",".PDF" };
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF",".msg",".ai"};
+    public List<string> AllowedFileExtensions { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",".txt",".pdf",".PDF",".msg",".ai"};
     public DocumentFormat MyDocumentFormat { get; set; }
     private string? BaseUrl;
     private string? FileUrl;
@@ -1481,6 +1496,8 @@
     bool isFileUpload = false;
     bool isDueDate =false;
     bool isSubjectDueDate = false;
+    bool isCancelDueDate = false;
+    string _cancelSubjectName = "";
     bool isRenameSubject = false;
     bool isTopicClosed = false;
     bool isTopicCategoryClosed = false;
@@ -1887,7 +1904,13 @@
     }
     async void onSubjectDueDatePop()
     {
-        isSubjectDueDate = true;       
+        isSubjectDueDate = true;
+        _dataSubjectDuDate.DueDate = CurrentEmailConversations.DueDate;
+    }
+    async void onCancelDueDatePop()
+    {
+        isCancelDueDate = true;
+        _cancelSubjectName = CurrentEmailConversations.Name;
     }
     async void onRenameSubjectPop()
     {
@@ -1924,6 +1947,7 @@
             {
                 //ID = long.Parse(@SelectedGroup),
                 ID = CurrentEmailConversations.ID,
+                TopicID = CurrentEmailConversations.TopicID,
                 DueDate = _dataSubjectDuDate.DueDate,
                 ModifiedByUserID = applicationUser.UserID,
                 ModifiedDate = DateTime.Now
@@ -1932,6 +1956,34 @@
         var result = await Mediator.Send(UpdateReq);
 
         isSubjectDueDate = false;
+        //onShowPopupMessage("success", "Updated DueDate Successfully");
+        if (RTopicId == 0)
+        {
+            await LoadData();
+        }
+        else
+        {
+            await LoadReplyData();
+        }
+        isOpenSubjectPop = false;
+        StateHasChanged();
+    }
+
+    async void SubmitCancelDueDate()
+    {
+        var UpdateReq = new UpdateEmailTopicSubjectDueDate
+            {
+                //ID = long.Parse(@SelectedGroup),
+                ID = CurrentEmailConversations.ID,
+                TopicID = CurrentEmailConversations.TopicID,
+                DueDate = null,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now
+            };
+
+        var result = await Mediator.Send(UpdateReq);
+
+        isCancelDueDate = false;
         //onShowPopupMessage("success", "Updated DueDate Successfully");
         if (RTopicId == 0)
         {
@@ -2336,9 +2388,13 @@
         _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup),applicationUser.UserID,isLeftMenuvisible)); 
         var lst =  _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
 
-        //var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
-        var url = DocumentViewUrl + "?url=" + lst.UniqueSessionId;
-        await OpenDocumentPreview(url);
+        if(lst != null)
+        {
+             //var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
+            var url = DocumentViewUrl + "?url=" + lst.UniqueSessionId;
+            await OpenDocumentPreview(url);
+        }
+       
     }
     public async Task onDocDownload_old(long Id)
     {
@@ -2553,7 +2609,7 @@
         // Cid = getconid[0].ID;
         Cid = 0;
         SelectedReplyId = getconid[0].ID.ToString();
-        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
+        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID,isLeftMenuvisible));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
         _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup))); 
@@ -2733,7 +2789,7 @@
                 var getconid = await Mediator.Send(new GetTopConversationList(Tid));
                 //Cid = getconid[0].ID;
                 Cid = 0;
-                _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
+                _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
                 _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
                 _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup)));
@@ -2857,6 +2913,23 @@
                 onSubViewEmailClick(ridds);
             }
         }
+        else if(Page == "Email")
+        {
+            var page = Page;
+            isPage = true;
+            string sessionidString = TodoSessionId.ToString();            
+            var lsts = await Mediator.Send(new GetListByConversationSession(sessionidString));
+            if (lsts.Count > 0)
+            {
+                string ridds = lsts[0].ID.ToString();
+                ActiveTabIndex = 4;
+                OnLeftMenuItemClick("Library");
+                isLeftMenuvisible = "Library";
+                MyDayFilterText = lsts[0].Name;
+                await Task.Delay(2000); // Delay for 2 seconds
+                onSubViewEmailClick(ridds);
+            }
+        }
         else
         {      
             if (ActiveSessionId != null)
@@ -2868,9 +2941,9 @@
                     RTopicId = 0;
                     filterrowname = ActiveSessionId;
 
-                    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-                    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-                    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+                    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
+                    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID,"NULL"));
                     _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
 
                     await LoadData();
@@ -2883,9 +2956,9 @@
                     SelectedGroup = elst[0].ID.ToString();
                     RTopicId = 0;
 
-                    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-                    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-                    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                    _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+                    _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
+                    _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID,"NULL"));
                     _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
 
                     
@@ -2904,9 +2977,9 @@
             }
             else
             {
-                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-                _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-                _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+                _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+                _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
+                _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
                 _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
             }
         }
@@ -2942,9 +3015,9 @@
     }
     private async Task LoadGridData()
     {
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
+        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
         _topics = await Mediator.Send(new GetUserEmailTopics(applicationUser.UserID));
     }
     public void Dispose()
@@ -2958,9 +3031,9 @@
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
         await JSRuntime.InvokeAsync<string>("showLoading");
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID));
-        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID));
-        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID));
+        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+        _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
+        _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID, "NULL"));
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
     }

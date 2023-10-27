@@ -1,9 +1,32 @@
 ﻿@page "/ProActivityAppLine"
+@using Application.Handlers.QueryHandlers;
 @using Application.Queries;
 @using MediatR;
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
+@using global::Core.EntityModels;
 @inject IMediator Mediator
+
+
+
+<div class="card w-100 tooltips" style="margin-bottom:10px;">
+    <div class="card-body p-0 tooltiptops">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                        
+                        
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <DxGrid @ref="AppLine"
         Data="_AppLines"
@@ -26,7 +49,7 @@
         AllowSelectRowByClick="true"
         SelectionMode="GridSelectionMode.Single"
         CssClass="ch-360"
-        style="height: calc(100vh - 470px);">
+        style="height: calc(100vh - 400px);">
     <Columns>
 
         <DxGridDataColumn FieldName="CommentImageType" Caption="Type" MinWidth="180" />
@@ -40,32 +63,74 @@
         <DxGridDataColumn FieldName="ModifiedBy" Caption="ModifiedBy" MinWidth="180" />
         <DxGridDataColumn FieldName="ModifiedDate" Caption="ModifiedDate" MinWidth="180" />
     </Columns>
-    @*<EditFormTemplate Context="EditFormContext">
 
-    @{
-    var rolePermission = (ProductionActivityAppLine)EditFormContext.EditModel;
+    <EditFormTemplate  Context="EditFormContext">
+
+   @{
+    var PAActivity = (ProductionActivityAppLine)EditFormContext.EditModel;
     }
     <DxFormLayout CssClass="w-100">
-    <DxFormLayoutItem Caption="Value:" ColSpanMd="6">
-    <DxTextBox @bind-Text="@rolePermission.AttributeDetailName" ShowValidationIcon="true" />
-    <ValidationMessage For="@(() => rolePermission.AttributeDetailName)" />
+            <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
+                <DxComboBox Data="@_ProcessLines"
+                            NullText="Select Category ..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ProdActivityCategoryChildID"
+                            @bind-Value="Data.BatchNo"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+                <ValidationMessage For="@(() => PAActivity.Category)" />
     </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Description:" ColSpanMd="6">
-    <DxTextBox @bind-Text="@rolePermission.Description" />
+    <DxFormLayoutItem Caption="ProdOrderNo:" ColSpanMd="6">
+                <DxComboBox Data="@_ponumberActivities"
+                            NullText="Select ProdOrderNo..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="prodOrderNo"
+                            ValueFieldName="NavprodOrderLineId"
+                            @bind-Value="Data.ProdOrderNo"
+                            ShowValidationIcon="true">
+                </DxComboBox>
     </DxFormLayoutItem>
-    <DxFormLayoutItem Caption="Is Active:" ColSpanMd="6">
-    <DxCheckBox @bind-Checked="@rolePermission.Disabled" />
+            <DxFormLayoutItem Caption="ActionDropdown:" ColSpanMd="6">
+                <DxComboBox Data="@_ProcessLines"
+                            NullText="Select ActionDropdown..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ProductionActivityAppLineID"
+                            @bind-Value="Data.ProductionActivityAppID"
+                            ShowValidationIcon="true">
+                </DxComboBox>
     </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Manufacturing Process:" ColSpanMd="6">
+                <DxComboBox Data="@_ProcessLines"
+                            NullText="Select Manufacturing Process..."
+                            FilteringMode="DataGridFilteringMode.Contains"
+                            TextFieldName="Value"
+                            ValueFieldName="ManufacturingProcessChildID"
+                            @bind-Value="Data.CompanyID"
+                            ShowValidationIcon="true">
+                </DxComboBox>
+            </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Comment:" ColSpanMd="6">
+                <DxTextBox @bind-Text="@PAActivity.Comment" />
+            </DxFormLayoutItem>
 
     </DxFormLayout>
-    </EditFormTemplate>*@
+    </EditFormTemplate> 
 </DxGrid>
 @code {
 
+    ProductionActivityApp Data = new ProductionActivityApp();
+    ProductionActivityAppLine Data1 = new ProductionActivityAppLine();
+    private List<ProductionActivityApp> _ponumberActivities;
+    // private List<ProductionActivityApp> _ponumberActivities;
     IGrid? AppLine { get; set; }
-    
+
     private List<ProductionActivityAppLine> _AppLines;
+    private List<ApplicationMasterChildModel> _ProcessLines;
+
   
+    // ProductionActivityAppLine Data = new ProductionActivityAppLine();
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -76,22 +141,58 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        
-         var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery());
-         _AppLines = Lines;
+        //  _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(Company));
+        _ProcessLines = await Mediator.Send(new GetAllApplicationMasterChildProQuery());
+        var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery());
+        _AppLines = Lines;
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
 
     }
-    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    public void saveresult(Task<long> E)
+    { 
+        var list = E;
+    }
+    public  async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
+        AppLine.StartEditNewRowAsync();        
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
     }
     void addEdit()
     {
+    }
+    void addNew()
+       {
+
+        AppLine.StartEditNewRowAsync();
+
+       }
+    
+    public void TestLine()
+    {
+
+
+        var request = new CreateProductionActivityAppLineCommand
+            {
+                Comment = Data1.Comment,
+                ActionDropdown = Data1.ActionDropdown,
+                ManufacturingProcessID = Data1.ManufacturingProcessID,
+                ProdActivityCategoryID = Data1.ProdActivityCategoryID,
+                NavprodOrderLineID = Data1.NavprodOrderLineID,
+                LocationID = Data1.LocationID,
+                // DeropdownName=Data.DeropdownName,
+                // Comment=Data.Comment,
+                // ICTMasterID=Data.ICTMasterID,
+                AddedDate = DateTime.Now,
+                SessionId = Guid.NewGuid(),
+                StatusCodeID = 1,
+                AddedByUserID = 1/* applicationUser.UserID*/,
+            };
+
+        var result = Mediator.Send(request);
     }
 }
 

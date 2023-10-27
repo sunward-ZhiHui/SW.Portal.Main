@@ -517,49 +517,198 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<List<EmailConversations>> GetDiscussionListAsync(long TopicId,long UserId)
+        public async Task<List<EmailConversations>> GetDiscussionListAsync(long TopicId, long UserId,string Option)
         {
             try
             {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("TopicId", TopicId, DbType.Int64);
+                        parameters.Add("UserId", UserId, DbType.Int64);
+                        parameters.Add("Option", Option);
 
-                //      var query = @"SELECT FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId FROM EmailConversations FC                                
-                //                      INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                //                      INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                               
-                //                      WHERE FC.TopicId = @TopicId /*AND FC.ReplyId = 0*/
-                //                          AND (FC.ParticipantId = @UserId
-                //OR EXISTS(SELECT * FROM EmailConversationAssignTo AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId)
-                //OR EXISTS(SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = FC.ID AND AST.UserId = @UserId))
-                //                          ORDER BY FC.AddedDate ASC";
+                        connection.Open();                        
+                        var res = connection.Query<EmailConversations>("sp_Select_GetEmailDiscussionList", parameters, commandType: CommandType.StoredProcedure).ToList();
+                        foreach (var topic in res)
+                        {
 
-                var query_NOTUSED = @"SELECT  FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId,
-                                AET.Comment as ActCommentName,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,AET.ActivityType
-                                FROM EmailConversations FC  
-								 LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
-                                INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = FC.ID AND ECP.UserId = @UserId
-                                Cross Apply(Select DISTINCT ReplyId = CASE WHEN ECC.ReplyId>0 THEN ECC.ReplyId ELSE ECC.ID END
-                                            From EmailConversations ECC
-                                            WHERE  (ECC.ParticipantId = @UserId
-		                                            OR EXISTS(SELECT * FROM EmailConversationAssignTo AST WHERE AST.ConversationId = ECC.ID AND AST.UserId = @UserId)
-		                                            OR EXISTS(SELECT * FROM EmailConversationAssignCC AST WHERE AST.ConversationId = ECC.ID AND AST.UserId = @UserId)
-                                                    OR EXISTS(SELECT * FROM EmailConversationParticipant ECP WHERE ECP.ConversationId = ECC.ID AND ECP.UserId = @UserId)
-		                                           ) AND ECC.TopicID=@TopicId   /*AND ECC.ReplyId>0*/
-			
-		                                   )K
-                                INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                INNER JOIN Employee EMP ON EMP.UserID = AU.UserID    
-								LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID 
-                                WHERE  K.ReplyId=FC.ID AND FC.ReplyId=0
-                                --ORDER BY FC.AddedDate ASC
+                            var subQuery = @"SELECT
+                                        FC.Name,
+                                        FC.ID,
+                                        FC.AddedDate,
+                                        FC.Message,
+                                        AU.UserName,
+                                        AU.UserID,
+                                        FC.ReplyId,
+                                        FC.SessionId,FC.FileData,
+                                        EN.IsRead,
+										EN.ID as EmailNotificationId,
+                                        ISNULL(FC.IsMobile, 0) AS IsMobile
+                                    FROM
+                                        EmailConversations FC                                       
+                                        INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                        LEFT JOIN EmailNotifications EN ON EN.ConversationId = FC.ID AND EN.UserId = @UserId
+                                    WHERE
+                                        FC.TopicId = @TopicId  AND FC.ReplyId = @ReplyId
+                                    ORDER BY FC.AddedDate DESC";
+                            
+                            var parameterss = new DynamicParameters();
+                            parameterss.Add("TopicId", TopicId, DbType.Int64);
+                            parameterss.Add("UserId", UserId, DbType.Int64);
+                            parameterss.Add("ReplyId", topic.ID, DbType.Int64);
+                            var subQueryResults = connection.Query<EmailConversations>(subQuery, parameterss).ToList();
 
-                                UNION 
+                            var subQueryDocs = @"select DocumentID,FileName,ContentType,FileSize,FilePath from Documents WHERE SessionID = @SessionID";
 
-                                select FC.TopicID,FC.ReplyId, FC.Name,FC.ID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.TopicId,
-								'' as ActCommentName,'' as ActUserName,'' as ActAddedDate from EmailTopics EETT 
-                                INNER JOIN EmailConversations FC ON FC.TopicID = EETT.ID
-                                 INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID  
-                                where OnBehalf =@UserId and EETT.ID = @TopicId";
+                            var parametersDocs = new DynamicParameters();
+                            parametersDocs.Add("SessionID", topic.SessionId);
 
+                            var subQueryDocsResults = connection.Query<Documents>(subQueryDocs, parametersDocs).ToList();
+
+                            var subQueryassignTo = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignTo FCA
+                                        INNER JOIN Employee E on E.UserID = FCA.UserId
+                                        where FCA.ConversationId = @Id";
+                            var parametersassignTo = new DynamicParameters();
+                            parametersassignTo.Add("Id", topic.ID, DbType.Int64);
+                            var subQueryAssignToResults = connection.Query<EmailAssignToList>(subQueryassignTo, parametersassignTo).ToList();
+
+
+                            var subQueryassignCC = @"select E.FirstName,FCA.UserId,FCA.TopicId from EmailConversationAssignCC FCA
+                                        INNER JOIN Employee E on E.UserID = FCA.UserId
+                                        where FCA.ConversationId = @Id";
+                            var parametersassignCC = new DynamicParameters();
+                            parametersassignCC.Add("Id", topic.ID, DbType.Int64);
+                            var subQueryAssignCCResults = connection.Query<EmailAssignToList>(subQueryassignCC, parametersassignCC).ToList();
+
+
+
+                            topic.ReplyConversation = subQueryResults;
+                            topic.documents = subQueryDocsResults;
+                            topic.AssignToList = subQueryAssignToResults;
+                            topic.AssignCCList = subQueryAssignCCResults;
+
+                            foreach (var conversation in topic.ReplyConversation)
+                            {
+                                var subQueryReplyDocs = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath,FC.FileData,FC.Name from EmailConversations FC
+                                                        INNER JOIN Documents D ON D.SessionID = FC.SessionId
+                                                        WHERE D.SessionID = @SessionID";
+                                var parametersReplyDocs = new DynamicParameters();
+                                parametersReplyDocs.Add("SessionID", conversation.SessionId);
+                                parametersReplyDocs.Add("ReplyId", conversation.ReplyId, DbType.Int64);
+
+                                var subQueryReplyDocsResults = connection.Query<Documents>(subQueryReplyDocs, parametersReplyDocs).ToList();
+
+                                var replysubQueryassignTo = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignTo FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+                                var replyparametersassignTo = new DynamicParameters();
+                                replyparametersassignTo.Add("ConversationId", conversation.ID, DbType.Int64);
+                                var replysubQueryAssignToResults = connection.Query<EmailAssignToList>(replysubQueryassignTo, replyparametersassignTo).ToList();
+
+                                var replysubQueryassignCC = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignCC FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+                                var replyparametersassignCC = new DynamicParameters();
+                                replyparametersassignCC.Add("ConversationId", conversation.ID, DbType.Int64);
+                                var replysubQueryAssignCCResults = connection.Query<EmailAssignToList>(replysubQueryassignCC, replyparametersassignCC).ToList();
+
+
+
+                                var replyBysubQuery = @"SELECT
+                                        FC.Name,
+                                        FC.ID,
+                                        FC.AddedDate,
+                                        FC.Message,
+                                        AU.UserName,
+                                        AU.UserID,
+                                        FC.ReplyId,
+                                        FC.SessionId,FC.FileData
+                                    FROM
+                                        EmailConversations FC
+                                        INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                                    WHERE
+                                        FC.TopicId = @TopicId AND FC.ReplyId = @ReplyId";
+
+                                var reparameterss = new DynamicParameters();
+                                reparameterss.Add("TopicId", TopicId, DbType.Int64);
+                                reparameterss.Add("ReplyId", conversation.ID, DbType.Int64);
+                                var replyBysubQueryResults = connection.Query<EmailConversations>(replyBysubQuery, reparameterss).ToList();
+
+
+                                conversation.documents = subQueryReplyDocsResults;
+                                conversation.AssignToList = replysubQueryAssignToResults;
+                                conversation.AssignCCList = replysubQueryAssignCCResults;
+
+                                conversation.ReplyConversation = replyBysubQueryResults;
+
+
+                                foreach (var conversations in conversation.ReplyConversation)
+                                {
+
+
+                                    var subQueryReplyDocs1 = @"select D.DocumentID,D.FileName,D.ContentType,D.FileSize,D.FilePath,FC.FileData,FC.Name from EmailConversations FC
+                                                        INNER JOIN Documents D ON D.SessionID = FC.SessionId
+                                                        WHERE D.SessionID = @SessionID";
+                                    var parametersReplyDocs1 = new DynamicParameters();
+                                    parametersReplyDocs1.Add("SessionID", conversations.SessionId);
+                                    parametersReplyDocs1.Add("ReplyId", conversations.ReplyId, DbType.Int64);
+
+                                    var subQueryReplyDocsResultss = connection.Query<Documents>(subQueryReplyDocs1, parametersReplyDocs1).ToList();
+
+                                    var replysubQueryassignTo1 = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignTo FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+                                    var replyparametersassignTo1 = new DynamicParameters();
+                                    replyparametersassignTo1.Add("ConversationId", conversations.ID, DbType.Int64);
+                                    var replysubQueryAssignToResultss = connection.Query<EmailAssignToList>(replysubQueryassignTo1, replyparametersassignTo1).ToList();
+
+
+                                    var replysubQueryassignCC1 = @"SELECT FCT.ID,FCT.UserId,E.FirstName,E.LastName from EmailConversationAssignCC FCT
+                                INNER JOIN ApplicationUser AU ON AU.UserID = FCT.UserId
+                                INNER JOIN Employee E ON E.UserID = FCT.UserId
+                                WHERE FCT.ConversationId = @ConversationId";
+                                    var replyparametersassignCC1 = new DynamicParameters();
+                                    replyparametersassignCC1.Add("ConversationId", conversations.ID, DbType.Int64);
+                                    var replysubQueryAssignCCResultss = connection.Query<EmailAssignToList>(replysubQueryassignCC1, replyparametersassignCC1).ToList();
+
+
+                                    conversations.documents = subQueryReplyDocsResultss;
+                                    conversations.AssignToList = replysubQueryAssignToResultss;
+                                    conversations.AssignCCList = replysubQueryAssignCCResultss;
+
+                                }
+
+                            }
+
+                        }
+
+                        return res;
+
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                   
+
+                  
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<EmailConversations>> GetDiscussionListAsync_old(long TopicId,long UserId)
+        {
+            try
+            {     
                 var query = @"SELECT * FROM (
                             SELECT FC.TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
                                 AET.Comment AS ActCommentName,AET.BackURL, EMPP.FirstName AS ActUserName, AET.AddedDate AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
@@ -581,17 +730,7 @@ namespace Infrastructure.Repository.Query
                             INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                             INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
                             LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
-                            WHERE K.ReplyId = FC.ID AND FC.ReplyId = 0
-
-                            --UNION
-
- --                           SELECT EETT.ID AS TopicID, FC.ReplyId, FC.Name, FC.ID, FC.SessionId, FC.AddedDate, FC.Message, AU.UserName, AU.UserID, FC.FileData,
- --                               '' AS ActCommentName, '' AS ActUserName, '' AS ActAddedDate,FC.DueDate,FC.IsAllowParticipants
- --                           FROM EmailTopics EETT
- --                           INNER JOIN EmailConversations FC ON FC.TopicID = EETT.ID
- --                           INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
- --                           INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
- --                           WHERE OnBehalf = @UserId AND EETT.ID = @TopicId
+                            WHERE K.ReplyId = FC.ID AND FC.ReplyId = 0   
                         ) AS CombinedResult
                         ORDER BY CombinedResult.AddedDate DESC";
 

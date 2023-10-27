@@ -2,8 +2,10 @@
 using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
+using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,7 +22,24 @@ namespace Infrastructure.Repository.Query
         {
 
         }
+        public async Task<OpenAccessUserLink> GetDMSAccessByUser(long? UserID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("UserID", UserID);
+                var query = "select t1.* from OpenAccessUserLink t1\r\nJOIN OpenAccessUser t2 ON t1.OpenAccessUserID=t2.OpenAccessUserID AND t2.AccessType='DMSAccess'\r\nWHERE t1.UserID=@UserID";
 
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<OpenAccessUserLink>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<OpenAccessUserLink>> GetAllAsync(long? OpenAccessUserId)
         {
             try
@@ -38,7 +57,7 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<OpenAccessUserLink>(query,parameters)).ToList();
+                    return (await connection.QueryAsync<OpenAccessUserLink>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -118,20 +137,69 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<long?> InsertOpenAccessUserLinkOne(OpenAccessUserLink value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transactions = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("AccessType", value.AccessType, DbType.String);
+                            parameters.Add("AddedByUserID", value.AddedByUserID);
+                            parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
+                            parameters.Add("StatusCodeID", value.StatusCodeID);
+                            parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
+                            parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                            parameters.Add("SessionId", Guid.NewGuid(), DbType.Guid);
+                            var querys = "INSERT INTO [OpenAccessUser](AccessType,AddedByUserID,ModifiedByUserID,StatusCodeID,AddedDate,ModifiedDate,SessionId) OUTPUT INSERTED.OpenAccessUserId " +
+                                "VALUES (@AccessType,@AddedByUserID,@ModifiedByUserID,@StatusCodeID,@AddedDate,@ModifiedDate,@SessionId)";
+                            var values = await connection.QuerySingleOrDefaultAsync<long>(querys, parameters, transactions);
+                            transactions.Commit();
+
+                            return values;
+                        }
+
+
+                        catch (Exception exp)
+                        {
+                            transactions.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new NotImplementedException();
+            }
+        }
         public async Task<OpenAccessUserLink> InsertOpenAccessUserLink(OpenAccessUserLink value)
         {
             try
             {
                 using (var connection = CreateConnection())
                 {
-                    var userExitsRoles = await GetDocumentAccessTypeEmptyAsync(value.AccessType);
-                    var userGroupUsers = await GetUserGroupUserType();
-                    var LevelUsers = await GetLeveMasterUsersType(value.SelectLevelMasterIDs);
+
                     connection.Open();
                     using (var transaction = connection.BeginTransaction())
                     {
                         try
                         {
+                            var IsDmsAccess = value.IsDmsAccess == true ? 1 : 0;
+                            var IsDmsCreateMainFolder = value.IsDmsCreateMainFolder == true ? 1 : 0;
+                            var query = string.Empty;
+                            var parameters = new DynamicParameters();
+                            parameters.Add("IsDmsAccess", value.IsDmsAccess);
+                            parameters.Add("IsDmsCreateMainFolder", value.IsDmsCreateMainFolder);
                             var lists = await GetAllByAsync(value.AccessType);
                             if (lists != null)
                             {
@@ -139,79 +207,89 @@ namespace Infrastructure.Repository.Query
                             }
                             else
                             {
-                                var parameters = new DynamicParameters();
-                                parameters.Add("AccessType", value.AccessType);
-                                parameters.Add("AddedByUserID", value.AddedByUserID);
-                                parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
-                                parameters.Add("StatusCodeID", value.StatusCodeID);
-                                parameters.Add("AddedDate", DateTime.Now);
-                                parameters.Add("ModifiedDate", DateTime.Now);
-                                parameters.Add("SessionId", Guid.NewGuid());
-                                var query = "INSERT INTO [OpenAccessUser](AccessType,AddedByUserID,ModifiedByUserID,StatusCodeID,AddedDate,ModifiedDate,SessionId) OUTPUT INSERTED.OpenAccessUserId " +
-                                    "VALUES (@AccessType,@AddedByUserID,@ModifiedByUserID,@StatusCodeID,@AddedDate,@ModifiedDate,@SessionId)";
-                                value.OpenAccessUserId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                                value.OpenAccessUserId = await InsertOpenAccessUserLinkOne(value);
                             }
-                            if (value.Type == "User")
+                            if (value.OpenAccessUserId > 0)
                             {
-                                if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
+                                var userExitsRoles = await GetDocumentAccessTypeEmptyAsync(value.AccessType);
+                                var userGroupUsers = await GetUserGroupUserType();
+                                var LevelUsers = await GetLeveMasterUsersType(value.SelectLevelMasterIDs);
+                                if (value.Type == "User")
                                 {
-                                    foreach (var item in value.SelectUserIDs)
+                                    if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
                                     {
-                                        var counts = userExitsRoles.Where(w => w.UserId == item).Count();
-                                        if (counts == 0)
+                                        foreach (var item in value.SelectUserIDs)
                                         {
-                                            var parameters = new DynamicParameters();
-                                            parameters.Add("OpenAccessUserID", value.OpenAccessUserId);
-                                            parameters.Add("UserId", item);
-                                            var query = "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId) OUTPUT INSERTED.OpenAccessUserLinkId " +
-                                                "VALUES (@OpenAccessUserId,@UserId)";
-                                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                                            var counts = userExitsRoles.FirstOrDefault(w => w.UserId == item);
+                                            if (counts == null)
+                                            {
+                                                query += "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId,IsDmsAccess,IsDmsCreateMainFolder) OUTPUT INSERTED.OpenAccessUserLinkId " +
+                                                   "VALUES (" + value.OpenAccessUserId + "," + item + ",@IsDmsAccess,@IsDmsCreateMainFolder);\n";
+                                            }
+                                            else
+                                            {
+                                                if (value.AccessType == "DMSAccess")
+                                                {
+                                                    query += "update  OpenAccessUserLink set IsDmsAccess=@IsDmsAccess,IsDmsCreateMainFolder=@IsDmsCreateMainFolder Where  OpenAccessUserLinkId=" + counts.OpenAccessUserLinkId + ";";
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                            }
-                            if (value.Type == "UserGroup")
-                            {
-                                if (value.SelectUserGroupIDs != null && value.SelectUserGroupIDs.Count() > 0)
+                                if (value.Type == "UserGroup")
                                 {
-                                    var userGropuIds = userGroupUsers.Where(w => value.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
-                                    if (userGropuIds != null && userGropuIds.Count > 0)
+                                    if (value.SelectUserGroupIDs != null && value.SelectUserGroupIDs.Count() > 0)
                                     {
-                                        userGropuIds.ForEach(s =>
+                                        var userGropuIds = userGroupUsers.Where(w => value.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
+                                        if (userGropuIds != null && userGropuIds.Count > 0)
                                         {
-                                            var counts = userExitsRoles.Where(w => w.UserId == s.UserId).Count();
-                                            if (counts == 0)
+                                            userGropuIds.ForEach(s =>
                                             {
-                                                var parameters = new DynamicParameters();
-                                                parameters.Add("OpenAccessUserId", value.OpenAccessUserId);
-                                                parameters.Add("UserId", s.UserId);
-                                                parameters.Add("UserGroupId", s.UserGroupId);
-                                                var query = "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId,UserGroupId) OUTPUT INSERTED.OpenAccessUserLinkId " +
-                                                    "VALUES (@OpenAccessUserId,@UserId,@UserGroupId)";
-                                                connection.QueryFirstOrDefault<long>(query, parameters, transaction);
+                                                var counts = userExitsRoles.FirstOrDefault(w => w.UserId == s.UserId);
+                                                if (counts == null)
+                                                {
+
+                                                    query += "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId,UserGroupId,IsDmsAccess,IsDmsCreateMainFolder) OUTPUT INSERTED.OpenAccessUserLinkId " +
+                                                        "VALUES (" + value.OpenAccessUserId + "," + s.UserId + "," + s.UserGroupId + ",@IsDmsAccess,@IsDmsCreateMainFolder);\n";
+                                                }
+                                                else
+                                                {
+                                                    if (value.AccessType == "DMSAccess")
+                                                    {
+                                                        query += "update  OpenAccessUserLink set IsDmsAccess=@IsDmsAccess,IsDmsCreateMainFolder=@IsDmsCreateMainFolder Where  OpenAccessUserLinkId=" + counts.OpenAccessUserLinkId + ";";
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                                if (value.Type == "Level")
+                                {
+                                    if (LevelUsers != null && LevelUsers.Count > 0)
+                                    {
+                                        LevelUsers.ToList().ForEach(s =>
+                                        {
+                                            var counts = userExitsRoles.FirstOrDefault(w => w.UserId == s.UserId);
+                                            if (counts == null)
+                                            {
+
+                                                query += "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId,LevelId,IsDmsAccess,IsDmsCreateMainFolder) OUTPUT INSERTED.OpenAccessUserLinkId " +
+                                                    "VALUES (" + value.OpenAccessUserId + "," + s.UserId + "," + s.LevelId + ",@IsDmsAccess,@IsDmsCreateMainFolder);\n";
+
+                                            }
+                                            else
+                                            {
+                                                if (value.AccessType == "DMSAccess")
+                                                {
+                                                    query += "update  OpenAccessUserLink set IsDmsAccess=@IsDmsAccess,IsDmsCreateMainFolder=@IsDmsCreateMainFolder Where  OpenAccessUserLinkId=" + counts.OpenAccessUserLinkId + ";";
+                                                }
                                             }
                                         });
                                     }
                                 }
-                            }
-                            if (value.Type == "Level")
-                            {
-                                if (LevelUsers != null && LevelUsers.Count > 0)
+                                if (!string.IsNullOrEmpty(query))
                                 {
-                                    LevelUsers.ToList().ForEach(s =>
-                                    {
-                                        var counts = userExitsRoles.Where(w => w.UserId == s.UserId).Count();
-                                        if (counts == 0)
-                                        {
-                                            var parameters = new DynamicParameters();
-                                            parameters.Add("OpenAccessUserId", value.OpenAccessUserId);
-                                            parameters.Add("UserId", s.UserId);
-                                            parameters.Add("LevelId", s.LevelId);
-                                            var query = "INSERT INTO [OpenAccessUserLink](OpenAccessUserId,UserId,LevelId) OUTPUT INSERTED.OpenAccessUserLinkId " +
-                                                "VALUES (@OpenAccessUserId,@UserId,@LevelId)";
-                                            connection.QueryFirstOrDefault<long>(query, parameters, transaction);
-                                        }
-                                    });
+                                    connection.QueryFirstOrDefault<long>(query, parameters, transaction);
                                 }
                             }
                             transaction.Commit();

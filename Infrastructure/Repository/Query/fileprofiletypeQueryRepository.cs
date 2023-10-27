@@ -123,14 +123,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  *,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\n" +
-                    "FileProfileTypeID as DocumentID,\r\n" +
-                    "Profile as ProfileNo,\r\n" +
-                    "CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n" +
-                    "CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\n" +
-                    "CONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\n" +
-                    "CONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\nAND IsLatest=1  \r\nAND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\nOR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n" +
-                    "from view_FileProfileTypeDocument t2";
+                var query = "select  *,SessionId as FileProfileTypeSessionId,ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename,\r\nFileProfileTypeID as DocumentID,\r\nProfile as ProfileNo,\r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\nCONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID AND (tt.isDelete is null or tt.isdelete=0)),' ','items') as FileSizes,\r\nCONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID AND IsLatest=1 AND  (isDelete is null or isDelete=0) AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\nfrom view_FileProfileTypeDocument t2 ";
                 if (selectedFileProfileTypeID == null)
                 {
                     query += "\r\nWhere parentid is null AND IsDelete is null or IsDelete=0";
@@ -398,7 +391,18 @@ namespace Infrastructure.Repository.Query
                         "Where  t1.FileProfileTypeID=@FileProfileTypeID AND t1.UserID=@UserID AND (t3.Value is null or t3.Value!='Resign')";
                     using (var connection = CreateConnection())
                     {
-                        return await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
+                        var result= await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
+                       // if (result != null)
+                       // {
+                            return result;
+                        /*}
+                        else
+                        {
+                            DocumentPermissionModel documentPermissionModel = new DocumentPermissionModel();
+                            documentPermissionModel.DocumentPermissionID = -1;
+                            documentPermissionModel.IsPermissionExits = true;
+                            return documentPermissionModel;
+                        }*/
                     }
                 }
                 else

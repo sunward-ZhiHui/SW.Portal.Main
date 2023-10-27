@@ -32,21 +32,10 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@LinkDocbackUrl" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentLinkDocSelectButton" Enabled="@loadingLinkDoc" />
+                        <DxMenuItem Text="@LinkDocMessage" IconCssClass="fa fa-upload" Click="@onsubmitUploadLinkDocFromClick" Enabled="@loadingLinkDoc" />
                     </Items>
                 </DxMenu>
-            </div>
-            <div class="" style="float: left; margin-top: -40px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;">
-                <div id="attachmentLinkDocSelectButton" style="height: 33px;" class="btn border-primary btn-primary m-1 handline">Select File</div>
-            </div>
-            <div class="" style="float: left; margin-top: -41px; line-height: 38px; margin-left: 8px; z-index: 9999; width:100px;">
-                <button type="submit" form="@UploadDocLinkFormID" disabled="@loadingLinkDoc" class="btn border-primary btn-primary m-1 handline" onclick="@onsubmitUploadLinkDocFromClick">
-                    @if (loadingLinkDoc)
-                    {
-                        <span class="spinner-border spinner-border-sm mr-1"></span>
-                    }
-                    <i class="fa fa-upload"></i>
-                    @LinkDocMessage
-                </button>
             </div>
 
         </div>
@@ -57,7 +46,7 @@
 <div class="" style="margin-left:10px;">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
         <div class="cw-480" style="margin-top:10px;">
-            <EditForm Model="@Data" id="@UploadDocLinkFormID" Context="EditFormContext" OnValidSubmit="@HandleValidLinkDocSubmit">
+            <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="@HandleValidLinkDocSubmit">
 
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
@@ -253,6 +242,7 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    EditContext _editContext;
     [Parameter]
     public DocumentsModel selectedFiles { get; set; }
     [Parameter]
@@ -265,7 +255,7 @@
     private DxTreeView _treeLinkDocView;
     string FilterString { get; set; }
     public string LinkDocFileprofiletypeName { get; set; }
-    public bool loadingLinkDoc { get; set; } = false;
+    public bool loadingLinkDoc { get; set; } = true;
     public bool IsFileProfileTypeLinkDocOpen { get; set; }
     string LinkDocMessage = "Upload";
     public bool IsFileProfileTypeLinkDocShow { get; set; } = false;
@@ -292,6 +282,7 @@
     public List<string> linkDocAcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
+        _editContext = new EditContext(Data);
         await loadLinkDocData(selectedFiles, applicationUser);
     }
     public async Task loadLinkDocData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser)
@@ -304,7 +295,7 @@
         Data.PlantId = 0; Data.DepartmentId = 0;
         Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
         TempSetLinkDocIds = new List<DocumentsUploadModel>();
-        loadingLinkDoc = false;
+        loadingLinkDoc = true;
         LinkDocMessage = "Upload";
         LinkDocuploadComponent.RemoveAllFiles();
         LinkDocCurrentUplodCount = 0;
@@ -425,14 +416,14 @@
     {
         IsFileProfileTypeLinkDocOpen = true;
     }
-   void LinkDocbackUrl()
+    void LinkDocbackUrl()
     {
-       RevokeLinkDocBack?.Invoke();
+        RevokeLinkDocBack?.Invoke();
     }
     void OnFileUploadLinkDocStart(FileUploadStartEventArgs e)
     {
         LinkDocMessage = "Uploading...";
-        loadingLinkDoc = true;
+        loadingLinkDoc = false;
         var SessionId = new Guid(e.FileInfo.Guid);
         DocumentsUploadModel TempSetId = new DocumentsUploadModel();
         TempSetId.SessionId = SessionId;
@@ -456,7 +447,7 @@
         if (LinkDocCurrentUplodCount >= LinkDocSelectedFilesCount)
         {
             LinkDocMessage = "Upload";
-            loadingLinkDoc = false;
+            loadingLinkDoc = true;
             LinkDocbackUrl();
         }
 
@@ -466,7 +457,7 @@
         linkDocMyError = e.RequestInfo.ResponseText;
         toastService.ShowToast(linkDocMyError, AC.SD.Core.Services.ToastLevel.Error);
         LinkDocMessage = "Upload";
-        loadingLinkDoc = false;
+        loadingLinkDoc = true;
         InvokeAsync(StateHasChanged);
     }
     void OnFileUploadLinkDocStarted(FileUploadEventArgs e)
@@ -527,6 +518,10 @@
 
     public void onsubmitUploadLinkDocFromClick()
     {
+        if (_editContext.Validate())
+        {
+            this.HandleValidLinkDocSubmit();
+        }
     }
     void HandleValidLinkDocSubmit()
     {

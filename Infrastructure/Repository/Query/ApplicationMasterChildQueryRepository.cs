@@ -12,10 +12,12 @@ using System.Threading.Tasks;
 using Core.Entities.Views;
 using Core.EntityModels;
 using IdentityModel.Client;
+using NAV;
+using Application.Queries;
 
 namespace Infrastructure.Repository.Query
 {
-    public class ApplicationMasterChildQueryRepository : QueryRepository<ApplicationMasterChildModel>, IApplicationMasterChildQueryRepository
+    public class ApplicationMasterChildQueryRepository : QueryRepository<ApplicationMasterChildModel>,IApplicationMasterChildQueryRepository
     {
         public ApplicationMasterChildQueryRepository(IConfiguration configuration)
             : base(configuration)
@@ -154,5 +156,24 @@ namespace Infrastructure.Repository.Query
                 }
             });
         }
+
+        public async Task<IReadOnlyList<ApplicationMasterChildModel>> GetAllByProAsync()
+        {
+            try
+            {
+
+                var query = "select * from ApplicationMasterChild";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ApplicationMasterChildModel>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+           
+        }
     }
+    
 }

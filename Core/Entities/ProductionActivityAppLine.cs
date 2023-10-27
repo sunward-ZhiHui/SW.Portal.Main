@@ -31,7 +31,7 @@ namespace Core.Entities
         public long? ProdActivityActionChildD { get; set; }
         public string TopicID { get; set; }
         public long? QaCheckUserID { get; set; }
-        public DateTime QaCheckDate { get; set; }
+        public DateTime? QaCheckDate { get; set; }
       public long? LocationID { get; set; }
         public long? ProductActivityCaseID { get; set;}
         public long? ActivityMasterID { get; set; }
@@ -46,5 +46,6 @@ namespace Core.Entities
         public string? Category { get; set; }
         [NotMapped]
         public string? Action { get; set; }
+      
     }
 }

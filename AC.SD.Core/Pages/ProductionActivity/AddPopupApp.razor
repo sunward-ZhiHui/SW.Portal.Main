@@ -1,0 +1,165 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Services.ToastService toastService
+@page "/addpopup"
+
+
+ <div class="mini-menu-bar-top">
+            <div class="mini-menu-bar-heading">
+                 <div class="card-body p-0 tooltiptops">
+                                    <div class="row">
+                                        <div class="">
+                   
+                                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                                    DisplayMode="MenuDisplayMode.Desktop">
+                                                <Items>
+                                   <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@HandleValidSubmit" />
+                            
+                                                </Items>
+                                            </DxMenu>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+ </div>
+
+<EditForm EditContext="this._editContext" Context="EditFormContext">
+
+
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
+            <DxComboBox Data="@_ProcessLines"
+                        NullText="Select Category ..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterChildID"
+            @bind-Value="Data.ProdActivityCategoryChildID"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+            <ValidationMessage For="@(() => Data.Category)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="ProdOrderNo:" ColSpanMd="6">
+            <DxComboBox Data="@_ponumberActivities"
+                        NullText="Select ProdOrderNo..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="prodOrderNo"
+                        ValueFieldName="NavprodOrderLineId"
+            @bind-Value="Data.NavprodOrderLineID"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Action:" ColSpanMd="6">
+            <DxComboBox Data="@_ProcessLines"
+                        NullText="Select ActionDropdown..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterChildID"
+            @bind-Value="Data.ProdActivityActionChildD"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Manufacturing Process:" ColSpanMd="6">
+            <DxComboBox Data="@_ProcessLines"
+                        NullText="Select Manufacturing Process..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterChildID"
+            @bind-Value="Data.ManufacturingProcessChildID"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Comment:" ColSpanMd="6">
+            <DxTextBox @bind-Text="Data.PAApplineComment" />
+        </DxFormLayoutItem>
+
+    </DxFormLayout>
+</EditForm>
+
+@code {
+    EditContext _editContext;
+    private List<ViewPlants> _plantItems;
+    private List<ProductionActivityApp> _productionActivities;
+    private List<ProductionActivityApp> _ponumberActivities;
+    //ProductionActivityApp Data = new ProductionActivityApp();
+    ProductionActivityModel Data = new ProductionActivityModel();
+    ProductionActivityAppLine DataLine = new ProductionActivityAppLine();
+    public ApplicationUser applicationUser { get; private set; }
+    IGrid? AppLine { get; set; }
+    private List<ProductionActivityAppLine> _AppLines;
+    private List<ApplicationMasterChildModel> _ProcessLines;
+    bool AddPopup = false;
+    [Parameter]
+    public ProductionActivityModel ParentData { get; set; }
+    public ProductionActivityModel _List;
+    protected override async Task OnInitializedAsync()
+    {
+        _editContext = new EditContext(Data);
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        //_productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery());
+        _ProcessLines = await Mediator.Send(new GetAllApplicationMasterChildProQuery());
+        var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery());
+        _AppLines = Lines;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+
+    }
+    void addDelete()
+    {
+
+    }
+    async Task HandleValidSubmit()
+    {
+        var request = new CreateProductionActivityAppCommand
+            {
+                CompanyID = ParentData.CompanyID,
+                ProdOrderNo = ParentData.ProdOrderNo,
+                LocationID = ParentData.LocationID,
+                AddedDate = DateTime.Now,
+                SessionId = Guid.NewGuid(),
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID,
+                ManufacturingProcessChildID = Data.ManufacturingProcessChildID,
+                ProdActivityCategoryChildID = Data.ProdActivityActionChildD,
+                ProdActivityActionChildD = Data.ProdActivityActionChildD,
+                PAApplineComment = Data.PAApplineComment,
+                NavprodOrderLineId = Data.NavprodOrderLineID,
+                applineAddedByUserID = applicationUser.UserID,
+                applineAddedDate = DateTime.Now,
+                applineSessionId = Guid.NewGuid(),
+                applineStatusCodeID=1
+
+            };
+       
+        var result = await Mediator.Send(request);
+        toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+    }
+    private async Task SubmitFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleValidSubmit();
+        }
+    }
+  
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+  
+   
+  
+    
+
+    
+}

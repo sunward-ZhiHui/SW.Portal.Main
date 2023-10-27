@@ -1611,7 +1611,7 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
         RTopicId = 0;
         Tid = long.Parse(@SelectedGroup);
-        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
+        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
         _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup))); 
@@ -1715,7 +1715,7 @@
             if (long.Parse(@SelectedGroup) > 0)
             {
                 Tid = long.Parse(@SelectedGroup);
-                _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID));
+                _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
                 _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
                 _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup)));

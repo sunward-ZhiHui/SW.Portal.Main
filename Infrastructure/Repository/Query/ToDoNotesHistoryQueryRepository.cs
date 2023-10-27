@@ -82,14 +82,20 @@ namespace Infrastructure.Repository.Query
             {
 
                 var query = @"SELECT TNH.*,EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,AP.UserName as AssignTo FROM ToDoNotesHistory TNH
-                                 INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId  
-                                 INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId  
-                                 INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId  
-								 INNER Join ApplicationUser AP ON AP.UserID = TNH.Users
+                                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
+                                INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId
+                                INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId
+                                INNER JOIN ApplicationUser AP ON AP.UserID = TNH.Users
                                 WHERE TNH.AddedByUserID = @UserId
-                                AND TNH.TopicId IS NOT NULL  AND TNH.TopicId > 0 AND TNH.Status = 'Open'                               
-                                AND CAST(TNH.DueDate AS DATE) BETWEEN CAST(GETDATE() AS DATE) AND DATEADD(DAY, 7, CAST(GETDATE() AS DATE))
-                                ORDER BY TNH.DueDate DESC";
+                                    AND TNH.TopicId IS NOT NULL
+                                    AND TNH.TopicId > 0
+                                    AND TNH.Status = 'Open'
+                                    AND (
+                                    CAST(TNH.DueDate AS DATE) BETWEEN DATEADD(DAY, -7, CAST(GETDATE() AS DATE)) AND CAST(GETDATE() AS DATE)
+                                    OR
+                                    CAST(TNH.DueDate AS DATE) BETWEEN CAST(GETDATE() AS DATE) AND DATEADD(DAY, 7, CAST(GETDATE() AS DATE))
+                                    )
+                                ORDER BY TNH.DueDate;";
                 // var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(RemainDate AS DATE) = CAST(GETDATE() AS DATE)";
                 //var query = @"SELECT TNH.*,EC.Name AS SubjectName FROM ToDoNotesHistory TNH
                 //                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId 

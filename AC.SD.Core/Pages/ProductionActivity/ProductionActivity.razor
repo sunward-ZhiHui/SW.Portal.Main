@@ -3,26 +3,11 @@
 @using MediatR;
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
 @inject IMediator Mediator
-
-<div class="card w-100 tooltips" style="margin-bottom:10px;">
-    <div class="card-body p-0 tooltiptops">
-        <div class="row">
-            <div class="">
-                <DxMenu CollapseItemsToHamburgerMenu="true"
-                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                        DisplayMode="MenuDisplayMode.Desktop">
-                    <Items>
-                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" />
-                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
-                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
-                    </Items>
-                </DxMenu>
-            </div>
-        </div>
-    </div>
-</div>
-
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
 
 
 <div class="col-md-12" style="height: calc(100vh - 200px);">
@@ -33,7 +18,7 @@
 
             <div>
                 <div class="views-accordion">
-                    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+                    <EditForm EditContext="this._editContext" Context="EditFormContext" >
 
                         <DxFormLayout CssClass="w-100">
                             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
@@ -88,7 +73,65 @@
                 <div class="views-accordion">
                     <DxTabs RenderMode="TabsRenderMode.AllTabs" TabsPosition="TabsPosition.Top">
                         <DxTabPage Text="Production Order Details">
-                            <PAAppline></PAAppline>
+
+
+                            <div class="card w-100 tooltips" style="margin-bottom:10px;">
+                                <div class="card-body p-0 tooltiptops">
+                                    <div class="row">
+                                        <div class="">
+                                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                                    DisplayMode="MenuDisplayMode.Desktop">
+                                                <Items>
+                                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                                                   
+                                                </Items>
+                                            </DxMenu>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <DxGrid @ref="AppLine"
+                                    Data="_AppLines"
+                                    KeyFieldName="ProductionActivityAppLineID"
+                                    EditMode="GridEditMode.EditForm"
+                                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                                    PageSizeSelectorVisible="true"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                    PageSize="20" CustomizeElement="Grid_CustomizeElement"
+                                    EditModelSaving="OnEditModelSaving"
+                                  
+                                    RowClick="OnRowClick"
+                                  
+                                    FocusedRowEnabled="true"
+                                    AllowSelectRowByClick="true"
+                                    SelectionMode="GridSelectionMode.Single"
+                                    CssClass="ch-360"
+                                    style="height: calc(100vh - 400px);">
+                                <Columns>
+
+                                    <DxGridDataColumn FieldName="CommentImageType" Caption="Type" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="Process" Caption="Process" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="Action" Caption="Action" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="Result" Caption="Result" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="Category" Caption="Category" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="" Caption="Name" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="" Caption="Actions" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="ModifiedBy" Caption="ModifiedBy" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="ModifiedDate" Caption="ModifiedDate" MinWidth="180" />
+                                </Columns>
+
+                               
+                            </DxGrid>
                         </DxTabPage>
                         <DxTabPage Text="Production Order Details">
 
@@ -102,36 +145,51 @@
 
     </div>
 </div>
+
+<DxPopup @bind-Visible="@AddPopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="800px">
+    <BodyContentTemplate>
+        <AddPopupApp ParentData="@Data"></AddPopupApp>
+                                
+    </BodyContentTemplate>
+    
+</DxPopup>
+
 @code {
 
     EditContext _editContext;
     private List<ViewPlants> _plantItems;
     private List<ProductionActivityApp> _productionActivities;
     private List<ProductionActivityApp> _ponumberActivities;
-    ProductionActivityApp Data = new ProductionActivityApp();
-
+    //ProductionActivityApp Data = new ProductionActivityApp();
+    ProductionActivityModel Data = new ProductionActivityModel();
+    ProductionActivityAppLine DataLine = new ProductionActivityAppLine();
+    public ApplicationUser applicationUser { get; private set; }
+    IGrid? AppLine { get; set; }
+    private List<ProductionActivityAppLine> _AppLines;
+    private List<ApplicationMasterChildModel> _ProcessLines;
+    bool AddPopup = false;
+   
+    private AddPopupApp? RefToDoLeftNotes { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         //_productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery());
-
+        _ProcessLines = await Mediator.Send(new GetAllApplicationMasterChildProQuery());
+        var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery());
+        _AppLines = Lines;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
     void addDelete()
     {
 
     }
-    async Task HandleValidSubmit()
-    {
-    }
-    private async Task SubmitFormExternally()
-    {
-        if (_editContext.Validate())
-        {
-            await this.HandleValidSubmit();
-        }
-    }
-    async void SelectedItemChanged(long? companyid)
+  
+  async void SelectedItemChanged(long? companyid)
     {
         if (companyid > 0)
         {
@@ -144,6 +202,46 @@
             }
 
         }
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+
+       
+    }
+
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+    }
+    void ClosePopup()
+    {
+
+        // AppLine.StartEditNewRowAsync();
+        AddPopup = false;
+
+    }
+    void addNew()
+    {
+
+        // AppLine.StartEditNewRowAsync();
+     
+         AddPopup = true;
+
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        AddPopup = false;
+        // UpdateDataAsync();
     }
 }
 

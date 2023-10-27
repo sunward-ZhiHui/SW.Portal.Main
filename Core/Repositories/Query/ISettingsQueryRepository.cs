@@ -17,5 +17,6 @@ namespace Core.Repositories.Query
         Task<OpenAccessUserLink> DeleteOpenAccessUserLink(OpenAccessUserLink value);
         Task<OpenAccessUserLink> InsertOpenAccessUserLink(OpenAccessUserLink value);
         Task<OpenAccessUser> GetAllByAsync(string? AccessType);
+        Task<OpenAccessUserLink> GetDMSAccessByUser(long? UserID);
     }
 }

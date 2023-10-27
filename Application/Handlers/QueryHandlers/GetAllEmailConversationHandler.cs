@@ -41,7 +41,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<EmailConversations>> Handle(GetEmailDiscussionList request, CancellationToken cancellationToken)
         {
-            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDiscussionListAsync(request.TopicId,request.UserId);           
+            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDiscussionListAsync(request.TopicId,request.UserId,request.Option);           
         }
     }
     public class GetDemoEmailFileDataListHandler : IRequestHandler<GetDemoEmailFileDataList, List<EmailConversations>>

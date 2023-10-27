@@ -104,6 +104,8 @@ namespace DocumentViewer.Controllers
                         if (request != null)
                         {
                             var response = request.GetResponse() as HttpWebResponse;
+                            //Stream byteStreamAccessor() => response.GetResponseStream();
+                            //viewmodel.ContentAccessorByStream = byteStreamAccessor;
                             if (response != null)
                                 contentType = response.ContentType;
                         }
@@ -111,6 +113,7 @@ namespace DocumentViewer.Controllers
                         {
                             var webClient = new WebClient();
                             {
+                                //byte[] byteArrayAccessor() => DownloadExtention.GetUrlContent(fileurl).Result;
                                 byte[] byteArrayAccessor() => webClient.DownloadData(new Uri(fileurl));
                                 viewmodel.DocumentId = Guid.NewGuid().ToString();
                                 viewmodel.ContentAccessorByBytes = byteArrayAccessor;
@@ -156,14 +159,14 @@ namespace DocumentViewer.Controllers
         {
             try
             {
-                
+
                 string url = HttpContext.Session.GetString("fileUrl");
                 var result = DownloadExtention.GetUrlContent(url);
                 var request = HttpWebRequest.Create(url) as HttpWebRequest;
                 string contentType = "";
                 string filename = HttpContext.Session.GetString("fileName");
                 Uri uri = new Uri(url);
-                
+
                 if (request != null)
                 {
                     var response = request.GetResponse() as HttpWebResponse;

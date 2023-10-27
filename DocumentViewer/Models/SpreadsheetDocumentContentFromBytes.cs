@@ -14,6 +14,7 @@ namespace DocumentViewer.Models
         public string Extensions { get; set; }
         public string Url { get; set; }
         public Func<byte[]> ContentAccessorByBytes { get; set; }
+        public Func<Stream> ContentAccessorByStream { get; set; }
         /*public SpreadsheetDocumentContentFromBytes(string documentId, string contentType, string extensions,string url, Func<byte[]> contentAccessorByBytes)
         {
             DocumentId = documentId;

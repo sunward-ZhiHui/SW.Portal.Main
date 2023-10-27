@@ -14,6 +14,7 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
+@using System.Collections
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -41,7 +42,27 @@
         </div>
     </div>
 </div>
+<div class="demo-breadcrumbs-container theme-blazing-berry">
+    <div class="breadcrumb">
+        <div class="demo-breadcrumbs sidebar-hidden">
+            <!--!-->
 
+            <div class="items">
+                <a href="javascript:void(0);">Main</a>
+                @if (FolderPathListsItems.Count > 0)
+                {
+                    <span class="separator"></span>
+                    @foreach (var item in FolderPathListsItems)
+                    {
+                        var names = item.FileName != null ? (item.FileName.Length > 20 ? item.FileName.Substring(0, 20) + "..." : item.FileName) : "";
+                        <span title="@item.FileName">@names</span>
+                        <span class="separator"></span>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="" style="margin-left:10px;">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
@@ -243,6 +264,8 @@
 @code {
     EditContext _editContext;
     [Parameter]
+    public IEnumerable FolderPathLists { get; set; }
+    [Parameter]
     public DocumentsModel selectedFiles { get; set; }
     [Parameter]
     public ApplicationUser applicationUser { get; set; }
@@ -250,6 +273,7 @@
     public Action RevokeBack { get; set; }
     [Parameter]
     public string UploadDocFormID { get; set; }
+    List<DocumentsModel> FolderPathListsItems = new List<DocumentsModel>();
     private DxTreeView _treeView;
     string FilterString { get; set; }
     public string FileprofiletypeName { get; set; }
@@ -280,6 +304,7 @@
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
+        FolderPathListsItems = FolderPathLists.Cast<DocumentsModel>().ToList();
         _editContext = new EditContext(Data);
         await loadData(selectedFiles, applicationUser);
     }

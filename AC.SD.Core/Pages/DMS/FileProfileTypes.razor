@@ -405,7 +405,7 @@
          ShowFooter="false"
          Width="1000px">
     <BodyContentTemplate>
-        <UploadDoumentFiles @ref="refUploadDoumentFiles" applicationUser="@applicationUser" selectedFiles="@_ParentselectedItems" UploadDocFormID="UploadDocFormID" RevokeBack="BackUpload"></UploadDoumentFiles>
+        <UploadDoumentFiles @ref="refUploadDoumentFiles" FolderPathLists="@FolderPathLists" applicationUser="@applicationUser" selectedFiles="@_ParentselectedItems" UploadDocFormID="UploadDocFormID" RevokeBack="BackUpload"></UploadDoumentFiles>
     </BodyContentTemplate>
 </DxPopup>
 @* </div> *@
@@ -416,7 +416,7 @@
          ShowFooter="false"
          Width="1000px">
     <BodyContentTemplate>
-        <UploadDocumentUpdateFiles @ref="refUploadDocumentUpdateFiles" selectedItems="@_selectedItems" applicationUser="@applicationUser" FileProfileSessionId="@MainSessionId" RevokeBack="BackUpload"></UploadDocumentUpdateFiles>
+        <UploadDocumentUpdateFiles @ref="refUploadDocumentUpdateFiles" FolderPathLists="@FolderPathLists" selectedItems="@_selectedItems" applicationUser="@applicationUser" FileProfileSessionId="@MainSessionId" RevokeBack="BackUpload"></UploadDocumentUpdateFiles>
     </BodyContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@Blukdeletepopup"

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,10 @@ namespace Core.EntityModels
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        [NotMapped]
+        public long? CompanyID { get; set; }
+        [NotMapped]
+        public long? ManufacturingProcessChildID { get; set; }
         public List<ApplicationMasterChildModel> Children { get; set; } = new List<ApplicationMasterChildModel>();
     }
 }

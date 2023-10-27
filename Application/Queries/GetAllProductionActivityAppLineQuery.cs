@@ -15,4 +15,7 @@ namespace Application.Queries
     {
        
     }
+    public class CreateProductionActivityAppLineCommand : ProductionActivityAppLine, IRequest<long>
+    {
+    }
 }

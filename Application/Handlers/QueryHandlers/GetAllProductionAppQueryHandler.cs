@@ -1,6 +1,7 @@
 ﻿using Application.Queries;
 using Core.Entities;
 using Core.Repositories.Query;
+using Core.Repositories.Query.Base;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -23,18 +24,47 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    public class GetAllProductionActivityPONumberAppQueryHandler : IRequestHandler<GetAllProductionActivityPONumberAppQuery, List<ProductionActivityApp>>
+
+    public class GetAllProductionAppQueryListHandler : IRequestHandler<GetAllProductionActivityAppQueryList, List<ProductionActivityApp>>
     {
-        private readonly IProductionActivityAppQueryRepository _productionactivityappponumberQueryRepository;
-        public GetAllProductionActivityPONumberAppQueryHandler(IProductionActivityAppQueryRepository productionactivityappponumberQueryRepository)
+        private readonly IProductionActivityAppQueryRepository _productionactivityappQueryRepository;
+        public GetAllProductionAppQueryListHandler(IProductionActivityAppQueryRepository productionactivityappQueryRepository)
         {
-            _productionactivityappponumberQueryRepository = productionactivityappponumberQueryRepository;
+            _productionactivityappQueryRepository = productionactivityappQueryRepository;
         }
-        public async Task<List<ProductionActivityApp>> Handle(GetAllProductionActivityPONumberAppQuery request, CancellationToken cancellationToken)
+        public async Task<List<ProductionActivityApp>> Handle(GetAllProductionActivityAppQueryList request, CancellationToken cancellationToken)
         {
-            return (List<ProductionActivityApp>)await _productionactivityappponumberQueryRepository.GetAllAsyncPO(request.companyID);
+            return (List<ProductionActivityApp>)await _productionactivityappQueryRepository.GetAllListAsync();
         }
 
     }
-}
+    public class CreateProductionAppQueryHandler : IRequestHandler<CreateProductionActivityAppCommand, long>
+    {
+        private readonly IProductionActivityAppQueryRepository _PPAppLineListQueryRepository;
+        public CreateProductionAppQueryHandler(IProductionActivityAppQueryRepository PPAppLineListQueryRepository, IQueryRepository<ProductionActivityApp> queryRepository)
+        {
+            _PPAppLineListQueryRepository = PPAppLineListQueryRepository;
+        }
+
+        public async Task<long> Handle(CreateProductionActivityAppCommand request, CancellationToken cancellationToken)
+        {
+            var newlist = await _PPAppLineListQueryRepository.Insert(request);
+            return newlist;
+
+        }
+    }
+        public class GetAllProductionActivityPONumberAppQueryHandler : IRequestHandler<GetAllProductionActivityPONumberAppQuery, List<ProductionActivityApp>>
+        {
+            private readonly IProductionActivityAppQueryRepository _productionactivityappponumberQueryRepository;
+            public GetAllProductionActivityPONumberAppQueryHandler(IProductionActivityAppQueryRepository productionactivityappponumberQueryRepository)
+            {
+                _productionactivityappponumberQueryRepository = productionactivityappponumberQueryRepository;
+            }
+            public async Task<List<ProductionActivityApp>> Handle(GetAllProductionActivityPONumberAppQuery request, CancellationToken cancellationToken)
+            {
+                return (List<ProductionActivityApp>)await _productionactivityappponumberQueryRepository.GetAllAsyncPO(request.companyID);
+            }
+
+        }
+ }
 

@@ -3,7 +3,10 @@
 @using MediatR;
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
 @inject IMediator Mediator
+@inject ILocalStorageService<ApplicationUser> _localStorageService
 
 <div class="card w-100 tooltips" style="margin-bottom:10px;">
     <div class="card-body p-0 tooltiptops">
@@ -13,18 +16,14 @@
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
-                        <DxMenuItem Text="Add" IconCssClass="fa fa-add" />
-                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" />
-                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
+                       
+                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" />
                     </Items>
                 </DxMenu>
             </div>
         </div>
     </div>
 </div>
-
-
-
 <div class="col-md-12" style="height: calc(100vh - 200px);">
     <div style="height:35%; border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
         <div class="mini-menu-bar-top">
@@ -88,7 +87,117 @@
                 <div class="views-accordion">
                     <DxTabs RenderMode="TabsRenderMode.AllTabs" TabsPosition="TabsPosition.Top">
                         <DxTabPage Text="Production Order Details">
-                            <PAAppline></PAAppline>
+
+
+                            <div class="card w-100 tooltips" style="margin-bottom:10px;">
+                                <div class="card-body p-0 tooltiptops">
+                                    <div class="row">
+                                        <div class="">
+                                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                                    DisplayMode="MenuDisplayMode.Desktop">
+                                                <Items>
+                                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                                                   
+                                                </Items>
+                                            </DxMenu>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <DxGrid @ref="AppLine"
+                                    Data="_AppLines"
+                                    KeyFieldName="ProductionActivityAppLineID"
+                                    EditMode="GridEditMode.EditForm"
+                                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                                    PageSizeSelectorVisible="true"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                    PageSize="20" CustomizeElement="Grid_CustomizeElement"
+                                    EditModelSaving="OnEditModelSaving"
+                                  
+                                    RowClick="OnRowClick"
+                                  
+                                    FocusedRowEnabled="true"
+                                    AllowSelectRowByClick="true"
+                                    SelectionMode="GridSelectionMode.Single"
+                                    CssClass="ch-360"
+                                    style="height: calc(100vh - 400px);">
+                                <Columns>
+
+                                    <DxGridDataColumn FieldName="CommentImageType" Caption="Type" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="Process" Caption="Process" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="Action" Caption="Action" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="Result" Caption="Result" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="Category" Caption="Category" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="" Caption="Name" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="" Caption="Actions" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="ModifiedBy" Caption="ModifiedBy" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="ModifiedDate" Caption="ModifiedDate" MinWidth="180" />
+                                </Columns>
+
+                                <EditFormTemplate Context="EditFormContext">
+
+                                    @{
+                                        var PAActivity = (ProductionActivityAppLine)EditFormContext.EditModel;
+                                    }
+                                    <DxFormLayout CssClass="w-100">
+                                        <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
+                                            <DxComboBox Data="@_ProcessLines"
+                                                        NullText="Select Category ..."
+                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                        TextFieldName="Value"
+                                                        ValueFieldName="ApplicationMasterChildID"
+                                                        @bind-Value="DataLine.ProdActivityCategoryChildID"
+                                                        ShowValidationIcon="true">
+                                            </DxComboBox>
+                                            <ValidationMessage For="@(() => PAActivity.Category)" />
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="ProdOrderNo:" ColSpanMd="6">
+                                            <DxComboBox Data="@_ponumberActivities"
+                                                        NullText="Select ProdOrderNo..."
+                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                        TextFieldName="prodOrderNo"
+                                                        ValueFieldName="NavprodOrderLineId"
+                                            @bind-Value="DataLine.NavprodOrderLineID"
+                                                        ShowValidationIcon="true">
+                                            </DxComboBox>
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Action:" ColSpanMd="6">
+                                            <DxComboBox Data="@_ProcessLines"
+                                                        NullText="Select ActionDropdown..."
+                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                        TextFieldName="Value"
+                                                        ValueFieldName="ApplicationMasterChildID"
+                                            @bind-Value="DataLine.ProdActivityActionChildD"
+                                                        ShowValidationIcon="true">
+                                            </DxComboBox>
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Manufacturing Process:" ColSpanMd="6">
+                                            <DxComboBox Data="@_ProcessLines"
+                                                        NullText="Select Manufacturing Process..."
+                                                        FilteringMode="DataGridFilteringMode.Contains"
+                                                        TextFieldName="Value"
+                                                        ValueFieldName="ApplicationMasterChildID"
+                                                    @bind-Value="DataLine.ManufacturingProcessChildID"
+                                                        ShowValidationIcon="true">
+                                            </DxComboBox>
+                                        </DxFormLayoutItem>
+                                        <DxFormLayoutItem Caption="Comment:" ColSpanMd="6">
+                                            <DxTextBox @bind-Text="@PAActivity.Comment" />
+                                        </DxFormLayoutItem>
+
+                                    </DxFormLayout>
+                                </EditFormTemplate>
+                            </DxGrid>
                         </DxTabPage>
                         <DxTabPage Text="Production Order Details">
 
@@ -109,13 +218,21 @@
     private List<ProductionActivityApp> _productionActivities;
     private List<ProductionActivityApp> _ponumberActivities;
     ProductionActivityApp Data = new ProductionActivityApp();
+    ProductionActivityAppLine DataLine = new ProductionActivityAppLine();
+    public ApplicationUser applicationUser { get; private set; }
+    IGrid? AppLine { get; set; }
+    private List<ProductionActivityAppLine> _AppLines;
+    private List<ApplicationMasterChildModel> _ProcessLines;
 
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         //_productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery());
-
+        _ProcessLines = await Mediator.Send(new GetAllApplicationMasterChildProQuery());
+        var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery());
+        _AppLines = Lines;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
     void addDelete()
     {
@@ -145,6 +262,59 @@
 
         }
     }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+
+        var request = new CreateProductionActivityAppCommand
+            {
+
+                CompanyID = Data.CompanyID,
+                ProdOrderNo = Data.ProdOrderNo,
+                LocationID = Data.LocationID,
+                AddedDate = DateTime.Now,
+                SessionId = Guid.NewGuid(),
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID
+            };
+
+
+        try
+        {
+            var result = Mediator.Send(request);
+            if(result != null)
+            {
+                var id = result;
+            }
+        }
+        catch (Exception eq)
+        {
+          
+        }
+
+    }
+
+  
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+    }
+   
+    void addNew()
+    {
+
+        AppLine.StartEditNewRowAsync();
+
+      
+}
 }
 
 

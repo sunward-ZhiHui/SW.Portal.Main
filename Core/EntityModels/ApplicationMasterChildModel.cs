@@ -26,10 +26,7 @@ namespace Core.EntityModels
         public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserId { get; set; }
         public DateTime? ModifiedDate { get; set; }
-        [NotMapped]
-        public long? CompanyID { get; set; }
-        [NotMapped]
-        public long? ManufacturingProcessChildID { get; set; }
+        
         public List<ApplicationMasterChildModel> Children { get; set; } = new List<ApplicationMasterChildModel>();
     }
 }

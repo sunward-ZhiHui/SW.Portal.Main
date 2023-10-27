@@ -1,5 +1,6 @@
 ﻿using Application.Queries;
 using Core.Entities;
+using Core.EntityModels;
 using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
 using MediatR;
@@ -41,7 +42,7 @@ namespace Application.Handlers.QueryHandlers
     public class CreateProductionAppQueryHandler : IRequestHandler<CreateProductionActivityAppCommand, long>
     {
         private readonly IProductionActivityAppQueryRepository _PPAppLineListQueryRepository;
-        public CreateProductionAppQueryHandler(IProductionActivityAppQueryRepository PPAppLineListQueryRepository, IQueryRepository<ProductionActivityApp> queryRepository)
+        public CreateProductionAppQueryHandler(IProductionActivityAppQueryRepository PPAppLineListQueryRepository, IQueryRepository<ProductionActivityModel> queryRepository)
         {
             _PPAppLineListQueryRepository = PPAppLineListQueryRepository;
         }

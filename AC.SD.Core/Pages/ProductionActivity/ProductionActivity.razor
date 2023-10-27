@@ -7,23 +7,9 @@
 @using global::Core.Repositories.Query;
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
 
-<div class="card w-100 tooltips" style="margin-bottom:10px;">
-    <div class="card-body p-0 tooltiptops">
-        <div class="row">
-            <div class="">
-                <DxMenu CollapseItemsToHamburgerMenu="true"
-                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                        DisplayMode="MenuDisplayMode.Desktop">
-                    <Items>
-                       
-                        <DxMenuItem Text="Save" IconCssClass="fa fa-save" />
-                    </Items>
-                </DxMenu>
-            </div>
-        </div>
-    </div>
-</div>
+
 <div class="col-md-12" style="height: calc(100vh - 200px);">
     <div style="height:35%; border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
         <div class="mini-menu-bar-top">
@@ -32,7 +18,7 @@
 
             <div>
                 <div class="views-accordion">
-                    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+                    <EditForm EditContext="this._editContext" Context="EditFormContext" >
 
                         <DxFormLayout CssClass="w-100">
                             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
@@ -144,59 +130,7 @@
                                     <DxGridDataColumn FieldName="ModifiedDate" Caption="ModifiedDate" MinWidth="180" />
                                 </Columns>
 
-                                <EditFormTemplate Context="EditFormContext">
-
-                                    @{
-                                        var PAActivity = (ProductionActivityAppLine)EditFormContext.EditModel;
-                                    }
-                                    <DxFormLayout CssClass="w-100">
-                                        <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
-                                            <DxComboBox Data="@_ProcessLines"
-                                                        NullText="Select Category ..."
-                                                        FilteringMode="DataGridFilteringMode.Contains"
-                                                        TextFieldName="Value"
-                                                        ValueFieldName="ApplicationMasterChildID"
-                                                        @bind-Value="DataLine.ProdActivityCategoryChildID"
-                                                        ShowValidationIcon="true">
-                                            </DxComboBox>
-                                            <ValidationMessage For="@(() => PAActivity.Category)" />
-                                        </DxFormLayoutItem>
-                                        <DxFormLayoutItem Caption="ProdOrderNo:" ColSpanMd="6">
-                                            <DxComboBox Data="@_ponumberActivities"
-                                                        NullText="Select ProdOrderNo..."
-                                                        FilteringMode="DataGridFilteringMode.Contains"
-                                                        TextFieldName="prodOrderNo"
-                                                        ValueFieldName="NavprodOrderLineId"
-                                            @bind-Value="DataLine.NavprodOrderLineID"
-                                                        ShowValidationIcon="true">
-                                            </DxComboBox>
-                                        </DxFormLayoutItem>
-                                        <DxFormLayoutItem Caption="Action:" ColSpanMd="6">
-                                            <DxComboBox Data="@_ProcessLines"
-                                                        NullText="Select ActionDropdown..."
-                                                        FilteringMode="DataGridFilteringMode.Contains"
-                                                        TextFieldName="Value"
-                                                        ValueFieldName="ApplicationMasterChildID"
-                                            @bind-Value="DataLine.ProdActivityActionChildD"
-                                                        ShowValidationIcon="true">
-                                            </DxComboBox>
-                                        </DxFormLayoutItem>
-                                        <DxFormLayoutItem Caption="Manufacturing Process:" ColSpanMd="6">
-                                            <DxComboBox Data="@_ProcessLines"
-                                                        NullText="Select Manufacturing Process..."
-                                                        FilteringMode="DataGridFilteringMode.Contains"
-                                                        TextFieldName="Value"
-                                                        ValueFieldName="ApplicationMasterChildID"
-                                                    @bind-Value="DataLine.ManufacturingProcessChildID"
-                                                        ShowValidationIcon="true">
-                                            </DxComboBox>
-                                        </DxFormLayoutItem>
-                                        <DxFormLayoutItem Caption="Comment:" ColSpanMd="6">
-                                            <DxTextBox @bind-Text="@PAActivity.Comment" />
-                                        </DxFormLayoutItem>
-
-                                    </DxFormLayout>
-                                </EditFormTemplate>
+                               
                             </DxGrid>
                         </DxTabPage>
                         <DxTabPage Text="Production Order Details">
@@ -211,19 +145,35 @@
 
     </div>
 </div>
+
+<DxPopup @bind-Visible="@AddPopup"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Closed="EulaPopupClosed"
+         Width="800px">
+    <BodyContentTemplate>
+        <AddPopupApp ParentData="@Data"></AddPopupApp>
+                                
+    </BodyContentTemplate>
+    
+</DxPopup>
+
 @code {
 
     EditContext _editContext;
     private List<ViewPlants> _plantItems;
     private List<ProductionActivityApp> _productionActivities;
     private List<ProductionActivityApp> _ponumberActivities;
-    ProductionActivityApp Data = new ProductionActivityApp();
+    //ProductionActivityApp Data = new ProductionActivityApp();
+    ProductionActivityModel Data = new ProductionActivityModel();
     ProductionActivityAppLine DataLine = new ProductionActivityAppLine();
     public ApplicationUser applicationUser { get; private set; }
     IGrid? AppLine { get; set; }
     private List<ProductionActivityAppLine> _AppLines;
     private List<ApplicationMasterChildModel> _ProcessLines;
-
+    bool AddPopup = false;
+   
+    private AddPopupApp? RefToDoLeftNotes { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -238,17 +188,8 @@
     {
 
     }
-    async Task HandleValidSubmit()
-    {
-    }
-    private async Task SubmitFormExternally()
-    {
-        if (_editContext.Validate())
-        {
-            await this.HandleValidSubmit();
-        }
-    }
-    async void SelectedItemChanged(long? companyid)
+  
+  async void SelectedItemChanged(long? companyid)
     {
         if (companyid > 0)
         {
@@ -275,46 +216,33 @@
     {
 
 
-        var request = new CreateProductionActivityAppCommand
-            {
-
-                CompanyID = Data.CompanyID,
-                ProdOrderNo = Data.ProdOrderNo,
-                LocationID = Data.LocationID,
-                AddedDate = DateTime.Now,
-                SessionId = Guid.NewGuid(),
-                StatusCodeID = 1,
-                AddedByUserID = applicationUser.UserID
-            };
-
-
-        try
-        {
-            var result = Mediator.Send(request);
-            if(result != null)
-            {
-                var id = result;
-            }
-        }
-        catch (Exception eq)
-        {
-          
-        }
-
+       
     }
 
-  
+
     void OnRowClick(GridRowClickEventArgs e)
     {
     }
-   
+    void ClosePopup()
+    {
+
+        // AppLine.StartEditNewRowAsync();
+        AddPopup = false;
+
+    }
     void addNew()
     {
 
-        AppLine.StartEditNewRowAsync();
+        // AppLine.StartEditNewRowAsync();
+     
+         AddPopup = true;
 
-      
-}
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        AddPopup = false;
+        // UpdateDataAsync();
+    }
 }
 
 

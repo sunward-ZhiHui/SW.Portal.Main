@@ -17,6 +17,13 @@ namespace Application.Queries
            this.companyID=companyid;
         }
     }
+    public class GetAllProductionActivityAppQueryList : PagedRequest, IRequest<List<ProductionActivityApp>>
+    {
+
+    }
+    public class CreateProductionActivityAppCommand : ProductionActivityApp, IRequest<long>
+    {
+    }
     public class GetAllProductionActivityPONumberAppQuery : PagedRequest, IRequest<List<ProductionActivityApp>>
     {
         public long? companyID { get; set; }

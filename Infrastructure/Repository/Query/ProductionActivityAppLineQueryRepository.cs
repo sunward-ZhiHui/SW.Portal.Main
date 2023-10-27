@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using Core.Repositories.Query;
 using Dapper;
+using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -37,6 +38,69 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-    
+        public async Task<long> Insert(ProductionActivityAppLine PPALinelist)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+
+                        try
+                        {
+                            
+                            var parameters = new DynamicParameters();
+                            parameters.Add("Comment", PPALinelist.Comment);
+                            parameters.Add("ActionDropdown", PPALinelist.ActionDropdown);
+                            parameters.Add("ManufacturingProcessID", PPALinelist.ManufacturingProcessID);
+                            parameters.Add("ProdActivityCategoryID", PPALinelist.ProdActivityCategoryID);
+                            parameters.Add("NavprodOrderLineID", PPALinelist.NavprodOrderLineID);
+                            // parameters.Add("Description", PPAlist.Description);
+                           // parameters.Add("TopicID", PPALinelist.TopicID);
+                            //parameters.Add("ICTMasterID", PPAlist.ICTMasterID);
+                            //parameters.Add("SiteName", PPAlist.SiteName);
+                            //parameters.Add("ZoneName", PPAlist.ZoneName);
+                           //parameters.Add("Companyid", PPALinelist.com);
+                            // parameters.Add("DeropdownName", PPAlist.DeropdownName);
+                            //parameters.Add("NavprodOrderLineId", PPAlist.NavprodOrderLineId);
+                            //parameters.Add("BatchNo", PPAlist.BatchNo);
+                            //parameters.Add("prodOrderNo", PPALinelist.prod);
+
+                            parameters.Add("SessionId", PPALinelist.SessionId);
+                            parameters.Add("AddedByUserID", PPALinelist.AddedByUserID);
+                            parameters.Add("AddedDate", PPALinelist.AddedDate);
+                            parameters.Add("LocationID", PPALinelist.LocationID);
+                            parameters.Add("StatusCodeID", PPALinelist.StatusCodeID);
+
+                            var query = "INSERT INTO ProductionActivityAppLine(Comment,NavprodOrderLineID,ProdActivityCategoryID,ManufacturingProcessID,ActionDropdown,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID) VALUES (@ProdActivityCategoryID,@ManufacturingProcessID,@Comment,@ActionDropdown,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@NavprodOrderLineID)";
+
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+
+                            transaction.Commit();
+
+                            return rowsAffected;
+                        }
+
+
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        
+        }
     }
 }

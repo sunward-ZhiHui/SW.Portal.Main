@@ -11,6 +11,7 @@ namespace Core.Repositories.Query
     public interface IProductionActivityQueryRepository : IQueryRepository<ProductionActivityAppLine>
     {
         Task<IReadOnlyList<ProductionActivityAppLine>> GetAllAsync();
+        Task<long> Insert(ProductionActivityAppLine PPALinelist);
 
     }
 }

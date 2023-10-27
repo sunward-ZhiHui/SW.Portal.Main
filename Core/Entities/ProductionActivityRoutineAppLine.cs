@@ -14,6 +14,12 @@ namespace Core.Entities
         [Key]
         public long ProductionActivityRoutineAppLineId { get; set; }
         public long? ProductionActivityRoutineAppId { get; set; }
+        public long? CompanyID { get; set; }
+
+        public string? ProdOrderNo { get; set; }
+        public string? Comment { get; set; }
+      
+        public long? LocationID { get; set; }
         public string ActionDropdown { get; set; }
         public long? ProdActivityActionId { get; set; }
         public long? ProdActivityCategoryId { get; set; }
@@ -27,7 +33,7 @@ namespace Core.Entities
         public Guid? SessionId { get; set; }
         public long? ProductActivityCaseLineId { get; set; }
         public long? NavprodOrderLineId { get; set; }
-        public string Comment { get; set; }
+       
         public bool? QaCheck { get; set; }
         public bool? IsOthersOptions { get; set; }
         public long? ProdActivityResultId { get; set; }

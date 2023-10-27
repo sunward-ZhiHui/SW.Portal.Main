@@ -158,7 +158,7 @@ namespace Infrastructure
             services.AddTransient<ITransferPermissionsQueryRepository, TransferPermissionsQueryRepository>();
             services.AddTransient<IProductionActivityQueryRepository,ProductionActivityAppLineQueryRepository>();
             services.AddTransient<IProductionActivityAppQueryRepository,ProductionActivityAppQueryRepository>();
-           
+            services.AddTransient<IRoutineLineAppQuery, RoutineAppLineQueryRepository>();
             services.AddTransient<ISettingsQueryRepository, SettingsQueryRepository>();
             return services;
         }

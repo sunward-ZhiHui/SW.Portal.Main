@@ -36,7 +36,7 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("id", id);
 
-                            var query = "DELETE  FROM ProductionActivityAppline WHERE ID = @id";
+                            var query = "DELETE  FROM ProductionActivityRoutineAppLine WHERE ID = @id";
 
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
@@ -64,8 +64,8 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select t1.* from ProductionActivityRoutineAppLine t1 ";
-                   
+                var query = "select  AMC.Value as Process,AMD.Value as Result,AMC1.Value as Category,AMC2.Value AS Action from ProductionActivityRoutineAppLine as PAAL inner Join ApplicationMasterChild as AMC ON AMC.ApplicationMasterChildID = PAAL.ManufacturingProcessChildID \r\ninner Join ApplicationMasterChild as AMC1 ON AMC1.ApplicationMasterChildID = PAAL.ProdActivityCategoryChildID inner Join ApplicationMasterChild as AMC2 ON AMC2.ApplicationMasterChildID = PAAL.ProdActivityActionChildD inner join ApplicationMasterDetail as AMD ON AMD.ApplicationMasterDetailID = PAAL.ProdActivityResultID";
+
 
                 using (var connection = CreateConnection())
                 {
@@ -208,30 +208,6 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public int? GeDynamicFormSectionSort(long? id)
-        {
-            try
-            {
-                int? SortOrderBy = 1;
-                var parameters = new DynamicParameters();
-                var query = string.Empty;
-                parameters.Add("DynamicFormId", id);
-
-                query = "SELECT * FROM DynamicFormSection Where DynamicFormId = @DynamicFormId order by  SortOrderBy desc";
-                using (var connection = CreateConnection())
-                {
-                    var result = connection.QueryFirstOrDefault<DynamicFormSection>(query, parameters);
-                    if (result != null)
-                    {
-                        SortOrderBy = result.SortOrderBy + 1;
-                    }
-                }
-                return SortOrderBy;
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
+      
     }
 }

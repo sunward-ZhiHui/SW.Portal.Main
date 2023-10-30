@@ -299,7 +299,7 @@ namespace SW.Portal.Solutions.Controllers
         [HttpGet("GetOnReplyList")]
         public async Task<IActionResult> GetOnReplyList(long Id, long UserId)
         {
-            var result = await _mediator.Send(new OnReplyConversation(Id, UserId));
+            var result = await _mediator.Send(new OnReplyConversationTopic(Id, UserId));
             return Ok(result);
         }
         [HttpPost("OnSubmitReply")]

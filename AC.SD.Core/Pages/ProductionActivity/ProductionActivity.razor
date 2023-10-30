@@ -11,7 +11,7 @@
 
 
 <div class="col-md-12" style="height: calc(100vh - 200px);">
-    <div style="height:35%; border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
+    <div style="height:25%; border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
         <div class="mini-menu-bar-top">
             <div class="mini-menu-bar-heading">
             </div>
@@ -29,17 +29,17 @@
                                             FilteringMode="DataGridFilteringMode.Contains"
                                             TextFieldName="Description"
                                             ValueFieldName="PlantID"
-                                            @bind-Value="Data.CompanyID"
-                                         
+                                            @bind-Value="Data.CompanyID"                                         
                                             ShowValidationIcon="true">
                                 </DxComboBox>
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
                                 <DxComboBox Data="@_ponumberActivities"
                                             NullText="Select ProdOrderNo..."
+                                           
                                             FilteringMode="DataGridFilteringMode.Contains"
                                             TextFieldName="prodOrderNo"
-                                            ValueFieldName="NavprodOrderLineId"
+                                            ValueFieldName="RePlanRefNo"
                                              @bind-Value="Data.ProdOrderNo"
                                             ShowValidationIcon="true">
                                 </DxComboBox>
@@ -62,7 +62,7 @@
             </div>
         </div>
     </div>
-    <div style="height:60%;border: 1px solid #b2afaf; overflow: auto; padding:10px;">
+    <div style="height:80%;border: 1px solid #b2afaf; overflow: auto; padding:10px;">
 
 
         <div class="mini-menu-bar-top">
@@ -152,7 +152,7 @@
          Closed="EulaPopupClosed"
          Width="800px">
     <BodyContentTemplate>
-        <AddPopupApp ParentData="@Data"></AddPopupApp>
+        <AddPopupApp  ParentData="@Data"></AddPopupApp>
                                 
     </BodyContentTemplate>
     
@@ -163,7 +163,7 @@
     EditContext _editContext;
     private List<ViewPlants> _plantItems;
     private List<ProductionActivityApp> _productionActivities;
-    private List<ProductionActivityApp> _ponumberActivities;
+    private List<NavprodOrderLine> _ponumberActivities;
     //ProductionActivityApp Data = new ProductionActivityApp();
     ProductionActivityModel Data = new ProductionActivityModel();
     ProductionActivityAppLine DataLine = new ProductionActivityAppLine();
@@ -172,8 +172,8 @@
     private List<ProductionActivityAppLine> _AppLines;
     private List<ApplicationMasterChildModel> _ProcessLines;
     bool AddPopup = false;
-   
-    private AddPopupApp? RefToDoLeftNotes { get; set; }
+    private ProductionActivity? RefToDoLeftNotes { get; set; }
+  //  private AddPopupApp? RefToDoLeftNotes { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -184,26 +184,39 @@
         _AppLines = Lines;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
+    async void UpdateDataAsync()
+    {
+        var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery());
+        _AppLines = Lines;
+    }
     void addDelete()
     {
 
     }
-  
-  async void SelectedItemChanged(long? companyid)
+
+    async void SelectedItemChanged(long? companyid)
     {
         if (companyid > 0)
         {
             _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(companyid));
             StateHasChanged();
-            if (_productionActivities.Count > 0)
+            try
             {
-                _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(companyid));
-                StateHasChanged();
+                if (_productionActivities.Count > 0)
+                {
+                    _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(companyid));
+                    StateHasChanged();
+                }
+            }
+            catch (Exception exp)
+            {
+
+                throw new Exception(exp.Message, exp);
             }
 
         }
     }
-
+    
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)

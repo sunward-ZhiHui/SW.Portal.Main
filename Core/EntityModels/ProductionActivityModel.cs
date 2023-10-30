@@ -53,7 +53,7 @@ namespace Core.EntityModels
         public bool IsTemplateUpload { get; set; }
 
         public long? ProductActivityCaseLineID { get; set; }
-        public long? NavprodOrderLineID { get; set; }
+        public string AppLineNavprodOrderLineID { get; set; }
         public string PAApplineComment { get; set; }
         public bool QaCheck { get; set; }
         public bool IsOthersOptions { get; set; }
@@ -85,5 +85,6 @@ namespace Core.EntityModels
         public Guid? applineSessionId { get; set; }
         public long? applineAddedByUserID { get; set; }
         public int? applineStatusCodeID { get; set; }
+
     }
 }

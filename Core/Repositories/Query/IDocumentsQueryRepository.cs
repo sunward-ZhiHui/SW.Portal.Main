@@ -20,6 +20,7 @@ namespace Core.Repositories.Query
         Documents GetByOneAsync(long? DocumentId);
         Task<DocumentsUploadModel> InsertCreateDocument(DocumentsUploadModel value);
         Task<Documents> UpdateDocumentAfterUpload(Documents value);
+        Task<long> UpdateEmailDMS(long DocId,long ActivityId);
         Task<Documents> InsertCreateDocumentBySession(Documents value);
         Task<DocumentsUploadModel> UpdateCreateDocumentBySession(DocumentsUploadModel value);
         Task<DocumentNoSeriesModel> InsertOrUpdateReserveProfileNumberSeries(DocumentNoSeriesModel documentNoSeries);

@@ -14,7 +14,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<EmailTopics>> GetAllAsync();
         Task<List<EmailTopics>> GetByIdAsync(Int64 id);             
         Task<List<EmailTopics>> GetUserTopicList(Int64 UserId);
-        Task<List<EmailTopics>> GetBySessionTopicList(string SessionId);        
+        Task<List<EmailTopics>> GetBySessionTopicList(string SessionId);
+        Task<List<EmailTopics>> GetByIdTopicListAsync(Int64 id);
         Task<List<EmailTopics>> GetByIdTopicToList(Int64 UserId);
         Task<List<EmailTopics>> GetByIdTopicCCList(Int64 UserId);
         Task<List<EmailTopics>> GetTopicToList(Int64 UserId,string SearchTxt);

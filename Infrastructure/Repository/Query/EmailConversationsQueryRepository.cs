@@ -969,7 +969,7 @@ namespace Infrastructure.Repository.Query
             {
 
                 var query = @"SELECT FC.Name,FC.ID,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,FC.ReplyId,FC.FileData,FC.AddedByUserID,
-                                AET.Comment as ActCommentName,AET.BackURL,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
+                                AET.Comment as ActCommentName,AET.BackURL,AET.DocumentSessionId,EMPP.FirstName as ActUserName,AET.AddedDate as ActAddedDate,FC.DueDate,FC.IsAllowParticipants,
                                 ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType
                                 FROM EmailConversations FC  
                                 LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf                                
@@ -1219,13 +1219,13 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId from EmailConversations FC 
+                var query = @"SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS from EmailConversations FC 
                                 INNER JOIN Documents D on D.SessionID = FC.SessionId
 								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID
 								LEFT JOIN Employee EMP ON EMP.UserID = D.ModifiedByUserID
                                 where FC.ID = @ConversationId
                                     UNION
-                                SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId from EmailConversations FC 
+                                SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS from EmailConversations FC 
                                 INNER JOIN Documents D on D.SessionID = FC.SessionId
 								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID
 								LEFT JOIN Employee EMP ON EMP.UserID = D.ModifiedByUserID

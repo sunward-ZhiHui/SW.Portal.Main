@@ -7,6 +7,7 @@ using Core.Repositories.Query.Base;
 using MediatR;
 using System;
 using System.Linq;
+using System.Net.Mime;
 
 namespace CMS.Application.Handlers.QueryHandlers
 {
@@ -70,6 +71,21 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetListByIdListHandler : IRequestHandler<GetListByIdList, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetListByIdListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetListByIdList request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetByIdTopicListAsync(request.ID);
+
+        }
+    }
+    
     public class GetEmailTopicToHandler : IRequestHandler<GetEmailTopicTo, List<EmailTopics>>
     {
 
@@ -497,6 +513,58 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
+    public class CreateEmailDocFileProfileTypeHandler : IRequestHandler<CreateEmailDocFileProfileType, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        private readonly IDocumentsQueryRepository _documentsQueryRepository;
+
+        public CreateEmailDocFileProfileTypeHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository, IDocumentsQueryRepository documentsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+            _documentsQueryRepository = documentsQueryRepository;
+        }
+
+        public async Task<long> Handle(CreateEmailDocFileProfileType request, CancellationToken cancellationToken)
+        {
+            var result = await _documentsQueryRepository.GetByIdAsync(request.DocumentId);
+
+            var docResult = new Documents()
+            {
+                FilterProfileTypeId = request.FilterProfileTypeId,
+                FileName = result.FileName,
+                ContentType = result.ContentType,
+                FileSize = result.FileSize,
+                UploadDate = request.UploadDate,
+                SessionId = request.SessionId,
+                AddedByUserId = request.AddedByUserId,
+                AddedDate = request.AddedDate,
+                IsLatest = true,
+                FilePath = result.FilePath,
+                IsNewPath = true,
+                SourceFrom = "FileProfile"
+            };
+
+            var req = await _documentsQueryRepository.InsertCreateDocumentBySession(docResult);            
+            return req.DocumentId;
+        }
+    }
+
+    public class UpdateEmailDmsDocIdHandler : IRequestHandler<UpdateEmailDmsDocId, long>
+    {        
+        private readonly IDocumentsQueryRepository _documentsQueryRepository;
+
+        public UpdateEmailDmsDocIdHandler(IDocumentsQueryRepository documentsQueryRepository)
+        {            
+            _documentsQueryRepository = documentsQueryRepository;
+        }
+
+        public async Task<long> Handle(UpdateEmailDmsDocId request, CancellationToken cancellationToken)
+        {     
+            var req = await _documentsQueryRepository.UpdateEmailDMS(request.DocumentId,request.EmailToDMS);
+            return req;
+        }
+    }
+
     public class UpdateEmailTopicSubjectDueDateHandler : IRequestHandler<UpdateEmailTopicSubjectDueDate, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;

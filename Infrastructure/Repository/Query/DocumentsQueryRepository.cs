@@ -143,6 +143,40 @@ namespace Infrastructure.Repository.Query
             documentNoSeriesModel.SessionId = value.FileSessionId;
             return await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(documentNoSeriesModel);
         }
+        
+        public async Task<long> UpdateEmailDMS(long DocId,long ActivityId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("DocId", DocId);
+                            parameters.Add("ActivityId", ActivityId);                          
+                            var query = @"Update Documents SET EmailToDMS=@ActivityId WHERE DocumentId= @DocId";
+                            var rowsAffected =  await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return rowsAffected;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<Documents> UpdateDocumentAfterUpload(Documents value)
         {
             try
@@ -332,22 +366,25 @@ namespace Infrastructure.Repository.Query
                     {
                         try
                         {
-                            var parameters = new DynamicParameters();
+                            var parameters = new DynamicParameters();                            
+                            parameters.Add("FilterProfileTypeID", value.FilterProfileTypeId);
                             parameters.Add("FileName", value.FileName, DbType.String);
                             parameters.Add("ContentType", value.ContentType, DbType.String);
                             parameters.Add("FileSize", value.FileSize);
                             parameters.Add("UploadDate", value.UploadDate, DbType.DateTime);
-                            parameters.Add("AddedByUserId", value.AddedByUserId);
+                            parameters.Add("AddedByUserId", value.AddedByUserId);                            
                             parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
+                            parameters.Add("ModifiedByUserID", value.AddedByUserId);
+                            parameters.Add("ModifiedDate", value.AddedDate, DbType.DateTime);
                             parameters.Add("SessionId", value.SessionId, DbType.Guid);
                             parameters.Add("IsLatest", 1);
                             parameters.Add("FilePath", value.FilePath, DbType.String);
                             parameters.Add("IsNewPath", 1);
                             parameters.Add("IsTemp", value.IsTemp);
                             parameters.Add("SourceFrom", value.SourceFrom,DbType.String);
-                            var query = "INSERT INTO [Documents](FileName,ContentType,FileSize,UploadDate,AddedByUserId,AddedDate,SessionId,IsLatest,FilePath,IsNewPath,IsTemp,SourceFrom) " +
+                            var query = "INSERT INTO [Documents](FilterProfileTypeID,FileName,ContentType,FileSize,UploadDate,AddedByUserId,AddedDate,ModifiedByUserID,ModifiedDate,SessionId,IsLatest,FilePath,IsNewPath,IsTemp,SourceFrom) " +
                                 "OUTPUT INSERTED.DocumentId VALUES " +
-                               "(@FileName,@ContentType,@FileSize,@UploadDate,@AddedByUserId,@AddedDate,@SessionId,@IsLatest,@FilePath,@IsNewPath,@IsTemp,@SourceFrom)";
+                               "(@FilterProfileTypeID,@FileName,@ContentType,@FileSize,@UploadDate,@AddedByUserId,@AddedDate,@ModifiedByUserID,@ModifiedDate,@SessionId,@IsLatest,@FilePath,@IsNewPath,@IsTemp,@SourceFrom)";
                             value.DocumentId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             transaction.Commit();
                             return value;

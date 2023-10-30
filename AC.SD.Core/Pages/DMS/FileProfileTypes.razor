@@ -1306,7 +1306,6 @@
     {
         var lst = FolderPathLists;
         string groupTag = "";
-
         long grouptTagId = 0;
         long catTagId = 0;
 
@@ -1390,8 +1389,6 @@
                 await createApplicationMasterChild(124, catTagId, "Discussion");
             }
         }
-
-
 
         var items = await Mediator.Send(new GetActivityEmailList(_selectedItems.SessionID.Value));
 

@@ -55,6 +55,15 @@ namespace Application.Queries
             this.SessionId = SessionId;
         }
     }
+    public class GetListByIdList : PagedRequest, IRequest<List<EmailTopics>>
+    {
+        public long ID { get; private set; }
+        public GetListByIdList(long Id)
+        {
+            this.ID = Id;
+        }
+    }
+    
     public class GetEmailTopicTo : PagedRequest, IRequest<List<EmailTopics>>
     {
         public long UserId { get; private set; }
@@ -337,6 +346,21 @@ namespace Application.Queries
     public class UpdateEmailTopicDueDate : EmailTopics, IRequest<long>
     {       
     }
+    public class CreateEmailDocFileProfileType : Documents, IRequest<long>
+    {
+    }
+    public class UpdateEmailDmsDocId : Documents, IRequest<long>
+    {
+        public long DocumentId { get; private set; }
+        public long EmailToDMS { get; private set; }
+        public UpdateEmailDmsDocId(long DocId, long EmailToDMS)
+        {
+            this.DocumentId = DocId;
+            this.EmailToDMS = EmailToDMS;
+        }
+    }
+    
+
     public class UpdateEmailTopicSubjectDueDate : EmailConversations, IRequest<long>
     {
     }

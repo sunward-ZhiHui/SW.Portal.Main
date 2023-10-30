@@ -58,7 +58,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from View_Employee where StatusName!='Resign' or StatusName is null";
+                var query = "select  * from view_GetEmployee where Status!='Resign' or Status is null";
 
                 using (var connection = CreateConnection())
                 {

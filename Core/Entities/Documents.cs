@@ -73,5 +73,6 @@ namespace Core.Entities
         [NotMapped]
         public string? SourceFrom { get; set; }
         public Guid? UniqueSessionId { get; set; }
+        public long? EmailToDMS { get; set; }
     }
 }

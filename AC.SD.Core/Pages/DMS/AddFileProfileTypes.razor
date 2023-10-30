@@ -105,6 +105,7 @@
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public long? FileProfileTypeId { get; set; }
+    private OpenAccessUserLink _openAccessUserLink { get; set; }
     string IsdisplayButton = "float: left; margin-top: -41px; line-height: 38px; margin-left: 104px; z-index: 9999; width:100px;";
     protected override async Task OnInitializedAsync()
     {
@@ -127,51 +128,77 @@
             var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
             if (fileType != null)
             {
-                var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(FileProfileTypeId, _applicationUser.UserID));
-                if (Type == "Add")
+                _openAccessUserLink = await Mediator.Send(new GetDMSAccessByUser(_applicationUser.UserID));
+                if (_openAccessUserLink != null)
                 {
-                    if (fileType.AddedByUserID == _applicationUser.UserID)
+                    if (_openAccessUserLink.IsDmsCreateMainFolder == true)
                     {
-                        isSaveEnabled = true;
-                        isEditProfileType = true;
+                        isSaveEnabled = true; isEditProfileType = true;
                     }
-                    else
+                    if (_openAccessUserLink.IsDmsAccess == true)
                     {
-                        if (documentPermissionModels != null)
-                        {
-                            if (documentPermissionModels.IsCreateFolder == true)
-                            {
-                                isSaveEnabled = true;
-                                isEditProfileType = true;
-                            }
-
-                        }
+                        isSaveEnabled = true; isEditProfileType = true; IsGrantAdminPermission = true;
                     }
                 }
-                if (Type == "Edit")
+                else
                 {
-                    if (fileType.AddedByUserID == _applicationUser.UserID)
+                    var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(FileProfileTypeId, _applicationUser.UserID));
+                    if (Type == "Add")
                     {
-                        isSaveEnabled = true;
-                        isEditProfileType = true;
-                        IsGrantAdminPermission = true;
-                    }
-                    else
-                    {
-                        if (documentPermissionModels != null)
+                        if (fileType.AddedByUserID == _applicationUser.UserID)
                         {
-                            if (documentPermissionModels.IsEditFolder == true)
+                            isSaveEnabled = true;
+                            isEditProfileType = true;
+                        }
+                        else
+                        {
+                            if (documentPermissionModels != null)
                             {
-                                isSaveEnabled = true;
-                                isEditProfileType = true;
+                                if (documentPermissionModels.IsCreateFolder == true)
+                                {
+                                    isSaveEnabled = true;
+                                    isEditProfileType = true;
+                                }
 
                             }
-                            if (documentPermissionModels.IsGrantAdminPermission == true)
+                            else
                             {
-                                IsGrantAdminPermission = true;
+                                //isSaveEnabled = true;
+                                //isEditProfileType = true;
                             }
                         }
+                    }
+                    if (Type == "Edit")
+                    {
+                        if (fileType.AddedByUserID == _applicationUser.UserID)
+                        {
+                            isSaveEnabled = true;
+                            isEditProfileType = true;
+                            IsGrantAdminPermission = true;
+                        }
+                        else
+                        {
+                            if (documentPermissionModels != null)
+                            {
+                                if (documentPermissionModels.IsEditFolder == true)
+                                {
+                                    isSaveEnabled = true;
+                                    isEditProfileType = true;
 
+                                }
+                                if (documentPermissionModels.IsGrantAdminPermission == true)
+                                {
+                                    IsGrantAdminPermission = true;
+                                }
+                            }
+                            else
+                            {
+                                //isSaveEnabled = true;
+                                //isEditProfileType = true;
+                                //IsGrantAdminPermission = true;
+                            }
+
+                        }
                     }
                 }
                 FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);

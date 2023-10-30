@@ -178,10 +178,12 @@
     }
     public async Task loadFileProfileDataList()
     {
+        documentLinkSearchModel.FileProfileTypeId = null;
+        documentLinkSearchModel.FileProfileTypeIds =new List<long?>();
         FolderPathLists = new List<DocumentsModel>();
         if (FileProfileTypeId > 0)
         {
-            
+
             var fileType = fileProfileTypeDocumentsAllList.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
             if (fileType != null)
             {
@@ -195,10 +197,14 @@
     async Task loadFileProfileDataLists()
     {
         PanelVisibleLink = true;
-        documentLinkSearchModel.FileProfileTypeId = FileProfileTypeId;
+        if (FileProfileTypeId > 0)
+        {
+            documentLinkSearchModel.FileProfileTypeId = FileProfileTypeId;
+            documentLinkSearchModel.FileProfileTypeIds.Add(FileProfileTypeId);
+        }
         _fileProfileselectedlstItemsList = await Mediator.Send(new GetAllSelectedfileprofiletypeQuery(documentLinkSearchModel));
         fileProfileTypeDocumentsLink = _fileProfileselectedlstItemsList.DocumentsData;
-        if (fileProfileTypeDocumentsLink.Count > 0 && ParentSelectedFiles!=null && ParentSelectedFiles.Type=="Document")
+        if (fileProfileTypeDocumentsLink.Count > 0 && ParentSelectedFiles != null && ParentSelectedFiles.Type == "Document")
         {
             fileProfileTypeDocumentsLink = fileProfileTypeDocumentsLink.Where(w => w.DocumentID != ParentSelectedFiles.DocumentID).ToList();
         }

@@ -62,5 +62,16 @@ namespace Application.Handlers.QueryHandlers
             return await _queryRepository.GetAllByAsync(request.AccessType);
         }
     }
-
+    public class GetDMSAccessByUserHandler : IRequestHandler<GetDMSAccessByUser, OpenAccessUserLink>
+    {
+        private readonly ISettingsQueryRepository _queryRepository;
+        public GetDMSAccessByUserHandler(ISettingsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<OpenAccessUserLink> Handle(GetDMSAccessByUser request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetDMSAccessByUser(request.UserId);
+        }
+    }
 }

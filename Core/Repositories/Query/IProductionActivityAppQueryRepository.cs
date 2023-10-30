@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.EntityModels;
 using Core.Repositories.Query.Base;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,9 @@ namespace Core.Repositories.Query
     public interface IProductionActivityAppQueryRepository : IQueryRepository<ProductionActivityApp>
     {
         Task<IReadOnlyList<ProductionActivityApp>> GetAllAsync(long? CompanyId);
+        Task<IReadOnlyList<ProductionActivityApp>> GetAllListAsync();
+        
+        Task<long> Insert(ProductionActivityModel PPAlist);
         Task<IReadOnlyList<ProductionActivityApp>> GetAllAsyncPO(long? CompanyId);
     }
    

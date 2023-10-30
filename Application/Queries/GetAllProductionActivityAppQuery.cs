@@ -1,5 +1,6 @@
 ﻿using Application.Queries.Base;
 using Core.Entities;
+using Core.EntityModels;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,13 @@ namespace Application.Queries
         {
            this.companyID=companyid;
         }
+    }
+    public class GetAllProductionActivityAppQueryList : PagedRequest, IRequest<List<ProductionActivityApp>>
+    {
+
+    }
+    public class CreateProductionActivityAppCommand : ProductionActivityModel, IRequest<long>
+    {
     }
     public class GetAllProductionActivityPONumberAppQuery : PagedRequest, IRequest<List<ProductionActivityApp>>
     {

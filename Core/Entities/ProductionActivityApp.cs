@@ -27,8 +27,7 @@ namespace Core.Entities
         public string? SiteName { get; set;}
         [NotMapped]
         public string? ZoneName { get; set;}
-        [NotMapped]
-        public long? Companyid { get; set;}
+       
         [NotMapped]
         public string? DeropdownName { get; set; }
         [NotMapped]
@@ -39,7 +38,6 @@ namespace Core.Entities
         public string? BatchNo { get;set; }
         [NotMapped]
         public string? Description { get; set; }
-        [NotMapped]
-        public string? prodOrderNo { get; set; }
+       
     }
 }

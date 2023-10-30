@@ -38,6 +38,9 @@ namespace Core.Entities
         public string? BatchNo { get;set; }
         [NotMapped]
         public string? Description { get; set; }
-       
+        [NotMapped]
+        public string? prodOrderNo { get; set; }
+
+
     }
 }

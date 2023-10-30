@@ -129,7 +129,7 @@
     private List<ProductionActivityAppLine> _AppLines;
     private List<ApplicationMasterChildModel> _ProcessLines;
 
-  
+
     // ProductionActivityAppLine Data = new ProductionActivityAppLine();
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -165,12 +165,16 @@
     {
     }
     void addNew()
-       {
+    {
 
         AppLine.StartEditNewRowAsync();
 
-       }
-    
+    }
+    async void SelectedItemChanged(long? companyid)
+    {
+        
+    }
+
     public void TestLine()
     {
 

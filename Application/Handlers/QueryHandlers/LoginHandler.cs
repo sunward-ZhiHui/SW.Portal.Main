@@ -108,7 +108,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<ApplicationUser> Handle(UnsetLockedRequest request, CancellationToken cancellationToken)
         {
-            var newEntity = await _applicationUserQueryRepository.UnLockedPassword(request.LoginID, request.NewPassword);
+            var newEntity = await _applicationUserQueryRepository.UnLockedPassword(request.LoginID, request.NewPassword,request.Locked);
             return newEntity;
         }
 

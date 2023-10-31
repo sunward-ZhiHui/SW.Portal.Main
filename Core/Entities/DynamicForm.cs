@@ -38,5 +38,7 @@ namespace Core.Entities
         public List<DynamicFormApproval>? DynamicFormApproval {  get; set; }
         [NotMapped]
         public string? FileProfileTypeName { get; set; }
+        [NotMapped]
+        public Guid? FileProfileSessionId { get; set; }
     }
 }

@@ -81,6 +81,15 @@ namespace Application.Queries
             this.SesionId = SessionId;
         }
     }
+    public class GetDynamicFormById : PagedRequest, IRequest<DynamicForm>
+    {
+        public long? Id { get; set; }
+        public GetDynamicFormById(long? id)
+        {
+            this.Id = id;
+        }
+    }
+
     public class DeleteDynamicFormSection : DynamicFormSection, IRequest<long>
     {
         public DynamicFormSection DynamicFormSection { get; set; }
@@ -135,6 +144,15 @@ namespace Application.Queries
         public string? SearchString { get; set; }
         public Guid? SesionId { get; set; }
         public GetDynamicFormDataBySessionId(Guid? SessionId)
+        {
+            this.SesionId = SessionId;
+        }
+    }
+    public class GetDynamicFormDataBySessionIdForDMS : PagedRequest, IRequest<DocumentsModel>
+    {
+        public string? SearchString { get; set; }
+        public Guid? SesionId { get; set; }
+        public GetDynamicFormDataBySessionIdForDMS(Guid? SessionId)
         {
             this.SesionId = SessionId;
         }

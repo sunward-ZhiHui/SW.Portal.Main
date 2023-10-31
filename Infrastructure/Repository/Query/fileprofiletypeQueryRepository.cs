@@ -107,7 +107,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select  * from FileProfileType where sessionId=@SessionId";
+                var query = "select  t1.*,\r\n(select  COUNT(t2.FileProfileSessionID) from DynamicFormData t2 where t2.FileProfileSessionID=t1.SessionID) as IsdynamicFormExits\r\nfrom FileProfileType t1 where t1.sessionId=@SessionId";
 
                 using (var connection = CreateConnection())
                 {
@@ -275,7 +275,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId,sessionId from FileProfileType";
+                var query = "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId,sessionId,DynamicFormId from FileProfileType";
 
                 using (var connection = CreateConnection())
                 {
@@ -391,10 +391,10 @@ namespace Infrastructure.Repository.Query
                         "Where  t1.FileProfileTypeID=@FileProfileTypeID AND t1.UserID=@UserID AND (t3.Value is null or t3.Value!='Resign')";
                     using (var connection = CreateConnection())
                     {
-                        var result= await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
-                       // if (result != null)
-                       // {
-                            return result;
+                        var result = await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
+                        // if (result != null)
+                        // {
+                        return result;
                         /*}
                         else
                         {
@@ -468,6 +468,40 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DocumentDmsShare>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormData>> GeDynamicFormDataAsync(List<Guid?> documentIds)
+        {
+            try
+            {
+                var lists = string.Join(',', documentIds.Select(i => $"'{i}'"));
+                var query = "select  DynamicFormDataId,DynamicFormId,SessionId from DynamicFormData where SessionId in(" + lists + ")";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormData>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<ActivityEmailTopics>> GeActivityEmailTopicsAsync(List<Guid?> documentIds)
+        {
+            try
+            {
+                var lists = string.Join(',', documentIds.Select(i => $"'{i}'"));
+                var query = "select  ActivityEmailTopicID,DocumentSessionId from ActivityEmailTopics where DocumentSessionId in(" + lists + ")";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ActivityEmailTopics>(query)).ToList();
                 }
             }
             catch (Exception exp)
@@ -814,6 +848,8 @@ namespace Infrastructure.Repository.Query
                         {
                             var sessionIds = documents.Select(a => a.SessionId).ToList();
                             var docShares = await GeDocumentDmsShareAsync(sessionIds);
+                            var dynamicFormData = await GeDynamicFormDataAsync(sessionIds);
+                            var emailTopics = await GeActivityEmailTopicsAsync(sessionIds);
                             var docIds = documents.Select(a => a.DocumentId).ToList();
                             // var notes = await GeNotesAsync(docIds);
                             //var taskMasternotes = await GetTaskMasterAsync(docIds);
@@ -835,6 +871,16 @@ namespace Infrastructure.Repository.Query
                                 {
                                     documentsModels.SharesCount = sharesCountCount;
                                 }
+                                if (dynamicFormData != null)
+                                {
+                                    var isDynamicFromData = dynamicFormData.Where(a => a.SessionId == s.SessionId).Count();
+                                    documentsModels.IsDynamicFromData = isDynamicFromData > 0 ? true : false;
+                                }
+                                if (emailTopics != null)
+                                {
+                                    var isemailTopics = emailTopics.Where(a => a.DocumentSessionId == s.SessionId).Count();
+                                    documentsModels.IsEmailTopics = isemailTopics > 0 ? true : false;
+                                }
                                 documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
                                 //documentsModels.SetAccessFlag = setAccessFlag > 0 ? true : false;
                                 documentsModels.SessionId = s.SessionId;
@@ -851,6 +897,7 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
                                 documentsModels.FileProfileTypeSessionId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.SessionId;
                                 documentsModels.ProfileID = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.ProfileId;
+                                documentsModels.DynamicFormId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.DynamicFormId;
                                 documentsModels.DocumentParentId = s.DocumentParentId;
                                 documentsModels.TableName = s.TableName;
                                 documentsModels.IsMobileUpload = s.IsMobileUpload;
@@ -1472,16 +1519,17 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("IsTemplateCaseNo", value.IsTemplateCaseNo);
                             parameters.Add("TemplateTestCaseId", value.TemplateTestCaseId);
                             parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                            parameters.Add("DynamicFormId", value.DynamicFormId);
                             if (value.FileProfileTypeId <= 0)
                             {
 
                                 var query = "INSERT INTO [FileProfileType](Name,ProfileId,ParentId,StatusCodeID,AddedDate,AddedByUserID,ModifiedDate,ModifiedByUserId,Description,IsExpiryDate," +
                                     "IsAllowMobileUpload,IsDocumentAccess,ShelfLifeDuration,ShelfLifeDurationId,Hints,IsEnableCreateTask,IsCreateByYear,IsCreateByMonth," +
-                                    "IsHidden,ProfileInfo,IsTemplateCaseNo,TemplateTestCaseId,SessionId) " +
+                                    "IsHidden,ProfileInfo,IsTemplateCaseNo,TemplateTestCaseId,SessionId,DynamicFormId) " +
                                     "OUTPUT INSERTED.FileProfileTypeId VALUES " +
                                    "(@Name,@ProfileId,@ParentId,@StatusCodeID,@AddedDate,@AddedByUserID,@ModifiedDate,@ModifiedByUserId,@Description,@IsExpiryDate," +
                                    "@IsAllowMobileUpload,@IsDocumentAccess,@ShelfLifeDuration,@ShelfLifeDurationId,@Hints,@IsEnableCreateTask,@IsCreateByYear,@IsCreateByMonth," +
-                                   "@IsHidden,@ProfileInfo,@IsTemplateCaseNo,@TemplateTestCaseId,@SessionId)";
+                                   "@IsHidden,@ProfileInfo,@IsTemplateCaseNo,@TemplateTestCaseId,@SessionId,@DynamicFormId)";
                                 value.FileProfileTypeId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
 
                             }
@@ -1491,7 +1539,7 @@ namespace Infrastructure.Repository.Query
                                 var query = "Update Fileprofiletype SET Name=@Name,ProfileId=@ProfileId,ParentId=@ParentId,StatusCodeID=@StatusCodeID,AddedDate=@AddedDate," +
                                     "AddedByUserID=@AddedByUserID,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId,Description=@Description,IsExpiryDate=@IsExpiryDate,IsAllowMobileUpload=@IsAllowMobileUpload,IsDocumentAccess=@IsDocumentAccess," +
                                     "ShelfLifeDuration=@ShelfLifeDuration,ShelfLifeDurationId=@ShelfLifeDurationId,Hints=@Hints,IsEnableCreateTask=@IsEnableCreateTask,IsCreateByYear=@IsCreateByYear," +
-                                    "IsCreateByMonth=@IsCreateByMonth,IsHidden=@IsHidden,ProfileInfo=@ProfileInfo,IsTemplateCaseNo=@IsTemplateCaseNo,TemplateTestCaseId=@TemplateTestCaseId,SessionId=@SessionId " +
+                                    "IsCreateByMonth=@IsCreateByMonth,IsHidden=@IsHidden,ProfileInfo=@ProfileInfo,IsTemplateCaseNo=@IsTemplateCaseNo,TemplateTestCaseId=@TemplateTestCaseId,SessionId=@SessionId,DynamicFormId=@DynamicFormId " +
                                     "WHERE FileProfileTypeId=@FileProfileTypeId";
                                 await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             }

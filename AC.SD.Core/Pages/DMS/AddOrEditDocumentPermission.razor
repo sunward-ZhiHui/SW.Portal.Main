@@ -58,8 +58,11 @@
         <DxFormLayoutItem Caption="Check Out" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermission.IsUpdateDocument" />
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Share" ColSpanMd="6">
+        <DxFormLayoutItem Caption="Copy Link" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermission.IsCopy" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Share" ColSpanMd="6">
+            <DxCheckBox @bind-Checked="@documentPermission.IsShare" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Move" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermission.IsMove" />

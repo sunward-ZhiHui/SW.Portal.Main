@@ -125,6 +125,7 @@ namespace Infrastructure.Repository.Query
                             var empCount = ViewEmployees.Where(w => w.EmployeeID == s.EmployeeID).Count();
                             if (empCount == 0)
                             {
+                                s.Locked = s.Locked == true ? true : false;
                                 ViewEmployees.Add(s);
                             }
                         });

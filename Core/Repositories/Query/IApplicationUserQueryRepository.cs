@@ -24,7 +24,7 @@ namespace Core.Repositories.Query
         Task<long> DeleteDeviceId(string TokenID);
         Task<ApplicationUser> UpdatePasswordUser(long UserID, string NewPassword, string OldPassword, string LoginID);
         Task<ApplicationUser> ForGotPasswordUser(string LoginID, string NewPassword);
-        Task<ApplicationUser> UnLockedPassword(string LoginID, string NewPassword);
+        Task<ApplicationUser> UnLockedPassword(string LoginID, string NewPassword,bool? locked);
         Task<ApplicationUser> ActiveUser(string LoginID);
         Task<ApplicationUser> InActiveUser(string LoginID);
 

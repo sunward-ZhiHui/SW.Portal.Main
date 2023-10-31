@@ -19,32 +19,32 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Reset Password" IconCssClass="fa fa-key" Click="@ShowPopup" Enabled="@ResetEnabled"  />
-                <DxMenuItem Text="Unlock" IconCssClass="fa fa-unlock" Click="@((e) => UnSetLock(_selectedItems.UserID))" Enabled="@UnlockEnabled"  />
-                  
-                    <DxMenu Visible="@StatusActive">
-                        <Items>
-                            <DxMenuItem Text="Active" IconCssClass="fa fa-key" Click="@((e) => Active(_selectedItems.UserID))" style="float: left; margin-bottom: -41px;  margin-left:300px; z-index: 9999; width:100px;" />
-                        </Items>
-                    </DxMenu>
-                 
-                    <DxMenu Visible="@StatusInActive">
-                        <Items>
-                            <DxMenuItem Text="InActive" IconCssClass="fa fa-key" Click="@((e) => InActive(_selectedItems.UserID))" style="float: left; margin-bottom: -41px;  margin-left:300px; z-index: 9999; width:100px;" />
-                        </Items>
-                    </DxMenu>
+                <DxMenuItem Text="Reset Password" IconCssClass="fa fa-key" Click="@ShowPopup" Enabled="@ResetEnabled" />
+                <DxMenuItem Text="@Unlock" IconCssClass="@faunlock" Click="@((e) => UnSetLock(_selectedItems.UserID))" Enabled="@UnlockEnabled" />
 
-               
-               
+                @*   <DxMenu Visible="@StatusActive">
+                <Items>
+                <DxMenuItem Text="Active" IconCssClass="fa fa-key" Click="@((e) => Active(_selectedItems.UserID))" style="float: left; margin-bottom: -41px;  margin-left:300px; z-index: 9999; width:100px;" />
+                </Items>
+                </DxMenu>
+
+                <DxMenu Visible="@StatusInActive">
+                <Items>
+                <DxMenuItem Text="InActive" IconCssClass="fa fa-key" Click="@((e) => InActive(_selectedItems.UserID))" style="float: left; margin-bottom: -41px;  margin-left:300px; z-index: 9999; width:100px;" />
+                </Items>
+                </DxMenu> *@
+
+
+
             </Items>
         </DxMenu>
 
         @*  <div class="save_hover" @onclick="@((e) => InActive(_selectedItems.UserID))" style="float: left;line-height: 37px; margin-top: -41px; line-height: 37px; margin-left:300px; z-index: 9999; width:100px;">
         <button Visible="@StatusInActive" class="btnSubmitForm" style="Visibility:@StatusInActive;">
-            InActive
-          
+        InActive
+
         </button>
-    </div>*@
+        </div>*@
     </div>
 </div>
 
@@ -52,91 +52,45 @@
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
                 IndicatorAreaVisible="false"
-                Text="Fetching Data..."
-               >
+                Text="Fetching Data...">
 
-<DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-        Data="_employeeItems"
-        KeyFieldName="UserID"
-        CustomizeElement="Grid_CustomizeElement"
-        PagerNavigationMode="PagerNavigationMode.InputBox"
-        PageSizeSelectorVisible="true"
-        PageSizeSelectorAllRowsItemVisible="true"
-        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
-        PageSize="20"
-        SelectionMode="GridSelectionMode.Multiple"
-        SelectAllCheckboxMode="CurrentSelectAllCheckboxMode"
-       
-        ValidationEnabled="true"
-        AutoExpandAllGroupRows="true"
-        CssClass="ch-360 " style="height: calc(100vh - 220px);"
-        FocusedRowEnabled="true"
-        RowClick="OnRowClick"
-        AllowSelectRowByClick="true" >
-    <Columns>
-    
-  
-        <DxGridDataColumn FieldName="SageID" MinWidth="80" >
-        @* <CellDisplayTemplate>
-                @{
-                    var item = (ViewEmployee)context.DataItem;
-                }
-                <DxButton IconCssClass="btnDelete fas fa-trash" Enabled=@(item.LoginID != "crt") />
-            </CellDisplayTemplate>*@
+            Data="_employeeItems"
+            KeyFieldName="UserID"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="CurrentSelectAllCheckboxMode"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 220px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true">
+        <Columns>
+
+
+            <DxGridDataColumn FieldName="SageID" MinWidth="80">
             </DxGridDataColumn>
-        <DxGridDataColumn FieldName="FirstName"  />
-        <DxGridDataColumn FieldName="LastName" />
-        <DxGridDataColumn FieldName="NickName" MinWidth="80" />
-        <DxGridDataColumn FieldName="StatusCode" MinWidth="80" />
-        <DxGridDataColumn FieldName="ModifiedDate"  />
-        <DxGridDataColumn FieldName="Locked"  />
-        <DxGridDataColumn FieldName="ModifiedByUser"  />
-       @* <DxGridDataColumn FieldName="UserID" AllowSort="false" MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
-            <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button></CellDisplayTemplate>
-           
-        </DxGridDataColumn>*@
-      @*  <DxGridDataColumn FieldName="UserID" AllowSort="false"  MinWidth="100" Caption="Action" TextAlignment="GridTextAlignment.Center">
-            
-          @*  <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ResetPasswords((long)context.Value)">Reset Password</button></CellDisplayTemplate>
-            <CellDisplayTemplate><button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => ShowPopup((long)context.Value)">Reset Password</button></CellDisplayTemplate>
-       </DxGridDataColumn>*@
+            <DxGridDataColumn FieldName="FirstName" />
+            <DxGridDataColumn FieldName="LastName" />
+            <DxGridDataColumn FieldName="NickName" MinWidth="80" />
+            <DxGridDataColumn FieldName="Status" MinWidth="80" />
+            <DxGridDataColumn FieldName="Locked" />
+            <DxGridDataColumn FieldName="ModifiedDate" />
+            <DxGridDataColumn FieldName="ModifiedByUser" />
 
-       @* <DxGridDataColumn  FieldName="Locked" Width="10%" MinWidth="90">
-            <CellDisplayTemplate>
-                @if ((bool)context.Value == true)
-                {
-                  
-                    <button   class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)">Un Lock</button>
-                }
-               else
-                {
-                    <button class="btn btn-link grid-btn-link" style="color:black;" @onclick="() => UnSetLock((long)context.Value)"> Lock</button>
-                }
-            </CellDisplayTemplate>
-        </DxGridDataColumn>
-*@
-
-    </Columns>
-    <TotalSummary>
-        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SageID" />
-    </TotalSummary>
-</DxGrid>
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="SageID" />
+        </TotalSummary>
+    </DxGrid>
 </DxLoadingPanel>
-
-@*<DxPopup @ref="popup" HeaderText="CRT" ShowCloseButton="true" Width="350px" @bind-Visible="@PopupVisible">
-    <div class="text-center">
-        <Content>
-        <p>
-                <div id="@("label"+_selectedItems.UserID)" class="display-field Text"> Do You Want To  Reset the  @_selectedItems.NickName ,@_selectedItems.UserID,@_selectedItems.LastName Password</div>
-          
-        </p>
-    </Content>
-       
-        <DxButton class=align-Button Text="Yes" Click="@((e) => ResetPasswords(_selectedItems.UserID))" />
-        <DxButton class =align-items Text="No" Click="@(() => ClosePopup())" />
-    </div>
-</DxPopup>*@
 <DxPopup @bind-Visible="@PopupVisible"
          ShowFooter="true"
          HeaderText="CRT"
@@ -149,7 +103,7 @@
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Yes" Click="@((e) => ResetPasswords(_selectedItems.UserID))" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text = "No" Click="@(() => ClosePopup())" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="No" Click="@(() => ClosePopup())" />
     </FooterContentTemplate>
 </DxPopup>
 <DxPopup @bind-Visible="@MessageVisible"
@@ -162,9 +116,11 @@
     IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     bool PopupVisible { get; set; } = false;
     DxPopup? popup;
-    bool MessageVisible { get; set; } 
+    bool MessageVisible { get; set; }
     string MessageHeader = "";
     string MessageBody = "";
+    string Unlock = "Unlock";
+    string faunlock = "fa fa-unlock";
     private List<ViewEmployee> _employeeItems;
     private ViewEmployee _selectedItems;
     bool ResetEnabled { get; set; } = false;
@@ -176,94 +132,76 @@
     List<string> permissionids = new List<string>();
     //bool ResetShow { get; set; } = false;
     //bool UnlockShow { get; set; } = false;
-    string  permission ="";
+    string permission = "";
 
     protected override async Task OnInitializedAsync()
     {
 
-        PanelVisible = true;
-        // ApplicationPermission Hide and Show using Check menulist
-        var models = await Mediator.Send(new GetApplicationPermissionQuery(1));
-        applicationPermissions = models;
-
-        foreach (var permissionlst in applicationPermissions)
-        {
-            var pid = permissionlst.PermissionName;
-            permissionids.Add(pid);
-            //permission = ir.PermissionName;
-            // if (permission == "Users")
-            // {
-            //    ResetShow = true;
-            //    UnlockShow = true;
-            //    break;
-            // }
-            //else if (permission == "Reset Password")
-            //{
-            //    ResetShow = true;
-
-            //}
-            //else if (permission == "Unlock")
-            //{
-            //    UnlockShow = true;
-            //}
-
-        }
-        if (permissionids.Any((f) => f == "Users"))
-        {
-            ResetEnabled = true;
-            UnlockEnabled = true;
-            
-        }
-        if (permissionids.Any((f) => f == "Reset Password"))
-        {
-            ResetEnabled = true;
-
-        }
-        if (permissionids.Any((f) => f == "Unlock"))
-        {
-            UnlockEnabled = true;
-
-        }
-        //await jsRuntime.InvokeAsync<string>("showLoading");
-
-        var model = await Mediator.Send(new GetAllEmployeeListQuery());
-        _employeeItems = model;
-        if(_employeeItems.Count >0)
+        await UpdateDataAsync();
+    }
+    async Task UpdateDataAsync()
+    {
+        PanelVisible = true; ResetEnabled = false;
+        UnlockEnabled = false; StatusInActive = false; StatusActive = false;
+        _employeeItems = await Mediator.Send(new GetAllUserWithoutStatusQuery());
+        Unlock = "UnLock";
+        faunlock = "fa fa-unlock";
+        if (_employeeItems.Count > 0)
         {
             _selectedItems = _employeeItems.FirstOrDefault();
             ResetEnabled = true;
             UnlockEnabled = true;
-            StateHasChanged();
+            if (_selectedItems.UserStatus == 1)
+            {
+                StatusInActive = true;
+                StatusActive = false;
+            }
+            else
+            {
+                StatusActive = true;
+                StatusInActive = false;
+            }
+            if (_selectedItems.Locked == true)
+            {
+                Unlock = "UnLock";
+                faunlock = "fa fa-unlock";
+            }
+            else
+            {
+                Unlock = "Lock";
+                faunlock = "fa fa-lock";
+            }
+            PanelVisible = false;
         }
-
         PanelVisible = false;
-        //await jsRuntime.InvokeAsync<string>("hideLoading");
-
-
-
-    }
-
-
-
-    async Task UpdateDataAsync()
-    {
-        _employeeItems = await Mediator.Send(new GetAllEmployeeQuery());
+        StateHasChanged();
     }
 
     private async void UnSetLock(long? UserID)
     {
         var users = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
-        if(users!=null)
+        if (users != null)
         {
             var request = new UnsetLockedRequest
                 {
                     LoginID = users.LoginID,
                     NewPassword = "1234",
+                    Locked = users.Locked == true ? false : true,
                 };
             var response = await Mediator.Send(request);
-            toastService.ShowToast("Account Un-Locked Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        }        
-    }    
+            if (users.Locked == true)
+            {
+                toastService.ShowToast("Account Un-Locked Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+            else
+            {
+                toastService.ShowToast("Account Locked Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                await UpdateDataAsync();
+            }
+            
+        }
+    }
     private async void ResetPasswords(long? UserID)
     {
 
@@ -274,12 +212,13 @@
                 {
                     LoginID = users.LoginID,
                     NewPassword = "1234",
+
                 };
             var response = await Mediator.Send(request);
             PopupVisible = false;
-            InvokeAsync(StateHasChanged);
+            StateHasChanged();
             toastService.ShowToast("Resetpassword Successfully.", AC.SD.Core.Services.ToastLevel.Success);
-
+            await UpdateDataAsync();
         }
     }
 
@@ -292,13 +231,6 @@
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
-        //if (e.ElementType == GridElementType.DataRow && (System.String)e.Grid.GetRowValue(e.VisibleIndex, "LoginID") == "AJW002MY")
-        //{
-        //    //   e.CssClass = "highlighted-item";
-        //    ///  e.Style = " input[type > td]:disabled ";
-        //    // e.CssClass += "disabled-row";
-        //} 
-
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
         {
             e.CssClass = "alt-item";
@@ -308,9 +240,7 @@
     }
     void ShowPopup()
     {
-
         _selectedItems = _employeeItems.FirstOrDefault(a => a.UserID == _selectedItems.UserID);
-        //lId = UserID;
         PopupVisible = true;
         InvokeAsync(StateHasChanged);
     }
@@ -321,43 +251,31 @@
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
-
-
-
+        Unlock = "UnLock";
+        faunlock = "fa fa-unlock"; StatusInActive = false; StatusActive = false;
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UserID");
         _selectedItems = _employeeItems.FirstOrDefault(f => f.UserID == (long?)UniqueId);
-        if(_selectedItems.UserStatus == 1)
+        if (_selectedItems.UserStatus == 1)
         {
             StatusInActive = true;
             StatusActive = false;
         }
-        else 
+        else
         {
             StatusActive = true;
             StatusInActive = false;
         }
-
-        if (_selectedItems.Locked == true && permissionids.Any((f) => f == "Unlock"))
-            {
-                UnlockEnabled = true;
-            }
-            else
-            {
-                UnlockEnabled = false;
-            }
-        
-       
-        if (permissionids.Any((f) => f == "Reset Password"))
+        if (_selectedItems.Locked == true)
         {
-            ResetEnabled = true;
+            Unlock = "UnLock";
+            faunlock = "fa fa-unlock";
+        }
+        else
+        {
+            Unlock = "Lock";
+            faunlock = "fa fa-lock";
         }
         StateHasChanged();
-
-
-       
-
-           
-      
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
@@ -373,7 +291,7 @@
             var request = new ActiveRequest
                 {
                     LoginID = users.LoginID,
-                    
+
                 };
             var response = await Mediator.Send(request);
             toastService.ShowToast("Account Active Successfully", AC.SD.Core.Services.ToastLevel.Success);
@@ -411,7 +329,7 @@
     //{
     //     Edit the selected person
     //}
-  
-    
-   
+
+
+
 }

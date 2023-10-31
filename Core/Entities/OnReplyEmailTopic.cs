@@ -15,8 +15,10 @@ namespace Core.Entities
         public long ID { get; set; }
         public List<long>? ToIds { get; set; }
         public List<long>? CcIds { get; set; }
-        public List<string>? _Toparticipant { get; set; }
-        public List<string>? _CCparticipant { get; set; }      
-            
+        public List<string>? Toparticipant { get; set; }
+        public List<string>? CCparticipant { get; set; }   
+        public List<long>? allparticipant { get; set; }
+
+
     }
 }

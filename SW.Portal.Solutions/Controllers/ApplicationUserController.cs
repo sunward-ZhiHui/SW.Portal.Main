@@ -40,7 +40,7 @@ namespace SW.Portal.Solutions.Controllers
                     {
                         response.ResponseCode = ResponseCode.Failure;
                         response.Result = new ApplicationUser();
-                        response.ErrorMessages.Add("Invalid Credentials");
+                        response.ErrorMessages.Add("Your Account Locked");
                     }
                     else
                     {

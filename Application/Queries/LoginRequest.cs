@@ -27,6 +27,7 @@ namespace Application.Queries
     {
         public string LoginID { get; set; }
         public string NewPassword { get; set; }
+        public bool? Locked { get; set; }
     }
     public class ActiveRequest : IRequest<ApplicationUser>
     {

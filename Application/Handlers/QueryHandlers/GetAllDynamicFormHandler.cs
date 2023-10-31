@@ -39,6 +39,18 @@ namespace Application.Handlers.QueryHandlers
             return await _dynamicFormQueryRepository.GetDynamicFormBySessionIdAsync(request.SesionId);
         }
     }
+    public class GetDynamicFormByIdHandler : IRequestHandler<GetDynamicFormById, DynamicForm>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormByIdHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DynamicForm> Handle(GetDynamicFormById request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetDynamicFormByIdAsync(request.Id);
+        }
+    }
     public class CreateDynamicFormHandler : IRequestHandler<CreateDynamicForm, long>
     {
 
@@ -68,7 +80,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<DynamicForm> Handle(GetAllDynamicFormList request, CancellationToken cancellationToken)
         {
-            return await _DynamicFormQueryRepository.GetAllSelectedList(request.ID,request.DynamicFormDataId);
+            return await _DynamicFormQueryRepository.GetAllSelectedList(request.ID, request.DynamicFormDataId);
         }
     }
 
@@ -263,6 +275,20 @@ namespace Application.Handlers.QueryHandlers
 
 
     }
+    public class GetDynamicFormDataBySessionIdForDMSAsyncHandler : IRequestHandler<GetDynamicFormDataBySessionIdForDMS, DocumentsModel>
+    {
+        private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
+        public GetDynamicFormDataBySessionIdForDMSAsyncHandler(IDynamicFormQueryRepository dynamicFormQueryRepository)
+        {
+            _dynamicFormQueryRepository = dynamicFormQueryRepository;
+        }
+        public async Task<DocumentsModel> Handle(GetDynamicFormDataBySessionIdForDMS request, CancellationToken cancellationToken)
+        {
+            return await _dynamicFormQueryRepository.GetDynamicFormDataBySessionIdForDMSAsync(request.SesionId);
+        }
+
+
+    }
     public class GetDynamicFormDataByIdHandler : IRequestHandler<GetDynamicFormDataById, List<DynamicFormData>>
     {
         private readonly IDynamicFormQueryRepository _dynamicFormQueryRepository;
@@ -400,7 +426,7 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(DeleteDynamicFormSectionSecurity request, CancellationToken cancellationToken)
         {
-            return await _DynamicFormQueryRepository.DeleteDynamicFormSectionSecurity(request.Id,request.Ids);
+            return await _DynamicFormQueryRepository.DeleteDynamicFormSectionSecurity(request.Id, request.Ids);
         }
     }
     public class InsertDynamicFormApprovedHandler : IRequestHandler<InsertDynamicFormApproved, DynamicFormApproved>
@@ -427,7 +453,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<DynamicFormApproved> Handle(GetDynamicFormApprovedByID request, CancellationToken cancellationToken)
         {
-            return await _dynamicFormQueryRepository.GetDynamicFormApprovedByID(request.DynamicFormDataId,request.ApprovalUserId);
+            return await _dynamicFormQueryRepository.GetDynamicFormApprovedByID(request.DynamicFormDataId, request.ApprovalUserId);
         }
 
 

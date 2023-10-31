@@ -43,5 +43,7 @@ namespace Core.EntityModels
         public string ProfileInfo { get; set; }
         public bool? IsTemplateCaseNo { get; set; }
         public long? TemplateTestCaseId { get; set; }
+        public long? DynamicFormId { get; set; }
+        public int? IsdynamicFormExits { get; set; } = 0;
     }
 }

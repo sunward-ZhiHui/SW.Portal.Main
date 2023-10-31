@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.EntityModels;
 using Core.Repositories.Query.Base;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace Core.Repositories.Query
     {
         Task<DynamicForm> GetAllSelectedList(Guid? sessionId,long? DynamicFormDataId);
         Task<IReadOnlyList<DynamicForm>> GetAllAsync();
+        Task<DynamicForm> GetDynamicFormByIdAsync(long? Id);
         Task<DynamicForm> GetDynamicFormBySessionIdAsync(Guid? SessionId);
         Task<long> Insert(DynamicForm dynamicForm);
         Task<long> Update(DynamicForm dynamicForm);
@@ -28,6 +30,7 @@ namespace Core.Repositories.Query
         Task<long> InsertDynamicFormAttributeSection(long dynamicFormSectionId, IEnumerable<AttributeHeader> attributeIds, long? userId);
         Task<DynamicFormData> InsertOrUpdateDynamicFormData(DynamicFormData dynamicFormData);
         Task<DynamicFormData> GetDynamicFormDataBySessionIdAsync(Guid? SessionId);
+        Task<DocumentsModel> GetDynamicFormDataBySessionIdForDMSAsync(Guid? SessionId);
         Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id);
         Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData);
         Task<IReadOnlyList<DynamicFormApproval>> GetDynamicFormApprovalAsync(long? dynamicFormId);

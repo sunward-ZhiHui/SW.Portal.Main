@@ -13,8 +13,8 @@
         <DxFormLayoutItem Caption="Delete Folder" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsDeleteFolder" Enabled="false" />
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Grand Security Permission" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@documentPermissionData.IsGrantAdminPermission" />
+            <DxFormLayoutItem Caption="Grand Security Permission" ColSpanMd="6" >
+                <DxCheckBox @bind-Checked="@documentPermissionData.IsGrantAdminPermission" Enabled="false" />
         </DxFormLayoutItem>
         </DxFormLayoutGroup>
         <DxFormLayoutGroup Caption="Document Permission" ColSpanMd="12">
@@ -38,8 +38,11 @@
         <DxFormLayoutItem Caption="Check Out" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsUpdateDocument" Enabled="false" />
         </DxFormLayoutItem>
+            <DxFormLayoutItem Caption="Copy Link" ColSpanMd="6">
+                <DxCheckBox @bind-Checked="@documentPermissionData.IsCopy" Enabled="false" />
+            </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Share" ColSpanMd="6">
-            <DxCheckBox @bind-Checked="@documentPermissionData.IsCopy" Enabled="false" />
+            <DxCheckBox @bind-Checked="@documentPermissionData.IsShare" Enabled="false" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Move" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsMove" Enabled="false" />
@@ -47,8 +50,6 @@
         <DxFormLayoutItem Caption="Delete" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsDelete" Enabled="false" />
         </DxFormLayoutItem>
-        Sahre
-
         <DxFormLayoutItem Caption="History" ColSpanMd="6">
             <DxCheckBox @bind-Checked="@documentPermissionData.IsListVersion" Enabled="false" />
         </DxFormLayoutItem>

@@ -6,6 +6,7 @@
 @using Microsoft.AspNetCore.Http;
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
+@using global::Core.EntityModels;
 @using global::Core.Entities.Views;
 @using MediatR
 @inject IMediator Mediator
@@ -41,6 +42,8 @@
 @using System.Timers;
 @using DevExpress.Blazor.RichEdit;
 @inject HttpClient httpClient;
+@using Application.Command.ApplicationMasterChilds;
+@using Application.Command.ApplicationMasterDetails;
 
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 <div class="">
@@ -433,7 +436,7 @@
                                                             <div style="float:right; line-height:16px">
                                                                 @if(item.ActivityType == "FileProfileType")
                                                                 {
-                                                                    <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                    <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
                                                                         <i class="fa fa-arrow-left"></i> Back
                                                                     </button>
                                                                 }
@@ -948,7 +951,7 @@
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>*@
 
-                                    @*<DxGridDataColumn FieldName="FileSize" />*@
+                                      @*<DxGridDataColumn FieldName="EmailToDMS" />*@
                                    @* <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview((long)context.Value)"></button></CellDisplayTemplate>
                                     </DxGridDataColumn>
@@ -958,6 +961,23 @@
                                    @* <DxGridDataColumn FieldName="DocumentId" Caption="Delete" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="btnDelete fas fa-trash" @onclick="() => onDocDelete((long)context.Value)"></button></CellDisplayTemplate>
                                     </DxGridDataColumn>*@
+                                    <DxGridDataColumn FieldName="DocumentId" Caption="Link to DMS" FixedPosition="GridColumnFixedPosition.Left" Width="70">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                var item = (Documents)context.DataItem;
+                                            }
+                                            @if(item.EmailToDMS > 0)
+                                            {
+                                                <i class="fa fa-arrow-left" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" onclick="@(() => onBackToDMS(item))" title="Back to DMS"></i>                                                
+                                            }
+                                            else
+                                            {
+                                                <i class="fa fa-clone" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-ProfileType-{item.DocumentId}") onclick="@(() => OnButtonDescriptionClick(item))" title="Link to DMS"></i>
+                                            }
+
+                        
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
                                 </Columns>
                             </DxGrid>
                         }
@@ -1269,8 +1289,413 @@
 <button class="btn btn-primary" @onclick="@(()=>ToastService.ShowSuccess("welcome to ass"))">Show Toast</button>
 *@
 
+<DxFlyout @bind-IsOpen=IsDescriptionOpen
+          PositionTarget=@($"#flyout-overview-target-container-ProfileType-{_selectedDescriptionItems?.DocumentId}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText="Link to DMS"
+          FooterVisible="true"
+          CloseOnOutsideClick="false"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <div>
+                <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit_FileProfileType">
+                    <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="12">
+                        <DataAnnotationsValidator />
+                        <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+                                                Tooltip="Select File ProfileType"
+                                                Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                            </Buttons>
+                        </DxTextBox>
+                        <DxSpinEdit @bind-Value="@_dataFileProfileType.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
+                        <ValidationMessage For="@(() => _dataFileProfileType.FileProfileTypeId)" />
+                    </DxFormLayoutItem>
+                </EditForm>
+            </div>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
+    </FooterContentTemplate>
+</DxFlyout>
+
+
+<DxFlyout @bind-IsOpen=IsFileProfileTypeFilterDocOpen
+          PositionTarget=@($"#flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Select FileProfile Type"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick="false"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+            <DxFormLayoutItem Caption="">
+                <DxTreeView @ref="_treeFilterDocView"
+                            @bind-FilterString="FilterDocumentString"
+                            ShowFilterPanel="true"
+                            FilterMode="NavigationFilterMode.EntireBranch"
+                            Data="@fileProfileTypeDocumentsAll"
+                            AllowSelectNodes="true"
+                            SelectionChanged="@FileProfileTypeSelectionChanged">
+                    <DataMappings>
+                        <DxTreeViewDataMapping Text="FileName"
+                                               Key="DocumentID"
+                                               ParentKey="ParentId" />
+                    </DataMappings>
+                </DxTreeView>
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+
 
 @code {
+    string? LinkFilterFileprofiletypeName { get; set; } = null;
+    public bool IsFileProfileTypeFilterDocOpen { get; set; }
+    EditContext _editContext;
+    private DxTreeView _treeFilterDocView;
+    string? FilterDocumentString { get; set; }
+    private Guid? _activityEmailSessionId { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+
+    void OnButtonFileProfileTypeLinDocClick()
+    {
+        IsFileProfileTypeFilterDocOpen = true;
+    }
+
+    async Task HandleValidSubmit_FileProfileType()
+    {  
+        var UpdateReq = new CreateEmailDocFileProfileType
+            {
+                FilterProfileTypeId = _dataFileProfileType.FileProfileTypeId,
+                DocumentId = _selectedDescriptionItems.DocumentId,
+                AddedByUserId = applicationUser.UserID,
+                SessionId = Guid.NewGuid(),
+                AddedDate = DateTime.Now,
+                UploadDate = DateTime.Now
+            };
+        _activityEmailSessionId = UpdateReq.SessionId;
+        var result = await Mediator.Send(UpdateReq);
+        if (result > 0)
+        {
+            await createActivityTag(LinkFilterFileprofiletypeName);
+            onShowPopupMessage("success", "Updated File Profile DMS Successfully");
+        }
+        else
+        {
+
+        }
+
+    }
+    async Task createActivityTag(string? tages)
+    {
+        var Tid = long.Parse(@SelectedGroup);
+        var topiclist = await Mediator.Send(new GetListByIdList(Tid));
+
+
+
+        string groupTag = "";
+        long grouptTagId = 0;
+        long catTagId = 0;
+
+
+        string inputString = tages;
+        string[] splitElements = inputString.Split('/');
+        foreach (string element in splitElements)
+        {
+            Console.WriteLine(element.Trim()); // Trim to remove leading and trailing spaces
+        }
+
+        List<string> tagStringList = new List<string>();
+
+        for (var j = 0; j < splitElements.Length; j++)
+        {
+            var ckl = splitElements[j];
+
+            if (j == 0)
+            {
+                groupTag = ckl; // Assign the first element to groupTag
+            }
+            else
+            {
+                tagStringList.Add(ckl); // Add other elements to tagStringList
+            }
+        }
+
+        string tagString = string.Join("_", tagStringList);
+
+        if (string.IsNullOrEmpty(tagString))
+        {
+            tagString = groupTag;
+        }
+
+        var tagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("122"));
+
+        var cktagItem = tagItems.Where(x => x.Value == groupTag).ToList();
+        if (cktagItem.Count > 0)
+        {
+            grouptTagId = cktagItem[0].ApplicationMasterChildId;
+        }
+        else
+        {
+            var request = new CreateApplicationMasterChildCommand
+                {
+                    ApplicationMasterParentId = 122,
+                    ParentId = null,
+                    Description = groupTag,
+                    Value = groupTag,
+                    AddedByUserId = applicationUser.UserID,
+                    ModifiedByUserId = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    StatusCodeId = 1,
+                    SessionId = Guid.NewGuid(),
+                };
+            var rlt = await Mediator.Send(request);
+            grouptTagId = rlt.ApplicationMasterChildId;
+        }
+
+        if (!string.IsNullOrEmpty(tagString))
+        {
+            var catItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(grouptTagId));
+
+            var ckcatItem = catItems.Where(x => x.Value == tagString).ToList();
+            if (ckcatItem.Count > 0)
+            {
+                catTagId = ckcatItem[0].ApplicationMasterChildId;
+            }
+            else
+            {
+                var request = new CreateApplicationMasterChildCommand
+                    {
+                        ApplicationMasterParentId = 123,
+                        ParentId = grouptTagId,
+                        Description = tagString,
+                        Value = tagString,
+                        AddedByUserId = applicationUser.UserID,
+                        ModifiedByUserId = applicationUser.UserID,
+                        AddedDate = DateTime.Now,
+                        ModifiedDate = DateTime.Now,
+                        StatusCodeId = 1,
+                        SessionId = Guid.NewGuid(),
+                    };                
+                var rlt = await Mediator.Send(request);
+
+                catTagId = rlt.ApplicationMasterChildId;
+
+                await createApplicationMasterChild(124, catTagId, "Review");
+                await createApplicationMasterChild(124, catTagId, "Discussion");
+            }
+        }
+
+
+
+        var MainSessionId = _dataFileProfileType.sessionId;
+        var doclist = _selectedDescriptionItems;
+
+
+
+        //var items = await Mediator.Send(new GetActivityEmailList(_selectedItems.SessionID.Value));
+
+        //if (items.Count == 0)
+        //{
+        var sessionId = _selectedDescriptionItems.ScreenId;
+        string filePath = _selectedDescriptionItems.FileName;
+        string subjectName = Path.GetFileNameWithoutExtension(filePath);
+
+        var createReq = new CreateActivityEmail
+                {
+                    SubjectName = subjectName,
+                    Comment = _selectedDescriptionItems.Description,
+                    ActivityType = "FileProfileType",
+                    SessionId = _activityEmailSessionId,
+                    BackURL = MainSessionId.ToString(),
+                    DocumentSessionId = _activityEmailSessionId,
+                    EmailTopicSessionId = topiclist[0].SessionId ,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now,
+                    ManufacturingProcessId = grouptTagId,
+                    CategoryActionId = catTagId
+
+                };
+
+        var result = await Mediator.Send(createReq);
+
+        var resultdoc = await Mediator.Send(new UpdateEmailDmsDocId(_selectedDescriptionItems.DocumentId, result));
+
+        IsDescriptionOpen = false; 
+        IsFileProfileTypeFilterDocOpen = false;        
+        FilterDocumentString = null;
+        LinkFilterFileprofiletypeName = null;
+        _dataFileProfileType.FileProfileTypeId = null;
+
+
+
+        if (RTopicId == 0)
+        {
+            await loadTopicDocList();
+        }
+        else
+        {
+            await loadSubTopicDocList();
+        }
+
+        //}
+
+
+    }
+    async Task createApplicationMasterChild(long MasterParentId, long ParentId, string notes)
+    {
+
+        var request = new CreateApplicationMasterChildCommand
+            {
+                ApplicationMasterParentId = MasterParentId,
+                ParentId = ParentId,
+                Description = notes,
+                Value = notes,
+                AddedByUserId = applicationUser.UserID,
+                ModifiedByUserId = applicationUser.UserID,
+                AddedDate = DateTime.Now,
+                ModifiedDate = DateTime.Now,
+                StatusCodeId = 1,
+                SessionId = Guid.NewGuid(),
+            };
+        await Mediator.Send(request);
+    }
+    protected void FileProfileTypeSelectionChanged(TreeViewNodeEventArgs e)
+    {
+        if (e.NodeInfo?.DataItem != null)
+        {
+            var nodeName = e.NodeInfo.DataItem as DocumentsModel;
+            var ids = nodeName.FileProfileTypeId;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, nodeName.FileProfileTypeId);
+            LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            _dataFileProfileType.FileProfileTypeId = nodeName.FileProfileTypeId;
+            _dataFileProfileType.sessionId = nodeName.SessionID;
+        }
+        IsFileProfileTypeFilterDocOpen = false;
+        StateHasChanged();
+    }
+    private List<FileProfileTypeModel>
+       GetFileProfileTypePath(List<DocumentsModel>
+       foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel>
+        foldersList = new List<FileProfileTypeModel>
+        ();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string>FolderPathLists = new List<string>();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel>
+        foldersListItems, DocumentsModel s, List<string>
+        foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
+    }
+
+    private FileProfileType _dataFileProfileType = new FileProfileType();
+    private class FileProfileType
+    {
+        [Required(ErrorMessage = "FileProfile is Required")]
+        public long? FileProfileTypeId { get; set; }
+        public Guid? sessionId { get; set; }
+    }
+
+
+
+    bool IsDescriptionOpen { get; set; } = false;
+    bool IsRenameOpen { get; set; } = false;
+    bool IsFilterOpen { get; set; } = false;
+    public bool IsExpiryDateOpen { get; set; } = false;
+    Documents _selectedDescriptionItems = new Documents();
+    async Task onBackToDMS(Documents item)
+    {
+        if(item.EmailToDMS != null)
+        {
+            onBackFileProfileType(item.DMSBackUrl);
+            JSRuntime.InvokeAsync<string>("ReloadUrl");
+        }
+    }
+
+    async Task OnButtonDescriptionClick(Documents items)
+    {
+        IsDescriptionOpen = true; 
+        IsExpiryDateOpen = false; IsRenameOpen = false;
+        _selectedDescriptionItems = new Documents();
+        _selectedDescriptionItems.FilterProfileTypeId = items.FilterProfileTypeId;
+        _selectedDescriptionItems.DocumentId = items.DocumentId;
+        _selectedDescriptionItems.Description = items.Description;    
+        _selectedDescriptionItems.FileName = items.FileName;
+        _selectedDescriptionItems.SessionId = items.SessionId;
+        //_selectedDescriptionItems.Type = items.Type;
+        _selectedDescriptionItems.ModifiedDate = DateTime.Now;
+        _selectedDescriptionItems.ModifiedByUserId = applicationUser.UserID;
+
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+    }
+
+    async Task OnUpdateDescription()
+    {
+        //await Mediator.Send(new GetUpdateDescriptionField(_selectedDescriptionItems));
+        //await loadFileProfileData();
+
+        if (_editContext.Validate())
+        {
+            await this.HandleValidSubmit_FileProfileType();
+        }
+
+
+       // toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        //IsDescriptionOpen = false;
+    }
+
     int SelectedFilesCount { get; set; }
     int CurrentUplodCount { get; set; }
     string MyMessage { get; set; }
@@ -2879,6 +3304,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        _editContext = new EditContext(_dataFileProfileType);
         Page = Page == null ? "AssignTo" : Page;
 
         var sss = ActiveSessionId;      
@@ -3047,6 +3473,7 @@
     }
     private async Task onWindowVisible()
     {
+        await JSRuntime.InvokeAsync<string>("showLoading");
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
 
@@ -3251,13 +3678,15 @@
         Data.NotifyUser = false;
         newSubjectreply = 1;
 
-        //await Task.Delay(2700);
-        //await onRichTxtChangeFontsize(); // Call your other function here
+         StateHasChanged(); // Force a UI update
+        await Task.Delay(2700);
+        await onRichTxtChangeFontsize(); // Call your other function here
     }
     async void onBackFileProfileType(string url)
     {
         var urls = BaseUrl + "fileprofiletype/" + url;
         NavigationManager.NavigateTo(urls);
+        JSRuntime.InvokeAsync<string>("ReloadUrl");
     }
     private void onBackActivity(string Url)
     {

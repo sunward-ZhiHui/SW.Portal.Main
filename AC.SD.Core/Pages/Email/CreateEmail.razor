@@ -1437,13 +1437,15 @@ else
 
         if(actItem[0].ActivityType == "FileProfileType")
         {
-            var urls = BaseUrl + "fileprofiletype/" + actItem[0].BackURL;
+            var urls = BaseUrl + "fileprofiletype/" + actItem[0].BackURL + "/" + actItem[0].DocumentSessionId;
             NavigationManager.NavigateTo(urls);
+            JSRuntime.InvokeAsync<string>("ReloadUrl");
         }
         else
         {
             var url = ProductActivityBaseUrl + actItem[0].BackURL;
             NavigationManager.NavigateTo(url);
+            JSRuntime.InvokeAsync<string>("ReloadUrl");
         }       
 
     }

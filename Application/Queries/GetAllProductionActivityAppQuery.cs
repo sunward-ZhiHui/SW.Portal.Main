@@ -25,7 +25,7 @@ namespace Application.Queries
     public class CreateProductionActivityAppCommand : ProductionActivityModel, IRequest<long>
     {
     }
-    public class GetAllProductionActivityPONumberAppQuery : PagedRequest, IRequest<List<ProductionActivityApp>>
+    public class GetAllProductionActivityPONumberAppQuery : PagedRequest, IRequest<List<NavprodOrderLine>>
     {
         public long? companyID { get; set; }
         public GetAllProductionActivityPONumberAppQuery(long? companyid)

@@ -165,6 +165,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailTopics>> GetByIdTopicListAsync(long id)
+        {
+            try
+            {
+                var query = @"SELECT * FROM EmailTopics  WHERE ID = @id";
+
+                var parameters = new DynamicParameters();
+                parameters.Add("id", id);
+
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+
+                    var res = connection.Query<EmailTopics>(query, parameters).ToList();
+
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        
         public async Task<List<EmailTopics>> GetByIdTopicToList(long TopicId)
         {
             try
@@ -1657,14 +1681,17 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("AddedDate", activityEmailTopics.AddedDate);
                             parameters.Add("ManufacturingProcessId", activityEmailTopics.ManufacturingProcessId);
                             parameters.Add("CategoryActionId", activityEmailTopics.CategoryActionId);
+                            parameters.Add("EmailTopicSessionId", activityEmailTopics.EmailTopicSessionId);
+                            
 
-                            var query = "INSERT INTO ActivityEmailTopics(SubjectName,Comment,ActivityType,SessionId,BackURL,DocumentSessionId,AddedByUserID,AddedDate,ManufacturingProcessId,CategoryActionId) VALUES (@SubjectName,@Comment,@ActivityType,@SessionId,@BackURL,@DocumentSessionId,@AddedByUserID,@AddedDate,@ManufacturingProcessId,@CategoryActionId)";
+                            var query = "INSERT INTO ActivityEmailTopics(SubjectName,Comment,ActivityType,SessionId,BackURL,DocumentSessionId,AddedByUserID,AddedDate,ManufacturingProcessId,CategoryActionId,EmailTopicSessionId) OUTPUT INSERTED.ActivityEmailTopicID VALUES (@SubjectName,@Comment,@ActivityType,@SessionId,@BackURL,@DocumentSessionId,@AddedByUserID,@AddedDate,@ManufacturingProcessId,@CategoryActionId,@EmailTopicSessionId)";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var insertedId = await connection.ExecuteScalarAsync<int>(query, parameters, transaction);
 
                             transaction.Commit();
 
-                            return rowsAffected;
+                            return insertedId;
                         }
                         catch (Exception exp)
                         {

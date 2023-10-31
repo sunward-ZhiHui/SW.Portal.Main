@@ -60,6 +60,8 @@ namespace Core.Entities
         [NotMapped]
         public string? BackURL { get; set; }
         [NotMapped]
+        public Guid? DocumentSessionId { get; set; }
+        [NotMapped]
         public string? ActCommentName { get; set; }
         [NotMapped]
         public string? ActUserName { get; set; }

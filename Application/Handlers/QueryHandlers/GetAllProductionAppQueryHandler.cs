@@ -54,16 +54,16 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
-        public class GetAllProductionActivityPONumberAppQueryHandler : IRequestHandler<GetAllProductionActivityPONumberAppQuery, List<ProductionActivityApp>>
+        public class GetAllProductionActivityPONumberAppQueryHandler : IRequestHandler<GetAllProductionActivityPONumberAppQuery, List<NavprodOrderLine>>
         {
             private readonly IProductionActivityAppQueryRepository _productionactivityappponumberQueryRepository;
             public GetAllProductionActivityPONumberAppQueryHandler(IProductionActivityAppQueryRepository productionactivityappponumberQueryRepository)
             {
                 _productionactivityappponumberQueryRepository = productionactivityappponumberQueryRepository;
             }
-            public async Task<List<ProductionActivityApp>> Handle(GetAllProductionActivityPONumberAppQuery request, CancellationToken cancellationToken)
+            public async Task<List<NavprodOrderLine>> Handle(GetAllProductionActivityPONumberAppQuery request, CancellationToken cancellationToken)
             {
-                return (List<ProductionActivityApp>)await _productionactivityappponumberQueryRepository.GetAllAsyncPO(request.companyID);
+                return (List<NavprodOrderLine>)await _productionactivityappponumberQueryRepository.GetAllAsyncPO(request.companyID);
             }
 
         }

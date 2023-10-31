@@ -42,17 +42,18 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<IReadOnlyList<ProductionActivityApp>> GetAllAsyncPO(long? CompanyId)
+        public async Task<IReadOnlyList<NavprodOrderLine>> GetAllAsyncPO(long? CompanyId)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("CompanyID", CompanyId);
-                var query = "select nav.RePlanRefNo, nav.NavprodOrderLineId,nav.ProdOrderNo,nav.Description,nav.BatchNo,nav.RePlanRefNo, nav.CompanyID , CONCAT(nav.RePlanRefNo,+'||'+p.BatchNo, +'||'+nav.Description ) as prodOrderNo from NavprodOrderLine nav\r\nleft join ProductionSimulation p on p.ProdOrderNo = nav.RePlanRefNo where Nav.companyid=@CompanyID";
+                var query = @"select nav.RePlanRefNo, nav.NavprodOrderLineId,nav.ProdOrderNo,nav.Description,nav.BatchNo,nav.RePlanRefNo, nav.CompanyID , CONCAT(nav.RePlanRefNo,+'||'+p.BatchNo, +'||'+nav.Description ) as prodOrderNo from NavprodOrderLine nav
+                    left join ProductionSimulation p on p.ProdOrderNo = nav.RePlanRefNo where Nav.companyid=@CompanyID";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ProductionActivityApp>(query, parameters)).ToList();
+                    return (await connection.QueryAsync<NavprodOrderLine>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -100,29 +101,30 @@ namespace Infrastructure.Repository.Query
                         {
 
                             var lists = await GetAllListAsync();
-                            if (lists != null)
+                            if (lists.Count > 0)
                             {
                                 var Exsist = lists.Where(f => f.CompanyID == PPAlist.CompanyID && f.LocationID == PPAlist.LocationID && f.ProdOrderNo == PPAlist.ProdOrderNo);
 
-                                if (Exsist != null)
+                                if (Exsist.Any())
                                 {
                                     var id = Exsist.ToList();
                                     var Appid = id[0].ProductionActivityAppID;
 
                                     var parameter = new DynamicParameters();
                                     parameter.Add("Appid", Appid);
+                                   
                                     parameter.Add("ManufacturingProcessChildID", PPAlist.ManufacturingProcessChildID);
                                     parameter.Add("ProdActivityCategoryChildID", PPAlist.ProdActivityCategoryChildID);
                                     parameter.Add("ProdActivityActionChildD", PPAlist.ProdActivityActionChildD);
                                     parameter.Add("PAApplineComment", PPAlist.PAApplineComment);
-                                    parameter.Add("NavprodOrderLineId", PPAlist.NavprodOrderLineId);
+                                    parameter.Add("AppLineNavprodOrderLineID", PPAlist.AppLineNavprodOrderLineID);
                                     parameter.Add("applineAddedByUserID", PPAlist.applineAddedByUserID);
                                     parameter.Add("applineAddedDate", PPAlist.applineAddedDate);
                                     parameter.Add("applineSessionId", PPAlist.applineSessionId);
                                     parameter.Add("applineStatusCodeID", PPAlist.applineStatusCodeID);
 
                                     var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID) " +
-                                                                                     "VALUES (@Appid,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@NavprodOrderLineId,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID)";
+                                                                                     "VALUES (@Appid,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID)";
 
                                     var rowsAffected = await connection.ExecuteAsync(applinequery, parameter, transaction);
 
@@ -131,56 +133,59 @@ namespace Infrastructure.Repository.Query
                                     //return rowsAffected;
                                 }
 
-                            }
-                            else
-                            {
-                                var parameters = new DynamicParameters();
 
-                                parameters.Add("CompanyID", PPAlist.CompanyID);
-                                parameters.Add("ProdOrderNo", PPAlist.ProdOrderNo);
-                                parameters.Add("SessionId", PPAlist.SessionId);
-                                parameters.Add("AddedByUserID", PPAlist.AddedByUserID);
-                                parameters.Add("AddedDate", PPAlist.AddedDate);
-                                parameters.Add("LocationID", PPAlist.LocationID);
-                                parameters.Add("StatusCodeID", PPAlist.StatusCodeID);
+                                else
+                                {
+                                    var parameters = new DynamicParameters();
 
-                                var query = @"INSERT INTO ProductionActivityApp(SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo) 
+                                    parameters.Add("CompanyID", PPAlist.CompanyID);
+                                    parameters.Add("ProdOrderNo", PPAlist.ProdOrderNo);
+                                    parameters.Add("SessionId", PPAlist.SessionId);
+                                    parameters.Add("AddedByUserID", PPAlist.AddedByUserID);
+                                    parameters.Add("AddedDate", PPAlist.AddedDate);
+                                    parameters.Add("LocationID", PPAlist.LocationID);
+                                    parameters.Add("StatusCodeID", PPAlist.StatusCodeID);
+
+                                    var query = @"INSERT INTO ProductionActivityApp(SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo) 
 				                       OUTPUT INSERTED.ProductionActivityAppID 
 				                       VALUES (@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo)";
 
 
-                                var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters, transaction);
+                                    var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters, transaction);
 
-                                PPAlist.ProductionActivityAppID = insertedId;
+                                    PPAlist.ProductionActivityAppID = insertedId;
 
-                                var parameter = new DynamicParameters();
-                                parameter.Add("ProductionActivityAppID", PPAlist.ProductionActivityAppID);
-                                parameter.Add("ManufacturingProcessChildID", PPAlist.ManufacturingProcessChildID);
-                                parameter.Add("ProdActivityCategoryChildID", PPAlist.ProdActivityCategoryChildID);
-                                parameter.Add("ProdActivityActionChildD", PPAlist.ProdActivityActionChildD);
-                                parameter.Add("PAApplineComment", PPAlist.PAApplineComment);
-                                parameter.Add("NavprodOrderLineId", PPAlist.NavprodOrderLineId);
-                                parameter.Add("applineAddedByUserID", PPAlist.applineAddedByUserID);
-                                parameter.Add("applineAddedDate", PPAlist.applineAddedDate);
-                                parameter.Add("applineSessionId", PPAlist.applineSessionId);
-                                parameter.Add("applineStatusCodeID", PPAlist.applineStatusCodeID);
+                                    var parameter = new DynamicParameters();
+                                  
+                                    parameter.Add("ProductionActivityAppID", PPAlist.ProductionActivityAppID);
+                                    parameter.Add("ManufacturingProcessChildID", PPAlist.ManufacturingProcessChildID);
+                                    parameter.Add("ProdActivityCategoryChildID", PPAlist.ProdActivityCategoryChildID);
+                                    parameter.Add("ProdActivityActionChildD", PPAlist.ProdActivityActionChildD);
+                                    parameter.Add("PAApplineComment", PPAlist.PAApplineComment);
+                                    parameter.Add("AppLineNavprodOrderLineID", PPAlist.AppLineNavprodOrderLineID);
+                                    parameter.Add("applineAddedByUserID", PPAlist.applineAddedByUserID);
+                                    parameter.Add("applineAddedDate", PPAlist.applineAddedDate);
+                                    parameter.Add("applineSessionId", PPAlist.applineSessionId);
+                                    parameter.Add("applineStatusCodeID", PPAlist.applineStatusCodeID);
 
-                                var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID) " +
-                                                                                 "VALUES (@ProductionActivityAppID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@NavprodOrderLineId,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID)";
+                                    var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID) " +
+                                                                                     "VALUES (@ProductionActivityAppID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID)";
 
-                                var rowsAffected = await connection.ExecuteAsync(applinequery, parameter, transaction);
+                                    var rowsAffected = await connection.ExecuteAsync(applinequery, parameter, transaction);
 
 
-                                //transaction.Commit();
-                                //return PPAlist.ProductionActivityAppID;
+                                    //transaction.Commit();
+                                    //return PPAlist.ProductionActivityAppID;
 
-                               
 
+
+                                }
                             }
-                            transaction.Commit();
+                                transaction.Commit();
 
-                            return PPAlist.ProductionActivityAppID;
+                                return PPAlist.ProductionActivityAppID;
                         }
+                        
 
                         catch (Exception exp)
                         {

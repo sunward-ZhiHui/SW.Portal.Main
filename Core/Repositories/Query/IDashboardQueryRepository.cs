@@ -12,7 +12,8 @@ namespace Core.Repositories.Query
     {
         Task<IReadOnlyList<EmailRatio>> GetEmailRatioAsync(long id);
         Task<IReadOnlyList<EmailTopics>> GetEailDashboard();
-        Task<IReadOnlyList<EmailScheduler>> GetAllEmailSchedulerAsync();
+      
+        Task<IReadOnlyList<EmailScheduler>> GetAllEmailSchedulerTodoAsync(long UserId);
         Task <IReadOnlyList<GeneralDashboard>> GetEmployeeCountAsync();
         Task<List<GenderRatio>> GetGenderRatioAsync();
     }

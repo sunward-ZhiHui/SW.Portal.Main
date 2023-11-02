@@ -832,6 +832,7 @@
     async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
     {
 
+       
         var editModel = (ToDoNotesHistory)e.EditModel;
         // string useridsString = null;
         // if(UserIds != null)
@@ -842,19 +843,31 @@
 
         if (e.IsNew)
         {
-            // var ex = _ToDoNotesHistory.Where(x => x.Description == editModel.Description);
-            // if (ex.Any())
-            // {
-            //     toastService.ShowToast("The entered value Already exists Description.", AC.SD.Core.Services.ToastLevel.Error);
-            // }
-            // else
-            // {
-                //if (_ToDoNotesHistory.Count > 0)
-                //{
-                //    toastService.ShowToast("Applicable Total 1 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
-                //    return;
-                //}
+    // var ex = _ToDoNotesHistory.Where(x => x.Description == editModel.Description);
+    // if (ex.Any())
+    // {
+    //     toastService.ShowToast("The entered value Already exists Description.", AC.SD.Core.Services.ToastLevel.Error);
+    // }
+    // else
+    // {
+    //if (_ToDoNotesHistory.Count > 0)
+    //{
+    //    toastService.ShowToast("Applicable Total 1 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
+    //    return;
+    //}
+          
+    string ctime = editModel.DueDate.HasValue ? editModel.DueDate.Value.ToString("HH:mm:ss"): "No Due Date"; // Handle the case when DueDate is null
+            if(ctime == "00:00:00")
+            {
+                editModel.DueDate = editModel.DueDate.Value.AddHours(9);
+               
+            }
+            string RCtime = editModel.RemainDate.HasValue ? editModel.RemainDate.Value.ToString("HH:mm:ss") : "No RemainDate Date"; // Handle the case when DueDate is null
+            if (RCtime == "00:00:00")
+            {
+                editModel.RemainDate = editModel.RemainDate.Value.AddHours(9);
 
+            }
                 var createReq = new CreateToDoNotesHistoryQuery
                     {
                         NotesId = SelectedNoteId,
@@ -893,7 +906,18 @@
             //{
             //    toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
             //}
-           
+            string ctime = editModel.DueDate.HasValue ? editModel.DueDate.Value.ToString("HH:mm:ss") : "No Due Date"; // Handle the case when DueDate is null
+            if (ctime == "00:00:00")
+            {
+                editModel.DueDate = editModel.DueDate.Value.AddHours(9);
+
+            }
+            string RCtime = editModel.RemainDate.HasValue ? editModel.RemainDate.Value.ToString("HH:mm:ss") : "No RemainDate Date"; // Handle the case when DueDate is null
+            if (RCtime == "00:00:00")
+            {
+                editModel.RemainDate = editModel.RemainDate.Value.AddHours(9);
+
+            }
                 var UpdateReq = new EditToDoNotesHistoryQuery
                     {
                         ID = editModel.ID,  

@@ -10,14 +10,8 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }   
-    public class GetEmailSchedulerList : PagedRequest, IRequest<List<EmailScheduler>>
-    {
-        public long UserId { get; private set; }
-        public GetEmailSchedulerList(long UserId)
-        {
-            this.UserId = UserId;
-        }
-    }
+   
+
     public class GetEmployeeCount : PagedRequest, IRequest<List<GeneralDashboard>>
     {
 
@@ -37,7 +31,17 @@ namespace Application.Queries
     {
         this.UserId = UserId;
     }
-}
+
+
+        public class GetEmailSchedulerListTodo : PagedRequest, IRequest<List<EmailScheduler>>
+        {
+            public long UserId { get; private set; }
+            public GetEmailSchedulerListTodo(long UserId)
+            {
+                this.UserId = UserId;
+            }
+        }
+    }
 
 
 

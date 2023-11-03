@@ -3367,6 +3367,13 @@
                     RTopicId = 0;
                     filterrowname = ActiveSessionId;
 
+                    ActiveTabIndex = 4;
+                    OnLeftMenuItemClick("Library");
+                    isLeftMenuvisible = "Library";
+                    MyDayFilterText = lsts[0].TopicName;
+                    await Task.Delay(2000); // Delay for 2 seconds
+
+
                     _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
                     _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
                     _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID,"NULL"));

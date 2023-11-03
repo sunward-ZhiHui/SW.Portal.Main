@@ -161,12 +161,12 @@ namespace Application.Handlers.QueryHandlers
 
 
             var filteredToList = _allparticipants.Where(c => ToIds.Contains(c.UserID.Value)).ToList();
-            IEnumerable<string> Totags = filteredToList.Select(s => s.Name + "-" + s.NickName).ToList();
+            IEnumerable<string> Totags = filteredToList.Select(s => s.Name).ToList();
             _Toparticipant = Totags.ToList();
 
 
             var filteredCCList = _allparticipants.Where(c => CcIds.Contains(c.UserID.Value)).ToList();
-            IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name + "-" + s.NickName).ToList();
+            IEnumerable<string> CCtags = filteredCCList.Select(s => s.Name).ToList();
             _CCparticipant = CCtags.ToList();
 
             var t1 = ToIds;

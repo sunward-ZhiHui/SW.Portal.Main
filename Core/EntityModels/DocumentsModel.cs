@@ -140,6 +140,7 @@ namespace Core.EntityModels
         public string FileProfileTypeName { get; set; }
         public string ProfileNo { get; set; }
         public long? ProfileID { get; set; }
+        public long? DynamicFormId { get; set; }
         public string Type { get; set; }
         public string TableName { get; set; }
         public long? DocumentParentId { get; set; }
@@ -191,6 +192,8 @@ namespace Core.EntityModels
         public Guid? FileProfileTypeSessionId { get; set; }
         public string? SourceFrom { get; set; }
         public Guid? UniqueSessionId { get; set; }
+        public bool IsDynamicFromData { get; set; } = false;
+        public bool IsEmailTopics { get; set; } = false;
     }
     public class DocumentListModel : BaseModel
     {

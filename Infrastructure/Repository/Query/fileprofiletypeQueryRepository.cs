@@ -5,6 +5,7 @@ using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
 using DevExpress.Internal;
+using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Infrastructure.Service;
 using Microsoft.EntityFrameworkCore;
@@ -107,7 +108,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select  * from FileProfileType where sessionId=@SessionId";
+                var query = "select  t1.*,\r\n(select  COUNT(t2.FileProfileSessionID) from DynamicFormData t2 where t2.FileProfileSessionID=t1.SessionID) as IsdynamicFormExits\r\nfrom FileProfileType t1 where t1.sessionId=@SessionId";
 
                 using (var connection = CreateConnection())
                 {
@@ -275,7 +276,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId,sessionId from FileProfileType";
+                var query = "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId,sessionId,DynamicFormId from FileProfileType";
 
                 using (var connection = CreateConnection())
                 {
@@ -391,10 +392,10 @@ namespace Infrastructure.Repository.Query
                         "Where  t1.FileProfileTypeID=@FileProfileTypeID AND t1.UserID=@UserID AND (t3.Value is null or t3.Value!='Resign')";
                     using (var connection = CreateConnection())
                     {
-                        var result= await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
-                       // if (result != null)
-                       // {
-                            return result;
+                        var result = await connection.QueryFirstOrDefaultAsync<DocumentPermissionModel>(query, parameters);
+                        // if (result != null)
+                        // {
+                        return result;
                         /*}
                         else
                         {
@@ -468,6 +469,40 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DocumentDmsShare>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DynamicFormData>> GeDynamicFormDataAsync(List<Guid?> documentIds)
+        {
+            try
+            {
+                var lists = string.Join(',', documentIds.Select(i => $"'{i}'"));
+                var query = "select  DynamicFormDataId,DynamicFormId,SessionId from DynamicFormData where SessionId in(" + lists + ")";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<DynamicFormData>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<ActivityEmailTopics>> GeActivityEmailTopicsAsync(List<Guid?> documentIds)
+        {
+            try
+            {
+                var lists = string.Join(',', documentIds.Select(i => $"'{i}'"));
+                var query = "select  ActivityEmailTopicID,DocumentSessionId from ActivityEmailTopics where DocumentSessionId in(" + lists + ")";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ActivityEmailTopics>(query)).ToList();
                 }
             }
             catch (Exception exp)
@@ -814,6 +849,8 @@ namespace Infrastructure.Repository.Query
                         {
                             var sessionIds = documents.Select(a => a.SessionId).ToList();
                             var docShares = await GeDocumentDmsShareAsync(sessionIds);
+                            var dynamicFormData = await GeDynamicFormDataAsync(sessionIds);
+                            var emailTopics = await GeActivityEmailTopicsAsync(sessionIds);
                             var docIds = documents.Select(a => a.DocumentId).ToList();
                             // var notes = await GeNotesAsync(docIds);
                             //var taskMasternotes = await GetTaskMasterAsync(docIds);
@@ -835,6 +872,16 @@ namespace Infrastructure.Repository.Query
                                 {
                                     documentsModels.SharesCount = sharesCountCount;
                                 }
+                                if (dynamicFormData != null)
+                                {
+                                    var isDynamicFromData = dynamicFormData.Where(a => a.SessionId == s.SessionId).Count();
+                                    documentsModels.IsDynamicFromData = isDynamicFromData > 0 ? true : false;
+                                }
+                                if (emailTopics != null)
+                                {
+                                    var isemailTopics = emailTopics.Where(a => a.DocumentSessionId == s.SessionId).Count();
+                                    documentsModels.IsEmailTopics = isemailTopics > 0 ? true : false;
+                                }
                                 documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
                                 //documentsModels.SetAccessFlag = setAccessFlag > 0 ? true : false;
                                 documentsModels.SessionId = s.SessionId;
@@ -851,6 +898,7 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
                                 documentsModels.FileProfileTypeSessionId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.SessionId;
                                 documentsModels.ProfileID = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.ProfileId;
+                                documentsModels.DynamicFormId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.DynamicFormId;
                                 documentsModels.DocumentParentId = s.DocumentParentId;
                                 documentsModels.TableName = s.TableName;
                                 documentsModels.IsMobileUpload = s.IsMobileUpload;
@@ -1472,16 +1520,17 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("IsTemplateCaseNo", value.IsTemplateCaseNo);
                             parameters.Add("TemplateTestCaseId", value.TemplateTestCaseId);
                             parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                            parameters.Add("DynamicFormId", value.DynamicFormId);
                             if (value.FileProfileTypeId <= 0)
                             {
 
                                 var query = "INSERT INTO [FileProfileType](Name,ProfileId,ParentId,StatusCodeID,AddedDate,AddedByUserID,ModifiedDate,ModifiedByUserId,Description,IsExpiryDate," +
                                     "IsAllowMobileUpload,IsDocumentAccess,ShelfLifeDuration,ShelfLifeDurationId,Hints,IsEnableCreateTask,IsCreateByYear,IsCreateByMonth," +
-                                    "IsHidden,ProfileInfo,IsTemplateCaseNo,TemplateTestCaseId,SessionId) " +
+                                    "IsHidden,ProfileInfo,IsTemplateCaseNo,TemplateTestCaseId,SessionId,DynamicFormId) " +
                                     "OUTPUT INSERTED.FileProfileTypeId VALUES " +
                                    "(@Name,@ProfileId,@ParentId,@StatusCodeID,@AddedDate,@AddedByUserID,@ModifiedDate,@ModifiedByUserId,@Description,@IsExpiryDate," +
                                    "@IsAllowMobileUpload,@IsDocumentAccess,@ShelfLifeDuration,@ShelfLifeDurationId,@Hints,@IsEnableCreateTask,@IsCreateByYear,@IsCreateByMonth," +
-                                   "@IsHidden,@ProfileInfo,@IsTemplateCaseNo,@TemplateTestCaseId,@SessionId)";
+                                   "@IsHidden,@ProfileInfo,@IsTemplateCaseNo,@TemplateTestCaseId,@SessionId,@DynamicFormId)";
                                 value.FileProfileTypeId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
 
                             }
@@ -1491,7 +1540,7 @@ namespace Infrastructure.Repository.Query
                                 var query = "Update Fileprofiletype SET Name=@Name,ProfileId=@ProfileId,ParentId=@ParentId,StatusCodeID=@StatusCodeID,AddedDate=@AddedDate," +
                                     "AddedByUserID=@AddedByUserID,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId,Description=@Description,IsExpiryDate=@IsExpiryDate,IsAllowMobileUpload=@IsAllowMobileUpload,IsDocumentAccess=@IsDocumentAccess," +
                                     "ShelfLifeDuration=@ShelfLifeDuration,ShelfLifeDurationId=@ShelfLifeDurationId,Hints=@Hints,IsEnableCreateTask=@IsEnableCreateTask,IsCreateByYear=@IsCreateByYear," +
-                                    "IsCreateByMonth=@IsCreateByMonth,IsHidden=@IsHidden,ProfileInfo=@ProfileInfo,IsTemplateCaseNo=@IsTemplateCaseNo,TemplateTestCaseId=@TemplateTestCaseId,SessionId=@SessionId " +
+                                    "IsCreateByMonth=@IsCreateByMonth,IsHidden=@IsHidden,ProfileInfo=@ProfileInfo,IsTemplateCaseNo=@IsTemplateCaseNo,TemplateTestCaseId=@TemplateTestCaseId,SessionId=@SessionId,DynamicFormId=@DynamicFormId " +
                                     "WHERE FileProfileTypeId=@FileProfileTypeId";
                                 await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             }
@@ -1512,17 +1561,16 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DocumentUserRole>> GetDocumentUserRoleByDocEmptyAsync(long? fileProfileTypeId)
+        public async Task<IReadOnlyList<DocumentUserRole>> GetDocumentUserRoleByDocEmptyAsync(List<long?> fileProfileTypeId)
         {
             try
             {
-                var parameters = new DynamicParameters();
-                parameters.Add("FileProfileTypeId", fileProfileTypeId);
-                var query = "select  * from DocumentUserRole where DocumentID is null AND FileProfileTypeId=@FileProfileTypeId";
 
+                fileProfileTypeId = fileProfileTypeId != null && fileProfileTypeId.Count > 0 ? fileProfileTypeId : new List<long?>() { -1 };
+                var query = "select  * from DocumentUserRole where DocumentID is null AND FileProfileTypeId in(" + string.Join(',', fileProfileTypeId) + ")";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DocumentUserRole>(query, parameters)).ToList();
+                    return (await connection.QueryAsync<DocumentUserRole>(query, null)).ToList();
                 }
             }
             catch (Exception exp)
@@ -1572,7 +1620,14 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    var userExitsRoles = await GetDocumentUserRoleByDocEmptyAsync(value.FileProfileTypeId);
+                    value.FileProfileTypeIds = new List<long?>();
+                    value.FileProfileTypeIds.Add(value.FileProfileTypeId);
+                    if(value.SelectFileProfileTypeId>0)
+                    {
+                        value.FileProfileTypeIds.Add(value.SelectFileProfileTypeId);
+                    }
+                    value.FileProfileTypeIds = value.FileProfileTypeIds.Distinct().ToList();
+                   var userExitsRoles = await GetDocumentUserRoleByDocEmptyAsync(value.FileProfileTypeIds);
                     var userGroupUsers = await GetUserGroupUser();
                     var LevelUsers = await GetLeveMasterUsers(value.SelectLevelMasterIDs);
                     connection.Open();
@@ -1580,70 +1635,65 @@ namespace Infrastructure.Repository.Query
                     {
                         try
                         {
-                            if (value.Type == "User")
+                            var query = string.Empty;
+                            value.FileProfileTypeIds = value.FileProfileTypeIds.Distinct().ToList();
+                            if (value.FileProfileTypeIds.Count() > 0)
                             {
-                                if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
+                                value.FileProfileTypeIds.ForEach(f =>
                                 {
-                                    foreach (var item in value.SelectUserIDs)
+                                    if (value.Type == "User")
                                     {
-                                        var counts = userExitsRoles.Where(w => w.UserId == item).Count();
-                                        if (counts == 0)
+                                        if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
                                         {
-                                            var parameters = new DynamicParameters();
-                                            parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
-                                            parameters.Add("UserId", item);
-                                            parameters.Add("RoleId", value.RoleID);
-                                            var query = "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId) OUTPUT INSERTED.DocumentUserRoleId " +
-                                                "VALUES (@FileProfileTypeId,@UserId,@RoleId)";
-                                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                                        }
-                                    }
-                                }
-                            }
-                            if (value.Type == "UserGroup")
-                            {
-                                if (value.SelectUserGroupIDs != null && value.SelectUserGroupIDs.Count() > 0)
-                                {
-                                    var userGropuIds = userGroupUsers.Where(w => value.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
-                                    if (userGropuIds != null && userGropuIds.Count > 0)
-                                    {
-                                        userGropuIds.ForEach(s =>
-                                        {
-                                            var counts = userExitsRoles.Where(w => w.UserId == s.UserId).Count();
-                                            if (counts == 0)
+                                            foreach (var item in value.SelectUserIDs)
                                             {
-                                                var parameters = new DynamicParameters();
-                                                parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
-                                                parameters.Add("UserId", s.UserId);
-                                                parameters.Add("UserGroupId", s.UserGroupId);
-                                                parameters.Add("RoleId", value.UserGroupRoleID);
-                                                var query = "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,UserGroupId) OUTPUT INSERTED.DocumentUserRoleId " +
-                                                    "VALUES (@FileProfileTypeId,@UserId,@RoleId,@UserGroupId)";
-                                                connection.QueryFirstOrDefault<long>(query, parameters, transaction);
+                                                var counts = userExitsRoles.Where(w => w.UserId == item && w.FileProfileTypeId==f).Count();
+                                                if (counts == 0)
+                                                {
+                                                    query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId) OUTPUT INSERTED.DocumentUserRoleId " +
+                                                        "VALUES ("+f+","+item+","+value.RoleID+");";
+                                                }
                                             }
-                                        });
-                                    }
-                                }
-                            }
-                            if (value.Type == "Level")
-                            {
-                                if (LevelUsers != null && LevelUsers.Count > 0)
-                                {
-                                    LevelUsers.ToList().ForEach(s =>
-                                    {
-                                        var counts = userExitsRoles.Where(w => w.UserId == s.UserId).Count();
-                                        if (counts == 0)
-                                        {
-                                            var parameters = new DynamicParameters();
-                                            parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
-                                            parameters.Add("UserId", s.UserId);
-                                            parameters.Add("LevelId", s.LevelId);
-                                            parameters.Add("RoleId", value.LevelRoleID);
-                                            var query = "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,LevelId) OUTPUT INSERTED.DocumentUserRoleId " +
-                                                "VALUES (@FileProfileTypeId,@UserId,@RoleId,@LevelId)";
-                                            connection.QueryFirstOrDefault<long>(query, parameters, transaction);
                                         }
-                                    });
+                                    }
+                                    if (value.Type == "UserGroup")
+                                    {
+                                        if (value.SelectUserGroupIDs != null && value.SelectUserGroupIDs.Count() > 0)
+                                        {
+                                            var userGropuIds = userGroupUsers.Where(w => value.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
+                                            if (userGropuIds != null && userGropuIds.Count > 0)
+                                            {
+                                                userGropuIds.ForEach(s =>
+                                                {
+                                                    var counts = userExitsRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f).Count();
+                                                    if (counts == 0)
+                                                    {
+                                                        query+= "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,UserGroupId) OUTPUT INSERTED.DocumentUserRoleId " +
+                                                        "VALUES (" + f + "," + s.UserId + "," + value.UserGroupRoleID + ","+ s.UserGroupId + ");";
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+                                    if (value.Type == "Level")
+                                    {
+                                        if (LevelUsers != null && LevelUsers.Count > 0)
+                                        {
+                                            LevelUsers.ToList().ForEach(s =>
+                                            {
+                                                var counts = userExitsRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f).Count();
+                                                if (counts == 0)
+                                                {
+                                                    query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,LevelId) OUTPUT INSERTED.DocumentUserRoleId " +
+                                                    "VALUES (" + f + "," + s.UserId + "," + value.LevelRoleID + "," + s.LevelId + ");";
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                                if(!string.IsNullOrEmpty(query))
+                                {
+                                    await connection.QuerySingleOrDefaultAsync<long>(query, null, transaction);
                                 }
                             }
                             transaction.Commit();
@@ -2450,6 +2500,39 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DocumentDmsShareId", value.DocumentDmsShareId);
                             parameters.Add("IsDeleted", 1);
                             var query = "Update DocumentDmsShare SET IsDeleted=@IsDeleted WHERE DocumentDmsShareId= @DocumentDmsShareId";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<FileProfileTypeModel> UpdateProfileTypeInfo(FileProfileTypeModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("ProfileTypeInfo", value.ProfileTypeInfo);
+                            parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
+                            var query = "Update FileProfileType SET ProfileTypeInfo=@ProfileTypeInfo WHERE FileProfileTypeId= @FileProfileTypeId";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             transaction.Commit();
                             return value;

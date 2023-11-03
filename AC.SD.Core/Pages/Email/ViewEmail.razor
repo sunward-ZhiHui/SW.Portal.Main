@@ -951,7 +951,7 @@
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>*@
 
-                                    @*<DxGridDataColumn FieldName="EmailToDMS" />*@
+                                      @*<DxGridDataColumn FieldName="EmailToDMS" />*@
                                    @* <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview((long)context.Value)"></button></CellDisplayTemplate>
                                     </DxGridDataColumn>
@@ -961,23 +961,23 @@
                                    @* <DxGridDataColumn FieldName="DocumentId" Caption="Delete" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
                                         <CellDisplayTemplate><button class="btnDelete fas fa-trash" @onclick="() => onDocDelete((long)context.Value)"></button></CellDisplayTemplate>
                                     </DxGridDataColumn>*@
-                                   @* <DxGridDataColumn FieldName="DocumentId" Caption="Link to DMS" FixedPosition="GridColumnFixedPosition.Left" Width="70">
+                                    <DxGridDataColumn FieldName="DocumentId" Caption="Link to DMS" FixedPosition="GridColumnFixedPosition.Left" Width="70">
                                         <CellDisplayTemplate>
                                             @{
                                                 var item = (Documents)context.DataItem;
                                             }
                                             @if(item.EmailToDMS > 0)
                                             {
-                                                <i class="fa fa-clone" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-ProfileType-{item.DocumentId}") onclick="@(() => OnButtonDescriptionClick(item))" title="Link to DMS"></i>
+                                                <i class="fa fa-arrow-left" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" onclick="@(() => onBackToDMS(item))" title="Back to DMS"></i>                                                
                                             }
                                             else
                                             {
-                                                <i class="fa fa-arrow-left" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" onclick="@(() => onBackToDMS(item))" title="Back to DMS"></i>
+                                                <i class="fa fa-clone" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-ProfileType-{item.DocumentId}") onclick="@(() => OnButtonDescriptionClick(item))" title="Link to DMS"></i>
                                             }
 
                         
                                         </CellDisplayTemplate>
-                                    </DxGridDataColumn>*@
+                                    </DxGridDataColumn>
                                 </Columns>
                             </DxGrid>
                         }
@@ -1549,6 +1549,17 @@
         LinkFilterFileprofiletypeName = null;
         _dataFileProfileType.FileProfileTypeId = null;
 
+
+
+        if (RTopicId == 0)
+        {
+            await loadTopicDocList();
+        }
+        else
+        {
+            await loadSubTopicDocList();
+        }
+
         //}
 
 
@@ -1646,7 +1657,11 @@
     Documents _selectedDescriptionItems = new Documents();
     async Task onBackToDMS(Documents item)
     {
-        
+        if(item.EmailToDMS != null)
+        {
+            onBackFileProfileType(item.DMSBackUrl);
+            JSRuntime.InvokeAsync<string>("ReloadUrl");
+        }
     }
 
     async Task OnButtonDescriptionClick(Documents items)
@@ -3352,6 +3367,13 @@
                     RTopicId = 0;
                     filterrowname = ActiveSessionId;
 
+                    ActiveTabIndex = 4;
+                    OnLeftMenuItemClick("Library");
+                    isLeftMenuvisible = "Library";
+                    MyDayFilterText = lsts[0].TopicName;
+                    await Task.Delay(2000); // Delay for 2 seconds
+
+
                     _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
                     _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
                     _forumTopicSent = await Mediator.Send(new GetSentTopic(applicationUser.UserID,"NULL"));
@@ -3458,6 +3480,7 @@
     }
     private async Task onWindowVisible()
     {
+        await JSRuntime.InvokeAsync<string>("showLoading");
         CurrentUplodCount = 0;
         SelectedFilesCount = 0;
 
@@ -3662,13 +3685,15 @@
         Data.NotifyUser = false;
         newSubjectreply = 1;
 
-        //await Task.Delay(2700);
-        //await onRichTxtChangeFontsize(); // Call your other function here
+         StateHasChanged(); // Force a UI update
+        await Task.Delay(2700);
+        await onRichTxtChangeFontsize(); // Call your other function here
     }
     async void onBackFileProfileType(string url)
     {
         var urls = BaseUrl + "fileprofiletype/" + url;
         NavigationManager.NavigateTo(urls);
+        JSRuntime.InvokeAsync<string>("ReloadUrl");
     }
     private void onBackActivity(string Url)
     {

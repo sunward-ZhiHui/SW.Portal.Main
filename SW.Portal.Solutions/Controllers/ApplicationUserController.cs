@@ -39,13 +39,15 @@ namespace SW.Portal.Solutions.Controllers
                     if (lst.Locked)
                     {
                         response.ResponseCode = ResponseCode.Failure;
-                        response.ErrorMessages.Add("Invalid Credentials");
+                        response.Result = new ApplicationUser();
+                        response.ErrorMessages.Add("Your Account Locked");
                     }
                     else
                     {
                         if (lst.InvalidAttempts != 0)
                         {
                             response.ResponseCode = ResponseCode.Failure;
+                            response.Result = new ApplicationUser();
                             response.ErrorMessages.Add("Invalid Password, " + (3 - lst.InvalidAttempts) + " attempt(s) left.");
                         }
                         else
@@ -59,6 +61,7 @@ namespace SW.Portal.Solutions.Controllers
                 else
                 {
                     response.ResponseCode = ResponseCode.Failure;
+                    response.Result = new ApplicationUser();
                     response.ErrorMessages.Add("Invalid User");
                 }
 
@@ -66,6 +69,7 @@ namespace SW.Portal.Solutions.Controllers
             catch (Exception ex)
             {
                 response.ResponseCode = ResponseCode.Failure;
+                response.Result = new ApplicationUser();
                 response.ErrorMessages.Add(ex.Message);
             }
 

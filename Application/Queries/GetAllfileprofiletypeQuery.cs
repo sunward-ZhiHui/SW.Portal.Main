@@ -360,4 +360,12 @@ namespace Application.Queries
             this.DocumentDmsShare = documentDmsShare;
         }
     }
+    public class UpdateProfileTypeInfo : DocumentDmsShare, IRequest<FileProfileTypeModel>
+    {
+        public FileProfileTypeModel FileProfileTypeModel { get; private set; }
+        public UpdateProfileTypeInfo(FileProfileTypeModel fileProfileTypeModel)
+        {
+            this.FileProfileTypeModel = fileProfileTypeModel;
+        }
+    }
 }

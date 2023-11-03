@@ -407,7 +407,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<ApplicationUser> UnLockedPassword(string LoginID, string NewPassword)
+        public async Task<ApplicationUser> UnLockedPassword(string LoginID, string NewPassword,bool? locked)
         {
             try
             {
@@ -415,12 +415,13 @@ namespace Infrastructure.Repository.Query
                 if (User != null)
                 {
                     var userId = User.UserID;
-                    var query = "UPDATE ApplicationUser set InvalidAttempts = 0,Locked = 0 where UserID=@userId";
+                   
                     var parameters = new DynamicParameters();
                     parameters.Add("UserID", userId);
+                    parameters.Add("locked", locked);
                     var password = EncryptDecryptPassword.Encrypt(NewPassword);
                     parameters.Add("NewPassword", password);
-
+                    var query = "UPDATE ApplicationUser set InvalidAttempts = 0,Locked = @locked where UserID=@userId";
                     using (var connection = CreateConnection())
                     {
                         var user = await connection.ExecuteAsync(query, parameters);

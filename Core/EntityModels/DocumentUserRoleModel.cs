@@ -33,7 +33,7 @@ namespace Core.EntityModels
         public string FileProfileTypeName { get; set; }
         public string FileName { get; set; }
         public string FolderName { get; set; }
-        public List<long?> FileProfileTypeIds { get; set; }
+        public List<long?> FileProfileTypeIds { get; set; } = new List<long?>();
 
         public long? LevelID { get; set; }
         public List<long?> DocumentIds { get; set; }
@@ -42,8 +42,9 @@ namespace Core.EntityModels
         [Required(ErrorMessage = "Role is Required")]
         public long? UserGroupRoleID { get; set; }
         public IEnumerable<long> SelectLevelMasterIDs { get; set; }
+        [Required(ErrorMessage = "Role is Required")]
         public long? LevelRoleID { get; set; }
-        public string? Type { get; set; }
+        public string? Type { get; set; } = "User";
 
         public string? DocumentRoleName { get; set; }
         public string? DocumentRoleDescription { get; set; }
@@ -55,6 +56,7 @@ namespace Core.EntityModels
         public string? LastName { get; set; }
         public string? DesignationName { get; set; }
         public string? FullName { get; set; }
+        public long? SelectFileProfileTypeId { get; set; }
 
     }
     public class LeveMasterUsersModel

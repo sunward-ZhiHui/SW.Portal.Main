@@ -13,7 +13,7 @@
 <div class="" style="margin-top: 10px;margin-left: 11px;">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;padding:10px;">
         <div class="cw-480" style="margin-top:10px;">
-                <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+            <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
                     <DxFormLayoutItem Caption="Profile" ColSpanMd="6">
@@ -85,6 +85,29 @@
                     <DxFormLayoutItem Caption="Archive Duration" ColSpanMd="6">
                         <DxSpinEdit @bind-Value="@Data.ShelfLifeDuration" ShowSpinButtons="false" MinValue="1" />
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Dynamic Form" ColSpanMd="6" >
+                        <DxComboBox Data="@_dynamicForm"
+                                    NullText="Select Dynamic Form..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="ID"
+                                    Enabled="isDynamicForm"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        @bind-Value="@Data.DynamicFormId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(DynamicForm.Name)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(DynamicForm.ScreenID)"
+                                                    Caption="Screen Name" />
+                                <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedBy)"
+                                                    Caption="Modified By" />
+                                <DxListEditorColumn FieldName="@nameof(DynamicForm.ModifiedDate)"
+                                                    Caption="Modified Date" />
+                            </Columns>
+                        </DxComboBox>
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Description" ColSpanMd="12">
                         <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />
                     </DxFormLayoutItem>
@@ -104,18 +127,22 @@
     EditContext _editContext;
     public ApplicationUser _applicationUser { get; private set; }
     private bool loading;
+    private List<DynamicForm> _dynamicForm;
     private string MyID = "myid";
     public FileProfileTypeModel _fileProfileTypeData { get; private set; }
     FileProfileTypeModel Data = new FileProfileTypeModel();
     public List<CodeMaster> _shelfLifeDurationItems { get; set; }
     public List<DocumentProfileNoSeriesModel> _documentProfileNoList { get; set; }
     public long? FileProfileTypeId { get; set; }
+    bool isDynamicForm { get; set; } = true;
     protected override async Task OnInitializedAsync()
     {
+        isDynamicForm = true;
         _editContext = new EditContext(Data);
         _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
         _shelfLifeDurationItems = await Mediator.Send(new GetAllCodeMasterQuery("RecurrenceType"));
+        _dynamicForm = await Mediator.Send(new GetAllDynamicForm());
         _fileProfileTypeData = await Mediator.Send(new GetFileProfileTypeBySession(SessionId));
         if (Type == "Add")
         {
@@ -128,9 +155,38 @@
         {
             if (_fileProfileTypeData != null)
             {
-                Data = _fileProfileTypeData;
+                Data.FileProfileTypeId = _fileProfileTypeData.FileProfileTypeId;
+                Data.Name = _fileProfileTypeData.Name;
+                Data.ProfileId = _fileProfileTypeData.ProfileId;
+                Data.ParentId = _fileProfileTypeData.ParentId;
+                Data.StatusCodeID = _fileProfileTypeData.StatusCodeID == null ? 1 : _fileProfileTypeData.StatusCodeID;
+                Data.AddedDate = _fileProfileTypeData.AddedDate;
+                Data.AddedByUserID = _fileProfileTypeData.AddedByUserID;
+                Data.ModifiedDate = _fileProfileTypeData.ModifiedDate;
+                Data.ModifiedByUserID = _fileProfileTypeData.ModifiedByUserID;
+                Data.Description = _fileProfileTypeData.Description;
+                Data.IsExpiryDate = _fileProfileTypeData.IsExpiryDate;
+                Data.IsAllowMobileUpload = _fileProfileTypeData.IsAllowMobileUpload;
+                Data.IsDocumentAccess = _fileProfileTypeData.IsDocumentAccess;
+                Data.ShelfLifeDuration = _fileProfileTypeData.ShelfLifeDuration;
+                Data.ShelfLifeDurationId = _fileProfileTypeData.ShelfLifeDurationId;
+                Data.Hints = _fileProfileTypeData.Hints;
+                Data.IsEnableCreateTask = _fileProfileTypeData.IsEnableCreateTask;
+                Data.IsCreateByYear = _fileProfileTypeData.IsCreateByYear;
+                Data.IsCreateByMonth = _fileProfileTypeData.IsCreateByMonth;
+                Data.IsHidden = _fileProfileTypeData.IsHidden;
+                Data.ProfileInfo = _fileProfileTypeData.ProfileInfo;
+                Data.IsTemplateCaseNo = _fileProfileTypeData.IsTemplateCaseNo;
+                Data.TemplateTestCaseId = _fileProfileTypeData.TemplateTestCaseId;
+                Data.SessionId = _fileProfileTypeData.SessionId;
+                Data.DynamicFormId = _fileProfileTypeData.DynamicFormId;
+                if(_fileProfileTypeData.DynamicFormId>0 && _fileProfileTypeData.IsdynamicFormExits>0)
+                {
+                    isDynamicForm = false;
+                }
             }
         }
+        StateHasChanged();
     }
     public async Task onsubmitClick()
     {

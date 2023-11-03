@@ -89,6 +89,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DynamicForm> GetDynamicFormByIdAsync(long? Id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ID", Id);
+                var query = "select t1.* from DynamicForm t1 WHERE t1.ID=@ID";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DynamicForm>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DynamicForm> GetDynamicFormBySessionIdAsync(Guid? SessionId)
         {
             try
@@ -117,7 +135,7 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("sessionId", sessionId);
 
-                var query = "SELECT t1.*,t2.NAme as FileProfileTypeName FROM DynamicForm t1 LEFT JOIN FileProfileType t2 ON t2.FileProfileTypeID=t1.FileProfileTypeID  Where t1.SessionID = @sessionId";
+                var query = "SELECT t1.*,t2.NAme as FileProfileTypeName,t2.SessionID as FileProfileSessionId FROM DynamicForm t1 LEFT JOIN FileProfileType t2 ON t2.FileProfileTypeID=t1.FileProfileTypeID  Where t1.SessionID = @sessionId";
 
                 using (var connection = CreateConnection())
                 {
@@ -918,6 +936,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ModifiedDate", dynamicFormData.ModifiedDate, DbType.DateTime);
                             parameters.Add("StatusCodeID", dynamicFormData.StatusCodeID);
                             parameters.Add("IsSendApproval", dynamicFormData.IsSendApproval);
+                            parameters.Add("FileProfileSessionID", dynamicFormData.FileProfileSessionID);
                             if (dynamicFormData.DynamicFormDataId > 0)
                             {
                                 var query = "UPDATE DynamicFormData SET DynamicFormItem = @DynamicFormItem,DynamicFormId =@DynamicFormId," +
@@ -929,8 +948,8 @@ namespace Infrastructure.Repository.Query
                             }
                             else
                             {
-                                var query = "INSERT INTO DynamicFormData(DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsSendApproval)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
-                                    "(@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval);\n\r";
+                                var query = "INSERT INTO DynamicFormData(DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsSendApproval,FileProfileSessionID)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
+                                    "(@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval,@FileProfileSessionID);\n\r";
                                 query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Add");
                                 dynamicFormData.DynamicFormDataId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
 
@@ -1032,13 +1051,32 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
                 var query = "select t1.*,t2.UserName as AddedBy,\r\nt3.UserName as ModifiedBy,t4.CodeValue as StatusCode,\r\nt5.IsApproval,t5.FileProfileTypeID,t6.Name as FileProfileTypeName,\r\n" +
-                    "(SELECT COUNT(SessionId) from Documents t7 WHERE t7.SessionId=t1.SessionId) as isDocuments\r\n" +
+                    "(SELECT COUNT(SessionId) from Documents t7 WHERE t7.SessionId=t1.SessionId AND t7.IsLatest=1 AND (t7.IsDelete IS NULL OR t7.IsDelete=0)) as isDocuments\r\n" +
                     "from DynamicFormData t1 \r\nJOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\nJOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\nJOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
                     "JOIN DynamicForm t5 ON t5.ID=t1.DynamicFormId\r\n" +
                     "LEFT JOIN FileProfileType t6 ON t6.FileProfileTypeID=t5.FileProfileTypeID\r\nWHERE t1.SessionId=@SessionId";
                 using (var connection = CreateConnection())
                 {
                     return await connection.QueryFirstOrDefaultAsync<DynamicFormData>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsModel> GetDynamicFormDataBySessionIdForDMSAsync(Guid? SessionId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionId", SessionId, DbType.Guid);
+                var query = "select *,t2.SessionID as FileProfileTypeSessionId from Documents t1 \r\n" +
+                    "LEFT JOIN FileProfileType t2 ON t2.FileProfileTypeID=t1.FilterProfileTypeID\r\n" +
+                    "where t1.SessionID=@SessionId AND t1.FilterProfileTypeID>0 AND  t1.IsLatest=1 AND (t1.IsDelete IS NULL OR t1.IsDelete=0)\r\n";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<DocumentsModel>(query, parameters);
                 }
             }
             catch (Exception exp)
@@ -1073,11 +1111,13 @@ namespace Infrastructure.Repository.Query
                 var resultData = await GetDynamicFormApprovedByAll();
                 var parameters = new DynamicParameters();
                 parameters.Add("DynamicFormId", id);
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.Name,\r\nt5.ScreenID from DynamicFormData t1 \r\n" +
-                    "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
-                    "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
-                    "JOIN DynamicForm t5 ON t5.ID=t1.DynamicFormID\r\n" +
-                    "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID WHERE t1.DynamicFormId=@DynamicFormId";
+                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.Name,t5.ScreenID,\r\n" +
+                    "(select COUNT(t6.DocumentID) from Documents t6 where t6.SessionID = t1.SessionID AND t6.IsLatest = 1 AND(t6.IsDelete IS NULL OR t6.IsDelete = 0)) as IsFileprofileTypeDocument\r\n" +
+                    "from DynamicFormData t1\r\n" +
+                    "JOIN ApplicationUser t2 ON t2.UserID = t1.AddedByUserID\r\n" +
+                    "JOIN ApplicationUser t3 ON t3.UserID = t1.ModifiedByUserID\r\n" +
+                    "JOIN DynamicForm t5 ON t5.ID = t1.DynamicFormID\r\n" +
+                    "JOIN CodeMaster t4 ON t4.CodeID = t1.StatusCodeID WHERE t1.DynamicFormId =@DynamicFormId";
 
                 using (var connection = CreateConnection())
                 {

@@ -1,4 +1,6 @@
-﻿@using System.ComponentModel.DataAnnotations;
+﻿@page "/fileprofiletype/uploadDynamicForm/{MainSessionId:guid}"
+@page "/fileprofiletype/uploadDynamicForm/{MainSessionId:guid}/{SessionIds:guid}"
+@using System.ComponentModel.DataAnnotations;
 @using Newtonsoft.Json.Linq;
 @using global::Core.AttributeDynamicData;
 @using global::Core.Entities.Views;
@@ -16,11 +18,7 @@
 @using System.Reflection;
 @using System.Linq.Expressions;
 @using Newtonsoft.Json;
-    <DxLoadingPanel @bind-Visible="PanelVisible"
-                    IsContentBlocked="true"
-                    ApplyBackgroundShading="true"
-                    IndicatorAreaVisible="false"
-                    Text="Fetching Data...">
+@using System.Collections
 <div class="card cw-480">
     <div class="card-header text-center py-3">
         <h4>@_dynamicform?.Name</h4>
@@ -28,50 +26,78 @@
         Create a new account to see it in action
         </p> *@
     </div>
-    <div class="card" style="margin-top: 5px;padding: 5px;">
-        <div class="card-body p-0">
-            <div class="row">
-                <div class="">
-                    @if (isApprovalEnabled == true)
-                    {
-                        <DxMenu CollapseItemsToHamburgerMenu="true"
-                                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                DisplayMode="MenuDisplayMode.Desktop">
-                            <Items>
-                                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+        <div class="card" style="margin-top: 5px;padding: 5px;">
+            <div class="card-body p-0">
+                <div class="row">
+                    <div class="">
+                        @if (isApprovalEnabled == true)
+                        {
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
 
-                                <DxMenuItem Text="Save">
-                                    <Items>
-                                        <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
-                                        <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
-                                    </Items>
-                                </DxMenuItem>
-                                <DxMenuItem Text="Approval" id=@($"flyout-overview-target-container-Description")>
-                                    <Items>
-                                        <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="onClickApprove" Enabled=@IsApprovalApproved />
-                                        <DxMenuItem Text="@RejectName" IconCssClass="fa fa-ban" Click="onClickReject" Enabled="IsApprovalRejected" />
-                                    </Items>
-                                </DxMenuItem>
-                                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
-                            </Items>
-                        </DxMenu>
-                    }
-                    else
+                                    <DxMenuItem Text="Save">
+                                        <Items>
+                                            <DxMenuItem Text="Save/Before Approval" IconCssClass="fa fa-save" Click="SubmitFormExternally" Enabled=@isVisibleButton />
+                                            <DxMenuItem Text="Send Approval" IconCssClass="fa fa-plus-circle" Click="SubmitApproveFormExternally" Enabled="IsSendApprovalVisible" />
+                                        </Items>
+                                    </DxMenuItem>
+                                    <DxMenuItem Text="Approval" id=@($"flyout-overview-target-container-Description")>
+                                        <Items>
+                                            <DxMenuItem Text="@ApproveName" IconCssClass="fa fa-check" Click="onClickApprove" Enabled=@IsApprovalApproved />
+                                            <DxMenuItem Text="@RejectName" IconCssClass="fa fa-ban" Click="onClickReject" Enabled="IsApprovalRejected" />
+                                        </Items>
+                                    </DxMenuItem>
+                                    <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                </Items>
+                            </DxMenu>
+                        }
+                        else
+                        {
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Desktop">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                                    <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
+                                    <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
+                                </Items>
+                            </DxMenu>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    <div class="demo-breadcrumbs-container theme-blazing-berry">
+        <div class="breadcrumb">
+            <div class="demo-breadcrumbs sidebar-hidden">
+                <!--!-->
+
+                <div class="items">
+                    <a href="javascript:void(0);" onclick="@(() => openFileProfileMainLink())">Main</a>
+                    @if (FolderPathLists.Count > 0)
                     {
-                        <DxMenu CollapseItemsToHamburgerMenu="true"
-                                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                DisplayMode="MenuDisplayMode.Desktop">
-                            <Items>
-                                <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
-                                <DxMenuItem Text="Save" IconCssClass="fa fa-save" Click="@SubmitFormExternally" />
-                                <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@addUploadDocument" Enabled=@IsUploadEnabled />
-                            </Items>
-                        </DxMenu>
+                        <span class="separator"></span>
+                        @foreach (var item in FolderPathLists)
+                        {
+                            var names = item.FileName.Length > 20 ? item.FileName.Substring(0, 20) + "..." : item.FileName;
+                            if (FolderPathLists.IndexOf(item) == FolderPathLists.Count - 1)
+                            {
+                                <span title="@item.FileName">@names</span>
+                            }
+                            else
+                            {
+                                <a href="javascript:void(0);" title="@item.FileName" onclick="@(() => openFileProfileLink(item))">@names</a>
+                            }
+                            <span class="separator"></span>
+                        }
                     }
                 </div>
-
             </div>
         </div>
     </div>
@@ -107,7 +133,6 @@
         </DxTabs>
     </EditForm>
 </div>
-</DxLoadingPanel>
 <DxPopup @bind-Visible="@isApprovedPopup"
          ShowFooter="true"
          HeaderText="Approved From"
@@ -154,16 +179,20 @@
          ShowFooter="false"
          Width="1000px">
     <BodyContentTemplate>
-        <UploadDoumentDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDynamicFiles>
+        <UploadDoumentDMSDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDMSDynamicFiles>
+
     </BodyContentTemplate>
 </DxPopup>
 @code {
-    bool PanelVisible { get; set; } = true;
+    [Parameter]
+    public Guid? MainSessionId { get; set; }
+    public ApplicationUser applicationUser { get; set; }
     EditContext _editContext;
     [Parameter]
     public Guid? SessionIds { get; set; }
-    [Parameter]
     public Guid? SessionId { get; set; }
+    private DocumentsModel _ParentselectedItems;
+    List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     public int ActiveTabIndex { get; set; } = 0;
     private bool loading;
     public bool IsDescriptionOpen { get; set; } = false;
@@ -173,7 +202,6 @@
     private AttributeHeaderListModel _AttributeHeader;
     Object Data { get; set; } = new Object();
     DynamicFormData dynamicFormData = new DynamicFormData();
-    public ApplicationUser applicationUser { get; private set; }
     public long? dynamicFormDataId { get; set; }
     bool isApproval { get; set; } = false; bool PopupUpload { get; set; } = false;
     bool isApprovedPopup { get; set; } = false;
@@ -190,21 +218,61 @@
     private DynamicFormApproved dynamicFormApproval = new DynamicFormApproved();
     private List<DynamicFormApproved>? _dynamicFormApprovedList;
     public long? FileProfileTypeId { get; set; }
-    public Guid? FileProfileSessionId { get; set; }
     int isRequiredCount { get; set; } = 0;
     bool? isSubmit { get; set; } = false;
     Dictionary<string, string> dic = new Dictionary<string, string>();
     bool isApprovalEnabled { get; set; } = false;
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     // bool isApproved { get; set; } = true;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+
     }
     protected override async Task OnParametersSetAsync()
     {
-        await loadDynamicForm();
+        FolderPathLists = new List<DocumentsModel>();
+        FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
+        if (FileProfileTypeId > 0)
+        {
+            var fileType = fileProfileTypeDocumentsAll.Where(w => w.FileProfileTypeId == FileProfileTypeId).FirstOrDefault();
+            if (fileType != null)
+            {
+                _ParentselectedItems = fileType;
+                if (fileType != null)
+                {
+                    FolderPathLists = GetAllFileProfileTypeName(fileProfileTypeDocumentsAll, fileType, FolderPathLists);
+                    FolderPathLists.Add(fileType);
+                    _dynamicform = await Mediator.Send(new GetDynamicFormById(_ParentselectedItems.DynamicFormId));
+                    if (_dynamicform != null)
+                    {
+                        SessionId = _dynamicform.SessionID;
+                        await loadDynamicForm();
+                    }
+                }
+            }
+        }
         base.OnParametersSet();
+    }
+    private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
+    {
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetAllFileProfileTypeName(foldersListItems, items, foldersModel);
+            foldersModel.Add(items);
+        }
+        return foldersModel;
+    }
+    public void openFileProfileMainLink()
+    {
+        NavigationManager.NavigateTo("fileprofiletype");
+    }
+    public void openFileProfileLink(DocumentsModel documentsModel)
+    {
+        NavigationManager.NavigateTo("fileprofiletype/" + documentsModel.SessionID);
     }
     async Task loadDynamicForm()
     {
@@ -214,7 +282,6 @@
         _dynamicformData = null; isVisibleButton = true; IsSave = true; IsUploadEnabled = false;
         if (SessionId != null)
         {
-            _dynamicform = await Mediator.Send(new GetAllDynamicFormList(SessionId, _dynamicformData?.DynamicFormDataId));
             if (_dynamicform != null)
             {
                 if (_dynamicform.IsApproval == true)
@@ -222,8 +289,6 @@
                     isApprovalEnabled = true;
                     StateHasChanged();
                 }
-                FileProfileSessionId = _dynamicform.FileProfileSessionId;
-                FileProfileTypeId = _dynamicform.FileProfileTypeId;
                 if (SessionIds != null)
                 {
                     _dynamicformData = await Mediator.Send(new GetDynamicFormDataBySessionId(SessionIds));
@@ -242,7 +307,11 @@
                                 if (_dynamicformData.IsSendApproval == true)
                                 {
                                     IsSendApprovalVisible = false; IsApprovalSave = false;
-                                    isVisibleButton = false; IsSave = false;IsUploadEnabled = false;
+                                    isVisibleButton = false; IsSave = false;
+                                    if (_dynamicformData.isDocuments > 0)
+                                    {
+                                        IsUploadEnabled = false;
+                                    }
                                 }
                                 else
                                 {
@@ -550,19 +619,7 @@
     }
     void backUrl()
     {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicFormList/" + SessionId);
-        }
-        else
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + SessionId);
-
-        }
+        NavigationManager.NavigateTo("fileprofiletype/" + MainSessionId);
     }
     void ResetForm()
     {
@@ -572,19 +629,7 @@
     {
         if (SessionIds != null)
         {
-            string str = NavigationManager.Uri;
-            string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-            string[] UrlList = rep1.Split("/");
-            string names = "DynamicMasterSetupList";
-            if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-            {
-                NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId);
-            }
-            else
-            {
-                NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
-
-            }
+            NavigationManager.NavigateTo("fileprofiletype/uploadDynamicForm/" + MainSessionId);
         }
         else
         {
@@ -639,7 +684,7 @@
                             AttributeHeader = _AttributeHeader,
                             ObjectData = Data,
                             IsSendApproval = IsSendApproval,
-                            FileProfileSessionID = FileProfileSessionId
+                            FileProfileSessionID=MainSessionId,
                         };
 
                     var result = await Mediator.Send(editReq);
@@ -683,6 +728,7 @@
                             AttributeHeader = _AttributeHeader,
                             ObjectData = Data,
                             IsSendApproval = IsSendApproval,
+                            FileProfileSessionID = MainSessionId,
                         };
                     var result = await Mediator.Send(createReq);
                     if (result.DynamicFormDataId > 0)
@@ -711,7 +757,7 @@
                         // await onApproved();
                     }
                     loading = false;
-                    NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + createReq.SessionId);
+                    NavigationManager.NavigateTo("fileprofiletype/uploadDynamicForm/" + MainSessionId + "/" + createReq.SessionId);
                     StateHasChanged();
                 }
             }
@@ -785,7 +831,6 @@
     }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {
-        PanelVisible = true;
         isRequiredCount = 0;
         var _AttributeHeaders = _AttributeHeader;
         var propertyList = Data.GetType().GetProperties(); int i = 0; int k = 0;
@@ -794,7 +839,6 @@
 
             _AttributeHeader.DynamicFormSection.ForEach(a =>
             {
-                PanelVisible = true;
                 var isReadonly = false;
                 var isVisible = false;
                 if (isApproval == false)
@@ -1347,11 +1391,8 @@
             }));
 
                 formLayoutBuilder.CloseComponent();
-                PanelVisible = false;
             });
 
         }
-        PanelVisible = false;
     };
 }
-

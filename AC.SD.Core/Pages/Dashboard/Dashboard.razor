@@ -13,6 +13,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 
 @using Data
+@using static Application.Queries.GetEmailRatio;
 
 @*<div class="demo-products demo-products-description theme-@Themes.ActiveTheme.Name.Replace(" ", "-")">
     <h1 class="mb-4">Dashboard</h1>
@@ -35,7 +36,8 @@
     </Views>
 </DxScheduler>*@
 
-<DxScheduler StartDate="@DateTime.Today" DataStorage="@DataStorage" CssClass="w-100" AllowCreateAppointment="false"
+
+<DxScheduler StartDate="@DateTime.Today" DataStorage="@DataStorage1" CssClass="w-100" AllowCreateAppointment="false"
              AllowEditAppointment="false" AllowDeleteAppointment="false">
     <DxSchedulerDayView DayCount="5" ShowWorkTimeOnly="true">
         <HorizontalAppointmentTemplate>
@@ -53,6 +55,8 @@
             </div>
         </VerticalAppointmentTemplate>
     </DxSchedulerDayView>
+
+
 </DxScheduler>
 
 
@@ -60,24 +64,24 @@
     public ApplicationUser applicationUser { get; private set; }
 
 
-    DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
-    {
-        //AppointmentsSource = AppointmentCollection.GetAppointments(),
-        AppointmentMappings = new DxSchedulerAppointmentMappings()
+   
+    DxSchedulerDataStorage DataStorage1 = new DxSchedulerDataStorage()
         {
-            Type = "EmailType",
-            Start = "StartDate",
-            End = "EndDate",
-            Subject = "Caption",
-            AllDay = "AllDay",
-            Location = "Location",
-            Description = "Description",
-            LabelId = "Label",
-            StatusId = "Status",
-            RecurrenceInfo = "Recurrence"
-        }
-    };
-
+            //AppointmentsSource = AppointmentCollection.GetAppointments(),
+            AppointmentMappings = new DxSchedulerAppointmentMappings()
+            {
+                Type = "EmailType",
+                Start = "StartDate",
+                End = "EndDate",
+                Subject = "Caption",
+                AllDay = "AllDay",
+                Location = "Location",
+                Description = "Description",
+                LabelId = "Label",
+                StatusId = "Status",
+                RecurrenceInfo = "Recurrence"
+            }
+        };
     protected override async void OnInitialized()
     {
         var checkauthorize = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -101,8 +105,10 @@
            // NavigationManager.NavigateTo("/hrms/Dashboard");
         }
 
-        var data = await Mediator.Send(new GetEmailSchedulerList(applicationUser.UserID));
-        DataStorage.AppointmentsSource = data.ToList();
+     
+
+        var data1 = await Mediator.Send(new GetEmailSchedulerListTodo(applicationUser.UserID));
+        DataStorage1.AppointmentsSource = data1.ToList();
     }
 
     

@@ -36,6 +36,7 @@ namespace Core.Entities
         public string ProfileInfo { get; set; }
         public bool? IsTemplateCaseNo { get; set; }
         public long? TemplateTestCaseId { get; set; }
+        public long? DynamicFormId { get; set; }
         [NotMapped]
         public string? Label { get; set; }
         public Guid? SessionId { get; set; }

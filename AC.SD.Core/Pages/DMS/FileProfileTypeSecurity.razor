@@ -56,6 +56,18 @@
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.CompanyName)" Caption="Company" Width="100px" />
                                     </DxTagBox>
                                 </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="10">
+                                    <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                                        <Buttons>
+                                            <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen-User")
+                                                            Tooltip="Select File ProfileType"
+                                                            Click="@(_ => OnButtonFileProfileTypeLinDocClick())" ></DxEditorButton>
+                                            <DxEditorButton IconCssClass="fa fa-remove"
+                                                            Tooltip="Clear"
+                                                            Click="@(_ => OnButtonFileProfileTypeLinDocClearClick())" ></DxEditorButton>
+                                        </Buttons>
+                                    </DxTextBox>
+                                </DxFormLayoutItem>
                                 <DxFormLayoutItem ColSpanMd="2">
                                     <DxButton SubmitFormOnClick="true"
                                               Text="Save"
@@ -64,9 +76,7 @@
                                 </DxFormLayoutItem>
                             </DxFormLayout>
                         </EditForm>
-                        <div class="col-md-12">
-                            <DocumentUserRoleLists @ref="refDocumentUserRoleListsUser" TypeRole="Users" FileProfileTypeId="@FileProfileTypeId"></DocumentUserRoleLists>
-                           </div>
+                        
                     </div>
                 </div>
             </div>
@@ -94,7 +104,7 @@
                                         <Buttons>
                                             <DxEditorButton IconCssClass="fa fa-eye" Id=@($"flyout-overview-target-container-UserGroup")
                                                             Tooltip="Role Permission"
-                                                            Click="@(_ => OnUserGroupButtonClick())" />
+                                                            Click="@(_ => OnUserGroupButtonClick())" ></DxEditorButton>
                                         </Buttons>
                                     </DxComboBox>
                                     <ValidationMessage For="@(() => Data.UserGroupRoleID)" />
@@ -112,6 +122,18 @@
                                         <DxListEditorColumn FieldName="@nameof(UserGroup.Description)" Caption="Description" />
                                     </DxTagBox>
                                 </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="10">
+                                    <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                                        <Buttons>
+                                            <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen-UserGroup")
+                                                            Tooltip="Select File ProfileType"
+                                                            Click="@(_ => OnButtonFileProfileTypeLinDocClick())"></DxEditorButton>
+                                            <DxEditorButton IconCssClass="fa fa-remove"
+                                                            Tooltip="Clear"
+                                                            Click="@(_ => OnButtonFileProfileTypeLinDocClearClick())"></DxEditorButton>
+                                        </Buttons>
+                                    </DxTextBox>
+                                </DxFormLayoutItem>
                                 <DxFormLayoutItem ColSpanMd="2">
                                     <DxButton SubmitFormOnClick="true"
                                               Text="Save"
@@ -121,9 +143,7 @@
                             </DxFormLayout>
                         </EditForm>
                     </div>
-                    <div class="col-md-12">
-                        <DocumentUserRoleLists @ref="refDocumentUserRoleListsUserGroup" TypeRole="UserGroup" FileProfileTypeId="@FileProfileTypeId"></DocumentUserRoleLists>
-                    </div>
+                    
                 </div>
             </div>
         </DxTabPage>
@@ -168,6 +188,18 @@
                                         <DxListEditorColumn FieldName="@nameof(ViewLevel.DivisionName)" Caption="Division Name" />
                                     </DxTagBox>
                                 </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="10">
+                                    <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                                        <Buttons>
+                                            <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen-Level")
+                                                            Tooltip="Select File ProfileType"
+                                                            Click="@(_ => OnButtonFileProfileTypeLinDocClick())"></DxEditorButton>
+                                            <DxEditorButton IconCssClass="fa fa-remove"
+                                                            Tooltip="Clear"
+                                                            Click="@(_ => OnButtonFileProfileTypeLinDocClearClick())"></DxEditorButton>
+                                        </Buttons>
+                                    </DxTextBox>
+                                </DxFormLayoutItem>
                                 <DxFormLayoutItem ColSpanMd="2">
                                     <DxButton SubmitFormOnClick="true"
                                               Text="Save"
@@ -179,13 +211,14 @@
                             </EditForm>
                         
                     </div>
-                    <div class="col-md-12">
-                        <DocumentUserRoleLists @ref="refDocumentUserRoleListsLevel" TypeRole="Level" FileProfileTypeId="@FileProfileTypeId"></DocumentUserRoleLists>
-                    </div>
+                   
                 </div>
             </div>
         </DxTabPage>
     </DxTabs>
+    <div class="col-md-12">
+        <DocumentUserRoleLists @ref="refDocumentUserRoleListsUser" TypeRole="Users" FileProfileTypeId="@FileProfileTypeId"></DocumentUserRoleLists>
+    </div>
 </div>
 <DxFlyout @bind-IsOpen=IsOpen
           PositionTarget=@($"#flyout-overview-target-container-User")
@@ -256,10 +289,48 @@
         </div>
     </FooterContentTemplate>
 </DxFlyout>
+<DxFlyout @bind-IsOpen=IsFileProfileTypeFilterDocOpen
+          PositionTarget=@($"#flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen-{Data.Type}")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Select FileProfile Type"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          CloseOnOutsideClick="false"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+            <DxFormLayoutItem Caption="">
+                <DxTreeView @ref="_treeFilterDocView"
+                @bind-FilterString="FilterDocumentString"
+                            ShowFilterPanel="true"
+                            FilterMode="NavigationFilterMode.EntireBranch"
+                            Data="@fileProfileTypeDocuments"
+                            AllowSelectNodes="true"
+                            SelectionChanged="@SelectionChanged">
+                    <DataMappings>
+                        <DxTreeViewDataMapping Text="FileName"
+                                               Key="DocumentID"
+                                               ParentKey="ParentId" />
+                    </DataMappings>
+                </DxTreeView>
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeFilterDocOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
 @code {
+    string? LinkFilterFileprofiletypeName { get; set; } = null;
     private DocumentUserRoleLists? refDocumentUserRoleListsUser;
-    private DocumentUserRoleLists? refDocumentUserRoleListsUserGroup;
-    private DocumentUserRoleLists? refDocumentUserRoleListsLevel;
     [Parameter]
     public long? FileProfileTypeId { get; set; }
     public ApplicationUser _applicationUser { get; private set; }
@@ -273,6 +344,11 @@
     bool IsOpenLevel { get; set; } = false;
     public DocumentPermissionModel? documentPermissionData { get; set; }
     int ActiveTabSecIndex { get; set; } = 0;
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public List<DocumentsModel> fileProfileTypeDocuments { get; set; }
+    private DxTreeView _treeFilterDocView;
+    public bool IsFileProfileTypeFilterDocOpen { get; set; }
+    string? FilterDocumentString { get; set; }
     protected override async Task OnInitializedAsync()
     {
         Data.FileProfileTypeId = FileProfileTypeId;
@@ -281,41 +357,64 @@
         _documentRoleList = await Mediator.Send(new GetDocumentRoles());
         _levelMasterLists = await Mediator.Send(new GetAllLevelMasterQuery());
         _usersList = await Mediator.Send(new GetAllEmployeeQuery());
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         Data.Type = "User";
         Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
         Data.LevelRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
+        fileProfileTypeDocuments = GetChild(FileProfileTypeId).ToList();
     }
-
+    protected void SelectionChanged(TreeViewNodeEventArgs e)
+    {
+        if (e.NodeInfo?.DataItem != null)
+        {
+            var nodeName = e.NodeInfo.DataItem as DocumentsModel;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, nodeName.FileProfileTypeId);
+            LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            Data.SelectFileProfileTypeId=lists.FirstOrDefault()?.FileProfileTypeId;
+        }
+        StateHasChanged();
+    }
+    void OnButtonFileProfileTypeLinDocClearClick()
+    {
+        LinkFilterFileprofiletypeName = null ;
+        Data.SelectFileProfileTypeId = null;
+        IsFileProfileTypeFilterDocOpen = false;
+    }
+    void OnButtonFileProfileTypeLinDocClick()
+    {
+        IsFileProfileTypeFilterDocOpen = true;
+    }
     async void OnTabClick(TabClickEventArgs e)
     {
+        IsFileProfileTypeFilterDocOpen = false;
         if (e.TabIndex == 0)
         {
             Data.RoleID = Data.RoleID > 0 ? Data.RoleID : null;
+           // Data.RoleID =null;
             Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
             Data.LevelRoleID = Data.LevelRoleID > 0 ? Data.LevelRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
             Data.Type = "User";
             await OnSelectRoleItems(Data.RoleID,"No");
-            await refDocumentUserRoleListsUser.loadData(FileProfileTypeId);
         }
         if (e.TabIndex == 1)
         {
             Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : null;
+            //Data.UserGroupRoleID = null;
             Data.RoleID = Data.RoleID > 0 ? Data.RoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
             Data.LevelRoleID = Data.LevelRoleID > 0 ? Data.LevelRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
             Data.Type = "UserGroup";
             await OnSelectRoleItems(Data.UserGroupRoleID, "No");
-            await refDocumentUserRoleListsUserGroup.loadData(FileProfileTypeId);
         }
         if (e.TabIndex == 2)
         {
             Data.LevelRoleID = Data.LevelRoleID > 0 ? Data.LevelRoleID : null;
+            //Data.LevelRoleID = null;
             Data.UserGroupRoleID = Data.UserGroupRoleID > 0 ? Data.UserGroupRoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
             Data.RoleID = Data.RoleID > 0 ? Data.RoleID : _documentRoleList.FirstOrDefault()?.DocumentRoleId;
             Data.Type = "Level";
             await OnSelectRoleItems(Data.LevelRoleID, "No");
-            await refDocumentUserRoleListsLevel.loadData(FileProfileTypeId);
         }
-        
+        await refDocumentUserRoleListsUser.loadData(FileProfileTypeId);
         StateHasChanged();
     }
     void onSelectedUserItemsChanged(IEnumerable<ViewEmployee> values)
@@ -337,18 +436,7 @@
     {
         var response = await Mediator.Send(new InsertFileProfileTypeAccess(Data));
         toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        if (Data.Type == "User")
-        {
-            await refDocumentUserRoleListsUser.loadData(FileProfileTypeId);
-        }
-        if (Data.Type == "UserGroup")
-        {
-            await refDocumentUserRoleListsUserGroup.loadData(FileProfileTypeId);
-        }
-        if (Data.Type == "Level")
-        {
-            await refDocumentUserRoleListsLevel.loadData(FileProfileTypeId);
-        }
+        await refDocumentUserRoleListsUser.loadData(FileProfileTypeId);
         
     }
     void HandleInvalidSubmit()
@@ -361,32 +449,9 @@
             await OnSelectRoleItems(documentRole.DocumentRoleId,"Yes");
         }
     }
-    // async Task SelectedItemUserGroupRoleChanged(DocumentRole documentRole)
-    // {
-    //     if (documentRole != null && documentRole.DocumentRoleId > 0)
-    //     {
-    //         await OnSelectRoleItems(documentRole.DocumentRoleId);
-    //     }
-    // }
-
     async Task OnSelectRoleItems(long? documentRoleId,string types)
     {
         documentPermissionData = await Mediator.Send(new GetDocumentPermissionByRoleID(documentRoleId));
-        if (types == "Yes")
-        {
-            if (Data.Type == "User")
-            {
-                OnButtonClick();
-            }
-            if (Data.Type == "UserGroup")
-            {
-                OnUserGroupButtonClick();
-            }
-            if (Data.Type == "Level")
-            {
-                OnLevelButtonClick();
-            }
-        }
     }
     void OnUserGroupButtonClick()
     {
@@ -399,5 +464,57 @@
     void OnLevelButtonClick()
     {
         IsOpenLevel = true;
+    }
+    public IEnumerable<DocumentsModel>GetChild(long? id)
+    {
+        var locations = fileProfileTypeDocumentsAll.Where(x => x.ParentId == id || x.FileProfileTypeId == id).ToList();
+
+        var child = locations.AsEnumerable().Union(fileProfileTypeDocumentsAll.AsEnumerable().Where(x => x.ParentId == id).SelectMany(y => GetChild(y.FileProfileTypeId))).ToList();
+        return child;
+    }
+    private List<FileProfileTypeModel>
+       GetFileProfileTypePath(List<DocumentsModel>
+           foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel>
+            foldersList = new List<FileProfileTypeModel>
+                ();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string>
+                                    FolderPathLists = new List<string>
+                                        ();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel>
+        foldersListItems, DocumentsModel s, List<string>
+            foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
     }
 }

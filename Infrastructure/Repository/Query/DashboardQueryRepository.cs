@@ -26,22 +26,8 @@ namespace Infrastructure.Repository.Query
         {
 
         }
-        public async Task<IReadOnlyList<EmailScheduler>> GetAllEmailSchedulerAsync()
-        {
-            try
-            {
-                var query = @"select ET.TopicName as Type,ET.TopicName as Caption, ET.AddedDate as StartDate, DATEADD(HOUR, 2, ET.StartDate) as EndDate,ET.ID as LabelId,ET.ID as StatusId,ET.ID as Status,ET.ID as Label from EmailTopics ET";
-
-                using (var connection = CreateConnection())
-                {
-                    return (await connection.QueryAsync<EmailScheduler>(query)).ToList();
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
+        
+       
 
         public async Task<List<GenderRatio>> GetGenderRatioAsync()
         {
@@ -136,6 +122,30 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
 
+        }
+
+
+        public async Task<IReadOnlyList<EmailScheduler>> GetAllEmailSchedulerTodoAsync(long UserId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+                var query = @"select ET.TopicName as Type,ET.TopicName as Caption, ET.AddedDate as StartDate, DATEADD(HOUR, 2, ET.StartDate) as EndDate,ET.ID as LabelId,ET.ID as StatusId,ET.ID as Status,ET.ID as Label from EmailTopics ET
+                                UNION ALL
+                                select ET.TopicName as Type,TNH.Description as Caption, TNH.DueDate as StartDate, DATEADD(HOUR, 2, TNH.DueDate) as EndDate,ET.ID as LabelId,ET.ID as StatusId,ET.ID as Status,ET.ID as Label from EmailTopics ET
+                                inner join EmailConversations EC on EC.TopicID = ET.ID
+                                inner join ToDoNotesHistory TNH ON TNH.TopicId = EC.ID WHERE TNH.AddedByUserID  = @UserId";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailScheduler>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
     }
 }

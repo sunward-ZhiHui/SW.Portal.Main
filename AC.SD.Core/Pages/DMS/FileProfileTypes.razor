@@ -55,13 +55,15 @@
                             <DxMenuItem Text="Delete Folder" IconCssClass="fa fa-remove" Click="@onDeleteFileProfileType" Visible="@isDelete" />
                         </Items>
                     </DxMenuItem>
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter("Open"))" id=@($"flyout-overview-target-container-FilterDocuments") />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter("Open"))"  id=@($"flyout-overview-target-container-FilterDocuments") />
+                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info" Click="OnFileProfileTypeInfo"  style="@isVisibleParentMore" id=@($"flyout-overview-target-container-FileProfileTypeInfoDocuments") />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
                     <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
                         <Items>
                             <DxMenuItem Text="Upload New Documents" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" Visible="isCreateDocumentEnabled" />
                             <DxMenuItem Text="Upload Documents By Form" IconCssClass="fa fa-cloud-upload" Click="onUploadDynamicForm" Visible="isCreateDynamicDocumentEnabled" />
                             <DxMenuItem Text="Reserve Profile Number Series" IconCssClass="fa fa-plus-square" Click="onReserveProfileNumberSeries" Visible="IsReserveProfileNumberEnabled" />
+                            <DxMenuItem Text="Add/Edit Profile Type Info" IconCssClass="fa fa-info" Click="onAddFileProfileTypeInfo" Visible="isProfileInfoEnabled" />
                         </Items>
                     </DxMenuItem>
 
@@ -166,7 +168,7 @@
                             {
                                 <i class="fa fa-share-alt" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@item.FileName"></i>
                             }
-                            @if (item.IsEmailTopics==true)
+                            @if (item.IsEmailTopics == true)
                             {
                                 <i class="fa fa-envelope" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@item.FileName"></i>
                             }
@@ -567,6 +569,39 @@
         <ShareDocuments @ref="refShareDocuments" selectedItems="@_selectedItems" applicationUser="@applicationUser" RevokeBack="BackShareDoc"></ShareDocuments>
     </BodyContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=IsFileProfileTypeInfoOpen
+          PositionTarget=@($"#flyout-overview-target-container-FileProfileTypeInfoDocuments")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          PreventCloseOnPositionTargetClick="true"
+          HeaderVisible="true"
+          HeaderText="Profile Type Info"
+          FooterVisible="true"
+          CloseOnOutsideClick="false"
+          FooterCssClass="custom-flyout-footer"
+          Width="max(25vw, 550px)"
+          Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100">
+            <DxFormLayoutItem Caption="" ColSpanMd="12">
+                <div style="height: calc(100vh - 100px);overflow-x: hidden;">@((MarkupString)fileProfileTypeProfileInfo.ProfileTypeInfo)</div>
+            </DxFormLayoutItem>
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsFileProfileTypeInfoOpen = false) />
+    </FooterContentTemplate>
+</DxFlyout>
+<DxPopup @bind-Visible="@IsAddFileProfileTypeInfo"
+         HeaderText="Profile Type Info"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <AddFileProfileTypeInfo selectedItems="@_ParentselectedItems" applicationUser="@applicationUser" RevokeBack="BackShareDoc"></AddFileProfileTypeInfo>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
     private UploadDoumentFiles refUploadDoumentFiles;
     private ShareDocuments refShareDocuments;
@@ -581,9 +616,10 @@
     bool Blukdeletepopup { get; set; } = false;
     bool BlukdeleteDocument { get; set; } = false;
     public string DeleteDocumentName { get; set; }
+    bool IsAddFileProfileTypeInfo { get; set; } = false;
     bool IsDescriptionOpen { get; set; } = false;
     bool IsRenameOpen { get; set; } = false;
-    bool IsFilterOpen { get; set; } = false;
+    bool IsFilterOpen { get; set; } = false; bool IsFileProfileTypeInfoOpen { get; set; } = false;
     public bool PopupUpload { get; set; } = false;
     public bool PopupVisible { get; set; } = false;
     public bool PopupVisibleLinkDocument { get; set; } = false;
@@ -630,9 +666,11 @@
     public bool moreEnabled { get; set; } = false;
     public bool shareEnabled { get; set; } = false;
     public bool isCreateDocumentEnabled { get; set; } = false;
+    public bool isProfileInfoEnabled { get; set; } = false;
     public bool isCreateDynamicDocumentEnabled { get; set; } = false;
     public bool IsReserveProfileNumberEnabled { get; set; } = false;
     public ApplicationUser applicationUser { get; private set; }
+    FileProfileTypeModel fileProfileTypeProfileInfo = new FileProfileTypeModel();
     public bool PopupVisibleLinkParentDocument { get; set; } = false;
     public string? NewRename { get; set; }
     private string? DocumentViewUrl;
@@ -683,13 +721,13 @@
     async Task mainPageLoad()
     {
         _openAccessUserLink = await Mediator.Send(new GetDMSAccessByUser(applicationUser.UserID));
-
+        IsFileProfileTypeInfoOpen = false;
         isEnablePath = false; isExpiryDateVisible = false; isEdit = false; IsGrantAdminPermission = false; isDelete = false; isCreateFolder = false; isCreateSubFolder = false;
         documentPermissionModel = new DocumentPermissionModel();
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         _fileContentList = await Mediator.Send(new GetFileContetTypes());
         isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;";
-        moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; isCreateDynamicDocumentEnabled = false;
+        moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; isCreateDynamicDocumentEnabled = false;isProfileInfoEnabled = false;
         FolderPathLists = new List<DocumentsModel>();
         documentSearchModel.SessionId = MainSessionId;
         FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
@@ -720,7 +758,7 @@
     }
     async Task loadFileProfileData()
     {
-        IsExpiryDateOpen = false; IsDescriptionOpen = false; IsRenameOpen = false;
+        IsExpiryDateOpen = false; IsDescriptionOpen = false; IsRenameOpen = false; IsFileProfileTypeInfoOpen = false;
         isFilterMore = "";
         _selectedItems = null;
         if (FileProfileTypeId == null && MainSessionId != null)
@@ -771,10 +809,10 @@
             if (documentSearchModel.Type != "Search")
             {
                 isEdit = true; IsGrantAdminPermission = true; isDelete = true; isCreateFolder = true; isCreateSubFolder = true;
-                isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; moreEnabled = true;
+                isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; moreEnabled = true;isProfileInfoEnabled = true;
                 if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
                 {
-                    isCreateDynamicDocumentEnabled = true;isCreateDocumentEnabled = false;
+                    isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
                 }
                 if (MainSessionId != null)
                 {
@@ -830,7 +868,7 @@
         if (fileTypeData != null)
         {
             moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; isCreateSubFolder = false; isCreateDynamicDocumentEnabled = false;
-            isCreateSubFolder = false;
+            isCreateSubFolder = false;isProfileInfoEnabled = false;
             if (fileTypeData != null)
             {
                 if (fileTypeData.AddedByUserID == applicationUser.UserID)
@@ -842,11 +880,11 @@
                         {
                             isVisibleParentMore = "";
                         }
-                        moreEnabled = true; IsReserveProfileNumberEnabled = true; isCreateDocumentEnabled = true;
+                        moreEnabled = true; IsReserveProfileNumberEnabled = true; isCreateDocumentEnabled = true;isProfileInfoEnabled = true;
                         isEdit = true; isDelete = true; isCreateSubFolder = true; IsGrantAdminPermission = true;
                         if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
                         {
-                            isCreateDynamicDocumentEnabled = true;isCreateDocumentEnabled = false;
+                            isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
                         }
                     }
 
@@ -864,11 +902,11 @@
                                 {
                                     isVisibleParentMore = "";
                                 }
-                                moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true;
+                                moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true;isProfileInfoEnabled = true;
                                 isEdit = true; isDelete = true; isCreateSubFolder = true; IsGrantAdminPermission = true;
                                 if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
                                 {
-                                    isCreateDynamicDocumentEnabled = true;isCreateDocumentEnabled = false;
+                                    isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
                                 }
                             }
                         }
@@ -888,6 +926,17 @@
                                     {
                                         isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
                                     }
+                                }
+                            }
+                            if (documentPermissionModels.IsEnableProfileTypeInfo == true)
+                            {
+                                if (documentSearchModel.Type != "Search")
+                                {
+                                    if (MainSessionId != null)
+                                    {
+                                        isVisibleParentMore = "";
+                                    }
+                                    moreEnabled = true; isProfileInfoEnabled = true;
                                 }
                             }
                             if (documentPermissionModels.IsReserveProfileNumber == true)
@@ -963,7 +1012,7 @@
                         moreEnabled = true; uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
                         checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
                         renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
-                        if (_ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData==true)
+                        if (_ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
                         {
                             formdetailsEnabled = true;
                         }
@@ -1000,7 +1049,7 @@
                         uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
                         checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
                         renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
-                        if (_ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData==true)
+                        if (_ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
                         {
                             formdetailsEnabled = true;
                         }
@@ -1021,7 +1070,7 @@
                                 uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
                                 checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
                                 renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
-                                if (_ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData==true)
+                                if (_ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
                                 {
                                     formdetailsEnabled = true;
                                 }
@@ -1158,10 +1207,12 @@
         {
             await permissionEnabled();
         }
+        IsFileProfileTypeInfoOpen = false;
         StateHasChanged();
     }
     async Task OnRowDoubleClick(GridRowClickEventArgs e)
     {
+        IsFileProfileTypeInfoOpen = false;
         if (_selectedItems != null && _selectedItems.FileProfileTypeId > 0)
         {
             documentSearchModel.SessionId = null;
@@ -1638,7 +1689,7 @@
     }
     void OnButtonDescriptionClick(DocumentsModel items)
     {
-        IsDescriptionOpen = true; IsExpiryDateOpen = false; IsRenameOpen = false;
+        IsDescriptionOpen = true; IsExpiryDateOpen = false; IsRenameOpen = false;IsFileProfileTypeFilterDocOpen = false;
         _selectedDescriptionItems = new DocumentsModel();
         _selectedDescriptionItems.FilterProfileTypeId = items.FilterProfileTypeId;
         _selectedDescriptionItems.DocumentID = items.DocumentID;
@@ -1652,11 +1703,11 @@
         await Mediator.Send(new GetUpdateDescriptionField(_selectedDescriptionItems));
         await loadFileProfileData();
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        IsDescriptionOpen = false;
+        IsDescriptionOpen = false; IsFileProfileTypeInfoOpen = false;
     }
     void OnButtonExpiryDateClick(DocumentsModel items)
     {
-        IsExpiryDateOpen = true; IsDescriptionOpen = false; IsRenameOpen = false;
+        IsExpiryDateOpen = true; IsDescriptionOpen = false; IsRenameOpen = false;IsFileProfileTypeFilterDocOpen = false;
         _selectedDescriptionItems = new DocumentsModel();
         _selectedDescriptionItems.FilterProfileTypeId = items.FilterProfileTypeId;
         _selectedDescriptionItems.DocumentID = items.DocumentID;
@@ -1667,7 +1718,7 @@
     }
     void OnButtonRenameDescriptionClick()
     {
-        IsRenameOpen = true; IsExpiryDateOpen = false; IsDescriptionOpen = false;
+        IsRenameOpen = true; IsExpiryDateOpen = false; IsDescriptionOpen = false; IsFileProfileTypeFilterDocOpen = false;
         _selectedDescriptionItems = new DocumentsModel();
         _selectedDescriptionItems = _selectedItems;
         if (!string.IsNullOrEmpty(_selectedDescriptionItems.OriginalFileName))
@@ -1680,7 +1731,7 @@
         await Mediator.Send(new GetUpdateExpiryDateField(_selectedDescriptionItems));
         await loadFileProfileData();
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        IsExpiryDateOpen = false;
+        IsExpiryDateOpen = false; IsFileProfileTypeFilterDocOpen = false;
     }
     async Task OnUpdateDocumentRename()
     {
@@ -1691,7 +1742,7 @@
             await Mediator.Send(new GetUpdateDocumentRename(_selectedDescriptionItems));
             await loadFileProfileData();
             toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-            IsRenameOpen = false;
+            IsRenameOpen = false; IsFileProfileTypeFilterDocOpen = false;
         }
     }
     void CloseSecurityAccessPopup()
@@ -1701,6 +1752,7 @@
     void BackShareDoc()
     {
         InvokeAsync(loadFileProfileData);
+        IsAddFileProfileTypeInfo = false;
         PopupShareDocuments = false;
         StateHasChanged();
     }
@@ -1815,6 +1867,16 @@
             IsFilterOpen = true;
         }
     }
+    async Task OnFileProfileTypeInfo()
+    {
+        IsFileProfileTypeInfoOpen = true; IsFileProfileTypeFilterDocOpen = false;
+        fileProfileTypeProfileInfo=await Mediator.Send(new GetFileProfileTypeBySession(_ParentselectedItems.SessionID));
+
+    }
+    void onAddFileProfileTypeInfo()
+    {
+        IsAddFileProfileTypeInfo = true;
+    }
     async void OnClearFilterDocuments()
     {
         documentSearchModel.Type = null;
@@ -1865,7 +1927,7 @@
     }
     void OnButtonFileProfileTypeLinDocClick()
     {
-        IsFileProfileTypeFilterDocOpen = true;
+        IsFileProfileTypeFilterDocOpen = true; IsFileProfileTypeInfoOpen = false;
     }
     protected void SelectionChanged(TreeViewNodeEventArgs e)
     {

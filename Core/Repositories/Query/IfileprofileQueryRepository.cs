@@ -53,6 +53,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DocumentDmsShare>> GetDocumentDMSShareList(Guid? docSessionID);
         Task<DocumentDmsShare> InsertOrUpdateDocumentDmsShare(DocumentDmsShare documentDmsShare);
         Task<DocumentDmsShare> DeleteDocumentDmsShare(DocumentDmsShare value);
-
+        Task<FileProfileTypeModel> UpdateProfileTypeInfo(FileProfileTypeModel value);
     }
 }

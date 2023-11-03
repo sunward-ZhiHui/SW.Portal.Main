@@ -182,6 +182,7 @@
         var users = _employeeItems.FirstOrDefault(a => a.UserID == UserID);
         if (users != null)
         {
+            PanelVisible = true;
             var request = new UnsetLockedRequest
                 {
                     LoginID = users.LoginID,

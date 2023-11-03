@@ -5,6 +5,7 @@ using Core.EntityModels;
 using Core.Repositories.Query;
 using Dapper;
 using DevExpress.Internal;
+using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Infrastructure.Service;
 using Microsoft.EntityFrameworkCore;
@@ -1560,17 +1561,16 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DocumentUserRole>> GetDocumentUserRoleByDocEmptyAsync(long? fileProfileTypeId)
+        public async Task<IReadOnlyList<DocumentUserRole>> GetDocumentUserRoleByDocEmptyAsync(List<long?> fileProfileTypeId)
         {
             try
             {
-                var parameters = new DynamicParameters();
-                parameters.Add("FileProfileTypeId", fileProfileTypeId);
-                var query = "select  * from DocumentUserRole where DocumentID is null AND FileProfileTypeId=@FileProfileTypeId";
 
+                fileProfileTypeId = fileProfileTypeId != null && fileProfileTypeId.Count > 0 ? fileProfileTypeId : new List<long?>() { -1 };
+                var query = "select  * from DocumentUserRole where DocumentID is null AND FileProfileTypeId in(" + string.Join(',', fileProfileTypeId) + ")";
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<DocumentUserRole>(query, parameters)).ToList();
+                    return (await connection.QueryAsync<DocumentUserRole>(query, null)).ToList();
                 }
             }
             catch (Exception exp)
@@ -1620,7 +1620,14 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    var userExitsRoles = await GetDocumentUserRoleByDocEmptyAsync(value.FileProfileTypeId);
+                    value.FileProfileTypeIds = new List<long?>();
+                    value.FileProfileTypeIds.Add(value.FileProfileTypeId);
+                    if(value.SelectFileProfileTypeId>0)
+                    {
+                        value.FileProfileTypeIds.Add(value.SelectFileProfileTypeId);
+                    }
+                    value.FileProfileTypeIds = value.FileProfileTypeIds.Distinct().ToList();
+                   var userExitsRoles = await GetDocumentUserRoleByDocEmptyAsync(value.FileProfileTypeIds);
                     var userGroupUsers = await GetUserGroupUser();
                     var LevelUsers = await GetLeveMasterUsers(value.SelectLevelMasterIDs);
                     connection.Open();
@@ -1628,70 +1635,65 @@ namespace Infrastructure.Repository.Query
                     {
                         try
                         {
-                            if (value.Type == "User")
+                            var query = string.Empty;
+                            value.FileProfileTypeIds = value.FileProfileTypeIds.Distinct().ToList();
+                            if (value.FileProfileTypeIds.Count() > 0)
                             {
-                                if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
+                                value.FileProfileTypeIds.ForEach(f =>
                                 {
-                                    foreach (var item in value.SelectUserIDs)
+                                    if (value.Type == "User")
                                     {
-                                        var counts = userExitsRoles.Where(w => w.UserId == item).Count();
-                                        if (counts == 0)
+                                        if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
                                         {
-                                            var parameters = new DynamicParameters();
-                                            parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
-                                            parameters.Add("UserId", item);
-                                            parameters.Add("RoleId", value.RoleID);
-                                            var query = "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId) OUTPUT INSERTED.DocumentUserRoleId " +
-                                                "VALUES (@FileProfileTypeId,@UserId,@RoleId)";
-                                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                                        }
-                                    }
-                                }
-                            }
-                            if (value.Type == "UserGroup")
-                            {
-                                if (value.SelectUserGroupIDs != null && value.SelectUserGroupIDs.Count() > 0)
-                                {
-                                    var userGropuIds = userGroupUsers.Where(w => value.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
-                                    if (userGropuIds != null && userGropuIds.Count > 0)
-                                    {
-                                        userGropuIds.ForEach(s =>
-                                        {
-                                            var counts = userExitsRoles.Where(w => w.UserId == s.UserId).Count();
-                                            if (counts == 0)
+                                            foreach (var item in value.SelectUserIDs)
                                             {
-                                                var parameters = new DynamicParameters();
-                                                parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
-                                                parameters.Add("UserId", s.UserId);
-                                                parameters.Add("UserGroupId", s.UserGroupId);
-                                                parameters.Add("RoleId", value.UserGroupRoleID);
-                                                var query = "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,UserGroupId) OUTPUT INSERTED.DocumentUserRoleId " +
-                                                    "VALUES (@FileProfileTypeId,@UserId,@RoleId,@UserGroupId)";
-                                                connection.QueryFirstOrDefault<long>(query, parameters, transaction);
+                                                var counts = userExitsRoles.Where(w => w.UserId == item && w.FileProfileTypeId==f).Count();
+                                                if (counts == 0)
+                                                {
+                                                    query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId) OUTPUT INSERTED.DocumentUserRoleId " +
+                                                        "VALUES ("+f+","+item+","+value.RoleID+");";
+                                                }
                                             }
-                                        });
-                                    }
-                                }
-                            }
-                            if (value.Type == "Level")
-                            {
-                                if (LevelUsers != null && LevelUsers.Count > 0)
-                                {
-                                    LevelUsers.ToList().ForEach(s =>
-                                    {
-                                        var counts = userExitsRoles.Where(w => w.UserId == s.UserId).Count();
-                                        if (counts == 0)
-                                        {
-                                            var parameters = new DynamicParameters();
-                                            parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
-                                            parameters.Add("UserId", s.UserId);
-                                            parameters.Add("LevelId", s.LevelId);
-                                            parameters.Add("RoleId", value.LevelRoleID);
-                                            var query = "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,LevelId) OUTPUT INSERTED.DocumentUserRoleId " +
-                                                "VALUES (@FileProfileTypeId,@UserId,@RoleId,@LevelId)";
-                                            connection.QueryFirstOrDefault<long>(query, parameters, transaction);
                                         }
-                                    });
+                                    }
+                                    if (value.Type == "UserGroup")
+                                    {
+                                        if (value.SelectUserGroupIDs != null && value.SelectUserGroupIDs.Count() > 0)
+                                        {
+                                            var userGropuIds = userGroupUsers.Where(w => value.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
+                                            if (userGropuIds != null && userGropuIds.Count > 0)
+                                            {
+                                                userGropuIds.ForEach(s =>
+                                                {
+                                                    var counts = userExitsRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f).Count();
+                                                    if (counts == 0)
+                                                    {
+                                                        query+= "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,UserGroupId) OUTPUT INSERTED.DocumentUserRoleId " +
+                                                        "VALUES (" + f + "," + s.UserId + "," + value.UserGroupRoleID + ","+ s.UserGroupId + ");";
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+                                    if (value.Type == "Level")
+                                    {
+                                        if (LevelUsers != null && LevelUsers.Count > 0)
+                                        {
+                                            LevelUsers.ToList().ForEach(s =>
+                                            {
+                                                var counts = userExitsRoles.Where(w => w.UserId == s.UserId && w.FileProfileTypeId == f).Count();
+                                                if (counts == 0)
+                                                {
+                                                    query += "INSERT INTO [DocumentUserRole](FileProfileTypeId,UserId,RoleId,LevelId) OUTPUT INSERTED.DocumentUserRoleId " +
+                                                    "VALUES (" + f + "," + s.UserId + "," + value.LevelRoleID + "," + s.LevelId + ");";
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                                if(!string.IsNullOrEmpty(query))
+                                {
+                                    await connection.QuerySingleOrDefaultAsync<long>(query, null, transaction);
                                 }
                             }
                             transaction.Commit();
@@ -2498,6 +2500,39 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("DocumentDmsShareId", value.DocumentDmsShareId);
                             parameters.Add("IsDeleted", 1);
                             var query = "Update DocumentDmsShare SET IsDeleted=@IsDeleted WHERE DocumentDmsShareId= @DocumentDmsShareId";
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            transaction.Commit();
+                            return value;
+                        }
+                        catch (Exception exp)
+                        {
+                            transaction.Rollback();
+                            throw new Exception(exp.Message, exp);
+                        }
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<FileProfileTypeModel> UpdateProfileTypeInfo(FileProfileTypeModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    connection.Open();
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            var parameters = new DynamicParameters();
+                            parameters.Add("ProfileTypeInfo", value.ProfileTypeInfo);
+                            parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
+                            var query = "Update FileProfileType SET ProfileTypeInfo=@ProfileTypeInfo WHERE FileProfileTypeId= @FileProfileTypeId";
                             await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
                             transaction.Commit();
                             return value;

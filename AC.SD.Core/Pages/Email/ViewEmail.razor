@@ -440,6 +440,12 @@
                                                                         <i class="fa fa-arrow-left"></i> Back
                                                                     </button>
                                                                 }
+                                                                else if(item.ActivityType == "EmailFileProfileType")
+                                                                {
+                                                                    <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                        <i class="fa fa-arrow-left"></i> Back
+                                                                    </button>
+                                                                }
                                                                 else
                                                                 {
                                                                     <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
@@ -1527,7 +1533,7 @@
                 {
                     SubjectName = subjectName,
                     Comment = _selectedDescriptionItems.Description,
-                    ActivityType = "FileProfileType",
+                    ActivityType = "EmailFileProfileType",
                     SessionId = _activityEmailSessionId,
                     BackURL = MainSessionId.ToString(),
                     DocumentSessionId = _activityEmailSessionId,

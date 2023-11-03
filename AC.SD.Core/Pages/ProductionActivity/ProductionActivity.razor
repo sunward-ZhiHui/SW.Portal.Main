@@ -18,8 +18,8 @@
 
             <div>
                 <div class="views-accordion">
-                    <EditForm EditContext="this._editContext" Context="EditFormContext" >
-
+                    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="@addNew" >
+                        <DataAnnotationsValidator />
                         <DxFormLayout CssClass="w-100">
                             <DxFormLayoutItem Caption="Company" ColSpanMd="6">
                              
@@ -32,22 +32,25 @@
                                             @bind-Value="Data.CompanyID"                                         
                                             ShowValidationIcon="true">
                                 </DxComboBox>
+                                <ValidationMessage For="@(() => Data.CompanyID)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
                                 <DxComboBox Data="@_ponumberActivities"
                                             NullText="Select ProdOrderNo..."
-                                           
+                                            SelectedItemChanged="@((NavprodOrderLine prod) => SelectedItemprod(prod.RePlanRefNo))"
                                             FilteringMode="DataGridFilteringMode.Contains"
-                                            TextFieldName="prodOrderNo"
+                                             TextFieldName="prodOrderNo"
                                             ValueFieldName="RePlanRefNo"
                                              @bind-Value="Data.ProdOrderNo"
                                             ShowValidationIcon="true">
                                 </DxComboBox>
+                                <ValidationMessage For="@(() => Data.ProdOrderNo)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Location" ColSpanMd="6">
                                 <DxComboBox Data="@_productionActivities"
-                                            NullText="Select Loctaion..."
-                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            NullText="Select Loctaion..."                                         
+                                           SelectedItemChanged="@((ProductionActivityApp loc) => SelectedItemloc(loc))"
+                                            FilteringMode="DataGridFilteringMode.Contains"                                          
                                             TextFieldName="DeropdownName"
                                             ValueFieldName="ICTMasterID"
                                             @bind-Value="Data.LocationID"
@@ -83,7 +86,7 @@
                                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                                     DisplayMode="MenuDisplayMode.Desktop">
                                                 <Items>
-                                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
+                                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addvalidate"   />
                                                    
                                                 </Items>
                                             </DxMenu>
@@ -124,8 +127,8 @@
                                     <DxGridDataColumn FieldName="Result" Caption="Result" MinWidth="180" />
                                     <DxGridDataColumn FieldName="Category" Caption="Category" MinWidth="180" />
                                     <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180" />
-                                    <DxGridDataColumn FieldName="" Caption="Name" MinWidth="180" />
-                                    <DxGridDataColumn FieldName="" Caption="Actions" MinWidth="180" />
+                                   @* <DxGridDataColumn FieldName="" Caption="Name" MinWidth="180" />
+                                    <DxGridDataColumn FieldName="" Caption="Actions" MinWidth="180" />*@
                                     <DxGridDataColumn FieldName="ModifiedBy" Caption="ModifiedBy" MinWidth="180" />
                                     <DxGridDataColumn FieldName="ModifiedDate" Caption="ModifiedDate" MinWidth="180" />
                                 </Columns>
@@ -152,18 +155,21 @@
          Closed="EulaPopupClosed"
          Width="800px">
     <BodyContentTemplate>
-        <AddPopupApp  ParentData="@Data"></AddPopupApp>
+        <AddPopupApp ParentData="@Data" @ref="RefToDoLeftNotes"></AddPopupApp>
                                 
     </BodyContentTemplate>
     
 </DxPopup>
 
 @code {
-
+    long? CompanyID;
+    string? NAVProdOrderno;
+    long? LocationID;
     EditContext _editContext;
     private List<ViewPlants> _plantItems;
     private List<ProductionActivityApp> _productionActivities;
     private List<NavprodOrderLine> _ponumberActivities;
+    //private List<NavprodOrderLine> _ponumberActivities;
     //ProductionActivityApp Data = new ProductionActivityApp();
     ProductionActivityModel Data = new ProductionActivityModel();
     ProductionActivityAppLine DataLine = new ProductionActivityAppLine();
@@ -172,32 +178,37 @@
     private List<ProductionActivityAppLine> _AppLines;
     private List<ApplicationMasterChildModel> _ProcessLines;
     bool AddPopup = false;
-    private ProductionActivity? RefToDoLeftNotes { get; set; }
-  //  private AddPopupApp? RefToDoLeftNotes { get; set; }
+    private AddPopupApp? RefToDoLeftNotes { get; set; }
+    //  private AddPopupApp? RefToDoLeftNotes { get; set; }
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         //_productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery());
-        _ProcessLines = await Mediator.Send(new GetAllApplicationMasterChildProQuery());
-        var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery());
-        _AppLines = Lines;
+        _ProcessLines = await Mediator.Send(new GetAllApplicationMasterChildProQuery());    
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
-    async void UpdateDataAsync()
-    {
-        var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery());
-        _AppLines = Lines;
-    }
+
     void addDelete()
     {
 
     }
+    async void SelectedItemloc(ProductionActivityApp loc)
+    {
 
-    async void SelectedItemChanged(long? companyid)
+        //  var locationid = await Mediator.Send(new GetAllProductionActivitylocQuery(location));
+        if (loc.LocationID != null )
+        {
+            LocationID = loc.LocationID;
+        }
+        StateHasChanged();
+    }
+
+    async void SelectedItemChanged(long? companyid )
     {
         if (companyid > 0)
         {
+            CompanyID = companyid;
             _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(companyid));
             StateHasChanged();
             try
@@ -205,8 +216,13 @@
                 if (_productionActivities.Count > 0)
                 {
                     _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(companyid));
+                    //var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery(CompanyID, NAVProdOrderLineId, ProductionActivityAppID));
+
+                    //_AppLines = Lines;
                     StateHasChanged();
                 }
+
+
             }
             catch (Exception exp)
             {
@@ -216,7 +232,27 @@
 
         }
     }
-    
+
+    async void SelectedItemprod(string? NAVProdOrder)
+    {
+
+        NAVProdOrderno = NAVProdOrder;
+        if(LocationID >0)
+        {
+            var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery(CompanyID, NAVProdOrderno, LocationID));
+            _AppLines = Lines;
+            StateHasChanged();
+        }else
+        {
+            var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery(CompanyID, NAVProdOrderno, 0));
+            _AppLines = Lines;
+            StateHasChanged();
+        }
+
+
+
+    }
+
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -229,7 +265,7 @@
     {
 
 
-       
+
     }
 
 
@@ -243,13 +279,29 @@
         AddPopup = false;
 
     }
-    void addNew()
+    async  Task addNew()
     {
 
         // AppLine.StartEditNewRowAsync();
-     
-         AddPopup = true;
 
+        AddPopup = true;
+        // RefToDoLeftNotes.UpdateDataAsync();
+
+    }
+    private async Task addvalidate()
+    {
+        if (CompanyID != null && NAVProdOrderno != null)
+        {
+            await addNew();
+        }
+        else if(_editContext.Validate())
+        {
+            // draftId = 0;
+            await this.addNew();
+
+        }
+        
+      
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {

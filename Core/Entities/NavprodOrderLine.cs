@@ -14,6 +14,7 @@ namespace Core.Entities
         [Key]
         public long NAVProdOrderLineId { get; set; }
         public string Status { get; set; }
+       
         public string ProdOrderNo { get; set; }
         public int OrderLineNo { get; set; }
         public string ItemNo { get; set; }

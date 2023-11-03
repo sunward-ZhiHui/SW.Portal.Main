@@ -112,7 +112,7 @@ namespace Infrastructure.Repository.Query
 
                                     var parameter = new DynamicParameters();
                                     parameter.Add("Appid", Appid);
-                                   
+                                    parameter.Add("ProdActivityResultID", PPAlist.ProdActivityResultID);
                                     parameter.Add("ManufacturingProcessChildID", PPAlist.ManufacturingProcessChildID);
                                     parameter.Add("ProdActivityCategoryChildID", PPAlist.ProdActivityCategoryChildID);
                                     parameter.Add("ProdActivityActionChildD", PPAlist.ProdActivityActionChildD);
@@ -123,8 +123,8 @@ namespace Infrastructure.Repository.Query
                                     parameter.Add("applineSessionId", PPAlist.applineSessionId);
                                     parameter.Add("applineStatusCodeID", PPAlist.applineStatusCodeID);
 
-                                    var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID) " +
-                                                                                     "VALUES (@Appid,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID)";
+                                    var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ProdActivityResultID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID) " +
+                                                                                     "VALUES (@Appid,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID)";
 
                                     var rowsAffected = await connection.ExecuteAsync(applinequery, parameter, transaction);
 
@@ -158,6 +158,7 @@ namespace Infrastructure.Repository.Query
                                     var parameter = new DynamicParameters();
                                   
                                     parameter.Add("ProductionActivityAppID", PPAlist.ProductionActivityAppID);
+                                    parameter.Add("ProdActivityResultID", PPAlist.ProdActivityResultID);
                                     parameter.Add("ManufacturingProcessChildID", PPAlist.ManufacturingProcessChildID);
                                     parameter.Add("ProdActivityCategoryChildID", PPAlist.ProdActivityCategoryChildID);
                                     parameter.Add("ProdActivityActionChildD", PPAlist.ProdActivityActionChildD);
@@ -168,8 +169,8 @@ namespace Infrastructure.Repository.Query
                                     parameter.Add("applineSessionId", PPAlist.applineSessionId);
                                     parameter.Add("applineStatusCodeID", PPAlist.applineStatusCodeID);
 
-                                    var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID) " +
-                                                                                     "VALUES (@ProductionActivityAppID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID)";
+                                    var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ProdActivityResultID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID) " +
+                                                                                     "VALUES (@ProductionActivityAppID,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID)";
 
                                     var rowsAffected = await connection.ExecuteAsync(applinequery, parameter, transaction);
 

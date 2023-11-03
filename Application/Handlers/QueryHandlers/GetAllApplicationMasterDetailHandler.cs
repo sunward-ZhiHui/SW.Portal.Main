@@ -37,4 +37,19 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+
+    public class GetAllApplicationMasterresultHandler : IRequestHandler<GetAllApplicationMasterresultQuery, List<ApplicationMasterDetail>>
+    {
+        private readonly IApplicationMasterDetailQueryRepository _productionactivityQueryRepository;
+        public GetAllApplicationMasterresultHandler(IApplicationMasterDetailQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<List<ApplicationMasterDetail>> Handle(GetAllApplicationMasterresultQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ApplicationMasterDetail>)await _productionactivityQueryRepository.GetAllAsync();
+        }
+
+
+    }
 }

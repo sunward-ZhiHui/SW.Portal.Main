@@ -46,6 +46,8 @@ namespace Core.Entities
         public string? Category { get; set; }
         [NotMapped]
         public string? Action { get; set; }
-      
+        [NotMapped]
+        public DateTime? AddedDate { get; set; }
+
     }
 }

@@ -25,4 +25,9 @@ namespace Application.Queries
         public string? SearchString { get; private set; }
 
     }
+    public class GetAllApplicationMasterresultQuery : IRequest<List<ApplicationMasterDetail>>
+    {
+        public string? SearchString { get; private set; }
+
+    }
 }

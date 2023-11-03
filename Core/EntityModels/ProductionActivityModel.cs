@@ -13,9 +13,9 @@ namespace Core.EntityModels
     {
         [Key]
         public long ProductionActivityAppID { get; set; }
-
+        [Required(ErrorMessage = "Company is Required")]
         public long? CompanyID { get; set; }
-
+        [Required(ErrorMessage = "ProdorderNo is Required")]
         public string? ProdOrderNo { get; set; }
         public string? Comment { get; set; }
         public string? TopicID { get; set; }
@@ -32,12 +32,13 @@ namespace Core.EntityModels
         [NotMapped]
         public long? NavprodOrderLineId { get; set; }
         [NotMapped]
+      
         public string? RePlanRefNo { get; set; }
         [NotMapped]
         public string? BatchNo { get; set; }
         [NotMapped]
         public string? Description { get; set; }
-        public DateTime AddedDate { get; set; }
+        public DateTime? AddedDate { get; set; }
         public long? ModifiedByUserID { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public Guid? SessionId { get; set; }
@@ -51,14 +52,17 @@ namespace Core.EntityModels
         public long? ProdActivityCategoryID { get; set; }
         public long? ManufacturingProcessID { get; set; }
         public bool IsTemplateUpload { get; set; }
-
+       
         public long? ProductActivityCaseLineID { get; set; }
+        [Required(ErrorMessage = "ProdorderNo is Required")]
         public string AppLineNavprodOrderLineID { get; set; }
         public string PAApplineComment { get; set; }
         public bool QaCheck { get; set; }
         public bool IsOthersOptions { get; set; }
         public long? ProdActivityResultID { get; set; }
+        [Required(ErrorMessage = "Process is Required")]
         public long? ManufacturingProcessChildID { get; set; }
+        [Required(ErrorMessage = "Category is Required")]
         public long? ProdActivityCategoryChildID { get; set; }
         public long? ProdActivityActionChildD { get; set; }
         public string PAApplineTopicID { get; set; }
@@ -71,10 +75,12 @@ namespace Core.EntityModels
         public string CommentImage { get; set; }
         public string CommentImageType { get; set; }
         [NotMapped]
+       
         public string? Process { get; set; }
         [NotMapped]
         public string? Result { get; set; }
         [NotMapped]
+        
         public string? Category { get; set; }
         [NotMapped]
         public string? Action { get; set; }

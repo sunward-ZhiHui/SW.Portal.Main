@@ -4,11 +4,14 @@ using Dapper;
 using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
 using Microsoft.Extensions.Configuration;
+using NAV;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Infrastructure.Repository.Query
 {
@@ -20,22 +23,71 @@ namespace Infrastructure.Repository.Query
 
         }
 
-        public async Task<IReadOnlyList<ProductionActivityAppLine>> GetAllAsync()
+        public async Task<IReadOnlyList<ProductionActivityAppLine>> GetAllAsync(long? companyid, string? prododerno, long? locationid)
         {
             try
             {
-             
-                var query = "select  AMC.Value as Process,AMD.Value as Result,AMC1.Value as Category,AMC2.Value AS Action from ProductionActivityAppLine as PAAL inner Join ApplicationMasterChild as AMC ON AMC.ApplicationMasterChildID = PAAL.ManufacturingProcessChildID \r\ninner Join ApplicationMasterChild as AMC1 ON AMC1.ApplicationMasterChildID = PAAL.ProdActivityCategoryChildID inner Join ApplicationMasterChild as AMC2 ON AMC2.ApplicationMasterChildID = PAAL.ProdActivityActionChildD inner join ApplicationMasterDetail as AMD ON AMD.ApplicationMasterDetailID = PAAL.ProdActivityResultID";
+                var parameters = new DynamicParameters();
+                parameters.Add("CompanyID", companyid);
+                parameters.Add("ProdOrderNo",prododerno);
+                parameters.Add("LocationID", locationid);
+                var query = @"select AMC.Value as Process,AMD.Value as Result,AMC1.Value as Category,AMC2.Value AS Action from ProductionActivityAppLine t1 
+ JOIN ProductionActivityApp t2 ON t1.ProductionActivityAppId=t2.ProductionActivityAppId
+left Join ApplicationMasterChild as AMC ON AMC.ApplicationMasterChildID = t1.ManufacturingProcessChildID 
+left Join ApplicationMasterChild as AMC1 ON AMC1.ApplicationMasterChildID = t1.ProdActivityCategoryChildID 
+left Join ApplicationMasterChild as AMC2 ON AMC2.ApplicationMasterChildID = t1.ProdActivityActionChildD 
+left join ApplicationMasterDetail as AMD ON AMD.ApplicationMasterDetailID = t1.ProdActivityResultID
+WHERE (t2.CompanyId=@CompanyID AND t2.ProdOrderNo= @ProdOrderNo or t2.LocationID = @LocationID)";
 
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<ProductionActivityAppLine>(query)).ToList();
+                    return (await connection.QueryAsync<ProductionActivityAppLine>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
             {
                 throw new Exception(exp.Message, exp);
             }
+
+        }
+
+        public async Task<IReadOnlyList<ProductionActivityApp>> GetAlllocAsync(long? location)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("LoctionId",location);
+                var query = @"select * from ProductionActivityApp  where LocationID =@LoctionId";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ProductionActivityApp>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<IReadOnlyList<ProductionActivityApp>> GetAllprodAsync(string? NAVProdOrder)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ProdOrderNo", NAVProdOrder);
+                var query = @"select * from ProductionActivityApp  where ProdOrderNo =@ProdOrderNo";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ProductionActivityApp>(query,parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
         }
 
         public async Task<long> Insert(ProductionActivityAppLine PPALinelist)

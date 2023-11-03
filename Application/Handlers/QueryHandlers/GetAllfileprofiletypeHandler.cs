@@ -645,5 +645,18 @@ namespace Application.Handlers.QueryHandlers
             }
 
         }
+        public class UpdateProfileTypeInfoHandler : IRequestHandler<UpdateProfileTypeInfo, FileProfileTypeModel>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public UpdateProfileTypeInfoHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<FileProfileTypeModel> Handle(UpdateProfileTypeInfo request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.UpdateProfileTypeInfo(request.FileProfileTypeModel);
+            }
+
+        }
     }
 }

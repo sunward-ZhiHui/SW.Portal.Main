@@ -20,6 +20,23 @@ namespace Infrastructure.Repository.Query
         {
 
         }
+
+        public async Task<IReadOnlyList<ApplicationMasterDetail>> GetAllAsync()
+        {
+            try
+            {
+                var query = "select * from ApplicationMasterDetail";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ApplicationMasterDetail>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
         public async Task<IReadOnlyList<View_ApplicationMasterDetail>> GetApplicationMasterByCode(long? Id)
         {
             try

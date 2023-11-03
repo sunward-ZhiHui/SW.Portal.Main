@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,5 +22,7 @@ namespace Core.Entities
         public DateTime? ModifiedDate { get; set; }
         public long? ProfileId { get; set; }
         public long? FileProfileTypeId { get; set; }
+        [NotMapped]
+        public string Result { get; set;}
     }
 }

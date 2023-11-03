@@ -1819,7 +1819,7 @@
         // (width, height) = ($"{args.Size.Width}px", $"{args.Size.Height}px");
         (width) = ($"{args.Size.Width}px");
         MyHeight =  $"{args.Size.Height}px";
-        string setHeight = $"{args.Size.Height - 290}";
+        string setHeight = $"{args.Size.Height - 320}";
         string selector = ".editor-box-height";
 
         //await JSRuntime.InvokeVoidAsync("adjustHeight", setHeight);
@@ -3299,7 +3299,7 @@
     private void OnWindowDragCompleted()
     {
         // Handle drag completed event if needed
-        msgrichEdit.NewDocumentAsync();
+        //msgrichEdit.NewDocumentAsync();
     }
 
     async Task onRichTxtChangeFontsize()

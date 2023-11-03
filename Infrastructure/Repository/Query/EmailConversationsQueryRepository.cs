@@ -978,7 +978,9 @@ namespace Infrastructure.Repository.Query
                                 INNER JOIN Employee EMP ON EMP.UserID = AU.UserID      
                                 LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID 
                                 LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID 
-                                WHERE FC.ID = @TopicId AND FC.ReplyId = 0 ORDER BY FC.AddedDate DESC";
+                                WHERE FC.ID = @TopicId AND FC.ReplyId = 0 
+                                AND ((AET.ActivityEmailTopicID IS NOT NULL AND AET.ActivityType != 'EmailFileProfileType') OR AET.ActivityEmailTopicID IS NULL)
+                                ORDER BY FC.AddedDate DESC";
 
 
                 var parameters = new DynamicParameters();

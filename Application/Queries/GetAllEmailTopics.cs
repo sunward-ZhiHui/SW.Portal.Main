@@ -30,7 +30,15 @@ namespace Application.Queries
             this.SessionId = SessionId;
         }
     }
-  
+    public class GetActivityEmailDocList : PagedRequest, IRequest<List<ActivityEmailTopics>>
+    {
+        public Guid SessionId { get; private set; }
+        public GetActivityEmailDocList(Guid SessionId)
+        {
+            this.SessionId = SessionId;
+        }
+    }
+
     public class GetByActivityEmailSession : PagedRequest, IRequest<List<ActivityEmailTopics>>
     {
         public Guid EmailTopicSessionId { get; private set; }

@@ -526,7 +526,7 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(CreateEmailDocFileProfileType request, CancellationToken cancellationToken)
         {
-            var result = await _documentsQueryRepository.GetByIdAsync(request.DocumentId);
+            var result = await _documentsQueryRepository.GetByDocIdAsync(request.DocumentId);
 
             var docResult = new Documents()
             {
@@ -684,9 +684,21 @@ namespace CMS.Application.Handlers.QueryHandlers
         {
             return (List<ActivityEmailTopics>)await _emailTopicsQueryRepository.GetActivityEmailListBySession(request.SessionId);
         }
-    }   
+    }
+    public class GetActivityEmailDocListHandler : IRequestHandler<GetActivityEmailDocList, List<ActivityEmailTopics>>
+    {
 
-
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetActivityEmailDocListHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<ActivityEmailTopics>> Handle(GetActivityEmailDocList request, CancellationToken cancellationToken)
+        {
+            return (List<ActivityEmailTopics>)await _emailTopicsQueryRepository.GetActivityEmailDocListBySession(request.SessionId);
+        }
+    }
+    
     public class GetCreateEmailDocumentsHandler : IRequestHandler<GetAllCreateEmailDocumentLst, List<Documents>>
     {
         private readonly IEmailTopicsQueryRepository _createEmailDocumentsQueryRepository;

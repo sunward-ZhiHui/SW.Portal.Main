@@ -86,6 +86,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<Documents> GetByDocIdAsync(long? DocumentId)
+        {
+            try
+            {
+                var query = "SELECT * FROM Documents WHERE DocumentId = @DocumentId";
+                var parameters = new DynamicParameters();
+                parameters.Add("DocumentId", DocumentId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<Documents>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<long> Delete(long? DocumentId)
         {
             try

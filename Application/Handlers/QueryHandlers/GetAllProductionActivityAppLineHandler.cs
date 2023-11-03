@@ -20,7 +20,21 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<ProductionActivityAppLine>> Handle(GetAllProductionActivityAppLineQuery request, CancellationToken cancellationToken)
         {
-            return (List<ProductionActivityAppLine>)await _productionactivityQueryRepository.GetAllAsync();
+            return (List<ProductionActivityAppLine>)await _productionactivityQueryRepository.GetAllAsync(request.companyID,request.prodorderNo,request.LocationID);
+        }
+
+    }
+   
+    public class GetAllProductionActivitylocHandler : IRequestHandler<GetAllProductionActivitylocQuery, List<ProductionActivityApp>>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public GetAllProductionActivitylocHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<List<ProductionActivityApp>> Handle(GetAllProductionActivitylocQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ProductionActivityApp>)await _productionactivityQueryRepository.GetAlllocAsync(request.ProductionActivityAppID);
         }
 
     }

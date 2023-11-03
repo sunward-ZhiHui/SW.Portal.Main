@@ -10,8 +10,11 @@ namespace Core.Repositories.Query
 {
     public interface IProductionActivityQueryRepository : IQueryRepository<ProductionActivityAppLine>
     {
-        Task<IReadOnlyList<ProductionActivityAppLine>> GetAllAsync();
+        Task<IReadOnlyList<ProductionActivityAppLine>> GetAllAsync(long? companyid, string? prododerno, long? locationid);
         Task<long> Insert(ProductionActivityAppLine PPALinelist);
+        //Task<IReadOnlyList<ProductionActivityApp>> GetAllprodAsync(string? NAVProdOrder);
+        
+        Task<IReadOnlyList<ProductionActivityApp>>GetAlllocAsync(long? location);
 
     }
 }

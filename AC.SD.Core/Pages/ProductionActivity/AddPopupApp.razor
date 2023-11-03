@@ -21,7 +21,7 @@
                                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                                     DisplayMode="MenuDisplayMode.Desktop">
                                                 <Items>
-                                   <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@HandleValidSubmit" />
+                            <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitFormExternally" />
                             
                                                 </Items>
                                             </DxMenu>
@@ -31,9 +31,9 @@
                             </div>
  </div>
 
-<EditForm EditContext="this._editContext" Context="EditFormContext">
+<EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
 
-
+    <DataAnnotationsValidator />
     <DxFormLayout CssClass="w-100">
         <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
             <DxComboBox Data="@_ProcessLines"
@@ -44,7 +44,7 @@
             @bind-Value="Data.ProdActivityCategoryChildID"
                         ShowValidationIcon="true">
             </DxComboBox>
-            <ValidationMessage For="@(() => Data.Category)" />
+            <ValidationMessage For="@(() => Data.ProdActivityCategoryChildID)" />
         </DxFormLayoutItem>
 
         <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
@@ -56,6 +56,7 @@
             @bind-Value="Data.AppLineNavprodOrderLineID"
                         ShowValidationIcon="true">
             </DxComboBox>
+            <ValidationMessage For="@(() => Data.AppLineNavprodOrderLineID)" />
         </DxFormLayoutItem>
 
 
@@ -79,6 +80,19 @@
             @bind-Value="Data.ManufacturingProcessChildID"
                         ShowValidationIcon="true">
             </DxComboBox>
+            <ValidationMessage For="@(() => Data.ManufacturingProcessChildID)" />
+        </DxFormLayoutItem>
+
+        
+        <DxFormLayoutItem Caption="Result:" ColSpanMd="6">
+            <DxComboBox Data="@_Result"
+                        NullText="Select Result Process..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterDetailId"
+                        @bind-Value="Data.ProdActivityResultID"
+                        ShowValidationIcon="true">
+            </DxComboBox>
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Comment:" ColSpanMd="6">
             <DxTextBox @bind-Text="Data.PAApplineComment" />
@@ -92,6 +106,7 @@
     private List<ViewPlants> _plantItems;
     private List<ProductionActivityApp> _productionActivities;
     private List<NavprodOrderLine> _ponumberActivities;
+    private List<ApplicationMasterDetail> _Result;
     //ProductionActivityApp Data = new ProductionActivityApp();
     ProductionActivityModel Data = new ProductionActivityModel();
     ProductionActivityAppLine DataLine = new ProductionActivityAppLine();
@@ -109,45 +124,49 @@
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         //_productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery());
         _ProcessLines = await Mediator.Send(new GetAllApplicationMasterChildProQuery());
-        var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery());
-        _AppLines = Lines;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-      
         _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(ParentData.CompanyID));
+        _Result = await Mediator.Send(new GetAllApplicationMasterresultQuery());
     }
     void addDelete()
     {
 
     }
-    async Task HandleValidSubmit()
+    public async  void UpdateDataAsync()
     {
 
-        var request = new CreateProductionActivityAppCommand
-            {
-                CompanyID = ParentData.CompanyID,
-                ProdOrderNo = ParentData.ProdOrderNo,
-                LocationID = ParentData.LocationID,
-                AddedDate = DateTime.Now,
-                SessionId = Guid.NewGuid(),
-                StatusCodeID = 1,
-                AddedByUserID = applicationUser.UserID,
-                ManufacturingProcessChildID = Data.ManufacturingProcessChildID,
-                ProdActivityCategoryChildID = Data.ProdActivityActionChildD,
-                ProdActivityActionChildD = Data.ProdActivityActionChildD,
-                PAApplineComment = Data.PAApplineComment,
-                AppLineNavprodOrderLineID = Data.AppLineNavprodOrderLineID,
-                applineAddedByUserID = applicationUser.UserID,
-                applineAddedDate = DateTime.Now,
-                applineSessionId = Guid.NewGuid(),
-                applineStatusCodeID=1
-
-            };
-
-        var result = await Mediator.Send(request);
-        AddPopup = false;
-        toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+    }
+    async Task HandleValidSubmit()
+    {
        
-       await JSRuntime.InvokeAsync<string>("ReloadUrl");
+            var request = new CreateProductionActivityAppCommand
+                {
+                    CompanyID = ParentData.CompanyID,
+                    ProdOrderNo = ParentData.ProdOrderNo,
+                    LocationID = ParentData.LocationID,
+                    AddedDate = DateTime.Now,
+                    SessionId = Guid.NewGuid(),
+                    StatusCodeID = 1,
+                    AddedByUserID = applicationUser.UserID,
+                    ManufacturingProcessChildID = Data.ManufacturingProcessChildID,
+                    ProdActivityCategoryChildID = Data.ProdActivityActionChildD,
+                    ProdActivityActionChildD = Data.ProdActivityActionChildD,
+                    ProdActivityResultID = Data.ProdActivityResultID,
+                    PAApplineComment = Data.PAApplineComment,
+                    AppLineNavprodOrderLineID = Data.AppLineNavprodOrderLineID,
+                    applineAddedByUserID = applicationUser.UserID,
+                    applineAddedDate = DateTime.Now,
+                    applineSessionId = Guid.NewGuid(),
+                    applineStatusCodeID = 1
+
+                };
+
+            var result = await Mediator.Send(request);
+            AddPopup = false;
+            toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+
+            await JSRuntime.InvokeAsync<string>("ReloadUrl");
+        
     }
     private async Task SubmitFormExternally()
     {
@@ -157,19 +176,6 @@
         }
     }
   
-
-    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
-    {
-        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
-        {
-            e.CssClass = "alt-item";
-        }
-
-    }
-   
-   
-  
-    
 
     
 }

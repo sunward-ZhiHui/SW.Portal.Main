@@ -14,6 +14,7 @@ namespace Core.Entities.Views
         [Key]
         public long PlantID { get; set; }
         public int Index { get; set; }
+       
         public long CompanyID { get; set; }
         [Required(ErrorMessage = "Description is Required")]
         //[DescriptionValidaion(ErrorMessage = "Description Already Exits")]

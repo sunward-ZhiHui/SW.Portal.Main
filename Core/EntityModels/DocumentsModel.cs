@@ -39,7 +39,7 @@ namespace Core.EntityModels
         public bool HasAccess { get; set; }
         public long? CompanyCalendarLineId { get; set; }
         public bool? IsTemp { get; set; }
-
+        public bool? Checked { get; set; } = false;
         public int? ReferenceNumber { get; set; }
         public string Description { get; set; }
         public List<DocumentsModel> Children { get; set; }

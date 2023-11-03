@@ -72,7 +72,7 @@
     <div class="cw-480 ch-220" style="margin-top:10px;">
         <DxFormLayout CssClass="w-100">
             <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex" RenderMode="TabsRenderMode.OnDemand" TabClick="OnTabClick">
-                <DxFormLayoutTabPage Caption="File Profile Type" Visible="isEditProfileType">
+                <DxFormLayoutTabPage Caption="Sunward Libraries" Visible="isEditProfileType">
                     <AddOrEditFileProfileType @ref="refAddOrEditFileProfileType" SessionId="@SessionId" Type="@Type"></AddOrEditFileProfileType>
                 </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Security Access" Visible=@IsGrantAdminPermission>

@@ -1620,12 +1620,12 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    value.FileProfileTypeIds = new List<long?>();
+                    ///value.FileProfileTypeIds = new List<long?>();
                     value.FileProfileTypeIds.Add(value.FileProfileTypeId);
-                    if(value.SelectFileProfileTypeId>0)
-                    {
-                        value.FileProfileTypeIds.Add(value.SelectFileProfileTypeId);
-                    }
+                    //if(value.SelectFileProfileTypeId>0)
+                    //{
+                     //   value.FileProfileTypeIds.Add(value.SelectFileProfileTypeId);
+                   // }
                     value.FileProfileTypeIds = value.FileProfileTypeIds.Distinct().ToList();
                    var userExitsRoles = await GetDocumentUserRoleByDocEmptyAsync(value.FileProfileTypeIds);
                     var userGroupUsers = await GetUserGroupUser();

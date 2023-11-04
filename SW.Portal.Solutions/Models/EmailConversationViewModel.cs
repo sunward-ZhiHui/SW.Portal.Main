@@ -24,6 +24,9 @@ namespace SW.Portal.Solutions.Models
         public DateTime addedDate { get; set; }
         public long? addedByUserID { get; set; }
         public long userId { get; set; }
+        public int? addedDateYear { get; set; }
+        public string? addedDateDay { get; set; }
+        public string? addedTime { get; set; }
     }
 
 
@@ -45,5 +48,8 @@ namespace SW.Portal.Solutions.Models
         public DateTime? addedDate { get; set; }
         public Guid? sessionId { get; set; }
         public bool? isAllowParticipants { get; set; }
+        public int? addedDateYear { get; set; }
+        public string? addedDateDay { get; set; }
+        public string? addedTime { get; set; }
     }
 }

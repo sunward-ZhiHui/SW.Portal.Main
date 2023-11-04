@@ -23,6 +23,7 @@ using System.Text.RegularExpressions;
 using net.tipstrade.FCMNet.Responses;
 using System.Configuration;
 using DevExpress.XtraRichEdit.Import.Html;
+using DevExpress.DataProcessing.InMemoryDataProcessor;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -269,6 +270,9 @@ namespace SW.Portal.Solutions.Controllers
                     addedDate = rconversation.AddedDate,
                     sessionId = rconversation.SessionId,
                     isAllowParticipants = rconversation.IsAllowParticipants,
+                    addedDateYear = rconversation.AddedDate.Year,
+                    addedDateDay = rconversation.AddedDate.ToString("dd-MMM"),
+                    addedTime = rconversation.AddedDate.ToString("hh:mm tt"),
 
 
                 }).ToList(),
@@ -278,6 +282,9 @@ namespace SW.Portal.Solutions.Controllers
                 onBehalf = conversations.OnBehalf,
                 onBehalfName = conversations.OnBehalfName,
                 addedDate = conversations.AddedDate,
+                addedDateYear = conversations.AddedDate.Year,
+                addedDateDay = conversations.AddedDate.ToString("dd-MMM"),
+                addedTime = conversations.AddedDate.ToString("hh:mm tt"),
                 addedByUserID = conversations.AddedByUserID,
                 userId = UserId
             }).ToList();

@@ -12,23 +12,43 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/MyDay"
 
+
 <div class="">
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveTabIndex">
+            <div>
+                <DxFormLayoutTabPage Caption="ToDo">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none">
+                        <MyDayNew></MyDayNew>
+                    </div>
+                </DxFormLayoutTabPage>
+
+                <DxFormLayoutTabPage Caption="Email">
+                    <div style="padding: 10px;border: 1px solid #d5d4d4; border-top: none">
+                        <EmailDueDate></EmailDueDate>
+                    </div>
+                </DxFormLayoutTabPage>
+
+            </div>
+        </DxFormLayoutTabPages>
+    </DxFormLayout>
+</div>
+@*<div class="">
     <div class="main-container">
         <div class="content-container row">
             <div class="@leftTodoDisplay" style="@styleTreeDisplay overflow-x: hidden;">
-                <div class="mini-menu-bar-top">
-                    @*<MyDueTodo NotesId="ReloadGrid"></MyDueTodo>*@
+                <div class="mini-menu-bar-top">                    
                     <MyDayNew></MyDayNew>
                 </div>
             </div>
             <div class="@RighttodoDisplay">
-                <EmailDueDate></EmailDueDate>
-                @*<MyRemainderTodo @ref="RefMyRemainderTodo"></MyRemainderTodo>*@
+                <EmailDueDate></EmailDueDate>                
             </div>
         </div>
     </div>
-</div>
+</div>*@
 @code {
+    int ActiveTabIndex { get; set; } = 0;
     private MyRemainderTodo? RefMyRemainderTodo { get; set; }
     public ApplicationUser? applicationUser { get; private set; }
     private List<ToDoNotesHistory>? _ToDoNotesHistory;

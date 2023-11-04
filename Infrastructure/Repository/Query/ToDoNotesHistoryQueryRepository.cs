@@ -85,7 +85,7 @@ namespace Infrastructure.Repository.Query
                                 INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
                                 INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId
                                 INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId
-                                INNER JOIN ApplicationUser AP ON AP.UserID = TNH.Users
+                                LEFT JOIN ApplicationUser AP ON AP.UserID = TNH.Users
                                 WHERE TNH.AddedByUserID = @UserId
                                     AND TNH.TopicId IS NOT NULL
                                     AND TNH.TopicId > 0

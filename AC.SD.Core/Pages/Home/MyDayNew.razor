@@ -38,7 +38,7 @@
         PagerNavigationMode="PagerNavigationMode.InputBox"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        style="height: calc(100vh - 250px);"
+        style="height: calc(100vh - 285px);"
         CssClass="ch-360"
         PageSizeSelectorVisible="true"
         PageSizeSelectorAllRowsItemVisible="true"
@@ -302,7 +302,9 @@
     }
     public  async Task   UpdateDataAsync()
     {
+        await jsRuntime.InvokeAsync<string>("showLoading");
         _ToDoNotesHistory = await Mediator.Send(new GetMyToDoRemainderDate(applicationUser.UserID));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

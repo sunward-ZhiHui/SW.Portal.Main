@@ -2097,6 +2097,28 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionID", sessionId, DbType.Guid);
 
+                var query = @"SELECT * from ActivityEmailTopics WHERE SessionId = @SessionID";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ActivityEmailTopics>(query, parameters)).ToList();
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<List<ActivityEmailTopics>> GetActivityEmailDocListBySession(Guid sessionId)
+        {
+            try
+            {
+
+                var parameters = new DynamicParameters();
+                parameters.Add("SessionID", sessionId, DbType.Guid);
+
                 var query = @"SELECT * from ActivityEmailTopics WHERE SessionId = @SessionID AND ActivityType='FileProfileType'";
 
                 using (var connection = CreateConnection())

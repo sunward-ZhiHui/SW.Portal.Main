@@ -13,6 +13,7 @@
 
 <DxGrid @ref="EmailDueDateGrid" SearchText="@GridSearchText"
         Data="_emailTopicDueDate"
+        ShowGroupPanel="true"
         VirtualScrollingEnabled="true"
         FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
         KeyFieldName="ID"
@@ -24,7 +25,7 @@
         PageSize="20"
         ValidationEnabled="true"
         AutoExpandAllGroupRows="true"
-        CssClass="w-100" style="height: calc(100vh - 200px);"
+        CssClass="w-100" style="height: calc(100vh - 232px);"
         RowClick="OnEmailDueRowClick"
         ColumnResizeMode="GridColumnResizeMode.NextColumn"
         AllowSelectRowByClick="true">

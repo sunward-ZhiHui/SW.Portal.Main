@@ -127,6 +127,8 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("LoginID", LoginID);
                 var password = EncryptDecryptPassword.Encrypt(Password);
+                //var spass = "5KfU/7xzDrzTexTebrZnaqUXqS3PLIh/8qKgeapts7g=";
+                //var Decryptpassword = EncryptDecryptPassword.Decrypt(spass);
                 parameters.Add("LoginPassword", password);
 
                 using (var connection = CreateConnection())

@@ -1478,6 +1478,38 @@
     }
     async Task onFileProfileTypeEmail()
     {
+
+        var itemlst = await Mediator.Send(new GetActivityEmailList(_selectedItems.SessionID.Value));
+        if(itemlst.Count > 0)
+        {
+            if (itemlst[0].EmailTopicSessionId != null)
+            {
+                var plist = await Mediator.Send(new GetParticipantbysessionidList(itemlst[0].EmailTopicSessionId.Value));
+                var checkusers = plist.Where(t => t.UserId == applicationUser.UserID).ToList();
+                if (checkusers.Count > 0)
+                {
+                    NavigationManager.NavigateTo("ViewEmail/" + itemlst[0].EmailTopicSessionId + "/Email");
+                }
+                else
+                {
+                    toastService.ShowToast("Already created email current user permission denied, please contact admin", AC.SD.Core.Services.ToastLevel.Warning);
+                }
+            }
+            else
+            {
+                onCreateorUpdateFileProfileTypeEmail();
+            }
+        }        
+        else
+        {
+            onCreateorUpdateFileProfileTypeEmail();
+        }
+
+
+
+    }
+    async Task onCreateorUpdateFileProfileTypeEmail()
+    {
         var lst = FolderPathLists;
         string groupTag = "";
         long grouptTagId = 0;

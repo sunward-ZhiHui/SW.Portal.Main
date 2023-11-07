@@ -54,7 +54,8 @@ namespace Core.Repositories.Query
         Task<long> UpdateTopicArchive(EmailTopics emailTopics);
         Task<long> UpdateTopicUnArchive(EmailTopics emailTopics);
         Task<List<ActivityEmailTopics>> GetByActivityEmailSessionList(Guid sessionId);
-        Task<List<ActivityEmailTopics>> GetActivityEmailListBySession(Guid sessionId);        
+        Task<List<ActivityEmailTopics>> GetActivityEmailListBySession(Guid sessionId);
+        Task<List<ActivityEmailTopics>> GetActivityEmailDocListBySession(Guid sessionId);
         Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId);
         Task<long> CreateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);
         Task<long> UpdateActivityEmailAsync(ActivityEmailTopics activityEmailTopics);

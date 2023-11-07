@@ -17,7 +17,7 @@ namespace DocumentViewer.Controllers
             _context = context;
             _configuration = configuration;
         }
-        public IActionResult Index(Guid? url)
+        public async Task<IActionResult> Index(Guid? url)
         {
             HttpContext.Session.Remove("Share");
             SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
@@ -79,9 +79,10 @@ namespace DocumentViewer.Controllers
                                 }
                                 if (contentType != null)
                                 {
-                                    var webClient = new WebClient();
+                                    using (var webClient = new HttpClient())
                                     {
-                                        byte[] byteArrayAccessor() => webClient.DownloadData(new Uri(fileurl));
+                                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
+                                        Stream byteArrayAccessor() => webResponse.Content.ReadAsStream();
                                         viewmodel.DocumentId = Guid.NewGuid().ToString();
                                         viewmodel.ContentAccessorByBytes = byteArrayAccessor;
                                         viewmodel.Type = contentType.Split("/")[0].ToLower();

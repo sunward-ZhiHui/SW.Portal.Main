@@ -34,7 +34,7 @@ namespace DocumentViewer.Controllers
             _configuration = configuration;
         }
 
-        public IActionResult Index(string url)
+        public async Task<IActionResult> Index(string url)
         {
             var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
             var fileNewUrl = _configuration["DocumentsUrl:FileNewUrl"];
@@ -111,10 +111,11 @@ namespace DocumentViewer.Controllers
                         }
                         if (contentType != null)
                         {
-                            var webClient = new WebClient();
+                            using(var webClient = new HttpClient())
                             {
                                 //byte[] byteArrayAccessor() => DownloadExtention.GetUrlContent(fileurl).Result;
-                                byte[] byteArrayAccessor() => webClient.DownloadData(new Uri(fileurl));
+                                var webResponse=await webClient.GetAsync(new Uri(fileurl));
+                                Stream byteArrayAccessor() => webResponse.Content.ReadAsStream();
                                 viewmodel.DocumentId = Guid.NewGuid().ToString();
                                 viewmodel.ContentAccessorByBytes = byteArrayAccessor;
                                 viewmodel.Type = contentType.Split("/")[0].ToLower();

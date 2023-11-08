@@ -96,6 +96,7 @@ namespace Core.EntityModels
         public bool? IsEmailCreated { get; set; } = false;
         public bool? IsActionPermission { get; set; } = true;
         public string? NoAction { get; set; }
+        public long? FileProfileTypeId { get; set; }
     }
     public class MultipleProductioAppLineItemLists
     {

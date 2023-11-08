@@ -48,6 +48,7 @@ namespace Infrastructure.Repository.Query
                     "ModifiedDate,\r\n" +
                     "AddedDate,\r\n" +
                     "Profile as ProfileNo,\r\n" +
+                    "CONCAT('>',Name) as BreadcumName,\r\n" +
                     //"CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n" +
                     //"CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\n" +
                     "CONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\n" +

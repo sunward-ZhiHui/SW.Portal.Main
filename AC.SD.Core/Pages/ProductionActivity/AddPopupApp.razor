@@ -18,8 +18,9 @@
                         DisplayMode="MenuDisplayMode.Auto">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                        <DxMenuItem Text="Add New" IconCssClass="fas fa-save" Click="@addNew" />
                         <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitFormExternally" />
-
+                        <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@uploadFiles" Enabled="@uploadEnabled" />
                     </Items>
                 </DxMenu>
             </div>
@@ -44,8 +45,8 @@
             <ValidationMessage For="@(() => Data.NavprodOrderLineId)" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Other Options" ColSpanMd="6">
-             <DxRadioGroup Items="@IsOtherOptionsItems"
-            Value="@Data.OthersOptions"
+            <DxRadioGroup Items="@IsOtherOptionsItems"
+                          Value="@Data.OthersOptions"
                           ValueExpression="@(() => Data.OthersOptions )"
                           ValueChanged="@((string value) => OnGroupValueChanged(value))"
                           Layout="RadioGroupLayout.Horizontal"
@@ -85,7 +86,6 @@
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
             @bind-Value="Data.ProdActivityActionChildD"
-
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
@@ -97,12 +97,13 @@
                           Layout="RadioGroupLayout.Horizontal"
                           CssClass="dx-demo-radio-group" />
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Name Of Template:" ColSpanMd="6">
+        <DxFormLayoutItem Caption="Name Of Template:" ColSpanMd="6" Visible="@Data.IsTemplateUpload">
             <DxComboBox Data="@_templateItems"
                         NullText="Select Name Of Template..."
                         FilteringMode="DataGridFilteringMode.Contains"
                         TextFieldName="NameOfTemplate"
                         ValueFieldName="ProductActivityCaseLineId"
+                        SelectedItemChanged="@((ProductActivityCaseLineModel plant) => SelectedItemplateItemsChanged(plant))"
             @bind-Value="Data.ProductActivityCaseLineId"
                         ShowValidationIcon="true">
             </DxComboBox>
@@ -144,8 +145,20 @@
 
     </DxFormLayout>
 </EditForm>
+<DxPopup @bind-Visible="@PopupUpload"
+         HeaderText="Upload Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         Width="1000px">
+    <BodyContentTemplate>
+        <UploadProductionActivityFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUpload"></UploadProductionActivityFiles>
 
+    </BodyContentTemplate>
+</DxPopup>
 @code {
+    public long? FileProfileTypeId { get; set; }
+    public Guid? UploadSessionId { get; set; }
     EditContext _editContext;
     [Parameter]
     public IEnumerable _poOrderDetails { get; set; }
@@ -165,7 +178,8 @@
     private List<ApplicationMasterChildModel> _ManuFactureProcessLines;
     private List<ApplicationMasterChildModel> _categoryItems;
     private List<ApplicationMasterChildModel> _actionItems;
-    bool AddPopup = false;
+    bool uploadEnabled { get; set; } = false;
+    bool PopupUpload { get; set; } = false;
     [Parameter]
     public ProductionActivityModel ParentData { get; set; }
     [Parameter]
@@ -183,6 +197,37 @@
         _ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(340));
         _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(341));
     }
+    void addNew()
+    {
+        _editContext = new EditContext(Data);
+        FileProfileTypeId = null;
+        Data.ProductActivityCaseLineId = 0;
+        Data.ManufacturingProcessChildId = null;
+        Data.ProdActivityCategoryChildId = null;
+        Data.ProdActivityActionChildD = null;
+        Data.FileProfileTypeId = null;
+        Data.ActivityStatusId = null;
+        Data.LineComment = null;
+        Data.NavprodOrderLineId = null;
+        Data.NavprodOrderLineId = null;
+        Data.OthersOptions = "No";
+        Data.IsOthersOptions = false;
+        Data.IsTemplateUpload = false;
+        Data.IsTemplateUploadFlag = "No";
+        Data.ProductActivityCaseLineId = null;
+        Data.ActivityMasterIds = null;
+        UploadSessionId = null;
+        uploadEnabled = false;
+    }
+    void SelectedItemplateItemsChanged(ProductActivityCaseLineModel Itemss)
+    {
+        Data.FileProfileTypeId = null; FileProfileTypeId = null;
+        if(Itemss!=null && Itemss.LocationToSaveId>0)
+        {
+            FileProfileTypeId = Itemss.LocationToSaveId;
+            Data.FileProfileTypeId = Itemss.LocationToSaveId;
+        }
+    }
     async Task SelectedItemManuFactureChanged(ApplicationMasterChildModel selectItem)
     {
         _categoryItems = new List<ApplicationMasterChildModel>(); _actionItems = new List<ApplicationMasterChildModel>();
@@ -195,7 +240,7 @@
     }
     async Task getTemplateItems()
     {
-        _templateItems=new List<ProductActivityCaseLineModel>();
+        _templateItems = new List<ProductActivityCaseLineModel>();
         if (Data.ManufacturingProcessChildId > 0 && Data.ProdActivityCategoryChildId > 0)
         {
             _templateItems = await Mediator.Send(new GetProductActivityCaseLineTemplateItems(Data.ManufacturingProcessChildId, Data.ProdActivityCategoryChildId));
@@ -205,7 +250,7 @@
     void SelectedItemprod(NavprodOrderLineModel NAVProdOrder)
     {
 
-        if (NAVProdOrder != null && NAVProdOrder.NavprodOrderLineId>0)
+        if (NAVProdOrder != null && NAVProdOrder.NavprodOrderLineId > 0)
         {
             _editContext = new EditContext(Data);
             Data.OthersOptions = "No";
@@ -216,10 +261,10 @@
     {
         _templateItems = new List<ProductActivityCaseLineModel>();
         Data.ProductActivityCaseLineId = 0; Data.IsTemplateUpload = false;
-        Data.IsTemplateUploadFlag = radioValue;
-        if(radioValue=="Yes")
+        Data.IsTemplateUploadFlag = radioValue; Data.FileProfileTypeId = null;
+        if (radioValue == "Yes")
         {
-            Data.ProductActivityCaseLineId =null;
+            Data.ProductActivityCaseLineId = null;
             Data.IsTemplateUpload = true;
             await getTemplateItems();
         }
@@ -270,14 +315,18 @@
                 IsOthersOptions = Data.OthersOptions == "Yes" ? true : false,
                 //IsOthersOptions=Data.IsOthersOptions,
                 IsTemplateUpload = Data.IsTemplateUpload,
-                IsTemplateUploadFlag = Data.IsTemplateUpload==true?"Yes":"No",
-                ProductActivityCaseLineId = Data.ProductActivityCaseLineId > 0?Data.ProductActivityCaseLineId:null,
+                IsTemplateUploadFlag = Data.IsTemplateUpload == true ? "Yes" : "No",
+                ProductActivityCaseLineId = Data.ProductActivityCaseLineId > 0 ? Data.ProductActivityCaseLineId : null,
                 ActivityMasterIds = Data.ActivityMasterIds,
             };
 
-       var result = await Mediator.Send(request);
-        toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-
+        var result = await Mediator.Send(request);
+        if (result > 0)
+        {
+            UploadSessionId = request.LineSessionId;
+            uploadEnabled = true;
+            toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        }
     }
     private async Task SubmitFormExternally()
     {
@@ -286,7 +335,16 @@
             await this.HandleValidSubmit();
         }
     }
+    void uploadFiles()
+    {
+        PopupUpload = true;
+    }
+    void BackUpload()
+    {
+        PopupUpload = false;
+        StateHasChanged();
 
+    }
 
 
 }

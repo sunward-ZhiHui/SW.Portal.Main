@@ -14,7 +14,6 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
-@using System.Collections
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -33,34 +32,24 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentSelectButton" Enabled="@loading" />
-                        <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="@onsubmitUploadFromClick" Enabled="@loading" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-file" id="attachmentSelectButton" />
+                        <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="SubmitFormExternally" />
                     </Items>
                 </DxMenu>
             </div>
-
         </div>
     </div>
 </div>
-<DxMenu Data="@FolderPathListsItems"
-        DisplayMode="MenuDisplayMode.Auto">
-    <DataMappings>
-        <DxMenuDataMapping Text="FileName" IconCssClass="fa fa-angle-double-right"
-                           Children="Children"
-                           BeginGroup="BeginGroup"
-                           CssClass="CssClass"
-                           Enabled="Enabled" />
-    </DataMappings>
-</DxMenu>
+
+
 <div class="" style="margin-left:10px;">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
         <div class="cw-480" style="margin-top:10px;">
-            <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
-
+            <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
                     <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10">
-                        <DxTextBox @bind-Text=@FileprofiletypeName Enabled="IsFileProfileTypeShow">
+                        <DxTextBox @bind-Text=@FileprofiletypeName>
                             <Buttons>
                                 <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-FileProfileTypeOpen")
                                                 Tooltip="Select File ProfileType"
@@ -185,29 +174,26 @@
                     <DxFormLayoutItem Caption="Description" ColSpanMd="6">
                         <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />
                     </DxFormLayoutItem>
+
                 </DxFormLayout>
             </EditForm>
-            @* <DxFormLayoutItem Caption="" ColSpanMd="12"> *@
+                <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
+                    <DxUpload @ref="uploadComponent" Name="files"
+                              Visible="@AttachmentUploadVisible"
+                              AcceptedFileTypes=@AcceptedFileTypes
+                              ChunkSize="200000"
+                              UploadMode="@UploadMode.OnButtonClick"
+                              FileUploadStart="OnFileUploadStart"
+                              AllowMultiFileUpload="false"
+                              ExternalSelectButtonCssSelector="#attachmentSelectButton"
+                              SelectedFilesChanged="@AttachmentSelectedFilesChanged"
+                              FileUploaded="@isUploadSuccess"
+                              FileUploadProgressChanged="@OnUploadProgressChanged"
+                              FileUploadStarted="@OnFileUploadStarted"
+                              FileUploadError="@OnUploadError">
+                    </DxUpload>
 
-            <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
-                <DxUpload @ref="uploadComponent" Name="files"
-                          Visible="@AttachmentUploadVisible"
-                          AcceptedFileTypes=@AcceptedFileTypes
-                          ChunkSize="200000"
-                          UploadMode="@UploadMode.OnButtonClick"
-                          FileUploadStart="OnFileUploadStart"
-                          AllowMultiFileUpload="true"
-                          ExternalSelectButtonCssSelector="#attachmentSelectButton"
-                          SelectedFilesChanged="@AttachmentSelectedFilesChanged"
-                          FileUploaded="@isUploadSuccess"
-                          FileUploadProgressChanged="@OnUploadProgressChanged"
-                          FileUploadStarted="@OnFileUploadStarted"
-                          FileUploadError="@OnUploadError">
-                </DxUpload>
-
-            </div>
-            @*  </DxFormLayoutItem> *@
-
+                </div>
         </div>
     </div>
 </div>
@@ -250,22 +236,21 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
-    EditContext _editContext;
-    [Parameter]
-    public IEnumerable FolderPathLists { get; set; }
-    [Parameter]
     public DocumentsModel selectedFiles { get; set; }
     [Parameter]
-    public ApplicationUser applicationUser { get; set; }
+    public ApplicationUser _applicationUser { get; set; }
     [Parameter]
-    public Action RevokeBack { get; set; }
+    public Guid? UploadSessionId { get; set; }
     [Parameter]
-    public string UploadDocFormID { get; set; }
-    List<DocumentsModel> FolderPathListsItems = new List<DocumentsModel>();
+    public long? FileProfileTypeId { get; set; }
+    [Parameter]
+    public Action RevokeUploadBack { get; set; }
+    EditContext _editContext;
+    public FileProfileTypeModel fileProfileTypeModels { get; set; }
     private DxTreeView _treeView;
     string FilterString { get; set; }
     public string FileprofiletypeName { get; set; }
-    public bool loading { get; set; } = true;
+    public bool loading { get; set; } = false;
     public bool IsFileProfileTypeOpen { get; set; }
     string Message = "Upload";
     public bool IsFileProfileTypeShow { get; set; } = false;
@@ -292,22 +277,29 @@
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
-        FolderPathListsItems = FolderPathLists.Cast<DocumentsModel>().ToList();
         _editContext = new EditContext(Data);
-        await loadData(selectedFiles, applicationUser);
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        if (fileProfileTypeDocumentsAll != null && FileProfileTypeId > 0)
+        {
+            var Datas = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == FileProfileTypeId);
+            if (Datas != null)
+            {
+                await loadData(Datas);
+            }
+        }
+
     }
-    public async Task loadData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser)
+    public async Task loadData(DocumentsModel _selectedFiles)
     {
         _editContext = new EditContext(Data);
         IsFileProfileTypeShow = false;
-        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         isPlant = false;
         isDivision = false; isDepartment = false;
         isSection = false; isSubSection = false;
         Data.PlantId = 0; Data.DepartmentId = 0;
         Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
         TempSetIds = new List<DocumentsUploadModel>();
-        loading = true;
+        loading = false;
         Message = "Upload";
         uploadComponent.RemoveAllFiles();
         CurrentUplodCount = 0;
@@ -317,7 +309,6 @@
         if (_selectedFiles != null && _selectedFiles.ProfileID > 0)
         {
             selectedFiles = _selectedFiles;
-            applicationUser = _applicationUser;
             documentProfileNoSeriesData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedFiles.ProfileID));
 
             dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
@@ -353,10 +344,10 @@
             {
                 isExpiryDate = true;
             }
-            Data.UserSession = applicationUser.SessionId;
-            Data.UserId = applicationUser.UserID;
+            Data.UserSession = _applicationUser.SessionId;
+            Data.UserId = _applicationUser.UserID;
             Data.ProfileId = selectedFiles.ProfileID;
-            Data.FileProfileTypeId = selectedFiles.FileProfileTypeId > 0 ? selectedFiles.FileProfileTypeId : selectedFiles.FilterProfileTypeId;
+            Data.FileProfileTypeId = selectedFiles.FileProfileTypeId;
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
         }
@@ -411,37 +402,39 @@
             _treeView.ExpandAll();
         }
     }
-    protected void SelectionChanged(TreeViewNodeEventArgs e)
+    async Task SelectionChanged(TreeViewNodeEventArgs e)
     {
         if (e.NodeInfo?.DataItem != null)
         {
+            IsFileProfileTypeOpen = false;
             var nodeName = e.NodeInfo.DataItem as DocumentsModel;
             Data.FileProfileTypeId = nodeName.FileProfileTypeId;
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            await loadData(nodeName);
+            
         }
-
         StateHasChanged();
     }
     void OnButtonFileProfileTypeClick()
     {
-        _treeView.CollapseAll();
+       // _treeView.CollapseAll();
         IsFileProfileTypeOpen = true;
     }
     void backUrl()
     {
-        RevokeBack?.Invoke();
+        RevokeUploadBack?.Invoke();
     }
     void OnFileUploadStart(FileUploadStartEventArgs e)
     {
         Message = "Uploading...";
-        loading = false;
+        loading = true;
         var SessionId = new Guid(e.FileInfo.Guid);
         DocumentsUploadModel TempSetId = new DocumentsUploadModel();
         TempSetId.SessionId = SessionId;
         TempSetIds.Add(TempSetId);
         string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
-        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + selectedFiles.SessionID + "&addedByUserId=" + applicationUser.UserID + "&IsFileSession=true&SourceFrom=FileProfile";
+        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + UploadSessionId + "&addedByUserId=" + _applicationUser.UserID + "&IsFileSession=false&SourceFrom=FileProfile";
         e.UploadUrl = url;
     }
     async Task isUploadSuccess(FileUploadEventArgs e)
@@ -449,18 +442,18 @@
 
         CurrentUplodCount++;
         var filesessionIds = new Guid(e.FileInfo.Guid);
-        Data.SessionId = filesessionIds;
-        Data.FileSessionId = filesessionIds;
+        Data.SessionId = UploadSessionId;
+        Data.FileSessionId = UploadSessionId;
         Data.SourceFrom = "FileProfile";
         var ext = e.FileInfo.Name.Split(".").Last();
-        Data.FilePath = @"Documents\" + selectedFiles.SessionID + @"\" + filesessionIds + "." + ext;
+        Data.FilePath = @"Documents\" + UploadSessionId + @"\" + filesessionIds + "." + ext;
         var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
         MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
         if (CurrentUplodCount >= SelectedFilesCount)
         {
             Message = "Upload";
-            loading = true;
+            loading = false;
             backUrl();
         }
 
@@ -470,7 +463,7 @@
         MyError = e.RequestInfo.ResponseText;
         toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
         Message = "Upload";
-        loading = true;
+        loading = false;
         InvokeAsync(StateHasChanged);
     }
     void OnFileUploadStarted(FileUploadEventArgs e)
@@ -526,10 +519,25 @@
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
         SelectedFilesCount = files.ToList().Count; //Count current files
+        if (SelectedFilesCount > 0)
+        {
+            if (SelectedFilesCount == 1)
+            {
+
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
         InvokeAsync(StateHasChanged);
     }
 
     public void onsubmitUploadFromClick()
+    {
+    }
+    void SubmitFormExternally()
     {
         if (_editContext.Validate())
         {
@@ -538,6 +546,23 @@
     }
     void HandleValidSubmit()
     {
-        uploadComponent.UploadAllFiles();
+        if (SelectedFilesCount > 0)
+        {
+            if (SelectedFilesCount == 1)
+            {
+                uploadComponent.UploadAllFiles();
+
+            }
+            else
+            {
+                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+        else
+        {
+            var MyMessage = "Must File Select";
+            toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+        }
     }
 }

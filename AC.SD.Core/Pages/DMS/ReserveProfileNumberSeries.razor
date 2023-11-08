@@ -32,34 +32,16 @@
         </DxMenu>
     </div>
 </div>
-<div class="demo-breadcrumbs-container theme-blazing-berry">
-    <div class="breadcrumb">
-        <div class="demo-breadcrumbs sidebar-hidden">
-            <!--!-->
-
-            <div class="items">
-                <a href="javascript:void(0);" onclick="@(() => openFileProfileMainLink())">Main</a>
-                @if (FolderPathLists.Count > 0)
-                {
-                    <span class="separator"></span>
-                    @foreach (var item in FolderPathLists)
-                    {
-                        var names = item.FileName.Length > 20 ? item.FileName.Substring(0, 20) + "..." : item.FileName;
-                        if (FolderPathLists.IndexOf(item) == FolderPathLists.Count - 1)
-                        {
-                            <span title="@item.FileName">@names</span>
-                        }
-                        else
-                        {
-                            <a href="javascript:void(0);" title="@item.FileName" onclick="@(() => openFileProfileLink(item))">@names</a>
-                        }
-                        <span class="separator"></span>
-                    }
-                }
-            </div>
-        </div>
-    </div>
-</div>
+<DxMenu Data="@FolderPathLists" ItemClick="OnItemClick"
+        DisplayMode="MenuDisplayMode.Auto">
+    <DataMappings>
+        <DxMenuDataMapping Text="FileName" IconCssClass="fa fa-angle-double-right"
+                           Children="Children"
+                           BeginGroup="BeginGroup"
+                           CssClass="CssClass"
+                           Enabled="Enabled" />
+    </DataMappings>
+</DxMenu>
 <DxLoadingPanel @bind-Visible="PanelVisible"
                 IsContentBlocked="true"
                 ApplyBackgroundShading="true"
@@ -227,6 +209,9 @@
     protected override async Task OnParametersSetAsync()
     {
         FolderPathLists = new List<DocumentsModel>();
+        DocumentsModel dc = new DocumentsModel();
+        dc.FileName = "Main";
+        FolderPathLists.Add(dc);
         FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == SessionId)?.FileProfileTypeId;
         uploadEnabled = false; copyEnabled = false;
         if (FileProfileTypeId > 0)
@@ -262,6 +247,18 @@
         }
         PanelVisible = false;
         StateHasChanged();
+    }
+    void OnItemClick(MenuItemClickEventArgs e)
+    {
+        var data = (DocumentsModel)e.ItemInfo.Data;
+        if (data.FileProfileTypeId > 0)
+        {
+            openFileProfileLink(data);
+        }
+        else
+        {
+            openFileProfileMainLink();
+        }
     }
     private List<DocumentsModel> GetAllFileProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<DocumentsModel> foldersModel)
     {

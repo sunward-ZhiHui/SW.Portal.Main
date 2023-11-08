@@ -37,8 +37,8 @@ namespace SW.Portal.Solutions.ServerSide {
             services.AddServerSideBlazor().AddCircuitOptions(x => x.DetailedErrors = detailedErrors);
             services.AddBlazoredToast();
             services.AddDevExpressServerSideBlazorReportViewer();
-            services.AddSingleton<RealtimeService>();
-            services.AddSingleton<EmailAutoRefresh>();
+            //services.AddTransient<RealtimeService>();
+            //services.AddTransient<EmailAutoRefresh>();
 
             var keys = WebPush.VapidHelper.GenerateVapidKeys();
             System.Diagnostics.Debug.WriteLine(keys.PrivateKey);
@@ -56,14 +56,14 @@ namespace SW.Portal.Solutions.ServerSide {
                 var dxVersion = new Version(AssemblyInfo.Version);
                 return new DemoVersion(new Version(dxVersion.Major, dxVersion.Minor, dxVersion.Build) + customVersion);
             });
-            services.AddScoped<HttpClient>(serviceProvider => serviceProvider.GetService<IHttpClientFactory>().CreateClient());
+            services.AddTransient<HttpClient>(serviceProvider => serviceProvider.GetService<IHttpClientFactory>().CreateClient());
             //services.AddInfrastructureServices(Configuration);
             services.AddInfrastructure(Configuration);
             services.AddApplication();
 
             services.AddHttpContextAccessor();
 
-            services.AddSingleton<IFcm>(s => new FcmBuilder()
+            services.AddTransient<IFcm>(s => new FcmBuilder()
                .WithApiKey("Your_API_key")
                .GetFcm()
            );

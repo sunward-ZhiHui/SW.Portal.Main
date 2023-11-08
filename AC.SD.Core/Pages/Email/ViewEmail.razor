@@ -1019,6 +1019,7 @@
                 <DxMenuItem IconCssClass="fa fa-ban" @onclick="onCancelDueDatePop" Text="Cancel Due Date" />
                 <DxMenuItem IconCssClass="fa fa-text-width" @onclick="@(() => onMarkasAllRead(CurrentEmailConversations.ID))" Text="Mark as all read" />
                 <DxMenuItem IconCssClass="fa fa-font" @onclick="onRenameSubjectPop" Text="Rename Subject" />
+                <DxMenuItem IconCssClass="fa fa-print" @onclick="onPrintSubjectPop" Text="Print" />
             </Items>
         </DxMenu>
     </BodyTextTemplate>
@@ -1698,7 +1699,7 @@
         }
 
 
-       // toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        // toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         //IsDescriptionOpen = false;
     }
 
@@ -2348,6 +2349,12 @@
         _dataSubjectName.SubjectName = CurrentEmailConversations.Name;
         isRenameSubject = true;
 
+    }
+    async void onPrintSubjectPop()
+    {    
+        var url = BaseUrl+"Emailprint/" + CurrentEmailConversations.SessionId;
+        string script = $"window.open('{url}', '_blank');";
+        JSRuntime.InvokeVoidAsync("eval", script);
     }
     async void SubmitDueDate()
     {

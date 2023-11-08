@@ -6,6 +6,7 @@
     <OutputType>Library</OutputType>
     <AssemblyName>AC.SD.Core</AssemblyName>
     <RootNamespace>AC.SD.Core</RootNamespace>
+	<ServerGarbageCollection>false</ServerGarbageCollection>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="DataProviders\**" />

@@ -966,7 +966,7 @@ else
         Data.Follow = Follow[1];
         Data.Urgent = false;
         Data.OverDue = false;
-        Data.IsAllowParticipants = false;
+        Data.IsAllowParticipants = true;
         Data.NotifyUser = false;
 
         var topics = await Mediator.Send(new GetAllEmailTopics());

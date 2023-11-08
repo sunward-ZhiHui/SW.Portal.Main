@@ -149,7 +149,7 @@ namespace Infrastructure
             services.AddTransient<ICCDFImplementationQueryRepository,CCFDImplementationQueryRepository>();
             services.AddTransient<IChangeControlFormQueryRepository, ChangeControlFormQueryRepository>();
             services.AddTransient<IGenerateDocumentNoSeriesQueryRepository, GenerateDocumentNoSeriesQueryRepository>();
-            services.AddSingleton<IGenerateDocumentNoSeriesSeviceQueryRepository, GenerateDocumentNoSeriesService>();
+            services.AddTransient<IGenerateDocumentNoSeriesSeviceQueryRepository, GenerateDocumentNoSeriesService>();
             
             services.AddTransient<IAttributeDetailsCommandRepository, AttributeDetailsCommandRepository>();
             services.AddTransient<IAttributeDetailsQueryRepository, AttributeDetailsQueryRepository>();

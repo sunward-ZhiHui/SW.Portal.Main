@@ -18,6 +18,16 @@ function setRichEditHeight(elementId) {
         richEditElement.style.height = "100%";
     }
 }
+function printPage() {
+    window.print();
+}
+function printFullPage() {
+    // Use the 'print.js' library here
+    printJS({
+        printable: 'tableData', // ID of the content to print
+        type: 'html',
+    });
+}
 
 window.downloadFile = (fileName, fileContent, contentType, folderPath) => {
     const blob = new Blob([fileContent], { type: contentType });

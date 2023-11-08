@@ -12,10 +12,11 @@ namespace Core.Repositories.Query
     public interface IProductionActivityAppQueryRepository : IQueryRepository<ProductionActivityApp>
     {
         Task<IReadOnlyList<ProductionActivityApp>> GetAllAsync(long? CompanyId);
-        Task<IReadOnlyList<ProductionActivityApp>> GetAllListAsync();
-        
-        Task<long> Insert(ProductionActivityModel PPAlist);
-        Task<IReadOnlyList<NavprodOrderLine>> GetAllAsyncPO(long? CompanyId);
+        Task<ProductionActivityApp> GetAllOneLocationAsync(string? locationName);
+        Task<long> Insert(ProductActivityAppModel PPAlist);
+        Task<IReadOnlyList<NavprodOrderLineModel>> GetAllAsyncPO(long? CompanyId);
+        Task<IReadOnlyList<NavprodOrderLineModel>> GetAllNavprodOrderLineAsync(long? CompanyId, string? Replanrefno);
+        Task<IReadOnlyList<ProductActivityCaseLineModel>> GetProductActivityCaseLineTemplateItemsAsync(long? ManufacturingProcessId, long? CategoryActionId);
     }
    
 }

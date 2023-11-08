@@ -18,14 +18,38 @@ namespace Application.Queries
            this.companyID=companyid;
         }
     }
-    public class GetAllProductionActivityAppQueryList : PagedRequest, IRequest<List<ProductionActivityApp>>
+    public class GetAllNavprodOrderLine : PagedRequest, IRequest<List<NavprodOrderLineModel>>
     {
-
+        public long? CompanyID { get; set; }
+        public string? Replanrefno { get; set; }
+        public GetAllNavprodOrderLine(long? companyid, string? replanrefno)
+        {
+            this.CompanyID = companyid;
+            this.Replanrefno = replanrefno;
+        }
     }
-    public class CreateProductionActivityAppCommand : ProductionActivityModel, IRequest<long>
+    public class GetProductActivityCaseLineTemplateItems : PagedRequest, IRequest<List<ProductActivityCaseLineModel>>
+    {
+        public long? ManufacturingProcessId { get; set; }
+        public long? CategoryActionId { get; set; }
+        public GetProductActivityCaseLineTemplateItems(long? manufacturingProcessId, long? categoryActionId)
+        {
+            this.ManufacturingProcessId = manufacturingProcessId;
+            this.CategoryActionId = categoryActionId;
+        }
+    }
+    public class GetAllProductionActivityLocationAppQuery : PagedRequest, IRequest<ProductionActivityApp>
+    {
+        public string? LocationName { get; set; }
+        public GetAllProductionActivityLocationAppQuery( string? locationName)
+        {
+            this.LocationName = locationName;
+        }
+    }
+    public class CreateProductionActivityAppCommand : ProductActivityAppModel, IRequest<long>
     {
     }
-    public class GetAllProductionActivityPONumberAppQuery : PagedRequest, IRequest<List<NavprodOrderLine>>
+    public class GetAllProductionActivityPONumberAppQuery : PagedRequest, IRequest<List<NavprodOrderLineModel>>
     {
         public long? companyID { get; set; }
         public GetAllProductionActivityPONumberAppQuery(long? companyid)

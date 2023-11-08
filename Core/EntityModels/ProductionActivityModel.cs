@@ -56,7 +56,6 @@ namespace Core.EntityModels
         public long? ProductActivityCaseLineID { get; set; }
         [Required(ErrorMessage = "ProdorderNo is Required")]
         public string AppLineNavprodOrderLineID { get; set; }
-        public string PAApplineComment { get; set; }
         public bool QaCheck { get; set; }
         public bool IsOthersOptions { get; set; }
         public long? ProdActivityResultID { get; set; }

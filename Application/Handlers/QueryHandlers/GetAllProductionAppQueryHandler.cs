@@ -25,24 +25,49 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-
-    public class GetAllProductionAppQueryListHandler : IRequestHandler<GetAllProductionActivityAppQueryList, List<ProductionActivityApp>>
+    public class GetAllNavprodOrderLineHandler : IRequestHandler<GetAllNavprodOrderLine, List<NavprodOrderLineModel>>
     {
         private readonly IProductionActivityAppQueryRepository _productionactivityappQueryRepository;
-        public GetAllProductionAppQueryListHandler(IProductionActivityAppQueryRepository productionactivityappQueryRepository)
+        public GetAllNavprodOrderLineHandler(IProductionActivityAppQueryRepository productionactivityappQueryRepository)
         {
             _productionactivityappQueryRepository = productionactivityappQueryRepository;
         }
-        public async Task<List<ProductionActivityApp>> Handle(GetAllProductionActivityAppQueryList request, CancellationToken cancellationToken)
+        public async Task<List<NavprodOrderLineModel>> Handle(GetAllNavprodOrderLine request, CancellationToken cancellationToken)
         {
-            return (List<ProductionActivityApp>)await _productionactivityappQueryRepository.GetAllListAsync();
+            return (List<NavprodOrderLineModel>)await _productionactivityappQueryRepository.GetAllNavprodOrderLineAsync(request.CompanyID, request.Replanrefno);
+        }
+
+    }
+    public class GetProductActivityCaseLineTemplateItemsHandler : IRequestHandler<GetProductActivityCaseLineTemplateItems, List<ProductActivityCaseLineModel>>
+    {
+        private readonly IProductionActivityAppQueryRepository _productionactivityappQueryRepository;
+        public GetProductActivityCaseLineTemplateItemsHandler(IProductionActivityAppQueryRepository productionactivityappQueryRepository)
+        {
+            _productionactivityappQueryRepository = productionactivityappQueryRepository;
+        }
+        public async Task<List<ProductActivityCaseLineModel>> Handle(GetProductActivityCaseLineTemplateItems request, CancellationToken cancellationToken)
+        {
+            return (List<ProductActivityCaseLineModel>)await _productionactivityappQueryRepository.GetProductActivityCaseLineTemplateItemsAsync(request.ManufacturingProcessId, request.CategoryActionId);
+        }
+
+    }
+    public class GetAllProductionAppLocationQueryHandler : IRequestHandler<GetAllProductionActivityLocationAppQuery, ProductionActivityApp>
+    {
+        private readonly IProductionActivityAppQueryRepository _productionactivityappQueryRepository;
+        public GetAllProductionAppLocationQueryHandler(IProductionActivityAppQueryRepository productionactivityappQueryRepository)
+        {
+            _productionactivityappQueryRepository = productionactivityappQueryRepository;
+        }
+        public async Task<ProductionActivityApp> Handle(GetAllProductionActivityLocationAppQuery request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityappQueryRepository.GetAllOneLocationAsync(request.LocationName);
         }
 
     }
     public class CreateProductionAppQueryHandler : IRequestHandler<CreateProductionActivityAppCommand, long>
     {
         private readonly IProductionActivityAppQueryRepository _PPAppLineListQueryRepository;
-        public CreateProductionAppQueryHandler(IProductionActivityAppQueryRepository PPAppLineListQueryRepository, IQueryRepository<ProductionActivityModel> queryRepository)
+        public CreateProductionAppQueryHandler(IProductionActivityAppQueryRepository PPAppLineListQueryRepository, IQueryRepository<ProductActivityAppModel> queryRepository)
         {
             _PPAppLineListQueryRepository = PPAppLineListQueryRepository;
         }
@@ -54,18 +79,18 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
-        public class GetAllProductionActivityPONumberAppQueryHandler : IRequestHandler<GetAllProductionActivityPONumberAppQuery, List<NavprodOrderLine>>
+    public class GetAllProductionActivityPONumberAppQueryHandler : IRequestHandler<GetAllProductionActivityPONumberAppQuery, List<NavprodOrderLineModel>>
+    {
+        private readonly IProductionActivityAppQueryRepository _productionactivityappponumberQueryRepository;
+        public GetAllProductionActivityPONumberAppQueryHandler(IProductionActivityAppQueryRepository productionactivityappponumberQueryRepository)
         {
-            private readonly IProductionActivityAppQueryRepository _productionactivityappponumberQueryRepository;
-            public GetAllProductionActivityPONumberAppQueryHandler(IProductionActivityAppQueryRepository productionactivityappponumberQueryRepository)
-            {
-                _productionactivityappponumberQueryRepository = productionactivityappponumberQueryRepository;
-            }
-            public async Task<List<NavprodOrderLine>> Handle(GetAllProductionActivityPONumberAppQuery request, CancellationToken cancellationToken)
-            {
-                return (List<NavprodOrderLine>)await _productionactivityappponumberQueryRepository.GetAllAsyncPO(request.companyID);
-            }
-
+            _productionactivityappponumberQueryRepository = productionactivityappponumberQueryRepository;
         }
- }
+        public async Task<List<NavprodOrderLineModel>> Handle(GetAllProductionActivityPONumberAppQuery request, CancellationToken cancellationToken)
+        {
+            return (List<NavprodOrderLineModel>)await _productionactivityappponumberQueryRepository.GetAllAsyncPO(request.companyID);
+        }
+
+    }
+}
 

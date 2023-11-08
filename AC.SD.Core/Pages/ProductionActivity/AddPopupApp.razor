@@ -7,95 +7,139 @@
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
-@page "/addpopup"
 @inject IJSRuntime JSRuntime;
+@using System.Collections
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                        <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitFormExternally" />
 
-
- <div class="mini-menu-bar-top">
-            <div class="mini-menu-bar-heading">
-                 <div class="card-body p-0 tooltiptops">
-                                    <div class="row">
-                                        <div class="">
-                   
-                                            <DxMenu CollapseItemsToHamburgerMenu="true"
-                                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                                    DisplayMode="MenuDisplayMode.Desktop">
-                                                <Items>
-                            <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitFormExternally" />
-                            
-                                                </Items>
-                                            </DxMenu>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
- </div>
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
 
 <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
 
     <DataAnnotationsValidator />
     <DxFormLayout CssClass="w-100">
-        <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
-            <DxComboBox Data="@_ProcessLines"
-                        NullText="Select Category ..."
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterChildId"
-            @bind-Value="Data.ProdActivityCategoryChildID"
-                        ShowValidationIcon="true">
-            </DxComboBox>
-            <ValidationMessage For="@(() => Data.ProdActivityCategoryChildID)" />
-        </DxFormLayoutItem>
-
         <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
             <DxComboBox Data="@_ponumberActivities"
                         NullText="Select ProdOrderNo..."
                         FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="prodOrderNo"
+                        TextFieldName="Name"
                         ValueFieldName="NavprodOrderLineId"
-            @bind-Value="Data.AppLineNavprodOrderLineID"
+                        SelectedItemChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod))"
+            @bind-Value="Data.NavprodOrderLineId"
                         ShowValidationIcon="true">
             </DxComboBox>
-            <ValidationMessage For="@(() => Data.AppLineNavprodOrderLineID)" />
+            <ValidationMessage For="@(() => Data.NavprodOrderLineId)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Other Options" ColSpanMd="6">
+             <DxRadioGroup Items="@IsOtherOptionsItems"
+            Value="@Data.OthersOptions"
+                          ValueExpression="@(() => Data.OthersOptions )"
+                          ValueChanged="@((string value) => OnGroupValueChanged(value))"
+                          Layout="RadioGroupLayout.Horizontal"
+                          CssClass="dx-demo-radio-group" />
+            <ValidationMessage For="@(() => Data.OthersOptions)" />
         </DxFormLayoutItem>
 
+        <DxFormLayoutItem Caption="Manufacturing Process:" ColSpanMd="6">
+            <DxComboBox Data="@_ManuFactureProcessLines"
+                        NullText="Select Manufacturing Process..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterChildId"
+            @bind-Value="Data.ManufacturingProcessChildId"
+                        SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemManuFactureChanged(plant))"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+            <ValidationMessage For="@(() => Data.ManufacturingProcessChildId)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Category:" ColSpanMd="6">
+            <DxComboBox Data="@_categoryItems"
+                        NullText="Select Category ..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterChildId"
+                        SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemCategoryChanged(plant))"
+            @bind-Value="Data.ProdActivityCategoryChildId"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+            <ValidationMessage For="@(() => Data.ProdActivityCategoryChildId)" />
+        </DxFormLayoutItem>
 
-      
         <DxFormLayoutItem Caption="Action:" ColSpanMd="6">
-            <DxComboBox Data="@_ProcessLines"
+            <DxComboBox Data="@_actionItems"
                         NullText="Select ActionDropdown..."
                         FilteringMode="DataGridFilteringMode.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
             @bind-Value="Data.ProdActivityActionChildD"
+
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Manufacturing Process:" ColSpanMd="6">
-            <DxComboBox Data="@_ProcessLines"
-                        NullText="Select Manufacturing Process..."
+        <DxFormLayoutItem Caption="Template Upload:" ColSpanMd="6">
+            <DxRadioGroup Items="@TemplateUploadOptions"
+                          Value="@Data.IsTemplateUploadFlag"
+                          ValueExpression="@(() => Data.IsTemplateUploadFlag )"
+                          ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(value))"
+                          Layout="RadioGroupLayout.Horizontal"
+                          CssClass="dx-demo-radio-group" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Name Of Template:" ColSpanMd="6">
+            <DxComboBox Data="@_templateItems"
+                        NullText="Select Name Of Template..."
                         FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterChildId"
-            @bind-Value="Data.ManufacturingProcessChildID"
+                        TextFieldName="NameOfTemplate"
+                        ValueFieldName="ProductActivityCaseLineId"
+            @bind-Value="Data.ProductActivityCaseLineId"
                         ShowValidationIcon="true">
             </DxComboBox>
-            <ValidationMessage For="@(() => Data.ManufacturingProcessChildID)" />
+            <ValidationMessage For="@(() => Data.ProductActivityCaseLineId)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Activity Result:" ColSpanMd="6">
+            <DxComboBox Data="@_ActivityResult"
+                        NullText="Select Activity Result..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterDetailID"
+            @bind-Value="Data.ProdActivityResultId"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Activity Status:" ColSpanMd="6">
+            <DxComboBox Data="@_ActivityStatusItem"
+                        NullText="Select Activity Status..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterDetailID"
+            @bind-Value="Data.ActivityStatusId"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Activity Master" ColSpanMd="12">
+            <DxTagBox NullText="Select Activity Master..."
+                      Data="@_ActivityMaster"
+                      ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                      TextFieldName="Value"
+                      ValueFieldName="ApplicationMasterDetailID"
+            @bind-Values="@Data.ActivityMasterIds"
+                      CssClass="cw-480" />
         </DxFormLayoutItem>
 
-        
-        <DxFormLayoutItem Caption="Result:" ColSpanMd="6">
-            <DxComboBox Data="@_Result"
-                        NullText="Select Result Process..."
-                        FilteringMode="DataGridFilteringMode.Contains"
-                        TextFieldName="Value"
-                        ValueFieldName="ApplicationMasterDetailId"
-                        @bind-Value="Data.ProdActivityResultID"
-                        ShowValidationIcon="true">
-            </DxComboBox>
-        </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Comment:" ColSpanMd="6">
-            <DxTextBox @bind-Text="Data.PAApplineComment" />
+        <DxFormLayoutItem Caption="Comment:" ColSpanMd="12">
+            <DxMemo @bind-Text="Data.LineComment" Rows="5" />
         </DxFormLayoutItem>
 
     </DxFormLayout>
@@ -103,70 +147,137 @@
 
 @code {
     EditContext _editContext;
-    private List<ViewPlants> _plantItems;
+    [Parameter]
+    public IEnumerable _poOrderDetails { get; set; }
     private List<ProductionActivityApp> _productionActivities;
-    private List<NavprodOrderLine> _ponumberActivities;
-    private List<ApplicationMasterDetail> _Result;
-    //ProductionActivityApp Data = new ProductionActivityApp();
-    ProductionActivityModel Data = new ProductionActivityModel();
+    private List<NavprodOrderLineModel> _ponumberActivities;
+    private List<View_ApplicationMasterDetail> _ActivityResult;
+    private List<View_ApplicationMasterDetail> _ActivityStatusItem;
+    private List<View_ApplicationMasterDetail> _ActivityMaster;
+    ProductActivityAppModel Data = new ProductActivityAppModel();
     ProductionActivityAppLine DataLine = new ProductionActivityAppLine();
     public ApplicationUser applicationUser { get; private set; }
     IGrid? AppLine { get; set; }
+    IEnumerable<string> TemplateUploadOptions = new[] { "Yes", "No" };
+    IEnumerable<string> IsOtherOptionsItems = new[] { "Yes" };
+    private List<ProductActivityCaseLineModel> _templateItems;
     private List<ProductionActivityAppLine> _AppLines;
-    private List<ApplicationMasterChildModel> _ProcessLines;
+    private List<ApplicationMasterChildModel> _ManuFactureProcessLines;
+    private List<ApplicationMasterChildModel> _categoryItems;
+    private List<ApplicationMasterChildModel> _actionItems;
     bool AddPopup = false;
     [Parameter]
     public ProductionActivityModel ParentData { get; set; }
-    public ProductionActivityModel _List;
+    [Parameter]
+    public Action RevokeBack { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        _ponumberActivities = _poOrderDetails.Cast<NavprodOrderLineModel>().ToList();
         _editContext = new EditContext(Data);
-        _plantItems = await Mediator.Send(new GetAllPlantQuery());
-        //_productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery());
-        _ProcessLines = await Mediator.Send(new GetAllApplicationMasterChildProQuery());
+        Data.ProductActivityCaseLineId = 0;
+        _ManuFactureProcessLines = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105"));
+        _categoryItems = new List<ApplicationMasterChildModel>(); _actionItems = new List<ApplicationMasterChildModel>();
+        Data.ProdActivityCategoryChildId = null; Data.ProdActivityActionChildD = null;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(ParentData.CompanyID));
-        _Result = await Mediator.Send(new GetAllApplicationMasterresultQuery());
+        _ActivityResult = await Mediator.Send(new GetAllApplicationMasterDetailQuery(342));
+        _ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(340));
+        _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(341));
     }
-    void addDelete()
+    async Task SelectedItemManuFactureChanged(ApplicationMasterChildModel selectItem)
+    {
+        _categoryItems = new List<ApplicationMasterChildModel>(); _actionItems = new List<ApplicationMasterChildModel>();
+        Data.ProdActivityCategoryChildId = null; Data.ProdActivityActionChildD = null;
+        if (selectItem != null && selectItem.ApplicationMasterChildId > 0)
+        {
+            _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem.ApplicationMasterChildId));
+        }
+        await OnTemplateUploadGroupValueChanged("No");
+    }
+    async Task getTemplateItems()
+    {
+        _templateItems=new List<ProductActivityCaseLineModel>();
+        if (Data.ManufacturingProcessChildId > 0 && Data.ProdActivityCategoryChildId > 0)
+        {
+            _templateItems = await Mediator.Send(new GetProductActivityCaseLineTemplateItems(Data.ManufacturingProcessChildId, Data.ProdActivityCategoryChildId));
+        }
+        StateHasChanged();
+    }
+    void SelectedItemprod(NavprodOrderLineModel NAVProdOrder)
     {
 
+        if (NAVProdOrder != null && NAVProdOrder.NavprodOrderLineId>0)
+        {
+            _editContext = new EditContext(Data);
+            Data.OthersOptions = "No";
+        }
+        StateHasChanged();
     }
-    public async  void UpdateDataAsync()
+    async Task OnTemplateUploadGroupValueChanged(string? radioValue)
     {
-
+        _templateItems = new List<ProductActivityCaseLineModel>();
+        Data.ProductActivityCaseLineId = 0; Data.IsTemplateUpload = false;
+        Data.IsTemplateUploadFlag = radioValue;
+        if(radioValue=="Yes")
+        {
+            Data.ProductActivityCaseLineId =null;
+            Data.IsTemplateUpload = true;
+            await getTemplateItems();
+        }
+    }
+    void OnGroupValueChanged(string? radioValue)
+    {
+        _editContext = new EditContext(Data);
+        Data.OthersOptions = "Yes";
+        Data.NavprodOrderLineId = 0;
+        StateHasChanged();
+    }
+    async Task SelectedItemCategoryChanged(ApplicationMasterChildModel selectItem)
+    {
+        _actionItems = new List<ApplicationMasterChildModel>();
+        Data.ProdActivityActionChildD = null;
+        if (selectItem != null && selectItem.ApplicationMasterChildId > 0)
+        {
+            _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(selectItem.ApplicationMasterChildId));
+        }
+        await OnTemplateUploadGroupValueChanged("No");
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
     }
     async Task HandleValidSubmit()
     {
-       
-            var request = new CreateProductionActivityAppCommand
-                {
-                    CompanyID = ParentData.CompanyID,
-                    ProdOrderNo = ParentData.ProdOrderNo,
-                    LocationID = ParentData.LocationID,
-                    AddedDate = DateTime.Now,
-                    SessionId = Guid.NewGuid(),
-                    StatusCodeID = 1,
-                    AddedByUserID = applicationUser.UserID,
-                    ManufacturingProcessChildID = Data.ManufacturingProcessChildID,
-                    ProdActivityCategoryChildID = Data.ProdActivityActionChildD,
-                    ProdActivityActionChildD = Data.ProdActivityActionChildD,
-                    ProdActivityResultID = Data.ProdActivityResultID,
-                    PAApplineComment = Data.PAApplineComment,
-                    AppLineNavprodOrderLineID = Data.AppLineNavprodOrderLineID,
-                    applineAddedByUserID = applicationUser.UserID,
-                    applineAddedDate = DateTime.Now,
-                    applineSessionId = Guid.NewGuid(),
-                    applineStatusCodeID = 1
 
-                };
+        var request = new CreateProductionActivityAppCommand
+            {
+                CompanyId = ParentData.CompanyID,
+                ProdOrderNo = ParentData.ProdOrderNo,
+                LocationId = ParentData.LocationID,
+                AddedDate = DateTime.Now,
+                SessionId = Guid.NewGuid(),
+                LineSessionId = Guid.NewGuid(),
+                StatusCodeID = 1,
+                AddedByUserID = applicationUser.UserID,
+                ManufacturingProcessChildId = Data.ManufacturingProcessChildId,
+                ProdActivityCategoryChildId = Data.ProdActivityCategoryChildId,
+                ProdActivityActionChildD = Data.ProdActivityActionChildD,
+                ProdActivityResultId = Data.ProdActivityResultId,
+                ActivityStatusId = Data.ActivityStatusId,
+                LineComment = Data.LineComment,
+                NavprodOrderLineId = Data.NavprodOrderLineId,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                IsOthersOptions = Data.OthersOptions == "Yes" ? true : false,
+                //IsOthersOptions=Data.IsOthersOptions,
+                IsTemplateUpload = Data.IsTemplateUpload,
+                IsTemplateUploadFlag = Data.IsTemplateUpload==true?"Yes":"No",
+                ProductActivityCaseLineId = Data.ProductActivityCaseLineId > 0?Data.ProductActivityCaseLineId:null,
+                ActivityMasterIds = Data.ActivityMasterIds,
+            };
 
-            var result = await Mediator.Send(request);
-            AddPopup = false;
-            toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+       var result = await Mediator.Send(request);
+        toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
 
-            await JSRuntime.InvokeAsync<string>("ReloadUrl");
-        
     }
     private async Task SubmitFormExternally()
     {
@@ -175,7 +286,7 @@
             await this.HandleValidSubmit();
         }
     }
-  
 
-    
+
+
 }

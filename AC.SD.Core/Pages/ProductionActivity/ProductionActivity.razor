@@ -8,55 +8,80 @@
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
+@inject AC.SD.Core.Services.ToastService toastService
+@using BlazorBarcodeScanner.ZXing.JS
 
-
-<div class="col-md-12" style="height: calc(100vh - 200px);">
-    <div style="height:25%; border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
+<style scoped>
+    .zxing-video-container > video {
+        width: 100%;
+        height: auto;
+    }
+</style>
+<div class="col-md-12">
+    <div style="border: 1px solid #b2afaf;  margin-bottom: 10px; padding:10px;">
         <div class="mini-menu-bar-top">
             <div class="mini-menu-bar-heading">
             </div>
 
             <div>
                 <div class="views-accordion">
-                    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="@addNew" >
+                    <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="@addNew">
                         <DataAnnotationsValidator />
                         <DxFormLayout CssClass="w-100">
-                            <DxFormLayoutItem Caption="Company" ColSpanMd="6">
-                             
+                            <DxFormLayoutItem Caption="Company" ColSpanMd="4">
+
                                 <DxComboBox Data="@_plantItems"
                                             NullText="Select Company..."
-                                            SelectedItemChanged="@((ViewPlants plant) => SelectedItemChanged(plant.PlantID))"
+                                            SelectedItemChanged="@((ViewPlants plant) => SelectedItemPlantChanged(plant?.PlantID,0))"
                                             FilteringMode="DataGridFilteringMode.Contains"
+                                            ListRenderMode="ListRenderMode.Virtual"
                                             TextFieldName="Description"
+                                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
                                             ValueFieldName="PlantID"
-                                            @bind-Value="Data.CompanyID"                                         
+                                @bind-Value="Data.CompanyID"
                                             ShowValidationIcon="true">
+
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.CompanyID)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
-                                <DxComboBox Data="@_ponumberActivities"
-                                            NullText="Select ProdOrderNo..."
-                                            SelectedItemChanged="@((NavprodOrderLine prod) => SelectedItemprod(prod.RePlanRefNo))"
+                            <DxFormLayoutItem Caption="Location" ColSpanMd="4">
+                                <DxComboBox Data="@_productionActivities"
+                                            NullText="Select Loctaion..."
+                                            SelectedItemChanged="@((ProductionActivityApp loc) => SelectedItemloc(loc))"
                                             FilteringMode="DataGridFilteringMode.Contains"
-                                             TextFieldName="prodOrderNo"
-                                            ValueFieldName="RePlanRefNo"
-                                             @bind-Value="Data.ProdOrderNo"
+                                            TextFieldName="DeropdownName"
+                                            ValueFieldName="ICTMasterID"
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                                @bind-Value="Data.LocationID"
                                             ShowValidationIcon="true">
+                                    <Buttons>
+                                        <DxEditorButton IconCssClass="fa fa-qrcode"
+                                                        Tooltip="Scan Location"
+                                                        Click="@(_ => OnButtonClick())" />
+                                    </Buttons>
+                                </DxComboBox>
+                            </DxFormLayoutItem>
+                            <DxFormLayoutItem Caption="Ticket No" ColSpanMd="4">
+                                <DxComboBox Data="@_ponumberActivities"
+                                            NullText="Select Ticket No..."
+                                            SelectedItemChanged="@((NavprodOrderLineModel prod) => SelectedItemprod(prod?.ProdOrderNo))"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="Name"
+                                            ValueFieldName="ProdOrderNo"
+                                            ClearButtonDisplayMode=DataEditorClearButtonDisplayMode.Auto
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                @bind-Value="Data.ProdOrderNo"
+                                            ShowValidationIcon="true">
+                                    <Buttons>
+                                        <DxEditorButton IconCssClass="fa fa-qrcode"
+                                                        Tooltip="Scan Ticket No"
+                                                        Click="@(_ => OnButtonTicketNoClick())" />
+                                    </Buttons>
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => Data.ProdOrderNo)" />
                             </DxFormLayoutItem>
-                            <DxFormLayoutItem Caption="Location" ColSpanMd="6">
-                                <DxComboBox Data="@_productionActivities"
-                                            NullText="Select Loctaion..."                                         
-                                           SelectedItemChanged="@((ProductionActivityApp loc) => SelectedItemloc(loc))"
-                                            FilteringMode="DataGridFilteringMode.Contains"                                          
-                                            TextFieldName="DeropdownName"
-                                            ValueFieldName="ICTMasterID"
-                                            @bind-Value="Data.LocationID"
-                                            ShowValidationIcon="true">
-                                </DxComboBox>
-                            </DxFormLayoutItem>
+
                         </DxFormLayout>
 
                     </EditForm>
@@ -65,7 +90,7 @@
             </div>
         </div>
     </div>
-    <div style="height:80%;border: 1px solid #b2afaf; overflow: auto; padding:10px;">
+    <div style="height:calc(100vh - 195px);border: 1px solid #b2afaf;padding:10px;">
 
 
         <div class="mini-menu-bar-top">
@@ -74,7 +99,7 @@
 
             <div>
                 <div class="views-accordion">
-                    <DxTabs RenderMode="TabsRenderMode.AllTabs" TabsPosition="TabsPosition.Top">
+                    <DxTabs RenderMode="TabsRenderMode.AllTabs" TabsPosition="TabsPosition.Top" ActiveTabIndex="ActiveTabIndex">
                         <DxTabPage Text="Production Order Details">
 
 
@@ -86,8 +111,8 @@
                                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                                     DisplayMode="MenuDisplayMode.Desktop">
                                                 <Items>
-                                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addvalidate"   />
-                                                   
+                                                    <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addvalidate" />
+
                                                 </Items>
                                             </DxMenu>
                                         </div>
@@ -96,10 +121,14 @@
                             </div>
 
 
-
+                            <DxLoadingPanel @bind-Visible="PanelVisible"
+                    IsContentBlocked="true"
+                    ApplyBackgroundShading="true"
+                    IndicatorAreaVisible="false"
+                    Text="Fetching Data...">
                             <DxGrid @ref="AppLine"
                                     Data="_AppLines"
-                                    KeyFieldName="ProductionActivityAppLineID"
+                                    KeyFieldName="ProductionActivityAppLineId"
                                     EditMode="GridEditMode.EditForm"
                                     SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
                                     ColumnResizeMode="GridColumnResizeMode.NextColumn"
@@ -110,34 +139,84 @@
                                     PageSizeSelectorAllRowsItemVisible="true"
                                     PageSizeSelectorItems="@(new int[] { 5,10,20 })"
                                     PageSize="20" CustomizeElement="Grid_CustomizeElement"
-                                    EditModelSaving="OnEditModelSaving"
-                                  
                                     RowClick="OnRowClick"
-                                  
                                     FocusedRowEnabled="true"
                                     AllowSelectRowByClick="true"
                                     SelectionMode="GridSelectionMode.Single"
                                     CssClass="ch-360"
-                                    style="height: calc(100vh - 400px);">
+                                    style="height: calc(100vh - 300px);">
                                 <Columns>
-
-                                    <DxGridDataColumn FieldName="CommentImageType" Caption="Type" MinWidth="180" />
-                                    <DxGridDataColumn FieldName="Process" Caption="Process" MinWidth="180" />
-                                    <DxGridDataColumn FieldName="Action" Caption="Action" MinWidth="180" />
-                                    <DxGridDataColumn FieldName="Result" Caption="Result" MinWidth="180" />
-                                    <DxGridDataColumn FieldName="Category" Caption="Category" MinWidth="180" />
-                                    <DxGridDataColumn FieldName="AddedDate" Caption="Date" MinWidth="180" />
-                                   @* <DxGridDataColumn FieldName="" Caption="Name" MinWidth="180" />
-                                    <DxGridDataColumn FieldName="" Caption="Actions" MinWidth="180" />*@
-                                    <DxGridDataColumn FieldName="ModifiedBy" Caption="ModifiedBy" MinWidth="180" />
-                                    <DxGridDataColumn FieldName="ModifiedDate" Caption="ModifiedDate" MinWidth="180" />
+                                    <DxGridDataColumn Caption="" MinWidth="180">
+                                        <CellDisplayTemplate>
+                                            @{
+                                                var item = (ProductActivityAppModel)context.DataItem;
+                                            }
+                                            <i class="fa fa-eye" aria-hidden="true" style="padding:5px;margin-right: 5px;color:green" title="@item.FileName"></i>
+                                            @if (item.IsLocked == true)
+                                            {
+                                                <i class="fa fa-lock" aria-hidden="true" style="padding:5px;margin-right: 5px;" title="@item.LockedByUser"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="fa fa-lock-open" aria-hidden="true" style="padding:5px;margin-right: 5px;"></i>
+                                            }
+                                            @if (item.DocumentID > 0)
+                                            {
+                                                <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@item.FileName"></i>
+                                            }
+                                        </CellDisplayTemplate>
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn Caption="Name" FieldName="FileName" MinWidth="180">
+                                    </DxGridDataColumn>
+                                    <DxGridDataColumn Caption="Type" FieldName="Type" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Date" FieldName="AddedDate" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Process" FieldName="ManufacturingProcessChild" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Category" FieldName="ProdActivityCategoryChild" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Action List" FieldName="ProdActivityActionChild" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Comment" FieldName="LineComment" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Result" FieldName="ProdActivityResult" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Modified By" FieldName="ModifiedByUser" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Modified Date" FieldName="ModifiedDate" MinWidth="180" />
                                 </Columns>
+                                <TotalSummary>
+                                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
+                                </TotalSummary>
 
-                               
                             </DxGrid>
+                            </DxLoadingPanel>
                         </DxTabPage>
                         <DxTabPage Text="Production Order Details">
+                            <DxGrid @ref="_PoAppLine"
+                                    Data="_poOrderDetails"
+                                    KeyFieldName="NavprodOrderLineId"
+                                    EditMode="GridEditMode.EditForm"
+                                    SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+                                    ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                                    FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+                                    ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                                    PagerNavigationMode="PagerNavigationMode.InputBox"
+                                    PageSizeSelectorVisible="true"
+                                    PageSizeSelectorAllRowsItemVisible="true"
+                                    PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+                                    PageSize="20"
+                                    FocusedRowEnabled="true"
+                                    AllowSelectRowByClick="true"
+                                    CssClass="ch-360"
+                                    style="height: calc(100vh - 300px);">
+                                <Columns>
+                                    <DxGridDataColumn Caption="Prod.Order No" FieldName="ProdOrderNo" MinWidth="180"/>
+                                    <DxGridDataColumn Caption="Item No" FieldName="ItemNo" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Description" FieldName="Name" MinWidth="180" />
+                                    <DxGridDataColumn Caption="For" FieldName="InternalRef" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Qty" FieldName="OutputQty" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Uom" FieldName="Uom" MinWidth="180" />
+                                    <DxGridDataColumn Caption="Status" FieldName="Status" MinWidth="180" />
+                                </Columns>
+                                <TotalSummary>
+                                    <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ProdOrderNo" />
+                                </TotalSummary>
 
+                            </DxGrid>
                         </DxTabPage>
                     </DxTabs>
 
@@ -151,108 +230,126 @@
 
 <DxPopup @bind-Visible="@AddPopup"
          ShowFooter="true"
-         HeaderText="CRT"
+         HeaderText="Add Activity"
          Closed="EulaPopupClosed"
-         Width="800px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+         CloseOnEscape="false" ShowCloseButton="false">
     <BodyContentTemplate>
-        <AddPopupApp ParentData="@Data" @ref="RefToDoLeftNotes"></AddPopupApp>
-                                
-    </BodyContentTemplate>
-    
-</DxPopup>
+        <AddPopupApp ParentData="@Data" @ref="RefToDoLeftNotes" RevokeBack="ClosePopup" _poOrderDetails="@_poOrderDetails"></AddPopupApp>
 
+    </BodyContentTemplate>
+
+</DxPopup>
+<DxPopup @bind-Visible="@PopupLocationScanVisible"
+         CssClass="popup-demo-events"
+         ShowFooter="true" HeaderText="Scan Location" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_reader"
+                                                     StartCameraAutomatically="true"
+                                                     Title="" ShowStart="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true"
+                                                     OnBarcodeReceived="LocationReceivedBarcodeText" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseLocationPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@PopupProductionNoScanVisible"
+         CssClass="popup-demo-events"
+         ShowFooter="true" HeaderText="Scan Ticket No" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_ticketNoReader"
+                                                     StartCameraAutomatically="true"
+                                                     Title="" ShowStart="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true"
+                                                     OnBarcodeReceived="TicketNoReceivedBarcodeText" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseTicketNoPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    int ActiveTabIndex { get; set; } = 0;
     long? CompanyID;
     string? NAVProdOrderno;
     long? LocationID;
     EditContext _editContext;
     private List<ViewPlants> _plantItems;
     private List<ProductionActivityApp> _productionActivities;
-    private List<NavprodOrderLine> _ponumberActivities;
-    //private List<NavprodOrderLine> _ponumberActivities;
-    //ProductionActivityApp Data = new ProductionActivityApp();
+    private List<NavprodOrderLineModel> _ponumberActivities;
+    private List<NavprodOrderLineModel> _poOrderDetails;
     ProductionActivityModel Data = new ProductionActivityModel();
-    ProductionActivityAppLine DataLine = new ProductionActivityAppLine();
     public ApplicationUser applicationUser { get; private set; }
-    IGrid? AppLine { get; set; }
-    private List<ProductionActivityAppLine> _AppLines;
-    private List<ApplicationMasterChildModel> _ProcessLines;
-    bool AddPopup = false;
+    IGrid? AppLine { get; set; } IGrid? _PoAppLine{ get; set; }
+    private List<ProductActivityAppModel> _AppLines;
+    bool AddPopup = false; bool PanelVisible { get; set; } = false;
+    bool PopupLocationScanVisible { get; set; } = false;
+    bool PopupProductionNoScanVisible { get; set; } = false;
     private AddPopupApp? RefToDoLeftNotes { get; set; }
-    //  private AddPopupApp? RefToDoLeftNotes { get; set; }
+    private BarcodeReader _reader; private BarcodeReader _ticketNoReader;
+    private string? LocationName; private string? TicketNo;
+    private ProductActivityAppModel? _selectedItems;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
-        //_productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery());
-        _ProcessLines = await Mediator.Send(new GetAllApplicationMasterChildProQuery());    
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
     }
-
-    void addDelete()
+    async Task SelectedItemloc(ProductionActivityApp loc)
     {
-
-    }
-    async void SelectedItemloc(ProductionActivityApp loc)
-    {
-
-        //  var locationid = await Mediator.Send(new GetAllProductionActivitylocQuery(location));
-        if (loc.LocationID != null )
+        LocationID = 0; _editContext = new EditContext(Data);
+        if (loc != null && loc.ICTMasterID > 0)
         {
-            LocationID = loc.LocationID;
+            LocationID = loc.ICTMasterID;
+        }
+        await onLoadDataList();
+        StateHasChanged();
+    }
+    async Task onLoadDataList()
+    {
+        _AppLines = new List<ProductActivityAppModel>(); _poOrderDetails = new List<NavprodOrderLineModel>();
+        PanelVisible = true;ActiveTabIndex = 0;
+        if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
+        {
+            _AppLines = await Mediator.Send(new GetAllProductionActivityAppLineQuery(CompanyID, NAVProdOrderno, applicationUser.UserID, LocationID));
+            _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(CompanyID, NAVProdOrderno));
+            if (_AppLines != null && _AppLines.Count()>0)
+            {
+                _selectedItems = _AppLines.FirstOrDefault();               
+            }
+            PanelVisible = false;
         }
         StateHasChanged();
     }
-
-    async void SelectedItemChanged(long? companyid )
+    async Task SelectedItemPlantChanged(long? companyid, long? locationID)
     {
+        _productionActivities = new List<ProductionActivityApp>();
+        _ponumberActivities = new List<NavprodOrderLineModel>();
+        _AppLines = new List<ProductActivityAppModel>(); ActiveTabIndex = 0; _poOrderDetails = new List<NavprodOrderLineModel>();
+        NAVProdOrderno = string.Empty; CompanyID = 0; Data.CompanyID = null; Data.LocationID = null; Data.ProdOrderNo = null; LocationID = 0;
+        if (locationID > 0)
+        {
+            Data.LocationID = locationID; LocationID = locationID;
+        }
         if (companyid > 0)
         {
             CompanyID = companyid;
+            Data.CompanyID = companyid;
             _productionActivities = await Mediator.Send(new GetAllProductionActivityAppQuery(companyid));
-            StateHasChanged();
-            try
-            {
-                if (_productionActivities.Count > 0)
-                {
-                    _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(companyid));
-                    //var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery(CompanyID, NAVProdOrderLineId, ProductionActivityAppID));
-
-                    //_AppLines = Lines;
-                    StateHasChanged();
-                }
-
-
-            }
-            catch (Exception exp)
-            {
-
-                throw new Exception(exp.Message, exp);
-            }
-
+            _ponumberActivities = await Mediator.Send(new GetAllProductionActivityPONumberAppQuery(companyid));
         }
+        StateHasChanged();
     }
 
     async void SelectedItemprod(string? NAVProdOrder)
     {
 
-        NAVProdOrderno = NAVProdOrder;
-        if(LocationID >0)
+        NAVProdOrderno = string.Empty;
+        if (!string.IsNullOrEmpty(NAVProdOrder))
         {
-            var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery(CompanyID, NAVProdOrderno, LocationID));
-            _AppLines = Lines;
-            StateHasChanged();
-        }else
-        {
-            var Lines = await Mediator.Send(new GetAllProductionActivityAppLineQuery(CompanyID, NAVProdOrderno, 0));
-            _AppLines = Lines;
-            StateHasChanged();
+            NAVProdOrderno = NAVProdOrder;
+            await onLoadDataList();
         }
-
-
-
+        StateHasChanged();
     }
-
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
         if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
@@ -261,53 +358,113 @@
         }
 
     }
-    async Task OnEditModelSaving(GridEditModelSavingEventArgs e)
-    {
-
-
-
-    }
-
-
     void OnRowClick(GridRowClickEventArgs e)
     {
     }
     void ClosePopup()
     {
-
-        // AppLine.StartEditNewRowAsync();
+        InvokeAsync(onLoadDataList);
         AddPopup = false;
-
+        StateHasChanged();
     }
-    async  Task addNew()
+    void addNew()
     {
-
-        // AppLine.StartEditNewRowAsync();
-
-        AddPopup = true;
-        // RefToDoLeftNotes.UpdateDataAsync();
-
+        _editContext.Validate();
     }
-    private async Task addvalidate()
+    void addvalidate()
     {
-        if (CompanyID != null && NAVProdOrderno != null)
+        addNew();
+        if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
         {
-            await addNew();
+            AddPopup = true;
         }
-        else if(_editContext.Validate())
-        {
-            // draftId = 0;
-            await this.addNew();
-
-        }
-        
-      
     }
     void EulaPopupClosed(PopupClosedEventArgs args)
     {
         AddPopup = false;
-        // UpdateDataAsync();
     }
+    void OnButtonClick()
+    {
+        PopupLocationScanVisible = true;
+    }
+    void CloseLocationPopup()
+    {
+        PopupLocationScanVisible = false;
+        _reader.StopDecoding();
+    }
+    void CloseTicketNoPopup()
+    {
+        PopupProductionNoScanVisible = false;
+        _ticketNoReader.StopDecoding();
+    }
+    void OnButtonTicketNoClick()
+    {
+        PopupProductionNoScanVisible = true;
+    }
+    async Task LocationReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        LocationName = args.BarcodeText; LocationID = 0;
+        if (!string.IsNullOrEmpty(LocationName))
+        {
+            var result = await Mediator.Send(new GetAllProductionActivityLocationAppQuery(LocationName));
+            if (result != null && result.ICTMasterID > 0 && result.CompanyID > 0)
+            {
+                await SelectedItemPlantChanged(result.CompanyID, result.ICTMasterID);
+                toastService.ShowToast("Location Found Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                CloseLocationPopup();
+            }
+            else
+            {
+                toastService.ShowToast("Location Not Found", AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+        else
+        {
+            toastService.ShowToast("Location Not Found", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        StateHasChanged();
+    }
+    async Task TicketNoReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        TicketNo = args.BarcodeText; LocationID = 0;
+        if (!string.IsNullOrEmpty(TicketNo))
+        {
+            var ticketNo = TicketNo.Split("~");
+            if (ticketNo.Length > 0)
+            {
+                var exists = ticketNo.ElementAtOrDefault(5) != null;
+                if (exists == true)
+                {
+                    var poNo = _ponumberActivities.Where(w => w.ProdOrderNo != null).FirstOrDefault(f => f.ProdOrderNo.ToLower() == ticketNo[5].ToLower());
+                    if (poNo != null)
+                    {
+                        Data.ProdOrderNo = poNo.ProdOrderNo; NAVProdOrderno = poNo.ProdOrderNo;
+                        toastService.ShowToast("TicketNo Found Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        CloseTicketNoPopup();
+                        await onLoadDataList();
+                    }
+                    else
+                    {
+                        toastService.ShowToast("TicketNo Not Found", AC.SD.Core.Services.ToastLevel.Error);
+                    }
+                }
+                else
+                {
+                    toastService.ShowToast("Invaild TicketNo", AC.SD.Core.Services.ToastLevel.Error);
+                }
+            }
+            else
+            {
+                toastService.ShowToast("TicketNo Not Found", AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+        else
+        {
+            toastService.ShowToast("TicketNo Not Found", AC.SD.Core.Services.ToastLevel.Error);
+        }
+        StateHasChanged();
+    }
+
 }
 
 

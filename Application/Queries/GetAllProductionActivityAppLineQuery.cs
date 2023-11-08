@@ -1,6 +1,7 @@
 ﻿
 using Application.Queries.Base;
 using Core.Entities;
+using Core.EntityModels;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -11,16 +12,18 @@ using System.Threading.Tasks;
 namespace Application.Queries
 {
    
-     public class GetAllProductionActivityAppLineQuery : PagedRequest, IRequest<List<ProductionActivityAppLine>>
+     public class GetAllProductionActivityAppLineQuery : PagedRequest, IRequest<List<ProductActivityAppModel>>
     {
-        public long? companyID { get; set; }
-        public string? prodorderNo { get; set; }
+        public long? CompanyID { get; set; }
+        public string? ProdorderNo { get; set; }
         public long? LocationID { get; set; }
-        public GetAllProductionActivityAppLineQuery(long? companyid, string?  prododerno ,long? locationid)
+        public long? UserId { get; set; }
+        public GetAllProductionActivityAppLineQuery(long? CompanyID, string? prodorderNo, long? userId, long? locationID)
         {
-            this.companyID = companyid;
-            this.prodorderNo = prododerno;
-            this.LocationID = locationid;
+            this.CompanyID = CompanyID;
+            this.ProdorderNo = prodorderNo;
+            this.LocationID = locationID;
+            this.UserId = userId;
         }
     }
 

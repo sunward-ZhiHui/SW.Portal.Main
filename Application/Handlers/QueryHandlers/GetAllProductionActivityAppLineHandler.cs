@@ -1,5 +1,6 @@
 ﻿using Application.Queries;
 using Core.Entities;
+using Core.EntityModels;
 using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
 using MediatR;
@@ -11,16 +12,16 @@ using System.Threading.Tasks;
 
 namespace Application.Handlers.QueryHandlers
 {
-    public class GetAllProductionActivityAppLineHandler : IRequestHandler<GetAllProductionActivityAppLineQuery, List<ProductionActivityAppLine>>
+    public class GetAllProductionActivityAppLineHandler : IRequestHandler<GetAllProductionActivityAppLineQuery, List<ProductActivityAppModel>>
     {
         private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
         public GetAllProductionActivityAppLineHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
         {
             _productionactivityQueryRepository = productionactivityQueryRepository;
         }
-        public async Task<List<ProductionActivityAppLine>> Handle(GetAllProductionActivityAppLineQuery request, CancellationToken cancellationToken)
+        public async Task<List<ProductActivityAppModel>> Handle(GetAllProductionActivityAppLineQuery request, CancellationToken cancellationToken)
         {
-            return (List<ProductionActivityAppLine>)await _productionactivityQueryRepository.GetAllAsync(request.companyID,request.prodorderNo,request.LocationID);
+            return (List<ProductActivityAppModel>)await _productionactivityQueryRepository.GetAllAsync(request.CompanyID,request.ProdorderNo,request.UserId,request.LocationID);
         }
 
     }

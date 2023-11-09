@@ -17,6 +17,7 @@ namespace Core.EntityModels
         public long? WikiID { get; set; }
         public long? CategoryID { get; set; }
         public string? FileName { get; set; }
+        public string? BreadcumName { get; set; }
         public string? OriginalFileName { get; set; }
         public string DocumentName { get; set; }
         public string DisplayName { get; set; }

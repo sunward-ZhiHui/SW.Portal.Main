@@ -30,10 +30,6 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
                         try
                         {
                             var parameters = new DynamicParameters();
@@ -42,19 +38,17 @@ namespace Infrastructure.Repository.Query
                             var query = "DELETE  FROM AttributeHeader WHERE AttributeID = @id";
 
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            transaction.Commit();
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
                             throw new Exception(exp.Message, exp);
                         }
                     }
-                }
+                
 
             }
             catch (Exception exp)
@@ -280,9 +274,6 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
 
                         try
                         {
@@ -313,7 +304,7 @@ namespace Infrastructure.Repository.Query
                                     "ControlTypeId=@ControlTypeId,IsMultiple=@IsMultiple, " +
                                     "IsRequired=@IsRequired,RequiredMessage=@RequiredMessage,DropDownTypeId=@DropDownTypeId,DataSourceId=@DataSourceId " +
                                     "WHERE  AttributeID = @AttributeID";
-                                await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters, transaction);
+                                await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters);
                             }
                             else
                             {
@@ -339,10 +330,9 @@ namespace Infrastructure.Repository.Query
               OUTPUT INSERTED.AttributeID  -- Replace 'YourIDColumn' with the actual column name of your IDENTITY column
               VALUES (@AttributeName,@IsInternal,@Description,@ControlType,@EntryMask,@RegExp,@AddedByUserID,@AddedDate,@SessionId,@StatusCodeID,@ControlTypeId,@IsMultiple,@IsRequired,@RequiredMessage,@DropDownTypeId,@DataSourceId)";
 
-                                var insertedId = await connection.ExecuteScalarAsync<int>(query, parameters, transaction);
+                                var insertedId = await connection.ExecuteScalarAsync<int>(query, parameters);
                                 attributeHeader.AttributeID = insertedId;
                             }
-                            transaction.Commit();
 
                             return attributeHeader.AttributeID;
 
@@ -351,12 +341,11 @@ namespace Infrastructure.Repository.Query
 
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
                             throw new Exception(exp.Message, exp);
                         }
 
                     }
-                }
+                
 
             }
 

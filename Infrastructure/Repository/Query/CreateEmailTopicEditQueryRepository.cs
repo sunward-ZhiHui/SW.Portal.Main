@@ -46,31 +46,21 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("SessionId", emailTopics.SessionId);
                             parameters.Add("FileData", emailTopics.FileData);
 
                             var query = " UPDATE EmailTopics SET FileData = @FileData WHERE SessionId = @SessionId";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
-                        {
-                            transaction.Rollback();
+                        {                            
                             throw new Exception(exp.Message, exp);
-                        }
-                    }
+                        }                    
                 }
 
             }

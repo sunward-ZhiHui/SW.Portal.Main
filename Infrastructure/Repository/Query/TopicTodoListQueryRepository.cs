@@ -46,11 +46,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("ToDoName", todolist.ToDoName);
@@ -63,9 +59,9 @@ namespace Infrastructure.Repository.Query
 
                             var query = "INSERT INTO TopicToDoList(ToDoName,TopicId,SessionId,AddedByUserID,AddedDate,StatusCodeID,Iscompleted) VALUES (@ToDoName,@TopicId,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@Iscompleted)";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            transaction.Commit();
+                            
 
                             return rowsAffected;
                         }
@@ -73,11 +69,11 @@ namespace Infrastructure.Repository.Query
 
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
+                            
                             throw new Exception(exp.Message, exp);
                         }
 
-                    }
+                    
                 }
 
             }
@@ -94,12 +90,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("Iscompleted", todolist.Iscompleted);
@@ -107,18 +98,18 @@ namespace Infrastructure.Repository.Query
 
                             var query = " UPDATE TopicToDoList SET Iscompleted = @Iscompleted WHERE ID = @ID";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            transaction.Commit();
+                            
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
+                            
                             throw new Exception(exp.Message, exp);
                         }
-                    }
+                    
                 }
 
             }
@@ -136,11 +127,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();                            
                             parameters.Add("id", id);
@@ -148,18 +135,18 @@ namespace Infrastructure.Repository.Query
                             var query = "DELETE  FROM TopicToDoList WHERE ID = @id";
 
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            transaction.Commit();
+                            
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
+                            
                             throw new Exception(exp.Message, exp);
                         }
-                    }
+                    
                 }
 
             }

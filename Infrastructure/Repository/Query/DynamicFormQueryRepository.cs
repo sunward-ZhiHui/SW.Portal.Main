@@ -37,31 +37,25 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+                    try
                     {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", id);
 
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("id", id);
-
-                            var query = "DELETE  FROM DynamicForm WHERE ID = @id";
+                        var query = "DELETE  FROM DynamicForm WHERE ID = @id";
 
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            transaction.Commit();
 
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)
@@ -226,44 +220,40 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+
+                    try
                     {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("Name", dynamicForm.Name);
+                        parameters.Add("ScreenID", dynamicForm.ScreenID);
+                        parameters.Add("SessionID", dynamicForm.SessionID);
+                        parameters.Add("AttributeID", dynamicForm.AttributeID);
+                        parameters.Add("AddedByUserID", dynamicForm.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", dynamicForm.ModifiedByUserID);
+                        parameters.Add("AddedDate", dynamicForm.AddedDate, DbType.DateTime);
+                        parameters.Add("ModifiedDate", dynamicForm.ModifiedDate, DbType.DateTime);
+                        parameters.Add("StatusCodeID", dynamicForm.StatusCodeID);
+                        parameters.Add("IsApproval", dynamicForm.IsApproval);
+                        parameters.Add("FileProfileTypeId", dynamicForm.FileProfileTypeId);
+                        parameters.Add("IsUpload", dynamicForm.IsUpload);
+                        var query = "INSERT INTO DynamicForm(Name,ScreenID,SessionID,AttributeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsApproval,FileProfileTypeId,IsUpload) VALUES " +
+                            "(@Name,@ScreenID,@SessionID,@AttributeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsApproval,@FileProfileTypeId,@IsUpload)";
 
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Name", dynamicForm.Name);
-                            parameters.Add("ScreenID", dynamicForm.ScreenID);
-                            parameters.Add("SessionID", dynamicForm.SessionID);
-                            parameters.Add("AttributeID", dynamicForm.AttributeID);
-                            parameters.Add("AddedByUserID", dynamicForm.AddedByUserID);
-                            parameters.Add("ModifiedByUserID", dynamicForm.ModifiedByUserID);
-                            parameters.Add("AddedDate", dynamicForm.AddedDate, DbType.DateTime);
-                            parameters.Add("ModifiedDate", dynamicForm.ModifiedDate, DbType.DateTime);
-                            parameters.Add("StatusCodeID", dynamicForm.StatusCodeID);
-                            parameters.Add("IsApproval", dynamicForm.IsApproval);
-                            parameters.Add("FileProfileTypeId", dynamicForm.FileProfileTypeId);
-                            parameters.Add("IsUpload", dynamicForm.IsUpload);
-                            var query = "INSERT INTO DynamicForm(Name,ScreenID,SessionID,AttributeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsApproval,FileProfileTypeId,IsUpload) VALUES " +
-                                "(@Name,@ScreenID,@SessionID,@AttributeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsApproval,@FileProfileTypeId,@IsUpload)";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
 
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        return rowsAffected;
                     }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
+
 
             }
             catch (Exception exp)
@@ -279,41 +269,37 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+
+                    try
                     {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("AttributeID", dynamicForm.AttributeID);
+                        parameters.Add("ID", dynamicForm.ID);
+                        parameters.Add("Name", dynamicForm.Name);
+                        parameters.Add("ScreenID", dynamicForm.ScreenID);
+                        parameters.Add("AddedByUserID", dynamicForm.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", dynamicForm.ModifiedByUserID);
+                        parameters.Add("AddedDate", dynamicForm.AddedDate, DbType.DateTime);
+                        parameters.Add("ModifiedDate", dynamicForm.ModifiedDate, DbType.DateTime);
+                        parameters.Add("StatusCodeID", dynamicForm.StatusCodeID);
+                        parameters.Add("IsApproval", dynamicForm.IsApproval);
+                        parameters.Add("FileProfileTypeId", dynamicForm.FileProfileTypeId);
+                        parameters.Add("IsUpload", dynamicForm.IsUpload);
+                        var query = " UPDATE DynamicForm SET AttributeID = @AttributeID,Name =@Name,ScreenID =@ScreenID,ModifiedByUserID=@ModifiedByUserID," +
+                            "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsApproval=@IsApproval,IsUpload=@IsUpload,FileProfileTypeId=@FileProfileTypeId WHERE ID = @ID";
 
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("AttributeID", dynamicForm.AttributeID);
-                            parameters.Add("ID", dynamicForm.ID);
-                            parameters.Add("Name", dynamicForm.Name);
-                            parameters.Add("ScreenID", dynamicForm.ScreenID);
-                            parameters.Add("AddedByUserID", dynamicForm.AddedByUserID);
-                            parameters.Add("ModifiedByUserID", dynamicForm.ModifiedByUserID);
-                            parameters.Add("AddedDate", dynamicForm.AddedDate, DbType.DateTime);
-                            parameters.Add("ModifiedDate", dynamicForm.ModifiedDate, DbType.DateTime);
-                            parameters.Add("StatusCodeID", dynamicForm.StatusCodeID);
-                            parameters.Add("IsApproval", dynamicForm.IsApproval);
-                            parameters.Add("FileProfileTypeId", dynamicForm.FileProfileTypeId);
-                            parameters.Add("IsUpload", dynamicForm.IsUpload);
-                            var query = " UPDATE DynamicForm SET AttributeID = @AttributeID,Name =@Name,ScreenID =@ScreenID,ModifiedByUserID=@ModifiedByUserID," +
-                                "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsApproval=@IsApproval,IsUpload=@IsUpload,FileProfileTypeId=@FileProfileTypeId WHERE ID = @ID";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
 
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)
@@ -353,58 +339,53 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-
-                        try
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormSectionId", dynamicFormSection.DynamicFormSectionId);
+                        parameters.Add("SectionName", dynamicFormSection.SectionName, DbType.String);
+                        parameters.Add("DynamicFormId", dynamicFormSection.DynamicFormId);
+                        parameters.Add("SortOrderBys", dynamicFormSection.SortOrderBy);
+                        parameters.Add("SessionId", dynamicFormSection.SessionId, DbType.Guid);
+                        parameters.Add("AddedByUserID", dynamicFormSection.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", dynamicFormSection.ModifiedByUserID);
+                        parameters.Add("AddedDate", dynamicFormSection.AddedDate, DbType.DateTime);
+                        parameters.Add("ModifiedDate", dynamicFormSection.ModifiedDate, DbType.DateTime);
+                        parameters.Add("StatusCodeID", dynamicFormSection.StatusCodeID);
+                        parameters.Add("IsVisible", dynamicFormSection.IsVisible);
+                        parameters.Add("IsReadOnly", dynamicFormSection.IsReadOnly);
+                        parameters.Add("IsReadWrite", dynamicFormSection.IsReadWrite);
+                        if (dynamicFormSection.DynamicFormSectionId > 0)
                         {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("DynamicFormSectionId", dynamicFormSection.DynamicFormSectionId);
-                            parameters.Add("SectionName", dynamicFormSection.SectionName, DbType.String);
-                            parameters.Add("DynamicFormId", dynamicFormSection.DynamicFormId);
-                            parameters.Add("SortOrderBys", dynamicFormSection.SortOrderBy);
-                            parameters.Add("SessionId", dynamicFormSection.SessionId, DbType.Guid);
-                            parameters.Add("AddedByUserID", dynamicFormSection.AddedByUserID);
-                            parameters.Add("ModifiedByUserID", dynamicFormSection.ModifiedByUserID);
-                            parameters.Add("AddedDate", dynamicFormSection.AddedDate, DbType.DateTime);
-                            parameters.Add("ModifiedDate", dynamicFormSection.ModifiedDate, DbType.DateTime);
-                            parameters.Add("StatusCodeID", dynamicFormSection.StatusCodeID);
-                            parameters.Add("IsVisible", dynamicFormSection.IsVisible);
-                            parameters.Add("IsReadOnly", dynamicFormSection.IsReadOnly);
-                            parameters.Add("IsReadWrite", dynamicFormSection.IsReadWrite);
-                            if (dynamicFormSection.DynamicFormSectionId > 0)
-                            {
-                                var query = " UPDATE DynamicFormSection SET SectionName = @SectionName,DynamicFormId =@DynamicFormId,SortOrderBy=@SortOrderBys," +
-                                    "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsVisible=@IsVisible," +
-                                    "IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite " +
-                                    "WHERE DynamicFormSectionId = @DynamicFormSectionId";
-                                await connection.ExecuteAsync(query, parameters, transaction);
+                            var query = " UPDATE DynamicFormSection SET SectionName = @SectionName,DynamicFormId =@DynamicFormId,SortOrderBy=@SortOrderBys," +
+                                "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsVisible=@IsVisible," +
+                                "IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite " +
+                                "WHERE DynamicFormSectionId = @DynamicFormSectionId";
+                            await connection.ExecuteAsync(query, parameters);
 
-                            }
-                            else
-                            {
-                                parameters.Add("SortOrderBy", GeDynamicFormSectionSort(dynamicFormSection.DynamicFormId));
-                                var query = "INSERT INTO DynamicFormSection(SectionName,DynamicFormId,SessionId,SortOrderBy,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsVisible,IsReadOnly,IsReadWrite)  " +
-                                    "OUTPUT INSERTED.DynamicFormSectionId VALUES " +
-                                    "(@SectionName,@DynamicFormId,@SessionId,@SortOrderBy,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsVisible,@IsReadOnly,@IsReadWrite)";
+                        }
+                        else
+                        {
+                            parameters.Add("SortOrderBy", GeDynamicFormSectionSort(dynamicFormSection.DynamicFormId));
+                            var query = "INSERT INTO DynamicFormSection(SectionName,DynamicFormId,SessionId,SortOrderBy,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsVisible,IsReadOnly,IsReadWrite)  " +
+                                "OUTPUT INSERTED.DynamicFormSectionId VALUES " +
+                                "(@SectionName,@DynamicFormId,@SessionId,@SortOrderBy,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsVisible,@IsReadOnly,@IsReadWrite)";
 
-                                dynamicFormSection.DynamicFormSectionId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                            }
-                            transaction.Commit();
-
-                            return dynamicFormSection;
+                            dynamicFormSection.DynamicFormSectionId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
 
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        return dynamicFormSection;
                     }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
+
 
             }
             catch (Exception exp)
@@ -446,64 +427,60 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+
+                    try
                     {
-
-                        try
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormSectionAttributeId", dynamicFormSection.DynamicFormSectionAttributeId);
+                        parameters.Add("DynamicFormSectionId", dynamicFormSection.DynamicFormSectionId);
+                        parameters.Add("DisplayName", dynamicFormSection.DisplayName, DbType.String);
+                        parameters.Add("AttributeId", dynamicFormSection.AttributeId);
+                        parameters.Add("SortOrderBys", dynamicFormSection.SortOrderBy);
+                        parameters.Add("SessionId", dynamicFormSection.SessionId, DbType.Guid);
+                        parameters.Add("AddedByUserID", dynamicFormSection.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", dynamicFormSection.ModifiedByUserID);
+                        parameters.Add("AddedDate", dynamicFormSection.AddedDate, DbType.DateTime);
+                        parameters.Add("ModifiedDate", dynamicFormSection.ModifiedDate, DbType.DateTime);
+                        parameters.Add("StatusCodeID", dynamicFormSection.StatusCodeID);
+                        parameters.Add("ColSpan", dynamicFormSection.ColSpan);
+                        parameters.Add("IsRequired", dynamicFormSection.IsRequired);
+                        parameters.Add("IsMultiple", dynamicFormSection.IsMultiple);
+                        parameters.Add("RequiredMessage", dynamicFormSection.RequiredMessage, DbType.String);
+                        parameters.Add("IsSpinEditType", dynamicFormSection.IsSpinEditType, DbType.String);
+                        parameters.Add("IsDisplayTableHeader", dynamicFormSection.IsDisplayTableHeader);
+                        if (dynamicFormSection.DynamicFormSectionAttributeId > 0)
                         {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("DynamicFormSectionAttributeId", dynamicFormSection.DynamicFormSectionAttributeId);
-                            parameters.Add("DynamicFormSectionId", dynamicFormSection.DynamicFormSectionId);
-                            parameters.Add("DisplayName", dynamicFormSection.DisplayName, DbType.String);
-                            parameters.Add("AttributeId", dynamicFormSection.AttributeId);
-                            parameters.Add("SortOrderBys", dynamicFormSection.SortOrderBy);
-                            parameters.Add("SessionId", dynamicFormSection.SessionId, DbType.Guid);
-                            parameters.Add("AddedByUserID", dynamicFormSection.AddedByUserID);
-                            parameters.Add("ModifiedByUserID", dynamicFormSection.ModifiedByUserID);
-                            parameters.Add("AddedDate", dynamicFormSection.AddedDate, DbType.DateTime);
-                            parameters.Add("ModifiedDate", dynamicFormSection.ModifiedDate, DbType.DateTime);
-                            parameters.Add("StatusCodeID", dynamicFormSection.StatusCodeID);
-                            parameters.Add("ColSpan", dynamicFormSection.ColSpan);
-                            parameters.Add("IsRequired", dynamicFormSection.IsRequired);
-                            parameters.Add("IsMultiple", dynamicFormSection.IsMultiple);
-                            parameters.Add("RequiredMessage", dynamicFormSection.RequiredMessage, DbType.String);
-                            parameters.Add("IsSpinEditType", dynamicFormSection.IsSpinEditType, DbType.String);
-                            parameters.Add("IsDisplayTableHeader", dynamicFormSection.IsDisplayTableHeader);
-                            if (dynamicFormSection.DynamicFormSectionAttributeId > 0)
-                            {
 
-                                var query = "UPDATE DynamicFormSectionAttribute SET DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
-                                    "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,IsSpinEditType=@IsSpinEditType," +
-                                    "StatusCodeID=@StatusCodeID,ColSpan=@ColSpan,SortOrderBy=@SortOrderBys,IsRequired=@IsRequired,IsMultiple=@IsMultiple,RequiredMessage=@RequiredMessage,IsDisplayTableHeader=@IsDisplayTableHeader " +
-                                    "WHERE DynamicFormSectionAttributeId = @DynamicFormSectionAttributeId";
-                                await connection.ExecuteAsync(query, parameters, transaction);
+                            var query = "UPDATE DynamicFormSectionAttribute SET DisplayName = @DisplayName,AttributeId =@AttributeId,DynamicFormSectionId=@DynamicFormSectionId," +
+                                "SessionId =@SessionId,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,IsSpinEditType=@IsSpinEditType," +
+                                "StatusCodeID=@StatusCodeID,ColSpan=@ColSpan,SortOrderBy=@SortOrderBys,IsRequired=@IsRequired,IsMultiple=@IsMultiple,RequiredMessage=@RequiredMessage,IsDisplayTableHeader=@IsDisplayTableHeader " +
+                                "WHERE DynamicFormSectionAttributeId = @DynamicFormSectionAttributeId";
+                            await connection.ExecuteAsync(query, parameters);
 
-                            }
-                            else
-                            {
-                                parameters.Add("SortOrderBy", GeDynamicFormSectionAttributeSort(dynamicFormSection.DynamicFormSectionId));
-                                var query = "INSERT INTO DynamicFormSectionAttribute(DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
-                                    "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple,RequiredMessage,IsSpinEditType,IsDisplayTableHeader) VALUES " +
-                                    "(@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
-                                    "@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@ColSpan,@DynamicFormSectionId,@IsRequired,@IsMultiple,@RequiredMessage,@IsSpinEditType,@IsDisplayTableHeader)";
+                        }
+                        else
+                        {
+                            parameters.Add("SortOrderBy", GeDynamicFormSectionAttributeSort(dynamicFormSection.DynamicFormSectionId));
+                            var query = "INSERT INTO DynamicFormSectionAttribute(DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
+                                "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple,RequiredMessage,IsSpinEditType,IsDisplayTableHeader) VALUES " +
+                                "(@DisplayName,@AttributeId,@SessionId,@SortOrderBy," +
+                                "@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@ColSpan,@DynamicFormSectionId,@IsRequired,@IsMultiple,@RequiredMessage,@IsSpinEditType,@IsDisplayTableHeader)";
 
-                                dynamicFormSection.DynamicFormSectionAttributeId = await connection.ExecuteAsync(query, parameters, transaction);
-                            }
-                            transaction.Commit();
-
-                            return dynamicFormSection;
+                            dynamicFormSection.DynamicFormSectionAttributeId = await connection.ExecuteAsync(query, parameters);
                         }
 
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        return dynamicFormSection;
                     }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
+
 
             }
             catch (Exception exp)
@@ -589,38 +566,34 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-                        try
+                        var result = await UpdateDynamicFormSectionSort(dynamicFormSection.DynamicFormId, dynamicFormSection.SortOrderBy);
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", dynamicFormSection.DynamicFormSectionId);
+                        var sortby = dynamicFormSection.SortOrderBy;
+                        var query = "DELETE  FROM DynamicFormSection WHERE DynamicFormSectionID = @id;";
+                        if (result != null)
                         {
-                            var result = await UpdateDynamicFormSectionSort(dynamicFormSection.DynamicFormId, dynamicFormSection.SortOrderBy);
-                            var parameters = new DynamicParameters();
-                            parameters.Add("id", dynamicFormSection.DynamicFormSectionId);
-                            var sortby = dynamicFormSection.SortOrderBy;
-                            var query = "DELETE  FROM DynamicFormSection WHERE DynamicFormSectionID = @id;";
-                            if (result != null)
+                            result.ForEach(s =>
                             {
-                                result.ForEach(s =>
-                                {
-                                    query += "Update  DynamicFormSection SET SortOrderBy=" + sortby + "  WHERE DynamicFormSectionID =" + s.DynamicFormSectionId + ";";
-                                    sortby++;
-                                });
-                            }
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
+                                query += "Update  DynamicFormSection SET SortOrderBy=" + sortby + "  WHERE DynamicFormSectionID =" + s.DynamicFormSectionId + ";";
+                                sortby++;
+                            });
                         }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)
@@ -663,46 +636,42 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
 
-                        try
+
+                    try
+                    {
+                        var query = string.Empty;
+                        int? SortOrder = dynamicFormSection.SortOrderAnotherBy > dynamicFormSection.SortOrderBy ? (dynamicFormSection.SortOrderBy + 1) : dynamicFormSection.SortOrderAnotherBy;
+                        query += "Update  DynamicFormSection SET SortOrderBy=" + dynamicFormSection.SortOrderBy + "  WHERE DynamicFormSectionID =" + dynamicFormSection.DynamicFormSectionId + ";";
+                        if (SortOrder > 0)
                         {
-                            var query = string.Empty;
-                            int? SortOrder = dynamicFormSection.SortOrderAnotherBy > dynamicFormSection.SortOrderBy ? (dynamicFormSection.SortOrderBy + 1) : dynamicFormSection.SortOrderAnotherBy;
-                            query += "Update  DynamicFormSection SET SortOrderBy=" + dynamicFormSection.SortOrderBy + "  WHERE DynamicFormSectionID =" + dynamicFormSection.DynamicFormSectionId + ";";
-                            if (SortOrder > 0)
+                            var result = await GetUpdateDynamicFormSectionSortOrder(dynamicFormSection);
+                            if (result != null && result.Count > 0)
                             {
-                                var result = await GetUpdateDynamicFormSectionSortOrder(dynamicFormSection);
-                                if (result != null && result.Count > 0)
+
+                                result.ForEach(s =>
                                 {
 
-                                    result.ForEach(s =>
-                                    {
+                                    query += "Update  DynamicFormSection SET SortOrderBy=" + SortOrder + "  WHERE DynamicFormSectionID =" + s.DynamicFormSectionId + ";";
+                                    SortOrder++;
+                                });
 
-                                        query += "Update  DynamicFormSection SET SortOrderBy=" + SortOrder + "  WHERE DynamicFormSectionID =" + s.DynamicFormSectionId + ";";
-                                        SortOrder++;
-                                    });
-
-                                }
-
-                                var rowsAffected = await connection.ExecuteAsync(query, null, transaction);
                             }
-                            transaction.Commit();
 
-                            return dynamicFormSection;
+                            var rowsAffected = await connection.ExecuteAsync(query, null);
                         }
 
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        return dynamicFormSection;
                     }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
+
 
             }
             catch (Exception exp)
@@ -739,38 +708,34 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-                        try
+                        var result = await UpdateDynamicFormSectionAttributeSort(dynamicFormSectionAttribute.DynamicFormSectionId, dynamicFormSectionAttribute.SortOrderBy);
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
+                        var sortby = dynamicFormSectionAttribute.SortOrderBy;
+                        var query = "DELETE  FROM DynamicFormSectionAttribute WHERE DynamicFormSectionAttributeId = @id;";
+                        if (result != null)
                         {
-                            var result = await UpdateDynamicFormSectionAttributeSort(dynamicFormSectionAttribute.DynamicFormSectionId, dynamicFormSectionAttribute.SortOrderBy);
-                            var parameters = new DynamicParameters();
-                            parameters.Add("id", dynamicFormSectionAttribute.DynamicFormSectionAttributeId);
-                            var sortby = dynamicFormSectionAttribute.SortOrderBy;
-                            var query = "DELETE  FROM DynamicFormSectionAttribute WHERE DynamicFormSectionAttributeId = @id;";
-                            if (result != null)
+                            result.ForEach(s =>
                             {
-                                result.ForEach(s =>
-                                {
-                                    query += "Update  DynamicFormSectionAttribute SET SortOrderBy=" + sortby + "  WHERE DynamicFormSectionAttributeId =" + s.DynamicFormSectionAttributeId + ";";
-                                    sortby++;
-                                });
-                            }
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
+                                query += "Update  DynamicFormSectionAttribute SET SortOrderBy=" + sortby + "  WHERE DynamicFormSectionAttributeId =" + s.DynamicFormSectionAttributeId + ";";
+                                sortby++;
+                            });
                         }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)
@@ -816,43 +781,39 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
 
-                        try
+
+                    try
+                    {
+                        var query = string.Empty;
+                        int? SortOrder = dynamicFormSectionAttribute.SortOrderAnotherBy > dynamicFormSectionAttribute.SortOrderBy ? (dynamicFormSectionAttribute.SortOrderBy + 1) : dynamicFormSectionAttribute.SortOrderAnotherBy;
+                        query += "Update  DynamicFormSectionAttribute SET SortOrderBy=" + dynamicFormSectionAttribute.SortOrderBy + "  WHERE DynamicFormSectionAttributeId =" + dynamicFormSectionAttribute.DynamicFormSectionAttributeId + ";";
+                        if (SortOrder > 0)
                         {
-                            var query = string.Empty;
-                            int? SortOrder = dynamicFormSectionAttribute.SortOrderAnotherBy > dynamicFormSectionAttribute.SortOrderBy ? (dynamicFormSectionAttribute.SortOrderBy + 1) : dynamicFormSectionAttribute.SortOrderAnotherBy;
-                            query += "Update  DynamicFormSectionAttribute SET SortOrderBy=" + dynamicFormSectionAttribute.SortOrderBy + "  WHERE DynamicFormSectionAttributeId =" + dynamicFormSectionAttribute.DynamicFormSectionAttributeId + ";";
-                            if (SortOrder > 0)
+                            var result = await GetUpdateDynamicFormSectionAttributeSortOrder(dynamicFormSectionAttribute);
+                            if (result != null && result.Count > 0)
                             {
-                                var result = await GetUpdateDynamicFormSectionAttributeSortOrder(dynamicFormSectionAttribute);
-                                if (result != null && result.Count > 0)
+
+                                result.ForEach(s =>
                                 {
 
-                                    result.ForEach(s =>
-                                    {
+                                    query += "Update  DynamicFormSectionAttribute SET SortOrderBy=" + SortOrder + "  WHERE DynamicFormSectionAttributeId =" + s.DynamicFormSectionAttributeId + ";";
+                                    SortOrder++;
+                                });
 
-                                        query += "Update  DynamicFormSectionAttribute SET SortOrderBy=" + SortOrder + "  WHERE DynamicFormSectionAttributeId =" + s.DynamicFormSectionAttributeId + ";";
-                                        SortOrder++;
-                                    });
-
-                                }
                             }
-                            var rowsAffected = await connection.ExecuteAsync(query, null, transaction);
-                            transaction.Commit();
-                            return dynamicFormSectionAttribute;
                         }
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        var rowsAffected = await connection.ExecuteAsync(query, null);
+                        return dynamicFormSectionAttribute;
                     }
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
+
 
             }
             catch (Exception exp)
@@ -867,43 +828,39 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+
+                    try
                     {
 
-                        try
+                        var query = string.Empty;
+                        int? SortOrderBy = GeDynamicFormSectionAttributeSort(dynamicFormSectionId);
+                        var parameters = new DynamicParameters();
+                        parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
+                        if (dynamicFormSectionId > 0 && attributeIds != null && attributeIds.Count() > 0)
                         {
-
-                            var query = string.Empty;
-                            int? SortOrderBy = GeDynamicFormSectionAttributeSort(dynamicFormSectionId);
-                            var parameters = new DynamicParameters();
-                            parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
-                            if (dynamicFormSectionId > 0 && attributeIds != null && attributeIds.Count() > 0)
+                            attributeIds.ToList().ForEach(s =>
                             {
-                                attributeIds.ToList().ForEach(s =>
-                                {
 
-                                    query += "INSERT INTO DynamicFormSectionAttribute(DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
-                                    "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple) VALUES " +
-                                    "('" + s.Description + "'," + s.AttributeID + ",'" + Guid.NewGuid() + "'," + SortOrderBy + "," +
-                                    "" + UserId + "," + UserId + ",@AddedDate,@AddedDate," +
-                                    "1,6," + dynamicFormSectionId + ",0,0);";
-                                    SortOrderBy++;
-                                });
-                                await connection.ExecuteAsync(query, parameters, transaction);
-                            }
-                            transaction.Commit();
-
-                            return dynamicFormSectionId;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
+                                query += "INSERT INTO DynamicFormSectionAttribute(DisplayName,AttributeId,SessionId,SortOrderBy,AddedByUserID," +
+                                "ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,ColSpan,DynamicFormSectionId,IsRequired,IsMultiple) VALUES " +
+                                "('" + s.Description + "'," + s.AttributeID + ",'" + Guid.NewGuid() + "'," + SortOrderBy + "," +
+                                "" + UserId + "," + UserId + ",@AddedDate,@AddedDate," +
+                                "1,6," + dynamicFormSectionId + ",0,0);";
+                                SortOrderBy++;
+                            });
+                            await connection.ExecuteAsync(query, parameters);
                         }
 
+                        return dynamicFormSectionId;
                     }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
+
 
             }
             catch (Exception exp)
@@ -919,55 +876,51 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+
+                    try
                     {
-
-                        try
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
+                        parameters.Add("DynamicFormItem", dynamicFormData.DynamicFormItem, DbType.String);
+                        parameters.Add("DynamicFormId", dynamicFormData.DynamicFormId);
+                        parameters.Add("SessionId", dynamicFormData.SessionId, DbType.Guid);
+                        parameters.Add("AddedByUserID", dynamicFormData.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", dynamicFormData.ModifiedByUserID);
+                        parameters.Add("AddedDate", dynamicFormData.AddedDate, DbType.DateTime);
+                        parameters.Add("ModifiedDate", dynamicFormData.ModifiedDate, DbType.DateTime);
+                        parameters.Add("StatusCodeID", dynamicFormData.StatusCodeID);
+                        parameters.Add("IsSendApproval", dynamicFormData.IsSendApproval);
+                        parameters.Add("FileProfileSessionID", dynamicFormData.FileProfileSessionID);
+                        if (dynamicFormData.DynamicFormDataId > 0)
                         {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
-                            parameters.Add("DynamicFormItem", dynamicFormData.DynamicFormItem, DbType.String);
-                            parameters.Add("DynamicFormId", dynamicFormData.DynamicFormId);
-                            parameters.Add("SessionId", dynamicFormData.SessionId, DbType.Guid);
-                            parameters.Add("AddedByUserID", dynamicFormData.AddedByUserID);
-                            parameters.Add("ModifiedByUserID", dynamicFormData.ModifiedByUserID);
-                            parameters.Add("AddedDate", dynamicFormData.AddedDate, DbType.DateTime);
-                            parameters.Add("ModifiedDate", dynamicFormData.ModifiedDate, DbType.DateTime);
-                            parameters.Add("StatusCodeID", dynamicFormData.StatusCodeID);
-                            parameters.Add("IsSendApproval", dynamicFormData.IsSendApproval);
-                            parameters.Add("FileProfileSessionID", dynamicFormData.FileProfileSessionID);
-                            if (dynamicFormData.DynamicFormDataId > 0)
-                            {
-                                var query = "UPDATE DynamicFormData SET DynamicFormItem = @DynamicFormItem,DynamicFormId =@DynamicFormId," +
-                                    "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsSendApproval=@IsSendApproval " +
-                                    "WHERE DynamicFormDataId = @DynamicFormDataId;\n\r";
-                                query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Update");
-                                await connection.ExecuteAsync(query, parameters, transaction);
+                            var query = "UPDATE DynamicFormData SET DynamicFormItem = @DynamicFormItem,DynamicFormId =@DynamicFormId," +
+                                "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsSendApproval=@IsSendApproval " +
+                                "WHERE DynamicFormDataId = @DynamicFormDataId;\n\r";
+                            query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Update");
+                            await connection.ExecuteAsync(query, parameters);
 
-                            }
-                            else
-                            {
-                                var query = "INSERT INTO DynamicFormData(DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsSendApproval,FileProfileSessionID)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
-                                    "(@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval,@FileProfileSessionID);\n\r";
-                                query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Add");
-                                dynamicFormData.DynamicFormDataId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                        }
+                        else
+                        {
+                            var query = "INSERT INTO DynamicFormData(DynamicFormItem,DynamicFormId,SessionId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsSendApproval,FileProfileSessionID)  OUTPUT INSERTED.DynamicFormDataId VALUES " +
+                                "(@DynamicFormItem,@DynamicFormId,@SessionId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsSendApproval,@FileProfileSessionID);\n\r";
+                            query += await UpdateDynamicFormSectionAttributeCount(dynamicFormData, "Add");
+                            dynamicFormData.DynamicFormDataId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
 
-                            }
-                            transaction.Commit();
-
-                            return dynamicFormData;
                         }
 
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        return dynamicFormData;
                     }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+
                 }
 
             }
@@ -983,40 +936,35 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-
-                        try
+                        var query = string.Empty;
+                        var _dynamicFormApproval = (List<DynamicFormApproval>?)await GetDynamicFormApprovalByID(dynamicFormData.DynamicFormId, dynamicFormData.DynamicFormDataId);
+                        if (_dynamicFormApproval != null)
                         {
-                            var query = string.Empty;
-                            var _dynamicFormApproval = (List<DynamicFormApproval>?)await GetDynamicFormApprovalByID(dynamicFormData.DynamicFormId, dynamicFormData.DynamicFormDataId);
-                            if (_dynamicFormApproval != null)
+
+                            _dynamicFormApproval.ForEach(s =>
                             {
-
-                                _dynamicFormApproval.ForEach(s =>
-                                {
-                                    query += "INSERT INTO DynamicFormApproved(DynamicFormApprovalID,DynamicFormDataID,ApprovedDescription,UserID)VALUES " +
-                                    "(" + s.DynamicFormApprovalId + "," + dynamicFormData.DynamicFormDataId + ",'" + s.Description + "'," + s.ApprovalUserId + ");\n\r";
-                                });
-                                if (!string.IsNullOrEmpty(query))
-                                {
-                                    await connection.ExecuteAsync(query, null, transaction);
-                                }
+                                query += "INSERT INTO DynamicFormApproved(DynamicFormApprovalID,DynamicFormDataID,ApprovedDescription,UserID)VALUES " +
+                                "(" + s.DynamicFormApprovalId + "," + dynamicFormData.DynamicFormDataId + ",'" + s.Description + "'," + s.ApprovalUserId + ");\n\r";
+                            });
+                            if (!string.IsNullOrEmpty(query))
+                            {
+                                await connection.ExecuteAsync(query, null);
                             }
-                            transaction.Commit();
-
-                            return dynamicFormData;
                         }
 
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        return dynamicFormData;
                     }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+
                 }
 
             }
@@ -1492,28 +1440,24 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
 
-                            var query = await DeleteDynamicFormCurrentSectionAttribute(dynamicFormData);
-                            query += await DeleteDynamicFormApproved(dynamicFormData);
-                            query += "DELETE  FROM DynamicFormApproved WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
-                            query += "DELETE  FROM DynamicFormData WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-                            transaction.Commit();
-                            return dynamicFormData;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormDataId", dynamicFormData.DynamicFormDataId);
+
+                        var query = await DeleteDynamicFormCurrentSectionAttribute(dynamicFormData);
+                        query += await DeleteDynamicFormApproved(dynamicFormData);
+                        query += "DELETE  FROM DynamicFormApproved WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
+                        query += "DELETE  FROM DynamicFormData WHERE DynamicFormDataId = @DynamicFormDataId;\r\n";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return dynamicFormData;
                     }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
 
             }
@@ -1555,55 +1499,50 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-
-                        try
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormApprovalId", dynamicFormApproval.DynamicFormApprovalId);
+                        parameters.Add("ApprovalUserId", dynamicFormApproval.ApprovalUserId);
+                        parameters.Add("DynamicFormId", dynamicFormApproval.DynamicFormId);
+                        parameters.Add("AddedByUserID", dynamicFormApproval.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", dynamicFormApproval.ModifiedByUserID);
+                        parameters.Add("AddedDate", dynamicFormApproval.AddedDate, DbType.DateTime);
+                        parameters.Add("ModifiedDate", dynamicFormApproval.ModifiedDate, DbType.DateTime);
+                        parameters.Add("StatusCodeID", dynamicFormApproval.StatusCodeID);
+                        parameters.Add("IsApproved", dynamicFormApproval.IsApproved);
+                        parameters.Add("SortOrderBys", dynamicFormApproval.SortOrderBy);
+                        parameters.Add("Description", dynamicFormApproval.Description, DbType.String);
+                        if (dynamicFormApproval.DynamicFormApprovalId > 0)
                         {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("DynamicFormApprovalId", dynamicFormApproval.DynamicFormApprovalId);
-                            parameters.Add("ApprovalUserId", dynamicFormApproval.ApprovalUserId);
-                            parameters.Add("DynamicFormId", dynamicFormApproval.DynamicFormId);
-                            parameters.Add("AddedByUserID", dynamicFormApproval.AddedByUserID);
-                            parameters.Add("ModifiedByUserID", dynamicFormApproval.ModifiedByUserID);
-                            parameters.Add("AddedDate", dynamicFormApproval.AddedDate, DbType.DateTime);
-                            parameters.Add("ModifiedDate", dynamicFormApproval.ModifiedDate, DbType.DateTime);
-                            parameters.Add("StatusCodeID", dynamicFormApproval.StatusCodeID);
-                            parameters.Add("IsApproved", dynamicFormApproval.IsApproved);
-                            parameters.Add("SortOrderBys", dynamicFormApproval.SortOrderBy);
-                            parameters.Add("Description", dynamicFormApproval.Description, DbType.String);
-                            if (dynamicFormApproval.DynamicFormApprovalId > 0)
-                            {
-                                var query = "UPDATE DynamicFormApproval SET ApprovalUserId = @ApprovalUserId,DynamicFormId =@DynamicFormId,SortOrderBy=@SortOrderBys,\n\r" +
-                                    "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsApproved=@IsApproved,Description=@Description\n\r" +
-                                    "WHERE DynamicFormApprovalId = @DynamicFormApprovalId;\n\r";
-                                await connection.ExecuteAsync(query, parameters, transaction);
+                            var query = "UPDATE DynamicFormApproval SET ApprovalUserId = @ApprovalUserId,DynamicFormId =@DynamicFormId,SortOrderBy=@SortOrderBys,\n\r" +
+                                "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsApproved=@IsApproved,Description=@Description\n\r" +
+                                "WHERE DynamicFormApprovalId = @DynamicFormApprovalId;\n\r";
+                            await connection.ExecuteAsync(query, parameters);
 
-                            }
-                            else
-                            {
-                                parameters.Add("SortOrderBy", GetDynamicFormApprovalSort(dynamicFormApproval.DynamicFormId));
-                                var query = "INSERT INTO DynamicFormApproval(ApprovalUserId,DynamicFormId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,SortOrderBy,IsApproved,Description)  OUTPUT INSERTED.DynamicFormApprovalId VALUES " +
-                                    "(@ApprovalUserId,@DynamicFormId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@SortOrderBy,@IsApproved,@Description);\n\r";
-                                dynamicFormApproval.DynamicFormApprovalId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                        }
+                        else
+                        {
+                            parameters.Add("SortOrderBy", GetDynamicFormApprovalSort(dynamicFormApproval.DynamicFormId));
+                            var query = "INSERT INTO DynamicFormApproval(ApprovalUserId,DynamicFormId,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,SortOrderBy,IsApproved,Description)  OUTPUT INSERTED.DynamicFormApprovalId VALUES " +
+                                "(@ApprovalUserId,@DynamicFormId,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@SortOrderBy,@IsApproved,@Description);\n\r";
+                            dynamicFormApproval.DynamicFormApprovalId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
 
-                            }
-                            transaction.Commit();
-
-                            return dynamicFormApproval;
                         }
 
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        return dynamicFormApproval;
                     }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
+
 
             }
             catch (Exception exp)
@@ -1662,35 +1601,31 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-                        try
+                        var result = await UpdateDynamicFormApprovalSort(dynamicFormApproval.DynamicFormId, dynamicFormApproval.SortOrderBy);
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", dynamicFormApproval.DynamicFormApprovalId);
+                        var sortby = dynamicFormApproval.SortOrderBy;
+                        var query = "DELETE  FROM DynamicFormApproval WHERE DynamicFormApprovalId = @id;";
+                        if (result != null)
                         {
-                            var result = await UpdateDynamicFormApprovalSort(dynamicFormApproval.DynamicFormId, dynamicFormApproval.SortOrderBy);
-                            var parameters = new DynamicParameters();
-                            parameters.Add("id", dynamicFormApproval.DynamicFormApprovalId);
-                            var sortby = dynamicFormApproval.SortOrderBy;
-                            var query = "DELETE  FROM DynamicFormApproval WHERE DynamicFormApprovalId = @id;";
-                            if (result != null)
+                            result.ForEach(s =>
                             {
-                                result.ForEach(s =>
-                                {
-                                    query += "Update  DynamicFormApproval SET SortOrderBy=" + sortby + "  WHERE DynamicFormApprovalId =" + s.DynamicFormApprovalId + ";";
-                                    sortby++;
-                                });
-                            }
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-                            transaction.Commit();
-                            return dynamicFormApproval;
+                                query += "Update  DynamicFormApproval SET SortOrderBy=" + sortby + "  WHERE DynamicFormApprovalId =" + s.DynamicFormApprovalId + ";";
+                                sortby++;
+                            });
                         }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return dynamicFormApproval;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)
@@ -1733,45 +1668,41 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
 
-                        try
+
+                    try
+                    {
+                        var query = string.Empty;
+                        int? SortOrder = dynamicFormApproval.SortOrderAnotherBy > dynamicFormApproval.SortOrderBy ? (dynamicFormApproval.SortOrderBy + 1) : dynamicFormApproval.SortOrderAnotherBy;
+                        query += "Update  DynamicFormApproval SET SortOrderBy=" + dynamicFormApproval.SortOrderBy + "  WHERE DynamicFormApprovalId =" + dynamicFormApproval.DynamicFormApprovalId + ";";
+                        if (SortOrder > 0)
                         {
-                            var query = string.Empty;
-                            int? SortOrder = dynamicFormApproval.SortOrderAnotherBy > dynamicFormApproval.SortOrderBy ? (dynamicFormApproval.SortOrderBy + 1) : dynamicFormApproval.SortOrderAnotherBy;
-                            query += "Update  DynamicFormApproval SET SortOrderBy=" + dynamicFormApproval.SortOrderBy + "  WHERE DynamicFormApprovalId =" + dynamicFormApproval.DynamicFormApprovalId + ";";
-                            if (SortOrder > 0)
+                            var result = await GetUpdateDynamicFormApprovalSortOrder(dynamicFormApproval);
+                            if (result != null && result.Count > 0)
                             {
-                                var result = await GetUpdateDynamicFormApprovalSortOrder(dynamicFormApproval);
-                                if (result != null && result.Count > 0)
+
+                                result.ForEach(s =>
                                 {
 
-                                    result.ForEach(s =>
-                                    {
+                                    query += "Update  DynamicFormApproval SET SortOrderBy=" + SortOrder + "  WHERE DynamicFormApprovalId =" + s.DynamicFormApprovalId + ";";
+                                    SortOrder++;
+                                });
 
-                                        query += "Update  DynamicFormApproval SET SortOrderBy=" + SortOrder + "  WHERE DynamicFormApprovalId =" + s.DynamicFormApprovalId + ";";
-                                        SortOrder++;
-                                    });
-
-                                }
-
-                                var rowsAffected = await connection.ExecuteAsync(query, null, transaction);
                             }
-                            transaction.Commit();
 
-                            return dynamicFormApproval;
+                            var rowsAffected = await connection.ExecuteAsync(query, null);
                         }
 
-
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        return dynamicFormApproval;
                     }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+
                 }
 
             }
@@ -1814,30 +1745,26 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
 
-                            var parameters = new DynamicParameters();
-                            parameters.Add("DynamicFormApprovalId", value.DynamicFormApprovalId);
-                            parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
-                            parameters.Add("ModifiedByUserId", value.ModifiedByUserID);
-                            parameters.Add("Description", value.Description, DbType.String);
-                            var query = "Update DynamicFormApproval SET Description=@Description,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE " +
-                                "DynamicFormApprovalId=@DynamicFormApprovalId";
-                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                            transaction.Commit();
-                            return value;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                    try
+                    {
+
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormApprovalId", value.DynamicFormApprovalId);
+                        parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                        parameters.Add("ModifiedByUserId", value.ModifiedByUserID);
+                        parameters.Add("Description", value.Description, DbType.String);
+                        var query = "Update DynamicFormApproval SET Description=@Description,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE " +
+                            "DynamicFormApprovalId=@DynamicFormApprovalId";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)
@@ -1908,93 +1835,89 @@ namespace Infrastructure.Repository.Query
                     var userExitsRoles = await GetDynamicFormSectionSecurityEmptyAsync(value.DynamicFormSectionId);
                     var userGroupUsers = await GetUserGroupUserList();
                     var LevelUsers = await GetLeveMasterUsersList(value.SelectLevelMasterIDs);
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            var query = string.Empty;
-                            var parameters = new DynamicParameters();
-                            parameters.Add("IsReadWrite", value.IsReadWrite);
-                            parameters.Add("IsReadOnly", value.IsReadOnly);
-                            parameters.Add("IsVisible", value.IsVisible);
-                            parameters.Add("DynamicFormSectionId", value.DynamicFormSectionId);
-                            query += " UPDATE DynamicFormSection SET IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionId = @DynamicFormSectionId;\r\n";
-                            if (value.IsVisible == true)
-                            {
-                                if (value.IsReadOnly == true || value.IsReadWrite == true)
-                                {
-                                    if (value.Type == "User")
-                                    {
-                                        if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
-                                        {
-                                            foreach (var item in value.SelectUserIDs)
-                                            {
-                                                var counts = userExitsRoles.Where(w => w.UserId == item).Count();
-                                                if (counts == 0)
-                                                {
-                                                    query += "INSERT INTO [DynamicFormSectionSecurity](DynamicFormSectionId,UserId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
-                                                        "VALUES (@DynamicFormSectionId," + item + ");\r\n";
 
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if (value.Type == "UserGroup")
+                    try
+                    {
+                        var query = string.Empty;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("IsReadWrite", value.IsReadWrite);
+                        parameters.Add("IsReadOnly", value.IsReadOnly);
+                        parameters.Add("IsVisible", value.IsVisible);
+                        parameters.Add("DynamicFormSectionId", value.DynamicFormSectionId);
+                        query += " UPDATE DynamicFormSection SET IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionId = @DynamicFormSectionId;\r\n";
+                        if (value.IsVisible == true)
+                        {
+                            if (value.IsReadOnly == true || value.IsReadWrite == true)
+                            {
+                                if (value.Type == "User")
+                                {
+                                    if (value.SelectUserIDs != null && value.SelectUserIDs.Count() > 0)
                                     {
-                                        if (value.SelectUserGroupIDs != null && value.SelectUserGroupIDs.Count() > 0)
+                                        foreach (var item in value.SelectUserIDs)
                                         {
-                                            var userGropuIds = userGroupUsers.Where(w => value.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
-                                            if (userGropuIds != null && userGropuIds.Count > 0)
+                                            var counts = userExitsRoles.Where(w => w.UserId == item).Count();
+                                            if (counts == 0)
                                             {
-                                                userGropuIds.ForEach(s =>
-                                                {
-                                                    var counts = userExitsRoles.Where(w => w.UserId == s.UserId).Count();
-                                                    if (counts == 0)
-                                                    {
-                                                        query += "INSERT INTO [DynamicFormSectionSecurity](DynamicFormSectionId,UserId,UserGroupId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
-                                                            "VALUES (@DynamicFormSectionId," + s.UserId + "," + s.UserGroupId + ");\r\n";
-                                                    }
-                                                });
+                                                query += "INSERT INTO [DynamicFormSectionSecurity](DynamicFormSectionId,UserId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
+                                                    "VALUES (@DynamicFormSectionId," + item + ");\r\n";
+
                                             }
                                         }
                                     }
-                                    if (value.Type == "Level")
+                                }
+                                if (value.Type == "UserGroup")
+                                {
+                                    if (value.SelectUserGroupIDs != null && value.SelectUserGroupIDs.Count() > 0)
                                     {
-                                        if (LevelUsers != null && LevelUsers.Count > 0)
+                                        var userGropuIds = userGroupUsers.Where(w => value.SelectUserGroupIDs.ToList().Contains(w.UserGroupId.Value)).ToList();
+                                        if (userGropuIds != null && userGropuIds.Count > 0)
                                         {
-                                            LevelUsers.ToList().ForEach(s =>
+                                            userGropuIds.ForEach(s =>
                                             {
                                                 var counts = userExitsRoles.Where(w => w.UserId == s.UserId).Count();
                                                 if (counts == 0)
                                                 {
-                                                    query += "INSERT INTO [DynamicFormSectionSecurity](DynamicFormSectionId,UserId,LevelId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
-                                                       "VALUES (@DynamicFormSectionId," + s.UserId + "," + s.LevelId + ");\r\n";
+                                                    query += "INSERT INTO [DynamicFormSectionSecurity](DynamicFormSectionId,UserId,UserGroupId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
+                                                        "VALUES (@DynamicFormSectionId," + s.UserId + "," + s.UserGroupId + ");\r\n";
                                                 }
                                             });
                                         }
                                     }
                                 }
+                                if (value.Type == "Level")
+                                {
+                                    if (LevelUsers != null && LevelUsers.Count > 0)
+                                    {
+                                        LevelUsers.ToList().ForEach(s =>
+                                        {
+                                            var counts = userExitsRoles.Where(w => w.UserId == s.UserId).Count();
+                                            if (counts == 0)
+                                            {
+                                                query += "INSERT INTO [DynamicFormSectionSecurity](DynamicFormSectionId,UserId,LevelId) OUTPUT INSERTED.DynamicFormSectionSecurityId " +
+                                                   "VALUES (@DynamicFormSectionId," + s.UserId + "," + s.LevelId + ");\r\n";
+                                            }
+                                        });
+                                    }
+                                }
+                            }
 
-                            }
-                            else
-                            {
-
-                            }
-                            if (!string.IsNullOrEmpty(query))
-                            {
-                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                            }
-                            transaction.Commit();
-                            return value;
                         }
-                        catch (Exception exp)
+                        else
                         {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
+
                         }
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
             }
             catch (Exception exp)
             {
@@ -2035,40 +1958,36 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-                        try
-                        {
-                            var query = string.Empty;
-                            var parameters = new DynamicParameters();
-                            parameters.Add("IsReadWrite", false);
-                            parameters.Add("IsReadOnly", false);
-                            parameters.Add("IsVisible", false);
-                            parameters.Add("DynamicFormSectionId", Id);
-                            //query += " UPDATE DynamicFormSection SET IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionId = @DynamicFormSectionId;\r\n";
+                        var query = string.Empty;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("IsReadWrite", false);
+                        parameters.Add("IsReadOnly", false);
+                        parameters.Add("IsVisible", false);
+                        parameters.Add("DynamicFormSectionId", Id);
+                        //query += " UPDATE DynamicFormSection SET IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionId = @DynamicFormSectionId;\r\n";
 
-                            if (Ids != null && Ids.Count > 0)
-                            {
-                                string IdList = string.Join(",", Ids);
-                                query += "Delete From DynamicFormSectionSecurity WHERE DynamicFormSectionSecurityId in (" + IdList + ");\r\n";
-                            }
-                            if (!string.IsNullOrEmpty(query))
-                            {
-
-                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                            }
-                            transaction.Commit();
-                            await DeleteCheckDynamicFormSectionSecurity(Id);
-                            return Id.GetValueOrDefault(0);
-                        }
-                        catch (Exception exp)
+                        if (Ids != null && Ids.Count > 0)
                         {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
+                            string IdList = string.Join(",", Ids);
+                            query += "Delete From DynamicFormSectionSecurity WHERE DynamicFormSectionSecurityId in (" + IdList + ");\r\n";
                         }
+                        if (!string.IsNullOrEmpty(query))
+                        {
+
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                        await DeleteCheckDynamicFormSectionSecurity(Id);
+                        return Id.GetValueOrDefault(0);
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
             }
             catch (Exception exp)
             {
@@ -2082,36 +2001,32 @@ namespace Infrastructure.Repository.Query
                 using (var connections = CreateConnection())
                 {
 
-                    connections.Open();
-                    using (var transactions = connections.BeginTransaction())
+
+                    try
                     {
-                        try
+                        var userExitsRoles = await GetDynamicFormSectionSecurityEmptyAsync(Id);
+                        if (userExitsRoles == null || userExitsRoles.Count == 0)
                         {
-                            var userExitsRoles = await GetDynamicFormSectionSecurityEmptyAsync(Id);
-                            if (userExitsRoles == null || userExitsRoles.Count == 0)
+                            var query = string.Empty;
+                            var parameters = new DynamicParameters();
+                            parameters.Add("IsReadWrite", false);
+                            parameters.Add("IsReadOnly", false);
+                            parameters.Add("IsVisible", false);
+                            parameters.Add("DynamicFormSectionId", Id);
+                            query += " UPDATE DynamicFormSection SET IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionId = @DynamicFormSectionId;\r\n";
+                            if (!string.IsNullOrEmpty(query))
                             {
-                                var query = string.Empty;
-                                var parameters = new DynamicParameters();
-                                parameters.Add("IsReadWrite", false);
-                                parameters.Add("IsReadOnly", false);
-                                parameters.Add("IsVisible", false);
-                                parameters.Add("DynamicFormSectionId", Id);
-                                query += " UPDATE DynamicFormSection SET IsVisible=@IsVisible,IsReadOnly=@IsReadOnly,IsReadWrite=@IsReadWrite WHERE DynamicFormSectionId = @DynamicFormSectionId;\r\n";
-                                if (!string.IsNullOrEmpty(query))
-                                {
-                                    await connections.QuerySingleOrDefaultAsync<long>(query, parameters, transactions);
-                                }
+                                await connections.QuerySingleOrDefaultAsync<long>(query, parameters);
                             }
-                            transactions.Commit();
-                            return Id.GetValueOrDefault(0);
                         }
-                        catch (Exception exp)
-                        {
-                            transactions.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        return Id.GetValueOrDefault(0);
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
             }
             catch (Exception exp)
             {
@@ -2125,38 +2040,34 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+
+                    try
                     {
-
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("DynamicFormApprovedId", dynamicForm.DynamicFormApprovedId);
-                            parameters.Add("DynamicFormApprovalId", dynamicForm.DynamicFormApprovalId);
-                            parameters.Add("DynamicFormDataId", dynamicForm.DynamicFormDataId);
-                            parameters.Add("IsApproved", dynamicForm.IsApproved);
-                            parameters.Add("ApprovedDescription", dynamicForm.ApprovedDescription);
-                            var query = "INSERT INTO DynamicFormApproved(DynamicFormApprovalId,IsApproved,ApprovedDescription,DynamicFormDataId)  " +
-                                  "OUTPUT INSERTED.DynamicFormApprovedId VALUES " +
-                                 "(@DynamicFormApprovalId,@IsApproved,@ApprovedDescription,@DynamicFormDataId);\n\r";
-                            query += "update DynamicFormApproval set ApprovedCountUsed += 1 where DynamicFormApprovalId =" + dynamicForm.DynamicFormApprovalId + ";\n\r";
-                            dynamicForm.DynamicFormApprovedId = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return dynamicForm;
-                        }
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormApprovedId", dynamicForm.DynamicFormApprovedId);
+                        parameters.Add("DynamicFormApprovalId", dynamicForm.DynamicFormApprovalId);
+                        parameters.Add("DynamicFormDataId", dynamicForm.DynamicFormDataId);
+                        parameters.Add("IsApproved", dynamicForm.IsApproved);
+                        parameters.Add("ApprovedDescription", dynamicForm.ApprovedDescription);
+                        var query = "INSERT INTO DynamicFormApproved(DynamicFormApprovalId,IsApproved,ApprovedDescription,DynamicFormDataId)  " +
+                              "OUTPUT INSERTED.DynamicFormApprovedId VALUES " +
+                             "(@DynamicFormApprovalId,@IsApproved,@ApprovedDescription,@DynamicFormDataId);\n\r";
+                        query += "update DynamicFormApproval set ApprovedCountUsed += 1 where DynamicFormApprovalId =" + dynamicForm.DynamicFormApprovalId + ";\n\r";
+                        dynamicForm.DynamicFormApprovedId = await connection.ExecuteAsync(query, parameters);
 
 
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        return dynamicForm;
                     }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
+
 
             }
             catch (Exception exp)
@@ -2194,34 +2105,30 @@ namespace Infrastructure.Repository.Query
                 using (var connections = CreateConnection())
                 {
 
-                    connections.Open();
-                    using (var transactions = connections.BeginTransaction())
+
+                    try
                     {
-                        try
+                        var query = string.Empty;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DynamicFormDataId", dynamicFormApproved.DynamicFormDataId);
+                        parameters.Add("DynamicFormApprovedId", dynamicFormApproved.DynamicFormApprovedId);
+                        parameters.Add("ApprovedDescription", dynamicFormApproved.ApprovedDescription);
+                        parameters.Add("IsApproved", dynamicFormApproved.IsApproved);
+                        parameters.Add("ApprovedByUserId", dynamicFormApproved.ApprovedByUserId);
+                        parameters.Add("ApprovedDate", dynamicFormApproved.ApprovedDate);
+                        query += " UPDATE DynamicFormApproved SET DynamicFormDataId=@DynamicFormDataId,IsApproved=@IsApproved,ApprovedDescription=@ApprovedDescription,ApprovedByUserId=@ApprovedByUserId,ApprovedDate=@ApprovedDate WHERE DynamicFormApprovedId = @DynamicFormApprovedId;\r\n";
+                        if (!string.IsNullOrEmpty(query))
                         {
-                            var query = string.Empty;
-                            var parameters = new DynamicParameters();
-                            parameters.Add("DynamicFormDataId", dynamicFormApproved.DynamicFormDataId);
-                            parameters.Add("DynamicFormApprovedId", dynamicFormApproved.DynamicFormApprovedId);
-                            parameters.Add("ApprovedDescription", dynamicFormApproved.ApprovedDescription);
-                            parameters.Add("IsApproved", dynamicFormApproved.IsApproved);
-                            parameters.Add("ApprovedByUserId", dynamicFormApproved.ApprovedByUserId);
-                            parameters.Add("ApprovedDate", dynamicFormApproved.ApprovedDate);
-                            query += " UPDATE DynamicFormApproved SET DynamicFormDataId=@DynamicFormDataId,IsApproved=@IsApproved,ApprovedDescription=@ApprovedDescription,ApprovedByUserId=@ApprovedByUserId,ApprovedDate=@ApprovedDate WHERE DynamicFormApprovedId = @DynamicFormApprovedId;\r\n";
-                            if (!string.IsNullOrEmpty(query))
-                            {
-                                await connections.QuerySingleOrDefaultAsync<long>(query, parameters, transactions);
-                            }
-                            transactions.Commit();
-                            return dynamicFormApproved;
+                            await connections.QuerySingleOrDefaultAsync<long>(query, parameters);
                         }
-                        catch (Exception exp)
-                        {
-                            transactions.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        return dynamicFormApproved;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
             }
             catch (Exception exp)
             {

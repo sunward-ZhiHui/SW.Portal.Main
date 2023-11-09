@@ -67,9 +67,6 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                //var parameters = new DynamicParameters();
-                //parameters.Add("ID", ID, DbType.Int64);
-
                 var query = "SELECT * FROM AttributeDetails ";
                 using (var connection = CreateConnection())
                 {
@@ -109,9 +106,6 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
 
                         try
                         {
@@ -128,21 +122,17 @@ namespace Infrastructure.Repository.Query
 
                             var query = "INSERT INTO AttributeDetails(AttributeID,AttributeDetailName,Description,Disabled,SessionId,AddedByUserID,AddedDate,StatusCodeID) VALUES (@AttributeID,@AttributeDetailName,@Description,@Disabled,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID)";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            transaction.Commit();
 
                             return rowsAffected;
                         }
-
-
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
                             throw new Exception(exp.Message, exp);
                         }
 
-                    }
+                    
                 }
 
             }

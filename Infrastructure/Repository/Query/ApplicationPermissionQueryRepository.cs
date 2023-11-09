@@ -51,7 +51,6 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("RoleID", applicationrolepermission.RoleID);
                         parameters.Add("PermissionIDs", applicationrolepermission.PermissionIDs);
-                        connection.Open();
                         var result = connection.QueryFirstOrDefault<long>("sp_Ins_RolePermission", parameters, commandType: CommandType.StoredProcedure);
                         return result;
                     }

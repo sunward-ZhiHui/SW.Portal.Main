@@ -64,27 +64,23 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("ProfileId", profileSettings.ProfileId);
-                            parameters.Add("LastCreatedDate", profileSettings.LastCreatedDate, DbType.DateTime);
-                            var query = "Update DocumentProfileNoSeries SET LastCreatedDate=@LastCreatedDate WHERE " +
-                                "ProfileId= @ProfileId";
-                            connection.QueryFirstOrDefault<long>(query, parameters, transaction);
-                            transaction.Commit();
-                            return profileSettings;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ProfileId", profileSettings.ProfileId);
+                        parameters.Add("LastCreatedDate", profileSettings.LastCreatedDate, DbType.DateTime);
+                        var query = "Update DocumentProfileNoSeries SET LastCreatedDate=@LastCreatedDate WHERE " +
+                            "ProfileId= @ProfileId";
+                        connection.QueryFirstOrDefault<long>(query, parameters);
+                        return profileSettings;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)
@@ -98,27 +94,23 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("ProfileAutoNumberId", profileAutoNumber.ProfileAutoNumberId);
-                            parameters.Add("LastNoUsed", profileAutoNumber.LastNoUsed);
-                            var query = "Update ProfileAutoNumber SET LastNoUsed=@LastNoUsed WHERE " +
-                                "ProfileAutoNumberId= @ProfileAutoNumberId";
-                            connection.QueryFirstOrDefault<long>(query, parameters, transaction);
-                            transaction.Commit();
-                            return profileAutoNumber;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ProfileAutoNumberId", profileAutoNumber.ProfileAutoNumberId);
+                        parameters.Add("LastNoUsed", profileAutoNumber.LastNoUsed);
+                        var query = "Update ProfileAutoNumber SET LastNoUsed=@LastNoUsed WHERE " +
+                            "ProfileAutoNumberId= @ProfileAutoNumberId";
+                        connection.QueryFirstOrDefault<long>(query, parameters);
+                        return profileAutoNumber;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)
@@ -132,48 +124,44 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("ProfileId", documentNoSeries.ProfileId);
-                            parameters.Add("DocumentNo", documentNoSeries.DocumentNo,DbType.String);
-                            parameters.Add("AddedDate", documentNoSeries.AddedDate, DbType.DateTime);
-                            parameters.Add("AddedByUserID", documentNoSeries.AddedByUserId);
-                            parameters.Add("StatusCodeId", documentNoSeries.StatusCodeId);
-                            parameters.Add("SessionId", documentNoSeries.SessionId, DbType.Guid);
-                            parameters.Add("RequestorId", documentNoSeries.RequestorId);
-                            parameters.Add("ModifiedDate", documentNoSeries.ModifiedDate);
-                            parameters.Add("FileProfileTypeId", documentNoSeries.FileProfileTypeId);
-                            parameters.Add("ModifiedByUserId", documentNoSeries.ModifiedByUserId);
-                            parameters.Add("IsUpload", documentNoSeries.IsUpload == null ? null : documentNoSeries.IsUpload, (DbType?)SqlDbType.Bit);
-                            parameters.Add("VersionNo", documentNoSeries.VersionNo, DbType.String);
-                            parameters.Add("EffectiveDate", documentNoSeries.EffectiveDate, DbType.DateTime);
-                            parameters.Add("NextReviewDate", documentNoSeries.NextReviewDate, DbType.DateTime);
-                            parameters.Add("Date", documentNoSeries.Date, DbType.DateTime);
-                            parameters.Add("Link", documentNoSeries.Link, DbType.String);
-                            parameters.Add("ReasonToVoid", documentNoSeries.ReasonToVoid, DbType.String);
-                            parameters.Add("Title", documentNoSeries.Title, DbType.String);
-                            parameters.Add("Description", documentNoSeries.Description, DbType.String);
-                            var query = "INSERT INTO [DocumentNoSeries](ProfileId,DocumentNo,AddedDate,AddedByUserID,StatusCodeId," +
-                                "SessionId,RequestorId,ModifiedDate,ModifiedByUserId,FileProfileTypeId,IsUpload,VersionNo,EffectiveDate,NextReviewDate,Date,Link,ReasonToVoid,Description,Title) " +
-                                "OUTPUT INSERTED.NumberSeriesId VALUES " +
-                               "(@ProfileId,@DocumentNo,@AddedDate,@AddedByUserID,@StatusCodeId,@SessionId,@RequestorId," +
-                               "@ModifiedDate,@ModifiedByUserId,@FileProfileTypeId,@IsUpload,@VersionNo,@EffectiveDate,@NextReviewDate,@Date,@Link,@ReasonToVoid,@Description,@Title)";
-                            documentNoSeries.NumberSeriesId = connection.QueryFirstOrDefault<long>(query, parameters, transaction);
 
-                            transaction.Commit();
-                            return documentNoSeries;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ProfileId", documentNoSeries.ProfileId);
+                        parameters.Add("DocumentNo", documentNoSeries.DocumentNo, DbType.String);
+                        parameters.Add("AddedDate", documentNoSeries.AddedDate, DbType.DateTime);
+                        parameters.Add("AddedByUserID", documentNoSeries.AddedByUserId);
+                        parameters.Add("StatusCodeId", documentNoSeries.StatusCodeId);
+                        parameters.Add("SessionId", documentNoSeries.SessionId, DbType.Guid);
+                        parameters.Add("RequestorId", documentNoSeries.RequestorId);
+                        parameters.Add("ModifiedDate", documentNoSeries.ModifiedDate);
+                        parameters.Add("FileProfileTypeId", documentNoSeries.FileProfileTypeId);
+                        parameters.Add("ModifiedByUserId", documentNoSeries.ModifiedByUserId);
+                        parameters.Add("IsUpload", documentNoSeries.IsUpload == null ? null : documentNoSeries.IsUpload, (DbType?)SqlDbType.Bit);
+                        parameters.Add("VersionNo", documentNoSeries.VersionNo, DbType.String);
+                        parameters.Add("EffectiveDate", documentNoSeries.EffectiveDate, DbType.DateTime);
+                        parameters.Add("NextReviewDate", documentNoSeries.NextReviewDate, DbType.DateTime);
+                        parameters.Add("Date", documentNoSeries.Date, DbType.DateTime);
+                        parameters.Add("Link", documentNoSeries.Link, DbType.String);
+                        parameters.Add("ReasonToVoid", documentNoSeries.ReasonToVoid, DbType.String);
+                        parameters.Add("Title", documentNoSeries.Title, DbType.String);
+                        parameters.Add("Description", documentNoSeries.Description, DbType.String);
+                        var query = "INSERT INTO [DocumentNoSeries](ProfileId,DocumentNo,AddedDate,AddedByUserID,StatusCodeId," +
+                            "SessionId,RequestorId,ModifiedDate,ModifiedByUserId,FileProfileTypeId,IsUpload,VersionNo,EffectiveDate,NextReviewDate,Date,Link,ReasonToVoid,Description,Title) " +
+                            "OUTPUT INSERTED.NumberSeriesId VALUES " +
+                           "(@ProfileId,@DocumentNo,@AddedDate,@AddedByUserID,@StatusCodeId,@SessionId,@RequestorId," +
+                           "@ModifiedDate,@ModifiedByUserId,@FileProfileTypeId,@IsUpload,@VersionNo,@EffectiveDate,@NextReviewDate,@Date,@Link,@ReasonToVoid,@Description,@Title)";
+                        documentNoSeries.NumberSeriesId = connection.QueryFirstOrDefault<long>(query, parameters);
+
+                        return documentNoSeries;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)
@@ -188,37 +176,33 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("ProfileId", profileAutoNumber.ProfileId > 0 ? profileAutoNumber.ProfileId : null);
-                            parameters.Add("CompanyId", profileAutoNumber.CompanyId > 0 ? profileAutoNumber.CompanyId : null);
-                            parameters.Add("DepartmentId", profileAutoNumber.DepartmentId > 0 ? profileAutoNumber.DepartmentId : null);
-                            parameters.Add("SectionId", profileAutoNumber.SectionId > 0 ? profileAutoNumber.SectionId : null);
-                            parameters.Add("SubSectionId", profileAutoNumber.SubSectionId > 0 ? profileAutoNumber.SubSectionId : null);
-                            parameters.Add("LastNoUsed", profileAutoNumber.LastNoUsed);
-                            parameters.Add("ProfileYear", profileAutoNumber.ProfileYear > 0 ? profileAutoNumber.ProfileYear : null);
-                            parameters.Add("ScreenId", profileAutoNumber.ScreenId);
-                            parameters.Add("ScreenAutoNumberId", profileAutoNumber.ScreenAutoNumberId);
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ProfileId", profileAutoNumber.ProfileId > 0 ? profileAutoNumber.ProfileId : null);
+                        parameters.Add("CompanyId", profileAutoNumber.CompanyId > 0 ? profileAutoNumber.CompanyId : null);
+                        parameters.Add("DepartmentId", profileAutoNumber.DepartmentId > 0 ? profileAutoNumber.DepartmentId : null);
+                        parameters.Add("SectionId", profileAutoNumber.SectionId > 0 ? profileAutoNumber.SectionId : null);
+                        parameters.Add("SubSectionId", profileAutoNumber.SubSectionId > 0 ? profileAutoNumber.SubSectionId : null);
+                        parameters.Add("LastNoUsed", profileAutoNumber.LastNoUsed);
+                        parameters.Add("ProfileYear", profileAutoNumber.ProfileYear > 0 ? profileAutoNumber.ProfileYear : null);
+                        parameters.Add("ScreenId", profileAutoNumber.ScreenId);
+                        parameters.Add("ScreenAutoNumberId", profileAutoNumber.ScreenAutoNumberId);
 
-                            var query = "INSERT INTO [ProfileAutoNumber](ProfileId,CompanyId,DepartmentId,SectionId,SubSectionId,LastNoUsed,ProfileYear,ScreenId,ScreenAutoNumberId) " +
-                                "OUTPUT INSERTED.ProfileAutoNumberId VALUES " +
-                               "(@ProfileId,@CompanyId,@DepartmentId,@SectionId,@SubSectionId,@LastNoUsed,@ProfileYear,@ScreenId,@ScreenAutoNumberId)";
-                            profileAutoNumber.ProfileAutoNumberId = connection.QueryFirstOrDefault<long>(query, parameters, transaction);
+                        var query = "INSERT INTO [ProfileAutoNumber](ProfileId,CompanyId,DepartmentId,SectionId,SubSectionId,LastNoUsed,ProfileYear,ScreenId,ScreenAutoNumberId) " +
+                            "OUTPUT INSERTED.ProfileAutoNumberId VALUES " +
+                           "(@ProfileId,@CompanyId,@DepartmentId,@SectionId,@SubSectionId,@LastNoUsed,@ProfileYear,@ScreenId,@ScreenAutoNumberId)";
+                        profileAutoNumber.ProfileAutoNumberId = connection.QueryFirstOrDefault<long>(query, parameters);
 
-                            transaction.Commit();
-                            return profileAutoNumber;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        return profileAutoNumber;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)

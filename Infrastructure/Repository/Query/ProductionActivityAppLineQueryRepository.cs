@@ -227,7 +227,7 @@ namespace Infrastructure.Repository.Query
                         var productionActivityAppLineIds = productActivityApps.ToList().Select(s => s.ProductionActivityAppLineId).Distinct().ToList();
                         var addedIds = productActivityApps.ToList().Select(s => s.AddedByUserID).Distinct().ToList();
                         addedIds.Add(userId);
-                        var employee = employeeAll!=null && employeeAll.Count()>0?employeeAll.Where(w => addedIds.Contains(w.UserID)).ToList():null;
+                        var employee = employeeAll != null && employeeAll.Count() > 0 ? employeeAll.Where(w => addedIds.Contains(w.UserID)).ToList() : null;
                         var loginUser = employee != null && employee.Count() > 0 ? employee.FirstOrDefault(w => w.UserID == userId)?.DepartmentID : null;
                         var sessionIds = productActivityApps.ToList().Where(w => w.LineSessionId != null).Select(s => s.LineSessionId).ToList();
                         var documents = await GetAllDocumentsAsync(sessionIds);
@@ -467,54 +467,50 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+
+                    try
                     {
 
-                        try
-                        {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("Comment", PPALinelist.Comment);
+                        parameters.Add("ActionDropdown", PPALinelist.ActionDropdown);
+                        parameters.Add("ManufacturingProcessID", PPALinelist.ManufacturingProcessID);
+                        parameters.Add("ProdActivityCategoryID", PPALinelist.ProdActivityCategoryID);
+                        parameters.Add("NavprodOrderLineID", PPALinelist.NavprodOrderLineID);
+                        // parameters.Add("Description", PPAlist.Description);
+                        // parameters.Add("TopicID", PPALinelist.TopicID);
+                        //parameters.Add("ICTMasterID", PPAlist.ICTMasterID);
+                        //parameters.Add("SiteName", PPAlist.SiteName);
+                        //parameters.Add("ZoneName", PPAlist.ZoneName);
+                        //parameters.Add("Companyid", PPALinelist.com);
+                        // parameters.Add("DeropdownName", PPAlist.DeropdownName);
+                        //parameters.Add("NavprodOrderLineId", PPAlist.NavprodOrderLineId);
+                        //parameters.Add("BatchNo", PPAlist.BatchNo);
+                        //parameters.Add("prodOrderNo", PPALinelist.prod);
 
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Comment", PPALinelist.Comment);
-                            parameters.Add("ActionDropdown", PPALinelist.ActionDropdown);
-                            parameters.Add("ManufacturingProcessID", PPALinelist.ManufacturingProcessID);
-                            parameters.Add("ProdActivityCategoryID", PPALinelist.ProdActivityCategoryID);
-                            parameters.Add("NavprodOrderLineID", PPALinelist.NavprodOrderLineID);
-                            // parameters.Add("Description", PPAlist.Description);
-                            // parameters.Add("TopicID", PPALinelist.TopicID);
-                            //parameters.Add("ICTMasterID", PPAlist.ICTMasterID);
-                            //parameters.Add("SiteName", PPAlist.SiteName);
-                            //parameters.Add("ZoneName", PPAlist.ZoneName);
-                            //parameters.Add("Companyid", PPALinelist.com);
-                            // parameters.Add("DeropdownName", PPAlist.DeropdownName);
-                            //parameters.Add("NavprodOrderLineId", PPAlist.NavprodOrderLineId);
-                            //parameters.Add("BatchNo", PPAlist.BatchNo);
-                            //parameters.Add("prodOrderNo", PPALinelist.prod);
+                        parameters.Add("SessionId", PPALinelist.SessionId);
+                        parameters.Add("AddedByUserID", PPALinelist.AddedByUserID);
+                        parameters.Add("AddedDate", PPALinelist.AddedDate);
+                        parameters.Add("LocationID", PPALinelist.LocationID);
+                        parameters.Add("StatusCodeID", PPALinelist.StatusCodeID);
 
-                            parameters.Add("SessionId", PPALinelist.SessionId);
-                            parameters.Add("AddedByUserID", PPALinelist.AddedByUserID);
-                            parameters.Add("AddedDate", PPALinelist.AddedDate);
-                            parameters.Add("LocationID", PPALinelist.LocationID);
-                            parameters.Add("StatusCodeID", PPALinelist.StatusCodeID);
+                        var query = "INSERT INTO ProductionActivityAppLine(Comment,NavprodOrderLineID,ProdActivityCategoryID,ManufacturingProcessID,ActionDropdown,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID) VALUES (@ProdActivityCategoryID,@ManufacturingProcessID,@Comment,@ActionDropdown,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@NavprodOrderLineID)";
 
-                            var query = "INSERT INTO ProductionActivityAppLine(Comment,NavprodOrderLineID,ProdActivityCategoryID,ManufacturingProcessID,ActionDropdown,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID) VALUES (@ProdActivityCategoryID,@ManufacturingProcessID,@Comment,@ActionDropdown,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@NavprodOrderLineID)";
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return rowsAffected;
-                        }
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
 
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
-
+                        return rowsAffected;
                     }
+
+
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
                 }
+
 
             }
 

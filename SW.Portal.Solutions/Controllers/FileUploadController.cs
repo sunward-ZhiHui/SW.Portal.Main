@@ -6,8 +6,15 @@ using DevExpress.Xpo;
 using DevExpress.XtraReports;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Edm;
 using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.Web;
 using System.Text.Json;
+using iText.IO.Image;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
 namespace SW.Portal.Solutions.Controllers
 {
     [Route("api/[controller]")]
@@ -25,7 +32,7 @@ namespace SW.Portal.Solutions.Controllers
         }
         [HttpPost]
         [Route("UploadDocumentsBySession")]
-        public async Task<ActionResult> UploadDocumentsBySession(IFormFile files, Guid? SessionId, long? addedByUserId,bool? IsFileSession,string? SourceFrom)
+        public async Task<ActionResult> UploadDocumentsBySession(IFormFile files, Guid? SessionId, long? addedByUserId, bool? IsFileSession, string? SourceFrom)
         {
             long documentId = 0;
             // Handling Upload with Chunks
@@ -50,7 +57,7 @@ namespace SW.Portal.Solutions.Controllers
                     }
 
                     // Removes temporary files 
-                    RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
+                    //RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
 
                     // Save FileStream
                     using (var stream = new FileStream(tempFilePath, FileMode.Append, FileAccess.Write))
@@ -70,7 +77,7 @@ namespace SW.Portal.Solutions.Controllers
                         documents.UploadDate = DateTime.Now;
                         documents.AddedByUserId = addedByUserId;
                         documents.AddedDate = DateTime.Now;
-                        documents.SessionId = IsFileSession == true?metaDataObject.FileGuid: SessionId;
+                        documents.SessionId = IsFileSession == true ? metaDataObject.FileGuid : SessionId;
                         documents.IsLatest = true;
                         documents.IsTemp = true;
                         documents.FileName = metaDataObject.FileName;
@@ -88,6 +95,47 @@ namespace SW.Portal.Solutions.Controllers
                 return BadRequest(e.Message);
             }
             return Ok(documentId.ToString());
+        }
+        [HttpGet]
+        [Route("ImagesToPDF")]
+        public void ImagesToPDF(Guid? SessionId)
+        {
+
+            var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
+            string fileName = @"\" + SessionId + ".pdf";
+            var serverPath = serverPaths + fileName;
+            var folderpath = serverPaths;
+            PdfDocument pdfDocument = new PdfDocument(new PdfWriter(serverPath));
+            Document document = new Document(pdfDocument);
+            int i = 0;
+            var dir = Directory.GetFiles(folderpath).ToList();
+            if (dir.Count > 0)
+            {
+                dir.ForEach(s =>
+                {
+                    string mimeType = "application/unknown";
+                    string ext = System.IO.Path.GetExtension(s).ToLower();
+                    Microsoft.Win32.RegistryKey regKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(ext);
+                    if (regKey != null && regKey.GetValue("Content Type") != null)
+                    {
+                        mimeType = regKey.GetValue("Content Type").ToString();
+                    }
+                    var exts = mimeType.Split("/").ToList();
+                    if (exts[0] == "image")
+                    {
+                        var imageFile = System.IO.File.ReadAllBytes(s);
+
+                        var image = new Image(ImageDataFactory.Create(imageFile));
+                        pdfDocument.AddNewPage(new iText.Kernel.Geom.PageSize(image.GetImageWidth(), image.GetImageHeight()));
+                        image.SetFixedPosition(i + 1, 0, 0);
+                        document.Add(image);
+                        i++;
+                    }
+
+                });
+            }
+            pdfDocument.Close();
+            var pdfFile = System.IO.File.ReadAllBytes(serverPath);
         }
         [HttpPost]
         [Route("UploadDocumentsById")]
@@ -115,7 +163,7 @@ namespace SW.Portal.Solutions.Controllers
                     }
 
                     // Removes temporary files 
-                    RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
+                   // RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
 
                     // Save FileStream
                     using (var stream = new FileStream(tempFilePath, FileMode.Append, FileAccess.Write))
@@ -169,7 +217,7 @@ namespace SW.Portal.Solutions.Controllers
 
             // Set BasePath
             string BaseDirectory = System.AppContext.BaseDirectory;
-          //  var reportFolder = Path.Combine(BaseDirectory, "Reports");
+            //  var reportFolder = Path.Combine(BaseDirectory, "Reports");
             var serverPaths = Path.Combine(BaseDirectory, "Reports");
 
             try
@@ -187,7 +235,7 @@ namespace SW.Portal.Solutions.Controllers
                         System.IO.Directory.CreateDirectory(serverPaths);
                     }
                     // Removes temporary files 
-                    RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
+                    //RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
 
                     // Save FileStream
                     using (var stream = new FileStream(tempFilePath, FileMode.Append, FileAccess.Write))
@@ -197,7 +245,7 @@ namespace SW.Portal.Solutions.Controllers
                     if (metaDataObject.Index == (metaDataObject.TotalCount - 1))
                     {
                         var ext = metaDataObject.FileName.Split(".").Last();
-                        var fileName1 = metaDataObject.FileName ;
+                        var fileName1 = metaDataObject.FileName;
                         var FileName = Path.GetFileNameWithoutExtension(metaDataObject.FileName);
                         var serverPath = serverPaths + @"\" + fileName1;
 
@@ -205,8 +253,8 @@ namespace SW.Portal.Solutions.Controllers
                         System.IO.File.Copy(tempFilePath, Path.Combine(serverPaths, serverPath), true);
                         System.IO.File.Delete(tempFilePath);
                         ReportDocuments documents = new ReportDocuments();
-                       
-                        
+
+
                         documents.IsLatest = true;
                         //documents.IsTemp = true;
                         documents.FileName = FileName;
@@ -216,7 +264,7 @@ namespace SW.Portal.Solutions.Controllers
                         documents.FilePath = serverPath.Replace(Path.Combine(BaseDirectory, "Reports"), "");
                         var response = await _fileuploadqueryRepository.InsertCreateReportDocumentBySession(documents);
                         ReportdocumentId = response.ReportDocumentID;
-                   }
+                    }
                 }
             }
             catch (Exception e)

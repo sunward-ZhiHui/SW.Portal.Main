@@ -45,7 +45,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("CustomerId", CustomerId);
                 using (var connection = CreateConnection())
                 {
-                    return (await connection.QueryAsync<view_SoCustomerAddress>(query,parameters)).ToList();
+                    return (await connection.QueryAsync<view_SoCustomerAddress>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -70,7 +70,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        
+
         public async Task<long> Insert(view_SoCustomerAddress address)
         {
             try
@@ -78,34 +78,30 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("Address1", address.Address1);
-                            parameters.Add("Address2", address.Address2);
-                            parameters.Add("PostCode", address.PostCode);
-                            parameters.Add("CountryID", address.CountryID);
-                            parameters.Add("StateID", address.StateID);
-                            parameters.Add("CityID", address.CityID);
+                        var parameters = new DynamicParameters();
+                        parameters.Add("Address1", address.Address1);
+                        parameters.Add("Address2", address.Address2);
+                        parameters.Add("PostCode", address.PostCode);
+                        parameters.Add("CountryID", address.CountryID);
+                        parameters.Add("StateID", address.StateID);
+                        parameters.Add("CityID", address.CityID);
 
-                            var query = "INSERT INTO [Address](Address1,Address2,PostCode,CountryID,StateID,CityID) OUTPUT INSERTED.AddressID VALUES (@Address1,@Address2,@PostCode,@CountryID,@StateID,@CityID)";
+                        var query = "INSERT INTO [Address](Address1,Address2,PostCode,CountryID,StateID,CityID) OUTPUT INSERTED.AddressID VALUES (@Address1,@Address2,@PostCode,@CountryID,@StateID,@CityID)";
 
-                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                        var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
-                            transaction.Commit();
 
-                            return lastInsertedRecordId;
-                        }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        return lastInsertedRecordId;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)
@@ -120,55 +116,50 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+                    try
                     {
-                        try
+                        if (address.isShipping == true || address.isBilling == true)
                         {
-                            if (address.isShipping == true || address.isBilling == true)
-                            {
-                                var parametersIsAddress = new DynamicParameters();
-                                parametersIsAddress.Add("CustomerId", address.CustomerId);
-                                parametersIsAddress.Add("AddressType", address.AddressType);
-                                parametersIsAddress.Add("IsBilling", 0, (DbType?)SqlDbType.Bit);
-                                parametersIsAddress.Add("IsShipping", 0, (DbType?)SqlDbType.Bit);
-                                var Addquerys = "UPDATE SoCustomerAddress SET IsBilling = @IsBilling,IsShipping = @IsShipping WHERE  AddressType = @AddressType AND CustomerId = @CustomerId";
-                                await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parametersIsAddress, transaction);
-                            }
-
-
-                            var parametersAddress = new DynamicParameters();
-                            parametersAddress.Add("SoCustomerAddressId", address.SoCustomerAddressId);
-                            parametersAddress.Add("IsBilling", address.isBilling, (DbType?)SqlDbType.Bit);
-                            parametersAddress.Add("IsShipping", address.isShipping, (DbType?)SqlDbType.Bit);
-                            var querys = "UPDATE SoCustomerAddress SET IsBilling = @IsBilling,IsShipping = @IsShipping WHERE SoCustomerAddressId = @SoCustomerAddressId";
-                            await connection.QuerySingleOrDefaultAsync<long>(querys, parametersAddress, transaction);
-
-                            var parameters = new DynamicParameters();
-                            parameters.Add("AddressID", address.AddressID);
-                            parameters.Add("Address1", address.Address1);
-                            parameters.Add("Address2", address.Address2);
-                            parameters.Add("PostCode", address.PostCode);
-                            parameters.Add("CountryID", address.CountryID);
-                            parameters.Add("StateID", address.StateID);
-                            parameters.Add("CityID", address.CityID);
-
-
-                            var query = "UPDATE Address SET Address1 = @Address1,Address2 = @Address2,PostCode = @PostCode,CountryID=@CountryID,StateID= @StateID,CityID =@CityID WHERE AddressID = @AddressID";
-
-                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return lastInsertedRecordId;
+                            var parametersIsAddress = new DynamicParameters();
+                            parametersIsAddress.Add("CustomerId", address.CustomerId);
+                            parametersIsAddress.Add("AddressType", address.AddressType);
+                            parametersIsAddress.Add("IsBilling", 0, (DbType?)SqlDbType.Bit);
+                            parametersIsAddress.Add("IsShipping", 0, (DbType?)SqlDbType.Bit);
+                            var Addquerys = "UPDATE SoCustomerAddress SET IsBilling = @IsBilling,IsShipping = @IsShipping WHERE  AddressType = @AddressType AND CustomerId = @CustomerId";
+                            await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parametersIsAddress);
                         }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+
+
+                        var parametersAddress = new DynamicParameters();
+                        parametersAddress.Add("SoCustomerAddressId", address.SoCustomerAddressId);
+                        parametersAddress.Add("IsBilling", address.isBilling, (DbType?)SqlDbType.Bit);
+                        parametersAddress.Add("IsShipping", address.isShipping, (DbType?)SqlDbType.Bit);
+                        var querys = "UPDATE SoCustomerAddress SET IsBilling = @IsBilling,IsShipping = @IsShipping WHERE SoCustomerAddressId = @SoCustomerAddressId";
+                        await connection.QuerySingleOrDefaultAsync<long>(querys, parametersAddress);
+
+                        var parameters = new DynamicParameters();
+                        parameters.Add("AddressID", address.AddressID);
+                        parameters.Add("Address1", address.Address1);
+                        parameters.Add("Address2", address.Address2);
+                        parameters.Add("PostCode", address.PostCode);
+                        parameters.Add("CountryID", address.CountryID);
+                        parameters.Add("StateID", address.StateID);
+                        parameters.Add("CityID", address.CityID);
+
+
+                        var query = "UPDATE Address SET Address1 = @Address1,Address2 = @Address2,PostCode = @PostCode,CountryID=@CountryID,StateID= @StateID,CityID =@CityID WHERE AddressID = @AddressID";
+
+                        var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+
+
+                        return lastInsertedRecordId;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)
@@ -183,42 +174,38 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
+
+                    try
                     {
-                        try
+                        if (soCustomerAddress.isShipping == true || soCustomerAddress.isBilling == true)
                         {
-                            if (soCustomerAddress.isShipping == true || soCustomerAddress.isBilling == true)
-                            {
-                                var parametersIsAddress = new DynamicParameters();
-                                parametersIsAddress.Add("CustomerId", soCustomerAddress.CustomerId);
-                                parametersIsAddress.Add("AddressType", soCustomerAddress.AddressType);
-                                parametersIsAddress.Add("IsBilling", 0, (DbType?)SqlDbType.Bit);
-                                parametersIsAddress.Add("IsShipping", 0, (DbType?)SqlDbType.Bit);
-                                var Addquerys = "UPDATE SoCustomerAddress SET IsBilling = @IsBilling,IsShipping = @IsShipping WHERE  AddressType = @AddressType AND CustomerId = @CustomerId";
-                                await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parametersIsAddress, transaction);
-                            }
-                            var parameters = new DynamicParameters();
-                            parameters.Add("AddressId", soCustomerAddress.AddressId);
-                            parameters.Add("CustomerId", soCustomerAddress.CustomerId);
-                            parameters.Add("AddressType", soCustomerAddress.AddressType);
-                            parameters.Add("IsBilling", soCustomerAddress.isBilling, (DbType?)SqlDbType.Bit);
-                            parameters.Add("IsShipping", soCustomerAddress.isShipping, (DbType?)SqlDbType.Bit);
-                            var query = "INSERT INTO SoCustomerAddress(AddressId,CustomerId,AddressType,IsBilling,IsShipping) OUTPUT INSERTED.SoCustomerAddressId VALUES (@AddressId,@CustomerId,@AddressType,@IsBilling,@IsShipping)";
-
-                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-
-                            transaction.Commit();
-
-                            return lastInsertedRecordId;
+                            var parametersIsAddress = new DynamicParameters();
+                            parametersIsAddress.Add("CustomerId", soCustomerAddress.CustomerId);
+                            parametersIsAddress.Add("AddressType", soCustomerAddress.AddressType);
+                            parametersIsAddress.Add("IsBilling", 0, (DbType?)SqlDbType.Bit);
+                            parametersIsAddress.Add("IsShipping", 0, (DbType?)SqlDbType.Bit);
+                            var Addquerys = "UPDATE SoCustomerAddress SET IsBilling = @IsBilling,IsShipping = @IsShipping WHERE  AddressType = @AddressType AND CustomerId = @CustomerId";
+                            await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parametersIsAddress);
                         }
-                        catch (Exception exp)
-                        {
-                            transaction.Rollback();
-                            throw new Exception(exp.Message, exp);
-                        }
+                        var parameters = new DynamicParameters();
+                        parameters.Add("AddressId", soCustomerAddress.AddressId);
+                        parameters.Add("CustomerId", soCustomerAddress.CustomerId);
+                        parameters.Add("AddressType", soCustomerAddress.AddressType);
+                        parameters.Add("IsBilling", soCustomerAddress.isBilling, (DbType?)SqlDbType.Bit);
+                        parameters.Add("IsShipping", soCustomerAddress.isShipping, (DbType?)SqlDbType.Bit);
+                        var query = "INSERT INTO SoCustomerAddress(AddressId,CustomerId,AddressType,IsBilling,IsShipping) OUTPUT INSERTED.SoCustomerAddressId VALUES (@AddressId,@CustomerId,@AddressType,@IsBilling,@IsShipping)";
+
+                        var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+
+
+                        return lastInsertedRecordId;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
                     }
                 }
+
 
             }
             catch (Exception exp)

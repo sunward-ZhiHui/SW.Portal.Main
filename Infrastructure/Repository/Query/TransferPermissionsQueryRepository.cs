@@ -49,26 +49,22 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                   
                         try
                         {
                             ids = ids != null && ids.Count > 0 ? ids : new List<long?>() { -1 };
                             var parameters = new DynamicParameters();
 
                             var query = "delete from UserGroupUser WHERE UserGroupUserId in(" + string.Join(',', ids) + ")";
-                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                            transaction.Commit();
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                             return ids;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
                             throw new Exception(exp.Message, exp);
                         }
                     }
-                }
+                
 
             }
             catch (Exception exp)
@@ -83,9 +79,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                   
                         try
                         {
                             ids = ids != null && ids.Count > 0 ? ids : new List<long?>() { -1 };
@@ -94,19 +88,17 @@ namespace Infrastructure.Repository.Query
                                 var parameters = new DynamicParameters();
 
                                 var query = "Update UserGroupUser set UserID=" + userId + " WHERE  UserGroupUserId in(" + string.Join(',', ids) + ")";
-                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
                             }
-                            transaction.Commit();
                             return ids;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
                             throw new Exception(exp.Message, exp);
                         }
                     }
-                }
+                
 
             }
             catch (Exception exp)
@@ -155,26 +147,22 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                   
                         try
                         {
                             ids = ids != null && ids.Count > 0 ? ids : new List<long?>() { -1 };
                             var parameters = new DynamicParameters();
 
                             var query = "delete from DocumentUserRole WHERE DocumentUserRoleID in(" + string.Join(',', ids) + ")";
-                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
-                            transaction.Commit();
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                             return ids;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
                             throw new Exception(exp.Message, exp);
                         }
                     }
-                }
+                
 
             }
             catch (Exception exp)
@@ -189,9 +177,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                    
                         try
                         {
                             ids = ids != null && ids.Count > 0 ? ids : new List<long?>() { -1 };
@@ -199,19 +185,17 @@ namespace Infrastructure.Repository.Query
                             {
                                 var parameters = new DynamicParameters();
                                 var query = "Update DocumentUserRole set UserID=" + userId + " WHERE  DocumentUserRoleID in(" + string.Join(',', ids) + ")";
-                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
                             }
-                            transaction.Commit();
                             return ids;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
                             throw new Exception(exp.Message, exp);
                         }
                     }
-                }
+                
 
             }
             catch (Exception exp)
@@ -267,9 +251,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                    
                         try
                         {
                             //List<long?> ids = new List<long?>();
@@ -297,18 +279,16 @@ namespace Infrastructure.Repository.Query
                             }
                             if (!string.IsNullOrEmpty(query))
                             {  
-                                await connection.QuerySingleOrDefaultAsync<long>(query, null, transaction);
+                                await connection.QuerySingleOrDefaultAsync<long>(query, null);
                             }
-                            transaction.Commit();
                             return EmailConversations.FirstOrDefault();
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
                             throw new Exception(exp.Message, exp);
                         }
                     }
-                }
+                
 
             }
             catch (Exception exp)

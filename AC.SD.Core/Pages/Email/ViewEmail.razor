@@ -2352,7 +2352,7 @@
     }
     async void onPrintSubjectPop()
     {    
-        var url = BaseUrl+"Emailprint/" + CurrentEmailConversations.SessionId;
+        var url = BaseUrl+"ViewEmail/Emailprint/" + CurrentEmailConversations.SessionId;
         string script = $"window.open('{url}', '_blank');";
         JSRuntime.InvokeVoidAsync("eval", script);
     }

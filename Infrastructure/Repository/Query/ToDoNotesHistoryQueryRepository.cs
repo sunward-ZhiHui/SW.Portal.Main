@@ -52,7 +52,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     //return (await connection.QueryAsync<ToDoNotesHistory>(query,parameters)).ToList();
-                    connection.Open();
+                    
                     var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
 
                     //foreach (var items in res)
@@ -108,7 +108,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     //return (await connection.QueryAsync<ToDoNotesHistory>(query,parameters)).ToList();
-                    connection.Open();
+                    
                     var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
 
                     //foreach (var items in res)
@@ -193,7 +193,7 @@ namespace Infrastructure.Repository.Query
                 {
                     //return (await connection.QueryAsync<ToDoNotesHistory>(query, parameters)).ToList();
                     //
-                    connection.Open();
+                    
                     var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
 
                     //foreach (var items in res)
@@ -224,10 +224,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();                           
                             parameters.Add("Description", ToDoNotesHistory.Description);
@@ -248,9 +245,9 @@ namespace Infrastructure.Repository.Query
 
                             var query = "INSERT INTO ToDoNotesHistory(TopicId,Users,NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status,ColourCode) VALUES (@TopicId,@Users,@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status,@ColourCode)";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            transaction.Commit();
+                            
 
                             return rowsAffected;
                         }
@@ -258,11 +255,9 @@ namespace Infrastructure.Repository.Query
 
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
+                            
                             throw new Exception(exp.Message, exp);
-                        }
-
-                    }
+                        }                    
                 }
 
             }
@@ -278,12 +273,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("ID", ToDoNotesHistory.ID);                            
@@ -300,19 +290,17 @@ namespace Infrastructure.Repository.Query
 
                             var query = @"Update ToDoNotesHistory SET TopicId = @TopicId, Users = @Users,Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Status = @Status,ColourCode = @ColourCode WHERE ID = @ID";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-                            transaction.Commit();
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                            
                             return rowsAffected;
                         }
 
 
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
+                            
                             throw new Exception(exp.Message, exp);
-                        }
-
-                    }
+                        }                    
                 }
 
             }
@@ -328,12 +316,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("id", id);
@@ -341,18 +324,18 @@ namespace Infrastructure.Repository.Query
                             var query = "Delete From ToDoNotesHistory  WHERE ID = @id";
 
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            transaction.Commit();
+                            
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
+                            
                             throw new Exception(exp.Message, exp);
                         }
-                    }
+                    
                 }
 
             }
@@ -389,9 +372,8 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                    
+                    
 
                         try
                         {
@@ -401,18 +383,18 @@ namespace Infrastructure.Repository.Query
                             var query = "update TodoNotesHistory Set Status = 'close' Where ID =@ID";
 
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            transaction.Commit();
+                            
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
+                            
                             throw new Exception(exp.Message, exp);
                         }
-                    }
+                    
                 }
 
             }

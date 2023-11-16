@@ -38,12 +38,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("TopicID", forumConversations.TopicID, DbType.Int64);
@@ -53,20 +48,16 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
 
                             var query = "DELETE  FROM EmailConversations WHERE ID = @ID";
-
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);                           
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
+                            
                             throw new Exception(exp.Message, exp);
                         }
-                    }
+                    
                 }
 
             }
@@ -86,8 +77,6 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-
                     var res = connection.Query<EmailConversations>(query, parameters).ToList();
 
                     return res;
@@ -301,16 +290,6 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                //var query = @"SELECT FT.UserId,E.FirstName FROM EmailTopicTo FT
-                //                INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
-                //                INNER JOIN Employee E ON E.UserID = FT.UserId
-                //                WHERE TopicId = @TopicId
-                //UNION
-                //SELECT FC.UserId,E.FirstName FROM EmailTopicCC FC
-                //                INNER JOIN ApplicationUser AU ON AU.UserID = FC.UserId
-                //                INNER JOIN Employee E ON E.UserID = FC.UserId
-                //                WHERE TopicId = @TopicId";
-
                 var query = @"SELECT FT.UserId,E.FirstName,E.LastName,E.NickName,D.Code AS DesignationName,P.PlantCode as CompanyName FROM EmailTopicParticipant FT
                                 INNER JOIN ApplicationUser AU ON AU.UserID = FT.UserId
                                 INNER JOIN Employee E ON E.UserID = FT.UserId
@@ -362,12 +341,8 @@ namespace Infrastructure.Repository.Query
                     {
                         var parameters = new DynamicParameters();
                         parameters.Add("ID", topicParticipant.ID, DbType.Int64);
-                        parameters.Add("Option", "DELETE");
-
-                        //var query = "DELETE  FROM EmailTopicParticipant WHERE ID = @ID";
-                        //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                        connection.Open();
+                        parameters.Add("Option", "DELETE");                       
+                        
                         var task = connection.ExecuteAsync("sp_Ins_EmailTopicParticipant", parameters, commandType: CommandType.StoredProcedure);
                         task.Wait(); // Synchronously wait for the task to complete
                         var rowsAffected = task.Result; // Retrieve the result
@@ -420,8 +395,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("TopicId", TopicId, DbType.Int64);
 
                 using (var connection = CreateConnection())
-                {
-                    connection.Open();
+                {                    
                     var res = connection.Query<EmailConversations>(query, parameters).ToList();
                     return res;
                 }
@@ -443,10 +417,8 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("UserId", UserId);
 
                 using (var connection = CreateConnection())
-                {
-                    connection.Open();
+                {  
                     var res = connection.Query<EmailConversations>(query, parameters).ToList();
-
                     return res;
                 }
             }
@@ -461,12 +433,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("id", id, DbType.Int64);
@@ -474,18 +441,16 @@ namespace Infrastructure.Repository.Query
 
                             var query = " UPDATE EmailConversations SET FileData = @fileData  WHERE ID = @id";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
-                            transaction.Commit();
+                            
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
                         {
-                            transaction.Rollback();
                             throw new Exception(exp.Message, exp);
-                        }
-                    }
+                        }                    
                 }
 
             }
@@ -500,15 +465,11 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = @"SELECT * from EmailConversations where IsMobile is null";
-
                 var parameters = new DynamicParameters();
-               
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
                     var res = connection.Query<EmailConversations>(query, parameters).ToList();
-
                     return res;
                 }
             }
@@ -529,8 +490,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("TopicId", TopicId, DbType.Int64);
                         parameters.Add("UserId", UserId, DbType.Int64);
                         parameters.Add("Option", Option);
-
-                        connection.Open();                        
+                                             
                         var res = connection.Query<EmailConversations>("sp_Select_GetEmailDiscussionList", parameters, commandType: CommandType.StoredProcedure).ToList();
                         foreach (var topic in res)
                         {
@@ -740,8 +700,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("UserId", UserId, DbType.Int64);
 
                 using (var connection = CreateConnection())
-                {
-                    connection.Open();
+                {                    
                     var res = connection.Query<EmailConversations>(query,parameters).ToList();
 
                     foreach (var topic in res)
@@ -918,17 +877,14 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT * FROM EmailConversations FC 
-                                WHERE FC.ID = @ID";
+                var query = @"SELECT * FROM EmailConversations FC WHERE FC.ID = @ID";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("ID", Id, DbType.Int64);
 
                 using (var connection = CreateConnection())
-                {
-                    connection.Open();
-                    var res = connection.Query<EmailConversations>(query, parameters).ToList();                  
-
+                {                    
+                    var res = connection.Query<EmailConversations>(query, parameters).ToList();
                     return res;
                 }
             }
@@ -950,10 +906,8 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("TopicId", TopicId, DbType.Int64);
 
                 using (var connection = CreateConnection())
-                {
-                    connection.Open();
+                {                    
                     var res = connection.Query<EmailConversations>(query, parameters).ToList();
-
                     return res;
                 }
             }
@@ -987,8 +941,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("TopicId", TopicId, DbType.Int64);
 
                 using (var connection = CreateConnection())
-                {
-                    connection.Open();
+                {                    
                     var res = connection.Query<EmailConversations>(query, parameters).ToList();
 
                     foreach (var topic in res)
@@ -1170,9 +1123,7 @@ namespace Infrastructure.Repository.Query
                         var parameters = new DynamicParameters();
                         parameters.Add("TopicId", TopicId);
                         parameters.Add("UserId", UserId);
-                        parameters.Add("Option", option);
-
-                        connection.Open();
+                        parameters.Add("Option", option);                        
 
                         var result = connection.Query<Documents>("sp_Select_EmailDocList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
@@ -1206,7 +1157,6 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
                     var res = connection.Query<Documents>(query, parameters).ToList();
                     return res;
                 }
@@ -1240,7 +1190,6 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
                     var res = connection.Query<Documents>(query, parameters).ToList();
                     return res;
                 }
@@ -1279,8 +1228,7 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("TopicId", TopicId);
 
                 using (var connection = CreateConnection())
-                {
-                    connection.Open();
+                {   
                     var res = connection.Query<EmailConversations>(query, parameters).ToList();
                     return res;                   
                 }
@@ -1303,7 +1251,6 @@ namespace Infrastructure.Repository.Query
 
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
                     var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
                     return res;
                 }
@@ -1326,7 +1273,6 @@ namespace Infrastructure.Repository.Query
 
 				using (var connection = CreateConnection())
 				{
-					connection.Open();
 					var res = connection.Query<EmailConversationAssignTo>(query, parameters).ToList();
 					return res;
 				}
@@ -1342,12 +1288,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("ReplyId", ReplyId, DbType.Int64);
@@ -1356,19 +1297,13 @@ namespace Infrastructure.Repository.Query
 
                             var query = " UPDATE EmailConversations SET LastUpdateUserID = @UserId ,LastUpdateDate = GETDATE() WHERE ID = @ReplyId";
 
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
                             return rowsAffected;
                         }
                         catch (Exception exp)
-                        {
-                            transaction.Rollback();
+                        {                            
                             throw new Exception(exp.Message, exp);
-                        }
-                    }
+                        }                    
                 }
 
             }
@@ -1388,17 +1323,11 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();                           
                             parameters.Add("TopicID", forumConversations.TopicID, DbType.Int64);
-                            parameters.Add("Message", forumConversations.Message, DbType.String);
-                          //  parameters.Add("ID", forumConversations.ID, DbType.Int64);
+                            parameters.Add("Message", forumConversations.Message, DbType.String);                          
                             parameters.Add("ParticipantId", forumConversations.ParticipantId, DbType.Int64);
                             parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
                             parameters.Add("StatusCodeID", forumConversations.StatusCodeID);
@@ -1417,7 +1346,7 @@ namespace Infrastructure.Repository.Query
 
 
                             //var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters, transaction);
+                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                            
 
                             //var listData = forumConversations.AssigntoIds.ToList();
@@ -1456,16 +1385,14 @@ namespace Infrastructure.Repository.Query
                             //var lastInsertedRecordId = await connection.ExecuteScalarAsync<long>("SELECT SCOPE_IDENTITY();", transaction);
 
 
-                            transaction.Commit();
 
                             return lastInsertedRecordId;
                         }
                         catch (Exception exp)
-                        {
-                            transaction.Rollback();
+                        {                            
                             throw new Exception(exp.Message, exp);
                         }
-                    }
+                    
                 }
 
             }
@@ -1480,12 +1407,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();                            
                             parameters.Add("UserID", conversationAssignTo.UserId);
@@ -1498,18 +1420,15 @@ namespace Infrastructure.Repository.Query
 
                             var query = "INSERT INTO EmailConversationAssignTo(ConversationId,TopicId,UserID,StatusCodeID,AddedByUserID,SessionId,AddedDate) VALUES (@ConversationId,@TopicId,@UserID,@StatusCodeID,@AddedByUserID,@SessionId,@AddedDate)";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);                          
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
-                        {
-                            transaction.Rollback();
+                        {                            
                             throw new Exception(exp.Message, exp);
                         }
-                    }
+                    
                 }
 
             }
@@ -1525,8 +1444,6 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
                         try
                         {
                             var parameters = new DynamicParameters();                            
@@ -1572,12 +1489,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("UserID", forumNotifications.UserId);
@@ -1589,18 +1501,15 @@ namespace Infrastructure.Repository.Query
 
                             var query = "INSERT INTO EmailNotifications(ConversationId,TopicId,UserID,AddedByUserID,AddedDate,IsRead) VALUES (@ConversationId,@TopicId,@UserID,@AddedByUserID,@AddedDate,@IsRead)";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
-                        {
-                            transaction.Rollback();
+                        {                            
                             throw new Exception(exp.Message, exp);
                         }
-                    }
+                    
                 }
 
             }
@@ -1616,10 +1525,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
+                   
 
                         try
                         {
@@ -1631,20 +1537,15 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("ReplyId", forumConversations.ReplyId, DbType.Int64);
 
                             var query = " UPDATE EmailConversations SET Name = @Name ,TopicID = @TopicID ,Message=@Message,ParticipantId =@ParticipantId,ReplyId=@ReplyId WHERE ID = @ID";
-
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);                           
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
-                        {
-                            transaction.Rollback();
+                        {                            
                             throw new Exception(exp.Message, exp);
                         }
-                    }
+                    
                 }
 
             }

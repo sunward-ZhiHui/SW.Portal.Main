@@ -64,10 +64,7 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("TopicId", emailActivityCatgorys.TopicId);
@@ -85,21 +82,16 @@ namespace Infrastructure.Repository.Query
 
                             var query = "INSERT INTO EmailActivityCatgorys(Name,GroupTag,CategoryTag,ActionTag,TopicId,Description,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId) VALUES (@Name,@GroupTag,@CategoryTag,@ActionTag,@TopicId,@Description,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId)";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
-
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                          
                             return rowsAffected;
                         }
 
 
                         catch (Exception exp)
-                        {
-                            transaction.Rollback();
+                        {                            
                             throw new Exception(exp.Message, exp);
                         }
-
-                    }
                 }
 
             }
@@ -116,11 +108,7 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("ID", emailActivityCatgorys.ID);
@@ -139,19 +127,15 @@ namespace Infrastructure.Repository.Query
 
                             var query = @"Update EmailActivityCatgorys SET Name = @Name,GroupTag = @GroupTag,CategoryTag = @CategoryTag,ActionTag = @ActionTag,TopicId=@TopicId,Description=@Description,StatusCodeID=@StatusCodeID,AddedByUserID=@AddedByUserID,ModifiedByUserID=@ModifiedByUserID,AddedDate=@AddedDate,ModifiedDate=@ModifiedDate,SessionId=@SessionId WHERE ID = @ID";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-                            transaction.Commit();
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);                            
                             return rowsAffected;
                         }
 
 
                         catch (Exception exp)
-                        {
-                            transaction.Rollback();
+                        {                            
                             throw new Exception(exp.Message, exp);
-                        }
-
-                    }
+                        }                    
                 }
 
             }
@@ -166,32 +150,21 @@ namespace Infrastructure.Repository.Query
             try
             {
                 using (var connection = CreateConnection())
-                {
-
-                    connection.Open();
-                    using (var transaction = connection.BeginTransaction())
-                    {
-
-                        try
+                {  
+                    try
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("id", id);
 
                             var query = "DELETE  FROM EmailActivityCatgorys WHERE ID = @id";
-
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters, transaction);
-
-                            transaction.Commit();
+                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
                             return rowsAffected;
                         }
                         catch (Exception exp)
-                        {
-                            transaction.Rollback();
+                        {                           
                             throw new Exception(exp.Message, exp);
-                        }
-                    }
+                        }                    
                 }
 
             }

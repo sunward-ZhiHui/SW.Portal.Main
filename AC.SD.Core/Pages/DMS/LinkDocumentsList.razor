@@ -87,7 +87,7 @@
          HeaderText="Sunward Libraries"
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <LinkFileprofileTypeList ParentSelectedFiles="@selectedFiles" LinkProfileSelectedFiles="@_selectedItems" LinkType="@LinkType"></LinkFileprofileTypeList>
     </BodyContentTemplate>
@@ -100,7 +100,7 @@
          HeaderText="Parent Documents"
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <ParentLinkDocuments ParentSelectedFiles="@selectedFiles" LinkProfileSelectedFiles="@_selectedItems" LinkType="Link Documents"></ParentLinkDocuments>
     </BodyContentTemplate>
@@ -128,7 +128,7 @@
          HeaderText="Security Access"
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <UploadLinkDoumentFiles @ref="refUploadLinkDoumentFiles" selectedFiles="@selectedFiles" applicationUser="@applicationUser" FileProfileSessionId="@SessionId" RevokeLinkDocBack="CloseLinkDocumentsUploadPopup"></UploadLinkDoumentFiles>
     </BodyContentTemplate>

@@ -47,7 +47,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<ProductActivityCaseLineModel>> Handle(GetProductActivityCaseLineTemplateItems request, CancellationToken cancellationToken)
         {
-            return (List<ProductActivityCaseLineModel>)await _productionactivityappQueryRepository.GetProductActivityCaseLineTemplateItemsAsync(request.ManufacturingProcessId, request.CategoryActionId);
+            return (List<ProductActivityCaseLineModel>)await _productionactivityappQueryRepository.GetProductActivityCaseLineTemplateItemsAsync(request.ManufacturingProcessId, request.CategoryActionId,request.ProdActivityActionChildD);
         }
 
     }
@@ -89,6 +89,19 @@ namespace Application.Handlers.QueryHandlers
         public async Task<List<NavprodOrderLineModel>> Handle(GetAllProductionActivityPONumberAppQuery request, CancellationToken cancellationToken)
         {
             return (List<NavprodOrderLineModel>)await _productionactivityappponumberQueryRepository.GetAllAsyncPO(request.companyID);
+        }
+
+    }
+    public class GetSupportingDocumentsHandler : IRequestHandler<GetSupportingDocuments, List<DocumentsModel>>
+    {
+        private readonly IProductionActivityAppQueryRepository _productionactivityappQueryRepository;
+        public GetSupportingDocumentsHandler(IProductionActivityAppQueryRepository productionactivityappQueryRepository)
+        {
+            _productionactivityappQueryRepository = productionactivityappQueryRepository;
+        }
+        public async Task<List<DocumentsModel>> Handle(GetSupportingDocuments request, CancellationToken cancellationToken)
+        {
+            return (List<DocumentsModel>)await _productionactivityappQueryRepository.GetSupportingDocumentsAsync(request.ProductionActivityPlanningAppLineID);
         }
 
     }

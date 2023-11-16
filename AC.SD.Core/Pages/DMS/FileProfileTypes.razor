@@ -75,7 +75,7 @@
                             <DxMenuItem Text="Check Out" IconCssClass="fa fa-check-square" Click="onCheckOut" Visible="@checkoutEnabled" />
                             <DxMenuItem Text="Check In" IconCssClass="fa fa-check-circle" Visible="@checkInEnabled" Click="onCheckin" />
                             <DxMenuItem Text="History" IconCssClass="fa fa-history" Click="onHistory" Visible="@historyEnabled" />
-                            <DxMenuItem Text="Copy Link" IconCssClass="fa fa-clone" Click="onCopy" Visible="@copylinkEnabled" />
+                            <DxMenuItem Text="Copy Link" IconCssClass="fa fa-link" Click="onCopy" Visible="@copylinkEnabled" />
                             <DxMenuItem Text="Share" IconCssClass="fa fa-share-square" Click="onShare" Visible="@shareEnabled" />
                             <DxMenuItem Text="Link Document" IconCssClass="fa fa-link" Click="onLinkDocuments" Visible="@linkdownloadEnabled" />
                             <DxMenuItem Text="Form Details" IconCssClass="fa fa-info-circle" Click="onFormDetails" Visible="@formdetailsEnabled" />
@@ -268,7 +268,7 @@
          ShowFooter="true"
          HeaderText="Document History"
          CloseOnOutsideClick="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <HistoryPopup selectedFiles="@selectedFiles"></HistoryPopup>
     </BodyContentTemplate>
@@ -280,7 +280,7 @@
          ShowFooter="true"
          HeaderText="Link Documents"
          CloseOnOutsideClick="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <LinkDocumentsList selectedFiles="@selectedFiles"></LinkDocumentsList>
     </BodyContentTemplate>
@@ -293,7 +293,7 @@
          HeaderText="Parent Documents"
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <ParentLinkDocuments ParentSelectedFiles="@_selectedItems" LinkProfileSelectedFiles="@LinkProfileSelectedFiles" LinkType="Profile Type"></ParentLinkDocuments>
     </BodyContentTemplate>
@@ -311,7 +311,7 @@
           FooterVisible="true"
           CloseOnOutsideClick="false"
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
@@ -335,7 +335,7 @@
           CloseOnOutsideClick="false"
           HeaderText="Update Expiry Date"
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
@@ -360,7 +360,7 @@
           FooterVisible="true"
           FooterCssClass="custom-flyout-footer"
           CloseOnOutsideClick="false"
-          Width="max(25vw, 550px)"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
@@ -384,7 +384,7 @@
          HeaderText=@($"Security Access-{Name}")
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <FileProfileTypeSecurity FileProfileTypeId="@FileProfileTypeId"></FileProfileTypeSecurity>
     </BodyContentTemplate>
@@ -400,7 +400,7 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
          ShowFooter="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <UploadDoumentFiles @ref="refUploadDoumentFiles" FolderPathLists="@FolderPathLists" applicationUser="@applicationUser" selectedFiles="@_ParentselectedItems" UploadDocFormID="UploadDocFormID" RevokeBack="BackUpload"></UploadDoumentFiles>
     </BodyContentTemplate>
@@ -411,7 +411,7 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
          ShowFooter="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <UploadDocumentUpdateFiles @ref="refUploadDocumentUpdateFiles" FolderPathLists="@FolderPathLists" selectedItems="@_selectedItems" applicationUser="@applicationUser" FileProfileSessionId="@MainSessionId" RevokeBack="BackUpload"></UploadDocumentUpdateFiles>
     </BodyContentTemplate>
@@ -420,7 +420,7 @@
          ShowFooter="true"
          HeaderText="Delete"
          Closed="EulaPopupClosed"
-         Width="300px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <p>
             Do you want to delete this Profile
@@ -462,7 +462,7 @@
           FooterVisible="true"
           FooterCssClass="custom-flyout-footer"
           CloseOnOutsideClick="false"
-          Width="max(25vw, 550px)"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
@@ -517,7 +517,7 @@
           HeaderText="Select FileProfile Type"
           FooterVisible="true"
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           CloseOnOutsideClick="false"
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
@@ -553,7 +553,7 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
          ShowFooter="false"
-         Width="1000px">
+        MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <ShareDocuments @ref="refShareDocuments" selectedItems="@_selectedItems" applicationUser="@applicationUser" RevokeBack="BackShareDoc"></ShareDocuments>
     </BodyContentTemplate>
@@ -568,7 +568,7 @@
           FooterVisible="true"
           CloseOnOutsideClick="false"
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
@@ -586,7 +586,7 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
          ShowFooter="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <AddFileProfileTypeInfo selectedItems="@_ParentselectedItems" applicationUser="@applicationUser" RevokeBack="BackShareDoc"></AddFileProfileTypeInfo>
     </BodyContentTemplate>

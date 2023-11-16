@@ -90,18 +90,124 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<ProductActivityCaseLineModel>> GetProductActivityCaseLineTemplateItemsAsync(long? ManufacturingProcessId, long? CategoryActionId)
+        private string DocumentQueryString()
+        {
+            var query = "select  " +
+                    "SessionId," +
+                    "DocumentId," +
+                    "FileName," +
+                    "ContentType," +
+                    "FileSize," +
+                    "UploadDate," +
+                    "FilterProfileTypeId," +
+                    "CloseDocumentId," +
+                    "DocumentParentId," +
+                    "IsMobileUpload," +
+                    "TableName," +
+                    "ExpiryDate," +
+                    "AddedByUserId," +
+                    "ModifiedByUserId," +
+                    "ModifiedDate," +
+                    "IsLocked," +
+                    "LockedByUserId," +
+                    "LockedDate," +
+                    "AddedDate," +
+                    "IsCompressed," +
+                    "FileIndex," +
+                    "ProfileNo," +
+                    "IsLatest," +
+                    "ArchiveStatusId," +
+                    "Description," +
+                    "IsWikiDraft," +
+                    "IsWiki," +
+                    "FilePath, " +
+                    "IsNewPath, " +
+                    "IsDelete, " +
+                    "DeleteByUserID, " +
+                    "DeleteByDate, " +
+                    "SourceFrom, " +
+                    "UniqueSessionId " +
+                    "from Documents ";
+            return query;
+        }
+        public async Task<IReadOnlyList<ApplicationUser>> GetApplicationUserAsync()
+        {
+            try
+            {
+                var query = "select UserName,UserId from ApplicationUser";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<ApplicationUser>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<DocumentsModel>> GetSupportingDocumentsAsync(long? ProductionActivityAppLineId)
+        {
+            List<DocumentsModel> supportingDocuments = new List<DocumentsModel>();
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ProductionActivityAppLineId", ProductionActivityAppLineId);
+                var appUsers = await GetApplicationUserAsync();
+                var query = string.Empty;
+
+                query = @"select t1.* from Documents t1 where t1.IsLatest=1 AND (t1.IsDelete=0 or IsDelete is null) AND SessionID in(select  SessionID from ProductionActivityAppLineDoc where ProductionActivityAppLineID=@ProductionActivityAppLineId)";
+                using (var connection = CreateConnection())
+                {
+                    var result = (await connection.QueryAsync<DocumentsModel>(query, parameters)).ToList();
+                    if (result.Count > 0)
+                    {
+                        result.ForEach(s =>
+                        {
+                            var lastIndex = s.FileName != null ? s.FileName.LastIndexOf(".") : 0;
+                            lastIndex = lastIndex > 0 ? lastIndex : 0;
+                            var name = s.FileName != null ? s.FileName?.Substring(lastIndex) : "";
+                            var fileName = s.FileName?.Split(name);
+                            s.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
+                            s.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName;
+                            s.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
+                            s.OriginalFileName = s.FileName;
+                            s.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
+                            supportingDocuments.Add(s);
+                        });
+                    }
+                    return supportingDocuments;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<ProductActivityCaseLineModel>> GetProductActivityCaseLineTemplateItemsAsync(long? ManufacturingProcessId, long? CategoryActionId, long? prodActivityActionChildD)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("ManufacturingProcessId", ManufacturingProcessId);
                 parameters.Add("CategoryActionId", CategoryActionId);
-                var query = "declare @var1 bigint;\r\nselect  @var1 = ProductActivityCaseID from ProductActivityCaseCategoryMultiple where CategoryActionId=@CategoryActionId\r\n" +
-                    "select t1.*,\r\nt2.Name as TemplateProfileName,\r\nCASE WHEN t1.IsAutoNumbering = 1  THEN 'Yes' ELSE 'No' END AS AutoNumbering\r\nfrom ProductActivityCaseLine t1\r\n" +
-                    "LEFT JOIN DocumentProfileNoSeries t2 ON t2.ProfileId=t1.TemplateProfileId\r\nLEFT JOIN ProductActivityCase t3 ON t3.ProductActivityCaseID=t1.ProductActivityCaseID\r\n" +
-                    "WHERE t3.ManufacturingProcessChildID=@ManufacturingProcessId AND t1.ProductActivityCaseLineID IN(select ProductActivityCaseLineID from ProductActivityCaseLine where ProductActivityCaseId= @var1)";
-
+                parameters.Add("ActionId", prodActivityActionChildD);
+                var query = string.Empty;
+                if (prodActivityActionChildD > 0)
+                {
+                    query = @"declare @var1 bigint;
+                            select  @var1 = ProductActivityCaseID from ProductActivityCaseActionMultiple where ActionId=@ActionId
+                            select t1.*,t2.Name as TemplateProfileName,CASE WHEN t1.IsAutoNumbering = 1  THEN 'Yes' ELSE 'No' END AS AutoNumbering from ProductActivityCaseLine t1
+                            LEFT JOIN DocumentProfileNoSeries t2 ON t2.ProfileId=t1.TemplateProfileId LEFT JOIN ProductActivityCase t3 ON t3.ProductActivityCaseID=t1.ProductActivityCaseID
+                            WHERE t3.ManufacturingProcessChildID=@ManufacturingProcessId AND t1.ProductActivityCaseLineID IN(select ProductActivityCaseLineID from ProductActivityCaseLine where ProductActivityCaseId= @var1)";
+                }
+                else
+                {
+                    query = "declare @var1 bigint;\r\nselect  @var1 = ProductActivityCaseID from ProductActivityCaseCategoryMultiple where CategoryActionId=@CategoryActionId\r\n" +
+                       "select t1.*,\r\nt2.Name as TemplateProfileName,\r\nCASE WHEN t1.IsAutoNumbering = 1  THEN 'Yes' ELSE 'No' END AS AutoNumbering\r\nfrom ProductActivityCaseLine t1\r\n" +
+                       "LEFT JOIN DocumentProfileNoSeries t2 ON t2.ProfileId=t1.TemplateProfileId\r\nLEFT JOIN ProductActivityCase t3 ON t3.ProductActivityCaseID=t1.ProductActivityCaseID\r\n" +
+                       "WHERE t3.ManufacturingProcessChildID=@ManufacturingProcessId AND t1.ProductActivityCaseLineID IN(select ProductActivityCaseLineID from ProductActivityCaseLine where ProductActivityCaseId= @var1)";
+                }
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<ProductActivityCaseLineModel>(query, parameters)).ToList();
@@ -193,9 +299,6 @@ namespace Infrastructure.Repository.Query
             {
                 using (var connection = CreateConnection())
                 {
-
-
-
                     try
                     {
                         var parameters = new DynamicParameters();
@@ -203,6 +306,8 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ProdOrderNo", PPAlist.ProdOrderNo, DbType.String);
                         parameters.Add("SessionId", PPAlist.SessionId, DbType.Guid);
                         parameters.Add("AddedByUserID", PPAlist.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", PPAlist.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", PPAlist.ModifiedDate);
                         parameters.Add("AddedDate", PPAlist.AddedDate, DbType.DateTime);
                         parameters.Add("LocationID", PPAlist.LocationId);
                         parameters.Add("StatusCodeID", PPAlist.StatusCodeID);
@@ -213,8 +318,6 @@ namespace Infrastructure.Repository.Query
                         }
                         else
                         {
-
-
                             var query = @"INSERT INTO ProductionActivityApp(SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate) 
 				                       OUTPUT INSERTED.ProductionActivityAppID 
 				                       VALUES (@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate)";
@@ -222,6 +325,7 @@ namespace Infrastructure.Repository.Query
 
                             PPAlist.ProductionActivityAppId = insertedId;
                         }
+                        parameters.Add("ProductionActivityAppLineId", PPAlist.ProductionActivityAppLineId);
                         parameters.Add("Appid", PPAlist.ProductionActivityAppId);
                         parameters.Add("IsOthersOptions", PPAlist.IsOthersOptions == true ? true : false);
                         parameters.Add("ProdActivityResultID", PPAlist.ProdActivityResultId);
@@ -236,11 +340,26 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("applineSessionId", PPAlist.LineSessionId, DbType.Guid);
                         parameters.Add("applineStatusCodeID", PPAlist.StatusCodeID);
                         parameters.Add("QaCheck", PPAlist.QaCheck == true ? true : false);
-                        var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ProdActivityResultID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID,ModifiedByUserID,ModifiedDate,ActivityStatusId,IsOthersOptions,LocationID,QaCheck) " +
-                            " OUTPUT INSERTED.ProductionActivityAppLineId " +
-                            "VALUES (@Appid,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID,@applineAddedByUserID,@applineAddedDate,@ActivityStatusId,@IsOthersOptions,@LocationID,@QaCheck)";
+                        if (PPAlist.ProductionActivityAppLineId > 0)
+                        {
+                            var appquery = " UPDATE ProductionActivityAppLine SET ProductionActivityAppID = @Appid,ProdActivityResultID =@ProdActivityResultID,ManufacturingProcessChildID =@ManufacturingProcessChildID,ProdActivityCategoryChildID=@ProdActivityCategoryChildID," +
+                            "ProdActivityActionChildD=@ProdActivityActionChildD,Comment=@PAApplineComment,NavprodOrderLineId=@AppLineNavprodOrderLineID,SessionId=@applineSessionId,StatusCodeID=@applineStatusCodeID,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,ActivityStatusId=@ActivityStatusId,IsOthersOptions=@IsOthersOptions,LocationID=@LocationID,QaCheck=@QaCheck WHERE ProductionActivityAppLineId = @ProductionActivityAppLineId";
 
-                        PPAlist.ProductionActivityAppLineId = await connection.ExecuteScalarAsync<long>(applinequery, parameters);
+                            await connection.ExecuteAsync(appquery, parameters);
+                        }
+                        else
+                        {
+                            var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ProdActivityResultID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID,ModifiedByUserID,ModifiedDate,ActivityStatusId,IsOthersOptions,LocationID,QaCheck) " +
+                                " OUTPUT INSERTED.ProductionActivityAppLineId " +
+                                "VALUES (@Appid,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID,@applineAddedByUserID,@applineAddedDate,@ActivityStatusId,@IsOthersOptions,@LocationID,@QaCheck)";
+
+                            PPAlist.ProductionActivityAppLineId = await connection.ExecuteScalarAsync<long>(applinequery, parameters);
+                        }
+                        if (PPAlist.ProductionActivityAppLineId > 0)
+                        {
+                            var Deletequery = "DELETE  FROM ActivityMasterMultiple WHERE ProductionActivityAppLineId = " + PPAlist.ProductionActivityAppLineId + ";";
+                            await connection.ExecuteAsync(Deletequery);
+                        }
                         if (PPAlist.ActivityMasterIds != null)
                         {
                             var listData = PPAlist.ActivityMasterIds.ToList();
@@ -258,7 +377,7 @@ namespace Infrastructure.Repository.Query
                                 }
                             }
                         }
-                        return PPAlist.ProductionActivityAppId;
+                        return PPAlist.ProductionActivityAppLineId.Value;
                     }
                     catch (Exception exp)
                     {
@@ -266,7 +385,6 @@ namespace Infrastructure.Repository.Query
                     }
 
                 }
-
 
             }
 
@@ -276,10 +394,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-
     }
-
-
 }
 
 

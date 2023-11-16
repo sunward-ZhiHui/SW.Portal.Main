@@ -1,0 +1,98 @@
+﻿@page "/uploadImage"
+@inject IJSRuntime jsRuntime
+@using System.IO;
+@inject HttpClient Http
+<DxMenu CollapseItemsToHamburgerMenu="true"
+        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+        DisplayMode="MenuDisplayMode.Desktop">
+    <Items>
+        <DxMenuItem Text="Select File" IconCssClass="fa fa-file" Click="click" />
+    </Items>
+</DxMenu>
+<InputFile @ref="filePicker" OnChange="OnChange" style="display:none;" accept="image/*"></InputFile>
+@* <img src="@base64String" /> *@
+@foreach (var item in filesBase64)
+{
+    <img src="data:@item.contentType;base64,@item.base64data" />
+}
+<script>
+    window.triggerClick = (elt) => elt.click();
+</script>
+@code {
+    List<ImageFile> filesBase64 = new List<ImageFile>();
+
+    InputFile filePicker;
+    string base64String{ get; set; }
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*" };
+    private DxUpload uploadComponent;
+    bool UploadVisible { get; set; } = false;
+    async Task click()
+    {
+        await jsRuntime.InvokeAsync<object>("triggerClick", filePicker.Element);
+    }
+    async Task OnChange(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(); // get the files selected by the users
+        foreach (var file in files)
+        {
+            var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); // resize the image file
+            var buf = new byte[resizedFile.Size]; // allocate a buffer to fill with the file's data
+            using (var stream = resizedFile.OpenReadStream())
+            {
+                await stream.ReadAsync(buf); // copy the stream to the buffer
+            }
+            filesBase64.Add(new ImageFile { base64data = Convert.ToBase64String(buf), contentType = file.ContentType, fileName = file.Name }); // convert to a base64 string!!
+        }
+    }
+    protected void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        var selectedFile = files.First();
+        //Stream stream = selectedFile.LoadedBytes(maxAllowedSize: 50000000);
+        InvokeAsync(StateHasChanged);
+    }
+    public static byte[] GetBytes(Stream stream)
+    {
+        var bytes = new byte[stream.Length];
+        stream.Seek(0, SeekOrigin.Begin);
+        stream.ReadAsync(bytes, 0, bytes.Length);
+        stream.Dispose();
+        return bytes;
+    }
+    private async Task OnInputFileChange(InputFileChangeEventArgs args)
+    {
+        base64String = "";
+
+        try
+        {
+            var files = args.GetMultipleFiles();
+            foreach (var file in files)
+            {
+                await using MemoryStream fs = new MemoryStream();
+                await file.OpenReadStream(maxAllowedSize: 31457280).CopyToAsync(fs);
+                byte[] somBytes = GetBytes(fs);
+                var base64Strings = Convert.ToBase64String(somBytes, 0, somBytes.Length);
+
+                base64String = $"data:{file.ContentType};base64,{base64Strings}";
+            }
+        }
+        catch (Exception e)
+        {
+        }
+    }
+    async Task Upload()
+    {
+        using (var msg = await Http.PostAsJsonAsync<List<ImageFile>>("/api/upload", filesBase64, System.Threading.CancellationToken.None))
+        {
+            if (msg.IsSuccessStatusCode)
+            {
+                filesBase64.Clear();
+            }
+        }
+    }
+    public class ImageFile
+    {
+        public string base64data { get; set; }
+        public string contentType { get; set; }
+        public string fileName { get; set; }
+    }
+}

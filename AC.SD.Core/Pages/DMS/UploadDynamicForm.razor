@@ -158,7 +158,7 @@
           FooterVisible="true"
           CloseOnOutsideClick="false"
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
@@ -177,7 +177,7 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
          ShowFooter="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <UploadDoumentDMSDynamicFiles _applicationUser="@applicationUser" _dynamicformData="@_dynamicformData" FileProfileTypeId="@FileProfileTypeId" RevokeBack="BackUpload"></UploadDoumentDMSDynamicFiles>
 

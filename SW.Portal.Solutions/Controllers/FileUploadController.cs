@@ -15,6 +15,11 @@ using iText.IO.Image;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
+using AC.SD.Core.Data;
+using Microsoft.AspNetCore.SignalR;
+using Plugin.Firebase.Firestore;
+using System.IO;
+
 namespace SW.Portal.Solutions.Controllers
 {
     [Route("api/[controller]")]
@@ -96,47 +101,6 @@ namespace SW.Portal.Solutions.Controllers
             }
             return Ok(documentId.ToString());
         }
-        [HttpGet]
-        [Route("ImagesToPDF")]
-        public void ImagesToPDF(Guid? SessionId)
-        {
-
-            var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
-            string fileName = @"\" + SessionId + ".pdf";
-            var serverPath = serverPaths + fileName;
-            var folderpath = serverPaths;
-            PdfDocument pdfDocument = new PdfDocument(new PdfWriter(serverPath));
-            Document document = new Document(pdfDocument);
-            int i = 0;
-            var dir = Directory.GetFiles(folderpath).ToList();
-            if (dir.Count > 0)
-            {
-                dir.ForEach(s =>
-                {
-                    string mimeType = "application/unknown";
-                    string ext = System.IO.Path.GetExtension(s).ToLower();
-                    Microsoft.Win32.RegistryKey regKey = Microsoft.Win32.Registry.ClassesRoot.OpenSubKey(ext);
-                    if (regKey != null && regKey.GetValue("Content Type") != null)
-                    {
-                        mimeType = regKey.GetValue("Content Type").ToString();
-                    }
-                    var exts = mimeType.Split("/").ToList();
-                    if (exts[0] == "image")
-                    {
-                        var imageFile = System.IO.File.ReadAllBytes(s);
-
-                        var image = new Image(ImageDataFactory.Create(imageFile));
-                        pdfDocument.AddNewPage(new iText.Kernel.Geom.PageSize(image.GetImageWidth(), image.GetImageHeight()));
-                        image.SetFixedPosition(i + 1, 0, 0);
-                        document.Add(image);
-                        i++;
-                    }
-
-                });
-            }
-            pdfDocument.Close();
-            var pdfFile = System.IO.File.ReadAllBytes(serverPath);
-        }
         [HttpPost]
         [Route("UploadDocumentsById")]
         public async Task<ActionResult> UploadDocumentsById(IFormFile files, Guid? SessionId, long? DocumentId, string? SourceFrom)
@@ -163,7 +127,7 @@ namespace SW.Portal.Solutions.Controllers
                     }
 
                     // Removes temporary files 
-                   // RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
+                    // RemoveTempFilesAfterDelay(serverPaths, new TimeSpan(0, 5, 0));
 
                     // Save FileStream
                     using (var stream = new FileStream(tempFilePath, FileMode.Append, FileAccess.Write))
@@ -272,6 +236,66 @@ namespace SW.Portal.Solutions.Controllers
                 return BadRequest(e.Message);
             }
             return Ok(ReportdocumentId.ToString());
+        }
+        [HttpPost]
+        [Route("UploadImages")]
+        public async Task<ActionResult> UploadImages(IFormCollection files)
+        {
+            try
+            {
+                var sessionID = new Guid(files["UploadSessionId"].ToString());
+                var addedByUserId = Convert.ToInt32(files["UserID"].ToString());
+                var SourceFrom = files["SourceFrom"].ToString();
+                var ChangeNewFileName = files["ChangeNewFileName"].ToString();
+                var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + sessionID + @"\";
+                string fileName = sessionID + ".pdf";
+                var serverFilePath = serverPaths + fileName;
+                if (!System.IO.Directory.Exists(serverPaths))
+                {
+                    System.IO.Directory.CreateDirectory(serverPaths);
+                }
+                using (var memoryStream = new MemoryStream())
+                {
+
+                    PdfDocument pdfDocument = new PdfDocument(new PdfWriter(memoryStream));
+                    Document document = new Document(pdfDocument);
+                    int i = 0;
+                    foreach (var f in files.Files)
+                    {
+                        var file = f;
+                        var fs = file.OpenReadStream();
+                        var br = new BinaryReader(fs);
+                        Byte[] documentByte = br.ReadBytes((Int32)fs.Length);
+                        var image = new Image(ImageDataFactory.Create(documentByte));
+                        pdfDocument.AddNewPage(new iText.Kernel.Geom.PageSize(image.GetImageWidth(), image.GetImageHeight()));
+                        image.SetFixedPosition(i + 1, 0, 0);
+                        document.Add(image);
+                        i++;
+                    }
+                    pdfDocument.Close();
+                    byte[] fileData = memoryStream.ToArray();
+                    var fileSize = fileData.Length;
+                    await System.IO.File.WriteAllBytesAsync(serverFilePath, fileData);
+                    Documents documents = new Documents();
+                    documents.UploadDate = DateTime.Now;
+                    documents.AddedByUserId = addedByUserId;
+                    documents.AddedDate = DateTime.Now;
+                    documents.SessionId = sessionID;
+                    documents.IsLatest = true;
+                    documents.IsTemp = true;
+                    documents.FileName = ChangeNewFileName + ".pdf";
+                    documents.ContentType = "application/pdf";
+                    documents.FileSize = fileSize;
+                    documents.SourceFrom = SourceFrom;
+                    documents.FilePath = serverFilePath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
+                    var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            return Ok("Ok");
         }
     }
 }

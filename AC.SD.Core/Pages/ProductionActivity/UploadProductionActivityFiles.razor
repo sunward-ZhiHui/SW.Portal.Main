@@ -23,31 +23,46 @@
         display: none; /* or any other style to disable or hide the icon */
     }
 </style>
+
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
             <div class="">
+               
                 <DxMenu CollapseItemsToHamburgerMenu="true"
                         CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
-                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                        <DxMenuItem Text="Select File" IconCssClass="fa fa-file" id="attachmentSelectButton" />
-                        <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="SubmitFormExternally" />
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUploadFilesUrl" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-file" id="attachmentSelectButton" Enabled="@isFilesUpload" />
+                        <DxMenuItem Text="Select Image" IconCssClass="fa fa-file" Click="@onImageToPdfSelectFile" Enabled="@isImageUpload" />
+                        <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="SubmitFormExternally" Enabled="@Uploadloading" />
                     </Items>
                 </DxMenu>
+               
             </div>
         </div>
     </div>
 </div>
-
-
 <div class="" style="margin-left:10px;">
     <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
         <div class="cw-480" style="margin-top:10px;">
+
             <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
+                    <DxFormLayoutItem Caption="Upload Type" ColSpanMd="4">
+                        <DxRadioGroup Items="@TemplateUploadOptions"
+                                      Value="@Data.TemplateUploadType"
+                                      ValueExpression="@(() => Data.TemplateUploadType )"
+                                      ValueChanged="@((string value) => OnTemplateUploadGroupValueChanged(value))"
+                                      Layout="RadioGroupLayout.Horizontal"
+                                      CssClass="dx-demo-radio-group" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="New File Name" ColSpanMd="6" Visible="@isTemplateUploadTypeImages">
+                        <DxTextBox @bind-Text="@Data.ChangeNewFileName"  ShowValidationIcon="true" />
+                        <ValidationMessage For="@(() => Data.ChangeNewFileName)" />
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10">
                         <DxTextBox @bind-Text=@FileprofiletypeName>
                             <Buttons>
@@ -177,6 +192,7 @@
 
                 </DxFormLayout>
             </EditForm>
+            <div style="@fileUploadStyle">
                 <div class="" style="height: calc(100vh - 565px);overflow: auto;overflow-x: hidden;">
                     <DxUpload @ref="uploadComponent" Name="files"
                               Visible="@AttachmentUploadVisible"
@@ -194,6 +210,10 @@
                     </DxUpload>
 
                 </div>
+            </div>
+            <div style="@imageUploadStyle">
+                <UploadFileImagesToPdf @ref="refUploadFileImagesToPdf" _applicationUser="@_applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId"></UploadFileImagesToPdf>
+            </div>
         </div>
     </div>
 </div>
@@ -205,7 +225,7 @@
           HeaderText="Select FileProfile Type"
           FooterVisible="true"
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
+          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           CloseOnOutsideClick="false"
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
@@ -236,21 +256,25 @@
     </FooterContentTemplate>
 </DxFlyout>
 @code {
+    IEnumerable<string> TemplateUploadOptions = new[] { "Files", "Images" };
+    private UploadFileImagesToPdf refUploadFileImagesToPdf;
     public DocumentsModel selectedFiles { get; set; }
     [Parameter]
     public ApplicationUser _applicationUser { get; set; }
     [Parameter]
     public Guid? UploadSessionId { get; set; }
+    public Guid? DocSessionId { get; set; }
     [Parameter]
     public long? FileProfileTypeId { get; set; }
     [Parameter]
     public Action RevokeUploadBack { get; set; }
+    bool isTemplateUploadTypeImages { get; set; } = false;
     EditContext _editContext;
     public FileProfileTypeModel fileProfileTypeModels { get; set; }
     private DxTreeView _treeView;
     string FilterString { get; set; }
     public string FileprofiletypeName { get; set; }
-    public bool loading { get; set; } = false;
+    public bool Uploadloading { get; set; } = true;
     public bool IsFileProfileTypeOpen { get; set; }
     string Message = "Upload";
     public bool IsFileProfileTypeShow { get; set; } = false;
@@ -273,23 +297,58 @@
     bool isSection { get; set; } = false; bool isSubSection { get; set; } = false;
     int SelectedFilesCount { get; set; }
     int CurrentUplodCount { get; set; }
+    bool isFilesUpload { get; set; } = false; bool isImageUpload { get; set; } = false;
+    string? TabType { get; set; } = "Files";
+    string? fileUploadStyle { get; set; } = "padding:5px;"; string? imageUploadStyle { get; set; } = "display:none;";
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
+        Data.TemplateUploadType = "Files";
+        isFilesUpload = true;
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        await loadFileDataFirst();
+    }
+    public async Task loadFileDataFirst()
+    {
+        _editContext = new EditContext(Data);
         if (fileProfileTypeDocumentsAll != null && FileProfileTypeId > 0)
         {
             var Datas = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == FileProfileTypeId);
             if (Datas != null)
             {
-                await loadData(Datas);
+                await loadData(Datas, "clear");
             }
         }
-
+        else
+        {
+            DocumentsModel ProfileData = new DocumentsModel();
+            await loadData(ProfileData, "clear");
+        }
     }
-    public async Task loadData(DocumentsModel _selectedFiles)
+    async Task OnTemplateUploadGroupValueChanged(string? radioValue)
+    {
+        Data.TemplateUploadType = radioValue;
+        TabType = radioValue;isTemplateUploadTypeImages = false;
+        if (radioValue == "Files")
+        {
+            Data.ChangeNewFileName = "Empty";
+            isFilesUpload = true; isImageUpload = false;
+            fileUploadStyle = "padding:5px;"; imageUploadStyle = "display:none;";
+
+        }
+        if (radioValue == "Images")
+        {
+            Data.ChangeNewFileName = string.Empty;
+            isTemplateUploadTypeImages = true;
+            isFilesUpload = false;
+            isImageUpload = true;
+            imageUploadStyle = "padding:5px;"; fileUploadStyle = "display:none;";
+        }
+        StateHasChanged();
+    }
+    public async Task loadData(DocumentsModel _selectedFiles, string uploadClear)
     {
         _editContext = new EditContext(Data);
         IsFileProfileTypeShow = false;
@@ -299,12 +358,29 @@
         Data.PlantId = 0; Data.DepartmentId = 0;
         Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
         TempSetIds = new List<DocumentsUploadModel>();
-        loading = false;
+        Uploadloading = true;
         Message = "Upload";
-        uploadComponent.RemoveAllFiles();
-        CurrentUplodCount = 0;
-        SelectedFilesCount = 0;
-        SelectedFiles = new List<UploadFileInfo>();
+        if (uploadClear == "No")
+        {
+            if (SelectedFilesCount > 0)
+            {
+
+            }
+            else
+            {
+                uploadComponent.RemoveAllFiles();
+                CurrentUplodCount = 0;
+                SelectedFilesCount = 0;
+                SelectedFiles = new List<UploadFileInfo>();
+            }
+        }
+        else
+        {
+            uploadComponent.RemoveAllFiles();
+            CurrentUplodCount = 0;
+            SelectedFilesCount = 0;
+            SelectedFiles = new List<UploadFileInfo>();
+        }
         MyError = ""; MyMessage = ""; FileprofiletypeName = "";
         if (_selectedFiles != null && _selectedFiles.ProfileID > 0)
         {
@@ -344,6 +420,7 @@
             {
                 isExpiryDate = true;
             }
+            DocSessionId = selectedFiles.SessionID;
             Data.UserSession = _applicationUser.SessionId;
             Data.UserId = _applicationUser.UserID;
             Data.ProfileId = selectedFiles.ProfileID;
@@ -409,26 +486,27 @@
             IsFileProfileTypeOpen = false;
             var nodeName = e.NodeInfo.DataItem as DocumentsModel;
             Data.FileProfileTypeId = nodeName.FileProfileTypeId;
+            FileProfileTypeId= nodeName.FileProfileTypeId;
+            DocSessionId = nodeName.SessionID;
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
-            await loadData(nodeName);
-            
+            await loadData(nodeName, "No");
+
         }
         StateHasChanged();
     }
     void OnButtonFileProfileTypeClick()
     {
-       // _treeView.CollapseAll();
         IsFileProfileTypeOpen = true;
     }
-    void backUrl()
+    void backUploadFilesUrl()
     {
         RevokeUploadBack?.Invoke();
     }
     void OnFileUploadStart(FileUploadStartEventArgs e)
     {
         Message = "Uploading...";
-        loading = true;
+        Uploadloading = false; isFilesUpload = false;
         var SessionId = new Guid(e.FileInfo.Guid);
         DocumentsUploadModel TempSetId = new DocumentsUploadModel();
         TempSetId.SessionId = SessionId;
@@ -453,8 +531,8 @@
         if (CurrentUplodCount >= SelectedFilesCount)
         {
             Message = "Upload";
-            loading = false;
-            backUrl();
+            Uploadloading = true; isFilesUpload = true; 
+            backUploadFilesUrl();
         }
 
     }
@@ -463,14 +541,14 @@
         MyError = e.RequestInfo.ResponseText;
         toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
         Message = "Upload";
-        loading = false;
-        InvokeAsync(StateHasChanged);
+        Uploadloading = true; isFilesUpload = true;
+        StateHasChanged();
     }
     void OnFileUploadStarted(FileUploadEventArgs e)
     {
         MyMessage = "Upload of the " + e.FileInfo.Name + " file was started.";
         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Info);
-        InvokeAsync(StateHasChanged);
+        StateHasChanged();
     }
     void OnUploadProgressChanged(FileUploadEventArgs e)
     {
@@ -531,38 +609,67 @@
                 toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
             }
         }
-        InvokeAsync(StateHasChanged);
+        StateHasChanged();
     }
-
-    public void onsubmitUploadFromClick()
-    {
-    }
-    void SubmitFormExternally()
+    async Task SubmitFormExternally()
     {
         if (_editContext.Validate())
         {
-            this.HandleValidSubmit();
+            await this.HandleValidSubmit();
         }
     }
-    void HandleValidSubmit()
+    async Task HandleValidSubmit()
     {
-        if (SelectedFilesCount > 0)
+        if (Data.TemplateUploadType == "Files")
         {
-            if (SelectedFilesCount == 1)
+            if (SelectedFilesCount > 0)
             {
-                uploadComponent.UploadAllFiles();
+                if (SelectedFilesCount == 1)
+                {
+                    uploadComponent.UploadAllFiles();
 
+                }
+                else
+                {
+                    var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                    toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+                }
             }
             else
             {
-                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                var MyMessage = "Must File Select";
                 toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
             }
         }
+        if (Data.TemplateUploadType == "Images")
+
+        {
+            await this.SubmitImagesFormExternally();
+        }
+    }
+    async Task onImageToPdfSelectFile()
+    {
+        await refUploadFileImagesToPdf.clickOpenFileImageToPdf();
+    }
+    async Task SubmitImagesFormExternally()
+    {
+        Uploadloading = false; isImageUpload = false; Message = "Uploading...";
+        var response=await refUploadFileImagesToPdf.uploadImagesToPdf(DocSessionId,Data);
+        if (response=="Done")
+        {
+            Message = "Upload";
+            Uploadloading = true; isImageUpload = true;
+            MyMessage = "File Upload Successfully And Images Converted To PDF.";
+            toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+            backUploadFilesUrl();
+        }
         else
         {
+            Message = "Upload";
+            Uploadloading = true; isImageUpload = true;
             var MyMessage = "Must File Select";
             toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
         }
+        StateHasChanged();
     }
 }

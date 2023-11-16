@@ -5,12 +5,14 @@ using Core.Repositories.Query;
 using Dapper;
 using IdentityModel.Client;
 using Infrastructure.Repository.Query.Base;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NAV;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -70,7 +72,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  EmployeeID, UserID,FirstName,LastName,NickName,DepartmentName,PlantID,DepartmentID from view_GetEmployee where  (Status!='Resign' or Status is null)";
+                var query = "select * from Employee";
 
                 using (var connection = CreateConnection())
                 {
@@ -82,56 +84,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<ProductionActivityAppLineQaCheckerModel>> GetProductionActivityAppLineQaCheckerAsync(List<long?> addedIds)
-        {
-            try
-            {
-                addedIds = addedIds != null && addedIds.Count > 0 ? addedIds : new List<long?>() { -1 };
-                var query = "select * from ProductionActivityAppLineQaChecker where ProductionActivityAppLineId in(" + string.Join(',', addedIds) + ");";
-
-                using (var connection = CreateConnection())
-                {
-                    return (await connection.QueryAsync<ProductionActivityAppLineQaCheckerModel>(query)).ToList();
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<IReadOnlyList<Documents>> GetAllDocumentsAsync(List<Guid?> SessionIds)
-        {
-            try
-            {
-                SessionIds = SessionIds != null && SessionIds.Count > 0 ? SessionIds : new List<Guid?>() { Guid.NewGuid() };
-                var query = DocumentQueryString() + " where  SessionId in(" + string.Join(",", SessionIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ") AND IsLatest=1 AND (IsDelete is null or IsDelete=0);";
-                using (var connection = CreateConnection())
-                {
-                    return (await connection.QueryAsync<Documents>(query)).ToList();
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<IReadOnlyList<ApplicationUser>> GetApplicationUserAsync()
-        {
-            try
-            {
-                var query = "select UserName,UserId,SessionId from ApplicationUser";
-
-                using (var connection = CreateConnection())
-                {
-                    return (await connection.QueryAsync<ApplicationUser>(query)).ToList();
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<MultipleProductioAppLineItemLists> GetMultipleQueryAsync()
+        public async Task<MultipleProductioAppLineItemLists> GetMultipleQueryAsync(List<long?> ProductionActivityAppLineIds, List<Guid?> SessionIds, List<long?> navprodOrderLineIds)
         {
             MultipleProductioAppLineItemLists multipleProductioAppLineItemLists = new MultipleProductioAppLineItemLists();
             try
@@ -139,12 +92,25 @@ namespace Infrastructure.Repository.Query
                 var query = "select ProductActivityCaseResponsId,ProductActivityCaseId from ProductActivityCaseRespons;";
                 query += "select ProductActivityCaseResponsDutyId, ProductActivityCaseResponsId from ProductActivityCaseResponsDuty;";
                 query += "select EmployeeId, ProductActivityCaseResponsDutyId from ProductActivityCaseResponsResponsible;";
+                query += "select * from ActivityMasterMultiple;";
+                ProductionActivityAppLineIds = ProductionActivityAppLineIds != null && ProductionActivityAppLineIds.Count > 0 ? ProductionActivityAppLineIds : new List<long?>() { -1 };
+                query += "select * from ProductionActivityAppLineQaChecker where ProductionActivityAppLineId in(" + string.Join(',', ProductionActivityAppLineIds) + ");";
+                SessionIds = SessionIds != null && SessionIds.Count > 0 ? SessionIds : new List<Guid?>() { Guid.NewGuid() };
+                query += DocumentQueryString() + " where  SessionId in(" + string.Join(",", SessionIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ") AND IsLatest=1 AND (IsDelete is null or IsDelete=0);";
+                query += "select UserName,UserId,SessionId from ApplicationUser;";
+                navprodOrderLineIds = navprodOrderLineIds != null && navprodOrderLineIds.Count > 0 ? navprodOrderLineIds : new List<long?>() { -1 };
+                query += "select t11.NAVProdOrderLineId,t11.ItemNo,t11.Description,t11.Description1,t11.BatchNo,t11.RePlanRefNo,CONCAT(t11.ProdOrderNo,'|',t11.Description,(case when ISNULL(NULLIF(t11.Description1, ''), null) is NULL then  t11.Description1 ELSE  CONCAT(' | ',Description1) END)) as ProdOrderNoDesc from NavprodOrderLine t11 where t11.NAVProdOrderLineId in(" + string.Join(',', navprodOrderLineIds) + ");";
                 using (var connection = CreateConnection())
                 {
                     var result = await connection.QueryMultipleAsync(query);
                     multipleProductioAppLineItemLists.ProductActivityCaseRespons = result.Read<ProductActivityCaseRespons>().ToList();
                     multipleProductioAppLineItemLists.ProductActivityCaseResponsDuty = result.Read<ProductActivityCaseResponsDuty>().ToList();
                     multipleProductioAppLineItemLists.ProductActivityCaseResponsResponsible = result.Read<ProductActivityCaseResponsResponsible>().ToList();
+                    multipleProductioAppLineItemLists.ActivityMasterMultiple = result.Read<ActivityMasterMultiple>().ToList();
+                    multipleProductioAppLineItemLists.ProductionActivityAppLineQaCheckerModel = result.Read<ProductionActivityAppLineQaCheckerModel>().ToList();
+                    multipleProductioAppLineItemLists.Documents = result.Read<Documents>().ToList();
+                    multipleProductioAppLineItemLists.ApplicationUser = result.Read<ApplicationUser>().ToList();
+                    multipleProductioAppLineItemLists.NavprodOrderLine = result.Read<NavprodOrderLine>().ToList();
                 }
                 return multipleProductioAppLineItemLists;
             }
@@ -185,6 +151,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<ProductActivityAppModel> GetProductActivityAppLineOneItem(long? ProductionActivityAppLineID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ProductionActivityAppLineID", ProductionActivityAppLineID);
+                var query = "select t1.ProductionActivityAppLineID,SessionID,(select COUNT(*) from Documents t2 where t2.SessionID=t1.SessionID AND (t2.IsDelete IS NULL OR t2.IsDelete=0))as IsDocuments\r\nfrom ProductionActivityAppline t1 where t1.ProductionActivityAppLineID=@ProductionActivityAppLineID;";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<ProductActivityAppModel>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<ProductActivityAppModel>> GetAllAsync(long? CompanyID, string? prodorderNo, long? userId, long? locationID)
         {
             List<ProductActivityAppModel> productActivityAppModels = new List<ProductActivityAppModel>();
@@ -192,27 +176,23 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("CompanyID", CompanyID);
-                parameters.Add("ProdOrderNo", prodorderNo);
+                parameters.Add("ProdOrderNo", prodorderNo, DbType.String);
                 parameters.Add("LocationID", locationID);
                 var query = @"select 
-                    t1.ProductionActivityAppLineID,t1.ProductionActivityAppID,t1.ActionDropdown,t1.ProdActivityActionID,t1.ProdActivityCategoryID,t1.ManufacturingProcessID,t1.IsTemplateUpload,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SessionID as LineSessionId,t1.ProductActivityCaseLineID,t1.NavprodOrderLineID,t1.Comment as LineComment,t1.QaCheck,t1.IsOthersOptions,t1.ProdActivityResultID,t1.ManufacturingProcessChildID,t1.ProdActivityCategoryChildID,t1.ProdActivityActionChildD,t1.TopicID,t1.QaCheckUserID,t1.QaCheckDate,t1.LocationID,t1.ProductActivityCaseID,t1.ActivityMasterID,t1.ActivityStatusID,t3.UserName as AddedByUser,t4.UserName as ModifiedByUser,t5.CodeValue as StatusCode,t6.Value as ProdActivityResult,t7.Value as ManufacturingProcessChild,t8.Value as ProdActivityCategoryChild,t9.Value AS ProdActivityActionChild,t2.CompanyID,t10.PlantCode as CompanyName,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,
-                    t11.ItemNo,t11.Description,t11.Description1,t11.BatchNo,t11.RePlanRefNo,CONCAT(t11.ProdOrderNo,'|',t11.Description,(case when ISNULL(NULLIF(t11.Description1, ''), null) is NULL then  t11.Description1 ELSE  CONCAT(' | ',Description1) END)) as ProdOrderNoDesc,'Production Activity' as Type,
+                    t1.ProductionActivityAppLineID,t1.ProductionActivityAppID,t1.ActionDropdown,t1.ProdActivityActionID,t1.ProdActivityCategoryID,t1.ManufacturingProcessID,t1.IsTemplateUpload,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SessionID as LineSessionId,t1.ProductActivityCaseLineID,t1.NavprodOrderLineID,t1.Comment as LineComment,t1.QaCheck,t1.IsOthersOptions,t1.ProdActivityResultID,t1.ManufacturingProcessChildID,t1.ProdActivityCategoryChildID,t1.ProdActivityActionChildD,t1.TopicID,t1.QaCheckUserID,t1.QaCheckDate,t1.LocationID,t1.ProductActivityCaseID,t1.ActivityMasterID,t1.ActivityStatusID,t5.CodeValue as StatusCode,t6.Value as ProdActivityResult,t7.Value as ManufacturingProcessChild,t8.Value as ProdActivityCategoryChild,t9.Value AS ProdActivityActionChild,t2.CompanyID,t10.PlantCode as CompanyName,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,
+                    'Production Activity' as Type,
                     (case when t1.IsTemplateUpload=1 then 'Yes' ELSE 'No' END) as IsTemplateUploadFlag,
                     (select COUNT(tt1.ProductionActivityAppLineDocId) from ProductionActivityAppLineDoc tt1 WHERE tt1.Type = 'Production Activity' AND tt1.ProductionActivityAppLineID=t1.ProductionActivityAppLineID) as SupportDocCount,t12.NameOfTemplate,t12.Link,t12.LocationToSaveId
                     from ProductionActivityAppLine t1 
                     JOIN ProductionActivityApp t2 ON t1.ProductionActivityAppId=t2.ProductionActivityAppId
-                    JOIN ApplicationUser t3 ON t3.UserID=t1.AddedByUserID
-                    LEFT JOIN ApplicationUser t4 ON t4.UserID=t1.ModifiedByUserID
                     LEFT JOIN CodeMaster t5 ON t5.CodeID=t1.StatusCodeID
                     LEFT JOIN ApplicationMasterDetail t6 ON t6.ApplicationMasterDetailID=t1.ProdActivityResultID
                     LEFT JOIN ApplicationMasterChild as t7 ON t7.ApplicationMasterChildID = t1.ManufacturingProcessChildID 
                     LEFT JOIN ApplicationMasterChild as t8 ON t8.ApplicationMasterChildID = t1.ProdActivityCategoryChildID 
                     LEFT JOIN ApplicationMasterChild as t9 ON t9.ApplicationMasterChildID = t1.ProdActivityActionChildD
                     JOIN Plant as t10 ON t10.PlantID = t2.CompanyID 
-                    JOIN NavprodOrderLine as t11 ON t11.NavprodOrderLineId = t1.NavprodOrderLineId 
                     LEFT JOIN ProductActivityCaseLine as t12 ON t12.ProductActivityCaseLineId = t1.ProductActivityCaseLineId
                     WHERE t2.CompanyId=@CompanyID 
-                    AND t1.NavprodOrderLineId is Not Null 
                     AND t2.ProdOrderNo=@ProdOrderNo ";
                 if (locationID > 0)
                 {
@@ -224,25 +204,32 @@ namespace Infrastructure.Repository.Query
                     var productActivityApps = (await connection.QueryAsync<ProductActivityAppModel>(query, parameters)).ToList();
                     if (productActivityApps.Count > 0)
                     {
+                        var navprodOrderLineIds = productActivityApps.ToList().Where(w => w.NavprodOrderLineId > 0).Select(s => s.NavprodOrderLineId).Distinct().ToList();
                         var productionActivityAppLineIds = productActivityApps.ToList().Select(s => s.ProductionActivityAppLineId).Distinct().ToList();
+                        var sessionIds = productActivityApps.ToList().Where(w => w.LineSessionId != null).Select(s => s.LineSessionId).ToList();
                         var addedIds = productActivityApps.ToList().Select(s => s.AddedByUserID).Distinct().ToList();
                         addedIds.Add(userId);
                         var employee = employeeAll != null && employeeAll.Count() > 0 ? employeeAll.Where(w => addedIds.Contains(w.UserID)).ToList() : null;
                         var loginUser = employee != null && employee.Count() > 0 ? employee.FirstOrDefault(w => w.UserID == userId)?.DepartmentID : null;
-                        var sessionIds = productActivityApps.ToList().Where(w => w.LineSessionId != null).Select(s => s.LineSessionId).ToList();
-                        var documents = await GetAllDocumentsAsync(sessionIds);
-                        var docIds = documents.Select(s => s.DocumentId).ToList();
-                        var userIds = documents != null && documents.Count > 0 ? documents.Where(x => x.LockedByUserId > 0).Select(s => s.LockedByUserId).Distinct().ToList() : new List<long?>();
-                        var filterProfileTypeIds = documents != null && documents.Count > 0 ? documents.Where(x => x.FilterProfileTypeId > 0).Select(s => s.FilterProfileTypeId).Distinct().ToList() : new List<long?>();
-                        var appUser = await GetApplicationUserAsync();
-                        var templateTestCaseCheckList = await GetMultipleQueryAsync();
-                        var productionActivityAppLineQaChecker = await GetProductionActivityAppLineQaCheckerAsync(productionActivityAppLineIds);
+
+                        var templateTestCaseCheckList = await GetMultipleQueryAsync(productionActivityAppLineIds, sessionIds, navprodOrderLineIds);
+                        var productionActivityAppLineQaChecker = templateTestCaseCheckList.ProductionActivityAppLineQaCheckerModel.ToList();
                         var templateTestCaseCheckListResponse = templateTestCaseCheckList.ProductActivityCaseRespons.ToList();
                         var templateTestCaseCheckListResponseDuty = templateTestCaseCheckList.ProductActivityCaseResponsDuty.ToList();
                         var templateTestCaseCheckListResponseResponsible = templateTestCaseCheckList.ProductActivityCaseResponsResponsible.ToList();
+
+
+                        var documents = templateTestCaseCheckList.Documents.ToList();
+                        var docIds = documents.Select(s => s.DocumentId).ToList();
+                        var userIds = documents != null && documents.Count > 0 ? documents.Where(x => x.LockedByUserId > 0).Select(s => s.LockedByUserId).Distinct().ToList() : new List<long?>();
+                        var filterProfileTypeIds = documents != null && documents.Count > 0 ? documents.Where(x => x.FilterProfileTypeId > 0).Select(s => s.FilterProfileTypeId).Distinct().ToList() : new List<long?>();
+                        var appUser = templateTestCaseCheckList.ApplicationUser.ToList();
+
+                        var navprodOrderLines = templateTestCaseCheckList.NavprodOrderLine.ToList();
+                        var activityMasterMultiple = templateTestCaseCheckList.ActivityMasterMultiple.ToList();
                         var templateTestCaseCheckListIds = productActivityApps.Where(w => w.ProductActivityCaseId != null).Select(s => s.ProductActivityCaseId).ToList();
-                        var docRoles = await GetDocumentUserRoleAsync(filterProfileTypeIds);
-                        var docPermission = await GetDocumentPermissionByRoll();
+                        //  var docRoles = await GetDocumentUserRoleAsync(filterProfileTypeIds);
+                        // var docPermission = await GetDocumentPermissionByRoll();
                         productActivityApps.ForEach(s =>
                         {
                             var checkSameDept = false;
@@ -292,6 +279,7 @@ namespace Infrastructure.Repository.Query
                                 productActivityApp.ProductionActivityAppId = s.ProductionActivityAppId;
                                 productActivityApp.Comment = s.Comment;
                                 productActivityApp.LineComment = s.LineComment;
+                                productActivityApp.ActivityStatusId = s.ActivityStatusId;
                                 productActivityApp.ManufacturingProcessId = s.ManufacturingProcessId;
                                 productActivityApp.ProdActivityResultId = s.ProdActivityResultId;
                                 productActivityApp.ProdActivityResult = s.ProdActivityResult;
@@ -313,20 +301,20 @@ namespace Infrastructure.Repository.Query
                                 productActivityApp.LineSessionId = s.LineSessionId;
                                 productActivityApp.AddedByUserID = s.AddedByUserID;
                                 productActivityApp.AddedDate = s.AddedDate;
-                                productActivityApp.AddedByUser = s.AddedByUser;
-                                productActivityApp.ModifiedByUser = s.ModifiedByUser;
+                                productActivityApp.AddedByUser = appUser != null && appUser.Count() > 0 ? appUser.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName : string.Empty;
+                                productActivityApp.ModifiedByUser = appUser != null && appUser.Count() > 0 ? appUser.FirstOrDefault(f => f.UserID == s.ModifiedByUserID)?.UserName : string.Empty;
                                 productActivityApp.StatusCode = s.StatusCode;
                                 productActivityApp.ProductActivityCaseLineId = s.ProductActivityCaseLineId;
                                 productActivityApp.NameOfTemplate = s.NameOfTemplate;
                                 productActivityApp.Link = s.Link;
                                 productActivityApp.LocationToSaveId = s.LocationToSaveId;
                                 productActivityApp.QaCheck = s.QaCheck == true ? true : false;
-                                productActivityApp.ItemNo = s.ItemNo;
-                                productActivityApp.Description = s.Description;
-                                productActivityApp.Description1 = s.Description1;
-                                productActivityApp.BatchNo = s.BatchNo;
-                                productActivityApp.RePlanRefNo = s.RePlanRefNo;
-                                productActivityApp.ProdOrderNoDesc = s.ProdOrderNoDesc;
+                                productActivityApp.ItemNo = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.ItemNo) : string.Empty;
+                                productActivityApp.Description = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.Description) : string.Empty;
+                                productActivityApp.Description1 = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.Description1) : string.Empty;
+                                productActivityApp.BatchNo = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.BatchNo) : string.Empty;
+                                productActivityApp.RePlanRefNo = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.RePlanRefNo) : string.Empty;
+                                productActivityApp.ProdOrderNoDesc = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.ProdOrderNoDesc) : string.Empty;
                                 productActivityApp.NavprodOrderLineId = s.NavprodOrderLineId;
                                 productActivityApp.IsOthersOptions = s.IsOthersOptions;
                                 productActivityApp.ManufacturingProcessChildId = s.ManufacturingProcessChildId;
@@ -339,16 +327,21 @@ namespace Infrastructure.Repository.Query
                                 productActivityApp.LocationId = s.LocationId;
                                 productActivityApp.ProductionActivityAppLineQaCheckerModels = productionActivityAppLineQaChecker != null ? productionActivityAppLineQaChecker.Where(z => z.ProductionActivityAppLineId == s.ProductionActivityAppLineId).ToList() : new List<ProductionActivityAppLineQaCheckerModel>();
                                 productActivityApp.DocumentPermissionData = new DocumentPermissionModel();
+                                productActivityApp.ActivityMasterIds = activityMasterMultiple != null && activityMasterMultiple.Count > 0 ? activityMasterMultiple.Where(a => a.ProductionActivityAppLineId == s.ProductionActivityAppLineId).Select(z => z.AcitivityMasterID).ToList() : new List<long?>();
                                 if (documents != null && s.LineSessionId != null)
                                 {
                                     var counts = documents.FirstOrDefault(w => w.SessionId == s.LineSessionId);
                                     if (counts != null)
                                     {
                                         productActivityApp.DocumentId = counts.DocumentId;
+                                        productActivityApp.FileProfileTypeId = counts.FilterProfileTypeId;
                                         productActivityApp.DocumentID = counts.DocumentId;
                                         productActivityApp.DocumentParentId = counts.DocumentParentId;
                                         productActivityApp.FileName = counts.FileName;
+                                        productActivityApp.ProfileNo = counts.ProfileNo;
                                         productActivityApp.FilePath = counts.FilePath;
+                                        productActivityApp.UniqueSessionId = counts.UniqueSessionId;
+                                        productActivityApp.IsNewPath = counts.IsNewPath == true ? true : false;
                                         productActivityApp.ContentType = counts.ContentType;
                                         productActivityApp.IsLocked = counts.IsLocked;
                                         productActivityApp.LockedByUserId = counts.LockedByUserId;
@@ -356,56 +349,56 @@ namespace Infrastructure.Repository.Query
                                         productActivityApp.ModifiedByUser = appUser != null && appUser.Count() > 0 && counts.AddedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.AddedByUserId)?.UserName : "";
                                         productActivityApp.LockedByUser = appUser != null && appUser.Count() > 0 && counts.LockedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.LockedByUserId)?.UserName : "";
                                         productActivityApp.LocationToSaveId = counts.FilterProfileTypeId;
-                                        long? roleId = 0;
-                                        roleId = docRoles != null && docRoles.Count() > 0 ? docRoles.FirstOrDefault(f => f.FileProfileTypeId == counts.FilterProfileTypeId && f.UserId == userId)?.RoleId : null;
-                                        if (roleId != null)
-                                        {
-                                            var documentPermission = docPermission != null && docPermission.Count() > 0 ? docPermission.FirstOrDefault(r => r.DocumentRoleID == roleId) : null;
-                                            if (documentPermission != null)
-                                            {
-                                                productActivityApp.DocumentPermissionData.IsRead = documentPermission.IsRead;
-                                                productActivityApp.DocumentPermissionData.IsCreateFolder = documentPermission.IsCreateFolder;
-                                                productActivityApp.DocumentPermissionData.IsCreateDocument = documentPermission.IsCreateDocument.GetValueOrDefault(false);
-                                                productActivityApp.DocumentPermissionData.IsSetAlert = documentPermission.IsSetAlert;
-                                                productActivityApp.DocumentPermissionData.IsEditIndex = documentPermission.IsEditIndex;
-                                                productActivityApp.DocumentPermissionData.IsRename = documentPermission.IsRename;
-                                                productActivityApp.DocumentPermissionData.IsUpdateDocument = documentPermission.IsUpdateDocument;
-                                                productActivityApp.DocumentPermissionData.IsCopy = documentPermission.IsCopy;
-                                                productActivityApp.DocumentPermissionData.IsMove = documentPermission.IsMove;
-                                                productActivityApp.DocumentPermissionData.IsDelete = documentPermission.IsDelete;
-                                                productActivityApp.DocumentPermissionData.IsRelationship = documentPermission.IsRelationship;
-                                                productActivityApp.DocumentPermissionData.IsListVersion = documentPermission.IsListVersion;
-                                                productActivityApp.DocumentPermissionData.IsInvitation = documentPermission.IsInvitation;
-                                                productActivityApp.DocumentPermissionData.IsSendEmail = documentPermission.IsSendEmail;
-                                                productActivityApp.DocumentPermissionData.IsDiscussion = documentPermission.IsDiscussion;
-                                                productActivityApp.DocumentPermissionData.IsAccessControl = documentPermission.IsAccessControl;
-                                                productActivityApp.DocumentPermissionData.IsAuditTrail = documentPermission.IsAuditTrail;
-                                                productActivityApp.DocumentPermissionData.IsRequired = documentPermission.IsRequired;
-                                                productActivityApp.DocumentPermissionData.IsEdit = documentPermission.IsEdit;
-                                                productActivityApp.DocumentPermissionData.IsFileDelete = documentPermission.IsFileDelete;
-                                                productActivityApp.DocumentPermissionData.IsGrantAdminPermission = documentPermission.IsGrantAdminPermission;
-                                                productActivityApp.DocumentPermissionData.IsDocumentAccess = documentPermission.IsDocumentAccess;
-                                                productActivityApp.DocumentPermissionData.IsCreateTask = documentPermission.IsCreateTask;
-                                                productActivityApp.DocumentPermissionData.IsEnableProfileTypeInfo = documentPermission.IsEnableProfileTypeInfo;
-                                                productActivityApp.DocumentPermissionData.DocumentPermissionID = documentPermission.DocumentPermissionID;
-                                            }
-                                            else
-                                            {
-                                                productActivityApp.DocumentPermissionData.IsCreateDocument = false;
-                                                productActivityApp.DocumentPermissionData.IsDocumentAccess = false;
-                                                productActivityApp.DocumentPermissionData.IsRead = false;
-                                                productActivityApp.DocumentPermissionData.IsDelete = false;
-                                                productActivityApp.DocumentPermissionData.IsUpdateDocument = false;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            productActivityApp.DocumentPermissionData.IsCreateDocument = false;
-                                            productActivityApp.DocumentPermissionData.IsDocumentAccess = false;
-                                            productActivityApp.DocumentPermissionData.IsRead = true;
-                                            productActivityApp.DocumentPermissionData.IsDelete = true;
-                                            productActivityApp.DocumentPermissionData.IsUpdateDocument = true;
-                                        }
+                                        /* long? roleId = 0;
+                                         roleId = docRoles != null && docRoles.Count() > 0 ? docRoles.FirstOrDefault(f => f.FileProfileTypeId == counts.FilterProfileTypeId && f.UserId == userId)?.RoleId : null;
+                                         if (roleId != null)
+                                         {
+                                             var documentPermission = docPermission != null && docPermission.Count() > 0 ? docPermission.FirstOrDefault(r => r.DocumentRoleID == roleId) : null;
+                                             if (documentPermission != null)
+                                             {
+                                                 productActivityApp.DocumentPermissionData.IsRead = documentPermission.IsRead;
+                                                 productActivityApp.DocumentPermissionData.IsCreateFolder = documentPermission.IsCreateFolder;
+                                                 productActivityApp.DocumentPermissionData.IsCreateDocument = documentPermission.IsCreateDocument.GetValueOrDefault(false);
+                                                 productActivityApp.DocumentPermissionData.IsSetAlert = documentPermission.IsSetAlert;
+                                                 productActivityApp.DocumentPermissionData.IsEditIndex = documentPermission.IsEditIndex;
+                                                 productActivityApp.DocumentPermissionData.IsRename = documentPermission.IsRename;
+                                                 productActivityApp.DocumentPermissionData.IsUpdateDocument = documentPermission.IsUpdateDocument;
+                                                 productActivityApp.DocumentPermissionData.IsCopy = documentPermission.IsCopy;
+                                                 productActivityApp.DocumentPermissionData.IsMove = documentPermission.IsMove;
+                                                 productActivityApp.DocumentPermissionData.IsDelete = documentPermission.IsDelete;
+                                                 productActivityApp.DocumentPermissionData.IsRelationship = documentPermission.IsRelationship;
+                                                 productActivityApp.DocumentPermissionData.IsListVersion = documentPermission.IsListVersion;
+                                                 productActivityApp.DocumentPermissionData.IsInvitation = documentPermission.IsInvitation;
+                                                 productActivityApp.DocumentPermissionData.IsSendEmail = documentPermission.IsSendEmail;
+                                                 productActivityApp.DocumentPermissionData.IsDiscussion = documentPermission.IsDiscussion;
+                                                 productActivityApp.DocumentPermissionData.IsAccessControl = documentPermission.IsAccessControl;
+                                                 productActivityApp.DocumentPermissionData.IsAuditTrail = documentPermission.IsAuditTrail;
+                                                 productActivityApp.DocumentPermissionData.IsRequired = documentPermission.IsRequired;
+                                                 productActivityApp.DocumentPermissionData.IsEdit = documentPermission.IsEdit;
+                                                 productActivityApp.DocumentPermissionData.IsFileDelete = documentPermission.IsFileDelete;
+                                                 productActivityApp.DocumentPermissionData.IsGrantAdminPermission = documentPermission.IsGrantAdminPermission;
+                                                 productActivityApp.DocumentPermissionData.IsDocumentAccess = documentPermission.IsDocumentAccess;
+                                                 productActivityApp.DocumentPermissionData.IsCreateTask = documentPermission.IsCreateTask;
+                                                 productActivityApp.DocumentPermissionData.IsEnableProfileTypeInfo = documentPermission.IsEnableProfileTypeInfo;
+                                                 productActivityApp.DocumentPermissionData.DocumentPermissionID = documentPermission.DocumentPermissionID;
+                                             }
+                                             else
+                                             {
+                                                 productActivityApp.DocumentPermissionData.IsCreateDocument = false;
+                                                 productActivityApp.DocumentPermissionData.IsDocumentAccess = false;
+                                                 productActivityApp.DocumentPermissionData.IsRead = false;
+                                                 productActivityApp.DocumentPermissionData.IsDelete = false;
+                                                 productActivityApp.DocumentPermissionData.IsUpdateDocument = false;
+                                             }
+                                         }
+                                         else
+                                         {
+                                             productActivityApp.DocumentPermissionData.IsCreateDocument = false;
+                                             productActivityApp.DocumentPermissionData.IsDocumentAccess = false;
+                                             productActivityApp.DocumentPermissionData.IsRead = true;
+                                             productActivityApp.DocumentPermissionData.IsDelete = true;
+                                             productActivityApp.DocumentPermissionData.IsUpdateDocument = true;
+                                         }*/
                                     }
                                     productActivityAppModels.Add(productActivityApp);
                                 }
@@ -439,71 +432,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
-        public async Task<IReadOnlyList<ProductionActivityApp>> GetAllprodAsync(string? NAVProdOrder)
-        {
-            try
-            {
-                var parameters = new DynamicParameters();
-                parameters.Add("ProdOrderNo", NAVProdOrder);
-                var query = @"select * from ProductionActivityApp  where ProdOrderNo =@ProdOrderNo";
-
-                using (var connection = CreateConnection())
-                {
-                    return (await connection.QueryAsync<ProductionActivityApp>(query, parameters)).ToList();
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-
-        }
-
-        public async Task<long> Insert(ProductionActivityAppLine PPALinelist)
+        public async Task<ProductActivityAppModel> UpdateproductActivityAppLineCommentField(ProductActivityAppModel value)
         {
             try
             {
                 using (var connection = CreateConnection())
                 {
-
-
 
                     try
                     {
-
                         var parameters = new DynamicParameters();
-                        parameters.Add("Comment", PPALinelist.Comment);
-                        parameters.Add("ActionDropdown", PPALinelist.ActionDropdown);
-                        parameters.Add("ManufacturingProcessID", PPALinelist.ManufacturingProcessID);
-                        parameters.Add("ProdActivityCategoryID", PPALinelist.ProdActivityCategoryID);
-                        parameters.Add("NavprodOrderLineID", PPALinelist.NavprodOrderLineID);
-                        // parameters.Add("Description", PPAlist.Description);
-                        // parameters.Add("TopicID", PPALinelist.TopicID);
-                        //parameters.Add("ICTMasterID", PPAlist.ICTMasterID);
-                        //parameters.Add("SiteName", PPAlist.SiteName);
-                        //parameters.Add("ZoneName", PPAlist.ZoneName);
-                        //parameters.Add("Companyid", PPALinelist.com);
-                        // parameters.Add("DeropdownName", PPAlist.DeropdownName);
-                        //parameters.Add("NavprodOrderLineId", PPAlist.NavprodOrderLineId);
-                        //parameters.Add("BatchNo", PPAlist.BatchNo);
-                        //parameters.Add("prodOrderNo", PPALinelist.prod);
-
-                        parameters.Add("SessionId", PPALinelist.SessionId);
-                        parameters.Add("AddedByUserID", PPALinelist.AddedByUserID);
-                        parameters.Add("AddedDate", PPALinelist.AddedDate);
-                        parameters.Add("LocationID", PPALinelist.LocationID);
-                        parameters.Add("StatusCodeID", PPALinelist.StatusCodeID);
-
-                        var query = "INSERT INTO ProductionActivityAppLine(Comment,NavprodOrderLineID,ProdActivityCategoryID,ManufacturingProcessID,ActionDropdown,SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID) VALUES (@ProdActivityCategoryID,@ManufacturingProcessID,@Comment,@ActionDropdown,@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@NavprodOrderLineID)";
-
-                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
-
-
-                        return rowsAffected;
+                        parameters.Add("Comment", value.LineComment, DbType.String);
+                        parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                        parameters.Add("ModifiedByUserId", value.ModifiedByUserID);
+                        parameters.Add("ProductionActivityAppLineId", value.ProductionActivityAppLineId);
+                        var query = "Update ProductionActivityAppLine SET Comment=@Comment WHERE ProductionActivityAppLineId=@ProductionActivityAppLineId";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return value;
                     }
-
-
                     catch (Exception exp)
                     {
                         throw new Exception(exp.Message, exp);
@@ -511,6 +457,233 @@ namespace Infrastructure.Repository.Query
 
                 }
 
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ProductActivityAppModel> DeleteproductActivityAppLine(ProductActivityAppModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("SessionId", value.LineSessionId, DbType.Guid);
+                        parameters.Add("ProductionActivityAppLineId", value.ProductionActivityAppLineId);
+                        var query = "Delete from  ActivityMasterMultiple WHERE ProductionActivityAppLineId=@ProductionActivityAppLineId;";
+                        query += "Delete from  ProductionActivityAppLine WHERE ProductionActivityAppLineId=@ProductionActivityAppLineId;";
+                        query += "Update Documents Set Islatest=0  Where SessionId=@SessionId;";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsModel> DeleteSupportingDocuments(DocumentsModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("SessionId", value.SessionID, DbType.Guid);
+                        var query = string.Empty;
+                        query += "Delete from  ProductionActivityAppLineDoc WHERE SessionId=@SessionId;";
+                        query += "Update Documents Set Islatest=0  Where SessionId=@SessionId;";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ProductionActivityNonComplianceUserModel> DeleteProductionActivityNonCompliance(ProductionActivityNonComplianceUserModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ProductionActivityNonComplianceUserId", value.ProductionActivityNonComplianceUserId);
+                        var query = string.Empty;
+                        query += "Delete from  ProductionActivityNonComplianceUser WHERE ProductionActivityNonComplianceUserId=@ProductionActivityNonComplianceUserId;";
+                        await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ProductionActivityNonComplianceModel> GetProductionActivityNonComplianceAsync(string type, long? id, string actionType)
+        {
+            ProductionActivityNonComplianceModel productActivityAppModels = new ProductionActivityNonComplianceModel();
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("id", id);
+                parameters.Add("ActionType", actionType, DbType.String);
+                parameters.Add("Type", type, DbType.String);
+                var query = "select  * from ProductionActivityNonCompliance where Type=@Type AND  ActionType=@ActionType\n\r";
+                if (type == "Production Activity")
+                {
+                    query += "AND ProductionActivityAppLineId=@id;";
+                }
+                if (type == "Ipir")
+                {
+                    query += "AND IpirReportId=@id;";
+                }
+                if (type == "Production Routine")
+                {
+                    query += "AND ProductionActivityRoutineAppLineId=@id;";
+                }
+                if (type == "Production Planning")
+                {
+                    query += "AND ProductionActivityPlanningAppLineId=@id;";
+                }
+                query += "Select * from ProductionActivityNonComplianceUser;";
+                query += "select UserName,UserId,SessionId from ApplicationUser;";
+                using (var connection = CreateConnection())
+                {
+                    var result = await connection.QueryMultipleAsync(query,parameters);
+                    var productActivityAppModel = result.Read<ProductionActivityNonComplianceModel>().ToList();
+                    var productionActivityNonComplianceUsers = result.Read<ProductionActivityNonComplianceUserModel>().ToList();
+                    var userNames = result.Read<ApplicationUser>().ToList();
+                    if (productActivityAppModel.Count() > 0)
+                    {
+                        productActivityAppModels = productActivityAppModel.FirstOrDefault();
+                       
+                        var productionActivityNonComplianceUser = productionActivityNonComplianceUsers.Where(w => w.ProductionActivityNonComplianceId == productActivityAppModels.ProductionActivityNonComplianceId).ToList();
+                        if (productionActivityNonComplianceUser != null && productionActivityNonComplianceUser.Count() > 0)
+                        {
+                            List<ProductionActivityNonComplianceUserModel> ProductionActivityNonComplianceUserModels = new List<ProductionActivityNonComplianceUserModel>();
+                            productionActivityNonComplianceUser.ToList().ForEach(a =>
+                            {
+                                ProductionActivityNonComplianceUserModel productionActivityNonComplianceUserModel = new ProductionActivityNonComplianceUserModel();
+                                productionActivityNonComplianceUserModel.ProductionActivityNonComplianceId = a.ProductionActivityNonComplianceId;
+                                productionActivityNonComplianceUserModel.ProductionActivityNonComplianceUserId = a.ProductionActivityNonComplianceUserId;
+                                productionActivityNonComplianceUserModel.UserId = a.UserId;
+                                productionActivityNonComplianceUserModel.Notes = productActivityAppModels?.Notes;
+                                productionActivityNonComplianceUserModel.UserName = userNames != null ? userNames.FirstOrDefault(f => f.UserID == a.UserId)?.UserName : string.Empty;
+                                ProductionActivityNonComplianceUserModels.Add(productionActivityNonComplianceUserModel);
+
+                            });
+                            productActivityAppModels.ProductionActivityNonComplianceUserModels = ProductionActivityNonComplianceUserModels;
+                        }
+                    }
+                    return productActivityAppModels;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ProductionActivityNonComplianceModel> InsertProductionActivityNonCompliance(ProductionActivityNonComplianceModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("Type", value.Type, DbType.String);
+                        parameters.Add("ActionType", value.ActionType, DbType.String);
+                        parameters.Add("AddedByUserID", value.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", value.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", value.ModifiedDate);
+                        parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
+                        parameters.Add("ProductionActivityAppLineId", value.ProductionActivityAppLineId);
+                        parameters.Add("IpirReportId", value.IpirReportId);
+                        parameters.Add("ProductionActivityRoutineAppLineId", value.ProductionActivityRoutineAppLineId);
+                        parameters.Add("ProductionActivityPlanningAppLineId", value.ProductionActivityPlanningAppLineId);
+                        parameters.Add("StatusCodeID", value.StatusCodeID);
+                        parameters.Add("ProductionActivityNonComplianceId", value.ProductionActivityNonComplianceId);
+                        parameters.Add("Notes", value.Notes, DbType.String);
+                        if (value.ProductionActivityNonComplianceId > 0)
+                        {
+                            if (!string.IsNullOrEmpty(value.Notes))
+                            {
+                                var query = "Update ProductionActivityNonCompliance Set Notes=@Notes,ModifiedDate=@ModifiedDate,ModifiedByUserID=@ModifiedByUserID  Where ProductionActivityNonComplianceId=@ProductionActivityNonComplianceId;";
+                                await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                            }
+                        }
+                        else
+                        {
+                            var query = @"INSERT INTO ProductionActivityNonCompliance(Type,ActionType,AddedByUserID,AddedDate,StatusCodeID,ModifiedByUserID,ModifiedDate,ProductionActivityAppLineId,IpirReportId,ProductionActivityRoutineAppLineId,ProductionActivityPlanningAppLineId,Notes) 
+				                       OUTPUT INSERTED.ProductionActivityNonComplianceId 
+				                       VALUES (@Type,@ActionType,@AddedByUserID,@AddedDate,@StatusCodeID,@ModifiedByUserID,@ModifiedDate,@ProductionActivityAppLineId,@IpirReportId,@ProductionActivityRoutineAppLineId,@ProductionActivityPlanningAppLineId,@Notes)";
+                            var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
+
+                            value.ProductionActivityNonComplianceId = insertedId;
+                        }
+                        if (value.ProductionActivityNonComplianceId > 0)
+                        {
+                            var Deletequery = "DELETE  FROM ProductionActivityNonComplianceUser WHERE ProductionActivityNonComplianceId = " + value.ProductionActivityNonComplianceId + ";";
+                            await connection.ExecuteAsync(Deletequery);
+                        }
+                        if (value.UserIDs != null)
+                        {
+                            var listData = value.UserIDs.ToList();
+                            if (listData.Count > 0)
+                            {
+                                var querys = string.Empty;
+                                listData.ForEach(s =>
+                                {
+                                    querys += "INSERT INTO [ProductionActivityNonComplianceUser](UserId,ProductionActivityNonComplianceId) " +
+                                                        "VALUES ( " + s + "," + value.ProductionActivityNonComplianceId + ");\r\n";
+                                });
+                                if (!string.IsNullOrEmpty(querys))
+                                {
+                                    await connection.ExecuteAsync(querys, null);
+                                }
+                            }
+                        }
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
 
             }
 
@@ -518,7 +691,6 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-
         }
     }
 }

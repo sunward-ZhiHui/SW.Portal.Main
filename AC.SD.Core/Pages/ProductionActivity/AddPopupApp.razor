@@ -9,6 +9,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IJSRuntime JSRuntime;
 @using System.Collections
+@using BlazorBarcodeScanner.ZXing.JS
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
     <div class="card-body p-0">
         <div class="row">
@@ -18,8 +19,8 @@
                         DisplayMode="MenuDisplayMode.Auto">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
-                        <DxMenuItem Text="Add New" IconCssClass="fas fa-save" Click="@addNew" />
-                        <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitFormExternally" />
+                        <DxMenuItem Text="Add New" IconCssClass="fas fa-save" Click="@addNewProductionForm" Enabled="@addEnabled" />
+                        <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitProductionFormExternally" Enabled="@saveEnabled" />
                         <DxMenuItem Text="Upload" IconCssClass="fa fa-cloud-upload" Click="@uploadFiles" Enabled="@uploadEnabled" />
                     </Items>
                 </DxMenu>
@@ -28,7 +29,7 @@
     </div>
 </div>
 
-<EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit">
+<EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleProductionFormValidSubmit">
 
     <DataAnnotationsValidator />
     <DxFormLayout CssClass="w-100">
@@ -63,6 +64,11 @@
             @bind-Value="Data.ManufacturingProcessChildId"
                         SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemManuFactureChanged(plant))"
                         ShowValidationIcon="true">
+                <Buttons>
+                    <DxEditorButton IconCssClass="fa fa-qrcode"
+                                    Tooltip="Scan Manufacturing Process"
+                                    Click="@(_ => OnManufacScanButtonClick())" />
+                </Buttons>
             </DxComboBox>
             <ValidationMessage For="@(() => Data.ManufacturingProcessChildId)" />
         </DxFormLayoutItem>
@@ -85,6 +91,7 @@
                         FilteringMode="DataGridFilteringMode.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
+                        SelectedItemChanged="@((ApplicationMasterChildModel plant) => SelectedItemActionChanged(plant))"
             @bind-Value="Data.ProdActivityActionChildD"
                         ShowValidationIcon="true">
             </DxComboBox>
@@ -150,13 +157,30 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
          ShowFooter="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
     <BodyContentTemplate>
-        <UploadProductionActivityFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUpload"></UploadProductionActivityFiles>
+        <UploadProductionActivityFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUploadUpload"></UploadProductionActivityFiles>
 
     </BodyContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@PopupManuFactureScanVisible"
+         CssClass="popup-demo-events"
+         ShowFooter="true" HeaderText="Scan Location" CloseOnEscape="false" ShowCloseButton="false" MinWidth="300" MinHeight="200" MaxWidth="400" MaxHeight="800" CloseOnOutsideClick="false">
+    <BodyContentTemplate>
+        <BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_manureader"
+                                                     StartCameraAutomatically="true"
+                                                     Title="" ShowStart="false" ShowReset="false" ShowToggleTorch="false" ShowVideoDeviceList="false" ShowResult="false" FullWidthVideo="true"
+                                                     OnBarcodeReceived="ManufacReceivedBarcodeText" />
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseManuFacPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    [Parameter]
+    public ProductActivityAppModel? _selectedEditItems { get; set; }
+    bool PopupManuFactureScanVisible { get; set; } = false;
+    private BarcodeReader _manureader;
     public long? FileProfileTypeId { get; set; }
     public Guid? UploadSessionId { get; set; }
     EditContext _editContext;
@@ -179,13 +203,15 @@
     private List<ApplicationMasterChildModel> _categoryItems;
     private List<ApplicationMasterChildModel> _actionItems;
     bool uploadEnabled { get; set; } = false;
-    bool PopupUpload { get; set; } = false;
+    bool PopupUpload { get; set; } = false; bool addEnabled { get; set; } = false; bool saveEnabled { get; set; } = false;
     [Parameter]
     public ProductionActivityModel ParentData { get; set; }
     [Parameter]
     public Action RevokeBack { get; set; }
+    long? ProductionActivityAppLineId { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        addEnabled = true; saveEnabled = true;
         _ponumberActivities = _poOrderDetails.Cast<NavprodOrderLineModel>().ToList();
         _editContext = new EditContext(Data);
         Data.ProductActivityCaseLineId = 0;
@@ -196,8 +222,49 @@
         _ActivityResult = await Mediator.Send(new GetAllApplicationMasterDetailQuery(342));
         _ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(340));
         _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(341));
+        if (_selectedEditItems != null)
+        {
+            Data.ProductionActivityAppLineId = _selectedEditItems.ProductionActivityAppLineId;
+            Data.NavprodOrderLineId = _selectedEditItems.NavprodOrderLineId;
+            Data.ManufacturingProcessChildId = _selectedEditItems.ManufacturingProcessChildId;
+            Data.ProdActivityCategoryChildId = _selectedEditItems.ProdActivityCategoryChildId;
+            Data.ProdActivityActionChildD = _selectedEditItems.ProdActivityActionChildD;
+            Data.IsTemplateUploadFlag = _selectedEditItems.IsTemplateUploadFlag;
+            Data.ProductActivityCaseLineId = _selectedEditItems.ProductActivityCaseLineId;
+            Data.ProdActivityResultId = _selectedEditItems.ProdActivityResultId;
+            Data.ActivityStatusId = _selectedEditItems.ActivityStatusId;
+            Data.ActivityMasterIds = _selectedEditItems.ActivityMasterIds;
+            Data.LineComment = _selectedEditItems.LineComment;
+            Data.OthersOptions = "No";
+            if (_selectedEditItems.IsOthersOptions == true)
+            {
+                Data.OthersOptions = "Yes";
+                Data.NavprodOrderLineId = 0;
+            }
+            if (_selectedEditItems.IsTemplateUpload == true)
+            {}
+            else
+            {
+                Data.ProductActivityCaseLineId = 0;
+            }
+            ProductionActivityAppLineId = _selectedEditItems.ProductionActivityAppLineId;
+            UploadSessionId = _selectedEditItems.LineSessionId;
+            if (_selectedEditItems.ManufacturingProcessChildId > 0)
+            {
+                _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(_selectedEditItems.ManufacturingProcessChildId));
+                if (_selectedEditItems.ProdActivityCategoryChildId > 0)
+                {
+                    _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(_selectedEditItems.ProdActivityCategoryChildId));
+                    if (_selectedEditItems.IsTemplateUpload == true)
+                    {
+                        await getTemplateItems();
+                    }
+                }
+            }
+            await GetIsDoumentExits();
+        }
     }
-    void addNew()
+    void addNewProductionForm()
     {
         _editContext = new EditContext(Data);
         FileProfileTypeId = null;
@@ -209,7 +276,6 @@
         Data.ActivityStatusId = null;
         Data.LineComment = null;
         Data.NavprodOrderLineId = null;
-        Data.NavprodOrderLineId = null;
         Data.OthersOptions = "No";
         Data.IsOthersOptions = false;
         Data.IsTemplateUpload = false;
@@ -218,11 +284,13 @@
         Data.ActivityMasterIds = null;
         UploadSessionId = null;
         uploadEnabled = false;
+        addEnabled = true; saveEnabled = true;
+        StateHasChanged();
     }
     void SelectedItemplateItemsChanged(ProductActivityCaseLineModel Itemss)
     {
         Data.FileProfileTypeId = null; FileProfileTypeId = null;
-        if(Itemss!=null && Itemss.LocationToSaveId>0)
+        if (Itemss != null && Itemss.LocationToSaveId > 0)
         {
             FileProfileTypeId = Itemss.LocationToSaveId;
             Data.FileProfileTypeId = Itemss.LocationToSaveId;
@@ -243,7 +311,7 @@
         _templateItems = new List<ProductActivityCaseLineModel>();
         if (Data.ManufacturingProcessChildId > 0 && Data.ProdActivityCategoryChildId > 0)
         {
-            _templateItems = await Mediator.Send(new GetProductActivityCaseLineTemplateItems(Data.ManufacturingProcessChildId, Data.ProdActivityCategoryChildId));
+            _templateItems = await Mediator.Send(new GetProductActivityCaseLineTemplateItems(Data.ManufacturingProcessChildId, Data.ProdActivityCategoryChildId, Data.ProdActivityActionChildD));
         }
         StateHasChanged();
     }
@@ -286,30 +354,39 @@
         }
         await OnTemplateUploadGroupValueChanged("No");
     }
+    async Task SelectedItemActionChanged(ApplicationMasterChildModel selectItem)
+    {
+        if (selectItem != null && selectItem.ApplicationMasterChildId > 0)
+        {
+            await getTemplateItems();
+        }
+        await OnTemplateUploadGroupValueChanged("No");
+    }
     void onBack()
     {
         RevokeBack?.Invoke();
     }
-    async Task HandleValidSubmit()
+    async Task HandleProductionFormValidSubmit()
     {
-
+        addEnabled = false; saveEnabled = false;
         var request = new CreateProductionActivityAppCommand
             {
+                ProductionActivityAppLineId = ProductionActivityAppLineId,
                 CompanyId = ParentData.CompanyID,
                 ProdOrderNo = ParentData.ProdOrderNo,
                 LocationId = ParentData.LocationID,
-                AddedDate = DateTime.Now,
-                SessionId = Guid.NewGuid(),
-                LineSessionId = Guid.NewGuid(),
-                StatusCodeID = 1,
-                AddedByUserID = applicationUser.UserID,
+                AddedDate = _selectedEditItems != null ? _selectedEditItems.AddedDate : DateTime.Now,
+                SessionId = _selectedEditItems != null ? _selectedEditItems.SessionId : Guid.NewGuid(),
+                LineSessionId = _selectedEditItems != null ? _selectedEditItems.LineSessionId : Guid.NewGuid(),
+                StatusCodeID = _selectedEditItems != null ? _selectedEditItems.StatusCodeID : 1,
+                AddedByUserID = _selectedEditItems != null ? _selectedEditItems.AddedByUserID : applicationUser.UserID,
                 ManufacturingProcessChildId = Data.ManufacturingProcessChildId,
                 ProdActivityCategoryChildId = Data.ProdActivityCategoryChildId,
                 ProdActivityActionChildD = Data.ProdActivityActionChildD,
                 ProdActivityResultId = Data.ProdActivityResultId,
                 ActivityStatusId = Data.ActivityStatusId,
                 LineComment = Data.LineComment,
-                NavprodOrderLineId = Data.NavprodOrderLineId,
+                NavprodOrderLineId = Data.NavprodOrderLineId > 0 ? Data.NavprodOrderLineId : null,
                 ModifiedByUserID = applicationUser.UserID,
                 ModifiedDate = DateTime.Now,
                 IsOthersOptions = Data.OthersOptions == "Yes" ? true : false,
@@ -323,28 +400,120 @@
         var result = await Mediator.Send(request);
         if (result > 0)
         {
+            if (ProductionActivityAppLineId > 0)
+            {
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            else
+            {
+                toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            ProductionActivityAppLineId = result;
             UploadSessionId = request.LineSessionId;
-            uploadEnabled = true;
-            toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            uploadEnabled = true; addEnabled = true; saveEnabled = true;
+            await GetIsDoumentExits();
+
         }
+        StateHasChanged();
     }
-    private async Task SubmitFormExternally()
+    async Task GetIsDoumentExits()
+    {
+        uploadEnabled = true;
+        if (ProductionActivityAppLineId > 0)
+        {
+            var dataList = await Mediator.Send(new GetProductActivityAppLineOneItem(ProductionActivityAppLineId));
+            if (dataList != null && dataList.IsDocuments > 0)
+            {
+                uploadEnabled = false;
+            }
+        }
+        StateHasChanged();
+    }
+    private async Task SubmitProductionFormExternally()
     {
         if (_editContext.Validate())
         {
-            await this.HandleValidSubmit();
+            await this.HandleProductionFormValidSubmit();
         }
     }
     void uploadFiles()
     {
         PopupUpload = true;
     }
-    void BackUpload()
+    void BackUploadUpload()
     {
         PopupUpload = false;
+        // onBack();
+        InvokeAsync(GetIsDoumentExits);
         StateHasChanged();
 
     }
-
+    void CloseManuFacPopup()
+    {
+        PopupManuFactureScanVisible = false;
+        _manureader.StopDecoding();
+    }
+    void OnManufacScanButtonClick()
+    {
+        PopupManuFactureScanVisible = true;
+    }
+    async Task ManufacReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        var scanText = args.BarcodeText;
+        _categoryItems = new List<ApplicationMasterChildModel>(); _actionItems = new List<ApplicationMasterChildModel>();
+        Data.ManufacturingProcessChildId = null; Data.ProdActivityCategoryChildId = null; Data.ProdActivityActionChildD = null;
+        if (!string.IsNullOrEmpty(scanText))
+        {
+            var ScanData = scanText.Split("~");
+            if (ScanData.Length > 0)
+            {
+                var ManfacIdexists = ScanData.ElementAtOrDefault(0) != null;
+                var Categoryexists = ScanData.ElementAtOrDefault(2) != null;
+                var Actionexists = ScanData.ElementAtOrDefault(4) != null;
+                if (ManfacIdexists == true && Categoryexists == true && Actionexists == true)
+                {
+                    var IsManfacId = long.TryParse(ScanData[0], out _);
+                    var IsCategoryId = long.TryParse(ScanData[2], out _);
+                    var IsActionId = long.TryParse(ScanData[4], out _);
+                    if (IsManfacId == true && IsCategoryId == true && IsActionId == true)
+                    {
+                        var ManfacId = Convert.ToInt64(ScanData[0]);
+                        var SelectItem = _ManuFactureProcessLines.FirstOrDefault(f => f.ApplicationMasterChildId == ManfacId);
+                        if (SelectItem != null)
+                        {
+                            var CategoryId = Convert.ToInt64(ScanData[2]);
+                            var ActionId = Convert.ToInt64(ScanData[4]);
+                            Data.ManufacturingProcessChildId = SelectItem.ApplicationMasterChildId;
+                            Data.ProdActivityCategoryChildId = CategoryId;
+                            Data.ProdActivityActionChildD = ActionId;
+                            _categoryItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(SelectItem.ApplicationMasterChildId));
+                            _actionItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(CategoryId));
+                            CloseManuFacPopup();
+                        }
+                        else
+                        {
+                            toastService.ShowToast("Invalid QrCode Format", AC.SD.Core.Services.ToastLevel.Error);
+                        }
+                    }
+                    else
+                    {
+                        toastService.ShowToast("Invalid QrCode Format", AC.SD.Core.Services.ToastLevel.Error);
+                    }
+                }
+                else
+                {
+                    toastService.ShowToast("Invalid QrCode Format", AC.SD.Core.Services.ToastLevel.Error);
+                }
+            }
+            else
+            {
+                toastService.ShowToast("Invalid QrCode Format", AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+        else
+        {
+            toastService.ShowToast("Invalid QrCode Format", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
 
 }

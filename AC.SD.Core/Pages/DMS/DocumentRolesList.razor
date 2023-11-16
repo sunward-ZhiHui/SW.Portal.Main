@@ -146,7 +146,7 @@
          HeaderText=@($"Role-{Name}")
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <AddOrEditDocumentPermission @ref="refAddOrEditDocumentPermission" DocumentRoleId="@_selectedItems?.DocumentRoleId" applicationUser="@applicationUser" RevokeBack="CloseSecurityAccessPopup"></AddOrEditDocumentPermission>
     </BodyContentTemplate>

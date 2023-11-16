@@ -48,6 +48,8 @@ namespace Core.EntityModels
         public bool? IsOthersOptions { get; set; } = null;
         public long? DocumentParentId { get; set; }
         public string? FileName { get; set; }
+        public string? ProfileNo { get; set; }
+        
         public string? ContentType { get; set; }
         public bool? IsLocked { get; set; }
         public long? LockedByUserId { get; set; }
@@ -70,12 +72,14 @@ namespace Core.EntityModels
         public ProductActivityPermissionModel ProductActivityPermissionData { get; set; }
 
         public List<ProductActivityPermissionModel> ProductActivityPermissions { get; set; }
-        public string ProdOrderNoDesc { get; set; }
+        public string? ProdOrderNoDesc { get; set; }
         public string Type { get; set; }
         public long? QaCheckUserId { get; set; }
         public DateTime? QaCheckDate { get; set; }
         public string QaCheckUser { get; set; }
         public string FilePath { get; set; }
+        public Guid? UniqueSessionId { get; set; }
+        public bool? IsNewPath { get; set; }
         public string LocationName { get; set; }
         public List<ProductionActivityAppLineQaCheckerModel> ProductionActivityAppLineQaCheckerModels { get; set; }
         public long? LocationId { get; set; }
@@ -97,11 +101,17 @@ namespace Core.EntityModels
         public bool? IsActionPermission { get; set; } = true;
         public string? NoAction { get; set; }
         public long? FileProfileTypeId { get; set; }
+        public int? IsDocuments { get; set; }
     }
     public class MultipleProductioAppLineItemLists
     {
         public List<ProductActivityCaseRespons> ProductActivityCaseRespons { get; set; } = new List<ProductActivityCaseRespons>();
         public List<ProductActivityCaseResponsDuty> ProductActivityCaseResponsDuty { get; set; } = new List<ProductActivityCaseResponsDuty>();
         public List<ProductActivityCaseResponsResponsible> ProductActivityCaseResponsResponsible { get; set; } = new List<ProductActivityCaseResponsResponsible>();
+        public List<ActivityMasterMultiple> ActivityMasterMultiple { get; set; } = new List<ActivityMasterMultiple>();
+        public List<ProductionActivityAppLineQaCheckerModel> ProductionActivityAppLineQaCheckerModel { get; set; } = new List<ProductionActivityAppLineQaCheckerModel>();
+        public List<Documents> Documents { get; set; } = new List<Documents>();
+        public List<ApplicationUser> ApplicationUser { get; set; } = new List<ApplicationUser>();
+        public List<NavprodOrderLine> NavprodOrderLine { get; set; } = new List<NavprodOrderLine>();
     }
 }

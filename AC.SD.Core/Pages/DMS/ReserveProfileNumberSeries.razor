@@ -97,7 +97,7 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
          ShowFooter="true"
-         Width="1000px">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <AddReserveProfileNumberSeries selectedItems="@_ParentselectedItems" applicationUser="@applicationUser" SessionId="@SessionId" FileProfileTypeId="@FileProfileTypeId" RevokeBack="ClosePopupReserveSeries"></AddReserveProfileNumberSeries>
     </BodyContentTemplate>
@@ -113,7 +113,7 @@
           HeaderText="Upload Document"
           FooterVisible="true"
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 650px)"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           CloseOnOutsideClick="false"
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
@@ -160,7 +160,7 @@
           HeaderText="Update Description"
           FooterVisible="true"
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">

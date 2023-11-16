@@ -12,8 +12,14 @@ namespace Core.Repositories.Query
     public interface IProductionActivityQueryRepository : IQueryRepository<ProductionActivityAppLine>
     {
         Task<IReadOnlyList<ProductActivityAppModel>> GetAllAsync(long? CompanyID, string? prodorderNo, long? userId, long? locationID);
-        Task<long> Insert(ProductionActivityAppLine PPALinelist);        
         Task<IReadOnlyList<ProductionActivityApp>>GetAlllocAsync(long? location);
+        Task<ProductActivityAppModel> GetProductActivityAppLineOneItem(long? ProductionActivityAppLineID);
+        Task<ProductActivityAppModel> UpdateproductActivityAppLineCommentField(ProductActivityAppModel productActivityAppModel);
+        Task<ProductActivityAppModel> DeleteproductActivityAppLine(ProductActivityAppModel productActivityAppModel);
+        Task<DocumentsModel> DeleteSupportingDocuments(DocumentsModel value);
+        Task<ProductionActivityNonComplianceModel> GetProductionActivityNonComplianceAsync(string type, long? id, string actionType);
+        Task<ProductionActivityNonComplianceModel> InsertProductionActivityNonCompliance(ProductionActivityNonComplianceModel value);
+        Task<ProductionActivityNonComplianceUserModel> DeleteProductionActivityNonCompliance(ProductionActivityNonComplianceUserModel value);
 
     }
 }

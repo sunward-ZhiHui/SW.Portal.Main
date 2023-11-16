@@ -21,7 +21,7 @@
                                   Context="EditFormContext">
                             <DataAnnotationsValidator />
                             <DxFormLayout>
-                                <DxFormLayoutItem Caption="User Role" ColSpanMd="3">
+                                <DxFormLayoutItem Caption="User Role" ColSpanMd="4">
                                     <DxComboBox Data="@_documentRoleList"
                                                 NullText="Select User Role..."
                                                 FilteringMode="DataGridFilteringMode.Contains"
@@ -75,7 +75,7 @@
                                   Context="EditFormContext">
                             <DataAnnotationsValidator />
                             <DxFormLayout>
-                                <DxFormLayoutItem Caption="User Role" ColSpanMd="3">
+                                <DxFormLayoutItem Caption="User Role" ColSpanMd="4">
                                     <DxComboBox Data="@_documentRoleList"
                                                 NullText="Select User Role..."
                                                 FilteringMode="DataGridFilteringMode.Contains"
@@ -141,7 +141,7 @@
                                   Context="EditFormContext">
                             <DataAnnotationsValidator />
                             <DxFormLayout>
-                                <DxFormLayoutItem Caption="User Role" ColSpanMd="3">
+                                <DxFormLayoutItem Caption="User Role" ColSpanMd="4">
                                     <DxComboBox Data="@_documentRoleList"
                                                 NullText="Select User Role..."
                                                 FilteringMode="DataGridFilteringMode.Contains"
@@ -231,7 +231,7 @@
           FooterVisible="true"
           CloseOnOutsideClick=true
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
+          MinWidth="600" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <div class="custom-flyout-body" style="width:100%">
@@ -254,7 +254,7 @@
           FooterVisible="true"
           CloseOnOutsideClick=true
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
+          MinWidth="600" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <div class="custom-flyout-body" style="width:100%">
@@ -277,7 +277,7 @@
           FooterVisible="true"
           CloseOnOutsideClick=true
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
+          MinWidth="600" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <div class="custom-flyout-body" style="width:100%">
@@ -300,7 +300,7 @@
           HeaderText="Select Sunward Libraries"
           FooterVisible="false"
           FooterCssClass="custom-flyout-footer"
-          Width="max(25vw, 550px)"
+          MinWidth="600" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           CloseOnOutsideClick="false"
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">

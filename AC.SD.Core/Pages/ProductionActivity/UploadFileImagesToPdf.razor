@@ -1,0 +1,451 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager Navigator
+@inject IJSRuntime jsRuntime
+@using Blazor.Cropper
+@inject HttpClient Http
+@using System.IO
+@using Microsoft.AspNetCore.Http;
+<style scoped>
+    .unSelectAble {
+        height: 600px;
+    }
+</style>
+<InputFile InputId="input1" @ref="filePicker" OnChange="OnInputFileChange" style="display:none;" accept="image/*"></InputFile>
+<div class="card" style="margin-bottom:10px; margin-top: 10px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Select Image" IconCssClass="fa fa-file" Click="@clickOpenFileImageToPdf" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailsDelete" Enabled="@DeleteDetailsEnabled" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<DxGrid @ref="UploadImagePdfGrid" Data="@FilesBase64"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        ShowGroupPanel="true" ShowGroupedColumns="true"
+        KeyFieldName="ImageId"
+        ShowSearchBox="true"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        SelectionMode="GridSelectionMode.Multiple"
+        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+        AutoExpandAllGroupRows="true"
+        CssClass="ch-360"
+        style="height: calc(100vh - 420px);"
+        FocusedRowEnabled="true"
+        RowClick="OnRowClick"
+        SelectedDataItemsChanged="@SelectedDataItemsChanged"
+        AllowSelectRowByClick="true">
+    <Columns>
+        <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+        <DxGridDataColumn FieldName="FileName" Caption="File Name" />
+        <DxGridDataColumn FieldName="ContentType" Caption="Content Type" />
+        <DxGridDataColumn FieldName="FileSize" Caption="File Size" />
+    </Columns>
+    <TotalSummary>
+        <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
+    </TotalSummary>
+</DxGrid>
+<DxPopup @bind-Visible="@AddCropPopup"
+         ShowFooter="false"
+         HeaderText="Add Activity"
+         Closed="EulaImagePopupClosed"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+         CloseOnEscape="false" ShowCloseButton="false">
+    <BodyContentTemplate Context="EditFormContext">
+        @if (file != null)
+        {
+            <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+                <div class="card-body p-0">
+                    <div class="row">
+                        <div class="">
+                            <DxMenu CollapseItemsToHamburgerMenu="true"
+                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                                    DisplayMode="MenuDisplayMode.Auto">
+                                <Items>
+                                    <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onCancel" />
+                                    <DxMenuItem Text="Done" IconCssClass="fas fa-save" Click="@DoneCrop" />
+                                    <DxMenuItem Text="Save State" IconCssClass="fa fa-check" Click="@SaveState" />
+                                    <DxMenuItem Text="Restore" IconCssClass="fas fa-trash-restore" Click="@RestoreState" />
+                                </Items>
+                            </DxMenu>
+                            <DxFormLayout CssClass="w-100" style="padding:5px;">
+                                <DxFormLayoutItem Caption="" ColSpanMd="4">
+                                    <DxCheckBox @bind-Checked="@isCropLocked" LabelPosition="LabelPosition.Right">Is CropLocked</DxCheckBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="" ColSpanMd="4">
+                                    <DxCheckBox @bind-Checked="@isImageLocked" LabelPosition="LabelPosition.Right">Is ImageLocked</DxCheckBox>
+                                </DxFormLayoutItem>
+                                <DxFormLayoutItem Caption="" ColSpanMd="4">
+                                    @if (cropper != null)
+                                    {
+                                        <input type="range" min="@(cropper.MinRatio*100)" max="@(200)" value="@(ratio*100)"
+                                        @oninput="OnRatioChange" />
+                                    }
+                                </DxFormLayoutItem>
+                            </DxFormLayout>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @if (show)
+            {
+                <Cropper MaxCropedHeight="500" CropperHeight="400" MaxCropedWidth="500" @ref="cropper" AspectRatio="proportion==0?1:proportion"
+                         RequireAspectRatio="bool.Parse(enableProportion)" ImageFile="file" @bind-Ratio="ratio"
+                         AnimeGifEnable="true"
+                         OffsetX="offsetx"
+                         OffsetY="offsety"
+                         InitCropWidth="initw"
+                         InitCropHeight="inith"
+                         PureCSharpProcessing="purecs"
+                         IsCropLocked="isCropLocked"
+                         IsImageLocked="isImageLocked"
+                         Quality="quality"
+                         OnSizeChanged="t=>{
+                        width = t.Item1;
+                        height = t.Item2;
+                    }"></Cropper>
+            }
+        }
+    </BodyContentTemplate>
+</DxPopup>
+
+<DxPopup @bind-Visible="@Blukdeleteimagepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="@bulkimageDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+<script>
+    window.triggerClick = (elt) => elt.click();
+</script>
+@code {
+    bool Blukdeleteimagepopup { get; set; } = false;
+    bool DeleteDetailsEnabled { get; set; } = false;
+    IGrid? UploadImagePdfGrid { get; set; }
+    InputFile filePicker;
+    [Parameter]
+    public ApplicationUser _applicationUser { get; set; }
+    [Parameter]
+    public Guid? UploadSessionId { get; set; }
+    [Parameter]
+    public long? FileProfileTypeId { get; set; }
+    [Parameter]
+    public string? Type { get; set; }
+    [Parameter]
+    public long? ProductionActivityAppLineId { get; set; }
+    List<ImageFile> FilesBase64 = new List<ImageFile>();
+    bool AddCropPopup { get; set; } = false;
+    Cropper cropper;
+    CropInfo state;
+    string ImgUrl = "";
+    IBrowserFile file;
+    double offsetx = 0;
+    double offsety = 0;
+    double initw = 500;
+    double inith = 500;
+    int quality = 100;
+    bool purecs = true;
+    double width;
+    double height;
+    string enableProportion = "false";
+    double proportion = 1d;
+    double ratio = 1;
+    bool isCropLocked = false;
+    bool isImageLocked = true; bool show = true;
+    private ImageFile _selectedItems;
+    public IFormFileCollection? imge1 { get; set; }
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/jpg", "image/jpeg", "image/png", "image/gif" };
+
+    public async Task clickOpenFileImageToPdf()
+    {
+        await jsRuntime.InvokeAsync<object>("triggerClick", filePicker.Element);
+    }
+    protected override void OnInitialized()
+    {
+        loadFileImageDataFirst();
+        base.OnInitialized();
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        Blukdeleteimagepopup = false;
+    }
+    void addDetailsDelete()
+    {
+        Blukdeleteimagepopup = true;
+    }
+    public void loadFileImageDataFirst()
+    {
+        FilesBase64 = new List<ImageFile>(); DeleteDetailsEnabled = false;
+
+        resetCrop();
+    }
+    void resetCrop()
+    {
+        file = null; width = 0; height = 0; enableProportion = "false"; proportion = 1d;
+        ratio = 1; isCropLocked = false; isImageLocked = true; state = null; offsetx = 0; offsety = 0; initw = 500; inith = 500; quality = 100;
+        StateHasChanged();
+    }
+    void EulaImagePopupClosed(PopupClosedEventArgs args)
+    {
+        AddCropPopup = false;
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems;
+        if (SelectedDataItems.Count > 1)
+        {
+
+        }
+        else
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is ImageFile dataselectItems)
+                    {
+                        _selectedItems = (ImageFile)item;
+                    }
+                }
+            }
+        }
+    }
+    void bulkimageDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+
+                    if (item is ImageFile dataItem)
+                    {
+                        var itemToRemove = FilesBase64.Single(r => r.ImageId == _selectedItems.ImageId);
+                        FilesBase64.Remove(itemToRemove);
+                        Blukdeleteimagepopup = false;
+                        loadImageList();
+                        UploadImagePdfGrid.SetFocusedRowIndex(0);
+                    }
+                }
+                UploadImagePdfGrid.ClearSelection();
+            }
+        }
+        catch (Exception eq)
+        {
+            Blukdeleteimagepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    void loadImageList()
+    {
+        DeleteDetailsEnabled = false;
+        if (FilesBase64 != null && FilesBase64.Count > 0)
+        {
+            DeleteDetailsEnabled = true;
+            _selectedItems = FilesBase64.FirstOrDefault();
+        }
+        StateHasChanged();
+    }
+    // async Task OnChange(InputFileChangeEventArgs e)
+    // {
+    //     var files = e.GetMultipleFiles(); get the files selected by the users
+    //     foreach (var file in files)
+    //     {
+    //         var resizedFile = await file.RequestImageFileAsync(file.ContentType, 640, 480); resize the image file
+    //         var buf = new byte[resizedFile.Size]; allocate a buffer to fill with the file's data
+    //         using (var stream = resizedFile.OpenReadStream())
+    //         {
+    //             await stream.ReadAsync(buf); copy the stream to the buffer
+    //         }
+    //         FilesBase64.Add(new ImageFile { Base64data = Convert.ToBase64String(buf), ContentType = file.ContentType, FileName = file.Name }); convert to a base64 string!!
+    //     }
+    // }
+    public class ImageFile
+    {
+        public long ImageId { get; set; }
+        public string? Base64data { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? ContentType { get; set; }
+        public string? FileName { get; set; }
+        public string? FileSize { get; set; }
+        public double? Width { get; set; }
+        public double? Height { get; set; }
+    }
+    async Task OnInputFileChange(InputFileChangeEventArgs args)
+    {
+        if (args.File != null)
+        {
+            var types = AcceptedFileTypes.Where(a => a.ToLower() == args.File.ContentType.ToLower()).FirstOrDefault();
+            if (types != null)
+            {
+                resetCrop();
+                file = args.File;
+                await Task.Delay(10);
+                AddCropPopup = true;
+            }
+            else
+            {
+                toastService.ShowToast("Application only supports PNG or JPEG or GIF or JPG image types.Other Files Not Supported For Image Crop.", AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+    }
+    void SizeChanged((double, double) t)
+    {
+        width = t.Item1;
+        height = t.Item2;
+    }
+    void SaveState()
+    {
+        state = cropper.GetCropInfo();
+    }
+    async Task DoneCrop()
+    {
+        var args = await cropper.GetCropedResult();
+        base.StateHasChanged();
+        await Task.Delay(100);// a hack, otherwise prompt won't show
+        var base64string = await args.GetBase64Async();
+        var imgUrl = $"data:image/png;base64,{base64string}";
+        var imageIds = FilesBase64.Count() + 1;
+        var stringLength = base64string.Length;
+        var sizeInBytes = 4 * Math.Ceiling((double)(stringLength / 3)) * 0.5624896334383812;
+        var sizeInKb = FormatSize(sizeInBytes / 1000);
+        FilesBase64.Add(new ImageFile { ImageId = imageIds, FileSize = sizeInKb, Base64data = base64string, ContentType = file.ContentType, FileName = file.Name, Width = width, Height = height, ImageUrl = imgUrl });
+        file = null;
+        AddCropPopup = false;
+        loadImageList();
+        StateHasChanged();
+    }
+    public static string FormatSize(double bytes)
+    {
+        string[] suffixes = { "Bytes", "KB", "MB", "GB", "TB", "PB" };
+        int counter = 0;
+        decimal number = (decimal)bytes;
+        while (Math.Round(number / 1024) >= 1)
+        {
+            number = number / 1024;
+            counter++;
+        }
+        return string.Format("{0:n1} {1}", number, suffixes[counter]);
+    }
+    void OnRatioChange(ChangeEventArgs args)
+    {
+        ratio = int.Parse(args.Value.ToString()) / 100.0;
+    }
+    async Task RestoreState()
+    {
+        if (state != null)
+        {
+            (offsetx, offsety, initw, inith, ratio) = state.GetInitParams();
+            show = false;
+            StateHasChanged();
+            await Task.Delay(10);
+            show = true;
+        }
+    }
+    void onCancel()
+    {
+        AddCropPopup = false;
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ImageId");
+        _selectedItems = FilesBase64.FirstOrDefault(f => f.ImageId == (long?)UniqueId);
+        DeleteDetailsEnabled = true;
+        StateHasChanged();
+    }
+    private StreamContent CreateFileContent(Stream stream, string fileName, string contentType)
+    {
+        var fileContent = new StreamContent(stream);
+        fileContent.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data")
+            {
+                Name = "\"files\"",
+                FileName = "\"" + fileName + "\""
+            }; // the extra quotes are key here
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+        return fileContent;
+    }
+    public async Task<string?> uploadImagesToPdf(Guid? DocSessionId, DocumentsUploadModel Data)
+    {
+        var fileCouunt = FilesBase64.Count();
+        if (fileCouunt > 0)
+        {
+            if (UploadSessionId != null && DocSessionId != null)
+            {
+                string BaseUrl = Navigator.BaseUri + "api/FileUpload/UploadImages/";
+                using (var _client = new HttpClient())
+                {
+                    using (var content = new MultipartFormDataContent(Guid.NewGuid().ToString()))
+                    {
+                        FilesBase64.ForEach(s =>
+                        {
+                            byte[] bytes = Convert.FromBase64String(s.Base64data);
+                            MemoryStream stream = new MemoryStream(bytes);
+                            content.Add(CreateFileContent(stream, s.ImageId + ".png", "image/png"));
+                        });
+                        content.Add(new StringContent(UploadSessionId.ToString()), "UploadSessionId");
+                        content.Add(new StringContent("FileProfile"), "SourceFrom");
+                        content.Add(new StringContent(Data.ChangeNewFileName), "ChangeNewFileName");
+                        content.Add(new StringContent(_applicationUser.UserID.ToString()), "UserID");
+                        var response = await _client.PostAsync(BaseUrl, content);
+                        var result = await response.Content.ReadAsStringAsync();
+                        if (result == "Ok")
+                        {
+                            Data.SessionId = UploadSessionId;
+                            Data.FileSessionId = UploadSessionId;
+                            Data.SourceFrom = "FileProfile";
+                            Data.FilePath = @"Documents\" + UploadSessionId + @"\" + UploadSessionId + ".pdf";
+                            if (Type == "Production Activity" && ProductionActivityAppLineId > 0)
+                            {
+                                Data.ProductionActivityAppLineId = ProductionActivityAppLineId;
+                                Data.Type = Type;
+                            }
+                            var responsse = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
+                            return "Done";
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            return "Empty";
+        }
+        return "Done";
+    }
+}

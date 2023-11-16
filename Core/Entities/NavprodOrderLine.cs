@@ -30,5 +30,7 @@ namespace Core.Entities
         public decimal? OutputQty { get; set; }
         public long? CompanyId { get; set; }
         public string TopicId { get; set; }
+        [NotMapped]
+        public string? ProdOrderNoDesc { get; set; }
     }
 }

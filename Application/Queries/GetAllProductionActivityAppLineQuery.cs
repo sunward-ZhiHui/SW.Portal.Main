@@ -37,8 +37,65 @@ namespace Application.Queries
 
         }
     }
-
-    public class CreateProductionActivityAppLineCommand : ProductionActivityAppLine, IRequest<long>
+    public class GetProductActivityAppLineOneItem : PagedRequest, IRequest<ProductActivityAppModel>
     {
+        public long? Id { get; set; }
+        public GetProductActivityAppLineOneItem(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class GetUpdateproductActivityAppLineCommentField : PagedRequest, IRequest<ProductActivityAppModel>
+    {
+        public ProductActivityAppModel ProductActivityAppModel { get; private set; }
+        public GetUpdateproductActivityAppLineCommentField(ProductActivityAppModel productActivityAppModel)
+        {
+            this.ProductActivityAppModel = productActivityAppModel;
+        }
+    }
+    public class DeleteproductActivityAppLine : PagedRequest, IRequest<ProductActivityAppModel>
+    {
+        public ProductActivityAppModel ProductActivityAppModel { get; private set; }
+        public DeleteproductActivityAppLine(ProductActivityAppModel productActivityAppModel)
+        {
+            this.ProductActivityAppModel = productActivityAppModel;
+        }
+    }
+    public class DeleteSupportingDocuments : PagedRequest, IRequest<DocumentsModel>
+    {
+        public DocumentsModel DocumentsModel { get; private set; }
+        public DeleteSupportingDocuments(DocumentsModel documentsModel)
+        {
+            this.DocumentsModel = documentsModel;
+        }
+    }
+    public class DeleteProductionActivityNonCompliance : PagedRequest, IRequest<ProductionActivityNonComplianceUserModel>
+    {
+        public ProductionActivityNonComplianceUserModel ProductionActivityNonComplianceUserModel { get; private set; }
+        public DeleteProductionActivityNonCompliance(ProductionActivityNonComplianceUserModel productionActivityNonComplianceUserModel)
+        {
+            this.ProductionActivityNonComplianceUserModel = productionActivityNonComplianceUserModel;
+        }
+    }
+    
+    public class GetProductionActivityNonCompliance : PagedRequest, IRequest<ProductionActivityNonComplianceModel>
+    {
+        public long? Id { get; set; }
+        public string? Type { get; set; }
+        public string? ActionType { get; set; }
+        public GetProductionActivityNonCompliance(string type, long? id, string? actionType)
+        {
+            this.Id = id;
+            this.Type = type;
+            this.ActionType = actionType;
+        }
+    }
+    public class InsertProductionActivityNonCompliance : PagedRequest, IRequest<ProductionActivityNonComplianceModel>
+    {
+        public ProductionActivityNonComplianceModel ProductionActivityNonComplianceModel { get; private set; }
+        public InsertProductionActivityNonCompliance(ProductionActivityNonComplianceModel productionActivityNonComplianceModel)
+        {
+            this.ProductionActivityNonComplianceModel = productionActivityNonComplianceModel;
+        }
     }
 }

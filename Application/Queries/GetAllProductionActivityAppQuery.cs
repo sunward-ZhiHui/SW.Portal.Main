@@ -32,10 +32,12 @@ namespace Application.Queries
     {
         public long? ManufacturingProcessId { get; set; }
         public long? CategoryActionId { get; set; }
-        public GetProductActivityCaseLineTemplateItems(long? manufacturingProcessId, long? categoryActionId)
+        public long? ProdActivityActionChildD { get; set; }
+        public GetProductActivityCaseLineTemplateItems(long? manufacturingProcessId, long? categoryActionId, long? prodActivityActionChildD)
         {
             this.ManufacturingProcessId = manufacturingProcessId;
             this.CategoryActionId = categoryActionId;
+            this.ProdActivityActionChildD = prodActivityActionChildD;
         }
     }
     public class GetAllProductionActivityLocationAppQuery : PagedRequest, IRequest<ProductionActivityApp>
@@ -55,6 +57,14 @@ namespace Application.Queries
         public GetAllProductionActivityPONumberAppQuery(long? companyid)
         {
             this.companyID = companyid;
+        }
+    }
+    public class GetSupportingDocuments : PagedRequest, IRequest<List<DocumentsModel>>
+    {
+        public long? ProductionActivityPlanningAppLineID { get; set; }
+        public GetSupportingDocuments(long? productionActivityPlanningAppLineID)
+        {
+            this.ProductionActivityPlanningAppLineID = productionActivityPlanningAppLineID;
         }
     }
 

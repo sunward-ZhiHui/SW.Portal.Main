@@ -452,6 +452,47 @@ namespace Infrastructure.Repository.Query
                         {
                             await InsertDocumentLink(value);
                         }
+                        if (value.Type == "Production Activity")
+                        {
+                            await InsertSupportingDocumentLink(value);
+                        }
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsUploadModel> InsertSupportingDocumentLink(DocumentsUploadModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var DocuId = await GetDocumentIdByPathName(value);
+                        if (DocuId != null)
+                        {
+                            var LinkDocparameters = new DynamicParameters();
+                            LinkDocparameters.Add("ProductionActivityAppLineId", value.ProductionActivityAppLineId);
+                            LinkDocparameters.Add("SessionId", value.SessionId, DbType.Guid);
+                            LinkDocparameters.Add("Type", value.Type,DbType.String);
+                            LinkDocparameters.Add("DocumentId", DocuId.DocumentId);
+                            var linkquery = "INSERT INTO [ProductionActivityAppLineDoc](ProductionActivityAppLineId,SessionId,Type,DocumentId) " +
+                           "OUTPUT INSERTED.ProductionActivityAppLineDocId VALUES " +
+                          "(@ProductionActivityAppLineId,@SessionId,@Type,@DocumentId)";
+                            await connection.ExecuteAsync(linkquery, LinkDocparameters);
+                        }
+                        connection.Close();
                         return value;
                     }
                     catch (Exception exp)
@@ -595,5 +636,6 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+
     }
 }

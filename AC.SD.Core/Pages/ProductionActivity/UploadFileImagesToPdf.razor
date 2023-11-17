@@ -148,9 +148,6 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="@bulkimageDelete" />
     </FooterContentTemplate>
 </DxPopup>
-<script>
-    window.triggerClick = (elt) => elt.click();
-</script>
 @code {
     bool Blukdeleteimagepopup { get; set; } = false;
     bool DeleteDetailsEnabled { get; set; } = false;

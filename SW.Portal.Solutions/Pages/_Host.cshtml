@@ -324,6 +324,7 @@
     
 </head>
 <body>
+    
     <div class="load-indicator" style="display:none;"></div>
     <Toast />
     @{
@@ -358,6 +359,9 @@
     <script src="_content/Chronos.Blazor.Cropper/CropHelper.js"></script>
 </body>
 
+<script>
+    window.triggerClick = (elt) => elt.click();
+</script>
 <script src="_content/BlazorBarcodeScanner.ZXing.JS/zxingjs.index.min.js"></script>
 <script src="_content/BlazorBarcodeScanner.ZXing.JS/BlazorBarcodeScanner.js"></script>
 </html>

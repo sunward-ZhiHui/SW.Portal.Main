@@ -9,6 +9,7 @@
 @using global::Core.Repositories.Query;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@using System.Collections
 <div style="width:100%;">
     <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabSecIndex" TabsPosition="TabsPosition.Top" TabClick="OnTabClick">
         <DxTabPage Text="User" TabIconCssClass="tabs-icon-home tabs-icon">
@@ -354,6 +355,8 @@
     private DocumentUserRoleLists? refDocumentUserRoleListsUser;
     [Parameter]
     public long? FileProfileTypeId { get; set; }
+    [Parameter]
+     public IEnumerable fileProfileTypeDocumentsAlls { get; set; }
     public ApplicationUser _applicationUser { get; private set; }
     private List<UserGroup> _userGroupsList { get; set; }
     public List<DocumentRole> _documentRoleList { get; set; }
@@ -374,7 +377,8 @@
     {
         _editContext = new EditContext(Data);
         Data.FileProfileTypeId = FileProfileTypeId;
-        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        fileProfileTypeDocumentsAll = fileProfileTypeDocumentsAlls.Cast<DocumentsModel>().ToList();
+       // fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         //_treeFilterDocView.ExpandAll();
         _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _userGroupsList = await Mediator.Send(new GetUserGroups());

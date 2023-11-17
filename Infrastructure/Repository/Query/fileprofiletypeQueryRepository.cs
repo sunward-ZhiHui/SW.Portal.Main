@@ -51,8 +51,8 @@ namespace Infrastructure.Repository.Query
                     "CONCAT('>',Name) as BreadcumName,\r\n" +
                     //"CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n" +
                     //"CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\n" +
-                    "CONCAT((select count(*) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\n" +
-                    "CONCAT((Select COUNT(*) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\n" +
+                    "CONCAT((select count(FileProfileTypeID) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\n" +
+                    "CONCAT((Select COUNT(DocumentID) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\n" +
                     "AND IsLatest=1  \r\n" +
                     "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\n" +
                     "OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n" +
@@ -854,119 +854,120 @@ namespace Infrastructure.Repository.Query
                         "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) " +
                         "OR (DocumentID in(" + string.Join(",", linkfileProfileTypeDocumentids) + ") AND IsLatest=1) " +
                         "order by DocumentId desc";
-
+                    var documents = new List<Documents>();
                     using (var connection = CreateConnection())
                     {
-                        var documents = (await connection.QueryAsync<Documents>(query, parameters)).ToList();
-                        if (documents != null && documents.Count > 0)
-                        {
-                            List<long?> userIds = new List<long?>();
-                            userIds.AddRange(documents.Select(a => a.AddedByUserId).ToList());
-                            userIds.AddRange(documents.Where(a => a.ModifiedByUserId > 0).Select(a => a.ModifiedByUserId).ToList());
-                            userIds.AddRange(documents.Where(a => a.LockedByUserId > 0).Select(a => a.LockedByUserId).ToList());
-                            var sessionIds = documents.Where(a => a.SessionId != null).Select(a => a.SessionId).ToList();
-                            var filterProfileTypeIds = documents.Where(w => w.FilterProfileTypeId > 0).Select(a => a.FilterProfileTypeId).ToList();
-                            var multipleData = await GetMultipleFileProfileTypeQueryAsync(sessionIds, filterProfileTypeIds, userIds);
-                            var docShares = multipleData.DocumentDmsShare;
-                            var dynamicFormData = multipleData.DynamicFormData;
-                            var emailTopics = multipleData.ActivityEmailTopics;
-                            var appUsers = multipleData.ApplicationUser;
-                            var fileProfileType = multipleData.Fileprofiletype;
-                            var docIds = documents.Select(a => a.DocumentId).ToList();
-                            documents.ForEach(s =>
-                            {
-                                var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
-                                var lastIndex = s.FileName != null ? s.FileName.LastIndexOf(".") : 0;
-                                lastIndex = lastIndex > 0 ? lastIndex : 0;
-                                var name = s.FileName != null ? s.FileName?.Substring(lastIndex) : "";
-                                var fileName = s.FileName?.Split(name);
-                                DocumentsModel documentsModels = new DocumentsModel();
-                                documentsModels.UniqueNo = counts;
-                                documentsModels.SharesCount = 0;
-                                var sharesCountCount = docShares.Where(a => a.DocSessionId == s.SessionId).Count();
-                                if (sharesCountCount > 0)
-                                {
-                                    documentsModels.SharesCount = sharesCountCount;
-                                }
-                                if (dynamicFormData != null)
-                                {
-                                    var isDynamicFromData = dynamicFormData.Where(a => a.SessionId == s.SessionId).Count();
-                                    documentsModels.IsDynamicFromData = isDynamicFromData > 0 ? true : false;
-                                }
-                                if (emailTopics != null)
-                                {
-                                    var isemailTopics = emailTopics.Where(a => a.DocumentSessionId == s.SessionId).Count();
-                                    documentsModels.IsEmailTopics = isemailTopics > 0 ? true : false;
-                                }
-                                documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
-                                documentsModels.SessionId = s.SessionId;
-                                documentsModels.DocumentID = s.DocumentId;
-                                documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
-                                documentsModels.OriginalFileName = s.FileName;
-                                documentsModels.ContentType = s.ContentType;
-                                documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
-                                documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
-                                documentsModels.UploadDate = s.UploadDate;
-                                documentsModels.UniqueSessionId = s.UniqueSessionId;
-                                documentsModels.SessionID = s.SessionId;
-                                documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
-                                documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
-                                documentsModels.FileProfileTypeSessionId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.SessionId;
-                                documentsModels.ProfileID = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.ProfileId;
-                                documentsModels.DynamicFormId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.DynamicFormId;
-                                documentsModels.DocumentParentId = s.DocumentParentId;
-                                documentsModels.TableName = s.TableName;
-                                documentsModels.IsMobileUpload = s.IsMobileUpload;
-                                documentsModels.Type = "Document";
-                                documentsModels.ExpiryDate = s.ExpiryDate;
-                                documentsModels.FileIndex = s.FileIndex;
-                                documentsModels.TotalDocument = documentcount == 1 ? 1 : (documentcount + 1);
-                                documentsModels.UploadedByUserId = s.AddedByUserId;
-                                documentsModels.ModifiedByUserID = s.ModifiedByUserId;
-                                documentsModels.AddedDate = s.UploadDate;
-                                documentsModels.ModifiedDate = s.ModifiedDate;
-                                documentsModels.SourceFrom = s.SourceFrom;
-                                documentsModels.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
-                                documentsModels.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
-                                documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
-                                documentsModels.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
-                                documentsModels.IsLocked = s.IsLocked;
-                                documentsModels.LockedByUserId = s.LockedByUserId;
-                                documentsModels.LockedDate = s.LockedDate;
-                                documentsModels.IsNewPath = s.IsNewPath;
-                                documentsModels.AddedByUserID = s.AddedByUserId;
-                                documentsModels.IsCompressed = s.IsCompressed;
-                                documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
-                                documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;
-                                documentsModels.IsEnableCreateTask = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsEnableCreateTask;
-                                documentsModels.CloseDocumentId = s.CloseDocumentId;
-                                documentsModels.CssClass = s.CloseDocumentId != null && s.CloseDocumentId == 2561 ? "blue-grey lighten - 3" : "transparent";
-                                documentsModels.ProfileNo = s.ProfileNo;
-                                documentsModels.FilePath = s.FilePath;
-                                documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
-                                documentsModels.IsExpiryDate = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsExpiryDate;
-                                var description = linkfileProfileTypes?.Where(f => f.FileProfileTypeId == selectedFileProfileTypeID && f.TransactionSessionId == s.SessionId && f.DocumentId == s.DocumentId).FirstOrDefault()?.Description;
-                                if (description != null)
-                                {
-                                    documentsModels.Description = description;
-                                }
-                                else
-                                {
-                                    documentsModels.Description = s.Description;
-                                }
-                                documentsModel.Add(documentsModels);
-                                counts++;
-                            });
-                        }
-                        DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());
-                        DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
-                        if (DocumentTypeModel != null)
-                        {
-                            DocumentTypeModel.IsExpiryDate = DocumentTypeModel.DocumentsData.FirstOrDefault()?.IsExpiryDate;
-                            DocumentTypeModel.TotalDocument = DocumentTypeModel.DocumentsData.ToList().Count();
-                            DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
-                        }
+                        documents = (await connection.QueryAsync<Documents>(query, parameters)).ToList();
                     }
+                    if (documents != null && documents.Count > 0)
+                    {
+                        List<long?> userIds = new List<long?>();
+                        userIds.AddRange(documents.Select(a => a.AddedByUserId).ToList());
+                        userIds.AddRange(documents.Where(a => a.ModifiedByUserId > 0).Select(a => a.ModifiedByUserId).ToList());
+                        userIds.AddRange(documents.Where(a => a.LockedByUserId > 0).Select(a => a.LockedByUserId).ToList());
+                        var sessionIds = documents.Where(a => a.SessionId != null).Select(a => a.SessionId).ToList();
+                        var filterProfileTypeIds = documents.Where(w => w.FilterProfileTypeId > 0).Select(a => a.FilterProfileTypeId).ToList();
+                        var multipleData = await GetMultipleFileProfileTypeQueryAsync(sessionIds, filterProfileTypeIds, userIds);
+                        var docShares = multipleData.DocumentDmsShare;
+                        var dynamicFormData = multipleData.DynamicFormData;
+                        var emailTopics = multipleData.ActivityEmailTopics;
+                        var appUsers = multipleData.ApplicationUser;
+                        var fileProfileType = multipleData.Fileprofiletype;
+                        var docIds = documents.Select(a => a.DocumentId).ToList();
+                        documents.ForEach(s =>
+                        {
+                            var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
+                            var lastIndex = s.FileName != null ? s.FileName.LastIndexOf(".") : 0;
+                            lastIndex = lastIndex > 0 ? lastIndex : 0;
+                            var name = s.FileName != null ? s.FileName?.Substring(lastIndex) : "";
+                            var fileName = s.FileName?.Split(name);
+                            DocumentsModel documentsModels = new DocumentsModel();
+                            documentsModels.UniqueNo = counts;
+                            documentsModels.SharesCount = 0;
+                            var sharesCountCount = docShares.Where(a => a.DocSessionId == s.SessionId).Count();
+                            if (sharesCountCount > 0)
+                            {
+                                documentsModels.SharesCount = sharesCountCount;
+                            }
+                            if (dynamicFormData != null)
+                            {
+                                var isDynamicFromData = dynamicFormData.Where(a => a.SessionId == s.SessionId).Count();
+                                documentsModels.IsDynamicFromData = isDynamicFromData > 0 ? true : false;
+                            }
+                            if (emailTopics != null)
+                            {
+                                var isemailTopics = emailTopics.Where(a => a.DocumentSessionId == s.SessionId).Count();
+                                documentsModels.IsEmailTopics = isemailTopics > 0 ? true : false;
+                            }
+                            documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
+                            documentsModels.SessionId = s.SessionId;
+                            documentsModels.DocumentID = s.DocumentId;
+                            documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
+                            documentsModels.OriginalFileName = s.FileName;
+                            documentsModels.ContentType = s.ContentType;
+                            documentsModels.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
+                            documentsModels.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
+                            documentsModels.UploadDate = s.UploadDate;
+                            documentsModels.UniqueSessionId = s.UniqueSessionId;
+                            documentsModels.SessionID = s.SessionId;
+                            documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
+                            documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
+                            documentsModels.FileProfileTypeSessionId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.SessionId;
+                            documentsModels.ProfileID = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.ProfileId;
+                            documentsModels.DynamicFormId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.DynamicFormId;
+                            documentsModels.DocumentParentId = s.DocumentParentId;
+                            documentsModels.TableName = s.TableName;
+                            documentsModels.IsMobileUpload = s.IsMobileUpload;
+                            documentsModels.Type = "Document";
+                            documentsModels.ExpiryDate = s.ExpiryDate;
+                            documentsModels.FileIndex = s.FileIndex;
+                            documentsModels.TotalDocument = documentcount == 1 ? 1 : (documentcount + 1);
+                            documentsModels.UploadedByUserId = s.AddedByUserId;
+                            documentsModels.ModifiedByUserID = s.ModifiedByUserId;
+                            documentsModels.AddedDate = s.UploadDate;
+                            documentsModels.ModifiedDate = s.ModifiedDate;
+                            documentsModels.SourceFrom = s.SourceFrom;
+                            documentsModels.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
+                            documentsModels.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
+                            documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                            documentsModels.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                            documentsModels.IsLocked = s.IsLocked;
+                            documentsModels.LockedByUserId = s.LockedByUserId;
+                            documentsModels.LockedDate = s.LockedDate;
+                            documentsModels.IsNewPath = s.IsNewPath;
+                            documentsModels.AddedByUserID = s.AddedByUserId;
+                            documentsModels.IsCompressed = s.IsCompressed;
+                            documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
+                            documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;
+                            documentsModels.IsEnableCreateTask = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsEnableCreateTask;
+                            documentsModels.CloseDocumentId = s.CloseDocumentId;
+                            documentsModels.CssClass = s.CloseDocumentId != null && s.CloseDocumentId == 2561 ? "blue-grey lighten - 3" : "transparent";
+                            documentsModels.ProfileNo = s.ProfileNo;
+                            documentsModels.FilePath = s.FilePath;
+                            documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
+                            documentsModels.IsExpiryDate = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsExpiryDate;
+                            var description = linkfileProfileTypes?.Where(f => f.FileProfileTypeId == selectedFileProfileTypeID && f.TransactionSessionId == s.SessionId && f.DocumentId == s.DocumentId).FirstOrDefault()?.Description;
+                            if (description != null)
+                            {
+                                documentsModels.Description = description;
+                            }
+                            else
+                            {
+                                documentsModels.Description = s.Description;
+                            }
+                            documentsModel.Add(documentsModels);
+                            counts++;
+                        });
+                    }
+                    DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());
+                    DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
+                    if (DocumentTypeModel != null)
+                    {
+                        DocumentTypeModel.IsExpiryDate = DocumentTypeModel.DocumentsData.FirstOrDefault()?.IsExpiryDate;
+                        DocumentTypeModel.TotalDocument = DocumentTypeModel.DocumentsData.ToList().Count();
+                        DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
+                    }
+
                 }
                 return DocumentTypeModel;
 

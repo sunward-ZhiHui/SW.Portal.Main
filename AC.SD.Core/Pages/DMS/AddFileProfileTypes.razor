@@ -58,7 +58,7 @@
                     <AddOrEditFileProfileType @ref="refAddOrEditFileProfileType" SessionId="@SessionId" Type="@Type"></AddOrEditFileProfileType>
                 </DxFormLayoutTabPage>
                 <DxFormLayoutTabPage Caption="Security Access" Visible=@IsGrantAdminPermission>
-                    <FileProfileTypeSecurity FileProfileTypeId="@FileProfileTypeId"></FileProfileTypeSecurity>
+                    <FileProfileTypeSecurity fileProfileTypeDocumentsAlls="@fileProfileTypeDocumentsAll" FileProfileTypeId="@FileProfileTypeId"></FileProfileTypeSecurity>
                 </DxFormLayoutTabPage>
                 @* <DxFormLayoutTabPage Caption="Upload Details Form" Visible=@IsFileProfileTypeId>
                 <UploadDetailsSetUpForm FileProfileTypeId="@FileProfileTypeId"></UploadDetailsSetUpForm>

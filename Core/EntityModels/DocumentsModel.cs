@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -236,6 +237,15 @@ namespace Core.EntityModels
         public List<Guid?> SessionIds { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+
+    }
+    public class MultipleFileProfileItemLists
+    {
+        public List<DocumentDmsShare> DocumentDmsShare { get; set; } = new List<DocumentDmsShare>();
+        public List<DynamicFormData> DynamicFormData { get; set; } = new List<DynamicFormData>();
+        public List<ActivityEmailTopics> ActivityEmailTopics { get; set; } = new List<ActivityEmailTopics>();
+        public List<ApplicationUser> ApplicationUser { get; set; } = new List<ApplicationUser>();
+        public List<Fileprofiletype> Fileprofiletype { get; set; } = new List<Fileprofiletype>();
 
     }
 }

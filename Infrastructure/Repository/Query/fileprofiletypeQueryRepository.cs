@@ -306,7 +306,7 @@ namespace Infrastructure.Repository.Query
             try
             {
                 fileProfileTypeId = fileProfileTypeId != null && fileProfileTypeId.Count > 0 ? fileProfileTypeId : new List<long?>() { -1 };
-                var query = "select  * from LinkFileProfileTypeDocument where FileProfileTypeId in(" + string.Join(',', fileProfileTypeId) + ")";
+                var query = "select  LinkFileProfileTypeDocumentId,TransactionSessionId,DocumentId,FileProfileTypeId from LinkFileProfileTypeDocument where FileProfileTypeId in(" + string.Join(',', fileProfileTypeId) + ")";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<LinkFileProfileTypeDocument>(query)).ToList();
@@ -764,6 +764,35 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<MultipleFileProfileItemLists> GetMultipleFileProfileTypeQueryAsync(List<Guid?> SessionIds, List<long?> documentIds, List<long?> userIds)
+        {
+            MultipleFileProfileItemLists multipleProductioAppLineItemLists = new MultipleFileProfileItemLists();
+            try
+            {
+                var lists = string.Join(',', SessionIds.Select(i => $"'{i}'"));
+                var query = "select  DocumentDmsShareId,DocumentId,isDeleted,DocSessionId from DocumentDmsShare where (isDeleted is null or isDeleted=0) AND DocSessionId in(" + lists + ");";
+                query += "select  DynamicFormDataId,DynamicFormId,SessionId from DynamicFormData where SessionId in(" + lists + ");";
+                query += "select  ActivityEmailTopicID,DocumentSessionId from ActivityEmailTopics where DocumentSessionId in(" + lists + ");";
+                userIds = userIds != null && userIds.Count > 0 ? userIds : new List<long?>() { -1 };
+                query += "select UserName,UserId from ApplicationUser where userId in(" + string.Join(',', documentIds) + ");";
+                documentIds = documentIds != null && documentIds.Count > 0 ? documentIds : new List<long?>() { -1 };
+                query += "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId,sessionId,DynamicFormId from FileProfileType where FileProfileTypeId in(" + string.Join(',', documentIds) + ");";
+                using (var connection = CreateConnection())
+                {
+                    var result = await connection.QueryMultipleAsync(query);
+                    multipleProductioAppLineItemLists.DocumentDmsShare = result.Read<DocumentDmsShare>().ToList();
+                    multipleProductioAppLineItemLists.DynamicFormData = result.Read<DynamicFormData>().ToList();
+                    multipleProductioAppLineItemLists.ActivityEmailTopics = result.Read<ActivityEmailTopics>().ToList();
+                    multipleProductioAppLineItemLists.ApplicationUser = result.Read<ApplicationUser>().ToList();
+                    multipleProductioAppLineItemLists.Fileprofiletype = result.Read<Fileprofiletype>().ToList();
+                    return multipleProductioAppLineItemLists;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DocumentTypeModel> GetAllSelectedFileAsync(DocumentSearchModel documentSearchModel)
         {
             DocumentTypeModel DocumentTypeModel = new DocumentTypeModel();
@@ -791,15 +820,10 @@ namespace Infrastructure.Repository.Query
                 {
 
                     var userData = await _localStorageService.GetItem<ApplicationUser>("user");
-                    var appUsers = await GetApplicationUserAsync();
-                    var fileProfileType = await GetFileprofiletypeAsync();
                     var linkfileProfileTypes = await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds);
-                    //var roleItemsList = await GetDocumentUserRoleAsync(documentSearchModel.FileProfileTypeIds);
-                    //var closedocumentPermission = await GetCloseDocumentPermissionAsync(documentSearchModel.FileProfileTypeIds);
                     List<long?> linkfileProfileTypeDocumentids = new List<long?>();
                     linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
                     var parameters = new DynamicParameters();
-                    var documentPermission = await GetDocumentPermissionByRoll();
                     var fileProfileTypeId = documentSearchModel.FileProfileTypeIds != null && documentSearchModel.FileProfileTypeIds.Count > 0 ? documentSearchModel.FileProfileTypeIds : new List<long?>() { -1 };
                     var filterQuery = string.Empty;
                     if (!string.IsNullOrEmpty(documentSearchModel.FileName))
@@ -836,14 +860,19 @@ namespace Infrastructure.Repository.Query
                         var documents = (await connection.QueryAsync<Documents>(query, parameters)).ToList();
                         if (documents != null && documents.Count > 0)
                         {
-                            var sessionIds = documents.Select(a => a.SessionId).ToList();
-                            var docShares = await GeDocumentDmsShareAsync(sessionIds);
-                            var dynamicFormData = await GeDynamicFormDataAsync(sessionIds);
-                            var emailTopics = await GeActivityEmailTopicsAsync(sessionIds);
+                            List<long?> userIds = new List<long?>();
+                            userIds.AddRange(documents.Select(a => a.AddedByUserId).ToList());
+                            userIds.AddRange(documents.Where(a => a.ModifiedByUserId > 0).Select(a => a.ModifiedByUserId).ToList());
+                            userIds.AddRange(documents.Where(a => a.LockedByUserId > 0).Select(a => a.LockedByUserId).ToList());
+                            var sessionIds = documents.Where(a => a.SessionId != null).Select(a => a.SessionId).ToList();
+                            var filterProfileTypeIds = documents.Where(w => w.FilterProfileTypeId > 0).Select(a => a.FilterProfileTypeId).ToList();
+                            var multipleData = await GetMultipleFileProfileTypeQueryAsync(sessionIds, filterProfileTypeIds, userIds);
+                            var docShares = multipleData.DocumentDmsShare;
+                            var dynamicFormData = multipleData.DynamicFormData;
+                            var emailTopics = multipleData.ActivityEmailTopics;
+                            var appUsers = multipleData.ApplicationUser;
+                            var fileProfileType = multipleData.Fileprofiletype;
                             var docIds = documents.Select(a => a.DocumentId).ToList();
-                            // var notes = await GeNotesAsync(docIds);
-                            //var taskMasternotes = await GetTaskMasterAsync(docIds);
-                            // var setAccess = roleItemsList;
                             documents.ForEach(s =>
                             {
                                 var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
@@ -853,8 +882,6 @@ namespace Infrastructure.Repository.Query
                                 var fileName = s.FileName?.Split(name);
                                 DocumentsModel documentsModels = new DocumentsModel();
                                 documentsModels.UniqueNo = counts;
-                                //var setAccessFlag = roleItemsList.Where(a => a.UserId == userData.UserID && a.DocumentId == s.DocumentId).Count();
-                                //documentsModels.NotesCount = notes.Where(a => a.DocumentId == s.DocumentId).Count();
                                 documentsModels.SharesCount = 0;
                                 var sharesCountCount = docShares.Where(a => a.DocSessionId == s.SessionId).Count();
                                 if (sharesCountCount > 0)
@@ -872,7 +899,6 @@ namespace Infrastructure.Repository.Query
                                     documentsModels.IsEmailTopics = isemailTopics > 0 ? true : false;
                                 }
                                 documentsModels.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
-                                //documentsModels.SetAccessFlag = setAccessFlag > 0 ? true : false;
                                 documentsModels.SessionId = s.SessionId;
                                 documentsModels.DocumentID = s.DocumentId;
                                 documentsModels.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
@@ -904,7 +930,6 @@ namespace Infrastructure.Repository.Query
                                 documentsModels.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
                                 documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
                                 documentsModels.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
-                                //documentsModels.AddedByUser = s.ModifiedByUserId == null ? appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName : appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
                                 documentsModels.IsLocked = s.IsLocked;
                                 documentsModels.LockedByUserId = s.LockedByUserId;
                                 documentsModels.LockedDate = s.LockedDate;

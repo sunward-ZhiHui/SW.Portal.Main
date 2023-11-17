@@ -22,6 +22,11 @@ namespace Infrastructure.Repository.Query
         {
 
         }
+        private string QueryString()
+        {
+            var query = "SELECT concat(emp.FirstName,',',emp.LastName) as Name, emp.EmployeeID, emp.UserID, emp.SageID,emp.PlantID, emp.LevelID, emp.LanguageID, emp.CityID, emp.RegionID, emp.ReportID,\r\nemp.FirstName, emp.NickName, emp.LastName, emp.Gender, emp.JobTitle, emp.Email, u.LoginID, u.LoginPassword,u.UserCode,\r\nemp.TypeOfEmployeement, emp.Signature, emp.ImageUrl, emp.DateOfEmployeement,emp.LastWorkingDate, emp.Extension, emp.SpeedDial, emp.SkypeAddress, emp.Mobile,\r\nemp.IsActive, emp.SectionID,  emp.DivisionID,emp.DesignationId, emp.DepartmentId, emp.SubSectionId, emp.SubSectionTid, u.StatusCodeID,\r\n emp.AddedByUserId, emp.ModifiedByUserId,emp.AddedDate, emp.ModifiedDate, emp.AcceptanceStatus, emp.ExpectedJoiningDate, emp.AcceptanceStatusDate, emp.HeadCount,\r\na.UserName as AddedByUser,\r\nmo.UserName as ModifiedByUser,\r\nag.Value as Status,\r\nu.SessionID,\r\nu.InvalidAttempts,\r\nu.Locked\r\nFROM Employee emp\r\nLEFT JOIN ApplicationUser u ON u.userId = emp.userId\r\nLEFT JOIN ApplicationUser a ON a.UserId = emp.AddedByUserID\r\nLEFT JOIN ApplicationUser mo ON mo.UserId = emp.ModifiedByUserID\r\nLEFT JOIN ApplicationMasterDetail ag ON ag.ApplicationMasterDetailID = emp.AcceptanceStatus\r\nWHERE ag.Value!='Resign' or ag.Value is null";
+            return query;
+        }
         public async Task<IReadOnlyList<ViewEmployee>> GetAllByStatusAsync()
         {
             try
@@ -43,7 +48,7 @@ namespace Infrastructure.Repository.Query
             List<ViewEmployee> ViewEmployees = new List<ViewEmployee>();
             try
             {
-                var query = "select  * from view_GetEmployee where Status!='Resign' or Status is null";
+                var query = QueryString();
 
                 using (var connection = CreateConnection())
                 {
@@ -76,7 +81,7 @@ namespace Infrastructure.Repository.Query
             List<ViewEmployee> ViewEmployees = new List<ViewEmployee>();
             try
             {
-                var query = "select  * from view_GetEmployee where Status!='Resign' or Status is null";
+                var query = QueryString();
 
                 using (var connection = CreateConnection())
                 {
@@ -142,7 +147,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select  * from View_Employee where UserID=@UserID";
+                var query = QueryString() + " AND emp.UserID = @UserID";
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", UserID);
                 using (var connection = CreateConnection())

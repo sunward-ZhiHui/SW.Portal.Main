@@ -156,7 +156,7 @@ namespace Infrastructure.Repository.Query
                 var appUsers = await GetApplicationUserAsync();
                 var query = string.Empty;
 
-                query = @"select t1.* from Documents t1 where t1.IsLatest=1 AND (t1.IsDelete=0 or IsDelete is null) AND SessionID in(select  SessionID from ProductionActivityAppLineDoc where ProductionActivityAppLineID=@ProductionActivityAppLineId)";
+                query = @"" + DocumentQueryString() + " where IsLatest=1 AND (IsDelete=0 or IsDelete is null) AND SessionID in(select  SessionID from ProductionActivityAppLineDoc where ProductionActivityAppLineID=@ProductionActivityAppLineId)";
                 using (var connection = CreateConnection())
                 {
                     var result = (await connection.QueryAsync<DocumentsModel>(query, parameters)).ToList();

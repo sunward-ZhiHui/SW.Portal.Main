@@ -60,7 +60,7 @@ namespace Core.Entities
 
         [NotMapped]
         [Required(ErrorMessage = "Please Select To.")]
-        public IEnumerable<long>? ToIds { get; set; }
+        public IEnumerable<long>? ToIds { get; set; } = null;
         [NotMapped]
         public IEnumerable<long> CCIds { get; set; }
         [NotMapped]

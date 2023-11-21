@@ -2828,11 +2828,11 @@
 
         if(lst != null)
         {
-             //var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
+            //var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
             var url = DocumentViewUrl + "?url=" + lst.UniqueSessionId;
             await OpenDocumentPreview(url);
         }
-       
+
     }
     public async Task onDocDownload_old(long Id)
     {
@@ -3199,10 +3199,14 @@
 
         _headTopic = await Mediator.Send(new GetByIdEmailTopics(RTopicId));
 
-        _headTopic[0].TopicName = ConversationList[0].Name;
-        _headTopic[0].AddedDate = ConversationList[0].AddedDate;
+        if(_headTopic.Count > 0)
+        {
+            _headTopic[0].TopicName = ConversationList[0].Name;
+            _headTopic[0].AddedDate = ConversationList[0].AddedDate;
+            isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+        }
 
-        isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
+       
 
         isEnabled = true;
         isTodoEnabled = true;
@@ -3300,7 +3304,7 @@
         await document.ChangeDefaultCharacterPropertiesAsync(properties =>
         {
             // properties.FontName = "Times New Roman";
-            properties.FontSize = 14;
+            properties.FontSize = 12;
         });
     }
     private void OnWindowDragCompleted()
@@ -3699,7 +3703,7 @@
         newSubjectreply = 1;
 
          StateHasChanged(); // Force a UI update
-        await Task.Delay(2700);
+        //await Task.Delay(2700);
         await onRichTxtChangeFontsize(); // Call your other function here
     }
     async void onBackFileProfileType(string url)
@@ -3905,7 +3909,7 @@
             IsReadOnly = false;
 
             StateHasChanged(); // Force a UI update
-            await Task.Delay(2700);
+            //await Task.Delay(2700);
             await onRichTxtChangeFontsize(); // Call your other function here
 
         }        

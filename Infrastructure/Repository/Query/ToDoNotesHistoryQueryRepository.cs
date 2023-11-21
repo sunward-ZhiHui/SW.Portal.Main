@@ -76,6 +76,31 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
+        public async Task<List<ToDoNotesHistory>> GetMyToDoAsync(long UserId)
+        {
+            try
+            {
+
+                var query = @"SELECT TD.Notes as NoteName, TNH.*,AP.UserName as AssignTo FROM ToDoNotesHistory TNH                               
+                                LEFT JOIN ApplicationUser AP ON AP.UserID = TNH.Users
+                                INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId  
+                                WHERE TNH.AddedByUserID = @UserId AND TNH.TopicId = 0 AND TNH.Status = 'Open'                                   
+                                ORDER BY TD.Notes,TNH.DueDate";
+              
+                var parameters = new DynamicParameters();
+                parameters.Add("UserId", UserId);
+                using (var connection = CreateConnection())
+                {
+                    var res = connection.Query<ToDoNotesHistory>(query, parameters).ToList();
+                    return res;
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<ToDoNotesHistory>> GetTodoRemainderAsync(long UserId)
         {
             try
@@ -95,7 +120,7 @@ namespace Infrastructure.Repository.Query
                                     OR
                                     CAST(TNH.DueDate AS DATE) BETWEEN CAST(GETDATE() AS DATE) AND DATEADD(DAY, 7, CAST(GETDATE() AS DATE))
                                     )
-                                ORDER BY TNH.DueDate;";
+                                ORDER BY TNH.DueDate";
                 // var query = "SELECT * FROM ToDoNotesHistory WHERE AddedByUserID = @UserId AND TopicId IS NOT NULL AND CAST(RemainDate AS DATE) = CAST(GETDATE() AS DATE)";
                 //var query = @"SELECT TNH.*,EC.Name AS SubjectName FROM ToDoNotesHistory TNH
                 //                INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId 
@@ -372,28 +397,20 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
 
-                    
-                    
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ID", ID);
 
-                        try
-                        {
-                            var parameters = new DynamicParameters();
-                            parameters.Add("ID", ID);
-
-                            var query = "update TodoNotesHistory Set Status = 'close' Where ID =@ID";
-
-
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
-
+                        var query = "update TodoNotesHistory Set Status = 'close' Where ID =@ID";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
                             
-
-                            return rowsAffected;
-                        }
-                        catch (Exception exp)
-                        {
-                            
-                            throw new Exception(exp.Message, exp);
-                        }
+                        throw new Exception(exp.Message, exp);
+                    }
                     
                 }
 

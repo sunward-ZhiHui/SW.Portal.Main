@@ -3697,13 +3697,13 @@
         Data.From = applicationUser.UserName;
         ElementHeight = await JSRuntime.InvokeAsync<int>("getElementHeight", selector);
         Data.DueDate = null;
-        Data.IsAllowParticipants = false;
+        Data.IsAllowParticipants = true;
         Data.Urgent = false;
         Data.NotifyUser = false;
         newSubjectreply = 1;
 
          StateHasChanged(); // Force a UI update
-        //await Task.Delay(2700);
+        await Task.Delay(2700);
         await onRichTxtChangeFontsize(); // Call your other function here
     }
     async void onBackFileProfileType(string url)
@@ -3909,7 +3909,7 @@
             IsReadOnly = false;
 
             StateHasChanged(); // Force a UI update
-            //await Task.Delay(2700);
+            await Task.Delay(2700);
             await onRichTxtChangeFontsize(); // Call your other function here
 
         }        

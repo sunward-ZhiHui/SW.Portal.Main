@@ -393,6 +393,57 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<ActivityEmailTopicsModel> InserProductionActivityEmail(ActivityEmailTopicsModel value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ActivityMasterId", value.ActivityMasterId);
+                        parameters.Add("CategoryActionId", value.CategoryActionId);
+                        parameters.Add("ActionId", value.ActionId);
+                        parameters.Add("ActivityType", value.ActivityType, DbType.String);
+                        parameters.Add("SubjectName", value.SubjectName);
+                        parameters.Add("FromId", value.FromId);
+                        parameters.Add("ToIds", value.ToId!=null && value.ToId.Count()>0? string.Join(',', value.ToId) : "");
+                        parameters.Add("CcIds", value.CcId != null && value.CcId.Count() > 0 ? string.Join(',', value.CcId) : "");
+                        parameters.Add("ManufacturingProcessId", value.ManufacturingProcessId);
+                        parameters.Add("AddedByUserID", value.AddedByUserID);
+                        parameters.Add("AddedDate", value.AddedDate, DbType.DateTime);
+                        parameters.Add("StatusCodeId", value.StatusCodeId);
+                        parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                        parameters.Add("DocumentSessionId", value.DocumentSessionId, DbType.Guid);
+                        parameters.Add("Comment", value.Comment, DbType.String);
+                        parameters.Add("BackURL", value.BackURL, DbType.String);
+                        parameters.Add("IsDraft", value.IsDraft);
+                        parameters.Add("ModifiedByUserId", value.ModifiedByUserId);
+                        parameters.Add("ModifiedDate", value.ModifiedDate, DbType.DateTime);
+                        var query = @"INSERT INTO ActivityEmailTopics(ActivityMasterId,CategoryActionId,ActionId,ActivityType,SubjectName,FromId,ToIds,CcIds,ManufacturingProcessId,AddedByUserID,AddedDate,StatusCodeId,SessionId,DocumentSessionId,Comment,IsDraft,BackURL,ModifiedByUserId,ModifiedDate) 
+				                       OUTPUT INSERTED.ActivityEmailTopicID 
+				                       VALUES (@ActivityMasterId,@CategoryActionId,@ActionId,@ActivityType,@SubjectName,@FromId,@ToIds,@CcIds,@ManufacturingProcessId,@AddedByUserID,@AddedDate,@StatusCodeId,@SessionId,@DocumentSessionId,@Comment,@IsDraft,@BackURL,@ModifiedByUserId,@ModifiedDate)";
+                        value.ActivityEmailTopicID = await connection.ExecuteScalarAsync<long>(query, parameters);
+
+
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
 
     }
 }

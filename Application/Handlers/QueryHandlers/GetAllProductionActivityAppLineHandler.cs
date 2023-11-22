@@ -21,11 +21,11 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<ProductActivityAppModel>> Handle(GetAllProductionActivityAppLineQuery request, CancellationToken cancellationToken)
         {
-            return (List<ProductActivityAppModel>)await _productionactivityQueryRepository.GetAllAsync(request.CompanyID,request.ProdorderNo,request.UserId,request.LocationID);
+            return (List<ProductActivityAppModel>)await _productionactivityQueryRepository.GetAllAsync(request.ProductionActivityModel);
         }
 
     }
-   
+
     public class GetAllProductionActivitylocHandler : IRequestHandler<GetAllProductionActivitylocQuery, List<ProductionActivityApp>>
     {
         private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
@@ -96,7 +96,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<ProductionActivityNonComplianceModel> Handle(GetProductionActivityNonCompliance request, CancellationToken cancellationToken)
         {
-            return await _productionactivityQueryRepository.GetProductionActivityNonComplianceAsync(request.Type,request.Id,request.ActionType);
+            return await _productionactivityQueryRepository.GetProductionActivityNonComplianceAsync(request.Type, request.Id, request.ActionType);
         }
     }
     public class InsertProductionActivityNonComplianceHandler : IRequestHandler<InsertProductionActivityNonCompliance, ProductionActivityNonComplianceModel>
@@ -121,6 +121,30 @@ namespace Application.Handlers.QueryHandlers
         public async Task<ProductionActivityNonComplianceUserModel> Handle(DeleteProductionActivityNonCompliance request, CancellationToken cancellationToken)
         {
             return await _productionactivityQueryRepository.DeleteProductionActivityNonCompliance(request.ProductionActivityNonComplianceUserModel);
+        }
+    }
+    public class UpdateActivityMasterHandler : IRequestHandler<UpdateActivityMaster, ProductActivityAppModel>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public UpdateActivityMasterHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductActivityAppModel> Handle(UpdateActivityMaster request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.UpdateActivityMaster(request.ProductActivityAppModel);
+        }
+    }
+    public class UpdateActivityStatusHandler : IRequestHandler<UpdateActivityStatus, ProductActivityAppModel>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public UpdateActivityStatusHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductActivityAppModel> Handle(UpdateActivityStatus request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.UpdateActivityStatus(request.ProductActivityAppModel);
         }
     }
 }

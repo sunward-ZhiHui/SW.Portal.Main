@@ -105,5 +105,18 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class InserProductionActivityEmailHandler : IRequestHandler<InserProductionActivityEmail, ActivityEmailTopicsModel>
+    {
+        private readonly IProductionActivityAppQueryRepository _productionactivityappQueryRepository;
+        public InserProductionActivityEmailHandler(IProductionActivityAppQueryRepository productionactivityappQueryRepository)
+        {
+            _productionactivityappQueryRepository = productionactivityappQueryRepository;
+        }
+        public async Task<ActivityEmailTopicsModel> Handle(InserProductionActivityEmail request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityappQueryRepository.InserProductionActivityEmail(request.ActivityEmailTopicsModel);
+        }
+
+    }
 }
 

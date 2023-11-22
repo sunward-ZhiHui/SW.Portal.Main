@@ -776,7 +776,7 @@
                                                                                       ValueFieldName="UserID"
                                                                                       TextFieldName="Name"                                                                                      
                                                                                       ListRenderMode="ListRenderMode.Virtual"                                                                                      
-                                                                                      EditFormat="{0}-{1}"
+                                                                                      
                                                                                       @bind-Values="@Data.AssigntoIds"
                                                                                       SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
                                                                                       CssClass="cw-480">
@@ -795,7 +795,7 @@
                                                                                       SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedCCItemsChanged(values))"
                                                                                       ListRenderMode="ListRenderMode.Virtual"
                                                                                       @bind-Values="@Data.AssignccIds"
-                                                                                      EditFormat="{0}-{1}"
+                                                                                      
                                                                                       CssClass="cw-480">
                                                                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
                                                                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
@@ -3150,8 +3150,10 @@
         Tid = RTopicId;
         _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
-
-        IsValidUser = (_discussionList[0].AddedByUserID == applicationUser.UserID || _discussionList[0].OnBehalf == applicationUser.UserID) ? true : false;
+        if(_discussionList.Count > 0)
+        {
+            IsValidUser = (_discussionList[0].AddedByUserID == applicationUser.UserID || _discussionList[0].OnBehalf == applicationUser.UserID) ? true : false;
+        }        
 
         _assigntoItems = await Mediator.Send(new GetEmailAssignToList(RTopicId));        
         var topicToList = await Mediator.Send(new GetEmailTopicToList(RTopicId));

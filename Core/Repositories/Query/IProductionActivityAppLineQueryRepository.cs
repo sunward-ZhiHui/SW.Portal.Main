@@ -11,7 +11,7 @@ namespace Core.Repositories.Query
 {
     public interface IProductionActivityQueryRepository : IQueryRepository<ProductionActivityAppLine>
     {
-        Task<IReadOnlyList<ProductActivityAppModel>> GetAllAsync(long? CompanyID, string? prodorderNo, long? userId, long? locationID);
+        Task<IReadOnlyList<ProductActivityAppModel>> GetAllAsync(ProductActivityAppModel productActivityAppModel);
         Task<IReadOnlyList<ProductionActivityApp>>GetAlllocAsync(long? location);
         Task<ProductActivityAppModel> GetProductActivityAppLineOneItem(long? ProductionActivityAppLineID);
         Task<ProductActivityAppModel> UpdateproductActivityAppLineCommentField(ProductActivityAppModel productActivityAppModel);
@@ -20,6 +20,8 @@ namespace Core.Repositories.Query
         Task<ProductionActivityNonComplianceModel> GetProductionActivityNonComplianceAsync(string type, long? id, string actionType);
         Task<ProductionActivityNonComplianceModel> InsertProductionActivityNonCompliance(ProductionActivityNonComplianceModel value);
         Task<ProductionActivityNonComplianceUserModel> DeleteProductionActivityNonCompliance(ProductionActivityNonComplianceUserModel value);
+        Task<ProductActivityAppModel> UpdateActivityMaster(ProductActivityAppModel value);
+        Task<ProductActivityAppModel> UpdateActivityStatus(ProductActivityAppModel value);
 
     }
 }

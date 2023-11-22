@@ -41,22 +41,23 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,*,Name as Filename,\r\n" +
-                    "FileProfileTypeID as DocumentID,\r\n" +
-                    "AddedBy as AddedByUser,\r\n" +
-                    "ModifiedBy as ModifiedByUser,\r\n" +
-                    "ModifiedDate,\r\n" +
-                    "AddedDate,\r\n" +
-                    "Profile as ProfileNo,\r\n" +
-                    "CONCAT('>',Name) as BreadcumName,\r\n" +
-                    //"CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n" +
-                    //"CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\n" +
-                    "CONCAT((select count(FileProfileTypeID) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\n" +
-                    "CONCAT((Select COUNT(DocumentID) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\n" +
-                    "AND IsLatest=1  \r\n" +
-                    "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\n" +
-                    "OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n" +
-                    "from view_FileProfileTypeDocument t2";
+                /* var query = "select ROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,*,Name as Filename,\r\n" +
+                     "FileProfileTypeID as DocumentID,\r\n" +
+                     "AddedBy as AddedByUser,\r\n" +
+                     "ModifiedBy as ModifiedByUser,\r\n" +
+                     "ModifiedDate,\r\n" +
+                     "AddedDate,\r\n" +
+                     "Profile as ProfileNo,\r\n" +
+                     "CONCAT('>',Name) as BreadcumName,\r\n" +
+                     //"CASE WHEN ModifiedByUserID >0 THEN ModifiedBy ELSE AddedBy END AS AddedByUser,\r\n" +
+                     //"CASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate,\r\n" +
+                     "CONCAT((select count(FileProfileTypeID) as counts from FileProfileType tt where tt.parentId=t2.FileProfileTypeID),' ','items') as FileSizes,\r\n" +
+                     "CONCAT((Select COUNT(DocumentID) as DocCount from Documents where FilterProfileTypeId=t2.FileProfileTypeID\r\n" +
+                     "AND IsLatest=1  \r\n" +
+                     "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\n" +
+                     "OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n" +
+                     "from view_FileProfileTypeDocument t2";*/
+                var query = "select \r\n Name,\r\nCASE WHEN  IsExpiryDate IS NULL THEN 0 ELSE  IsExpiryDate END AS IsExpiryDate,\r\n IsExpiryDate as IsExpiryDates,\r\n ProfileID,\r\n FileProfileTypeID,\r\n StatusCodeID,\r\n AddedByUserID,\r\n AddedDate,\r\n Description,\r\n ModifiedByUserID,\r\n ModifiedDate,\r\n ParentID,\r\n SessionID,\r\n IsDelete,\r\n DeleteByUserID,\r\n DeleteByDate,\r\n DynamicFormID,\r\nROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename, \r\nFileProfileTypeID as DocumentID, \r\nModifiedDate, \r\nAddedDate, \r\nCONCAT('>',Name) as BreadcumName, \r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate\r\nfrom FileProfileType";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DocumentsModel>(query)).ToList();

@@ -67,5 +67,13 @@ namespace Application.Queries
             this.ProductionActivityPlanningAppLineID = productionActivityPlanningAppLineID;
         }
     }
+    public class InserProductionActivityEmail : ActivityEmailTopicsModel, IRequest<ActivityEmailTopicsModel>
+    {
+        public ActivityEmailTopicsModel ActivityEmailTopicsModel { get; set; }
+        public InserProductionActivityEmail(ActivityEmailTopicsModel activityEmailTopicsModel)
+        {
+            this.ActivityEmailTopicsModel = activityEmailTopicsModel;
+        }
+    }
 
 }

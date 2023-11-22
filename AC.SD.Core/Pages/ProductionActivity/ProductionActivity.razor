@@ -1,4 +1,4 @@
-﻿@page "/ProductionActivitys"
+﻿@page "/ProductionActivity/ProductionActivity"
 @using Application.Queries;
 @using MediatR;
 @using global::Core.Entities;
@@ -127,7 +127,7 @@
                                                             <DxMenuItem Text="View File" Click="onView" IconCssClass="fa fa-eye" Visible="viewEnabled" />
                                                             <DxMenuItem Text="Notify" IconCssClass="fa fa-bell" Visible="NotifyEnabled" />
                                                             <DxMenuItem Text="Copy Link" Click="onCopy" IconCssClass="fa fa-link" Visible="CopyLinkEnabled" />
-                                                            <DxMenuItem Text="Mail" IconCssClass="fa fa-envelope" Visible="MailEnabled" />
+                                                            <DxMenuItem Text="Mail" IconCssClass="fa fa-envelope" Click="onEmailOpen" Visible="MailEnabled" />
                                                             <DxMenuItem Text="Supporting Documents" Click="onSupportingDocuments" IconCssClass="fa fa-adjust" Visible="SupportDocEnabled" />
                                                             <DxMenuItem Text="Non compliance" Click="@(_ => onOperators("NonCompliance","Non-Compliance"))" IconCssClass="fa fa-gavel" Visible="NonComplianceEnabled" />
                                                             <DxMenuItem Text="Operator" Click="@(_ => onOperators("RestrictOperator","Operator"))" IconCssClass="fa fa-tasks" Visible="OperatorEnabled" />
@@ -399,7 +399,22 @@
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@ActivityEmailPopup"
+         ShowFooter="false"
+         HeaderText="Activity Email"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         CloseOnEscape="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <ActivityEmails selectedFiles="@_selectedItems" applicationUser="@applicationUser" RevokeBack="CloseHistoryPopup"></ActivityEmails>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool ActivityEmailPopup { get; set; } = false;
     bool OperatorsPopup { get; set; } = false;
     bool BlukdeleteDocument { get; set; } = false;
     public string DeleteDocumentName { get; set; }
@@ -458,6 +473,7 @@
     public bool SupportDocEnabled { get; set; } = false;
     public bool NonComplianceEnabled { get; set; } = false;
     public bool OperatorEnabled { get; set; } = false;
+    ProductActivityAppModel FilterData = new ProductActivityAppModel();
     protected override async Task OnInitializedAsync()
     {
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
@@ -487,11 +503,16 @@
         NonComplianceEnabled = false; OperatorEnabled = false;
         _AppLines = new List<ProductActivityAppModel>(); _poOrderDetails = new List<NavprodOrderLineModel>();
         PanelVisible = true; ActiveTabIndex = 0; uploadEnabled = false;
+        FilterData = new ProductActivityAppModel();
         if (CompanyID > 0 && !string.IsNullOrEmpty(NAVProdOrderno))
         {
-            _AppLines = await Mediator.Send(new GetAllProductionActivityAppLineQuery(CompanyID, NAVProdOrderno, applicationUser.UserID, LocationID));
+            FilterData.CompanyId = CompanyID;
+            FilterData.ProdOrderNo = NAVProdOrderno;
+            FilterData.AddedByUserID = applicationUser.UserID;
+            FilterData.LocationId = LocationID;
+            _AppLines = await Mediator.Send(new GetAllProductionActivityAppLineQuery(FilterData));
             _poOrderDetails = await Mediator.Send(new GetAllNavprodOrderLine(CompanyID, NAVProdOrderno));
-            if (_AppLines != null && _AppLines.Count() > 0)
+            if (_AppLines.Count() > 0)
             {
                 _selectedItems = _AppLines.FirstOrDefault();
                 isVisibleMore = "";
@@ -517,6 +538,7 @@
             }
             PanelVisible = false;
         }
+        PanelVisible = false;
         StateHasChanged();
     }
     async Task permissinSetMainProfile()
@@ -602,7 +624,7 @@
                                 }
                                 if (_selectedItems.DocumentID > 0)
                                 {
-                                    
+
                                     if (documentPermissionModels.IsEdit == true)
                                     {
                                         DownloadEnabled = true;
@@ -967,6 +989,7 @@
     }
     void CloseHistoryPopup()
     {
+        ActivityEmailPopup = false;
         PopupVisible = false;
         SupportingDocumentsPopup = false;
         OperatorsPopup = false;
@@ -1016,6 +1039,10 @@
     {
         OperatorsPopup = false;
         StateHasChanged();
+    }
+    void onEmailOpen()
+    {
+        ActivityEmailPopup = true;
     }
 }
 

@@ -68,35 +68,35 @@ namespace Core.EntityModels
         public string? ManufacturingProcessChild { get; set; }
         public string? ProdActivityCategoryChild { get; set; }
         public string? ProdActivityActionChild { get; set; }
-        public DocumentPermissionModel DocumentPermissionData { get; set; }
-        public ProductActivityPermissionModel ProductActivityPermissionData { get; set; }
+        public DocumentPermissionModel DocumentPermissionData { get; set; } = new DocumentPermissionModel();
+        public ProductActivityPermissionModel ProductActivityPermissionData { get; set; } = new ProductActivityPermissionModel();
 
-        public List<ProductActivityPermissionModel> ProductActivityPermissions { get; set; }
+        public List<ProductActivityPermissionModel> ProductActivityPermissions { get; set; } = new List<ProductActivityPermissionModel>();
         public string? ProdOrderNoDesc { get; set; }
-        public string Type { get; set; }
+        public string? Type { get; set; }
         public long? QaCheckUserId { get; set; }
         public DateTime? QaCheckDate { get; set; }
-        public string QaCheckUser { get; set; }
-        public string FilePath { get; set; }
+        public string? QaCheckUser { get; set; }
+        public string? FilePath { get; set; }
         public Guid? UniqueSessionId { get; set; }
         public bool? IsNewPath { get; set; }
-        public string LocationName { get; set; }
-        public List<ProductionActivityAppLineQaCheckerModel> ProductionActivityAppLineQaCheckerModels { get; set; }
+        public string? LocationName { get; set; }
+        public List<ProductionActivityAppLineQaCheckerModel> ProductionActivityAppLineQaCheckerModels { get; set; } = new List<ProductionActivityAppLineQaCheckerModel>();
         public long? LocationId { get; set; }
         public int? SupportDocCount { get; set; }
         public long? ProductActivityCaseId { get; set; }
-        public List<long> ResponsibilityUsers { get; set; }
+        public List<long> ResponsibilityUsers { get; set; } = new List<long>();
         public long? RoutineStatusId { get; set; }
 
-        public List<long?> RoutineInfoIds { get; set; }
-        public IEnumerable<long?> ActivityMasterIds { get; set; }
-        public string ActivityMaster { get; set; }
-        public string ActivityResult { get; set; }
-        public string ActivityStatus { get; set; }
+        public List<long?> RoutineInfoIds { get; set; } = new List<long?>();
+        public IEnumerable<long?> ActivityMasterIds { get; set; } = new List<long?>();
+        public string? ActivityMaster { get; set; }
+        public string? ActivityResult { get; set; }
+        public string? ActivityStatus { get; set; }
         public long? ActivityMasterId { get; set; }
         public long? ActivityStatusId { get; set; }
-        public byte[] CommentImage { get; set; }
-        public string CommentImageType { get; set; }
+        public byte[]? CommentImage { get; set; }
+        public string? CommentImageType { get; set; }
         public bool? IsEmailCreated { get; set; } = false;
         public bool? IsActionPermission { get; set; } = true;
         public string? NoAction { get; set; }
@@ -113,5 +113,13 @@ namespace Core.EntityModels
         public List<Documents> Documents { get; set; } = new List<Documents>();
         public List<ApplicationUser> ApplicationUser { get; set; } = new List<ApplicationUser>();
         public List<NavprodOrderLine> NavprodOrderLine { get; set; } = new List<NavprodOrderLine>();
+        public List<CodeMaster> CodeMaster { get; set; } = new List<CodeMaster>();
+        public List<ApplicationMasterChild> ApplicationMasterChild { get; set; } = new List<ApplicationMasterChild>();
+        public List<ApplicationMasterDetail> ApplicationMasterDetail { get; set; } = new List<ApplicationMasterDetail>();
+        public List<ActivityEmailTopicsModel> ActivityEmailTopics { get; set; } = new List<ActivityEmailTopicsModel>();
+        public List<ProductActivityPermissionModel> ProductActivityPermission { get; set; } = new List<ProductActivityPermissionModel>();
+        public List<ProductActivityCaseCategoryMultiple> ProductActivityCaseCategoryMultiple { get; set; } = new List<ProductActivityCaseCategoryMultiple>();
+        public List<ProductActivityCaseActionMultiple> ProductActivityCaseActionMultiple { get; set; } = new List<ProductActivityCaseActionMultiple>();
+        public List<ProductActivityCase> ProductActivityCase { get; set; } = new List<ProductActivityCase>();
     }
 }

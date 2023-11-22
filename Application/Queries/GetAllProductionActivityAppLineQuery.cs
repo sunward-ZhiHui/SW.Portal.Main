@@ -11,23 +11,18 @@ using System.Threading.Tasks;
 
 namespace Application.Queries
 {
-   
-     public class GetAllProductionActivityAppLineQuery : PagedRequest, IRequest<List<ProductActivityAppModel>>
+
+    public class GetAllProductionActivityAppLineQuery : PagedRequest, IRequest<List<ProductActivityAppModel>>
     {
-        public long? CompanyID { get; set; }
-        public string? ProdorderNo { get; set; }
-        public long? LocationID { get; set; }
-        public long? UserId { get; set; }
-        public GetAllProductionActivityAppLineQuery(long? CompanyID, string? prodorderNo, long? userId, long? locationID)
+        public ProductActivityAppModel? ProductionActivityModel { get; set; }
+        
+        public GetAllProductionActivityAppLineQuery(ProductActivityAppModel productionActivityModel)
         {
-            this.CompanyID = CompanyID;
-            this.ProdorderNo = prodorderNo;
-            this.LocationID = locationID;
-            this.UserId = userId;
+            this.ProductionActivityModel = productionActivityModel;
         }
     }
 
-  
+
     public class GetAllProductionActivitylocQuery : PagedRequest, IRequest<List<ProductionActivityApp>>
     {
         public long? ProductionActivityAppID { get; set; }
@@ -77,7 +72,7 @@ namespace Application.Queries
             this.ProductionActivityNonComplianceUserModel = productionActivityNonComplianceUserModel;
         }
     }
-    
+
     public class GetProductionActivityNonCompliance : PagedRequest, IRequest<ProductionActivityNonComplianceModel>
     {
         public long? Id { get; set; }
@@ -96,6 +91,24 @@ namespace Application.Queries
         public InsertProductionActivityNonCompliance(ProductionActivityNonComplianceModel productionActivityNonComplianceModel)
         {
             this.ProductionActivityNonComplianceModel = productionActivityNonComplianceModel;
+        }
+    }
+    public class UpdateActivityMaster : PagedRequest, IRequest<ProductActivityAppModel>
+    {
+        public ProductActivityAppModel ProductActivityAppModel { get; private set; }
+        public UpdateActivityMaster(ProductActivityAppModel productActivityAppModel)
+        {
+            this.ProductActivityAppModel = productActivityAppModel;
+
+        }
+    }
+    public class UpdateActivityStatus : PagedRequest, IRequest<ProductActivityAppModel>
+    {
+        public ProductActivityAppModel ProductActivityAppModel { get; private set; }
+        public UpdateActivityStatus(ProductActivityAppModel productActivityAppModel)
+        {
+            this.ProductActivityAppModel = productActivityAppModel;
+
         }
     }
 }

@@ -106,7 +106,7 @@ namespace Infrastructure.Repository.Query
                 query += "select ApplicationMasterChildID,value from ApplicationMasterChild where ApplicationMasterChildID in(" + string.Join(',', masterChildIds) + ");";
                 masterDetaildChildIds = masterDetaildChildIds != null && masterDetaildChildIds.Count > 0 ? masterDetaildChildIds : new List<long?>() { -1 };
                 query += "select ApplicationMasterDetailID,value from ApplicationMasterDetail where ApplicationMasterDetailID in(" + string.Join(',', masterDetaildChildIds) + ");";
-                query += "select ActivityEmailTopicID,ActivityType,EmailTopicSessionId from ActivityEmailTopics where documentsessionid is not null AND ActivityType='productionactivity' AND ActivityMasterId in(" + string.Join(',', ProductionActivityAppLineIds) + ");";
+                query += "select ActivityEmailTopicID,ActivityType,EmailTopicSessionId,ActivityMasterId from ActivityEmailTopics where documentsessionid is not null AND ActivityType='productionactivity' AND ActivityMasterId in(" + string.Join(',', ProductionActivityAppLineIds) + ");";
                 query += "select * from ProductActivityPermission;";
                 query += "select * from ProductActivityCaseCategoryMultiple;";
                 query += "select * from ProductActivityCaseActionMultiple;";
@@ -346,7 +346,7 @@ namespace Infrastructure.Repository.Query
                                         responsibilityUsers.AddRange(empIds);
 
                                     }
-                                    var selectPermissiondata = productActivityPermissionList.Where(p => productActivityCaseResponsDutyIds.Contains(p.ProductActivityCaseResponsDutyId.Value)).ToList();
+                                    var selectPermissiondata = productActivityPermissionList.Where(p => p.UserID==userId && productActivityCaseResponsDutyIds.Contains(p.ProductActivityCaseResponsDutyId.Value)).ToList();
                                     // ProductActivityPermissions
 
                                     if (selectPermissiondata != null && selectPermissiondata.Count > 0)
@@ -484,6 +484,7 @@ namespace Infrastructure.Repository.Query
 
                                     if (d.ProductActivityPermissionId > 0)
                                     {
+                                        productActivityApp.IsActionPermission = true;
                                         if (userId == d.UserID)
                                         {
                                             productActivityApp.ProductActivityPermissionData.IsChecker = d.IsChecker;

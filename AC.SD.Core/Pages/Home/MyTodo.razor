@@ -1,0 +1,279 @@
+﻿@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using System.IO;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject NavigationManager NavigationManager
+
+<DxGrid Data="_MyToDoList" @ref = "Grid"        
+        ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+        VirtualScrollingEnabled="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+        KeyFieldName="ID"
+        CustomizeElement="Grid_CustomizeElement"
+        PagerNavigationMode="PagerNavigationMode.InputBox"
+        ValidationEnabled="true"        
+        style="height: calc(100vh - 285px);"
+        CssClass="ch-360"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorAllRowsItemVisible="true"
+        PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+        PageSize="20"
+        RowClick="OnRowClick"
+        RowDoubleClick="OnRowDoubleClick"
+        ColumnResizeMode="GridColumnResizeMode.NextColumn"
+        AllowSelectRowByClick="true">
+    <Columns>
+        @*  <DxGridCommandColumn Width="160px" NewButtonVisible="false"  DeleteButtonVisible="false"/>  <span class="fa fa-paperclip" id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)"> </span>*@
+        <DxGridDataColumn FieldName="NoteName" Caption="Note Name" ReadOnly="true" Width="180" />
+        <DxGridDataColumn FieldName="Description" Caption="Description" ReadOnly="true" />        
+        <DxGridDataColumn FieldName="AssignTo" Caption="Assign To" ReadOnly="true" Width="180" />
+        <DxGridDataColumn FieldName="DueDate" Width="180">
+            <CellDisplayTemplate>
+                @{
+                    var item = (ToDoNotesHistory)context.DataItem;
+                }
+                <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.DueDate)</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="RemainDate" Width="180">
+             <CellDisplayTemplate>
+                @{
+                    var item = (ToDoNotesHistory)context.DataItem;
+                }
+            <span style="font-size:11px; margin-left: 5px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.RemainDate)</span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="" Caption="Attachment" Width="80">
+            <CellDisplayTemplate>
+                @{
+                    var item = (ToDoNotesHistory)context.DataItem;
+                }
+                @{
+                    string dynamicShowSubject = "showOpenDoc_" + item.ID;
+                }
+                <span class="fa fa-paperclip" id="@dynamicShowSubject" @onclick="() => ShowDocFlyout(item)"> </span>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="Status" Caption="Status" Width="80">
+            <CellDisplayTemplate>
+                @{
+                    var item = (ToDoNotesHistory)context.DataItem;
+                }
+                <div style="width:100%">
+                    <div style=" font-size: 14px;">
+                        <div style="float: right; font-size: 11px;">
+                            <DxCheckBox Checked="@Checked" style="float:right;" CheckedChanged="@((bool value) => StatusUpdate(item.ID))"></DxCheckBox>
+                            <span style="float: right; margin-top: 6px;    margin-right: 8px;">@item.Status</span>
+                        </div>
+                    </div>
+                </div>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>      
+    </Columns>     
+</DxGrid> 
+
+<DxPopup @bind-Visible="@UploadPopupVisible"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Width="500px">
+    <BodyContentTemplate>
+        <div style="max-height: 200px; overflow-y: auto;overflow-x:hidden;">
+            @if (_DocumentsList != null && _DocumentsList.Any())
+            {
+                @foreach (var item in _DocumentsList)
+                {
+                    <div style="border-bottom: 2px solid #e8e6e6ee; margin-bottom: 10px;margin-top: 10px;">
+
+                        <table style="width:100%;">
+                            <tbody>
+                                <tr>
+                                    @{
+                                        string fileExtension = Path.GetExtension(item.FileName);
+                                    }
+                                    <td rowspan="3" class="icon-first-name">@fileExtension</td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        @{
+                                            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(item.FileName);
+
+                                        }
+                                        <strong style="width:100%;display:inline-block;margin-left:10px;"><span @onclick="@(() => onPreview(item.DocumentId))">@fileNameWithoutExtension</span></strong>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>
+                                        @{
+                                            string formattedFileSize = FormatFileSize(item.FileSize.Value);
+                                        }
+                                        <span style="font-size: 11px; margin-left:10px;">  @formattedFileSize</span>
+                                        <button style="color:#009eff;float:right;" class="dxbl-btn fa fa-eye" @onclick="@(() => onPreview(item.DocumentId))"> </button>
+                                    </td>
+
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+
+
+                    </div>
+                }
+            }
+        </div>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click="@((e) => ClosePopUP())" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    IGrid? Grid { get; set; }
+    Documents _documents { get; set; }
+    bool UploadPopupVisible { get; set; } = false;
+    string Text { get; set; } = "Open";
+    List<string> StatusList = new List<string>() { "Open", "Close" };
+    public bool EditEnabled { get; set; } = false;
+    private List<ToDoNotesHistory>? _MyToDoList;
+    public ApplicationUser? applicationUser { get; private set; }
+    private ToDoNotesHistory _selectedItems;
+    private List<Documents> _DocumentsList;
+    private ToDoNotesHistory CurrentTodoNotes { get; set; }
+    private string? BaseUrl;
+    private string? FileUrl;
+    private string? DocumentViewUrl;
+    bool Checked { get; set; } = false;
+    private List<ViewEmployee>? _participant;
+    public IEnumerable<long> UserIds { get; set; }
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        FileUrl = Configuration["DocumentsUrl:FileUrl"];
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _participant = await Mediator.Send(new GetAllEmployeeListQuery());
+        await UpdateDataAsync();
+    }
+    public  async Task   UpdateDataAsync()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+        _MyToDoList = await Mediator.Send(new GetMyToDo(applicationUser.UserID));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {       
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        _selectedItems = _MyToDoList.FirstOrDefault(f => f.ID == (long?)UniqueId);
+        EditEnabled = true;
+        StateHasChanged();
+
+    }
+    void addEdit()
+    {
+        Grid.StartEditDataItemAsync(_selectedItems);
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+        var editModel = (ToDoNotesHistory)e.EditModel;
+        // string useridsString = null;
+        // if (UserIds != null)
+        // {
+        //     useridsString = string.Join(",", UserIds);
+        // }
+        var UpdateReq = new EditToDoNotesHistoryQuery
+            {
+                ID = editModel.ID,
+                Description = editModel.Description,
+                DueDate = editModel.DueDate,
+                RemainDate = editModel.RemainDate,
+                AddedByUserID = editModel.AddedByUserID,
+                StatusCodeID = editModel.StatusCodeID,
+                // Users = useridsString,
+                Users = editModel.Users,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                AddedDate = editModel.AddedDate,
+                SessionId = editModel.SessionId,
+                TopicId = editModel.TopicId,
+                Status = editModel.Status,
+                ColourCode = editModel.ColourCode
+
+            };
+
+        var ans = await Mediator.Send(UpdateReq);
+        toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+        await UpdateDataAsync();
+    }
+
+    private async void ShowDocFlyout(ToDoNotesHistory toDoNotesHistory)
+    {
+
+        CurrentTodoNotes = toDoNotesHistory;
+        // _DocumentsList = Mediator.Send(new GetByToDoDocuments(toDoNotesHistory.SessionId));
+        System.Guid? guidValue = toDoNotesHistory.SessionId;
+        string stringValue = guidValue?.ToString();
+        _DocumentsList = await Mediator.Send(new GetByToDoDocuments(stringValue));
+        UploadPopupVisible = true;
+
+    }
+    public static string FormatFileSize(long bytes)
+    {
+        var unit = 1024;
+        if (bytes < unit) { return $"{bytes} B"; }
+
+        var exp = (int)(Math.Log(bytes) / Math.Log(unit));
+        return $"{bytes / Math.Pow(unit, exp):F2} {("KMGTPE")[exp - 1]}B";
+    }
+    void ClosePopUP()
+    {
+        UploadPopupVisible = false;
+    }
+    public async Task onPreview(long Id)
+    {
+        _documents = _DocumentsList.FirstOrDefault(a => a.DocumentId == Id);
+        //var url = DocumentViewUrl + "?url=" + FileUrl + _documents.FilePath;
+        var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
+        await OpenDocumentPreview(url);
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    async Task StatusUpdate(long id)
+    {
+        var ststusupdate = await Mediator.Send(new StatusChangedQuery(id));
+
+        await UpdateDataAsync();
+     //   _MyToDoList = await Mediator.Send(new GetMyToDoDueDate(applicationUser.UserID));
+
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        //var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
+        //var list = _MyToDoList.FirstOrDefault(f => f.ID == (long?)UniqueId);              
+        //NavigationManager.NavigateTo($"ViewEmail/{list.SessionId}/Todo");
+    }   
+}

@@ -48,6 +48,19 @@ namespace Application.Handlers.QueryHandlers
             return (List<ToDoNotesHistory>)await _ToDoNotesHistoryQueryRepository.GetTodoRemainderAsync(request.UserId);
         }
     }
+    public class GetMyToDoHandler : IRequestHandler<GetMyToDo, List<ToDoNotesHistory>>
+    {
+        private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
+        public GetMyToDoHandler(IToDoNotesHistoryQueryRepository ToDoNotesHistoryQueryRepository)
+        {
+            _ToDoNotesHistoryQueryRepository = ToDoNotesHistoryQueryRepository;
+        }
+        public async Task<List<ToDoNotesHistory>> Handle(GetMyToDo request, CancellationToken cancellationToken)
+        {
+            return (List<ToDoNotesHistory>)await _ToDoNotesHistoryQueryRepository.GetMyToDoAsync(request.UserId);
+        }
+    }
+    
     public class GetByToDoNotesHistoryHandler : IRequestHandler<GetByToDoNotesHistory, List<ToDoNotesHistory>>
     {
 

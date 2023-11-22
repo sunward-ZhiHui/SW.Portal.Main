@@ -32,6 +32,15 @@ namespace Application.Queries
             this.UserId = userID;
         }
     }
+    public class GetMyToDo : PagedRequest, IRequest<List<ToDoNotesHistory>>
+    {
+
+        public long UserId { get; set; }
+        public GetMyToDo(long userID)
+        {
+            this.UserId = userID;
+        }
+    }
 
     public class GetByToDoNotesHistory : PagedRequest, IRequest<List<ToDoNotesHistory>>
     {

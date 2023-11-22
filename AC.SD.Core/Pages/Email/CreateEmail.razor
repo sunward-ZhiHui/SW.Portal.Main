@@ -60,7 +60,7 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@((e) => onBack())" Enabled = "@BackEnabled" />
-                        <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onRestText" />
+                        <DxMenuItem Text="Reset" IconCssClass="fa fa-refresh" Click="@onClearAll" />
                         <DxMenuItem Text="Sent" Enabled="!isSending" IconCssClass="fa fa-save" Click="@SubmitSentForm">
                             <div class="d-flex">
                                 <DxWaitIndicator Visible="isSending" />
@@ -161,12 +161,13 @@ else
                             <DxFormLayoutItem Caption="To" ColSpanMd="8">
                                 <DxTagBox Data="_Toparticipant"
                                      @bind-Values="Data.ToIds"
+                                     FilteringMode="DataGridFilteringMode.Contains"
                                      NullText="Select To..."                                     
                                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                       ValueFieldName="UserID"
                                       TextFieldName="Name"                                    
                                       SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
-                                      EditFormat="{0}-{1}"
+                                      
                                       ListRenderMode="ListRenderMode.Virtual"                                     
                                       CssClass="cw-480">                                    
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name"/>
@@ -202,7 +203,7 @@ else
                                       ValueFieldName="UserID"
                                       TextFieldName="Name"                                      
                                       SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedCCItemsChanged(values))"
-                                      EditFormat="{0}-{1}"
+                                      FilteringMode="DataGridFilteringMode.Contains"
                                       CssClass="cw-480">
                                           
                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)"
@@ -323,6 +324,8 @@ else
                                         Notify User
                                 </DxCheckBox>
                             </DxFormLayoutItem>
+
+
 
 
                             
@@ -711,15 +714,17 @@ else
         {
             BackEnabled = false;
             NavigationManager.NavigateTo($"CreateEmail");
-            JSRuntime.InvokeAsync<string>("ReloadUrl");
+            //JSRuntime.InvokeAsync<string>("ReloadUrl");
+            onRestText_upload();
         }
         else
         {
             BackEnabled = false;
-            JSRuntime.InvokeAsync<string>("ReloadUrl");
+            //JSRuntime.InvokeAsync<string>("ReloadUrl");
+            onRestText_upload();
         }     
 
-        onRestText();
+        //onRestText();
         InvokeAsync(StateHasChanged);
     }
 
@@ -884,41 +889,127 @@ else
             }
         }      
     }
-    private async void onRestText()
+    private async void onRestText_old()
     {
         JSRuntime.InvokeAsync<string>("ReloadUrl");        
     }
-    private async void onRestText_old()
+    private async void onRestText_upload()
     {
-        Data = new EmailTopics();
-        CategoryData = new EmailActivityCatgorys();
-        SelectedDataItems = null;
-        SelectedCCItems = null;
-        SelectedToItems = null;        
-        SelectedToDataItems = null;       
-        participantIds.Clear();
-        selectedToIds.Clear();
-        SelectedCCIds.Clear();
-        Data.From = applicationUser.UserName;
         onloadSession();
+        CurrentUplodCount = 0;
+        SelectedFilesCount = 0;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        AppUserId = applicationUser.UserID;
         Follow = new List<string>
         {
              "Follow Up","No Follow Up"
         };
 
         Data.Follow = Follow[1];
-        Data.OverDue = false;
         Data.Urgent = false;
-        Data.IsAllowParticipants = false;
+        Data.OverDue = false;
+        Data.IsAllowParticipants = true;
         Data.NotifyUser = false;
+        Data.TopicName = null;
+        Data.ToIds = null;
+        Data.CCIds = null;
+        Data.OnBehalf = null;
+        Data.DueDate = null;
         CategoryData.GroupTag = null;
         CategoryData.ActionTag = null;
         CategoryData.CategoryTag = null;
         CategoryData.Name = null;
-        //await Task.Delay(3000); // Delay for 2 seconds
+
+        Data.From = applicationUser.UserName;
+        BackEnabled = false;
+        IsDraftEnabled = true;
+        IsActiveSessionId = true;
+        //await Task.Delay(2000); // Delay for 2 seconds
         await msgrichEdit.NewDocumentAsync();
         uploadComponent.RemoveAllFiles();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        NavigationManager.NavigateTo($"CreateEmail");
+        isSending = false;
 
+    }
+    private async void onClearAll()
+    {
+        onloadSession();
+        CurrentUplodCount = 0;
+        SelectedFilesCount = 0;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        AppUserId = applicationUser.UserID;
+        Follow = new List<string>
+        {
+             "Follow Up","No Follow Up"
+        };
+
+        Data.Follow = Follow[1];
+        Data.Urgent = false;
+        Data.OverDue = false;
+        Data.IsAllowParticipants = true;
+        Data.NotifyUser = false;
+        Data.TopicName = null;
+        Data.ToIds = null;
+        Data.CCIds = null;
+        Data.OnBehalf = null;
+        Data.DueDate = null;
+        CategoryData.GroupTag = null;
+        CategoryData.ActionTag = null;
+        CategoryData.CategoryTag = null;
+        CategoryData.Name = null;
+
+        Data.From = applicationUser.UserName;
+        BackEnabled = false;
+        IsDraftEnabled = true;
+        IsActiveSessionId = true;
+        //await Task.Delay(2000); // Delay for 2 seconds
+        await msgrichEdit.NewDocumentAsync();
+        uploadComponent.RemoveAllFiles();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        NavigationManager.NavigateTo($"CreateEmail");
+        isSending = false;
+        
+    }
+    private async void onRestText()
+    {             
+        
+        //_editContext = new EditContext(Data);       
+        onloadSession();
+        CurrentUplodCount = 0;
+        SelectedFilesCount = 0;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        AppUserId = applicationUser.UserID;        
+        Follow = new List<string>
+        {
+             "Follow Up","No Follow Up"
+        };
+
+        Data.Follow = Follow[1];
+        Data.Urgent = false;
+        Data.OverDue = false;
+        Data.IsAllowParticipants = true;
+        Data.NotifyUser = false;
+        Data.TopicName = null;
+        Data.ToIds = null;
+        Data.CCIds = null;
+        Data.OnBehalf = null;
+        Data.DueDate = null;
+        CategoryData.GroupTag = null;
+        CategoryData.ActionTag = null;
+        CategoryData.CategoryTag = null;
+        CategoryData.Name = null;
+
+        Data.From = applicationUser.UserName;
+        BackEnabled = false;
+        IsDraftEnabled = true;
+        IsActiveSessionId = true;
+        //await Task.Delay(2000); // Delay for 2 seconds
+        await msgrichEdit.NewDocumentAsync();
+        //uploadComponent.RemoveAllFiles();
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        NavigationManager.NavigateTo($"CreateEmail");
+        isSending = false;
     }
     private void onSubmit()
     {
@@ -939,7 +1030,7 @@ else
         await document.ChangeDefaultCharacterPropertiesAsync(properties =>
         {
             // properties.FontName = "Times New Roman";
-            properties.FontSize = 14;
+            properties.FontSize = 12;
         });
     }
     protected override async Task OnInitializedAsync() {  
@@ -1359,15 +1450,17 @@ else
                     {
                         BackEnabled = false;
                         NavigationManager.NavigateTo($"CreateEmail");
-                        JSRuntime.InvokeAsync<string>("ReloadUrl");
+                        //JSRuntime.InvokeAsync<string>("ReloadUrl");
+                        onRestText();
                     }
                     else
                     {
                         BackEnabled = false;
-                        await JSRuntime.InvokeAsync<string>("ReloadUrl");
+                        //await JSRuntime.InvokeAsync<string>("ReloadUrl");
+                        onRestText();
                     }
 
-                    onRestText();
+                    //onRestText();
                     await JSRuntime.InvokeAsync<string>("hideLoading");
                     isSending = false;
                 }

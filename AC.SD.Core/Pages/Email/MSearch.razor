@@ -280,7 +280,7 @@
                                                                 <div class="">
                                                                     @foreach (var attachment in item.documents)
                                                                     {
-                                                                        <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentId))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
+                                                                        <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
                                                                     }
                                                                 </div>
                                                             </div>
@@ -338,7 +338,7 @@
                                                                             {
                                                                                 @foreach (var attachment in items.documents)
                                                                                 {
-                                                                                    <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentId))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
+                                                                                    <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
                                                                                 }                                                                              
                                                                             }
                                                                             @if (items.ReplyConversation.Count() > 0)
@@ -389,7 +389,7 @@
                                                                                                     {
                                                                                                         @foreach (var attachment in itm.documents)
                                                                                                         {
-                                                                                                            <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentId))"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
+                                                                                                            <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
                                                                                                         }
                                                                                                     }
                                                                                                     </div>

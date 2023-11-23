@@ -245,8 +245,7 @@ else
                                         TextFieldName="Name"
                                         ValueFieldName="UserID"                                        
                                         SelectedItemChanged="@((ViewEmployee viewEmployee) => onSelectedOnBehalfItemsChanged(viewEmployee))"
-                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                        EditFormat="{0}-{1}"
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"                                        
                                         @bind-Value="@Data.OnBehalf" ShowValidationIcon="true">
                                         <Columns>
                                                
@@ -280,6 +279,9 @@ else
                                 </DxComboBox>
                                 <ValidationMessage For="@(() => CategoryData.Name)" />
                             </DxFormLayoutItem>
+
+                              
+
                             <DxFormLayoutItem Caption="Follow" ColSpanMd="3">
                                 <DxComboBox Data="@Follow"
                                         NullText="Select Follow..."
@@ -325,7 +327,20 @@ else
                                 </DxCheckBox>
                             </DxFormLayoutItem>
 
-
+                            <DxFormLayoutItem Caption="User Tag:" ColSpanMd="4">
+                                <DxComboBox Data="@_UserTagList"
+                                            AllowUserInput="true"
+                                            NullText="Select User Tag..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="UserTag"
+                                            ValueFieldName="UserTag"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@CategoryData.UserTag"
+                                @bind-Text="@CategoryData.UserTag" ShowValidationIcon="true">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => CategoryData.UserTag)" />
+                            </DxFormLayoutItem>
 
 
                             
@@ -431,6 +446,7 @@ else
     bool isSending = false;
     EditContext _editContext;
     private List<EmailActivityCatgorys> _AllCategory;
+    private List<EmailActivityCatgorys> _UserTagList;
     EmailActivityCatgorys? CategoryData { get; set; } = new EmailActivityCatgorys();
     bool isEnabled { get; set; } = true;
     private List<ApplicationMasterChildModel> _groupTagItems;
@@ -999,7 +1015,7 @@ else
         CategoryData.ActionTag = null;
         CategoryData.CategoryTag = null;
         CategoryData.Name = null;
-
+         CategoryData.UserTag = null;
         Data.From = applicationUser.UserName;
         BackEnabled = false;
         IsDraftEnabled = true;
@@ -1036,6 +1052,7 @@ else
     protected override async Task OnInitializedAsync() {  
         _editContext = new EditContext(Data);
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
+       
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
         onloadSession();
         CurrentUplodCount = 0;
@@ -1046,6 +1063,7 @@ else
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         AppUserId = applicationUser.UserID;
+        _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
 
 
@@ -1399,6 +1417,7 @@ else
                     isValidateSession = isValidateSession,
                     OnDraft = draftId,
                     GroupTag = CategoryData.GroupTag,
+                    UserTag = CategoryData.UserTag,
                     CategoryTag = CategoryData.CategoryTag,
                     ActionTag = CategoryData.ActionTag,
                     actName = CategoryData.Name,

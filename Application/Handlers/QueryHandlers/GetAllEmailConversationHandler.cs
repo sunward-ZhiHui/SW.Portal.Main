@@ -2,6 +2,7 @@
 using Application.Queries;
 using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using Core.Repositories.Command.Base;
 using Core.Repositories.Query;
 using Core.Repositories.Query.Base;
@@ -44,6 +45,21 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailConversations>)await _emailConversationsQueryRepository.GetDiscussionListAsync(request.TopicId,request.UserId,request.Option);           
         }
     }
+    public class GetReplyDiscussionListHandler : IRequestHandler<GetReplyDiscussionList, List<EmailConversations>>
+    {
+        private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;
+
+        public GetReplyDiscussionListHandler(IEmailConversationsQueryRepository emailConversationsQueryRepository)
+        {
+
+            _emailConversationsQueryRepository = emailConversationsQueryRepository;
+        }
+        public async Task<List<EmailConversations>> Handle(GetReplyDiscussionList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailConversations>)await _emailConversationsQueryRepository.GetByReplyDiscussionList(request.ReplyId);
+        }
+    }
+    
     public class GetDemoEmailFileDataListHandler : IRequestHandler<GetDemoEmailFileDataList, List<EmailConversations>>
     {
         private readonly IEmailConversationsQueryRepository _emailConversationsQueryRepository;

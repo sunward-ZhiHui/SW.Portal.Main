@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using Core.Repositories.Query.Base;
 using Microsoft.VisualBasic;
 using System;
@@ -29,6 +30,7 @@ namespace Core.Repositories.Query
         Task<EmailConversations> GetByIdAsync(Int64 id);        
         Task<List<EmailConversations>> GetFullDiscussionListAsync(Int64 TopicId);
         Task<List<EmailConversations>> GetDiscussionListAsync(Int64 TopicId,Int64 UserId,string Option);
+        Task<List<EmailConversations>> GetByReplyDiscussionList(long replyId);
         Task<List<EmailConversations>> GetDemoEmailFileDataListAsync();
         Task<long> GetDemoUpdateEmailFileDataListAsync(long id, Byte[] fileData);
         Task<List<EmailConversations>> GetValidUserListAsync(Int64 TopicId, Int64 UserId);        

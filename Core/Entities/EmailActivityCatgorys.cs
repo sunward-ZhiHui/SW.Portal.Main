@@ -15,6 +15,7 @@ namespace Core.Entities
         public long TopicId { get; set; }
         [EitherRequired("Name", "GroupTag", ErrorMessage = "Either Others or GroupTag is required.")]
         public string Name { get; set; }
+        public string UserTag { get; set; }
         public long? GroupTag { get; set; }
         public long? CategoryTag { get; set; }
         public long? ActionTag { get; set; }

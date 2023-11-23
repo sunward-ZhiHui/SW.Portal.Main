@@ -30,7 +30,7 @@ namespace Core.Entities
         public string LastName { get; set; }
         public string UserCode { get; set; }
         public string UserEmail { get; set; }
-        public List<Documents>? documents { get; set; }
+        public List<EmailDocumentModel>? documents { get; set; }
         public byte[] FileData { get; set; }
         public int? IsMobile { get; set; }
         [NotMapped]
@@ -87,5 +87,37 @@ namespace Core.Entities
         [NotMapped]
         public long? ConversationId { get; set; }
 
+    }
+    public class EmailDocumentModel
+    {        
+        public string? FileName { get; set; }
+        public long DocumentID { get; set; }
+        public Guid? SessionId { get; set; }
+        public string? ContentType { get; set; }
+        public string? FilePath { get; set; }
+        public long? FileSize { get; set; }
+
+    }
+    public class ReplyConversationModel
+    {
+        public long id { get; set; }
+        public long replyId { get; set; }
+        public long participantId { get; set; }
+        public string? userName { get; set; }
+        public string? TopicName { get; set; }
+        public string? firstName { get; set; }
+        public byte[] Message { get; set; }
+        public List<EmailAssignToList>? To { get; set; }
+        public List<EmailAssignToList>? CC { get; set; }
+        public long? userId { get; set; }
+        public bool? isRead { get; set; }
+        public long emailNotificationId { get; set; }
+        public bool? urgent { get; set; }
+        public DateTime? addedDate { get; set; }
+        public Guid? sessionId { get; set; }
+        public bool? isAllowParticipants { get; set; }
+        public int? addedDateYear { get; set; }
+        public string? addedDateDay { get; set; }
+        public string? addedTime { get; set; }
     }
 }

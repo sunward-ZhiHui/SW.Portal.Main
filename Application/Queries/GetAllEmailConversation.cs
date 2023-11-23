@@ -1,6 +1,7 @@
 ﻿using Application.Queries.Base;
 using Core.Entities;
 using Core.Entities.Views;
+using Core.EntityModels;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -72,6 +73,15 @@ namespace Application.Queries
             this.TopicId = TopicId;
             this.UserId = UserId;
             this.Option = option;
+        }
+    }
+    public class GetReplyDiscussionList : IRequest<List<EmailConversations>>
+    {
+        public long ReplyId { get; private set; }
+       
+        public GetReplyDiscussionList(long replyId)
+        {           
+            this.ReplyId = replyId;
         }
     }
     public class GetDemoEmailFileDataList : PagedRequest, IRequest<List<EmailConversations>>

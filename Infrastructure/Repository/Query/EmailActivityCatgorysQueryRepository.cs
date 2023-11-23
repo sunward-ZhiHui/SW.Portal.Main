@@ -194,5 +194,24 @@ namespace Infrastructure.Repository.Query
                 }
             
         }
+
+        public async  Task<IReadOnlyList<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("UserID", UserID);
+                var query = "SELECT DISTINCT UserTag FROM EmailActivityCatgorys where AddedByUserID = @UserID and UserTag IS NOT NULL";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailActivityCatgorys>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

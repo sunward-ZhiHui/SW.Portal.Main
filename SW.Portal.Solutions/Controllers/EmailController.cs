@@ -252,7 +252,7 @@ namespace SW.Portal.Solutions.Controllers
                 CC = conversations.AssignCCList,
                 message = conversations.FileData,
                 replyCount = conversations.ReplyConversation.Count(),
-                ReplyConversation = conversations.ReplyConversation?.Select(rconversation => new ReplyConversationModel
+                ReplyConversation = conversations.ReplyConversation?.Select(rconversation => new Models.ReplyConversationModel
                 {
                     id = rconversation.ID,
                     replyId = rconversation.ReplyId,

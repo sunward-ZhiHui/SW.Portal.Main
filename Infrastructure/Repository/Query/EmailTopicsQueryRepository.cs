@@ -1457,7 +1457,8 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("GroupTag", EmailTopics.GroupTag);
                         parameterss.Add("CategoryTag", EmailTopics.CategoryTag);
                         parameterss.Add("ActionTag", EmailTopics.ActionTag);
-                        parameterss.Add("actName", EmailTopics.actName);                        
+                        parameterss.Add("actName", EmailTopics.actName);
+                        parameterss.Add("UserTag", EmailTopics.UserTag);
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Update_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         return result;
@@ -1520,6 +1521,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("ActionTag", EmailTopics.ActionTag);
                         parameterss.Add("ActName", EmailTopics.actName);
                         parameterss.Add("ActivityType", EmailTopics.ActivityType);
+                        parameterss.Add("UserTag", EmailTopics.UserTag);
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Ins_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         return result;

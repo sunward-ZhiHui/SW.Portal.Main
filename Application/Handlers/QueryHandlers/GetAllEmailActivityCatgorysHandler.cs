@@ -97,4 +97,19 @@ namespace Application.Handlers.QueryHandlers
 
         }
     }
+
+
+
+    public class GetAllUserActivityCatgorysHandler : IRequestHandler<GetAllUserActivityCatgorys, List<EmailActivityCatgorys>>
+    {
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public GetAllUserActivityCatgorysHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+        public async Task<List<EmailActivityCatgorys>> Handle(GetAllUserActivityCatgorys request, CancellationToken cancellationToken)
+        {
+            return (List<EmailActivityCatgorys>)await _emailactyqueryRepository.GetAllUserTagAsync(request.UserID);
+        }
+    }
 }

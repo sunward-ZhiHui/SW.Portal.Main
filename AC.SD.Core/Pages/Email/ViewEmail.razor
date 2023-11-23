@@ -52,29 +52,10 @@
         <!-- Main Content -->
         <!--  -->
         <div class="content-container row">
-            <!-- Side Bar -->
-            @* <div class="side-menu-bar">
-
-            <div class="side-menu-bar-top">
-            <div class="side-menu-bar-text circle">RN</div>
-            <div class="side-menu-bar-text circle">IPIR</div>
-            <div class="side-menu-bar-text circle">PA</div>
-            <div class="side-menu-bar-text circle">CS</div>
-            <div class="side-menu-bar-text circle">GL</div>
-            </div>
-
-            </div>*@
             <!-- Mini Menu Bar -->
             <div class="mini-menu-bar col-md-3 @toggleButtonVisible"  style="overflow-x: hidden;">
-                <div class="mini-menu-bar-top">
-                    @*<div class="mini-menu-bar-heading">
-                        <div class="files-title">General Information</div>
-                    </div> *@
-                    <div class="card w-100" style="margin-bottom:10px; margin-top:10px;">
-                        <div class="d-flex py-2">
-                           @* <DxTextBox @bind-Text="SearchText" style="width: 100%;    margin-left: 5px;" />
-                            <DxButton Text="Apply" Click="() => GridSearchText = SearchText" CssClass="mx-2" />*@
-                        </div>
+                <div class="mini-menu-bar-top">                    
+                    <div class="card w-100" style="margin-bottom:10px; margin-top:10px;">                     
                         <div class="card-body p-0">
                             <DxTabs ScrollMode="TabsScrollMode.NavButtons" @bind-ActiveTabIndex="@ActiveTabIndex">
                                 <DxTabPage Text="All" CssClass="@((isLeftMenuvisible == "All" ? "tActive": "tall"))" Click="@(() => OnLeftMenuItemClick("All"))">
@@ -92,46 +73,12 @@
                                 <DxTabPage Text="Library" CssClass="@((isLeftMenuvisible == "Library" ? "tActive": "library"))" Click="@(() => OnLeftMenuItemClick("Library"))">
 
                                 </DxTabPage>                                
-                              </DxTabs>
-                           @* <DxMenu CollapseItemsToHamburgerMenu="true"
-                                    CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
-                                    DisplayMode="MenuDisplayMode.Auto">
-                                <Items>
-                                    <DxMenuItem Text="All" class="@((isLeftMenuvisible == "All" ? "tActive": "tall"))" IconCssClass="fa fa-list-alt" Click="@(() => OnLeftMenuItemClick("All"))" />
-                                    <DxMenuItem Text="Assign To" class="@((isLeftMenuvisible == "AssignTo" ? "tActive": "tassignto"))" IconCssClass="fa fa-envelope" Click="@(() => OnLeftMenuItemClick("AssignTo"))" />                                    
-                                    <DxMenuItem Text="CC" class="@((isLeftMenuvisible == "AssignCC" ? "tActive": "tassigncc"))" IconCssClass="popup-image popup-icon-position" Click="@(() => OnLeftMenuItemClick("AssignCC"))" />
-                                    <DxMenuItem Text="Sent" class="@((isLeftMenuvisible == "Sent" ? "tActive": "sent"))" IconCssClass="fa fa-paper-plane" Click="@(() => OnLeftMenuItemClick("Sent"))" />
-
-                                    @if (ActiveSessionId != null)
-                                    {
-                                        <DxButton Click="@(() => TOGrid.ClearFilter())">Clear Filter</DxButton>
-                                    }
-                                    </Items>
-                            </DxMenu>*@
+                              </DxTabs>                          
                         </div>
                     </div>
 
                     <div>
                         <div class="views-accordion">
-                            @*@if (_forumTopicTo != null && _forumTopicTo.Any())
-                            {
-                                @foreach (var item in _forumTopicTo)
-                                {
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <article class="media">                                        
-                                                <div class="media-body">
-                                                    <div class="content">
-                                                        <p class="h5">@item.FirstName <small>@item.LastName</small> <small class="float-right text-muted">@Application.Common.Helper.Helper.FormatDateTime(item.StartDate)</small></p>
-                                                        <p>@item.TopicName</p>
-                                                    </div>                                         
-                                                </div>
-                                            </article>
-                                        </div>
-                                    </div>
-                                }
-                            }*@
-
                         @if(isLeftMenuvisible == "All")
                         {                                
                             <AllEmail @ref=RefAssignAll GridSearchText="@GridSearchText" ATopicId="onViewEmailAllClick" SubViewAllTopicId ="onSubViewEmailClick"></AllEmail>
@@ -151,20 +98,10 @@
                         else if(isLeftMenuvisible == "Library")
                         {
                             <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch>
-                        }  
-                            
-
-                            
+                        }                              
                         </div>
                     </div>
-                </div>
-                @*<div class="mini-menu-bar-down">
-                <div class="add-cloud-storage-btn">
-                <div class="cloud-storage-btn">
-                <div class="add-btn-text">Add cloud storage</div>
-                </div>
-                </div>
-                </div>*@
+                </div>               
             </div>
             <!-- Menu Bar Content -->
             <div class="menu-bar-content-container @hiddenButtonCssClass">
@@ -210,14 +147,7 @@
                                                     <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
 
                                                         <div class="mailbox-read-info">
-                                                            <h3>  @item.TopicName  
-                                                           @* @if(item.OnBehalf != null)
-                                                            {                                                                
-                                                                <span style="font-weight:bold; font-size:12px; margin-left:10px;">OnBehalf : </span>
-                                                                <span style="font-size:12px;"> @item.OnBehalfName </span>
-                                                                <span style="font-size:12px;">( @item.Follow )</span>
-                                                            }*@
-                                                            </h3>
+                                                            <h3>  @item.TopicName  </h3>
                                                             @if (_headTopic_Tag != null && _headTopic_Tag.Any())
                                                             {
                                                                 @foreach (var Tagitem in _headTopic_Tag)
@@ -244,35 +174,8 @@
 
                                                                 }
                                                             }
-
-                                                            
-                                                           @* <h5>
-                                                                From: @item.FirstName
-                                                                <br>
-                                                                To:                                                                
-                                                                @if (item.TopicToList != null && item.TopicToList.Any())
-                                                                {
-                                                                    @foreach (var items in item.TopicToList)
-                                                                    {
-                                                                        <span>@items.FirstName ,</span>
-                                                                    }
-                                                                }
-                                                                <br>
-                                                                CC:
-                                                                @if (item.TopicCCList != null && item.TopicCCList.Any())
-                                                                {
-                                                                    @foreach (var items in item.TopicCCList)
-                                                                    {
-                                                                        <span>@items.FirstName ,</span>
-                                                                    }
-                                                                }                                                               
-                                                                <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@item.StartDate)</span>
-                                                            </h5>*@
-                                                        </div>                                                         
-
-                                                       @* <div class="uk-card-title uk-first-column" style="margin-right:10px; float: left; margin-top: 4px; margin-left: 10px;">@item.TicketNo - @item.TopicName</div>
-                                                        <span class="uk-label uk-margin-auto-left">@Application.Common.Helper.Helper.FormatDate(@item.AddedDate)</span>
-                                                        *@
+                                                        </div>  
+                                                       
                                                         <span class="mailbox-read-time pull-right" style="float: right; margin-top: -23px; margin-right: 40px;">@Application.Common.Helper.Helper.FormatDateTime(@item.StartDate)</span>
                                                         <span class="uk-label uk-margin-auto-left" style="float: right; margin-top: -23px; margin-right: 15px;">
 
@@ -290,33 +193,13 @@
                                                                 @if (isCommandTopicClosed)
                                                                 {
                                                                     <div Id="showFlyout" class="handline fa fa-ellipsis-v" @onclick="() => IsOpenFlyout = true" style="font-size: 18px;    font-weight: bold;"></div>
-                                                                    @*<DxButton Id="showFlyout" Click="() => IsOpenFlyout = true">Show a flyout window</DxButton>*@
-                                                                    @*<DxMenu Orientation="Orientation.Horizontal" DisplayMode="MenuDisplayMode.Mobile">
-                                                                        <Items>
-                                                                            <DxMenuItem @onclick="onDueDatePop" Text="Due Date" />
-                                                                            <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />
-
-                                                                            @if(isDescription)
-                                                                            {
-                                                                                <DxMenuItem @onclick="hideTopicDescription" Text="Hide Description" />
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                <DxMenuItem @onclick="showTopicDescription" Text="Show Description" />   
-                                                                            }
-
-                                                                        </Items>
-                                                                    </DxMenu>*@
+                                                                   
                                                                 }
                                                                 else
                                                                 {
                                                                     <div style="color:red;margin-top: 10px;">Closed</div>
                                                                 }
                                                             }
-
-                                                            @*<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical" viewBox="0 0 16 16">
-                                                            <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
-                                                            </svg>*@
                                                         </span>
 
                                                     </div>
@@ -376,10 +259,7 @@
                                                             @if (item.NotifyUser.GetValueOrDefault(false))
                                                             {
                                                                 <span class="primary_color_icon"><i class="fa fa-commenting" style="margin-top: 8px;" aria-hidden="true"></i></span>
-                                                            }
-                                                            @*<div class="mailbox-read-time pull-right">
-                                                                <DxDateEdit style="width: 190px; float: right;margin-top: -21px;" @bind-Date="@item.DueDate" Mask="dd/MMMM/yyyy" />
-                                                            </div>*@
+                                                            }                                                          
                                                             <h5>                                                               
                                                                 From: @item.UserName
                                                                 @if (item.OnBehalfName != null)
@@ -398,12 +278,7 @@
                                                                 <br>
                                                                 
                                                                 <div class="mailbox-read-time pull-right">
-                                                                    <div class="" style="margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
-                                                                    @* <div class="btn-group" style="float: right; margin-top: -25px;">
-                                                                    <button type="button" @onclick="@(() => onreply(item.ID))" style="border: 1px solid #eeebeb; padding: 8px; border-radius: 5px;" class="">
-                                                                    <i class="fa fa-reply"></i> Reply
-                                                                    </button>
-                                                                    </div>*@
+                                                                    <div class="" style="margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>                                                                   
                                                                 </div>
                                                                 To:
                                                                 @if (item.AssignToList != null && item.AssignToList.Any())
@@ -429,36 +304,41 @@
                                                 @if (!string.IsNullOrEmpty(item.BackURL))
                                                 {    
                                                      string ActivityTypes = item.ActivityType == "FileProfileType" ? "Sunward Libraries" : "Activity";
+                                                     @if(item.ActivityType != "EmailFileProfileType")
+                                                    {
+                                                        <div class="replybox" style="min-height:60px;">
+                                                            <div style="font-weight: bold;">
+                                                                @ActivityTypes Comment
+                                                                <div style="float:right; line-height:16px">
+                                                                    @if (item.ActivityType == "FileProfileType")
+                                                                    {
+                                                                        <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                            <i class="fa fa-arrow-left"></i> Back
+                                                                        </button>
+                                                                    }
+                                                                    else if (item.ActivityType == "EmailFileProfileType")
+                                                                    {
+                                                                        <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                            <i class="fa fa-arrow-left"></i> Back
+                                                                        </button>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
+                                                                            <i class="fa fa-arrow-left"></i> Back
+                                                                        </button>
 
-                                                    <div class="replybox" style="min-height:60px;">
-                                                        <div style="font-weight: bold;">
-                                                            @ActivityTypes Comment
-                                                            <div style="float:right; line-height:16px">
-                                                                @if(item.ActivityType == "FileProfileType")
-                                                                {
-                                                                    <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
-                                                                        <i class="fa fa-arrow-left"></i> Back
-                                                                    </button>
-                                                                }
-                                                                else if(item.ActivityType == "EmailFileProfileType")
-                                                                {
-                                                                    <button type="button" @onclick="@(() => onBackFileProfileType(item.BackURL+"/"+item.DocumentSessionId))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
-                                                                        <i class="fa fa-arrow-left"></i> Back
-                                                                    </button>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <button type="button" @onclick="@(() => onBackActivity(item.BackURL))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;" class="">
-                                                                        <i class="fa fa-arrow-left"></i> Back
-                                                                    </button>
+                                                                    }
 
-                                                                }
-                                                                
+                                                                </div>
                                                             </div>
+                                                            <text>@item.ActCommentName</text>
+                                                            <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
                                                         </div>
-                                                        <text>@item.ActCommentName</text>
-                                                        <div style=" float: right; font-size: 12px;">@item.ActUserName , @item.ActAddedDate</div>
-                                                    </div>
+                                                        
+                                                    }
+
+                                                   
 
                                                 }
                                                 <div class="uk-card-body">
@@ -482,44 +362,13 @@
                                                                 <div class="">
                                                                     @foreach (var attachment in item.documents)
                                                                     {
-                                                                        <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentId))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
+                                                                        <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
                                                                     }
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     }
-
-                                                   @* <div class="uk-card-footer">
-                                                        <div>
-                                                            <div class="accordion-item">
-                                                                <div class="accordion-title" @onclick="@(() => ToggleDocItemVisibility(item.ID))"> Attachment </div>                                                               
-                                                               
-                                                                   @if (DocitemVisibility.ContainsKey(item.ID) && DocitemVisibility[item.ID])
-                                                                    {
-                                                                        @foreach (var attachment in item.documents)
-                                                                        {
-                                                                            <div class="tag"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
-                                                                        }
-                                                                            string firststring = "#overviewDemoSelectButton_";
-                                                                            Guid? secondstring = item.SessionId;
-                                                                            string extt = firststring + secondstring;
-                                                                        
-                                                                        <div id="overviewDemoSelectButton_@item.SessionId" class="tag fa fa-plus-square"></div>
-                                                                            <DxUpload @ref="MyUpload" Name="files"
-                                                                              AcceptedFileTypes=@AcceptedFileTypes
-                                                                              Visible="@UploadVisible"
-                                                                              ExternalSelectButtonCssSelector="@extt"
-                                                                              UploadUrl="@GetDocUploadUrl(@item.SessionId)"
-                                                                              Id="@extt"
-                                                                              SelectedFilesChanged="@SelectedFilesChanged1"
-                                                                              CssClass="w-100"
-                                                                              FileUploaded="@HandleUploadSuccess">
-                                                                            </DxUpload>
-                                                                    }
-                                                                
-                                                            </div>
-                                                        </div>
-                                                    </div>*@                                                    
+                                                                                                   
                                                 </div>
                                                 
                                                 @if (item.ReplyConversation.Count() > 0)
@@ -574,16 +423,8 @@
                                                                                         {
                                                                                             <span>@itm.FirstName ,</span>
                                                                                         }
-                                                                                    }
-                                                                                    
-                                                                                   @* <div class="mailbox-read-time pull-right">
-                                                                                        <div class="" style="margin-right: 77px; margin-top: -8px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
-                                                                                        <div class="btn-group" style="float: right; margin-top: -25px;">
-                                                                                            <button type="button" @onclick="@(() => onunderreply(items.ID))" style="border: 1px solid #eeebeb; padding: 8px; border-radius: 5px;" class="">
-                                                                                                <i class="fa fa-reply"></i> Reply
-                                                                                            </button>
-                                                                                        </div>
-                                                                                    </div>*@
+                                                                                    }                                                                                   
+                                                                                 
                                                                                 </h5>
                                                                             </div> 
                                                                            
@@ -595,86 +436,14 @@
                                                                                 <div style="padding: 10px;">
                                                                                     @((MarkupString)htmlContent1)
                                                                                 </div>
-                                                                            }                                                                           
-
-                                                                            @if(items.IsMobile == 1)
-                                                                            {
-                                                                                @*<div style="padding: 10px;">@items.Message</div>*@
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                @*<div>
-                                                                                    <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@items.FileData" />
-                                                                                </div>*@
-                                                                            }
-                                                                           
+                                                                            }   
                                                                             @if (items.documents != null && items.documents.Any())
                                                                             {
                                                                                 @foreach (var attachment in items.documents)
                                                                                 {
-                                                                                    <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentId))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
+                                                                                    <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentID))"><i class="fas fa-file"  aria-hidden="true"></i> @attachment.FileName</div>
                                                                                 }                                                                              
-                                                                            }
-                                                                            @if (items.ReplyConversation.Count() > 0)
-                                                                            {
-                                                                                <div class="uk-card-footer">
-                                                                                    <div>
-                                                                                        <button type="button" @onclick="@(() => onreply(item.ID))" style="border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: left; margin-right: 10px; padding-right: 10px; padding-left: 10px;" class="">
-                                                                                            <i class="fa fa-reply"></i> Reply
-                                                                                        </button>
-                                                                                        <p style="color: #5151b3;" class="handline" @onclick="@(() => ToggleItemVisibility(items.ID))">@items.ReplyConversation.Count() replies </p>
-                                                                                        @if (@items.ReplyConversation != null && @items.ReplyConversation.Any())
-                                                                                        {
-                                                                                            @if (itemVisibility.ContainsKey(items.ID) && itemVisibility[items.ID])
-                                                                                            {
-                                                                                                 @foreach (var itm in @items.ReplyConversation)
-                                                                                                {
-                                                                                                    <div class="lstcoversationrply">
-                                                                                                    <div class="mailbox-read-info" style="border-bottom:1px solid #f4f4f4">
-                                                                                                            <h3>@itm.Name</h3>
-                                                                                                        <h5>
-                                                                                                            
-                                                                                                            From: @itm.UserName
-                                                                                                            <br>
-                                                                                                            <span class="mailbox-read-time pull-right">@Application.Common.Helper.Helper.FormatDateTime(@itm.AddedDate)</span>
-                                                                                                            To:
-                                                                                                            @if (itm.AssignToList != null && itm.AssignToList.Any())
-                                                                                                            {
-                                                                                                                @foreach (var itms in itm.AssignToList)
-                                                                                                                {
-                                                                                                                    <span>@itms.FirstName ,</span>
-                                                                                                                }
-                                                                                                            }
-                                                                                                             <br>
-                                                                                                            
-                                                                                                            @if (itm.AssignCCList != null && itm.AssignCCList.Any())
-                                                                                                            {
-                                                                                                                    <text>CC:</text>
-                                                                                                                @foreach (var itms in itm.AssignCCList)
-                                                                                                                {
-                                                                                                                    <span>@itms.FirstName ,</span>
-                                                                                                                }
-                                                                                                            }                                                                                                            
-                                                                                                        </h5>
-                                                                                                    </div>
-                                                                                                    @*<div>
-                                                                                                        <DxRichEdit DocumentFormat="DocumentFormat.Rtf" ViewType="ViewType.Simple" CssClass="w-100 txtEditorMsg" @ref="richEdit" ReadOnly="true" BarMode=BarMode.None DocumentContent="@itm.FileData" />
-                                                                                                    </div>*@
-                                                                                                    @if (itm.documents != null && itm.documents.Any())
-                                                                                                    {
-                                                                                                        @foreach (var attachment in itm.documents)
-                                                                                                        {
-                                                                                                            <div class="tag handline" @onclick="@(() => onDocDownload(attachment.DocumentId))"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
-                                                                                                        }
-                                                                                                    }
-                                                                                                    </div>
-                                                                                                }
-                                                                                            }
-                                                                                        }
-                                                                                    </div>
-                                                                                </div>
-
-                                                                            }
+                                                                            }                                                                            
                                                                         </div>
                                                                        
                                                                     }
@@ -776,7 +545,7 @@
                                                                                       ValueFieldName="UserID"
                                                                                       TextFieldName="Name"                                                                                      
                                                                                       ListRenderMode="ListRenderMode.Virtual"                                                                                      
-                                                                                      EditFormat="{0}-{1}"
+                                                                                      
                                                                                       @bind-Values="@Data.AssigntoIds"
                                                                                       SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedToItemsChanged(values))"
                                                                                       CssClass="cw-480">
@@ -795,7 +564,7 @@
                                                                                       SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedCCItemsChanged(values))"
                                                                                       ListRenderMode="ListRenderMode.Virtual"
                                                                                       @bind-Values="@Data.AssignccIds"
-                                                                                      EditFormat="{0}-{1}"
+                                                                                      
                                                                                       CssClass="cw-480">
                                                                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.Name)" Caption="Name" />
                                                                                     <DxListEditorColumn FieldName="@nameof(ViewEmployee.NickName)" Caption="Nick Name" />
@@ -3048,37 +2817,26 @@
 
         RTopicId = 0;
         Tid = long.Parse(@SelectedGroup);
-        var getconid = await Mediator.Send(new GetTopConversationList(Tid));
-        // Cid = getconid[0].ID;
+        var getconid = await Mediator.Send(new GetTopConversationList(Tid));       
         Cid = 0;
         SelectedReplyId = getconid[0].ID.ToString();
-        _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID,isLeftMenuvisible));
-        _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
+        //_discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup),applicationUser.UserID,isLeftMenuvisible));
+        //_discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
 
-        _assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup))); 
-        var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
-        _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-        var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
+        //_assigntoItems = await Mediator.Send(new GetEmailAssignToList(long.Parse(@SelectedGroup))); 
+        //var plist = await Mediator.Send(new GetAllEmployeeListQuery());  
+        //_allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        //var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
 
-        var ck_validuser = await Mediator.Send(new GetEmailValidUserList(long.Parse(@SelectedGroup), applicationUser.UserID));
-        IsValidUser = false;
-        IsFileValidUser = false;
-        //if(ck_validuser.Count > 0)
-        //{
-        //    IsValidUser = true;
-        //}
-        //else
-        //{
-        //    IsValidUser = false;
-        //}
+        //var ck_validuser = await Mediator.Send(new GetEmailValidUserList(long.Parse(@SelectedGroup), applicationUser.UserID));
+        //IsValidUser = false;
+        //IsFileValidUser = false;
+        
 
-        if (topicToList != null)
-        {
-            //Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
-            Data.AssigntoIds = new List<long>();
-        }
-
-        // Data.AssigntoIds = _assigntoItems.Take(1);
+        //if (topicToList != null)
+        //{            
+        //    Data.AssigntoIds = new List<long>();
+        //}       
 
 
         OnMenuItemClick(isMenuvisible);
@@ -3115,35 +2873,23 @@
 
 
         }
-        // Generate index IDs for each row
-        //var indexedDiscussionList = _discussionList.Select((item, index) => new
-        //{
-        //    IndexId = index + 1, // Adding 1 to make the index IDs start from 1
-        //    Item = item
-        //}).ToList();
+       
 
         if(long.Parse(@SelectedGroup) != 0)
         {
-            _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));
-            //_headTopic_Tag = await Mediator.Send(new GetByActivityEmailSession(_headTopic[0].SessionId.GetValueOrDefault()));
+            _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));            
             _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
-
-
             isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
             isEnabled = true;
             isTodoEnabled = false;
             isEllipsis = true;
             isCommand = true;
-            //_participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
-
-
             IsConHistory = true;            
         }
 
-        await JSRuntime.InvokeAsync<string>("hideLoading");
-        //var plist = await Mediator.Send(new GetAllEmployeeListQuery());
-        // _participant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        //await JSRuntime.InvokeAsync<string>("hideLoading");       
+        
     }
     private async Task LoadReplyData()
     {
@@ -3153,18 +2899,20 @@
         //var rTopicId =@RTopicId;
         Cid = long.Parse(@SelectedReplyId);
         Tid = RTopicId;
-        _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
-        _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
+        //_discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
+        //_discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
+        //if(_discussionList.Count > 0)
+        //{
+        //    IsValidUser = (_discussionList[0].AddedByUserID == applicationUser.UserID || _discussionList[0].OnBehalf == applicationUser.UserID) ? true : false;
+        //}        
 
-        IsValidUser = (_discussionList[0].AddedByUserID == applicationUser.UserID || _discussionList[0].OnBehalf == applicationUser.UserID) ? true : false;
-
-        _assigntoItems = await Mediator.Send(new GetEmailAssignToList(RTopicId));        
-        var topicToList = await Mediator.Send(new GetEmailTopicToList(RTopicId));
-        if (topicToList != null)
-        {
-            //Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
-            Data.AssigntoIds = new List<long>();
-        }   
+        //_assigntoItems = await Mediator.Send(new GetEmailAssignToList(RTopicId));        
+        //var topicToList = await Mediator.Send(new GetEmailTopicToList(RTopicId));
+        //if (topicToList != null)
+        //{
+        //    //Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
+        //    Data.AssigntoIds = new List<long>();
+        //}   
 
         OnMenuItemClick(isMenuvisible);
 
@@ -3221,7 +2969,8 @@
 
 
         IsConHistory = false;
-        await JSRuntime.InvokeAsync<string>("hideLoading");      
+        //await JSRuntime.InvokeAsync<string>("hideLoading");      
+        await InvokeAsync(StateHasChanged);
 
     }
     private async Task LoadDataPosts()
@@ -3234,7 +2983,7 @@
             {
                 Tid = long.Parse(@SelectedGroup);
                 var getconid = await Mediator.Send(new GetTopConversationList(Tid));
-                //Cid = getconid[0].ID;
+                
                 Cid = 0;
                 _discussionList = await Mediator.Send(new GetEmailDiscussionList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
                 _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(long.Parse(@SelectedGroup)));
@@ -3243,7 +2992,7 @@
                 var topicToList = await Mediator.Send(new GetEmailTopicToList(long.Parse(@SelectedGroup)));
                 if (topicToList != null)
                 {
-                    //Data.AssigntoIds = topicToList.Select(s => s.UserID).ToList();
+                    
                     Data.AssigntoIds = new List<long>();
                 }
 
@@ -3254,13 +3003,15 @@
                 isTodoEnabled = false;
                 isEllipsis = true;
                 isCommand = true;
-                //_participant = await Mediator.Send(new GetEmailParticipantsList(long.Parse(@SelectedGroup)));
+                
 
             }
 
         }
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        await InvokeAsync(StateHasChanged);
 
     }
     private async Task LoadReplyDataPosts()
@@ -3269,7 +3020,9 @@
         closeReply();
         Cid = long.Parse(@SelectedReplyId);
         Tid = RTopicId;
+        await JSRuntime.InvokeAsync<string>("showLoading");
         _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
+       
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
 
         _assigntoItems = await Mediator.Send(new GetEmailAssignToList(RTopicId));
@@ -3289,6 +3042,10 @@
         //_participant = await Mediator.Send(new GetEmailParticipantsList(RTopicId));
 
         await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        await InvokeAsync(StateHasChanged);
+
+
 
     }
     void OnSelectedDataItemsChanged(IReadOnlyList<object> selectedDataItems)

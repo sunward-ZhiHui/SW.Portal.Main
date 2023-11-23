@@ -1,5 +1,5 @@
-﻿@page "/ProductionActivity/ProductionActivityReport"
-@page "/ProductionActivity/ProductionActivityReport/{MainSessionId:guid}"
+﻿@page "/ProductionActivityReport"
+@page "/ProductionActivityReport/{MainSessionId:guid}"
 @using Application.Queries;
 @using MediatR;
 @using global::Core.Entities;
@@ -44,6 +44,7 @@
                                 @* <DxMenuItem Text="Notify" IconCssClass="fa fa-bell" Visible="NotifyEnabled" /> *@
 
                                 <DxMenuItem Text="Mail" IconCssClass="fa fa-envelope" Click="onEmailOpen" Visible="MailEnabled" />
+                                <DxMenuItem Text="Email Activity" IconCssClass="fa fa-envelope" Click="onEmailActivityOpen" Visible="EmailActivityEnabled" />
                                 <DxMenuItem Text="Supporting Documents" Click="onSupportingDocuments" IconCssClass="fa fa-adjust" Visible="SupportDocEnabled" />
                                 <DxMenuItem Text="Activity Info" IconCssClass="fa fa-info" Click="@(_ => OnClickActivityStatusOpen("Activity Info"))" Visible="ActivityInfoEnabled" />
                                 <DxMenuItem Text="Non compliance" Click="@(_ => onOperators("NonCompliance","Non-Compliance"))" IconCssClass="fa fa-gavel" Visible="NonComplianceEnabled" />
@@ -109,6 +110,7 @@
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn Caption="Name" FieldName="FileName" MinWidth="180" />
+            <DxGridDataColumn Caption="ProfileNo" FieldName="ActivityProfileNo" MinWidth="180" />
             <DxGridDataColumn Caption="Company" FieldName="CompanyName" MinWidth="180" />
             <DxGridDataColumn Caption="Ticket No" FieldName="ProdOrderNoDesc" MinWidth="180" />
             <DxGridDataColumn Caption="Location/Batch Info." FieldName="LocationName" MinWidth="180" />
@@ -464,6 +466,20 @@
 
     </FooterContentTemplate>
 </DxFlyout>
+<DxPopup @bind-Visible="@ActivityEmailSubjectPopup"
+         ShowFooter="false"
+         HeaderText="Email Activity Subject"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         CloseOnEscape="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <ProductActivityEmailActivitySubjects selectedFiles="@_selectedItems" ActivityType="ProductionActivity" applicationUser="@applicationUser"></ProductActivityEmailActivitySubjects>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
     [Parameter]
     public Guid? MainSessionId { get; set; }
@@ -519,7 +535,9 @@
     public bool SupportDocEnabled { get; set; } = false;
     public bool NonComplianceEnabled { get; set; } = false;
     public bool OperatorEnabled { get; set; } = false; public bool UpdateStatusEnabled { get; set; } = false;
+    public bool EmailActivityEnabled { get; set; } = false;
     public bool ActivityInfoEnabled { get; set; } = false;
+    public bool ActivityEmailSubjectPopup { get; set; } = false;
     private List<View_ApplicationMasterDetail> _ActivityStatusItem;
     private List<View_ApplicationMasterDetail> _ActivityMaster;
     private List<View_ApplicationMasterDetail> _ActivityResult;
@@ -560,7 +578,7 @@
         isVisibleMore = "display:none;";
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
-        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;
         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         _AppLines = new List<ProductActivityAppModel>();
         PanelVisible = true; ActiveTabIndex = 0; uploadEnabled = false;
@@ -610,7 +628,7 @@
         isVisibleMore = "display:none;";
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
-        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;
         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         if (_selectedItems != null)
         {
@@ -671,11 +689,15 @@
                             CheckInEnabled = true;
                             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
                             HistoryEnabled = false;
-                            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+                            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;
                             NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
                         }
                         else
                         {
+                            if (_selectedItems.IsEmailCreated == true)
+                            {
+                                EmailActivityEnabled = true;
+                            }
                             if (_selectedItems.DocumentID > 0)
                             {
 
@@ -848,13 +870,17 @@
         isVisibleMore = "";
         EditEnabled = true; DeleteEnabled = true;
         NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true;
+        if(_selectedItems.IsEmailCreated==true)
+        {
+            EmailActivityEnabled = true;
+        }
         NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true;
         if (_selectedItems.IsLocked == true)
         {
             CheckOutEnabled = false;
             CheckInEnabled = true;
             EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
-            HistoryEnabled = false;
+            HistoryEnabled = false;EmailActivityEnabled = false;
             viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
             NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         }
@@ -1095,6 +1121,7 @@
     }
     void CloseHistoryPopup()
     {
+        ActivityEmailSubjectPopup = false;
         ActivityEmailPopup = false;
         PopupVisible = false;
         SupportingDocumentsPopup = false;
@@ -1198,6 +1225,11 @@
     async Task OnFilterDocuments()
     {
         await onLoadDataList();
+    }
+    void onEmailActivityOpen()
+    {
+        ActivityEmailSubjectPopup=true;
+        StateHasChanged();
     }
 }
 

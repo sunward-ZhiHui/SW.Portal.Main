@@ -48,8 +48,9 @@ namespace Core.EntityModels
         public bool? IsOthersOptions { get; set; } = null;
         public long? DocumentParentId { get; set; }
         public string? FileName { get; set; }
+        public string? ActivityProfileNo { get; set; }
         public string? ProfileNo { get; set; }
-        
+        public long? ProfileId { get; set; }
         public string? ContentType { get; set; }
         public bool? IsLocked { get; set; }
         public long? LockedByUserId { get; set; }
@@ -70,7 +71,6 @@ namespace Core.EntityModels
         public string? ProdActivityActionChild { get; set; }
         public DocumentPermissionModel DocumentPermissionData { get; set; } = new DocumentPermissionModel();
         public ProductActivityPermissionModel ProductActivityPermissionData { get; set; } = new ProductActivityPermissionModel();
-
         public List<ProductActivityPermissionModel> ProductActivityPermissions { get; set; } = new List<ProductActivityPermissionModel>();
         public string? ProdOrderNoDesc { get; set; }
         public string? Type { get; set; }

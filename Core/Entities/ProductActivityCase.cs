@@ -40,5 +40,6 @@ namespace Core.Entities
         public bool? IsEnglishLanguage { get; set; }
         public bool? IsMalayLanguage { get; set; }
         public bool? IsChineseLanguage { get; set; }
+        public long? ProfileId { get; set; }
     }
 }

@@ -84,7 +84,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<MultipleProductioAppLineItemLists> GetMultipleQueryAsync(List<long?> ProductionActivityAppLineIds, List<Guid?> SessionIds, List<long?> navprodOrderLineIds, List<int?> statusCodeIds, List<long?> masterChildIds, List<long?>  masterDetaildChildIds,List<long?> manufacturingProcessChildIds)
+        public async Task<MultipleProductioAppLineItemLists> GetMultipleQueryAsync(List<long?> ProductionActivityAppLineIds, List<Guid?> SessionIds, List<long?> navprodOrderLineIds, List<int?> statusCodeIds, List<long?> masterChildIds, List<long?> masterDetaildChildIds, List<long?> manufacturingProcessChildIds)
         {
             MultipleProductioAppLineItemLists multipleProductioAppLineItemLists = new MultipleProductioAppLineItemLists();
             try
@@ -174,9 +174,9 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("ActivityStatusId", value.ActivityStatusId);
                 parameters.Add("ActivityMasterId", value.ActivityMasterId);
                 parameters.Add("NavprodOrderLineId", value.NavprodOrderLineId);
-                parameters.Add("StartDate", value.StartDate,DbType.DateTime);
+                parameters.Add("StartDate", value.StartDate, DbType.DateTime);
                 parameters.Add("EndDate", value.EndDate, DbType.DateTime);
-                var query = @"select 
+                var query = @"select CASE WHEN  t1.ProfileNo IS NULL THEN '' ELSE  t1.ProfileNo END AS ProfileNo,t1.ProfileId,
                     t1.ProductionActivityAppLineID,t1.ProductionActivityAppID,t1.ActionDropdown,t1.ProdActivityActionID,t1.ProdActivityCategoryID,t1.ManufacturingProcessID,t1.IsTemplateUpload,t1.StatusCodeID,t1.AddedByUserID,t1.AddedDate,t1.ModifiedByUserID,t1.ModifiedDate,t1.SessionID as LineSessionId,t1.ProductActivityCaseLineID,t1.NavprodOrderLineID,t14.Name as LocationName,t1.Comment as LineComment,t1.QaCheck,t1.IsOthersOptions,t1.ProdActivityResultID,t1.ManufacturingProcessChildID,t1.ProdActivityCategoryChildID,t1.ProdActivityActionChildD,t1.TopicID,t1.QaCheckUserID,t1.QaCheckDate,t1.LocationID,t1.ProductActivityCaseID,t1.ActivityMasterID,t1.ActivityStatusID,t2.CompanyID,t10.PlantCode as CompanyName,t2.ProdOrderNo,t2.Comment,t2.SessionId,t2.LocationID,
                     'Production Activity' as Type,
                     (case when t1.IsTemplateUpload=1 then 'Yes' ELSE 'No' END) as IsTemplateUploadFlag,
@@ -223,7 +223,7 @@ namespace Infrastructure.Repository.Query
                 {
                     query += "\n\rAND t1.ActivityStatusId=@ActivityStatusId";
                 }
-                if (value.StartDate != null && value.EndDate==null)
+                if (value.StartDate != null && value.EndDate == null)
                 {
                     var from = value.StartDate.Value.ToString("yyyy-MM-dd");
                     query += "AND CAST(t1.AddedDate AS Date) >='" + from + "'\r\n";
@@ -256,7 +256,7 @@ namespace Infrastructure.Repository.Query
                     masterChildIds.AddRange(productActivityApps.ToList().Where(w => w.ProdActivityCategoryChildId > 0).Select(s => s.ProdActivityCategoryChildId).Distinct().ToList());
                     masterChildIds.AddRange(productActivityApps.ToList().Where(w => w.ProdActivityActionChildD > 0).Select(s => s.ProdActivityActionChildD).Distinct().ToList());
                     var manufacturingProcessChildIds = productActivityApps.ToList().Where(w => w.ManufacturingProcessChildId > 0).Select(s => s.ManufacturingProcessChildId).Distinct().ToList();
-                    var statusCodeIds= productActivityApps.ToList().Where(w => w.StatusCodeID > 0).Select(s => s.StatusCodeID).Distinct().ToList();
+                    var statusCodeIds = productActivityApps.ToList().Where(w => w.StatusCodeID > 0).Select(s => s.StatusCodeID).Distinct().ToList();
                     var navprodOrderLineIds = productActivityApps.ToList().Where(w => w.NavprodOrderLineId > 0).Select(s => s.NavprodOrderLineId).Distinct().ToList();
                     var productionActivityAppLineIds = productActivityApps.ToList().Select(s => s.ProductionActivityAppLineId).Distinct().ToList();
                     var sessionIds = productActivityApps.ToList().Where(w => w.LineSessionId != null).Select(s => s.LineSessionId).ToList();
@@ -289,255 +289,258 @@ namespace Infrastructure.Repository.Query
                     productActivityApps.ForEach(s =>
                     {
                         List<ProductActivityPermissionModel> ProductActivityPermissions = new List<ProductActivityPermissionModel>();
-                       /* var checkSameDept = false;
+                        /* var checkSameDept = false;
 
-                        if (s.AddedByUserID == userId)
+                         if (s.AddedByUserID == userId)
+                         {
+                             checkSameDept = true;
+                         }
+                         else
+                         {
+                             var employeeDep = employee != null && employee.Count() > 0 ? employee.FirstOrDefault(w => w.UserID == s.AddedByUserID)?.DepartmentID : null;
+                             if (loginUser != null && employeeDep != null && loginUser == employeeDep)
+                             {
+                                 checkSameDept = true;
+                             }
+                         }
+                         if (checkSameDept == true)
+                         {*/
+                        List<long> responsibilityUsers = new List<long>();
+                        /*if (s.ProductActivityCaseId > 0)
                         {
-                            checkSameDept = true;
+                            var templateTestCaseCheckListResponses = templateTestCaseCheckListResponse.Where(w => w.ProductActivityCaseId == s.ProductActivityCaseId && s.ProductActivityCaseId != null).Select(s => new { s.ProductActivityCaseResponsId, s.ProductActivityCaseId }).ToList();
+                            var templateTestCaseCheckListResponseIdss = templateTestCaseCheckListResponses.Select(s => s.ProductActivityCaseResponsId).ToList();
+                            var templateTestCaseCheckListResponseDutys = templateTestCaseCheckListResponseDuty.Where(w => templateTestCaseCheckListResponseIdss.Contains(w.ProductActivityCaseResponsId.Value)).Select(s => new { s.ProductActivityCaseResponsDutyId, s.ProductActivityCaseResponsId }).ToList();
+                            var templateTestCaseCheckListResponseDutyIdss = templateTestCaseCheckListResponseDutys.Select(s => s.ProductActivityCaseResponsDutyId).ToList();
+                            var templateTestCaseCheckListResponseResponsibles = templateTestCaseCheckListResponseResponsible.Where(w => templateTestCaseCheckListResponseDutyIdss.Contains(w.ProductActivityCaseResponsDutyId.Value)).Select(s => new { s.EmployeeId, s.ProductActivityCaseResponsDutyId }).ToList();
+                            var empIdss = templateTestCaseCheckListResponseResponsibles.Select(s => s.EmployeeId).ToList();
+                            var userIdss = employeeAll != null && employeeAll.Count() > 0 ? employeeAll.Where(w => empIdss.Contains(w.EmployeeID)).Select(s => s.UserID.GetValueOrDefault(0)).ToList() : new List<long>();
+                            var appUserss = appUser.Select(s => new { s.UserID, s.SessionId }).Where(w => userIdss.Contains(w.UserID) && w.SessionId != null).ToList();
+
+                            if (appUserss != null && appUserss.Count > 0)
+                            {
+                                var usersIdsBy = appUserss.Select(s => s.UserID).ToList();
+                                if (usersIdsBy != null && usersIdsBy.Count > 0)
+                                {
+                                    responsibilityUsers.AddRange(usersIdsBy);
+                                }
+                            }
+                        }*/
+
+                        var currentActivityResponseIds = templateTestCaseCheckListResponseDuty.Where(r => r.ProductActivityCaseResponsId == s.ProductionActivityAppLineId).Select(r => r.ProductActivityCaseResponsDutyId).ToList();
+
+                        var activityCaseManufacturingProcessList = activityCaseList.Where(a => a.ManufacturingProcessChildId == s.ManufacturingProcessChildId).Select(s => s.ProductActivityCaseId).ToList();
+                        var activitycaseReponseIds = prodactivityCategoryMultiplelist.Where(p => activityCaseManufacturingProcessList.Contains(p.ProductActivityCaseId.Value) && p.CategoryActionId == s.ProdActivityCategoryChildId).Select(s => s.ProductActivityCaseId).ToList();
+                        var actionmultipleIds = prodactivityActionMultiplelist.Where(p => activityCaseManufacturingProcessList.Contains(p.ProductActivityCaseId.Value) && activitycaseReponseIds.Contains(p.ProductActivityCaseId) && p.ActionId == s.ProdActivityActionChildD).Select(s => s.ProductActivityCaseId).ToList();
+                        if (actionmultipleIds != null && actionmultipleIds.Count > 0)
+                        {
+                            var responseId = templateTestCaseCheckListResponse.Where(r => actionmultipleIds.Contains(r.ProductActivityCaseId)).Select(r => r.ProductActivityCaseResponsId).ToList();
+                            var productActivityCaseResponsDutyIds = templateTestCaseCheckListResponseDuty.Where(r => responseId.Contains(r.ProductActivityCaseResponsId.Value)).Select(t => t.ProductActivityCaseResponsDutyId).ToList();
+                            if (productActivityCaseResponsDutyIds != null && productActivityCaseResponsDutyIds.Count > 0)
+                            {
+                                var empIds = templateTestCaseCheckListResponseResponsible.Where(r => productActivityCaseResponsDutyIds.Contains(r.ProductActivityCaseResponsDutyId.Value)).Select(s => s.EmployeeId.Value).ToList();
+
+                                if (empIds != null && empIds.Count > 0)
+                                {
+
+                                    responsibilityUsers.AddRange(empIds);
+
+                                }
+                                var selectPermissiondata = productActivityPermissionList.Where(p => p.UserID == userId && productActivityCaseResponsDutyIds.Contains(p.ProductActivityCaseResponsDutyId.Value)).ToList();
+                                // ProductActivityPermissions
+
+                                if (selectPermissiondata != null && selectPermissiondata.Count > 0)
+                                {
+                                    selectPermissiondata.ForEach(d =>
+                                    {
+                                        ProductActivityPermissionModel ProductActivityPermissionData = new ProductActivityPermissionModel();
+
+
+                                        ProductActivityPermissionData.IsChecker = d.IsChecker;
+                                        ProductActivityPermissionData.IsCheckOut = d.IsCheckOut;
+                                        ProductActivityPermissionData.IsUpdateStatus = d.IsUpdateStatus;
+                                        ProductActivityPermissionData.ProductActivityPermissionId = d.ProductActivityPermissionId;
+                                        ProductActivityPermissionData.ProductActivityCaseId = d.ProductActivityCaseId;
+                                        ProductActivityPermissionData.IsViewFile = d.IsViewFile;
+                                        ProductActivityPermissionData.IsViewHistory = d.IsViewHistory;
+                                        ProductActivityPermissionData.IsCopyLink = d.IsCopyLink;
+                                        ProductActivityPermissionData.IsMail = d.IsMail;
+                                        ProductActivityPermissionData.IsActivityInfo = d.IsActivityInfo;
+                                        ProductActivityPermissionData.IsNonCompliance = d.IsNonCompliance;
+                                        ProductActivityPermissionData.IsSupportDocuments = d.IsSupportDocuments;
+                                        ProductActivityPermissionData.UserID = d.UserID;
+                                        ProductActivityPermissionData.ProductActivityCaseResponsDutyId = d.ProductActivityCaseResponsDutyId;
+                                        ProductActivityPermissions.Add(ProductActivityPermissionData);
+                                    });
+                                }
+                            }
                         }
                         else
                         {
-                            var employeeDep = employee != null && employee.Count() > 0 ? employee.FirstOrDefault(w => w.UserID == s.AddedByUserID)?.DepartmentID : null;
-                            if (loginUser != null && employeeDep != null && loginUser == employeeDep)
+                            responsibilityUsers.Add(userId.Value);
+                        }
+
+
+                        ProductActivityAppModel productActivityApp = new ProductActivityAppModel();
+                        productActivityApp.Type = s.Type;
+                        productActivityApp.ResponsibilityUsers = responsibilityUsers;
+                        productActivityApp.ProductActivityCaseId = s.ProductActivityCaseId;
+                        productActivityApp.SupportDocCount = s.SupportDocCount;
+                        productActivityApp.ProductionActivityAppLineId = s.ProductionActivityAppLineId;
+                        productActivityApp.ProductionActivityAppId = s.ProductionActivityAppId;
+                        productActivityApp.Comment = s.Comment;
+                        productActivityApp.LineComment = s.LineComment;
+                        productActivityApp.ActivityStatusId = s.ActivityStatusId;
+                        productActivityApp.ActivityStatus = s.ActivityStatusId > 0 && applicationMasterDetail != null && applicationMasterDetail.Count() > 0 ? applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == s.ActivityStatusId)?.Value : string.Empty;
+                        productActivityApp.ManufacturingProcessId = s.ManufacturingProcessId;
+                        productActivityApp.ProdActivityResultId = s.ProdActivityResultId;
+                        productActivityApp.ProdActivityResult = s.ProdActivityResultId > 0 && applicationMasterDetail != null && applicationMasterDetail.Count() > 0 ? applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == s.ProdActivityResultId)?.Value : string.Empty;
+                        productActivityApp.ManufacturingProcess = s.ManufacturingProcess;
+                        productActivityApp.CompanyId = s.CompanyId;
+                        productActivityApp.CompanyName = s.CompanyName;
+                        productActivityApp.ProdActivityActionId = s.ProdActivityActionId;
+                        productActivityApp.ProdActivityAction = s.ProdActivityAction;
+                        productActivityApp.ActionDropdown = s.ActionDropdown;
+                        productActivityApp.ProdActivityCategoryId = s.ProdActivityCategoryId;
+                        productActivityApp.ProdActivityCategory = s.ProdActivityCategory;
+                        productActivityApp.IsTemplateUpload = s.IsTemplateUpload;
+                        productActivityApp.IsTemplateUploadFlag = s.IsTemplateUploadFlag;
+                        productActivityApp.ProdOrderNo = s.ProdOrderNo;
+                        productActivityApp.StatusCodeID = s.StatusCodeID;
+                        productActivityApp.ModifiedByUserID = s.ModifiedByUserID;
+                        productActivityApp.ModifiedDate = s.ModifiedDate;
+                        productActivityApp.SessionId = s.SessionId;
+                        productActivityApp.LineSessionId = s.LineSessionId;
+                        productActivityApp.AddedByUserID = s.AddedByUserID;
+                        productActivityApp.AddedDate = s.AddedDate;
+                        productActivityApp.AddedByUser = appUser != null && appUser.Count() > 0 ? appUser.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName : string.Empty;
+                        productActivityApp.ModifiedByUser = appUser != null && appUser.Count() > 0 ? appUser.FirstOrDefault(f => f.UserID == s.ModifiedByUserID)?.UserName : string.Empty;
+                        productActivityApp.StatusCode = codeMasters != null && codeMasters.Count() > 0 ? codeMasters.FirstOrDefault(f => f.CodeId == s.StatusCodeID)?.CodeValue : string.Empty;
+                        productActivityApp.ProductActivityCaseLineId = s.ProductActivityCaseLineId;
+                        productActivityApp.NameOfTemplate = s.NameOfTemplate;
+                        productActivityApp.Link = s.Link;
+                        productActivityApp.LocationToSaveId = s.LocationToSaveId;
+                        productActivityApp.QaCheck = s.QaCheck == true ? true : false;
+                        productActivityApp.ActivityProfileNo = s.ProfileNo;
+                        productActivityApp.ProfileId = s.ProfileId;
+                        if (s.IsOthersOptions == true)
+                        {
+                            productActivityApp.ProdOrderNoDesc = "Other";
+                        }
+                        else
+                        {
+                            productActivityApp.ItemNo = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.ItemNo) : string.Empty;
+                            productActivityApp.Description = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.Description) : string.Empty;
+                            productActivityApp.Description1 = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.Description1) : string.Empty;
+                            productActivityApp.BatchNo = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.BatchNo) : string.Empty;
+                            productActivityApp.RePlanRefNo = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.RePlanRefNo) : string.Empty;
+                            productActivityApp.ProdOrderNoDesc = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.ProdOrderNoDesc) : string.Empty;
+                        }
+                        productActivityApp.NavprodOrderLineId = s.NavprodOrderLineId;
+                        productActivityApp.IsOthersOptions = s.IsOthersOptions;
+                        productActivityApp.ManufacturingProcessChildId = s.ManufacturingProcessChildId;
+                        productActivityApp.ProdActivityActionChildD = s.ProdActivityActionChildD;
+                        productActivityApp.ProdActivityCategoryChildId = s.ProdActivityCategoryChildId;
+                        productActivityApp.ManufacturingProcessChild = s.ManufacturingProcessChildId > 0 && applicationMasterChild != null && applicationMasterChild.Count() > 0 ? applicationMasterChild.FirstOrDefault(f => f.ApplicationMasterChildId == s.ManufacturingProcessChildId)?.Value : string.Empty;
+                        productActivityApp.ProdActivityActionChild = s.ProdActivityActionChildD > 0 && applicationMasterChild != null && applicationMasterChild.Count() > 0 ? applicationMasterChild.FirstOrDefault(f => f.ApplicationMasterChildId == s.ProdActivityActionChildD)?.Value : string.Empty;
+                        productActivityApp.ProdActivityCategoryChild = s.ProdActivityCategoryChildId > 0 && applicationMasterChild != null && applicationMasterChild.Count() > 0 ? applicationMasterChild.FirstOrDefault(f => f.ApplicationMasterChildId == s.ProdActivityCategoryChildId)?.Value : string.Empty;
+                        productActivityApp.TopicId = s.TopicId;
+                        productActivityApp.LocationId = s.LocationId;
+                        productActivityApp.LocationName = s.LocationName + "|" + s.ProdOrderNo;
+                        productActivityApp.ProductionActivityAppLineQaCheckerModels = productionActivityAppLineQaChecker != null ? productionActivityAppLineQaChecker.Where(z => z.ProductionActivityAppLineId == s.ProductionActivityAppLineId).ToList() : new List<ProductionActivityAppLineQaCheckerModel>();
+                        productActivityApp.DocumentPermissionData = new DocumentPermissionModel();
+                        productActivityApp.ActivityMasterIds = activityMasterMultiple != null && activityMasterMultiple.Count > 0 ? activityMasterMultiple.Where(a => a.ProductionActivityAppLineId == s.ProductionActivityAppLineId).Select(z => z.AcitivityMasterID).ToList() : new List<long?>();
+                        var masterList = activityMasterMultiple != null && activityMasterMultiple.Count > 0 ? activityMasterMultiple.Where(a => a.ProductionActivityAppLineId == s.ProductionActivityAppLineId).Select(z => z.AcitivityMasterName).ToList() : new List<string?>();
+                        productActivityApp.ActivityMaster = string.Join(",", masterList);
+                        var emailcreated = activityEmailTopicList.Where(a => a.ActivityMasterId == s.ProductionActivityAppLineId && a.EmailTopicSessionId != null)?.FirstOrDefault();
+                        if (emailcreated != null)
+                        {
+                            productActivityApp.IsEmailCreated = true;
+                        }
+                        if (documents != null && s.LineSessionId != null)
+                        {
+                            var counts = documents.FirstOrDefault(w => w.SessionId == s.LineSessionId);
+                            if (counts != null)
                             {
-                                checkSameDept = true;
+                                productActivityApp.DocumentId = counts.DocumentId;
+                                productActivityApp.FileProfileTypeId = counts.FilterProfileTypeId;
+                                productActivityApp.DocumentID = counts.DocumentId;
+                                productActivityApp.DocumentParentId = counts.DocumentParentId;
+                                productActivityApp.FileName = counts.FileName;
+                                productActivityApp.ProfileNo = counts.ProfileNo;
+                                productActivityApp.FilePath = counts.FilePath;
+                                productActivityApp.UniqueSessionId = counts.UniqueSessionId;
+                                productActivityApp.IsNewPath = counts.IsNewPath == true ? true : false;
+                                productActivityApp.ContentType = counts.ContentType;
+                                productActivityApp.IsLocked = counts.IsLocked;
+                                productActivityApp.LockedByUserId = counts.LockedByUserId;
+                                productActivityApp.ModifiedDate = counts.UploadDate;
+                                productActivityApp.ModifiedByUser = appUser != null && appUser.Count() > 0 && counts.AddedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.AddedByUserId)?.UserName : "";
+                                productActivityApp.LockedByUser = appUser != null && appUser.Count() > 0 && counts.LockedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.LockedByUserId)?.UserName : "";
+                                productActivityApp.LocationToSaveId = counts.FilterProfileTypeId;
                             }
                         }
-                        if (checkSameDept == true)
-                        {*/
-                            List<long> responsibilityUsers = new List<long>();
-                            /*if (s.ProductActivityCaseId > 0)
+                        if (ProductActivityPermissions != null && ProductActivityPermissions.Count > 0)
+                        {
+                            ProductActivityPermissions.ForEach(d =>
                             {
-                                var templateTestCaseCheckListResponses = templateTestCaseCheckListResponse.Where(w => w.ProductActivityCaseId == s.ProductActivityCaseId && s.ProductActivityCaseId != null).Select(s => new { s.ProductActivityCaseResponsId, s.ProductActivityCaseId }).ToList();
-                                var templateTestCaseCheckListResponseIdss = templateTestCaseCheckListResponses.Select(s => s.ProductActivityCaseResponsId).ToList();
-                                var templateTestCaseCheckListResponseDutys = templateTestCaseCheckListResponseDuty.Where(w => templateTestCaseCheckListResponseIdss.Contains(w.ProductActivityCaseResponsId.Value)).Select(s => new { s.ProductActivityCaseResponsDutyId, s.ProductActivityCaseResponsId }).ToList();
-                                var templateTestCaseCheckListResponseDutyIdss = templateTestCaseCheckListResponseDutys.Select(s => s.ProductActivityCaseResponsDutyId).ToList();
-                                var templateTestCaseCheckListResponseResponsibles = templateTestCaseCheckListResponseResponsible.Where(w => templateTestCaseCheckListResponseDutyIdss.Contains(w.ProductActivityCaseResponsDutyId.Value)).Select(s => new { s.EmployeeId, s.ProductActivityCaseResponsDutyId }).ToList();
-                                var empIdss = templateTestCaseCheckListResponseResponsibles.Select(s => s.EmployeeId).ToList();
-                                var userIdss = employeeAll != null && employeeAll.Count() > 0 ? employeeAll.Where(w => empIdss.Contains(w.EmployeeID)).Select(s => s.UserID.GetValueOrDefault(0)).ToList() : new List<long>();
-                                var appUserss = appUser.Select(s => new { s.UserID, s.SessionId }).Where(w => userIdss.Contains(w.UserID) && w.SessionId != null).ToList();
 
-                                if (appUserss != null && appUserss.Count > 0)
+                                if (d.ProductActivityPermissionId > 0)
                                 {
-                                    var usersIdsBy = appUserss.Select(s => s.UserID).ToList();
-                                    if (usersIdsBy != null && usersIdsBy.Count > 0)
+                                    productActivityApp.IsActionPermission = true;
+                                    if (userId == d.UserID)
                                     {
-                                        responsibilityUsers.AddRange(usersIdsBy);
-                                    }
-                                }
-                            }*/
-
-                            var currentActivityResponseIds = templateTestCaseCheckListResponseDuty.Where(r => r.ProductActivityCaseResponsId == s.ProductionActivityAppLineId).Select(r => r.ProductActivityCaseResponsDutyId).ToList();
-
-                            var activityCaseManufacturingProcessList = activityCaseList.Where(a => a.ManufacturingProcessChildId == s.ManufacturingProcessChildId).Select(s => s.ProductActivityCaseId).ToList();
-                            var activitycaseReponseIds = prodactivityCategoryMultiplelist.Where(p => activityCaseManufacturingProcessList.Contains(p.ProductActivityCaseId.Value) && p.CategoryActionId == s.ProdActivityCategoryChildId).Select(s => s.ProductActivityCaseId).ToList();
-                            var actionmultipleIds = prodactivityActionMultiplelist.Where(p => activityCaseManufacturingProcessList.Contains(p.ProductActivityCaseId.Value) && activitycaseReponseIds.Contains(p.ProductActivityCaseId) && p.ActionId == s.ProdActivityActionChildD).Select(s => s.ProductActivityCaseId).ToList();
-                            if (actionmultipleIds != null && actionmultipleIds.Count > 0)
-                            {
-                                var responseId = templateTestCaseCheckListResponse.Where(r => actionmultipleIds.Contains(r.ProductActivityCaseId)).Select(r => r.ProductActivityCaseResponsId).ToList();
-                                var productActivityCaseResponsDutyIds = templateTestCaseCheckListResponseDuty.Where(r => responseId.Contains(r.ProductActivityCaseResponsId.Value)).Select(t => t.ProductActivityCaseResponsDutyId).ToList();
-                                if (productActivityCaseResponsDutyIds != null && productActivityCaseResponsDutyIds.Count > 0)
-                                {
-                                    var empIds = templateTestCaseCheckListResponseResponsible.Where(r => productActivityCaseResponsDutyIds.Contains(r.ProductActivityCaseResponsDutyId.Value)).Select(s => s.EmployeeId.Value).ToList();
-                                    
-                                    if (empIds != null && empIds.Count > 0)
-                                    {
-
-                                        responsibilityUsers.AddRange(empIds);
-
-                                    }
-                                    var selectPermissiondata = productActivityPermissionList.Where(p => p.UserID==userId && productActivityCaseResponsDutyIds.Contains(p.ProductActivityCaseResponsDutyId.Value)).ToList();
-                                    // ProductActivityPermissions
-
-                                    if (selectPermissiondata != null && selectPermissiondata.Count > 0)
-                                    {
-                                        selectPermissiondata.ForEach(d => {
-                                            ProductActivityPermissionModel ProductActivityPermissionData = new ProductActivityPermissionModel();
-
-
-                                            ProductActivityPermissionData.IsChecker = d.IsChecker;
-                                            ProductActivityPermissionData.IsCheckOut = d.IsCheckOut;
-                                            ProductActivityPermissionData.IsUpdateStatus = d.IsUpdateStatus;
-                                            ProductActivityPermissionData.ProductActivityPermissionId = d.ProductActivityPermissionId;
-                                            ProductActivityPermissionData.ProductActivityCaseId = d.ProductActivityCaseId;
-                                            ProductActivityPermissionData.IsViewFile = d.IsViewFile;
-                                            ProductActivityPermissionData.IsViewHistory = d.IsViewHistory;
-                                            ProductActivityPermissionData.IsCopyLink = d.IsCopyLink;
-                                            ProductActivityPermissionData.IsMail = d.IsMail;
-                                            ProductActivityPermissionData.IsActivityInfo = d.IsActivityInfo;
-                                            ProductActivityPermissionData.IsNonCompliance = d.IsNonCompliance;
-                                            ProductActivityPermissionData.IsSupportDocuments = d.IsSupportDocuments;
-                                            ProductActivityPermissionData.UserID = d.UserID;
-                                            ProductActivityPermissionData.ProductActivityCaseResponsDutyId = d.ProductActivityCaseResponsDutyId;
-                                            ProductActivityPermissions.Add(ProductActivityPermissionData);
-                                        });
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                responsibilityUsers.Add(userId.Value);
-                            }
-
-
-                            ProductActivityAppModel productActivityApp = new ProductActivityAppModel();
-                            productActivityApp.Type = s.Type;
-                            productActivityApp.ResponsibilityUsers = responsibilityUsers;
-                            productActivityApp.ProductActivityCaseId = s.ProductActivityCaseId;
-                            productActivityApp.SupportDocCount = s.SupportDocCount;
-                            productActivityApp.ProductionActivityAppLineId = s.ProductionActivityAppLineId;
-                            productActivityApp.ProductionActivityAppId = s.ProductionActivityAppId;
-                            productActivityApp.Comment = s.Comment;
-                            productActivityApp.LineComment = s.LineComment;
-                            productActivityApp.ActivityStatusId = s.ActivityStatusId;
-                            productActivityApp.ActivityStatus = s.ActivityStatusId > 0 && applicationMasterDetail != null && applicationMasterDetail.Count() > 0 ? applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == s.ActivityStatusId)?.Value : string.Empty;
-                            productActivityApp.ManufacturingProcessId = s.ManufacturingProcessId;
-                            productActivityApp.ProdActivityResultId = s.ProdActivityResultId;
-                            productActivityApp.ProdActivityResult = s.ProdActivityResultId > 0 && applicationMasterDetail != null && applicationMasterDetail.Count() > 0 ? applicationMasterDetail.FirstOrDefault(f => f.ApplicationMasterDetailId == s.ProdActivityResultId)?.Value : string.Empty;
-                            productActivityApp.ManufacturingProcess = s.ManufacturingProcess;
-                            productActivityApp.CompanyId = s.CompanyId;
-                            productActivityApp.CompanyName = s.CompanyName;
-                            productActivityApp.ProdActivityActionId = s.ProdActivityActionId;
-                            productActivityApp.ProdActivityAction = s.ProdActivityAction;
-                            productActivityApp.ActionDropdown = s.ActionDropdown;
-                            productActivityApp.ProdActivityCategoryId = s.ProdActivityCategoryId;
-                            productActivityApp.ProdActivityCategory = s.ProdActivityCategory;
-                            productActivityApp.IsTemplateUpload = s.IsTemplateUpload;
-                            productActivityApp.IsTemplateUploadFlag = s.IsTemplateUploadFlag;
-                            productActivityApp.ProdOrderNo = s.ProdOrderNo;
-                            productActivityApp.StatusCodeID = s.StatusCodeID;
-                            productActivityApp.ModifiedByUserID = s.ModifiedByUserID;
-                            productActivityApp.ModifiedDate = s.ModifiedDate;
-                            productActivityApp.SessionId = s.SessionId;
-                            productActivityApp.LineSessionId = s.LineSessionId;
-                            productActivityApp.AddedByUserID = s.AddedByUserID;
-                            productActivityApp.AddedDate = s.AddedDate;
-                            productActivityApp.AddedByUser = appUser != null && appUser.Count() > 0 ? appUser.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName : string.Empty;
-                            productActivityApp.ModifiedByUser = appUser != null && appUser.Count() > 0 ? appUser.FirstOrDefault(f => f.UserID == s.ModifiedByUserID)?.UserName : string.Empty;
-                            productActivityApp.StatusCode = codeMasters != null && codeMasters.Count() > 0 ? codeMasters.FirstOrDefault(f => f.CodeId == s.StatusCodeID)?.CodeValue : string.Empty;
-                            productActivityApp.ProductActivityCaseLineId = s.ProductActivityCaseLineId;
-                            productActivityApp.NameOfTemplate = s.NameOfTemplate;
-                            productActivityApp.Link = s.Link;
-                            productActivityApp.LocationToSaveId = s.LocationToSaveId;
-                            productActivityApp.QaCheck = s.QaCheck == true ? true : false;
-                            if (s.IsOthersOptions == true)
-                            {
-                                productActivityApp.ProdOrderNoDesc = "Other";
-                            }
-                            else
-                            {
-                                productActivityApp.ItemNo = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.ItemNo) : string.Empty;
-                                productActivityApp.Description = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.Description) : string.Empty;
-                                productActivityApp.Description1 = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.Description1) : string.Empty;
-                                productActivityApp.BatchNo = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.BatchNo) : string.Empty;
-                                productActivityApp.RePlanRefNo = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.RePlanRefNo) : string.Empty;
-                                productActivityApp.ProdOrderNoDesc = s.NavprodOrderLineId > 0 && navprodOrderLines != null && navprodOrderLines.Count() > 0 ? (navprodOrderLines.FirstOrDefault(f => f.NavprodOrderLineId == s.NavprodOrderLineId)?.ProdOrderNoDesc) : string.Empty;
-                            }
-                            productActivityApp.NavprodOrderLineId = s.NavprodOrderLineId;
-                            productActivityApp.IsOthersOptions = s.IsOthersOptions;
-                            productActivityApp.ManufacturingProcessChildId = s.ManufacturingProcessChildId;
-                            productActivityApp.ProdActivityActionChildD = s.ProdActivityActionChildD;
-                            productActivityApp.ProdActivityCategoryChildId = s.ProdActivityCategoryChildId;
-                            productActivityApp.ManufacturingProcessChild = s.ManufacturingProcessChildId>0 && applicationMasterChild != null && applicationMasterChild.Count() > 0 ? applicationMasterChild.FirstOrDefault(f => f.ApplicationMasterChildId == s.ManufacturingProcessChildId)?.Value : string.Empty;
-                            productActivityApp.ProdActivityActionChild = s.ProdActivityActionChildD > 0 && applicationMasterChild != null && applicationMasterChild.Count() > 0 ? applicationMasterChild.FirstOrDefault(f => f.ApplicationMasterChildId == s.ProdActivityActionChildD)?.Value : string.Empty;
-                            productActivityApp.ProdActivityCategoryChild = s.ProdActivityCategoryChildId > 0 && applicationMasterChild != null && applicationMasterChild.Count() > 0 ? applicationMasterChild.FirstOrDefault(f => f.ApplicationMasterChildId == s.ProdActivityCategoryChildId)?.Value : string.Empty;
-                            productActivityApp.TopicId = s.TopicId;
-                            productActivityApp.LocationId = s.LocationId;
-                            productActivityApp.LocationName = s.LocationName + "|" + s.ProdOrderNo;
-                            productActivityApp.ProductionActivityAppLineQaCheckerModels = productionActivityAppLineQaChecker != null ? productionActivityAppLineQaChecker.Where(z => z.ProductionActivityAppLineId == s.ProductionActivityAppLineId).ToList() : new List<ProductionActivityAppLineQaCheckerModel>();
-                            productActivityApp.DocumentPermissionData = new DocumentPermissionModel();
-                            productActivityApp.ActivityMasterIds = activityMasterMultiple != null && activityMasterMultiple.Count > 0 ? activityMasterMultiple.Where(a => a.ProductionActivityAppLineId == s.ProductionActivityAppLineId).Select(z => z.AcitivityMasterID).ToList() : new List<long?>();
-                            var masterList = activityMasterMultiple != null && activityMasterMultiple.Count > 0 ? activityMasterMultiple.Where(a => a.ProductionActivityAppLineId == s.ProductionActivityAppLineId).Select(z => z.AcitivityMasterName).ToList() : new List<string?>();
-                            productActivityApp.ActivityMaster = string.Join(",", masterList);
-                            var emailcreated = activityEmailTopicList.Where(a => a.ActivityMasterId == s.ProductionActivityAppLineId && a.EmailTopicSessionId != null)?.FirstOrDefault();
-                            if (emailcreated != null)
-                            {
-                                productActivityApp.IsEmailCreated = true;
-                            }
-                            if (documents != null && s.LineSessionId != null)
-                            {
-                                var counts = documents.FirstOrDefault(w => w.SessionId == s.LineSessionId);
-                                if (counts != null)
-                                {
-                                    productActivityApp.DocumentId = counts.DocumentId;
-                                    productActivityApp.FileProfileTypeId = counts.FilterProfileTypeId;
-                                    productActivityApp.DocumentID = counts.DocumentId;
-                                    productActivityApp.DocumentParentId = counts.DocumentParentId;
-                                    productActivityApp.FileName = counts.FileName;
-                                    productActivityApp.ProfileNo = counts.ProfileNo;
-                                    productActivityApp.FilePath = counts.FilePath;
-                                    productActivityApp.UniqueSessionId = counts.UniqueSessionId;
-                                    productActivityApp.IsNewPath = counts.IsNewPath == true ? true : false;
-                                    productActivityApp.ContentType = counts.ContentType;
-                                    productActivityApp.IsLocked = counts.IsLocked;
-                                    productActivityApp.LockedByUserId = counts.LockedByUserId;
-                                    productActivityApp.ModifiedDate = counts.UploadDate;
-                                    productActivityApp.ModifiedByUser = appUser != null && appUser.Count() > 0 && counts.AddedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.AddedByUserId)?.UserName : "";
-                                    productActivityApp.LockedByUser = appUser != null && appUser.Count() > 0 && counts.LockedByUserId != null ? appUser.FirstOrDefault(f => f.UserID == counts.LockedByUserId)?.UserName : "";
-                                    productActivityApp.LocationToSaveId = counts.FilterProfileTypeId;
-                                }
-                            }
-                            if (ProductActivityPermissions != null && ProductActivityPermissions.Count > 0)
-                            {
-                                ProductActivityPermissions.ForEach(d =>
-                                {
-
-                                    if (d.ProductActivityPermissionId > 0)
-                                    {
-                                        productActivityApp.IsActionPermission = true;
-                                        if (userId == d.UserID)
-                                        {
-                                            productActivityApp.ProductActivityPermissionData.IsChecker = d.IsChecker;
-                                            productActivityApp.ProductActivityPermissionData.IsUpdateStatus = d.IsUpdateStatus;
-                                            productActivityApp.ProductActivityPermissionData.IsCheckOut = d.IsCheckOut;
-                                            productActivityApp.ProductActivityPermissionData.ProductActivityPermissionId = d.ProductActivityPermissionId;
-                                            productActivityApp.ProductActivityPermissionData.ProductActivityCaseId = d.ProductActivityCaseId;
-                                            productActivityApp.ProductActivityPermissionData.IsViewFile = d.IsViewFile;
-                                            productActivityApp.ProductActivityPermissionData.IsViewHistory = d.IsViewHistory;
-                                            productActivityApp.ProductActivityPermissionData.IsCopyLink = d.IsCopyLink;
-                                            productActivityApp.ProductActivityPermissionData.IsMail = d.IsMail;
-                                            productActivityApp.ProductActivityPermissionData.IsActivityInfo = d.IsActivityInfo;
-                                            productActivityApp.ProductActivityPermissionData.IsNonCompliance = d.IsNonCompliance;
-                                            productActivityApp.ProductActivityPermissionData.IsSupportDocuments = d.IsSupportDocuments;
-                                            productActivityApp.ProductActivityPermissionData.UserID = d.UserID;
-                                            productActivityApp.ProductActivityPermissionData.ProductActivityCaseResponsDutyId = d.ProductActivityCaseResponsDutyId;
-                                        }
-                                        else
-                                        {
-                                            productActivityApp.IsActionPermission = false;
-                                        }
-
-
+                                        productActivityApp.ProductActivityPermissionData.IsChecker = d.IsChecker;
+                                        productActivityApp.ProductActivityPermissionData.IsUpdateStatus = d.IsUpdateStatus;
+                                        productActivityApp.ProductActivityPermissionData.IsCheckOut = d.IsCheckOut;
+                                        productActivityApp.ProductActivityPermissionData.ProductActivityPermissionId = d.ProductActivityPermissionId;
+                                        productActivityApp.ProductActivityPermissionData.ProductActivityCaseId = d.ProductActivityCaseId;
+                                        productActivityApp.ProductActivityPermissionData.IsViewFile = d.IsViewFile;
+                                        productActivityApp.ProductActivityPermissionData.IsViewHistory = d.IsViewHistory;
+                                        productActivityApp.ProductActivityPermissionData.IsCopyLink = d.IsCopyLink;
+                                        productActivityApp.ProductActivityPermissionData.IsMail = d.IsMail;
+                                        productActivityApp.ProductActivityPermissionData.IsActivityInfo = d.IsActivityInfo;
+                                        productActivityApp.ProductActivityPermissionData.IsNonCompliance = d.IsNonCompliance;
+                                        productActivityApp.ProductActivityPermissionData.IsSupportDocuments = d.IsSupportDocuments;
+                                        productActivityApp.ProductActivityPermissionData.UserID = d.UserID;
+                                        productActivityApp.ProductActivityPermissionData.ProductActivityCaseResponsDutyId = d.ProductActivityCaseResponsDutyId;
                                     }
                                     else
                                     {
                                         productActivityApp.IsActionPermission = false;
                                     }
-                                });
-                            }
-                            else
-                            {
-                                productActivityApp.IsActionPermission = true;
-                            }
-                            if (productActivityApp.ResponsibilityUsers != null && productActivityApp.ResponsibilityUsers.Count > 0)
-                            {
-                                if (productActivityApp.ResponsibilityUsers.Contains(userId.Value))
-                                {
-                                    productActivityAppModels.Add(productActivityApp);
+
+
                                 }
-                            }
-                            else
+                                else
+                                {
+                                    productActivityApp.IsActionPermission = false;
+                                }
+                            });
+                        }
+                        else
+                        {
+                            productActivityApp.IsActionPermission = true;
+                        }
+                        if (productActivityApp.ResponsibilityUsers != null && productActivityApp.ResponsibilityUsers.Count > 0)
+                        {
+                            if (productActivityApp.ResponsibilityUsers.Contains(userId.Value))
                             {
                                 productActivityAppModels.Add(productActivityApp);
                             }
+                        }
+                        else
+                        {
+                            productActivityAppModels.Add(productActivityApp);
+                        }
                         //}
                     });
                 }
                 if (value.ActivityMasterId > 0)
                 {
-                    productActivityAppModels= productActivityAppModels.Where(w=>w.ActivityMasterIds.Contains(value.ActivityMasterId)).ToList(); 
+                    productActivityAppModels = productActivityAppModels.Where(w => w.ActivityMasterIds.Contains(value.ActivityMasterId)).ToList();
                 }
-                    return productActivityAppModels;
+                return productActivityAppModels;
             }
             catch (Exception exp)
             {
@@ -891,6 +894,64 @@ namespace Infrastructure.Repository.Query
 
                 }
 
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<ActivityEmailTopics> GetActivityEmailTopicsOneItem(long? ActivityMasterId, string? ActivityType)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ActivityMasterId", ActivityMasterId);
+                parameters.Add("ActivityType", ActivityType, DbType.String);
+                var query = "select * from ActivityEmailTopics where ActivityMasterId=@ActivityMasterId AND ActivityType=@ActivityType";
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<ActivityEmailTopics>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<view_ActivityEmailSubjects>> GetProductActivityEmailActivitySubjects(long? ActivityMasterId, string? ActivityType, long? UserId)
+        {
+            try
+            {
+                List<view_ActivityEmailSubjects> activityEmailSubjects = new List<view_ActivityEmailSubjects>();
+                var result = await GetActivityEmailTopicsOneItem(ActivityMasterId, ActivityType);
+                if (result != null && result.EmailTopicSessionId != null)
+                {
+                    var query = "select ET.ID as TopicId,EC.ID, EC.Name as TopicName,EC.AddedDate,EC.AddedByUserID, E.FirstName, a.UserName as AddedByUser, ET.DueDate as DueDate, E.LastName from EmailTopics ET INNER JOIN EmailConversations EC ON EC.TopicID = ET.ID  inner join ApplicationUser a on a.UserID = EC.AddedByUserID INNER JOIN EmailConversationParticipant ECP ON ECP.ConversationId = EC.ID AND ECP.UserId = " + UserId + "CROSS APPLY(SELECT DISTINCT ReplyId = CASE WHEN ECC.ReplyId >0 THEN ECC.ReplyId ELSE ECC.ID END FROM EmailConversations ECC WHERE ECC.TopicID=ET.ID AND (ECC.OnBehalf = " + UserId + "OR EXISTS(SELECT * FROM EmailConversationAssignTo TP WHERE ECC.ID = TP.ConversationId AND (TP.UserId = " + UserId + " or TP.AddedByUserID = " + UserId + ")) OR EXISTS(SELECT * FROM EmailConversationAssignCC TP WHERE ECC.ID = TP.ConversationId AND (TP.UserId = " + UserId + " or TP.AddedByUserID = " + UserId + ")) OR EXISTS(SELECT * FROM EmailConversationParticipant TP WHERE ECC.ID = TP.ConversationId AND (TP.UserId = " + UserId + " or TP.AddedByUserID = " + UserId + "))))K LEFT JOIN Employee E ON EC.LastUpdateUserID = E.UserId where ET.SessionId = '" + result.EmailTopicSessionId + "' AND  ET.OnDraft = 0 AND EC.ID=K.ReplyId";
+
+                    var records = new List<view_ActivityEmailSubjects>();
+
+                    using (var connection = CreateConnection())
+                    {
+                        records = (await connection.QueryAsync<view_ActivityEmailSubjects>(query)).ToList();
+                    }
+                    if (records.Count > 0)
+                    {
+                        records.ForEach(r =>
+                        {
+                            view_ActivityEmailSubjects view_ActivityEmailSubjects = new view_ActivityEmailSubjects();
+                            view_ActivityEmailSubjects.TopicId = r.TopicId;
+                            view_ActivityEmailSubjects.AddedByUserID = r.AddedByUserID;
+                            view_ActivityEmailSubjects.AddedDate = r.AddedDate;
+                            view_ActivityEmailSubjects.FirstName = r.FirstName;
+                            view_ActivityEmailSubjects.LastName = r.LastName;
+                            view_ActivityEmailSubjects.DueDate = r.DueDate;
+                            view_ActivityEmailSubjects.TopicName = r.TopicName;
+                            view_ActivityEmailSubjects.AddedByUser = r.AddedByUser;
+                            activityEmailSubjects.Add(view_ActivityEmailSubjects);
+                        });
+                    }
+                }
+                return activityEmailSubjects;
             }
             catch (Exception exp)
             {

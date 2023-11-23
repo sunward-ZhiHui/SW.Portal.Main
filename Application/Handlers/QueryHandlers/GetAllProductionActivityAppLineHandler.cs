@@ -147,4 +147,17 @@ namespace Application.Handlers.QueryHandlers
             return await _productionactivityQueryRepository.UpdateActivityStatus(request.ProductActivityAppModel);
         }
     }
+    public class GetProductActivityEmailActivitySubjectsHandler : IRequestHandler<GetProductActivityEmailActivitySubjects, List<view_ActivityEmailSubjects>>
+    {
+        private readonly IProductionActivityQueryRepository _productionactivityQueryRepository;
+        public GetProductActivityEmailActivitySubjectsHandler(IProductionActivityQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<List<view_ActivityEmailSubjects>> Handle(GetProductActivityEmailActivitySubjects request, CancellationToken cancellationToken)
+        {
+            return (List<view_ActivityEmailSubjects>)await _productionactivityQueryRepository.GetProductActivityEmailActivitySubjects(request.ActivityMasterId, request.ActivityType, request.UserId);
+        }
+
+    }
 }

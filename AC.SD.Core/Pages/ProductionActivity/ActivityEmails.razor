@@ -190,6 +190,7 @@
         Data.ActivityMasterId = selectedFiles.ProductionActivityAppLineId;
         Data.DocumentSessionId = selectedFiles.LineSessionId;
         Data.Comment = selectedFiles.LineComment;
+        Data.BackURL = "/ProductionActivityReport/" + selectedFiles.LineSessionId;
         var request = await Mediator.Send(new InserProductionActivityEmail(Data));
         if (request.ActivityEmailTopicID > 0)
         {
@@ -206,7 +207,7 @@
     }
     void onSelectedToItemsChanged(IEnumerable<ViewEmployee> values)
     {
-        if (values != null && _AllusersList!=null)
+        if (values != null && _AllusersList != null)
         {
             var ids = values.Select(s => s.UserID).ToList();
             _CcusersList = _AllusersList.Where(w => !ids.Contains(w.UserID)).ToList();

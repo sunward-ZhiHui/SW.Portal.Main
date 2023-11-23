@@ -44,7 +44,7 @@
 @inject HttpClient httpClient;
 @using Application.Command.ApplicationMasterChilds;
 @using Application.Command.ApplicationMasterDetails;
-
+@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 <div class="">
     <div class="main-container">
@@ -1353,13 +1353,14 @@
                             @bind-FilterString="FilterDocumentString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
-                            Data="@fileProfileTypeDocumentsAll"
                             AllowSelectNodes="true"
-                            SelectionChanged="@FileProfileTypeSelectionChanged">
+                            SelectionChanged="@FileProfileTypeSelectionChanged"
+                            Data="@_selectedTreeItems"
+                            LoadChildNodesOnDemand="true">
                     <DataMappings>
                         <DxTreeViewDataMapping Text="FileName"
-                                               Key="DocumentID"
-                                               ParentKey="ParentId" />
+                                               HasChildren="HasChildren"
+                                               Children="Children" />
                     </DataMappings>
                 </DxTreeView>
             </DxFormLayoutItem>
@@ -1384,7 +1385,7 @@
     string? FilterDocumentString { get; set; }
     private Guid? _activityEmailSessionId { get; set; }
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
-
+    IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
     void OnButtonFileProfileTypeLinDocClick()
     {
         IsFileProfileTypeFilterDocOpen = true;
@@ -1686,6 +1687,10 @@
         _selectedDescriptionItems.ModifiedByUserId = applicationUser.UserID;
 
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        if (fileProfileTypeDocumentsAll.Count() > 0)
+        {
+            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+        }
     }
 
     async Task OnUpdateDescription()

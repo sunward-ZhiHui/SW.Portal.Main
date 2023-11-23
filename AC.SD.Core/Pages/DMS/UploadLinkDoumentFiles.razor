@@ -14,6 +14,7 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
+@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -219,14 +220,15 @@
                 @bind-FilterString="FilterString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
-                            Data="@fileProfileTypeLinkDocDocumentsAll"
                             AllowSelectNodes="true"
                             AfterExpand="@AfterExpand"
-                            SelectionChanged="@SelectionChanged">
+                            SelectionChanged="@SelectionChanged"
+                            Data="@_selectedTreeItems"
+                            LoadChildNodesOnDemand="true">
                     <DataMappings>
                         <DxTreeViewDataMapping Text="FileName"
-                                               Key="DocumentID"
-                                               ParentKey="ParentId" />
+                                               HasChildren="HasChildren"
+                                               Children="Children" />
                     </DataMappings>
                 </DxTreeView>
             </DxFormLayoutItem>
@@ -264,6 +266,7 @@
     private List<ViewDepartment>? _departmentItems;
     private List<ViewSection>? _sectionItems;
     private List<ViewSubSection>? _subSectionItems;
+    IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
     bool AttachmentUploadLinkDocVisible { get; set; } = false;
     DocumentsUploadModel Data = new DocumentsUploadModel();
     public List<DocumentsUploadModel> TempSetLinkDocIds = new List<DocumentsUploadModel>();
@@ -289,6 +292,10 @@
     {
         IsFileProfileTypeLinkDocShow = true;
         fileProfileTypeLinkDocDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        if (fileProfileTypeLinkDocDocumentsAll.Count() > 0)
+        {
+            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeLinkDocDocumentsAll);
+        }
         isPlantLinkDoc = false;
         isDivisionLinkDoc = false; isDepartmentLinkDoc = false;
         isSectionLinkDoc = false; isSubSectionLinkDoc = false;

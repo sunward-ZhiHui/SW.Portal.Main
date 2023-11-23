@@ -196,6 +196,7 @@ namespace Core.EntityModels
         public Guid? UniqueSessionId { get; set; }
         public bool IsDynamicFromData { get; set; } = false;
         public bool IsEmailTopics { get; set; } = false;
+        public bool HasChildren { get; set; } = false;
     }
     public class DocumentListModel : BaseModel
     {

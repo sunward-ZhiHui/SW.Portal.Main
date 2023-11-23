@@ -14,6 +14,7 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
+@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -233,14 +234,15 @@
             <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeView"
                 @bind-FilterString="FilterString"
-                            Data="@fileProfileTypeDocumentsAll"
                             AllowSelectNodes="true"
                             AfterExpand="@AfterExpand"
-                            SelectionChanged="@SelectionChanged">
+                            SelectionChanged="@SelectionChanged" 
+                            Data="@_selectedTreeItems"
+                            LoadChildNodesOnDemand="true">
                     <DataMappings>
                         <DxTreeViewDataMapping Text="FileName"
-                                               Key="DocumentID"
-                                               ParentKey="ParentId" />
+                                               HasChildren="HasChildren"
+                                               Children="Children" />
                     </DataMappings>
                 </DxTreeView>
             </DxFormLayoutItem>
@@ -301,6 +303,7 @@
     string? TabType { get; set; } = "Files";
     string? fileUploadStyle { get; set; } = "padding:5px;"; string? imageUploadStyle { get; set; } = "display:none;";
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
@@ -313,6 +316,10 @@
     public async Task loadFileDataFirst()
     {
         _editContext = new EditContext(Data);
+        if (fileProfileTypeDocumentsAll.Count() > 0)
+        {
+            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+        }
         if (fileProfileTypeDocumentsAll != null && FileProfileTypeId > 0)
         {
             var Datas = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.FileProfileTypeId == FileProfileTypeId);

@@ -13,6 +13,7 @@
 @using System.Reflection;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 @inject NavigationManager NavigationManager
 @page "/DynamicMasterSetup/DynamicMasterForm"
 @page "/DynamicMasterSetup/DynamicMasterForm/{SessionIds:guid}"
@@ -58,7 +59,7 @@
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Screen Name" ColSpanMd="6">
                         <DxTextBox @bind-Text="@Data.ScreenID"></DxTextBox>
-                        
+
                         <ValidationMessage For="@(() => Data.ScreenID)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Form Name" ColSpanMd="6">
@@ -129,13 +130,14 @@
                 @bind-FilterString="FilterDocumentString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
-                            Data="@fileProfileTypeDocumentsAll"
                             AllowSelectNodes="true"
-                            SelectionChanged="@SelectionChanged">
+                            SelectionChanged="@SelectionChanged"
+                            Data="@_selectedTreeItems"
+                            LoadChildNodesOnDemand="true">
                     <DataMappings>
                         <DxTreeViewDataMapping Text="FileName"
-                                               Key="DocumentID"
-                                               ParentKey="ParentId" />
+                                               HasChildren="HasChildren"
+                                               Children="Children" />
                     </DataMappings>
                 </DxTreeView>
             </DxFormLayoutItem>
@@ -173,11 +175,16 @@
     public ApplicationUser applicationUser { get; private set; }
     string _zindex = "z-index: 9999;";
     string? LinkFilterFileprofiletypeName { get; set; } = null;
+    IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        if (fileProfileTypeDocumentsAll.Count() > 0)
+        {
+            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+        }
     }
     protected override async Task OnParametersSetAsync()
     {

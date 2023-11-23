@@ -7,6 +7,7 @@
 @using global::Core.Entities;
 @using global::Core.Entities.Views;
 @using global::Core.EntityModels;
+@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 @inject IJSRuntime jsRuntime
 @inject NavigationManager NavigationManager
 @using Microsoft.Extensions.Configuration;
@@ -360,7 +361,7 @@
           FooterVisible="true"
           FooterCssClass="custom-flyout-footer"
           CloseOnOutsideClick="false"
-         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100">
@@ -527,13 +528,14 @@
                 @bind-FilterString="FilterDocumentString"
                             ShowFilterPanel="true"
                             FilterMode="NavigationFilterMode.EntireBranch"
-                            Data="@fileProfileTypeDocumentsAll"
                             AllowSelectNodes="true"
-                            SelectionChanged="@SelectionChanged">
+                            SelectionChanged="@SelectionChanged"
+                            Data="@_selectedTreeItems"
+                            LoadChildNodesOnDemand="true">
                     <DataMappings>
                         <DxTreeViewDataMapping Text="FileName"
-                                               Key="DocumentID"
-                                               ParentKey="ParentId" />
+                                               HasChildren="HasChildren"
+                                               Children="Children" />
                     </DataMappings>
                 </DxTreeView>
             </DxFormLayoutItem>
@@ -553,7 +555,7 @@
          CloseOnOutsideClick="false"
          ShowCloseButton="false"
          ShowFooter="false"
-        MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
         <ShareDocuments @ref="refShareDocuments" selectedItems="@_selectedItems" applicationUser="@applicationUser" RevokeBack="BackShareDoc"></ShareDocuments>
     </BodyContentTemplate>
@@ -628,6 +630,8 @@
     DocumentLinkModel LinkProfileSelectedFiles = new DocumentLinkModel();
     List<DocumentsModel> FolderPathLists = new List<DocumentsModel>();
     List<DocumentsModel> FolderPathListsItems = new List<DocumentsModel>();
+    IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
+    //private DocumentsModel? _selectedTreeItems{get;set;}
     private DocumentsModel? _selectedItems;
     public string? DeleteProfileTypeName { get; set; }
     public long? DeletefileProfileTypeId { get; set; }
@@ -713,7 +717,7 @@
     void OnItemClick(MenuItemClickEventArgs e)
     {
         var data = (DocumentsModel)e.ItemInfo.Data;
-        if(data.FileProfileTypeId>0)
+        if (data.FileProfileTypeId > 0)
         {
             openFileProfileLink(data);
         }
@@ -724,17 +728,22 @@
     }
     async Task mainPageLoad()
     {
+        PanelVisible = true;
         _openAccessUserLink = await Mediator.Send(new GetDMSAccessByUser(applicationUser.UserID));
         IsFileProfileTypeInfoOpen = false;
         isEnablePath = false; isExpiryDateVisible = false; isEdit = false; IsGrantAdminPermission = false; isDelete = false; isCreateFolder = false; isCreateSubFolder = false;
         documentPermissionModel = new DocumentPermissionModel();
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        if (fileProfileTypeDocumentsAll.Count() > 0)
+        {
+           _selectedTreeItems= _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+        }
         _fileContentList = await Mediator.Send(new GetFileContetTypes());
         isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;";
         moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; isCreateDynamicDocumentEnabled = false; isProfileInfoEnabled = false;
-        DocumentsModel dc=new DocumentsModel();
+        DocumentsModel dc = new DocumentsModel();
         dc.FileName = "Main";
-        FolderPathLists = new List<DocumentsModel>();FolderPathListsItems = new List<DocumentsModel>();
+        FolderPathLists = new List<DocumentsModel>(); FolderPathListsItems = new List<DocumentsModel>();
         FolderPathListsItems.Add(dc);
         documentSearchModel.SessionId = MainSessionId;
         FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
@@ -762,7 +771,8 @@
             }
         }
         await loadFileProfileData();
-
+        PanelVisible = false;
+        StateHasChanged();
     }
     async Task loadFileProfileData()
     {
@@ -1057,7 +1067,7 @@
                         uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
                         checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
                         renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
-                        if (_ParentselectedItems!=null && _ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
+                        if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
                         {
                             formdetailsEnabled = true;
                         }
@@ -1078,7 +1088,7 @@
                                 uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
                                 checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
                                 renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
-                                if (_ParentselectedItems!=null && _ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
+                                if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
                                 {
                                     formdetailsEnabled = true;
                                 }

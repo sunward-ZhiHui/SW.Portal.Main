@@ -1,5 +1,6 @@
 
 using AC.SD.Core;
+using AC.SD.Core.Helpers;
 using AC.SD.Core.ReportProvider;
 using AC.SD.Core.Services;
 using DevExpress.DataAccess.Web;
@@ -83,6 +84,7 @@ namespace AC.ShippingDocument.Reporting
                 // services.AddDevExpressBlazorReporting();
                  services.AddSingleton<ReportingCustomConfigurationProvider, ReportingCustomConfigurationProvider>();
                 services.AddSingleton<DocumentUploadServices, DocumentUploadServices>();
+                services.AddSingleton<TreeGenerateRecursive, TreeGenerateRecursive>();
                 //services.ConfigureReportingServices((builder) =>
                 //{
                 //    builder.UseAsyncEngine();

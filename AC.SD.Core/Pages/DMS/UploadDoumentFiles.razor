@@ -15,6 +15,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
 @using System.Collections
+@inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -227,14 +228,15 @@
             <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeView"
                 @bind-FilterString="FilterString"
-                            Data="@fileProfileTypeDocumentsAll"
                             AllowSelectNodes="true"
                             AfterExpand="@AfterExpand"
-                            SelectionChanged="@SelectionChanged">
+                            SelectionChanged="@SelectionChanged" 
+                            Data="@_selectedTreeItems"
+                            LoadChildNodesOnDemand="true">
                     <DataMappings>
                         <DxTreeViewDataMapping Text="FileName"
-                                               Key="DocumentID"
-                                               ParentKey="ParentId" />
+                                               HasChildren="HasChildren"
+                                               Children="Children" />
                     </DataMappings>
                 </DxTreeView>
             </DxFormLayoutItem>
@@ -277,6 +279,7 @@
     bool AttachmentUploadVisible { get; set; } = false;
     DocumentsUploadModel Data = new DocumentsUploadModel();
     public List<DocumentsUploadModel> TempSetIds = new List<DocumentsUploadModel>();
+    IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
     public DocumentProfileNoSeriesModel documentProfileNoSeriesData { get; set; }
     private DxUpload uploadComponent;
     string MyError { get; set; }
@@ -301,6 +304,10 @@
         _editContext = new EditContext(Data);
         IsFileProfileTypeShow = false;
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        if (fileProfileTypeDocumentsAll.Count() > 0)
+        {
+            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+        }
         isPlant = false;
         isDivision = false; isDepartment = false;
         isSection = false; isSubSection = false;

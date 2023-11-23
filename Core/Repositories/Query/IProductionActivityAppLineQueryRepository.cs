@@ -22,6 +22,6 @@ namespace Core.Repositories.Query
         Task<ProductionActivityNonComplianceUserModel> DeleteProductionActivityNonCompliance(ProductionActivityNonComplianceUserModel value);
         Task<ProductActivityAppModel> UpdateActivityMaster(ProductActivityAppModel value);
         Task<ProductActivityAppModel> UpdateActivityStatus(ProductActivityAppModel value);
-
+        Task<IReadOnlyList<view_ActivityEmailSubjects>> GetProductActivityEmailActivitySubjects(long? ActivityMasterId, string? ActivityType, long? UserId);
     }
 }

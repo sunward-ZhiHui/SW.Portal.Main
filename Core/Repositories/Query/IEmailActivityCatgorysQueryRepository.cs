@@ -17,5 +17,7 @@ namespace Core.Repositories.Query
         Task<long> Insert(EmailActivityCatgorys emailActivityCatgorys);
         Task<long> UpdateAsync(EmailActivityCatgorys emailActivityCatgorys);
         Task<long> DeleteAsync(long id);
+
+        Task<IReadOnlyList<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID);
     }
 }

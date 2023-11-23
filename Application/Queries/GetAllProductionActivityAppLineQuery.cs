@@ -15,7 +15,7 @@ namespace Application.Queries
     public class GetAllProductionActivityAppLineQuery : PagedRequest, IRequest<List<ProductActivityAppModel>>
     {
         public ProductActivityAppModel? ProductionActivityModel { get; set; }
-        
+
         public GetAllProductionActivityAppLineQuery(ProductActivityAppModel productionActivityModel)
         {
             this.ProductionActivityModel = productionActivityModel;
@@ -109,6 +109,18 @@ namespace Application.Queries
         {
             this.ProductActivityAppModel = productActivityAppModel;
 
+        }
+    }
+    public class GetProductActivityEmailActivitySubjects : PagedRequest, IRequest<List<view_ActivityEmailSubjects>>
+    {
+        public long? ActivityMasterId { get; set; }
+        public string? ActivityType { get; set; }
+        public long? UserId { get; set; }
+        public GetProductActivityEmailActivitySubjects(long? activityMasterId, string? activityType, long? userId)
+        {
+            this.ActivityMasterId = activityMasterId;
+            this.ActivityType = activityType;
+            this.UserId = userId;
         }
     }
 }

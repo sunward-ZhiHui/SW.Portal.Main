@@ -301,7 +301,24 @@ else
                                     Notify User
                                 </DxCheckBox>
                             </DxFormLayoutItem>
-                     
+
+                            <DxFormLayoutItem Caption="User Tag:" ColSpanMd="4">
+                                <DxComboBox Data="@_UserTagList"
+                                            AllowUserInput="true"
+                                            NullText="Select User Tag..."
+                                            ListRenderMode="ListRenderMode.Virtual"
+                                            FilteringMode="DataGridFilteringMode.Contains"
+                                            TextFieldName="UserTag"
+                                            ValueFieldName="UserTag"
+                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                @bind-Value="@CategoryData.UserTag"
+                                @bind-Text="@CategoryData.UserTag" ShowValidationIcon="true">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => CategoryData.UserTag)" />
+                            </DxFormLayoutItem>
+
+
+
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
                                 <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
@@ -384,6 +401,7 @@ else
 
 
 @code {
+    private List<EmailActivityCatgorys> _UserTagList;
     private List<EmailActivityCatgorys> _TagEmailList;
     private List<EmailActivityCatgorys> _AllCategory;
     EmailActivityCatgorys? CategoryData { get; set; } = new EmailActivityCatgorys();
@@ -733,6 +751,7 @@ else
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         AppUserId = applicationUser.UserID;
+        _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
 
         //onloadSession();
@@ -820,6 +839,7 @@ else
                 CategoryData.CategoryTag = _TagEmailList == null ? null : _TagEmailList[0].CategoryTag;
                 CategoryData.ActionTag = _TagEmailList == null ? null : _TagEmailList[0].ActionTag;
                 CategoryData.Name = _TagEmailList == null ? null : _TagEmailList[0].Name;
+                CategoryData.UserTag = _TagEmailList == null ? null : _TagEmailList[0].UserTag;
                 await msgrichEdit.SaveDocumentAsync();
                 using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
                 byte[] fileContent1 = actItem[0].FileData;
@@ -1069,6 +1089,7 @@ else
                     GroupTag = CategoryData.GroupTag,
                     ActionTag = CategoryData.ActionTag,
                     CategoryTag = CategoryData.CategoryTag,
+                    UserTag = CategoryData.UserTag
                 };
         try
         {

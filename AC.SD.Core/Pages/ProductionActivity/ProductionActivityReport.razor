@@ -1,4 +1,5 @@
-﻿@page "/ProductionActivity/ProductionActivityReport"
+﻿@page "/ProductionActivityReport"
+@page "/ProductionActivityReport/{MainSessionId:guid}"
 @using Application.Queries;
 @using MediatR;
 @using global::Core.Entities;
@@ -43,6 +44,7 @@
                                 @* <DxMenuItem Text="Notify" IconCssClass="fa fa-bell" Visible="NotifyEnabled" /> *@
 
                                 <DxMenuItem Text="Mail" IconCssClass="fa fa-envelope" Click="onEmailOpen" Visible="MailEnabled" />
+                                <DxMenuItem Text="Email Activity" IconCssClass="fa fa-envelope" Click="onEmailActivityOpen" Visible="EmailActivityEnabled" />
                                 <DxMenuItem Text="Supporting Documents" Click="onSupportingDocuments" IconCssClass="fa fa-adjust" Visible="SupportDocEnabled" />
                                 <DxMenuItem Text="Activity Info" IconCssClass="fa fa-info" Click="@(_ => OnClickActivityStatusOpen("Activity Info"))" Visible="ActivityInfoEnabled" />
                                 <DxMenuItem Text="Non compliance" Click="@(_ => onOperators("NonCompliance","Non-Compliance"))" IconCssClass="fa fa-gavel" Visible="NonComplianceEnabled" />
@@ -101,13 +103,25 @@
                     {
                         <i class="fa fa-paperclip" aria-hidden="true" style="padding:5px;margin-right: 5px;color:black" title="@item.FileName"></i>
                     }
+                    @if (item.IsEmailCreated == true)
+                    {
+                        <i class="fa fa-envelope" aria-hidden="true" style="padding:5px;margin-right: 5px;color:#1976d2" title="@item.FileName"></i>
+                    }
                 </CellDisplayTemplate>
             </DxGridDataColumn>
             <DxGridDataColumn Caption="Name" FieldName="FileName" MinWidth="180" />
+            <DxGridDataColumn Caption="ProfileNo" FieldName="ActivityProfileNo" MinWidth="180" />
             <DxGridDataColumn Caption="Company" FieldName="CompanyName" MinWidth="180" />
             <DxGridDataColumn Caption="Ticket No" FieldName="ProdOrderNoDesc" MinWidth="180" />
             <DxGridDataColumn Caption="Location/Batch Info." FieldName="LocationName" MinWidth="180" />
-            <DxGridDataColumn Caption="Date&Time" FieldName="AddedDate" MinWidth="180" />
+            <DxGridDataColumn Caption="Date&Time" FieldName="AddedDate" MinWidth="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (ProductActivityAppModel)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
             <DxGridDataColumn Caption="Process" FieldName="ManufacturingProcessChild" MinWidth="180" />
             <DxGridDataColumn Caption="Category" FieldName="ProdActivityCategoryChild" MinWidth="180" />
             <DxGridDataColumn Caption="Action List" FieldName="ProdActivityActionChild" MinWidth="180" />
@@ -452,7 +466,23 @@
 
     </FooterContentTemplate>
 </DxFlyout>
+<DxPopup @bind-Visible="@ActivityEmailSubjectPopup"
+         ShowFooter="false"
+         HeaderText="Email Activity Subject"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         CloseOnEscape="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1200px" MaxHeight="800">
+    <BodyContentTemplate>
+        <ProductActivityEmailActivitySubjects selectedFiles="@_selectedItems" ActivityType="ProductionActivity" applicationUser="@applicationUser"></ProductActivityEmailActivitySubjects>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseHistoryPopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    [Parameter]
+    public Guid? MainSessionId { get; set; }
     bool IsFilterOpen { get; set; } = false;
     bool ActivityEmailPopup { get; set; } = false;
     bool OperatorsPopup { get; set; } = false;
@@ -505,7 +535,9 @@
     public bool SupportDocEnabled { get; set; } = false;
     public bool NonComplianceEnabled { get; set; } = false;
     public bool OperatorEnabled { get; set; } = false; public bool UpdateStatusEnabled { get; set; } = false;
+    public bool EmailActivityEnabled { get; set; } = false;
     public bool ActivityInfoEnabled { get; set; } = false;
+    public bool ActivityEmailSubjectPopup { get; set; } = false;
     private List<View_ApplicationMasterDetail> _ActivityStatusItem;
     private List<View_ApplicationMasterDetail> _ActivityMaster;
     private List<View_ApplicationMasterDetail> _ActivityResult;
@@ -536,17 +568,31 @@
     {
         StateHasChanged();
     }
+    protected override async Task OnParametersSetAsync()
+    {
+        await onLoadDataList();
+        base.OnParametersSet();
+    }
     async Task onLoadDataList()
     {
         isVisibleMore = "display:none;";
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
-        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;
         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         _AppLines = new List<ProductActivityAppModel>();
         PanelVisible = true; ActiveTabIndex = 0; uploadEnabled = false;
         FilterData.AddedByUserID = applicationUser.UserID;
-        _AppLines = await Mediator.Send(new GetAllProductionActivityAppLineQuery(FilterData));
+        var listData = await Mediator.Send(new GetAllProductionActivityAppLineQuery(FilterData));
+        if (MainSessionId != null)
+        {
+            var appLines = listData.Where(w => w.LineSessionId == MainSessionId).ToList();
+            _AppLines = appLines != null && appLines.Count > 0 ? appLines : listData;
+        }
+        else
+        {
+            _AppLines = listData;
+        }
         if (_AppLines.Count() > 0)
         {
             _selectedItems = _AppLines.FirstOrDefault();
@@ -578,117 +624,135 @@
     async Task permissinSetMainProfile()
     {
 
+
         isVisibleMore = "display:none;";
         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
         HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false;
-        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+        viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;
         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
         if (_selectedItems != null)
         {
-
-            if (applicationUser.UserID == _selectedItems.AddedByUserID)
+            if (_selectedItems.IsActionPermission == true)
             {
-                isVisibleMore = "";
-                EditEnabled = true; DeleteEnabled = true;
-                NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true;
-                NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true;
-                if (_selectedItems.IsLocked == true)
+                // if (applicationUser.UserID == _selectedItems.AddedByUserID)
+                // {
+                //     isVisibleMore = "";
+                //     EditEnabled = true; DeleteEnabled = true;
+                //     NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true;
+                //     NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true;
+                //     if (_selectedItems.IsLocked == true)
+                //     {
+                //         CheckOutEnabled = false;
+                //         CheckInEnabled = true;
+                //         EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
+                //         HistoryEnabled = false;
+                //         viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+                //         NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
+                //     }
+                //     else
+                //     {
+                //         if (_selectedItems.DocumentID > 0)
+                //         {
+                //             CheckOutEnabled = true; CheckInEnabled = false;
+                //             DownloadEnabled = true; CopyLinkEnabled = true; HistoryEnabled = true; viewEnabled = true;
+                //         }
+                //         else
+                //         {
+                //             DownloadEnabled = false; HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false; viewEnabled = false;
+                //             CopyLinkEnabled = false;
+                //         }
+                //     }
+                // }
+                // else
+                // {
+                // if (_selectedItems.IsLocked == true)
+                // {
+                //     isVisibleMore = "";
+                //     CheckOutEnabled = false;
+                //     CheckInEnabled = true;
+                //     EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
+                //     HistoryEnabled = false;
+                //     viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+                //     NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
+                // }
+                // else
+                // {
+                var actionItem = _selectedItems.ProductActivityPermissionData;
+                if (actionItem != null)
                 {
-                    CheckOutEnabled = false;
-                    CheckInEnabled = true;
-                    EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
-                    HistoryEnabled = false;
-                    viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
-                    NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
-                }
-                else
-                {
-                    if (_selectedItems.DocumentID > 0)
+                    isVisibleMore = "";
+                    if (actionItem.ProductActivityPermissionId != null && actionItem.ProductActivityPermissionId > 0 && actionItem.UserID == applicationUser.UserID)
                     {
-                        CheckOutEnabled = true; CheckInEnabled = false;
-                        DownloadEnabled = true; CopyLinkEnabled = true; HistoryEnabled = true; viewEnabled = true;
-                    }
-                    else
-                    {
-                        DownloadEnabled = false; HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false; viewEnabled = false;
-                        CopyLinkEnabled = false;
-                    }
-                }
-            }
-            else
-            {
-                if (_selectedItems.IsLocked == true)
-                {
-                    isVisibleMore = "";  
-                    CheckOutEnabled = false;
-                    CheckInEnabled = true;
-                    EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
-                    HistoryEnabled = false;
-                    viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
-                    NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
-                }
-                else
-                {
-                    var actionItem = _selectedItems.ProductActivityPermissionData;
-                    if (actionItem != null)
-                    {
-                        isVisibleMore = "";
-                        if (actionItem.ProductActivityPermissionId != null && actionItem.ProductActivityPermissionId > 0 && actionItem.UserID == applicationUser.UserID)
+                        if (_selectedItems.IsLocked == true)
                         {
+                            CheckOutEnabled = false;
+                            CheckInEnabled = true;
+                            EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
+                            HistoryEnabled = false;
+                            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;EmailActivityEnabled = false;
+                            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
+                        }
+                        else
+                        {
+                            if (_selectedItems.IsEmailCreated == true)
+                            {
+                                EmailActivityEnabled = true;
+                            }
                             if (_selectedItems.DocumentID > 0)
                             {
+
                                 if (actionItem.IsCheckOut == true && actionItem.IsCheckOut != null)
-                                {
-                                    CheckOutEnabled = false;
-                                }
-                                else
                                 {
                                     CheckOutEnabled = true;
                                 }
-                                if (actionItem.IsSupportDocuments == true && actionItem.IsSupportDocuments != null)
-                                {
-                                    SupportDocEnabled = false;
-                                }
                                 else
+                                {
+                                    CheckOutEnabled = false;
+                                }
+                                if (actionItem.IsSupportDocuments == true && actionItem.IsSupportDocuments != null)
                                 {
                                     SupportDocEnabled = true;
                                 }
-                                if (actionItem.IsViewHistory == true && actionItem.IsViewHistory != null)
-                                {
-                                    HistoryEnabled = false;
-                                }
                                 else
+                                {
+                                    SupportDocEnabled = false;
+                                }
+                                if (actionItem.IsViewHistory == true && actionItem.IsViewHistory != null)
                                 {
                                     HistoryEnabled = true;
                                 }
-                                if (actionItem.IsViewFile == true && actionItem.IsViewFile != null)
-                                {
-                                    viewEnabled = false;
-                                }
                                 else
+                                {
+                                    HistoryEnabled = false;
+                                }
+                                if (actionItem.IsViewFile == true && actionItem.IsViewFile != null)
                                 {
                                     viewEnabled = true;
                                 }
+                                else
+                                {
+                                    viewEnabled = false;
+                                }
                                 if (actionItem.IsCopyLink == true && actionItem.IsCopyLink != null)
                                 {
-                                    CopyLinkEnabled = false;
+                                    CopyLinkEnabled = true;
                                 }
                                 else
                                 {
-                                    CopyLinkEnabled = true;
+                                    CopyLinkEnabled = false;
                                 }
                             }
                             if (actionItem.IsUpdateStatus == true && actionItem.IsUpdateStatus != null)
                             {
-                                UpdateStatusEnabled = false;
+                                UpdateStatusEnabled = true;
                             }
                             else
                             {
-                                UpdateStatusEnabled = true;
+                                UpdateStatusEnabled = false;
                             }
                             if (actionItem.IsMail == true && actionItem.IsMail != null)
                             {
-                                MailEnabled = false;
+                                MailEnabled = true;
                             }
                             else
                             {
@@ -696,24 +760,28 @@
                             }
                             if (actionItem.IsActivityInfo == true && actionItem.IsActivityInfo != null)
                             {
-                                ActivityInfoEnabled = false;
+                                ActivityInfoEnabled = true;
                             }
                             else
                             {
-                                ActivityInfoEnabled = true;
+                                ActivityInfoEnabled = false;
                             }
                             if (actionItem.IsNonCompliance == true && actionItem.IsNonCompliance != null)
                             {
-                                NonComplianceEnabled = false;
+                                NonComplianceEnabled = true;
                             }
                             else
                             {
-                                NonComplianceEnabled = true;
+                                NonComplianceEnabled = false;
                             }
-
                         }
                     }
+                    else
+                    {
+                        loadPermissionData();
+                    }
                 }
+                //}
                 // if (_selectedItems.ResponsibilityUsers.Count() == 0 || _selectedItems.ResponsibilityUsers.Contains(applicationUser.UserID))
                 // {
                 //     var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FileProfileTypeId, applicationUser.UserID));
@@ -792,9 +860,43 @@
                 //         }
                 //     }
                 // }
+                // }
             }
         }
         StateHasChanged();
+    }
+    private void loadPermissionData()
+    {
+        isVisibleMore = "";
+        EditEnabled = true; DeleteEnabled = true;
+        NotifyEnabled = true; MailEnabled = true; SupportDocEnabled = true;
+        if(_selectedItems.IsEmailCreated==true)
+        {
+            EmailActivityEnabled = true;
+        }
+        NonComplianceEnabled = true; OperatorEnabled = true; UpdateStatusEnabled = true; ActivityInfoEnabled = true;
+        if (_selectedItems.IsLocked == true)
+        {
+            CheckOutEnabled = false;
+            CheckInEnabled = true;
+            EditEnabled = false; DownloadEnabled = false; DeleteEnabled = false;
+            HistoryEnabled = false;EmailActivityEnabled = false;
+            viewEnabled = false; NotifyEnabled = false; CopyLinkEnabled = false; MailEnabled = false; SupportDocEnabled = false;
+            NonComplianceEnabled = false; OperatorEnabled = false; UpdateStatusEnabled = false; ActivityInfoEnabled = false;
+        }
+        else
+        {
+            if (_selectedItems.DocumentID > 0)
+            {
+                CheckOutEnabled = true; CheckInEnabled = false;
+                DownloadEnabled = true; CopyLinkEnabled = true; HistoryEnabled = true; viewEnabled = true;
+            }
+            else
+            {
+                DownloadEnabled = false; HistoryEnabled = false; CheckOutEnabled = false; CheckInEnabled = false; viewEnabled = false;
+                CopyLinkEnabled = false;
+            }
+        }
     }
     async Task SelectedItemPlantChanged(ViewPlants PlantsData)
     {
@@ -1019,6 +1121,7 @@
     }
     void CloseHistoryPopup()
     {
+        ActivityEmailSubjectPopup = false;
         ActivityEmailPopup = false;
         PopupVisible = false;
         SupportingDocumentsPopup = false;
@@ -1122,6 +1225,11 @@
     async Task OnFilterDocuments()
     {
         await onLoadDataList();
+    }
+    void onEmailActivityOpen()
+    {
+        ActivityEmailSubjectPopup=true;
+        StateHasChanged();
     }
 }
 

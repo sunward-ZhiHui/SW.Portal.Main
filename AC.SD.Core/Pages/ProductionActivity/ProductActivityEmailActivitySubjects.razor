@@ -1,0 +1,84 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@using Microsoft.Extensions.Configuration;
+@inject AC.SD.Core.Services.ToastService toastService
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_ActivityEmailSubjectsList"
+            KeyFieldName="TopicId"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 270px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridDataColumn FieldName="TopicName" Caption="Subject" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedByUser" Caption="Added By" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedDate" Caption="Added Date" MinWidth="40" />
+            <DxGridDataColumn FieldName="DueDate" Caption="Due Date" MinWidth="80" />
+        </Columns>
+    </DxGrid>
+</DxLoadingPanel>
+@code {
+    IGrid Grid { get; set; }
+    bool PanelVisible { get; set; }
+    [Parameter]
+    public ProductActivityAppModel selectedFiles { get; set; }
+    [Parameter]
+    public string? ActivityType { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    private List<view_ActivityEmailSubjects> _ActivityEmailSubjectsList { get; set; }
+    public view_ActivityEmailSubjects _selectedItems { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+
+        if (selectedFiles.ProductionActivityAppLineId > 0)
+        {
+            _ActivityEmailSubjectsList = await Mediator.Send(new GetProductActivityEmailActivitySubjects(selectedFiles.ProductionActivityAppLineId, ActivityType, applicationUser.UserID));
+        }
+        if (_ActivityEmailSubjectsList.Count > 0)
+        {
+            _selectedItems = _ActivityEmailSubjectsList.FirstOrDefault();
+        }
+        PanelVisible = false;
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+
+    }
+    async void OnRowClick(GridRowClickEventArgs e)
+    {
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "TopicId");
+        _selectedItems = _ActivityEmailSubjectsList.FirstOrDefault(f => f.TopicId == (long?)UniqueId);
+        StateHasChanged();
+
+    }
+}

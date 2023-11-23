@@ -1,4 +1,4 @@
-﻿@page "/ProductionActivity/ProductionActivity"
+﻿@page "/ProductionActivity"
 @using Application.Queries;
 @using MediatR;
 @using global::Core.Entities;
@@ -190,6 +190,7 @@
                                         <DxGridDataColumn Caption="Name" FieldName="FileName" MinWidth="180">
                                         </DxGridDataColumn>
                                         <DxGridDataColumn Caption="Type" FieldName="Type" MinWidth="180" />
+                                        <DxGridDataColumn Caption="ProfileNo" FieldName="ActivityProfileNo" MinWidth="180" />
                                         <DxGridDataColumn Caption="Date" FieldName="AddedDate" MinWidth="180" />
                                         <DxGridDataColumn Caption="Process" FieldName="ManufacturingProcessChild" MinWidth="180" />
                                         <DxGridDataColumn Caption="Category" FieldName="ProdActivityCategoryChild" MinWidth="180" />

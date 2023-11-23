@@ -20,10 +20,11 @@ namespace Infrastructure.Repository.Query
 {
     public class ProductionActivityAppQueryRepository : QueryRepository<ProductionActivityApp>, IProductionActivityAppQueryRepository
     {
-        public ProductionActivityAppQueryRepository(IConfiguration configuration)
+        private readonly IGenerateDocumentNoSeriesSeviceQueryRepository _generateDocumentNoSeriesSeviceQueryRepository;
+        public ProductionActivityAppQueryRepository(IConfiguration configuration, IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository)
             : base(configuration)
         {
-
+            _generateDocumentNoSeriesSeviceQueryRepository = generateDocumentNoSeriesSeviceQueryRepository;
         }
 
         public async Task<IReadOnlyList<ProductionActivityApp>> GetAllAsync(long? CompanyId)
@@ -292,7 +293,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
+        public async Task<ProductActivityCase> GetProductActivityCaseAsync(long? ManufacturingProcessChildId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ManufacturingProcessChildId", ManufacturingProcessChildId);
+                var query = "SELECT ProfileId,ManufacturingProcessChildId,ProductActivityCaseId FROM ProductActivityCase WHERE ManufacturingProcessChildId=@ManufacturingProcessChildId";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<ProductActivityCase>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<long> Insert(ProductActivityAppModel PPAlist)
         {
             try
@@ -340,6 +357,24 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("applineSessionId", PPAlist.LineSessionId, DbType.Guid);
                         parameters.Add("applineStatusCodeID", PPAlist.StatusCodeID);
                         parameters.Add("QaCheck", PPAlist.QaCheck == true ? true : false);
+                        if(PPAlist.ProfileId>0)
+                        {
+
+                        }
+                        else
+                        {
+                            if (PPAlist.ManufacturingProcessChildId > 0)
+                            {
+                                var profileData = await GetProductActivityCaseAsync(PPAlist.ManufacturingProcessChildId);
+                                var ProfileNo = string.Empty;
+                                if (profileData != null && profileData.ProfileId > 0)
+                                {
+                                    parameters.Add("ProfileId", profileData.ProfileId);
+                                    ProfileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(new DocumentNoSeriesModel { ProfileID = profileData.ProfileId, AddedByUserID = PPAlist.AddedByUserID, StatusCodeID = 710, Title = "Production Activity" });
+                                }
+                                parameters.Add("ProfileNo", ProfileNo, DbType.String);
+                            }
+                        }
                         if (PPAlist.ProductionActivityAppLineId > 0)
                         {
                             var appquery = " UPDATE ProductionActivityAppLine SET ProductionActivityAppID = @Appid,ProdActivityResultID =@ProdActivityResultID,ManufacturingProcessChildID =@ManufacturingProcessChildID,ProdActivityCategoryChildID=@ProdActivityCategoryChildID," +
@@ -349,9 +384,10 @@ namespace Infrastructure.Repository.Query
                         }
                         else
                         {
-                            var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ProdActivityResultID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID,ModifiedByUserID,ModifiedDate,ActivityStatusId,IsOthersOptions,LocationID,QaCheck) " +
+                            
+                            var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ProdActivityResultID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID,ModifiedByUserID,ModifiedDate,ActivityStatusId,IsOthersOptions,LocationID,QaCheck,ProfileNo,ProfileId) " +
                                 " OUTPUT INSERTED.ProductionActivityAppLineId " +
-                                "VALUES (@Appid,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID,@applineAddedByUserID,@applineAddedDate,@ActivityStatusId,@IsOthersOptions,@LocationID,@QaCheck)";
+                                "VALUES (@Appid,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID,@applineAddedByUserID,@applineAddedDate,@ActivityStatusId,@IsOthersOptions,@LocationID,@QaCheck,@ProfileNo,@ProfileId)";
 
                             PPAlist.ProductionActivityAppLineId = await connection.ExecuteScalarAsync<long>(applinequery, parameters);
                         }
@@ -408,7 +444,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("ActivityType", value.ActivityType, DbType.String);
                         parameters.Add("SubjectName", value.SubjectName);
                         parameters.Add("FromId", value.FromId);
-                        parameters.Add("ToIds", value.ToId!=null && value.ToId.Count()>0? string.Join(',', value.ToId) : "");
+                        parameters.Add("ToIds", value.ToId != null && value.ToId.Count() > 0 ? string.Join(',', value.ToId) : "");
                         parameters.Add("CcIds", value.CcId != null && value.CcId.Count() > 0 ? string.Join(',', value.CcId) : "");
                         parameters.Add("ManufacturingProcessId", value.ManufacturingProcessId);
                         parameters.Add("AddedByUserID", value.AddedByUserID);

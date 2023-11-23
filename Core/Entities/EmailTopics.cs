@@ -92,6 +92,8 @@ namespace Core.Entities
         public string? actName { get; set; }
         [NotMapped]
         public string? ActivityType { get; set;}
+        [NotMapped]
+        public string? UserTag { get; set; }
 
     }
 }

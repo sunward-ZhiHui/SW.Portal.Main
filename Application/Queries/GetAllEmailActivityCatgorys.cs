@@ -46,4 +46,13 @@ namespace Application.Queries
             this.TopicId = TopicId;
         }
     }
+
+    public class GetAllUserActivityCatgorys : PagedRequest, IRequest<List<EmailActivityCatgorys>>
+    {
+        public long UserID { get; set; }
+        public GetAllUserActivityCatgorys(long UserID)
+        {
+            this.UserID = UserID;
+        }
+    }
 }

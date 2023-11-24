@@ -685,18 +685,23 @@
     DocumentSearchModel documentSearchModel = new DocumentSearchModel();
     public List<DocumentsModel> _fileContentList { get; set; }
     DocumentPermissionModel documentPermissionModel = new DocumentPermissionModel();
-    string? iconss { get; set; }
     bool isEdit { get; set; } = false;
     bool IsGrantAdminPermission { get; set; } = false; bool isDelete { get; set; } = false; bool isCreateFolder { get; set; } = false; bool isCreateSubFolder { get; set; } = false;
     bool isEnablePath { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
+        PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         var baseurl = Configuration["DocumentsUrl:BaseUrl"];
-        iconss = baseurl + "_content/AC.SD.Core/images/icons/about.svg";
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        if (fileProfileTypeDocumentsAll.Count() > 0)
+        {
+            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+        }
+        PanelVisible = false;
     }
     async Task OnSearchTextChanged(string? newSearchText)
     {
@@ -733,11 +738,7 @@
         IsFileProfileTypeInfoOpen = false;
         isEnablePath = false; isExpiryDateVisible = false; isEdit = false; IsGrantAdminPermission = false; isDelete = false; isCreateFolder = false; isCreateSubFolder = false;
         documentPermissionModel = new DocumentPermissionModel();
-        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
-        if (fileProfileTypeDocumentsAll.Count() > 0)
-        {
-           _selectedTreeItems= _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
-        }
+        
         _fileContentList = await Mediator.Send(new GetFileContetTypes());
         isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;";
         moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; isCreateDynamicDocumentEnabled = false; isProfileInfoEnabled = false;

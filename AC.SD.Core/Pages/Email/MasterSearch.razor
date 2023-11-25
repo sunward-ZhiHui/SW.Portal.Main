@@ -201,6 +201,21 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.Name)" />
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="User Tag:" ColSpanMd="12">
+                        <DxComboBox Data="@_UserTagList"
+                                    AllowUserInput="true"
+                                    NullText="Select User Tag..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="UserTag"
+                                    ValueFieldName="UserTag"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@Data.UserTag"
+                                    @bind-Text="@Data.UserTag" ShowValidationIcon="true">
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.UserTag)" />
+                    </DxFormLayoutItem>
+
                     <DxFormLayoutItem Caption="From" ColSpanMd="12">                        
                         @*<DxDateEdit Date="@Date" DateExpression="@(() => Date)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>*@
                         <DxDateEdit Date="@DateRange" DateExpression="@(() => DateRange)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
@@ -245,6 +260,7 @@
     private bool loading;
     private List<ViewEmployee>? _Allparticipant;
 
+    private List<EmailActivityCatgorys> _UserTagList;
     private List<EmailActivityCatgorys> _AllCategory;
     private List<ApplicationMasterChildModel> _groupTagItemss;
     private List<ApplicationMasterChildModel> _categoryTagItemss;
@@ -342,6 +358,7 @@
                 CategoryTag = Data.CategoryTag,
                 ActionTag = Data.ActionTag,
                 Name = Data.Name,
+                UserTag = data.UserTag,
                 FilterFrom = Data.FilterFrom,
                 FilterTo = Data.FilterTo
         };
@@ -358,7 +375,8 @@
         //OnDateChanged(DateTime.Now);
 
         _Allparticipant = await Mediator.Send(new GetAllEmployeeListQuery());
-        _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());   
+        _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());  
+        _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
         _groupTagItemss = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
 
 

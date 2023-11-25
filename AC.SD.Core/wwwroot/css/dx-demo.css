@@ -87,6 +87,20 @@ body,
 .topicheadbg {
     background-color: var(--bs-gray-300);
 }
+.usertag {
+    background-color: #FFF !important;
+    border-radius: 40px !important;
+    display: inline-block;
+    background-color: #e7e7e7db;
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 11px;
+    /* font-weight: 600; */
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+    margin-right: 5px;
+}
 .tagbg {
     background-color: #c2c2c2 !important;
     border-radius: 40px !important;

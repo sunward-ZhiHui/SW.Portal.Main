@@ -513,6 +513,38 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
+    public class UpdateUserTagHandler : IRequestHandler<UpdateUserTag, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public UpdateUserTagHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+
+        public async Task<long> Handle(UpdateUserTag request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.UpdateUserTagAsync(request);
+            return req;
+        }
+    }
+    public class CreateUserTagHandler : IRequestHandler<CreateUserTag, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public CreateUserTagHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+
+        public async Task<long> Handle(CreateUserTag request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.CreateUserTagAsync(request);
+            return req;
+        }
+    }
+    
+
     public class CreateEmailDocFileProfileTypeHandler : IRequestHandler<CreateEmailDocFileProfileType, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;

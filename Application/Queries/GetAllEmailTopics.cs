@@ -354,6 +354,13 @@ namespace Application.Queries
     public class UpdateEmailTopicDueDate : EmailTopics, IRequest<long>
     {       
     }
+    public class UpdateUserTag : EmailActivityCatgorys, IRequest<long>
+    {
+    }
+    public class CreateUserTag : EmailActivityCatgorys, IRequest<long>
+    {
+    }
+    
     public class CreateEmailDocFileProfileType : Documents, IRequest<long>
     {
     }

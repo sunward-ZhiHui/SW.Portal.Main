@@ -55,4 +55,14 @@ namespace Application.Queries
             this.UserID = UserID;
         }
     }
+    public class GetByUserTage : PagedRequest, IRequest<List<EmailActivityCatgorys>>
+    {
+        public long TopicID { get; set; }
+        public long UserID { get; set; }
+        public GetByUserTage(long topicId,long UserID)
+        {
+            this.TopicID = topicId;
+            this.UserID = UserID;
+        }
+    }
 }

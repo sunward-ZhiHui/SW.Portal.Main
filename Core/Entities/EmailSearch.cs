@@ -22,6 +22,7 @@ namespace Core.Entities
         public string? GroupTag { get; set; }
         public string? CategoryTag { get; set; }
         public string? ActionTag { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
+        public string? UserTag { get; set; }        
     }
 }

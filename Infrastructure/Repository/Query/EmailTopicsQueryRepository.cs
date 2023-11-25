@@ -296,6 +296,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("CategoryTag", emailSearch.CategoryTag);
                         parameters.Add("ActionTag", emailSearch.ActionTag);
                         parameters.Add("Name", emailSearch.Name);
+                        parameters.Add("UserTag", emailSearch.UserTag);
 
                         parameters.Add("filterFrom", emailSearch.FilterFrom);
                         parameters.Add("filterTo", emailSearch.FilterTo);
@@ -1459,6 +1460,7 @@ namespace Infrastructure.Repository.Query
                         parameterss.Add("ActionTag", EmailTopics.ActionTag);
                         parameterss.Add("actName", EmailTopics.actName);
                         parameterss.Add("UserTag", EmailTopics.UserTag);
+                        parameterss.Add("UserTagId", EmailTopics.UserTagId);
 
                         var result = connection.QueryFirstOrDefault<long>("sp_Update_EmailTopics", parameterss, commandType: CommandType.StoredProcedure);
                         return result;
@@ -1706,8 +1708,73 @@ namespace Infrastructure.Repository.Query
             {
                 throw new Exception(exp.Message, exp);
             }
-        }
+        }        
+        public async Task<long> CreateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserTag", emailActivityCatgorys.UserTag);
+                        parameters.Add("TopicId", emailActivityCatgorys.TopicId);
+                        parameters.Add("AddedByUserID", emailActivityCatgorys.AddedByUserID);
+                        parameters.Add("AddedDate", emailActivityCatgorys.AddedDate);
 
+                        var query = " INSERT INTO EmailTopicUserTags (UserTag,TopicId,AddedByUserID,AddedDate,ModifiedByUserID,ModifiedDate) VALUES (@UserTag,@TopicId,@AddedByUserID,@AddedDate,@AddedByUserID,@AddedDate)";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<long> UpdateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserTag", emailActivityCatgorys.UserTag);
+                        parameters.Add("ID", emailActivityCatgorys.UserTagId);
+
+                        var query = " UPDATE EmailTopicUserTags SET UserTag = @UserTag WHERE ID = @ID";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
         public async Task<long> UpdateDueDate(EmailTopics EmailTopics)
         {
             try

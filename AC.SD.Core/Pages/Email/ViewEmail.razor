@@ -1125,18 +1125,51 @@
         <DxFormLayout CssClass="w-100">
             <div>
                 <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit_FileProfileType">
-                    <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="12">
-                        <DataAnnotationsValidator />
-                        <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
-                            <Buttons>
-                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
-                                                Tooltip="Select File ProfileType"
-                                                Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
-                            </Buttons>
-                        </DxTextBox>
-                        <DxSpinEdit @bind-Value="@_dataFileProfileType.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
-                        <ValidationMessage For="@(() => _dataFileProfileType.FileProfileTypeId)" />
-                    </DxFormLayoutItem>
+                   @* <DxFormLayoutItem Caption="" ColSpanMd="12">
+                         <DxRadioGroup Items="@FileLinkOptions"
+                                      @bind-Value="@SelectedRadioGroupString"
+                                      Layout="RadioGroupLayout.Horizontal"
+                                      CssClass="dx-demo-radio-group">
+                        </DxRadioGroup>   
+                    </DxFormLayoutItem>*@
+
+                    @if(SelectedRadioGroupString == "Link to DMS")
+                    {
+                        <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="12">
+                            <DataAnnotationsValidator />
+                            <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                                <Buttons>
+                                    <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+                                                    Tooltip="Select File ProfileType"
+                                                    Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                                </Buttons>
+                            </DxTextBox>
+                            <DxSpinEdit @bind-Value="@_dataFileProfileType.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
+                            <ValidationMessage For="@(() => _dataFileProfileType.FileProfileTypeId)" />
+                        </DxFormLayoutItem>
+
+                    }
+                    else
+                    {
+                        <DxFormLayoutItem Caption="File Replace(Check-In)" ColSpanMd="12">
+                                <DxComboBox Data="@_OnFileReplaceList"
+                                        NullText="Select OnBehalf..."
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        TextFieldName="Name"
+                                        ValueFieldName="UserID"                                       
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                        @bind-Value="@_dataFileReplace.FileProfileTypeId" ShowValidationIcon="true">
+                                        <Columns>                                               
+                                            <DxGridDataColumn FieldName="SubjectName" MinWidth="200" />
+                                            <DxGridDataColumn FieldName="FileName" MinWidth="200" />
+                                            <DxGridDataColumn FieldName="AddedBy" MinWidth="200" />
+                                        </Columns>
+                                        </DxComboBox>
+                            </DxFormLayoutItem>
+                    }
+
+                    
                 </EditForm>
             </div>
         </DxFormLayout>
@@ -1191,6 +1224,10 @@
 
 
 @code {
+    string SelectedRadioGroupString { get; set; } = "Link to DMS";
+    IEnumerable<string> FileLinkOptions = new[] { "Link to DMS", "File Replace(Check-In)" };
+    private List<Documents>? _OnFileReplaceList;
+
     string? LinkFilterFileprofiletypeName { get; set; } = null;
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
     EditContext _editContext;
@@ -1462,7 +1499,15 @@
     }
 
     private FileProfileType _dataFileProfileType = new FileProfileType();
+    private FileReplace _dataFileReplace = new FileReplace();
     private class FileProfileType
+    {
+        [Required(ErrorMessage = "FileProfile is Required")]
+        public long? FileProfileTypeId { get; set; }
+        public Guid? sessionId { get; set; }
+    }
+
+    private class FileReplace
     {
         [Required(ErrorMessage = "FileProfile is Required")]
         public long? FileProfileTypeId { get; set; }
@@ -2169,8 +2214,8 @@
     async void onUserTagPop()
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
-            _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID)); 
-                
+        _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID)); 
+
         var _getUserTag = await Mediator.Send(new GetByUserTage(long.Parse(@SelectedGroup), applicationUser.UserID));
 
         if(_getUserTag.Count > 0)
@@ -2880,6 +2925,9 @@
         {
             //await JSRuntime.InvokeAsync<string>("showLoading");
             _topicDocList = await Mediator.Send(new GetSubEmailTopicDocList(long.Parse(@SelectedReplyId)));
+
+            _OnFileReplaceList = _topicDocList.Where(x => x.EmailToDMS != null).ToList();
+
             //await JSRuntime.InvokeAsync<string>("hideLoading");
 
 

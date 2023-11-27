@@ -116,6 +116,22 @@ namespace Application.Handlers.QueryHandlers
         public async Task<long> Handle(CreateToDoNotesHistoryQuery request, CancellationToken cancellationToken)
         {
             var newlist = await _ToDoNotesHistoryQueryRepository.Insert(request);
+            var nslineData = request.UserIds.ToList();
+            if (nslineData.Count > 0)
+            {
+                request.UserIds.ToList().ForEach(async a =>
+                {
+                    var lineItem = new ToDoNotesUsers();
+                    lineItem.NotesHistoryID = newlist;
+                    lineItem.UserID = a;
+                    lineItem.AddedByUserID = request.AddedByUserID.Value;
+                    lineItem.AddedDate = request.AddedDate;
+                   
+                    await _ToDoNotesHistoryQueryRepository.InsertToDoNotesUsersAsync(lineItem);
+                });
+            }
+
+
             return newlist;
         }
     }

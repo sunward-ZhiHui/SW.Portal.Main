@@ -224,6 +224,9 @@ namespace Infrastructure.Repository.Query
             List<NavprodOrderLineModel> productActivityAppModels = new List<NavprodOrderLineModel>();
             try
             {
+                var productionsimulationlist = new List<ProductionSimulation>();
+                var navprodOrderLineList = new List<NavprodOrderLine>();
+                var navItesmList = new List<Navitems>();
                 using (var connection = CreateConnection())
                 {
                     var parameters = new DynamicParameters();
@@ -231,10 +234,14 @@ namespace Infrastructure.Repository.Query
                     var results = await connection.QueryMultipleAsync("select ProdOrderNo,BatchNo from ProductionSimulation where companyid=@CompanyID;" +
                         "select * from NavprodOrderLine where companyid=@CompanyID AND ProdOrderNo!='' AND  RePlanRefNo is not null;" +
                         "select No,BatchNos,PackSize from Navitems where companyid=@CompanyID;", parameters);
-                    var productionsimulationlist = results.Read<ProductionSimulation>().ToList();
-                    var navprodOrderLineList = results.Read<NavprodOrderLine>().ToList();
+                    productionsimulationlist = results.Read<ProductionSimulation>().ToList();
+                    navprodOrderLineList = results.Read<NavprodOrderLine>().ToList();
+                    navItesmList = results.Read<Navitems>().ToList();
+                }
+                if (navprodOrderLineList != null && navprodOrderLineList.Count > 0)
+                {
                     var productActivityApps = navprodOrderLineList.Where(w => w.ProdOrderNo != null && w.ProdOrderNo != "" && w.CompanyId == CompanyId && w.RePlanRefNo != null).Select(s => new { s.RePlanRefNo, s.BatchNo, s.CompanyId }).Distinct().ToList();
-                    var navItesmList = results.Read<Navitems>().ToList();
+
                     if (productActivityApps != null && productActivityApps.Count > 0)
                     {
                         long i = 1;
@@ -357,7 +364,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("applineSessionId", PPAlist.LineSessionId, DbType.Guid);
                         parameters.Add("applineStatusCodeID", PPAlist.StatusCodeID);
                         parameters.Add("QaCheck", PPAlist.QaCheck == true ? true : false);
-                        if(PPAlist.ProfileId>0)
+                        if (PPAlist.ProfileId > 0)
                         {
 
                         }
@@ -384,7 +391,7 @@ namespace Infrastructure.Repository.Query
                         }
                         else
                         {
-                            
+
                             var applinequery = "INSERT INTO ProductionActivityAppLine(ProductionActivityAppID,ProdActivityResultID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID,ModifiedByUserID,ModifiedDate,ActivityStatusId,IsOthersOptions,LocationID,QaCheck,ProfileNo,ProfileId) " +
                                 " OUTPUT INSERTED.ProductionActivityAppLineId " +
                                 "VALUES (@Appid,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID,@applineAddedByUserID,@applineAddedDate,@ActivityStatusId,@IsOthersOptions,@LocationID,@QaCheck,@ProfileNo,@ProfileId)";

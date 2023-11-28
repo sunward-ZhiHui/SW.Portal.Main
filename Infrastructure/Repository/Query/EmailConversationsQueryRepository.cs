@@ -1497,16 +1497,18 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS,CONCAT(AET.BackURL, '/', AET.DocumentSessionId) AS DMSBackUrl from EmailConversations FC 
+                var query = @"SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,DD.DocumentID as ReplaceDocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS,CONCAT(AET.BackURL, '/', AET.DocumentSessionId) AS DMSBackUrl from EmailConversations FC 
                                 INNER JOIN Documents D on D.SessionID = FC.SessionId
                                 LEFT JOIN ActivityEmailTopics AET ON AET.ActivityEmailTopicID = D.EmailToDMS
+                                LEFT JOIN Documents DD ON DD.SessionID = AET.SessionId
 								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID
 								LEFT JOIN Employee EMP ON EMP.UserID = D.ModifiedByUserID
                                 where FC.ID = @ConversationId
                                     UNION
-                                SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS,CONCAT(AET.BackURL, '/', AET.DocumentSessionId) AS DMSBackUrl from EmailConversations FC 
+                                SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,DD.DocumentID as ReplaceDocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS,CONCAT(AET.BackURL, '/', AET.DocumentSessionId) AS DMSBackUrl from EmailConversations FC 
                                 INNER JOIN Documents D on D.SessionID = FC.SessionId
                                 LEFT JOIN ActivityEmailTopics AET ON AET.ActivityEmailTopicID = D.EmailToDMS
+                                LEFT JOIN Documents DD ON DD.SessionID = AET.SessionId
 								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID
 								LEFT JOIN Employee EMP ON EMP.UserID = D.ModifiedByUserID
                                 where FC.ReplyId = @ConversationId";

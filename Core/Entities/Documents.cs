@@ -76,5 +76,7 @@ namespace Core.Entities
         public long? EmailToDMS { get; set; }
         [NotMapped]
         public string DMSBackUrl { get; set; }
+        [NotMapped]
+        public long ReplaceDocumentId { get; set; }
     }
 }

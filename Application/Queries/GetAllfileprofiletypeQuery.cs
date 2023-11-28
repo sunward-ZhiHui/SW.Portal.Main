@@ -242,6 +242,14 @@ namespace Application.Queries
             this.DocumentsUploadModel = documentsUploadModel;
         }
     }
+    public class GetByIdDocument : PagedRequest, IRequest<Documents>
+    {
+        public long? DocumentId { get; set; }
+        public GetByIdDocument(long? docid)
+        {
+            this.DocumentId = docid;
+        }
+    }
     public class UpdateCreateDocumentBySession : PagedRequest, IRequest<DocumentsUploadModel>
     {
         public DocumentsUploadModel DocumentsUploadModel { get; private set; }

@@ -974,7 +974,7 @@ namespace Infrastructure.Repository.Query
                                 FC.FileData,
                                 FC.AddedByUserID,
                                 AET.Comment AS ActCommentName,
-                                AET.BackURL,
+                                --AET.BackURL,
                                 --AET.DocumentSessionId
                                 EMPP.FirstName AS ActUserName,
                                 --AET.AddedDate AS ActAddedDate

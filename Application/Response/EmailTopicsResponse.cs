@@ -51,5 +51,6 @@ namespace Application.Response
         public string? actName { get; set; }     
         public string? ActivityType { get; set;}
         public string? UserTag { get; set; }
+        public long? UserTagId { get; set; }
     }
 }

@@ -194,6 +194,27 @@ namespace Infrastructure.Repository.Query
                 }
             
         }
+        
+        public async Task<List<EmailActivityCatgorys>> GetByUserTagAsync(long TopicID,long UserID)
+        {
+            try
+            {
+                var query = "SELECT UserTag, ID as UserTagId,TopicId as UserTagTopicId,AddedByUserID as UserTagAddedByUserID FROM EmailTopicUserTags where TopicID = @TopicID and AddedByUserID = @UserID";
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicID", TopicID);
+                parameters.Add("UserID", UserID);
+                
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailActivityCatgorys>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
         public async  Task<IReadOnlyList<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID)
         {
@@ -201,7 +222,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("UserID", UserID);
-                var query = "SELECT DISTINCT UserTag FROM EmailActivityCatgorys where AddedByUserID = @UserID and UserTag IS NOT NULL";
+                var query = "SELECT DISTINCT UserTag FROM EmailTopicUserTags where AddedByUserID = @UserID and UserTag IS NOT NULL";
 
                 using (var connection = CreateConnection())
                 {

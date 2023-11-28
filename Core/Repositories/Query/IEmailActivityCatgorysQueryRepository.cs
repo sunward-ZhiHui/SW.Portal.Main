@@ -19,5 +19,7 @@ namespace Core.Repositories.Query
         Task<long> DeleteAsync(long id);
 
         Task<IReadOnlyList<EmailActivityCatgorys>> GetAllUserTagAsync(long UserID);
+        Task<List<EmailActivityCatgorys>> GetByUserTagAsync(long TopicID,long UserID);
+        
     }
 }

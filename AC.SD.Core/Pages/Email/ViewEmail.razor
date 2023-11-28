@@ -170,9 +170,16 @@
                                                                     @if (!string.IsNullOrWhiteSpace(Tagitem.Name))
                                                                     {
                                                                         <span class="handline tagbg">@Tagitem.Name</span>
-                                                                    }
+                                                                    }                                                                   
 
                                                                 }
+                                                            }
+                                                            @if (_headTopic_UserTag != null && _headTopic_UserTag.Any())
+                                                            {                                                                    
+                                                                @if (!string.IsNullOrWhiteSpace(_headTopic_UserTag[0].UserTag))
+                                                                {
+                                                                    <span class="handline usertag">@_headTopic_UserTag[0].UserTag</span>
+                                                                }                                                                                                                                
                                                             }
                                                         </div>  
                                                        
@@ -809,6 +816,7 @@
                         <DxMenuItem @onclick="onTopicClosedPop" Text="Close" />*@
                         @*<DxMenuItem @onclick="onAddCategoryPop" Text="Tag" />*@
                         <DxMenuItem @onclick="onArchivePop" Text="Archive" />
+                        <DxMenuItem @onclick="onUserTagPop" Text="User Tag"/>
                     </Items>
                 </DxMenu>               
             </BodyTextTemplate>
@@ -860,7 +868,7 @@
                 <ValidationMessage For="@(() => _dataDuDate.DueDate)" />
             </div>
             <div class="col-md-12">
-                        <DxButton SubmitFormOnClick="true" style="float: right;" Text="Submit" RenderStyle="ButtonRenderStyle.Primary" />
+                <DxButton SubmitFormOnClick="true" style="float: right;" Text="Submit" RenderStyle="ButtonRenderStyle.Primary" />
             </div>
         </div>
         </EditForm>           
@@ -909,6 +917,42 @@
         </EditForm>           
         </div>
        
+    </BodyTemplate>
+</DxPopup>
+
+<DxPopup @bind-Visible="@isUserTagChange" HeaderText="Add/Update UserTag">
+    <BodyTemplate Context="PopupContext">
+        <div style="padding:10px;">
+
+            <EditForm Model="@dataUserTag" OnValidSubmit="@SubmitUserTag" class="w-800" Context="EditFormContext">
+                <DataAnnotationsValidator />
+                <div class="row">
+                    <div class="col-md-12" style="padding-bottom: 12px">  
+                    <DxFormLayout>
+                       <DxFormLayoutItem Caption="User Tag:" ColSpanMd="12">
+                                <DxComboBox Data="@_UserTagList"
+                                    AllowUserInput="true"
+                                    NullText="Select User Tag..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="UserTag"
+                                    ValueFieldName="UserTag"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    @bind-Value="@dataUserTag.UserTag"
+                                    @bind-Text="@dataUserTag.UserTag" 
+                                    ShowValidationIcon="true">
+                                </DxComboBox>
+                                <ValidationMessage For="@(() => dataUserTag.UserTag)" />
+                            </DxFormLayoutItem>
+                    </DxFormLayout>
+                    </div>
+                    <div class="col-md-12">
+                        <DxButton SubmitFormOnClick="true" style="float: right;" Text="Submit" RenderStyle="ButtonRenderStyle.Primary" />
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+
     </BodyTemplate>
 </DxPopup>
 
@@ -1081,18 +1125,51 @@
         <DxFormLayout CssClass="w-100">
             <div>
                 <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit_FileProfileType">
-                    <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="12">
-                        <DataAnnotationsValidator />
-                        <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
-                            <Buttons>
-                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
-                                                Tooltip="Select File ProfileType"
-                                                Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
-                            </Buttons>
-                        </DxTextBox>
-                        <DxSpinEdit @bind-Value="@_dataFileProfileType.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
-                        <ValidationMessage For="@(() => _dataFileProfileType.FileProfileTypeId)" />
-                    </DxFormLayoutItem>
+                   @* <DxFormLayoutItem Caption="" ColSpanMd="12">
+                         <DxRadioGroup Items="@FileLinkOptions"
+                                      @bind-Value="@SelectedRadioGroupString"
+                                      Layout="RadioGroupLayout.Horizontal"
+                                      CssClass="dx-demo-radio-group">
+                        </DxRadioGroup>   
+                    </DxFormLayoutItem>*@
+
+                    @if(SelectedRadioGroupString == "Link to DMS")
+                    {
+                        <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="12">
+                            <DataAnnotationsValidator />
+                            <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                                <Buttons>
+                                    <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+                                                    Tooltip="Select File ProfileType"
+                                                    Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                                </Buttons>
+                            </DxTextBox>
+                            <DxSpinEdit @bind-Value="@_dataFileProfileType.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
+                            <ValidationMessage For="@(() => _dataFileProfileType.FileProfileTypeId)" />
+                        </DxFormLayoutItem>
+
+                    }
+                    else
+                    {
+                        <DxFormLayoutItem Caption="File Replace(Check-In)" ColSpanMd="12">
+                                <DxComboBox Data="@_OnFileReplaceList"
+                                        NullText="Select OnBehalf..."
+                                        FilteringMode="DataGridFilteringMode.Contains"
+                                        ListRenderMode="ListRenderMode.Virtual"
+                                        TextFieldName="Name"
+                                        ValueFieldName="UserID"                                       
+                                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                        @bind-Value="@_dataFileReplace.FileProfileTypeId" ShowValidationIcon="true">
+                                        <Columns>                                               
+                                            <DxGridDataColumn FieldName="SubjectName" MinWidth="200" />
+                                            <DxGridDataColumn FieldName="FileName" MinWidth="200" />
+                                            <DxGridDataColumn FieldName="AddedBy" MinWidth="200" />
+                                        </Columns>
+                                        </DxComboBox>
+                            </DxFormLayoutItem>
+                    }
+
+                    
                 </EditForm>
             </div>
         </DxFormLayout>
@@ -1147,6 +1224,10 @@
 
 
 @code {
+    string SelectedRadioGroupString { get; set; } = "Link to DMS";
+    IEnumerable<string> FileLinkOptions = new[] { "Link to DMS", "File Replace(Check-In)" };
+    private List<Documents>? _OnFileReplaceList;
+
     string? LinkFilterFileprofiletypeName { get; set; } = null;
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
     EditContext _editContext;
@@ -1418,7 +1499,15 @@
     }
 
     private FileProfileType _dataFileProfileType = new FileProfileType();
+    private FileReplace _dataFileReplace = new FileReplace();
     private class FileProfileType
+    {
+        [Required(ErrorMessage = "FileProfile is Required")]
+        public long? FileProfileTypeId { get; set; }
+        public Guid? sessionId { get; set; }
+    }
+
+    private class FileReplace
     {
         [Required(ErrorMessage = "FileProfile is Required")]
         public long? FileProfileTypeId { get; set; }
@@ -1666,6 +1755,11 @@
         [Required(ErrorMessage = "Due Date is required")]
         public DateTime? DueDate { get; set; }      
     }
+    private class UserTagData
+    {
+        public string? UserTag { get; set; }
+        public long? UserTagId { get; set; }        
+    }
     private class ModelClose
     {
         [Required(ErrorMessage = "Remarks is required")]
@@ -1680,6 +1774,7 @@
 
     private Model _dataDuDate = new Model();
     private Model _dataSubjectDuDate = new Model();
+    private UserTagData dataUserTag = new UserTagData();
     private ModelClose _dataTopicClose = new ModelClose();
     private SubjectNameModel _dataSubjectName = new SubjectNameModel();
 
@@ -1702,6 +1797,8 @@
     bool isFileUpload = false;
     bool isDueDate =false;
     bool isSubjectDueDate = false;
+    bool isUserTagChange = false;
+    private List<EmailActivityCatgorys> _UserTagList;
     bool isCancelDueDate = false;
     string _cancelSubjectName = "";
     bool isRenameSubject = false;
@@ -1729,6 +1826,7 @@
     public List<EmailConversations> _replyComment;
     private List<EmailTopics>? _headTopic;
     private List<EmailActivityCatgorys>? _headTopic_Tag;
+    private List<EmailActivityCatgorys>? _headTopic_UserTag;
     string FilterString { get; set; }
     private List<EmailParticipant>? _participant;
     EmailParticipant _participantLst { get; set; }
@@ -2113,6 +2211,29 @@
         isSubjectDueDate = true;
         _dataSubjectDuDate.DueDate = CurrentEmailConversations.DueDate;
     }
+    async void onUserTagPop()
+    {
+        await JSRuntime.InvokeAsync<string>("showLoading");
+        _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID)); 
+
+        var _getUserTag = await Mediator.Send(new GetByUserTage(long.Parse(@SelectedGroup), applicationUser.UserID));
+
+        if(_getUserTag.Count > 0)
+        {
+            dataUserTag.UserTag = _getUserTag[0].UserTag;
+            dataUserTag.UserTagId = _getUserTag[0].UserTagId;
+        }
+        else
+        {
+            dataUserTag.UserTag = null;
+            dataUserTag.UserTagId = null;
+        }
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+
+        isUserTagChange = true;
+        StateHasChanged();        
+    }
     async void onCancelDueDatePop()
     {
         isCancelDueDate = true;
@@ -2153,6 +2274,50 @@
         }
 
     }
+    async void SubmitUserTag()
+    {
+        var usertag = dataUserTag;
+        if(dataUserTag.UserTagId != null)
+        {
+
+            var UpdateReq = new UpdateUserTag
+            {                
+                UserTagId = dataUserTag.UserTagId,
+                UserTag = dataUserTag.UserTag,
+                ModifiedByUserID = applicationUser.UserID,
+                ModifiedDate = DateTime.Now
+            };
+
+            var result = await Mediator.Send(UpdateReq);
+            if (result == 1)
+            {
+                isUserTagChange = false;
+                onShowPopupMessage("success", "User Tag Updated Successfully");
+            }            
+        }
+        else
+        {
+            var UpdateReq = new CreateUserTag
+                {
+                    TopicId = long.Parse(@SelectedGroup),
+                    UserTag = dataUserTag.UserTag,
+                    AddedByUserID = applicationUser.UserID,
+                    AddedDate = DateTime.Now
+                };
+
+            var result = await Mediator.Send(UpdateReq);
+            if (result == 1)
+            {
+                isUserTagChange = false;
+                onShowPopupMessage("success", "Added User Tag Successfully");
+            }
+        }
+
+        onloadTagsList();
+        IsOpenFlyout = false;
+        StateHasChanged(); 
+    }
+
     async void SubmitSubjectDueDate()
     {
         var UpdateReq = new UpdateEmailTopicSubjectDueDate
@@ -2760,6 +2925,9 @@
         {
             //await JSRuntime.InvokeAsync<string>("showLoading");
             _topicDocList = await Mediator.Send(new GetSubEmailTopicDocList(long.Parse(@SelectedReplyId)));
+
+            _OnFileReplaceList = _topicDocList.Where(x => x.EmailToDMS != null).ToList();
+
             //await JSRuntime.InvokeAsync<string>("hideLoading");
 
 
@@ -2807,7 +2975,10 @@
     }
     public async void onloadTagsList()
     {
-        _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
+        await JSRuntime.InvokeAsync<string>("showLoading");
+            _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
+            _headTopic_UserTag = await Mediator.Send(new GetByUserTage(long.Parse(@SelectedGroup),applicationUser.UserID));
+        await JSRuntime.InvokeAsync<string>("hideLoading");
     }
 
     private async Task LoadData()
@@ -2879,6 +3050,7 @@
         {
             _headTopic = await Mediator.Send(new GetByIdEmailTopics(long.Parse(@SelectedGroup)));            
             _headTopic_Tag = await Mediator.Send(new GetAllTopicCategory(long.Parse(@SelectedGroup)));
+            _headTopic_UserTag = await Mediator.Send(new GetByUserTage(long.Parse(@SelectedGroup), applicationUser.UserID));
             isCommandTopicClosed = _headTopic[0].Status == "closed" ? false : true;
 
             isEnabled = true;
@@ -4000,7 +4172,7 @@
     {
         Data.Message = null;
     }
-      void EulaPopupClosed(PopupClosedEventArgs args)
+    void EulaPopupClosed(PopupClosedEventArgs args)
     {
         isArchiveClosed = false;
 

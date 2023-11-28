@@ -242,7 +242,45 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
+         public async Task<long> InsertToDoNotesUsersAsync(ToDoNotesUsers toDoNotesUsers)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("NotesHistoryID", toDoNotesUsers.NotesHistoryID);
+                        parameters.Add("UserID", toDoNotesUsers.UserID);
+                        parameters.Add("AddedByUserID", toDoNotesUsers.AddedByUserID);
+                        parameters.Add("AddedDate", toDoNotesUsers.AddedDate);
+                       
 
+
+                        var query = "INSERT INTO ToDoNotesUsers(NotesHistoryID,UserID,AddedByUserID,AddedDate) OUTPUT INSERTED.ID VALUES (@NotesHistoryID,@UserID,@AddedByUserID,@AddedDate)";
+
+                        var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+
+                        return lastInsertedRecordId;
+                    }
+
+
+                    catch (Exception exp)
+                    {
+
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            };
+        }
         public async Task<long> Insert(ToDoNotesHistory ToDoNotesHistory)
         {
             try
@@ -268,13 +306,11 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("TopicId", ToDoNotesHistory.TopicId);
 
 
-                            var query = "INSERT INTO ToDoNotesHistory(TopicId,Users,NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status,ColourCode) VALUES (@TopicId,@Users,@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status,@ColourCode)";
+                            var query = "INSERT INTO ToDoNotesHistory(TopicId,Users,NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status,ColourCode) OUTPUT INSERTED.ID VALUES (@TopicId,@Users,@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status,@ColourCode)";
 
-                            var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                            var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
-                            
-
-                            return rowsAffected;
+                            return lastInsertedRecordId;
                         }
 
 

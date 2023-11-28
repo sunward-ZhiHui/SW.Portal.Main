@@ -47,7 +47,9 @@ namespace Core.Repositories.Query
         long Insert_sp_Participant(TopicParticipant topicParticipant);
         Task<long> InsertParticipant(TopicParticipant topicParticipant);
         Task<EmailTopics> GetTopicListAsync();      
-        Task<long> UpdateDueDate(EmailTopics EmailTopics);
+        Task<long> UpdateDueDate(EmailTopics EmailTopics);        
+        Task<long> CreateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys);
+        Task<long> UpdateUserTagAsync(EmailActivityCatgorys emailActivityCatgorys);
         Task<long> UpdateSubjectDueDate(EmailConversations emailConversations);
         Task<long> UpdateSubjectName(EmailConversations emailConversations);
         Task<long> UpdateTopicClose(EmailTopics EmailTopics);

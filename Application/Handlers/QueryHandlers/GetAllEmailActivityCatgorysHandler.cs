@@ -112,4 +112,17 @@ namespace Application.Handlers.QueryHandlers
             return (List<EmailActivityCatgorys>)await _emailactyqueryRepository.GetAllUserTagAsync(request.UserID);
         }
     }
+    public class GetByUserTageHandler : IRequestHandler<GetByUserTage, List<EmailActivityCatgorys>>
+    {
+        private readonly IEmailActivityCatgorysQueryRepository _emailactyqueryRepository;
+        public GetByUserTageHandler(IEmailActivityCatgorysQueryRepository emailactyqueryRepository)
+        {
+            _emailactyqueryRepository = emailactyqueryRepository;
+        }
+        public async Task<List<EmailActivityCatgorys>> Handle(GetByUserTage request, CancellationToken cancellationToken)
+        {
+            return (List<EmailActivityCatgorys>)await _emailactyqueryRepository.GetByUserTagAsync(request.TopicID,request.UserID);
+        }
+    }
+    
 }

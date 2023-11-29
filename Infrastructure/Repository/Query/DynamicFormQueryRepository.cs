@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using Core.Entities.Views;
 using Core.EntityModels;
+using Core.Helpers;
 using Core.Repositories.Query;
 using Dapper;
 using DevExpress.Xpo.DB.Helpers;
@@ -13,9 +14,13 @@ using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Remoting;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -68,9 +73,10 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode from DynamicForm t1 \r\n" +
+                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t5.PlantCode as CompanyName,t4.CodeValue as StatusCode from DynamicForm t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                     "LEFT JOIN Plant t5 ON t5.plantId=t1.companyId\r\n" +
                     "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID";
 
                 using (var connection = CreateConnection())
@@ -107,9 +113,10 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("SessionId", SessionId, DbType.Guid);
-                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode from DynamicForm t1 \r\n" +
+                var query = "select t1.*,t5.PlantCode as CompanyName,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode from DynamicForm t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
+                    "LEFT JOIN Plant t5 ON t5.plantId=t1.companyId\r\n" +
                     "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID WHERE t1.SessionId=@SessionId";
 
                 using (var connection = CreateConnection())
@@ -129,17 +136,20 @@ namespace Infrastructure.Repository.Query
                 var parameters = new DynamicParameters();
                 parameters.Add("sessionId", sessionId);
 
-                var query = "SELECT t1.*,t2.NAme as FileProfileTypeName,t2.SessionID as FileProfileSessionId FROM DynamicForm t1 LEFT JOIN FileProfileType t2 ON t2.FileProfileTypeID=t1.FileProfileTypeID  Where t1.SessionID = @sessionId";
+                var query = "SELECT t1.*,t2.NAme as FileProfileTypeName,t4.PlantCode as CompanyName,t2.SessionID as FileProfileSessionId FROM DynamicForm t1 LEFT JOIN FileProfileType t2 ON t2.FileProfileTypeID=t1.FileProfileTypeID\r\n" +
+                    "LEFT JOIN Plant t4 ON t4.plantId=t1.companyId\r\n"+
+                    "Where t1.SessionID = @sessionId";
 
+                var result = new DynamicForm();
                 using (var connection = CreateConnection())
                 {
-                    var result = (await connection.QueryFirstOrDefaultAsync<DynamicForm>(query, parameters));
-                    if (result != null)
-                    {
-                        result.DynamicFormApproval = (List<DynamicFormApproval>?)await GetDynamicFormApprovalByID(result.ID, DynamicFormDataId);
-                    }
-                    return result;
+                    result = await connection.QueryFirstOrDefaultAsync<DynamicForm>(query, parameters);
                 }
+                if (result != null)
+                {
+                    result.DynamicFormApproval = (List<DynamicFormApproval>?)await GetDynamicFormApprovalByID(result.ID, DynamicFormDataId);
+                }
+                return result;
             }
             catch (Exception exp)
             {
@@ -237,8 +247,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsApproval", dynamicForm.IsApproval);
                         parameters.Add("FileProfileTypeId", dynamicForm.FileProfileTypeId);
                         parameters.Add("IsUpload", dynamicForm.IsUpload);
-                        var query = "INSERT INTO DynamicForm(Name,ScreenID,SessionID,AttributeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsApproval,FileProfileTypeId,IsUpload) VALUES " +
-                            "(@Name,@ScreenID,@SessionID,@AttributeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsApproval,@FileProfileTypeId,@IsUpload)";
+                        parameters.Add("CompanyId", dynamicForm.CompanyId);
+                        var query = "INSERT INTO DynamicForm(Name,ScreenID,SessionID,AttributeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,IsApproval,FileProfileTypeId,IsUpload,CompanyId) VALUES " +
+                            "(@Name,@ScreenID,@SessionID,@AttributeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@IsApproval,@FileProfileTypeId,@IsUpload,@CompanyId)";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
 
@@ -286,7 +297,8 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("IsApproval", dynamicForm.IsApproval);
                         parameters.Add("FileProfileTypeId", dynamicForm.FileProfileTypeId);
                         parameters.Add("IsUpload", dynamicForm.IsUpload);
-                        var query = " UPDATE DynamicForm SET AttributeID = @AttributeID,Name =@Name,ScreenID =@ScreenID,ModifiedByUserID=@ModifiedByUserID," +
+                        parameters.Add("CompanyId", dynamicForm.CompanyId);
+                        var query = " UPDATE DynamicForm SET AttributeID = @AttributeID,Name =@Name,ScreenID =@ScreenID,ModifiedByUserID=@ModifiedByUserID,CompanyId=@CompanyId," +
                             "ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,IsApproval=@IsApproval,IsUpload=@IsUpload,FileProfileTypeId=@FileProfileTypeId WHERE ID = @ID";
 
                         var rowsAffected = await connection.ExecuteAsync(query, parameters);
@@ -521,13 +533,14 @@ namespace Infrastructure.Repository.Query
                 parameters.Add("DynamicFormSectionId", dynamicFormSectionId);
                 var query = "select t1.*," +
                     "(case when t1.IsDisplayTableHeader is NULL then  0 ELSE t1.IsDisplayTableHeader END) as IsDisplayTableHeader," +
-                    "t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.SectionName,t6.ControlTypeId,t6.AttributeName,t7.CodeValue as ControlType from DynamicFormSectionAttribute t1 \r\n" +
+                    "t2.UserName as AddedBy,t8.DisplayName as DataSourceDisplayName,t8.DataSourceTable,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.SectionName,t6.ControlTypeId,t6.DropDownTypeId,t6.DataSourceId,t6.AttributeName,t7.CodeValue as ControlType from DynamicFormSectionAttribute t1 \r\n" +
                     "JOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\n" +
                     "JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\n" +
                     "JOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\n" +
                     "JOIN DynamicFormSection t5 ON t5.DynamicFormSectionId=t1.DynamicFormSectionId\r\n" +
                     "LEFT JOIN AttributeHeader t6 ON t6.AttributeID=t1.AttributeID\r\n" +
                     "LEFT JOIN CodeMaster t7 ON t7.CodeID=t6.ControlTypeID\r\n" +
+                    "LEFT JOIN AttributeHeaderDataSource t8 ON t8.AttributeHeaderDataSourceID=t6.DataSourceId\r\n" +
                     "Where t1.DynamicFormSectionId=@DynamicFormSectionId";
 
                 using (var connection = CreateConnection())
@@ -1066,82 +1079,83 @@ namespace Infrastructure.Repository.Query
                     "JOIN ApplicationUser t3 ON t3.UserID = t1.ModifiedByUserID\r\n" +
                     "JOIN DynamicForm t5 ON t5.ID = t1.DynamicFormID\r\n" +
                     "JOIN CodeMaster t4 ON t4.CodeID = t1.StatusCodeID WHERE t1.DynamicFormId =@DynamicFormId";
-
+                var result = new List<DynamicFormData>();
                 using (var connection = CreateConnection())
                 {
-                    var result = (await connection.QueryAsync<DynamicFormData>(query, parameters)).ToList();
-                    if (result != null && result.Count > 0)
+                    result = (await connection.QueryAsync<DynamicFormData>(query, parameters)).ToList();
+                }
+                if (result != null && result.Count > 0)
+                {
+                    result.ForEach(s =>
                     {
-                        result.ForEach(s =>
+                        if (s.DynamicFormItem != null && IsValidJson(s.DynamicFormItem))
                         {
-                            if (s.DynamicFormItem != null && IsValidJson(s.DynamicFormItem))
+                            s.ObjectData = JsonConvert.DeserializeObject(s.DynamicFormItem);
+                        }
+                        if (s.IsSendApproval == true)
+                        {
+                            var approvedList = resultData.Where(w => w.DynamicFormDataId == s.DynamicFormDataId).ToList();
+                            if (approvedList != null && approvedList.Count() > 0)
                             {
-                                s.ObjectData = JsonConvert.DeserializeObject(s.DynamicFormItem);
-                            }
-                            if (s.IsSendApproval == true)
-                            {
-                                var approvedList = resultData.Where(w => w.DynamicFormDataId == s.DynamicFormDataId).ToList();
-                                if (approvedList != null && approvedList.Count() > 0)
+                                s.DynamicFormApproved = approvedList;
+                                var approved = approvedList.Where(w => w.IsApproved == true).ToList();
+                                var approvedPending = approvedList.Where(w => w.IsApproved == null).ToList();
+                                if (approved != null && approved.Count() > 0 && approvedList.Count() == approved.Count())
                                 {
-                                    s.DynamicFormApproved = approvedList;
-                                    var approved = approvedList.Where(w => w.IsApproved == true).ToList();
-                                    var approvedPending = approvedList.Where(w => w.IsApproved == null).ToList();
-                                    if (approved != null && approved.Count() > 0 && approvedList.Count() == approved.Count())
+                                    s.ApprovalStatusId = 4;
+                                    s.ApprovalStatus = "Approved Done";
+                                    s.StatusName = "Completed";
+                                }
+                                else
+                                {
+                                    var rejected = approvedList.Where(w => w.IsApproved == false).FirstOrDefault();
+                                    if (rejected != null)
                                     {
-                                        s.ApprovalStatusId = 4;
-                                        s.ApprovalStatus = "Approved Done";
-                                        s.StatusName = "Completed";
+                                        s.IsApproved = rejected.IsApproved;
+                                        s.ApprovalStatusId = 3;
+                                        s.ApprovalStatus = "Rejected";
+                                        s.RejectedDate = rejected.ApprovedDate;
+                                        s.RejectedUserId = rejected.UserId;
+                                        s.RejectedUser = rejected.ApprovalUser;
+                                        s.StatusName = "Rejected";
                                     }
                                     else
                                     {
-                                        var rejected = approvedList.Where(w => w.IsApproved == false).FirstOrDefault();
-                                        if (rejected != null)
+                                        if (approvedPending != null && approvedPending.Count > 0)
                                         {
-                                            s.IsApproved = rejected.IsApproved;
-                                            s.ApprovalStatusId = 3;
-                                            s.ApprovalStatus = "Rejected";
-                                            s.RejectedDate = rejected.ApprovedDate;
-                                            s.RejectedUserId = rejected.UserId;
-                                            s.RejectedUser = rejected.ApprovalUser;
-                                            s.StatusName = "Rejected";
-                                        }
-                                        else
-                                        {
-                                            if (approvedPending != null && approvedPending.Count > 0)
+                                            if (approved != null && approved.Count() > 0)
                                             {
-                                                if (approved != null && approved.Count() > 0)
+                                                var isapproved = approved.OrderByDescending(o => o.DynamicFormApprovedId).FirstOrDefault(w => w.IsApproved == true);
+                                                if (isapproved != null)
                                                 {
-                                                    var isapproved = approved.OrderByDescending(o => o.DynamicFormApprovedId).FirstOrDefault(w => w.IsApproved == true);
-                                                    if (isapproved != null)
-                                                    {
-                                                        s.IsApproved = isapproved.IsApproved;
-                                                        s.ApprovalStatusId = 2;
-                                                        s.ApprovalStatus = "Approved";
-                                                        s.ApprovedDate = isapproved.ApprovedDate;
-                                                        s.ApprovedUserId = isapproved.UserId;
-                                                        s.ApprovedUser = isapproved.ApprovalUser;
-                                                    }
-                                                }
-                                                var isapprovedPending = approvedPending.OrderBy(o => o.DynamicFormApprovedId).FirstOrDefault(w => w.IsApproved == null);
-                                                if (isapprovedPending != null)
-                                                {
-                                                    s.IsApproved = isapprovedPending.IsApproved;
-                                                    s.ApprovalStatusId = 1;
-                                                    s.ApprovalStatus = "Pending";
-                                                    s.PendingUserId = isapprovedPending.UserId;
-                                                    s.PendingUser = isapprovedPending.ApprovalUser;
-                                                    s.StatusName = "Pending";
+                                                    s.IsApproved = isapproved.IsApproved;
+                                                    s.ApprovalStatusId = 2;
+                                                    s.ApprovalStatus = "Approved";
+                                                    s.ApprovedDate = isapproved.ApprovedDate;
+                                                    s.ApprovedUserId = isapproved.UserId;
+                                                    s.ApprovedUser = isapproved.ApprovalUser;
                                                 }
                                             }
-
+                                            var isapprovedPending = approvedPending.OrderBy(o => o.DynamicFormApprovedId).FirstOrDefault(w => w.IsApproved == null);
+                                            if (isapprovedPending != null)
+                                            {
+                                                s.IsApproved = isapprovedPending.IsApproved;
+                                                s.ApprovalStatusId = 1;
+                                                s.ApprovalStatus = "Pending";
+                                                s.PendingUserId = isapprovedPending.UserId;
+                                                s.PendingUser = isapprovedPending.ApprovalUser;
+                                                s.StatusName = "Pending";
+                                            }
                                         }
+
                                     }
                                 }
                             }
-                        });
-                    }
-                    return result;
+                        }
+                    });
                 }
+                return result;
+
             }
             catch (Exception exp)
             {
@@ -1165,39 +1179,42 @@ namespace Infrastructure.Repository.Query
                         {
                             dynamicFormSectionAttributeData.ForEach(s =>
                             {
-                                var Names = s.DynamicFormSectionAttributeId;
-                                var itemValue = jsonObj[s.DynamicAttributeName];
-                                if (itemValue is JArray)
+                                if (string.IsNullOrEmpty(s.DropDownTypeId))
                                 {
-                                    var values = (JArray)itemValue;
-                                    if (values != null)
+                                    var Names = s.DynamicFormSectionAttributeId;
+                                    var itemValue = jsonObj[s.DynamicAttributeName];
+                                    if (itemValue is JArray)
                                     {
-                                        List<long?> listData = values.ToObject<List<long?>>();
-                                        if (listData != null && listData.Count > 0)
+                                        var values = (JArray)itemValue;
+                                        if (values != null)
                                         {
-                                            listData.ForEach(l =>
+                                            List<long?> listData = values.ToObject<List<long?>>();
+                                            if (listData != null && listData.Count > 0)
                                             {
-                                                query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + l + ";\n\r";
-                                            });
+                                                listData.ForEach(l =>
+                                                {
+                                                    query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + l + ";\n\r";
+                                                });
+                                            }
                                         }
                                     }
-                                }
-                                else
-                                {
-                                    if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                                    else
                                     {
-                                        long? Svalues = itemValue == null ? null : (long)itemValue;
-                                        if (Svalues != null)
+                                        if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
                                         {
-                                            query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
+                                            long? Svalues = itemValue == null ? null : (long)itemValue;
+                                            if (Svalues != null)
+                                            {
+                                                query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
+                                            }
                                         }
-                                    }
-                                    if (s.ControlType == "ListBox" && s.IsMultiple == false)
-                                    {
-                                        long? Svalues = itemValue == null ? null : (long)itemValue;
-                                        if (Svalues != null)
+                                        if (s.ControlType == "ListBox" && s.IsMultiple == false)
                                         {
-                                            query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
+                                            long? Svalues = itemValue == null ? null : (long)itemValue;
+                                            if (Svalues != null)
+                                            {
+                                                query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
+                                            }
                                         }
                                     }
                                 }
@@ -1228,39 +1245,42 @@ namespace Infrastructure.Repository.Query
                                     var Names = jsonObj.ContainsKey(s.DynamicAttributeName);
                                     if (Names == true)
                                     {
-                                        var itemValue = jsonObj[s.DynamicAttributeName];
-                                        if (itemValue is JArray)
+                                        if (string.IsNullOrEmpty(s.DropDownTypeId))
                                         {
-                                            var values = (JArray)itemValue;
-                                            if (values != null)
+                                            var itemValue = jsonObj[s.DynamicAttributeName];
+                                            if (itemValue is JArray)
                                             {
-                                                List<long?> listData = values.ToObject<List<long?>>();
-                                                if (listData != null && listData.Count > 0)
+                                                var values = (JArray)itemValue;
+                                                if (values != null)
                                                 {
-                                                    listData.ForEach(l =>
+                                                    List<long?> listData = values.ToObject<List<long?>>();
+                                                    if (listData != null && listData.Count > 0)
                                                     {
-                                                        query += "update AttributeDetails set FormUsedCount += 1 where AttributeDetailID =" + l + ";\n\r";
-                                                    });
+                                                        listData.ForEach(l =>
+                                                        {
+                                                            query += "update AttributeDetails set FormUsedCount += 1 where AttributeDetailID =" + l + ";\n\r";
+                                                        });
 
+                                                    }
                                                 }
                                             }
-                                        }
-                                        else
-                                        {
-                                            if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                                            else
                                             {
-                                                long? Svalues = itemValue == null ? null : (long)itemValue;
-                                                if (Svalues != null)
+                                                if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
                                                 {
-                                                    query += "update AttributeDetails set FormUsedCount += 1 where AttributeDetailID =" + Svalues + ";\n\r";
+                                                    long? Svalues = itemValue == null ? null : (long)itemValue;
+                                                    if (Svalues != null)
+                                                    {
+                                                        query += "update AttributeDetails set FormUsedCount += 1 where AttributeDetailID =" + Svalues + ";\n\r";
+                                                    }
                                                 }
-                                            }
-                                            if (s.ControlType == "ListBox" && s.IsMultiple == false)
-                                            {
-                                                long? Svalues = itemValue == null ? null : (long)itemValue;
-                                                if (Svalues != null)
+                                                if (s.ControlType == "ListBox" && s.IsMultiple == false)
                                                 {
-                                                    query += "update AttributeDetails set FormUsedCount += 1 where AttributeDetailID =" + Svalues + ";\n\r";
+                                                    long? Svalues = itemValue == null ? null : (long)itemValue;
+                                                    if (Svalues != null)
+                                                    {
+                                                        query += "update AttributeDetails set FormUsedCount += 1 where AttributeDetailID =" + Svalues + ";\n\r";
+                                                    }
                                                 }
                                             }
                                         }
@@ -1325,43 +1345,46 @@ namespace Infrastructure.Repository.Query
                                 var Names = jsonObj.ContainsKey(s.DynamicAttributeName);
                                 if (Names == true)
                                 {
-                                    var itemValue = jsonObj[s.DynamicAttributeName];
-                                    if (itemValue is JArray)
+                                    if (string.IsNullOrEmpty(s.DropDownTypeId))
                                     {
-                                        var values = (JArray)itemValue;
-                                        if (values != null)
+                                        var itemValue = jsonObj[s.DynamicAttributeName];
+                                        if (itemValue is JArray)
                                         {
-                                            List<long?> listData = values.ToObject<List<long?>>();
-                                            if (listData != null && listData.Count > 0)
+                                            var values = (JArray)itemValue;
+                                            if (values != null)
                                             {
-                                                listData.ForEach(l =>
+                                                List<long?> listData = values.ToObject<List<long?>>();
+                                                if (listData != null && listData.Count > 0)
                                                 {
-                                                    query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + l + ";\n\r";
-                                                });
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
-                                        {
-                                            long? Svalues = itemValue == null ? null : (long)itemValue;
-                                            if (Svalues != null)
-                                            {
-                                                query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
-                                            }
-                                        }
-                                        else if (s.ControlType == "ListBox" && s.IsMultiple == false)
-                                        {
-                                            long? Svalues = itemValue == null ? null : (long)itemValue;
-                                            if (Svalues != null)
-                                            {
-                                                query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
+                                                    listData.ForEach(l =>
+                                                    {
+                                                        query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + l + ";\n\r";
+                                                    });
+                                                }
                                             }
                                         }
                                         else
                                         {
+                                            if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                                            {
+                                                long? Svalues = itemValue == null ? null : (long)itemValue;
+                                                if (Svalues != null)
+                                                {
+                                                    query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
+                                                }
+                                            }
+                                            else if (s.ControlType == "ListBox" && s.IsMultiple == false)
+                                            {
+                                                long? Svalues = itemValue == null ? null : (long)itemValue;
+                                                if (Svalues != null)
+                                                {
+                                                    query += "update AttributeDetails set FormUsedCount -= 1 where FormUsedCount>0 AND AttributeDetailID =" + Svalues + ";\n\r";
+                                                }
+                                            }
+                                            else
+                                            {
 
+                                            }
                                         }
                                     }
                                     query += "update DynamicFormSectionAttribute set FormUsedCount -= 1 where DynamicFormSectionAttributeID =" + s.DynamicFormSectionAttributeId + ";\n\r";

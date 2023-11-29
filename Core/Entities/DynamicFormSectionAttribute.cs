@@ -43,6 +43,15 @@ namespace Core.Entities
         public Type? DataType { get; set; }
         [NotMapped]
         public string? DynamicAttributeName { get; set; }
+        [NotMapped]
+        public string? DropDownTypeId { get; set; }
+        [NotMapped]
+        public long? DataSourceId { get; set; }
+        [NotMapped]
+        public string? DataSourceDisplayName { get; set; }
+        [NotMapped]
+        public string? DataSourceTable { get; set; }
+
     }
     public class DynamicFormSectionSpinEdit
     {

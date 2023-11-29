@@ -26,6 +26,10 @@ namespace Core.Entities
         [NotMapped]
         public string AddedBy { get; set; }
         public int? FormUsedCount { get; set; }
+        [NotMapped]
+        public object? DataSourceDetails { get; set; }
+        [NotMapped]
+        public string? DropDownTypeId { get; set; }
 
     }
 }

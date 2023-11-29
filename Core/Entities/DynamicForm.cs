@@ -22,7 +22,7 @@ namespace Core.Entities
 
         public bool? IsApproval { get; set; } = false;
         public string? AttributeID { get; set; }
-        
+        public long? CompanyId { get; set; }
         public bool IsUpload { get; set; } = false;
         public bool? IsMultipleUpload { get; set; } = false;
         //[Required]
@@ -40,5 +40,7 @@ namespace Core.Entities
         public string? FileProfileTypeName { get; set; }
         [NotMapped]
         public Guid? FileProfileSessionId { get; set; }
+        [NotMapped]
+        public string? CompanyName { get; set; }
     }
 }

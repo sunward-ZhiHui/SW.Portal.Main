@@ -12,6 +12,7 @@ namespace Core.Repositories.Query
     {
         Task<AttributeHeaderListModel> GetAllAttributeNameAsync(DynamicForm dynamicForm,long? UserId);
         Task<IReadOnlyList<AttributeHeader>> GetAllAttributeName();
+        Task<IReadOnlyList<AttributeHeaderDataSource>> GetAttributeHeaderDataSource();
         Task<IReadOnlyList<DynamicForm>> GetComboBoxList();
         Task<long> Insert(AttributeHeader attributeHeader);
         Task<long> UpdateAsync(AttributeHeader attributeHeader);

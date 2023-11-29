@@ -57,6 +57,27 @@
                     <DxFormLayoutItem Caption="Date" ColSpanMd="6">
                         <DxDateEdit NullText="Date" @bind-Date="@Data.AddedDate" Enabled=false />
                     </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="NavCompany"
+                                    ValueFieldName="PlantID"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        @bind-Value="@Data.CompanyId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                    Caption="Company Code"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompany)"
+                                                    Caption="Nav Company" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.CompanyId)" />
+                    </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Screen Name" ColSpanMd="6">
                         <DxTextBox @bind-Text="@Data.ScreenID"></DxTextBox>
 
@@ -176,10 +197,12 @@
     string _zindex = "z-index: 9999;";
     string? LinkFilterFileprofiletypeName { get; set; } = null;
     IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
+    private List<ViewPlants>? _plantItems;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _plantItems = await Mediator.Send(new GetAllPlantByNavCompanyQuery());
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         if (fileProfileTypeDocumentsAll.Count() > 0)
         {
@@ -214,7 +237,7 @@
         Data.ScreenID = null;
         Data.Name = null;
         Data.SessionId = null;
-        Data.StatusCodeID = null;
+        Data.StatusCodeID = null;Data.CompanyId = null;
         Data.IsApproval = false;
         Data.IsUpload = false; Data.FileProfileTypeId = null; LinkFilterFileprofiletypeName = null;
         if (SessionIds != null)
@@ -237,6 +260,7 @@
                 Data.StatusCodeID = dynamicFormData.StatusCodeID;
                 Data.IsUpload = dynamicFormData.IsUpload;
                 Data.FileProfileTypeId = dynamicFormData.FileProfileTypeId;
+                Data.CompanyId = dynamicFormData.CompanyId;
                 if (Data.IsUpload == true && dynamicFormData.FileProfileTypeId > 0)
                 {
                     var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, dynamicFormData.FileProfileTypeId);
@@ -319,6 +343,7 @@
                     AddedDate = DateTime.Now,
                     IsApproval = Data.IsApproval,
                     IsUpload = Data.IsUpload,
+                    CompanyId = Data.CompanyId,
                     FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
                 };
 
@@ -341,6 +366,7 @@
                     StatusCodeID = 1,
                     AddedDate = DateTime.Now,
                     IsApproval = Data.IsApproval,
+                    CompanyId = Data.CompanyId,
                     FileProfileTypeId = Data.IsUpload == true && Data.FileProfileTypeId > 0 ? Data.FileProfileTypeId : null,
                 };
             var result = await Mediator.Send(createReq);

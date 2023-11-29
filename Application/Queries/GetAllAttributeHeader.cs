@@ -21,6 +21,11 @@ namespace Application.Queries
 
 
     }
+    public class GetAttributeHeaderDataSource : PagedRequest, IRequest<List<AttributeHeaderDataSource>>
+    {
+
+
+    }
     public class GetAllAttributeNameNotInDynamicForm : PagedRequest, IRequest<List<AttributeHeader>>
     {
         public long? AttributeID { get; set; }

@@ -266,6 +266,15 @@ namespace Application.Queries
             this.DocumentsUploadModel = documentsUploadModel;
         }
     }
+    public class UpdateEmailDocumentBySession : PagedRequest, IRequest<DocumentsUploadModel>
+    {
+        public DocumentsUploadModel DocumentsUploadModel { get; private set; }
+        public UpdateEmailDocumentBySession(DocumentsUploadModel documentsUploadModel)
+        {
+            this.DocumentsUploadModel = documentsUploadModel;
+        }
+    }
+    
     public class InsertOrUpdateReserveProfileNumberSeries : PagedRequest, IRequest<DocumentNoSeriesModel>
     {
         public DocumentNoSeriesModel DocumentNoSeriesModel { get; private set; }

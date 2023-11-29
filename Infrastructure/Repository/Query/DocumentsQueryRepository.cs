@@ -487,6 +487,80 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DocumentsUploadModel> UpdateEmailDocumentBySession(DocumentsUploadModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        Nullable<long> fileIndex = null;
+                        var parameters = new DynamicParameters();
+                        var profileNo = value.ProfileNo;
+                        if (value.IsCheckOut == true && value.DocumentParentId > 0)
+                        {
+                            if (value.DocumentMainParentId > 0)
+                            {
+                                fileIndex = await GetDocumentParentCount(value.DocumentMainParentId);
+                                fileIndex = fileIndex > 0 ? (fileIndex.Value + 1) : 1;
+                            }
+                            else
+                            {
+                                value.DocumentMainParentId = value.DocumentParentId;
+                                fileIndex = 1;
+                            }
+                            await UpdateDocumentIsLastet(value.DocumentParentId);
+                        }
+                        else
+                        {
+                            profileNo = await GenerateDocumentProfileAutoNumber(value);
+                        }
+                        parameters.Add("DocumentId", value.DocumentId);
+                        parameters.Add("FileProfileTypeId", value.FileProfileTypeId);                        
+                        parameters.Add("Description", value.Description);
+                        parameters.Add("ExpiryDate", value.ExpiryDate);
+                        parameters.Add("StatusCodeID", 1);
+                        parameters.Add("AddedByUserId", value.UserId);
+                        parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                        parameters.Add("ProfileNo", profileNo);
+                        parameters.Add("DocumentParentId", value.DocumentMainParentId);
+                        parameters.Add("TableName", "Document");
+                        parameters.Add("FileIndex", fileIndex);
+                        parameters.Add("FileSessionId", value.FileSessionId);
+                        parameters.Add("IsTemp", 0);
+                        parameters.Add("FilePath", value.FilePath, DbType.String);
+
+                        var query = "Update Documents SET " +
+                            "FilterProfileTypeId=@FileProfileTypeId, " +
+                            "Description=@Description, " +
+                            "ExpiryDate=@ExpiryDate, " +
+                            "StatusCodeID=@StatusCodeID, " +
+                            "ProfileNo=@ProfileNo, " +
+                            "DocumentParentId=@DocumentParentId, " +
+                            "TableName=@TableName, " +
+                            "FileIndex=@FileIndex, " +
+                            "IsTemp=@IsTemp, " +
+                            "SessionId=@SessionId " +
+                            "WHERE " +                            
+                            "DocumentID= @DocumentId";
+                        await connection.ExecuteAsync(query, parameters);
+                        connection.Close();                        
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<DocumentsUploadModel> InsertSupportingDocumentLink(DocumentsUploadModel value)
         {
 

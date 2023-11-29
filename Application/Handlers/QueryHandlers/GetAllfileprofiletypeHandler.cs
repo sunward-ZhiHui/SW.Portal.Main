@@ -403,6 +403,19 @@ namespace Application.Handlers.QueryHandlers
 
     }
 
+    public class GetDocumentByIdHandler : IRequestHandler<GetByIdDocument, Documents>
+    {
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        public GetDocumentByIdHandler(IDocumentsQueryRepository documentsqueryrepository)
+        {
+            _documentsqueryrepository = documentsqueryrepository;
+        }
+        public async Task<Documents> Handle(GetByIdDocument request, CancellationToken cancellationToken)
+        {
+            return await _documentsqueryrepository.GetByDocIdAsync(request.DocumentId);
+        }
+
+    }
     public class InsertCreateDocumentHandler : IRequestHandler<InsertCreateDocument, DocumentsUploadModel>
     {
         private readonly IDocumentsQueryRepository _documentsqueryrepository;
@@ -415,7 +428,7 @@ namespace Application.Handlers.QueryHandlers
             return await _documentsqueryrepository.InsertCreateDocument(request.DocumentsUploadModel);
         }
 
-    }
+    }    
     public class UpdateCreateDocumentBySessionHandler : IRequestHandler<UpdateCreateDocumentBySession, DocumentsUploadModel>
     {
         private readonly IDocumentsQueryRepository _documentsqueryrepository;

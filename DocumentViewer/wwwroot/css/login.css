@@ -1,8 +1,9 @@
-
+﻿
 .limiter {
     width: 100%;
     height: 100vh;
 }
+
 .container-login {
     width: 100%;
     height: 100%;
@@ -13,6 +14,7 @@
     background: -moz-linear-gradient(-135deg, #c850c0, #4158d0);
     background: linear-gradient(-135deg, #c850c0, #4158d0);*/
 }
+
 .wrap-login {
     background: #fff;
     border-radius: 10px;
@@ -24,8 +26,8 @@
     overflow: hidden;
     height: 100vh;
 }
-.top-login
-{
+
+.top-login {
     display: flex;
     flex-direction: row;
     width: 100%;
@@ -39,17 +41,16 @@
 
 
 
-.bottom-login a
-{
-    font-size: 14px;
-    line-height: 1.7;
-    color: $grey;
-    transition: all 0.4s;
-    -webkit-transition: all 0.4s;
-    -o-transition: all 0.4s;
-    -moz-transition: all 0.4s;
-    text-decoration: none;
-}
+    .bottom-login a {
+        font-size: 14px;
+        line-height: 1.7;
+        color: $grey;
+        transition: all 0.4s;
+        -webkit-transition: all 0.4s;
+        -o-transition: all 0.4s;
+        -moz-transition: all 0.4s;
+        text-decoration: none;
+    }
 
 a:focus {
     outline: none !important;
@@ -79,8 +80,8 @@ a:hover {
     background: #075e54 !important;
     float: right;
 }
-.q-btn:hover
-{
+
+.q-btn:hover {
     background-color: $accent;
 }
 
@@ -94,14 +95,12 @@ a:hover {
   align-items: center;*/
 }
 
-.login-pic img
-{
+.login-pic img {
     width: 100%;
     height: 100%;
 }
 
-@media(min-width:1024px)
-{
+@media(min-width:1024px) {
 
     .login-pic {
         width: 100%;

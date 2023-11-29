@@ -15,7 +15,8 @@ namespace Core.Repositories.Query
     {
         Task<Documents> GetBySessionIdAsync(Guid? SessionId);
         Task<Documents> GetByIdAsync(long? Id);
-        Task<Documents> GetByDocIdAsync(long? Id);
+        Task<Documents> GetByDocIdAsync(long? Id); 
+        Task<List<Documents>> GetByUniqueDocAsync(string Ids);
         Task<long> Delete(long? DocumentId);
         Task<byte[]> GetByteFromUrl(string Url);
         Documents GetByOneAsync(long? DocumentId);

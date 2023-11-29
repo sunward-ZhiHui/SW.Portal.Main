@@ -86,6 +86,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
+        public async Task<List<Documents>> GetByUniqueDocAsync(string Ids)
+        {
+            try
+            {                
+                var query = "select  D.DocumentID as DocumentId,\r\n\tD.DocumentID as ReplaceDocumentId,\r\n\tD.FileName,\r\n\tD.ContentType,\r\n\tD.FileSize,\r\n\tD.UploadDate,\r\n\tD.SessionID,\r\n\tD.AddedDate,\r\n\tD.FilePath,\t\r\n\tD.AddedDate,\t\r\n\tD.ModifiedDate,\r\n\tD.UniqueSessionId,\r\n\tD.EmailToDMS from Documents D where D.SessionID in\r\n(select DISTINCT SessionId from ActivityEmailTopics where ActivityEmailTopicID in (select EmailToDMS  from Documents where DocumentID in(" + Ids + ")))\r\nAND D.IsLatest = 1";
+                var parameters = new DynamicParameters();
+                //parameters.Add("DocumentId", DocumentId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Documents>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<Documents> GetByDocIdAsync(long? DocumentId)
         {
             try

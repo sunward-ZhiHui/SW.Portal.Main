@@ -250,6 +250,14 @@ namespace Application.Queries
             this.DocumentId = docid;
         }
     }
+    public class GetByUniqueDocument : PagedRequest, IRequest<List<Documents>>
+    {
+        public string DocumentId { get; set; }
+        public GetByUniqueDocument(string docid)
+        {
+            this.DocumentId = docid;
+        }
+    }
     public class UpdateCreateDocumentBySession : PagedRequest, IRequest<DocumentsUploadModel>
     {
         public DocumentsUploadModel DocumentsUploadModel { get; private set; }

@@ -973,10 +973,10 @@ namespace Infrastructure.Repository.Query
                                 FC.ReplyId,
                                 FC.FileData,
                                 FC.AddedByUserID,
-                                AET.Comment AS ActCommentName,
+                                --AET.Comment AS ActCommentName,
                                 --AET.BackURL,
                                 --AET.DocumentSessionId
-                                EMPP.FirstName AS ActUserName,
+                                --EMPP.FirstName AS ActUserName,
                                 --AET.AddedDate AS ActAddedDate
                                 FC.DueDate,
                                 FC.IsAllowParticipants,
@@ -986,20 +986,18 @@ namespace Infrastructure.Repository.Query
                                 FC.OnBehalf,
                                 FC.NotifyUser,
                                 FCEP.FirstName,
-                                FCEP.LastName,
-                                AET.ActivityType
+                                FCEP.LastName
+                               -- AET.ActivityType
                             FROM
                                 EmailConversations FC
                             LEFT JOIN
                                 Employee ONB ON ONB.UserID = FC.OnBehalf
-                            LEFT JOIN
-                                ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
+                            --LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
                             INNER JOIN
                                 ApplicationUser AU ON AU.UserID = FC.ParticipantId
                             INNER JOIN
                                 Employee EMP ON EMP.UserID = AU.UserID
-                            LEFT JOIN
-                                Employee EMPP ON EMPP.UserID = AET.AddedByUserID
+                            --LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
                             LEFT JOIN
                                 Employee FCEP ON FCEP.UserID = FC.AddedByUserID
                             WHERE
@@ -1500,7 +1498,7 @@ namespace Infrastructure.Repository.Query
                 var query = @"SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,DD.DocumentID as ReplaceDocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS,CONCAT(AET.BackURL, '/', AET.DocumentSessionId) AS DMSBackUrl from EmailConversations FC 
                                 INNER JOIN Documents D on D.SessionID = FC.SessionId
                                 LEFT JOIN ActivityEmailTopics AET ON AET.ActivityEmailTopicID = D.EmailToDMS
-                                LEFT JOIN Documents DD ON DD.SessionID = AET.SessionId
+                                LEFT JOIN Documents DD ON DD.SessionID = AET.SessionId and DD.IsLatest = 1
 								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID
 								LEFT JOIN Employee EMP ON EMP.UserID = D.ModifiedByUserID
                                 where FC.ID = @ConversationId
@@ -1508,7 +1506,7 @@ namespace Infrastructure.Repository.Query
                                 SELECT FileIndex = ROW_NUMBER() OVER(ORDER BY D.DocumentID DESC),D.DocumentID as DocumentId,DD.DocumentID as ReplaceDocumentId,D.FileName,D.ContentType,D.FileSize,D.UploadDate,D.SessionID,D.AddedDate,D.FilePath,FC.FileData,FC.Name as SubjectName,E.FirstName AS AddedBy,D.AddedDate,EMP.FirstName as ModifiedBy,D.ModifiedDate,D.UniqueSessionId,D.EmailToDMS,CONCAT(AET.BackURL, '/', AET.DocumentSessionId) AS DMSBackUrl from EmailConversations FC 
                                 INNER JOIN Documents D on D.SessionID = FC.SessionId
                                 LEFT JOIN ActivityEmailTopics AET ON AET.ActivityEmailTopicID = D.EmailToDMS
-                                LEFT JOIN Documents DD ON DD.SessionID = AET.SessionId
+                                LEFT JOIN Documents DD ON DD.SessionID = AET.SessionId and DD.IsLatest = 1
 								LEFT JOIN Employee E ON E.UserID = D.AddedByUserID
 								LEFT JOIN Employee EMP ON EMP.UserID = D.ModifiedByUserID
                                 where FC.ReplyId = @ConversationId";

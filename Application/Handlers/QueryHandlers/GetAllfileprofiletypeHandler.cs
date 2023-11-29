@@ -416,6 +416,20 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetByUniqueDocumentHandler : IRequestHandler<GetByUniqueDocument, List<Documents>>
+    {
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        public GetByUniqueDocumentHandler(IDocumentsQueryRepository documentsqueryrepository)
+        {
+            _documentsqueryrepository = documentsqueryrepository;
+        }
+        public async Task<List<Documents>> Handle(GetByUniqueDocument request, CancellationToken cancellationToken)
+        {
+            return await _documentsqueryrepository.GetByUniqueDocAsync(request.DocumentId);
+        }
+
+    }
+    
     public class InsertCreateDocumentHandler : IRequestHandler<InsertCreateDocument, DocumentsUploadModel>
     {
         private readonly IDocumentsQueryRepository _documentsqueryrepository;

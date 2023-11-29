@@ -79,7 +79,17 @@
             @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
             <DxGridDataColumn FieldName="DynamicFormSectionAttributeId" Visible="false" />
             <DxGridDataColumn FieldName="AttributeName" Caption="Field Name" MinWidth="40" />
-            <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="40" />
+            <DxGridDataColumn FieldName="ControlType" Caption="Control Type" MinWidth="40" >
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DynamicFormSectionAttribute)context.DataItem;
+                        var Names = item.ControlType;
+                    }
+                    @Names
+                </CellDisplayTemplate>
+                </DxGridDataColumn>
+            @* <DxGridDataColumn FieldName="DropDownTypeId" Caption="DropDown Type" MinWidth="40"></DxGridDataColumn> *@
+            <DxGridDataColumn FieldName="DataSourceDisplayName" Caption="Data Source" MinWidth="40"></DxGridDataColumn>
             <DxGridDataColumn FieldName="DisplayName" Caption="Label Name" MinWidth="40" />
             <DxGridDataColumn FieldName="SortOrderBy" Caption="Sort Order By" SortIndex="0" SortOrder="GridColumnSortOrder.Ascending" MinWidth="40">
                 <CellDisplayTemplate>
@@ -124,7 +134,10 @@
                                                 Width="100px" />
                             <DxListEditorColumn FieldName="@nameof(AttributeHeader.ControlType)"
                                                 Caption="Control Type" Width="100px" />
-
+                            <DxListEditorColumn FieldName="@nameof(AttributeHeader.DropDownTypeId)"
+                                                Caption="DropDown Type" Width="100px" />
+                            <DxListEditorColumn FieldName="@nameof(AttributeHeader.DataSourceDisplayName)"
+                                                Caption="Data Source" Width="100px" />
                         </Columns>
                     </DxComboBox>
                     <ValidationMessage For="@(() => types.AttributeId)" />

@@ -132,7 +132,10 @@
     }
     void OpenNewForm()
     {
-        NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicFormList/" + _selectedItems.SessionID);
+        if (_selectedItems != null)
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicFormList/" + _selectedItems.SessionID);
+        }
     }
     void addNew()
     {
@@ -140,7 +143,10 @@
     }
     void addEdit()
     {
-        NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm/" + _selectedItems.SessionID);
+        if (_selectedItems != null)
+        {
+            NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm/" + _selectedItems.SessionID);
+        }
     }
     void addDetailDelete()
     {

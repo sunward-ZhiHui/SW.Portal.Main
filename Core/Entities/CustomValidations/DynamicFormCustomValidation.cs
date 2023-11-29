@@ -29,12 +29,11 @@ namespace Core.Entities.CustomValidations
                 var otherProperty = validationContext.ObjectType.GetProperty("ID");
                 long otherPropertyValue = (long)otherProperty.GetValue(validationContext.ObjectInstance, null);
                 string s = value.ToString();
-                var regexItem = new Regex(@"^[a-zA-Z'' ']+$");
-                var withoutSpecial = new string(s.Where(c => Char.IsLetter(c) || Char.IsWhiteSpace(c)).ToArray());
+                var withoutSpecial = new string(s.Where(c => Char.IsLetterOrDigit(c) || Char.IsWhiteSpace(c)).ToArray());
                 bool fHasSpace = s.Contains(" ");
                 if (s != withoutSpecial || fHasSpace == true)
                 {
-                    return new ValidationResult("Special character,Numbers and no white space not allowed", new[] { validationContext.MemberName });
+                    return new ValidationResult("Special character,no white space not allowed", new[] { validationContext.MemberName });
                 }
                 else
                 {

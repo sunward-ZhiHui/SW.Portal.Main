@@ -28,8 +28,14 @@ namespace Core.Entities
         public string RegExp { get; set; }
         public string ListDefault { get; set; }
         public bool IsInternal { get; set; } = false;
+       
         public string? DropDownTypeId { get; set; } = null;
-        public string? DataSourceId { get; set; }
+        [Required(ErrorMessage = "Data Source is Required")]
+        public long? DataSourceId { get; set; }
+        [NotMapped]
+        public string? DataSourceDisplayName { get; set; }
+        [NotMapped]
+        public string? DataSourceTable { get; set; }
         public bool ContainsPersonalData { get; set; }
         [NotMapped]
         public string ModifiedBy { get; set; }
@@ -43,6 +49,9 @@ namespace Core.Entities
         public bool? IsRequired { get; set; } = false;
         public bool? RequiredMessage { get; set; }
         public int? FormUsedCount { get; set; }
+        [NotMapped]
+        public bool? IsDataSource { get; set; } = false;
+        
     }
     public class AttributeHeaderListModel
     {

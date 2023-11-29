@@ -47,7 +47,7 @@
                                               ValueFieldName="UserID"
                                               TextFieldName="FirstName"
                                               FilteringMode="DataGridFilteringMode.Contains"
-                                              EditFormat="{0}-{1}"
+                                              EditFormat="{0}-{1}-{3}"
                                               SelectedItemsChanged="@((IEnumerable<ViewEmployee> values) => onSelectedUserItemsChanged(values))"
                                               ListRenderMode="ListRenderMode.Virtual">
                                         <DxListEditorColumn FieldName="@nameof(ViewEmployee.FirstName)" Caption="FirstName" />
@@ -214,7 +214,7 @@
             </DxTextBox>
         </DxFormLayoutItem>
         <DxFormLayoutItem ColSpanMd="2">
-            <DxButton Click="@SubmitFormExternally"
+            <DxButton Click="@SubmitFormExternally" Enabled="saveEnabled"
                       Text="Save"
                       style="margin-bottom: 20px;"
                       RenderStyle="ButtonRenderStyle.Primary" />
@@ -356,7 +356,7 @@
     [Parameter]
     public long? FileProfileTypeId { get; set; }
     [Parameter]
-     public IEnumerable fileProfileTypeDocumentsAlls { get; set; }
+    public IEnumerable fileProfileTypeDocumentsAlls { get; set; }
     public ApplicationUser _applicationUser { get; private set; }
     private List<UserGroup> _userGroupsList { get; set; }
     public List<DocumentRole> _documentRoleList { get; set; }
@@ -373,12 +373,13 @@
     private DxTreeView _treeFilterDocView;
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
     string? FilterDocumentString { get; set; }
+    bool saveEnabled { get; set; } = true;
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         Data.FileProfileTypeId = FileProfileTypeId;
-        fileProfileTypeDocumentsAll = fileProfileTypeDocumentsAlls.Cast<DocumentsModel>().ToList();
-       // fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+        // fileProfileTypeDocumentsAll = fileProfileTypeDocumentsAlls.Cast<DocumentsModel>().ToList();
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         //_treeFilterDocView.ExpandAll();
         _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _userGroupsList = await Mediator.Send(new GetUserGroups());
@@ -518,10 +519,15 @@
     }
     async Task HandleValidSubmit()
     {
+        saveEnabled = false;
         var response = await Mediator.Send(new InsertFileProfileTypeAccess(Data));
-        toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        await refDocumentUserRoleListsUser.loadData(FileProfileTypeId);
-
+        if (!string.IsNullOrEmpty(response.Type))
+        {
+            saveEnabled = true;
+            toastService.ShowToast("Record Added Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await refDocumentUserRoleListsUser.loadData(FileProfileTypeId);
+        }
+        StateHasChanged();
     }
     void HandleInvalidSubmit()
     {

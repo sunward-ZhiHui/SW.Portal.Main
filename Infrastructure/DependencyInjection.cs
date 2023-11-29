@@ -160,6 +160,7 @@ namespace Infrastructure
             services.AddScoped<IProductionActivityAppQueryRepository,ProductionActivityAppQueryRepository>();
             services.AddScoped<IRoutineLineAppQuery, RoutineAppLineQueryRepository>();
             services.AddScoped<ISettingsQueryRepository, SettingsQueryRepository>();
+            services.AddScoped<IDynamicFormDataSourceQueryRepository, DynamicFormDataSourceQueryRepository>();
             return services;
         }
     }

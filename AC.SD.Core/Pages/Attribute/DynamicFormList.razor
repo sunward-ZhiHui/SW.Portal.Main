@@ -178,9 +178,9 @@
                         objectData["StatusName"] = s.StatusName;
                         if (_AttributeHeader != null && _AttributeHeader.DynamicFormSectionAttribute != null && _AttributeHeader.DynamicFormSectionAttribute.Count > 0)
                         {
-                            _AttributeHeader.DynamicFormSectionAttribute.ForEach(a =>
+                            _AttributeHeader.DynamicFormSectionAttribute.ForEach(s =>
                             {
-                                string attrName = a.DynamicAttributeName;
+                                string attrName = s.DynamicAttributeName;
                                 var Names = jsonObj.ContainsKey(attrName);
                                 if (Names == true)
                                 {
@@ -188,17 +188,17 @@
                                     if (itemValue is JArray)
                                     {
                                         List<long?> listData = itemValue.ToObject<List<long?>>();
-                                        var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null).Select(s => s.AttributeDetailName).ToList();
+                                        var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId==s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
                                         objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                     }
                                     else
                                     {
-                                        if (a.ControlType == "ComboBox" || a.ControlType == "Radio" || a.ControlType == "RadioGroup")
+                                        if (s.ControlType == "ComboBox" ||s.ControlType == "Radio" || s.ControlType == "RadioGroup")
                                         {
                                             long? Svalues = itemValue == null ? null : (long)itemValue;
                                             if (Svalues != null)
                                             {
-                                                var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null).Select(s => s.AttributeDetailName).ToList();
+                                                var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
                                                 objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                             }
                                             else
@@ -206,12 +206,12 @@
                                                 objectData[attrName] = string.Empty;
                                             }
                                         }
-                                        else if (a.ControlType == "ListBox" && a.IsMultiple == false)
+                                        else if (s.ControlType == "ListBox" && s.IsMultiple == false)
                                         {
                                             long? Svalues = itemValue == null ? null : (long)itemValue;
                                             if (Svalues != null)
                                             {
-                                                var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues).ToList();
+                                                var listName = _AttributeHeader.AttributeDetails.Where(a => a.AttributeDetailID == Svalues && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
                                                 objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                             }
                                             else
@@ -219,19 +219,19 @@
                                                 objectData[attrName] = string.Empty;
                                             }
                                         }
-                                        else if (a.ControlType == "DateEdit")
+                                        else if (s.ControlType == "DateEdit")
                                         {
                                             DateTime? values = itemValue == null ? null : (DateTime)itemValue;
                                             objectData[attrName] = values;
                                         }
-                                        else if (a.ControlType == "TimeEdit")
+                                        else if (s.ControlType == "TimeEdit")
                                         {
                                             TimeSpan? values = itemValue == null ? null : (TimeSpan)itemValue;
                                             objectData[attrName] = values;
                                         }
-                                        else if (a.ControlType == "SpinEdit")
+                                        else if (s.ControlType == "SpinEdit")
                                         {
-                                            if (a.IsSpinEditType == "decimal")
+                                            if (s.IsSpinEditType == "decimal")
                                             {
                                                 decimal? values = itemValue == null ? null : (decimal)itemValue;
                                                 objectData[attrName] = values;
@@ -242,7 +242,7 @@
                                                 objectData[attrName] = values;
                                             }
                                         }
-                                        else if (a.ControlType == "CheckBox")
+                                        else if (s.ControlType == "CheckBox")
                                         {
                                             bool? values = itemValue == null ? false : (bool)itemValue;
                                             objectData[attrName] = values;

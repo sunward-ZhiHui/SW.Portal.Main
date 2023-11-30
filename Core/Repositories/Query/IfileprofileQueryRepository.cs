@@ -30,6 +30,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<UserGroup>> GetUserGroups();
         Task<IReadOnlyList<DocumentRole>> GetDocumentRole();
         Task<DocumentProfileNoSeriesModel> GetDocumentProfileNoSeriesById(long? Id);
+        Task<Fileprofiletype> GetByFileprofiletypeIdAsync(long? Id);        
         Task<IReadOnlyList<DocumentProfileNoSeriesModel>> GetDocumentProfiles();
         Task<FileProfileTypeModel> InsertOrUpdateFileProfileType(FileProfileTypeModel fileProfileTypeModel);
         Task<DocumentPermissionModel> GetDocumentPermissionByRoleID(long? Id);

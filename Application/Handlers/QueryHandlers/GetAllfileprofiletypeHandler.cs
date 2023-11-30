@@ -298,6 +298,20 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetByFileprofiletypeIdHandler : IRequestHandler<GetByFileprofiletypeId, Fileprofiletype>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetByFileprofiletypeIdHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<Fileprofiletype> Handle(GetByFileprofiletypeId request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.GetByFileprofiletypeIdAsync(request.Id);
+        }
+
+    }
+    
     public class InsertOrUpdateFileProfileTypeHandler : IRequestHandler<InsertOrUpdateFileProfileType, FileProfileTypeModel>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;

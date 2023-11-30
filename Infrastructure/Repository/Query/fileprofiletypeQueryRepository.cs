@@ -286,6 +286,40 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<Fileprofiletype>> GetByFileprofiletypeIdAsync(long FileProfileTypeId)
+        {
+            try
+            {
+                var query = "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId,SessionId,DynamicFormId from FileProfileType";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Fileprofiletype>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<Fileprofiletype> GetByFileprofiletypeIdAsync(long? FileProfileTypeId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("FileProfileTypeID", FileProfileTypeId);
+                var query = "select  * from FileProfileType where FileProfileTypeID=@FileProfileTypeID";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<Fileprofiletype>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<ApplicationUser>> GetApplicationUserAsync()
         {
             try

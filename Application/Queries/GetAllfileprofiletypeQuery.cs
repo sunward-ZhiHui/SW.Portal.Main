@@ -187,6 +187,15 @@ namespace Application.Queries
             this.Id = id;
         }
     }
+    public class GetByFileprofiletypeId : PagedRequest, IRequest<Fileprofiletype>
+    {
+        public long? Id { get; private set; }
+        public GetByFileprofiletypeId(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    
 
     public class InsertFileProfileTypeAccess : PagedRequest, IRequest<DocumentUserRoleModel>
     {

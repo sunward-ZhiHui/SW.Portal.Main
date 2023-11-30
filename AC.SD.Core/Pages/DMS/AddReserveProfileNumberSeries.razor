@@ -157,9 +157,9 @@
                         </DxComboBox>
                         <ValidationMessage For="@(() => Data.SubSectionId)" />
                     </DxFormLayoutItem>
-                    <DxFormLayoutItem Caption="Profile No" ColSpanMd="6">
+                   @*  <DxFormLayoutItem Caption="Profile No" ColSpanMd="6">
                         <DxTextBox @bind-Text="@Data.DocumentNo" ShowValidationIcon="true" />
-                    </DxFormLayoutItem>
+                    </DxFormLayoutItem> *@
                     <DxFormLayoutItem Caption="Status" ColSpanMd="6">
                         <DxComboBox Data="@_statusItems"
                                     NullText="Select Status..."

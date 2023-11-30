@@ -56,10 +56,11 @@
                             <DxMenuItem Text="Delete Folder" IconCssClass="fa fa-remove" Click="@onDeleteFileProfileType" Visible="@isDelete" />
                         </Items>
                     </DxMenuItem>
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter("Open"))" id=@($"flyout-overview-target-container-FilterDocuments") />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-info" Click="OnFileProfileTypeInfo" style="@isVisibleParentMore" id=@($"flyout-overview-target-container-FileProfileTypeInfoDocuments") />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
-                    <DxMenuItem Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
+                    <DxMenuItem Position="ItemPosition.End" title="Move" IconCssClass="fa fa-sign-in" style="@isMoveEnabled" Click="@(() => OnFileProfilteMoveDocuments())" id=@($"flyout-overview-target-container-MoveDocuments") />
+                    <DxMenuItem Position="ItemPosition.End" title="Search And Filter" IconCssClass="fa fa-filter" Click="@(() => OnFileProfiltefilter("Open"))" id=@($"flyout-overview-target-container-FilterDocuments") />
+                    <DxMenuItem Position="ItemPosition.End" title="Profile Info" IconCssClass="fa fa-info" Click="OnFileProfileTypeInfo" style="@isVisibleParentMore" id=@($"flyout-overview-target-container-FileProfileTypeInfoDocuments") />
+                    <DxMenuItem Position="ItemPosition.End" title="Permission" IconCssClass="fa fa-shield" Click="OnSecurity" Enabled="@IsGrantAdminPermission" style="@isVisibleParentMore" />
+                    <DxMenuItem Position="ItemPosition.End" title="Upload Documents" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
                         <Items>
                             <DxMenuItem Text="Upload New Documents" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" Visible="isCreateDocumentEnabled" />
                             <DxMenuItem Text="Upload Documents By Form" IconCssClass="fa fa-cloud-upload" Click="onUploadDynamicForm" Visible="isCreateDynamicDocumentEnabled" />
@@ -145,6 +146,20 @@
             <Columns>
                 @*            <DxGridSelectionColumn FixedPosition="GridColumnFixedPosition.Left" Width="60px" />
                 *@            <DxGridDataColumn FieldName="UniqueNo" Visible="false" />
+                <DxGridCommandColumn FixedPosition="GridColumnFixedPosition.Left" MinWidth="100" Visible="isCheckAllEnabled">
+                    <HeaderTemplate>
+                        <DxCheckBox Checked="@CheckedAll" CheckedExpression="@(() => CheckedAll)" CheckedChanged="@((bool value) => OnCheckedAllValueChanged(value))"></DxCheckBox>
+                    </HeaderTemplate>
+                    <CellDisplayTemplate>
+                        @{
+                            var item = (DocumentsModel)context.DataItem;
+                            // if (item.FilterProfileTypeId > 0 && item.Type == "Document")
+                            //  {
+                            <DxCheckBox @bind-Checked="item.Checked"></DxCheckBox>
+                            // }
+                        }
+                    </CellDisplayTemplate>
+                </DxGridCommandColumn>
                 <DxGridDataColumn FieldName="FileName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="270">
                     <CellDisplayTemplate>
 
@@ -207,7 +222,7 @@
                         {
                             <i class="fa fa-folder" aria-hidden="true" style="padding:5px;margin-right: 5px;color:yellow" title="@item.FileName"></i>
                         }
-                        <span id=@($"flyout-overview-target-container-RenameFilename-{item.DocumentID}")>@item.FileName</span>
+                        <span id=@($"flyout-overview-target-container-RenameFilename-{item.DocumentID}") title="@item.FileName">@item.FileName</span>
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn FieldName="FullPath" FixedPosition="GridColumnFixedPosition.Left" Caption="Path" Visible="@isEnablePath" MinWidth="170">
@@ -219,6 +234,7 @@
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn FieldName="ProfileNo" FixedPosition="GridColumnFixedPosition.Left" Caption="Profile" MinWidth="170" />
+                <DxGridDataColumn FieldName="ActivityProfileNo" FixedPosition="GridColumnFixedPosition.Left" Caption="Activity Profile" MinWidth="170" />
                 <DxGridDataColumn FieldName="FileSizes" FixedPosition="GridColumnFixedPosition.Left" Caption="File Size" MinWidth="170">
                     <CellDisplayTemplate>
                         @{
@@ -472,7 +488,7 @@
                 <DxTextBox NullText="Select Sunward Libraries..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
                     <Buttons>
                         <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
-                                        Tooltip="Select File ProfileType"
+                                        Tooltip="Select Sunward Libraries"
                                         Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
                     </Buttons>
                 </DxTextBox>
@@ -515,7 +531,7 @@
           RestrictionTarget="#Navigation-Flyout-Customization"
           AnimationType="FlyoutAnimationType.Fade"
           HeaderVisible="true"
-          HeaderText="Select FileProfile Type"
+          HeaderText="Select Sunward Libraries"
           FooterVisible="true"
           FooterCssClass="custom-flyout-footer"
           MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
@@ -593,7 +609,69 @@
         <AddFileProfileTypeInfo selectedItems="@_ParentselectedItems" applicationUser="@applicationUser" RevokeBack="BackShareDoc"></AddFileProfileTypeInfo>
     </BodyContentTemplate>
 </DxPopup>
+<DxFlyout @bind-IsOpen=IsMoveDocumentsOpen
+          PositionTarget=@($"#flyout-overview-target-container-MoveDocuments")
+          RestrictionTarget="#Navigation-Flyout-Customization"
+          AnimationType="FlyoutAnimationType.Fade"
+          HeaderVisible="true"
+          HeaderText="Select Sunward Libraries"
+          FooterVisible="true"
+          FooterCssClass="custom-flyout-footer"
+          MinWidth="500" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+          CloseOnOutsideClick="false"
+          PreventCloseOnPositionTargetClick="true">
+    <BodyContentTemplate Context="PopupContext">
+        <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
+            <DxFormLayoutItem Caption="">
+                <DxTreeView @ref="_treeFilterMoveDocView"
+                @bind-FilterString="FilterMoveDocumentString"
+                            ShowFilterPanel="true"
+                            FilterMode="NavigationFilterMode.EntireBranch"
+                            AllowSelectNodes="true"
+                            SelectionChanged="@SelectionMoveChanged"
+                            Data="@_selectedTreeItems"
+                            LoadChildNodesOnDemand="true">
+                    <DataMappings>
+                        <DxTreeViewDataMapping Text="FileName"
+                                               HasChildren="HasChildren"
+                                               Children="Children" />
+                    </DataMappings>
+                </DxTreeView>
+            </DxFormLayoutItem>
+
+        </DxFormLayout>
+    </BodyContentTemplate>
+    <FooterContentTemplate>
+        <div class="w-100">
+            <div class="custom-flyout-footer">
+                <DxButton CssClass="popup-button" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsMoveDocumentsOpen = false) />
+            </div>
+        </div>
+    </FooterContentTemplate>
+</DxFlyout>
+<DxPopup @bind-Visible="@MoveDocumentPopup"
+         ShowFooter="true"
+         HeaderText="Move Document"
+         Closed="EulaPopupMoveDocumentClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to Move this Document
+        </p>
+        <span>@((MarkupString)MoveDocumentName)</span>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="onMoveToFileProfileTypeUpdateInfo" />
+
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    string? MoveDocumentName { get; set; } = string.Empty;
+    bool MoveDocumentPopup { get; set; } = false;
+    bool isCheckAllEnabled { get; set; } = false;
+    bool CheckedAll { get; set; } = false;
+    string? isMoveEnabled { get; set; } = "display:none;";
     private UploadDoumentFiles refUploadDoumentFiles;
     private ShareDocuments refShareDocuments;
     private UploadDocumentUpdateFiles refUploadDocumentUpdateFiles;
@@ -610,7 +688,7 @@
     bool IsAddFileProfileTypeInfo { get; set; } = false;
     bool IsDescriptionOpen { get; set; } = false;
     bool IsRenameOpen { get; set; } = false;
-    bool IsFilterOpen { get; set; } = false; bool IsFileProfileTypeInfoOpen { get; set; } = false;
+    bool IsFilterOpen { get; set; } = false; bool IsFileProfileTypeInfoOpen { get; set; } = false; bool IsMoveDocumentsOpen { get; set; } = false;
     public bool PopupUpload { get; set; } = false;
     public bool PopupVisible { get; set; } = false;
     public bool PopupVisibleLinkDocument { get; set; } = false;
@@ -672,8 +750,9 @@
     private string? FileUrl;
     public bool? isExpiryDateVisible { get; set; } = false;
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
-    private DxTreeView _treeFilterDocView;
+    private DxTreeView _treeFilterDocView; private DxTreeView _treeFilterMoveDocView;
     string? FilterDocumentString { get; set; }
+    string? FilterMoveDocumentString { get; set; }
     string? LinkFilterFileprofiletypeName { get; set; } = null;
     string? LinkFilterFileprofiletypeFileName { get; set; } = null;
     string? LinkFilterFileprofiletypeProfileNo { get; set; } = null;
@@ -684,24 +763,30 @@
     DateTime? LinkFilterFileprofiletypeTo { get; set; } = null;
     DocumentSearchModel documentSearchModel = new DocumentSearchModel();
     public List<DocumentsModel> _fileContentList { get; set; }
+    public List<DocumentsModel> _MoveDocList { get; set; } = new List<DocumentsModel>();
+    long? MoveFileprofiletypeId { get; set; } = null;
     DocumentPermissionModel documentPermissionModel = new DocumentPermissionModel();
     bool isEdit { get; set; } = false;
     bool IsGrantAdminPermission { get; set; } = false; bool isDelete { get; set; } = false; bool isCreateFolder { get; set; } = false; bool isCreateSubFolder { get; set; } = false;
     bool isEnablePath { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
-        PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
-        var baseurl = Configuration["DocumentsUrl:BaseUrl"];
+        await loadFileProfileTypeAllDatas();
+    }
+    async Task loadFileProfileTypeAllDatas()
+    {
+        PanelVisible = true;
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         if (fileProfileTypeDocumentsAll.Count() > 0)
         {
             _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+            PanelVisible = false;
         }
-        PanelVisible = false;
+        StateHasChanged();
     }
     async Task OnSearchTextChanged(string? newSearchText)
     {
@@ -733,12 +818,12 @@
     }
     async Task mainPageLoad()
     {
-        PanelVisible = true;
+        PanelVisible = true; isCheckAllEnabled = false; CheckedAll = false; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
         _openAccessUserLink = await Mediator.Send(new GetDMSAccessByUser(applicationUser.UserID));
         IsFileProfileTypeInfoOpen = false;
         isEnablePath = false; isExpiryDateVisible = false; isEdit = false; IsGrantAdminPermission = false; isDelete = false; isCreateFolder = false; isCreateSubFolder = false;
         documentPermissionModel = new DocumentPermissionModel();
-        
+
         _fileContentList = await Mediator.Send(new GetFileContetTypes());
         isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;";
         moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; isCreateDynamicDocumentEnabled = false; isProfileInfoEnabled = false;
@@ -747,6 +832,11 @@
         FolderPathLists = new List<DocumentsModel>(); FolderPathListsItems = new List<DocumentsModel>();
         FolderPathListsItems.Add(dc);
         documentSearchModel.SessionId = MainSessionId;
+        if (MainSessionId != null)
+        {
+            isMoveEnabled = "";
+            isCheckAllEnabled = true;
+        }
         FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
         if (_openAccessUserLink != null && _openAccessUserLink.IsDmsCreateMainFolder == true)
         {
@@ -778,7 +868,7 @@
     async Task loadFileProfileData()
     {
         IsExpiryDateOpen = false; IsDescriptionOpen = false; IsRenameOpen = false; IsFileProfileTypeInfoOpen = false;
-        isFilterMore = "";
+        isFilterMore = ""; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
         _selectedItems = null;
         if (FileProfileTypeId == null && MainSessionId != null)
         {
@@ -828,14 +918,14 @@
             if (documentSearchModel.Type != "Search")
             {
                 isEdit = true; IsGrantAdminPermission = true; isDelete = true; isCreateFolder = true; isCreateSubFolder = true;
-                isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; moreEnabled = true; isProfileInfoEnabled = true;
+                isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; moreEnabled = true; isProfileInfoEnabled = true; isMoveEnabled = "display:none;";
                 if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
                 {
                     isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
                 }
                 if (MainSessionId != null)
                 {
-                    isVisibleParentMore = "";
+                    isVisibleParentMore = ""; isMoveEnabled = "";
                     isCreateFolder = false;
                 }
             }
@@ -887,12 +977,15 @@
         if (fileTypeData != null)
         {
             moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; isCreateSubFolder = false; isCreateDynamicDocumentEnabled = false;
-            isCreateSubFolder = false; isProfileInfoEnabled = false;
+            isCreateSubFolder = false; isProfileInfoEnabled = false; isMoveEnabled = "display:none;";
             if (fileTypeData != null)
             {
                 if (fileTypeData.AddedByUserID == applicationUser.UserID)
                 {
-
+                    if (MainSessionId != null)
+                    {
+                        isMoveEnabled = "";
+                    }
                     if (documentSearchModel.Type != "Search")
                     {
                         if (MainSessionId != null)
@@ -915,6 +1008,10 @@
                     {
                         if (documentPermissionModels.IsPermissionExits == true)
                         {
+                            if (MainSessionId != null)
+                            {
+                                isMoveEnabled = "";
+                            }
                             if (documentSearchModel.Type != "Search")
                             {
                                 if (MainSessionId != null)
@@ -946,6 +1043,10 @@
                                         isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
                                     }
                                 }
+                            }
+                            if (documentPermissionModels.IsMove == true)
+                            {
+                                isMoveEnabled = "";
                             }
                             if (documentPermissionModels.IsEnableProfileTypeInfo == true)
                             {
@@ -1918,6 +2019,7 @@
             IsFilterOpen = true;
         }
     }
+
     async Task OnFileProfileTypeInfo()
     {
         IsFileProfileTypeInfoOpen = true; IsFileProfileTypeFilterDocOpen = false;
@@ -1930,6 +2032,7 @@
     }
     async void OnClearFilterDocuments()
     {
+        MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>();
         documentSearchModel.Type = null;
         LinkFilterFileprofiletypeName = null;
         documentSearchModel.Extension = null;
@@ -2058,5 +2161,81 @@
     void onUploadDynamicForm()
     {
         NavigationManager.NavigateTo($"fileprofiletype/uploadDynamicForm/" + _ParentselectedItems.SessionID);
+    }
+    void OnCheckedAllValueChanged(bool radioValue)
+    {
+        CheckedAll = radioValue;
+        if (fileProfileTypeDocuments != null && fileProfileTypeDocuments.Count() > 0)
+        {
+            fileProfileTypeDocuments.ForEach(s =>
+            {
+                if (s.FilterProfileTypeId > 0)
+                {
+                    s.Checked = radioValue;
+                }
+            });
+        }
+    }
+    void OnFileProfilteMoveDocuments()
+    {
+        _MoveDocList = new List<DocumentsModel>();
+        if (fileProfileTypeDocuments != null && fileProfileTypeDocuments.Count() > 0)
+        {
+            _MoveDocList = fileProfileTypeDocuments.Where(w => w.Checked == true).Select(s => new DocumentsModel { SessionID = s.SessionID, DocumentID = s.DocumentID, FilterProfileTypeId = s.FilterProfileTypeId }).ToList();
+            if (_MoveDocList.Count() > 0)
+            {
+                IsMoveDocumentsOpen = true;
+            }
+            else
+            {
+                toastService.ShowToast("Must Select Document", AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
+
+    }
+    protected void SelectionMoveChanged(TreeViewNodeEventArgs e)
+    {
+        MoveFileprofiletypeId = null;
+        if (e.NodeInfo?.DataItem != null)
+        {
+            var nodeName = e.NodeInfo.DataItem as DocumentsModel;
+            if (nodeName != null)
+            {
+                var fileType = fileProfileTypeDocumentsAll.Where(w => w.SessionID == MainSessionId).FirstOrDefault();
+                MoveFileprofiletypeId = nodeName.FileProfileTypeId;
+                _MoveDocList = fileProfileTypeDocuments.Where(w => w.Checked == true).Select(s => new DocumentsModel { SessionID = s.SessionID, DocumentID = s.DocumentID, FilterProfileTypeId = s.FilterProfileTypeId, Type = s.Type, FileProfileTypeId = s.FileProfileTypeId }).ToList();
+                if (_MoveDocList.Count() > 0)
+                {
+                    MoveDocumentName = "From <b>" + fileType?.FileName + "</b> To <b>" + nodeName.FileName + "</b>";
+                    MoveDocumentPopup = true;
+                }
+                else
+                {
+                    toastService.ShowToast("Must Select Document", AC.SD.Core.Services.ToastLevel.Error);
+                }
+            }
+        }
+        IsMoveDocumentsOpen = false;
+        StateHasChanged();
+    }
+    async Task onMoveToFileProfileTypeUpdateInfo()
+    {
+        var res = await Mediator.Send(new MoveToFileProfileTypeUpdateInfo(_MoveDocList, MoveFileprofiletypeId));
+        if (res > 0)
+        {
+            toastService.ShowToast("Documents Moved Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            MoveDocumentPopup = false;
+            await loadFileProfileTypeAllDatas();
+            await loadFileProfileData();
+            
+        }
+    }
+    void PopupMoveDocumentClosed()
+    {
+        MoveDocumentPopup = false;
+    }
+    void EulaPopupMoveDocumentClosed()
+    {
+        MoveDocumentPopup = false;
     }
 }

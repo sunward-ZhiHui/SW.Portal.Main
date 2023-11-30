@@ -457,92 +457,6 @@ namespace Infrastructure.Repository.Query
                     "from Documents ";
             return query;
         }
-        public async Task<IReadOnlyList<DocumentDmsShare>> GeDocumentDmsShareAsync(List<Guid?> documentIds)
-        {
-            try
-            {
-                var lists = string.Join(',', documentIds.Select(i => $"'{i}'"));
-                var query = "select  DocumentDmsShareId,DocumentId,isDeleted,DocSessionId from DocumentDmsShare where (isDeleted is null or isDeleted=0) AND DocSessionId in(" + lists + ")";
-
-                using (var connection = CreateConnection())
-                {
-                    return (await connection.QueryAsync<DocumentDmsShare>(query)).ToList();
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<IReadOnlyList<DynamicFormData>> GeDynamicFormDataAsync(List<Guid?> documentIds)
-        {
-            try
-            {
-                var lists = string.Join(',', documentIds.Select(i => $"'{i}'"));
-                var query = "select  DynamicFormDataId,DynamicFormId,SessionId from DynamicFormData where SessionId in(" + lists + ")";
-
-                using (var connection = CreateConnection())
-                {
-                    return (await connection.QueryAsync<DynamicFormData>(query)).ToList();
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<IReadOnlyList<ActivityEmailTopics>> GeActivityEmailTopicsAsync(List<Guid?> documentIds)
-        {
-            try
-            {
-                var lists = string.Join(',', documentIds.Select(i => $"'{i}'"));
-                var query = "select  ActivityEmailTopicID,DocumentSessionId from ActivityEmailTopics where DocumentSessionId in(" + lists + ")";
-
-                using (var connection = CreateConnection())
-                {
-                    return (await connection.QueryAsync<ActivityEmailTopics>(query)).ToList();
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<IReadOnlyList<Notes>> GeNotesAsync(List<long> documentIds)
-        {
-            try
-            {
-                documentIds = documentIds != null && documentIds.Count > 0 ? documentIds : new List<long>() { -1 };
-
-                var query = "select  NotesId,DocumentId from Notes where DocumentId in(" + string.Join(',', documentIds) + ")";
-
-                using (var connection = CreateConnection())
-                {
-                    return (await connection.QueryAsync<Notes>(query)).ToList();
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<IReadOnlyList<TaskMaster>> GetTaskMasterAsync(List<long> documentIds)
-        {
-            try
-            {
-                documentIds = documentIds != null && documentIds.Count > 0 ? documentIds : new List<long>() { -1 };
-                var query = "select  TaskId,SourceId from TaskMaster where SourceId in(" + string.Join(',', documentIds) + ")";
-
-                using (var connection = CreateConnection())
-                {
-                    return (await connection.QueryAsync<TaskMaster>(query)).ToList();
-                }
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
         private async Task<DocumentsModel> GetParentDocuments(SearchModel searchModel, IReadOnlyList<ApplicationUser> appUsers, IReadOnlyList<Fileprofiletype> fileProfileType)
         {
             try
@@ -775,9 +689,10 @@ namespace Infrastructure.Repository.Query
                 query += "select  DynamicFormDataId,DynamicFormId,SessionId from DynamicFormData where SessionId in(" + lists + ");";
                 query += "select  ActivityEmailTopicID,DocumentSessionId from ActivityEmailTopics where DocumentSessionId in(" + lists + ");";
                 userIds = userIds != null && userIds.Count > 0 ? userIds : new List<long?>() { -1 };
-                query += "select UserName,UserId from ApplicationUser where userId in(" + string.Join(',', documentIds) + ");";
+                query += "select UserName,UserId from ApplicationUser where userId in(" + string.Join(',', userIds.Distinct()) + ");";
                 documentIds = documentIds != null && documentIds.Count > 0 ? documentIds : new List<long?>() { -1 };
                 query += "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId,sessionId,DynamicFormId from FileProfileType where FileProfileTypeId in(" + string.Join(',', documentIds) + ");";
+                query += "select ProductionActivityAppLineID,ProfileNo,SessionID,'Activity' as Type from ProductionActivityAppLine where SessionID in(" + lists + ")\r\nunion All\r\nselect ProductionActivityRoutineAppLineID as ProductionActivityAppLineID,ProfileNo, SessionID,'Rountine' as Type from ProductionActivityRoutineAppLine where SessionID in(" + lists + ")";
                 using (var connection = CreateConnection())
                 {
                     var result = await connection.QueryMultipleAsync(query);
@@ -786,6 +701,7 @@ namespace Infrastructure.Repository.Query
                     multipleProductioAppLineItemLists.ActivityEmailTopics = result.Read<ActivityEmailTopics>().ToList();
                     multipleProductioAppLineItemLists.ApplicationUser = result.Read<ApplicationUser>().ToList();
                     multipleProductioAppLineItemLists.Fileprofiletype = result.Read<Fileprofiletype>().ToList();
+                    multipleProductioAppLineItemLists.ProductActivityAppModel = result.Read<ProductActivityAppModel>().ToList();
                     return multipleProductioAppLineItemLists;
                 }
             }
@@ -851,7 +767,7 @@ namespace Infrastructure.Repository.Query
                     }
                     var query = DocumentQueryString() + " where" +
                         " FilterProfileTypeId in(" + string.Join(",", fileProfileTypeId.Distinct()) + ") " + filterQuery +
-                        "AND IsLatest=1 AND IsDelete is null or IsDelete=0 " +
+                        "AND IsLatest=1 AND (IsDelete is null or IsDelete=0) And SessionID is Not null\r\n" +
                         "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) " +
                         "OR (DocumentID in(" + string.Join(",", linkfileProfileTypeDocumentids) + ") AND IsLatest=1) " +
                         "order by DocumentId desc";
@@ -874,6 +790,7 @@ namespace Infrastructure.Repository.Query
                         var emailTopics = multipleData.ActivityEmailTopics;
                         var appUsers = multipleData.ApplicationUser;
                         var fileProfileType = multipleData.Fileprofiletype;
+                        var productActivityApp = multipleData.ProductActivityAppModel;
                         var docIds = documents.Select(a => a.DocumentId).ToList();
                         documents.ForEach(s =>
                         {
@@ -948,6 +865,12 @@ namespace Infrastructure.Repository.Query
                             documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
                             documentsModels.IsExpiryDate = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsExpiryDate;
                             var description = linkfileProfileTypes?.Where(f => f.FileProfileTypeId == selectedFileProfileTypeID && f.TransactionSessionId == s.SessionId && f.DocumentId == s.DocumentId).FirstOrDefault()?.Description;
+                            var productActivity = productActivityApp.Where(a => a.SessionId == s.SessionId).FirstOrDefault();
+                            if (productActivity != null)
+                            {
+                                documentsModels.ActivityType = productActivity?.Type;
+                                documentsModels.ActivityProfileNo = productActivity?.ProfileNo;
+                            }
                             if (description != null)
                             {
                                 documentsModels.Description = description;
@@ -2485,6 +2408,59 @@ namespace Infrastructure.Repository.Query
                         var query = "Update FileProfileType SET ProfileTypeInfo=@ProfileTypeInfo WHERE FileProfileTypeId= @FileProfileTypeId";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
                         return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long?> MoveToFileProfileTypeUpdateInfo(List<DocumentsModel> value, long? FileprofileTypeId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var query = string.Empty;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("FilterProfileTypeId", FileprofileTypeId);
+                        if (FileprofileTypeId > 0 && value != null && value.Count() > 0)
+                        {
+                            var docs = value.Where(s => s.Type == "Document").ToList();
+                            if (docs.Count() > 0)
+                            {
+                                docs.ForEach(s =>
+                                {
+                                    if (s.SessionID != null && s.FilterProfileTypeId > 0 && s.Type == "Document")
+                                    {
+                                        query += "Update Documents SET FilterProfileTypeId=@FilterProfileTypeId WHERE FilterProfileTypeId=" + s.FilterProfileTypeId + " AND  SessionID='" + s.SessionID + "';";
+                                    }
+                                });
+                            }
+                            var folders = value.Where(s => s.Type == null && s.FilterProfileTypeId == null).ToList();
+                            if (folders.Count() > 0)
+                            {
+                                folders.ForEach(a =>
+                                {
+                                    query += "Update FileProfileType SET ParentId=@FilterProfileTypeId WHERE FileProfileTypeId=" + a.FileProfileTypeId + ";";
+                                });
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(query))
+                        {
+                            await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+                        }
+                        return FileprofileTypeId;
                     }
                     catch (Exception exp)
                     {

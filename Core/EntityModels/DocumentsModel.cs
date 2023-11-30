@@ -197,6 +197,8 @@ namespace Core.EntityModels
         public bool IsDynamicFromData { get; set; } = false;
         public bool IsEmailTopics { get; set; } = false;
         public bool HasChildren { get; set; } = false;
+        public string? ActivityProfileNo { get; set; }
+        public string? ActivityType { get; set; }
     }
     public class DocumentListModel : BaseModel
     {
@@ -247,6 +249,6 @@ namespace Core.EntityModels
         public List<ActivityEmailTopics> ActivityEmailTopics { get; set; } = new List<ActivityEmailTopics>();
         public List<ApplicationUser> ApplicationUser { get; set; } = new List<ApplicationUser>();
         public List<Fileprofiletype> Fileprofiletype { get; set; } = new List<Fileprofiletype>();
-
+        public List<ProductActivityAppModel> ProductActivityAppModel { get; set; } = new List<ProductActivityAppModel>();
     }
 }

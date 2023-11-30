@@ -298,6 +298,20 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetByFileprofiletypeIdHandler : IRequestHandler<GetByFileprofiletypeId, Fileprofiletype>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetByFileprofiletypeIdHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<Fileprofiletype> Handle(GetByFileprofiletypeId request, CancellationToken cancellationToken)
+        {
+            return await _fileprofileQueryRepository.GetByFileprofiletypeIdAsync(request.Id);
+        }
+
+    }
+    
     public class InsertOrUpdateFileProfileTypeHandler : IRequestHandler<InsertOrUpdateFileProfileType, FileProfileTypeModel>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
@@ -416,6 +430,20 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetByUniqueDocumentHandler : IRequestHandler<GetByUniqueDocument, List<Documents>>
+    {
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        public GetByUniqueDocumentHandler(IDocumentsQueryRepository documentsqueryrepository)
+        {
+            _documentsqueryrepository = documentsqueryrepository;
+        }
+        public async Task<List<Documents>> Handle(GetByUniqueDocument request, CancellationToken cancellationToken)
+        {
+            return await _documentsqueryrepository.GetByUniqueDocAsync(request.DocumentId);
+        }
+
+    }
+    
     public class InsertCreateDocumentHandler : IRequestHandler<InsertCreateDocument, DocumentsUploadModel>
     {
         private readonly IDocumentsQueryRepository _documentsqueryrepository;
@@ -442,6 +470,20 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class UpdateEmailDocumentBySessionHandler : IRequestHandler<UpdateEmailDocumentBySession, DocumentsUploadModel>
+    {
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        public UpdateEmailDocumentBySessionHandler(IDocumentsQueryRepository documentsqueryrepository)
+        {
+            _documentsqueryrepository = documentsqueryrepository;
+        }
+        public async Task<DocumentsUploadModel> Handle(UpdateEmailDocumentBySession request, CancellationToken cancellationToken)
+        {
+            return await _documentsqueryrepository.UpdateEmailDocumentBySession(request.DocumentsUploadModel);
+        }
+
+    }
+    
     public class InsertOrUpdateReserveProfileNumberSeriesHandler : IRequestHandler<InsertOrUpdateReserveProfileNumberSeries, DocumentNoSeriesModel>
     {
         private readonly IDocumentsQueryRepository _documentsqueryrepository;

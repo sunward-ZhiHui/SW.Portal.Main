@@ -20,7 +20,9 @@ namespace AC.SD.Core.Helpers
                     .Select(x => new DocumentsModel()
                     {
                         FileProfileTypeId = x.FileProfileTypeId,
+                        ProfileID = x.ProfileID,
                         ParentId = x.ParentId,
+                        SessionId = x.SessionID,
                         FileName = x.FileName,
                         HasChildren = true,
                         Children = build(x.FileProfileTypeId).Count > 0 ? build(x.FileProfileTypeId) : new List<DocumentsModel>(),

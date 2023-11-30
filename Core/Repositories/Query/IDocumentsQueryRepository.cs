@@ -15,7 +15,8 @@ namespace Core.Repositories.Query
     {
         Task<Documents> GetBySessionIdAsync(Guid? SessionId);
         Task<Documents> GetByIdAsync(long? Id);
-        Task<Documents> GetByDocIdAsync(long? Id);
+        Task<Documents> GetByDocIdAsync(long? Id); 
+        Task<List<Documents>> GetByUniqueDocAsync(string Ids);
         Task<long> Delete(long? DocumentId);
         Task<byte[]> GetByteFromUrl(string Url);
         Documents GetByOneAsync(long? DocumentId);
@@ -24,6 +25,7 @@ namespace Core.Repositories.Query
         Task<long> UpdateEmailDMS(long DocId,long ActivityId);
         Task<Documents> InsertCreateDocumentBySession(Documents value);
         Task<DocumentsUploadModel> UpdateCreateDocumentBySession(DocumentsUploadModel value);
+        Task<DocumentsUploadModel> UpdateEmailDocumentBySession(DocumentsUploadModel value);        
         Task<DocumentNoSeriesModel> InsertOrUpdateReserveProfileNumberSeries(DocumentNoSeriesModel documentNoSeries);
         Task<DocumentNoSeriesModel> UpdateCreateDocumentBySessionReserveSeries(DocumentNoSeriesModel documentNoSeries);
         Task<DocumentNoSeriesModel> UpdateReserveNumberDescriptionField(DocumentNoSeriesModel documentNoSeries);

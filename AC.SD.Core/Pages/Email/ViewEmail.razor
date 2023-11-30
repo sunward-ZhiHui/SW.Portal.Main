@@ -4,6 +4,7 @@
 @using Application.Response;
 @using Markdig;
 @using Microsoft.AspNetCore.Http;
+@using Newtonsoft.Json
 @using global::Core.Repositories.Query;
 @using global::Core.Entities;
 @using global::Core.EntityModels;
@@ -1121,41 +1122,184 @@
           FooterCssClass="custom-flyout-footer"
           Width="max(25vw, 550px)"
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
-    <BodyContentTemplate Context="PopupContext">
-        <DxFormLayout CssClass="w-100">
-            <div>
-                <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit_FileProfileType">
-                   
+    <BodyContentTemplate Context="PopupContext">       
+        <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleValidSubmit_FileProfileType">
+            <DxFormLayout CssClass="w-100">
+                <DataAnnotationsValidator />
+                <DxFormLayoutItem Caption="" ColSpanMd="12">                    
+                    <DxRadioGroup Items="@FileLinkOptions"
+                                  Value="@_dataFileProfileType.Type"
+                                  ValueExpression="@(() => _dataFileProfileType.Type )"
+                                  ValueChanged="@((string value) => OnFileLinkTypeChanged(value))"
+                                  Layout="RadioGroupLayout.Horizontal"
+                                  CssClass="dx-demo-radio-group" />
+                </DxFormLayoutItem>
+                
+                @if (_dataFileProfileType.Type == "Link to DMS")
+                {                
+                    <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="12">                        
+                        <DxTextBox NullText="Select FileProfile Type" @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
+                                            Tooltip="Select File ProfileType"
+                                            Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
+                            </Buttons>
+                        </DxTextBox>
+                        <DxSpinEdit @bind-Value="@_dataFileProfileType.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
+                        <ValidationMessage For="@(() => _dataFileProfileType.FileProfileTypeId)" />
+                    </DxFormLayoutItem>
+
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="12">
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="PlantCode"
+                                    ValueFieldName="PlantID"
+                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
+                                    Enabled="isPlant"
+                                    @bind-Value="@_dataFileProfileType.PlantId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                    Caption="Plant Code"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                    Caption="Nav Company" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => _dataFileProfileType.PlantId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Division" ColSpanMd="12">
+                        <DxComboBox Data="@_divisionItems"
+                                    NullText="Select Division..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="DivisionID"
+                                    Enabled="isDivision"
+                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
+                                    @bind-Value="@_dataFileProfileType.DivisionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => _dataFileProfileType.DivisionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Department" ColSpanMd="12">
+                        <DxComboBox Data="@_departmentItems"
+                                    NullText="Select Department..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="DepartmentName"
+                                    ValueFieldName="DepartmentId"
+                                    Enabled="isDepartment"
+                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
+                                    @bind-Value="@_dataFileProfileType.DepartmentId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => _dataFileProfileType.DepartmentId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Section" ColSpanMd="12">
+                        <DxComboBox Data="@_sectionItems"
+                                    NullText="Select Section..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SectionName"
+                                    ValueFieldName="SectionId"
+                                    Enabled="isSection"
+                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
+                                    @bind-Value="@_dataFileProfileType.SectionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => _dataFileProfileType.SectionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="SubSection" ColSpanMd="12">
+                        <DxComboBox Data="@_subSectionItems"
+                                    NullText="Select SubSection..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SubSectionName"
+                                    ValueFieldName="SubSectionId"
+                                    Enabled="isSubSection"
+                                    @bind-Value="@_dataFileProfileType.SubSectionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => _dataFileProfileType.SubSectionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="12" Visible="@isExpiryDate">
+                        <DxDateEdit NullText="Select a Expiry Date..." MinDate="DateTime.Now" @bind-Date="@_dataFileProfileType.ExpiryDate" CssClass="cw-320" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="12">
+                        <DxMemo @bind-Text="@_dataFileProfileType.Description" Rows="5" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
 
                    
-                        <DxFormLayoutItem Caption="FileProfile Type" ColSpanMd="12">
-                            <DataAnnotationsValidator />
-                            <DxTextBox NullText="Select FileProfile Type..." @bind-Text="@LinkFilterFileprofiletypeName" CssClass="cw-480">
-                                <Buttons>
-                                    <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFilterFileProfileTypeDocumentOpen")
-                                                    Tooltip="Select File ProfileType"
-                                                    Click="@(_ => OnButtonFileProfileTypeLinDocClick())" />
-                                </Buttons>
-                            </DxTextBox>
-                            <DxSpinEdit @bind-Value="@_dataFileProfileType.FileProfileTypeId" BindValueMode="BindValueMode.OnInput" style="display:none;" />
-                            <ValidationMessage For="@(() => _dataFileProfileType.FileProfileTypeId)" />
-                        </DxFormLayoutItem>
+                }
+                else 
+                {
+                    <DxFormLayoutItem Caption="File Replace (Check-In)" ColSpanMd="12">
+                        <DxComboBox Data="@_OnFileReplaceList"
+                                NullText="Select File Replace (Check-In)..."
+                                FilteringMode="DataGridFilteringMode.Contains"
+                                ListRenderMode="ListRenderMode.Virtual"
+                                TextFieldName="FileName"
+                                ValueFieldName="ReplaceDocumentId"
+                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    SelectedItemChanged="@((Documents documents) => onSelectedFileReplaceChanged(documents))"
+                                @bind-Value="@_dataFileProfileType.ReplaceDocumentId" ShowValidationIcon="true">
+                                <Columns>       
+                                    @*<DxListEditorColumn FieldName="@nameof(Documents.SubjectName)" Caption="Subject Name"/>*@
+                                    <DxListEditorColumn FieldName="@nameof(Documents.FileName)" Caption="FileName"/>
+                                    @*<DxListEditorColumn FieldName="@nameof(Documents.AddedBy)" Caption="AddedBy"/>  *@                                  
+                                </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => _dataFileProfileType.ReplaceDocumentId)" />
+                    </DxFormLayoutItem>
+                
+                }
 
-                    
-                   
+               
 
-                    
-                </EditForm>
-            </div>
-        </DxFormLayout>
+            </DxFormLayout>
+        </EditForm>
+           
+        
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Close" Click=@(()=> IsDescriptionOpen = false) />
-        
-       
-            <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnUpdateDescription()) />
-        
-       
+        <DxButton RenderStyle="ButtonRenderStyle.Success" Text="Update" Click=@(()=> OnSubmitFileLinked()) />
     </FooterContentTemplate>
 </DxFlyout>
 
@@ -1203,6 +1347,21 @@
 
 
 @code {
+    private List<ViewPlants>? _plantItems;
+    private List<ViewDivision>? _divisionItems;
+    private List<ViewDepartment>? _departmentItems;
+    private List<ViewSection>? _sectionItems;
+    private List<ViewSubSection>? _subSectionItems;
+    bool isPlant { get; set; } = false;
+    bool isDivision { get; set; } = false; bool isDepartment { get; set; } = false;
+    bool isSection { get; set; } = false; bool isSubSection { get; set; } = false;
+    bool isExpiryDate { get; set; } = false;
+    public DocumentProfileNoSeriesModel documentProfileNoSeriesData { get; set; }
+    string ExtensionsList = "";
+    string SeletedExtensions = "";
+    string IsUploadExt = ".isUploadCheckOut";
+
+
     string SelectedRadioGroupString { get; set; } = "Link to DMS";
     IEnumerable<string> FileLinkOptions = new[] { "Link to DMS", "File Replace(Check-In)" };
     private List<Documents>? _OnFileReplaceList;
@@ -1222,28 +1381,8 @@
     }
 
     async Task HandleValidSubmit_FileProfileType()
-    {
-        var UpdateReq = new CreateEmailDocFileProfileType
-            {
-                FilterProfileTypeId = _dataFileProfileType.FileProfileTypeId,
-                DocumentId = _selectedDescriptionItems.DocumentId,
-                AddedByUserId = applicationUser.UserID,
-                SessionId = Guid.NewGuid(),
-                AddedDate = DateTime.Now,
-                UploadDate = DateTime.Now
-            };
-        _activityEmailSessionId = UpdateReq.SessionId;
-        var result = await Mediator.Send(UpdateReq);
-        if (result > 0)
-        {
-            await createActivityTag(LinkFilterFileprofiletypeName);
-            onShowPopupMessage("success", "Updated File Profile DMS Successfully");
-        }
-    }
-
-    async Task HandleValidSubmit_FileProfileType_vijay()
     {  
-        if(@SelectedRadioGroupString == "Link to DMS")
+        if(_dataFileProfileType.Type == "Link to DMS")
         {
             var UpdateReq = new CreateEmailDocFileProfileType
             {
@@ -1258,6 +1397,34 @@
             var result = await Mediator.Send(UpdateReq);
             if (result > 0)
             {
+                var filesessionIds = _activityEmailSessionId;
+                _dataFileProfileType.SessionId = filesessionIds;
+                _dataFileProfileType.FileSessionId = filesessionIds;
+                _dataFileProfileType.SourceFrom = "FileProfile";
+
+
+                DocumentsUploadModel Datas = new DocumentsUploadModel();
+
+                Datas.DocumentId = result;
+                Datas.SessionId = _dataFileProfileType.SessionId;
+                Datas.FileSessionId = _dataFileProfileType.FileSessionId;
+                Datas.SourceFrom = _dataFileProfileType.SourceFrom;
+                Datas.FilePath = _dataFileProfileType.FilePath;
+                Datas.Description = _dataFileProfileType.Description;
+                Datas.FileProfileTypeId = _dataFileProfileType.FileProfileTypeId;
+                Datas.PlantId = _dataFileProfileType.PlantId;
+                Datas.DepartmentId = _dataFileProfileType.DepartmentId;
+                Datas.SectionId = _dataFileProfileType.SectionId;
+                Datas.SubSectionId = _dataFileProfileType.SubSectionId;
+                Datas.DivisionId = _dataFileProfileType.DivisionId;
+                Datas.ProfileNo = _dataFileProfileType.ProfileNo;             
+                Datas.ChangeNewFileName = "New File Empty";
+                Datas.UserId = applicationUser.UserID;   
+                Datas.ProfileId  = _dataFileProfileType.ProfileId;
+                Datas.ExpiryDate = _dataFileProfileType.ExpiryDate;
+
+                var response = await Mediator.Send(new UpdateEmailDocumentBySession(Datas));
+
                 await createActivityTag(LinkFilterFileprofiletypeName);
                 onShowPopupMessage("success", "Updated File Profile DMS Successfully");
             }
@@ -1265,62 +1432,159 @@
         }
         else
         {
+            ExtensionsList = "";
+            CheckExtension();           
 
-
-            var doclst = await Mediator.Send(new GetByIdDocument(_dataFileReplace.ReplaceDocumentId));
-            _selectedDocumentItems = new DocumentsModel();
-            _selectedDocumentItems.DocumentID = doclst.DocumentId;
-            _selectedDescriptionItems.DocumentParentId = doclst.DocumentParentId;
-            _selectedDocumentItems.FilterProfileTypeId = doclst.FilterProfileTypeId;
-            _selectedDocumentItems.SessionId = doclst.SessionId;
-            _selectedDocumentItems.ProfileNo = doclst.ProfileNo;
-            _selectedDocumentItems.Description = doclst.FileName;
-            _selectedDocumentItems.FileName = doclst.FileName;
-
-            if (_selectedDocumentItems != null && _selectedDocumentItems.DocumentID > 0)
+            if(IsValidFileExtension(ExtensionsList, SeletedExtensions))
             {
+                var doclst = await Mediator.Send(new GetByIdDocument(_dataFileProfileType.ReplaceDocumentId));
 
-                var res =  await Mediator.Send(new GetFileProfileTypeCheckOut(_selectedDocumentItems));
-
-                var creReq = new CreateEmailDocFileProfileType
+                if (doclst.IsLocked.GetValueOrDefault(false))
                 {
-                    FilterProfileTypeId = doclst.FilterProfileTypeId,
-                    DocumentId = _selectedDescriptionItems.DocumentId,
-                    AddedByUserId = applicationUser.UserID,
-                    SessionId = Guid.NewGuid(),
-                    AddedDate = DateTime.Now,
-                    UploadDate = DateTime.Now
-                };            
-                _activityEmailSessionId = creReq.SessionId;
-                var result = await Mediator.Send(creReq);
+                    toastService.ShowToast("Selected File has been Locked", AC.SD.Core.Services.ToastLevel.Error);
+                    return;
 
-                DocumentsUploadModel Data = new DocumentsUploadModel();
-                //_selectedDocumentItems.IsLocked = true;
-                //_selectedDocumentItems.LockedByUserId = applicationUser.UserID;
-                //_selectedDocumentItems.LockedByUser = applicationUser.UserName;
+                }
+                else
+                {
 
-                var finaldoclst = await Mediator.Send(new GetByIdDocument(result));
+                    _selectedDocumentItems = new DocumentsModel();
+                    _selectedDocumentItems.DocumentID = doclst.DocumentId;
+                    _selectedDocumentItems.DocumentParentId = doclst.DocumentParentId;
+                    _selectedDescriptionItems.DocumentParentId = doclst.DocumentParentId;
+                    _selectedDocumentItems.FilterProfileTypeId = doclst.FilterProfileTypeId;
+                    _selectedDocumentItems.SessionId = doclst.SessionId;
+                    _selectedDocumentItems.ProfileNo = doclst.ProfileNo;
+                    _selectedDocumentItems.Description = doclst.FileName;
+                    _selectedDocumentItems.FileName = doclst.FileName;
+
+                    if (_selectedDocumentItems != null && _selectedDocumentItems.DocumentID > 0)
+                    {
+
+                        var res = await Mediator.Send(new GetFileProfileTypeCheckOut(_selectedDocumentItems));
+
+                        var creReq = new CreateEmailDocFileProfileType
+                            {
+                                FilterProfileTypeId = doclst.FilterProfileTypeId,
+                                DocumentId = _selectedDescriptionItems.DocumentId,
+                                AddedByUserId = applicationUser.UserID,
+                                SessionId = Guid.NewGuid(),
+                                AddedDate = DateTime.Now,
+                                UploadDate = DateTime.Now
+                            };
+                        _activityEmailSessionId = _selectedDocumentItems.SessionId;
+                        var result = await Mediator.Send(creReq);
+
+                        DocumentsUploadModel Data = new DocumentsUploadModel();
+
+                        //var finaldoclst = await Mediator.Send(new GetByIdDocument(result));
 
 
-                Data.IsCheckOut = true;
-                Data.DocumentParentId = _selectedDocumentItems.DocumentID;
-                Data.DocumentMainParentId = _selectedDocumentItems.DocumentParentId;
-                Data.UserSession = applicationUser.SessionId;
-                Data.UserId = applicationUser.UserID;
-                Data.ProfileId = _selectedDocumentItems.ProfileID;
-                Data.SessionId = _selectedDocumentItems.SessionId;
-                Data.ProfileNo = _selectedDocumentItems.ProfileNo;
-                Data.FileProfileTypeId = _selectedDocumentItems.FileProfileTypeId > 0 ? _selectedDocumentItems.FileProfileTypeId : _selectedDocumentItems.FilterProfileTypeId;
-                Data.FilePath = finaldoclst.FilePath;
-                Data.FileSessionId = finaldoclst.SessionId;
+                        Data.IsCheckOut = true;
+                        Data.DocumentId = result;
+                        Data.DocumentParentId = _selectedDocumentItems.DocumentID;
+                        Data.DocumentMainParentId = _selectedDocumentItems.DocumentParentId;
+                        Data.UserSession = applicationUser.SessionId;
+                        Data.UserId = applicationUser.UserID;
+                        Data.ProfileId = _selectedDocumentItems.ProfileID;
+                        Data.SessionId = _selectedDocumentItems.SessionId;
+                        Data.ProfileNo = _selectedDocumentItems.ProfileNo;
+                        Data.FileProfileTypeId = _selectedDocumentItems.FileProfileTypeId > 0 ? _selectedDocumentItems.FileProfileTypeId : _selectedDocumentItems.FilterProfileTypeId;
+                        Data.UserId = applicationUser.UserID;
+                        // Data.FilePath = finaldoclst.FilePath;
+                        // Data.FileSessionId = finaldoclst.SessionId;
 
-                var responsess = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
-                var emailactivity = CreateEmailActivityEntry(_selectedDescriptionItems);
-            }
+                        var responsess = await Mediator.Send(new UpdateEmailDocumentBySession(Data));                       
+
+                        if (doclst.FilterProfileTypeId != null && doclst.FilterProfileTypeId.Value != 0)
+                        {
+                             var getbackurlSessionid = await Mediator.Send(new GetByFileprofiletypeId(doclst.FilterProfileTypeId));
+                            _selectedDescriptionItems.SessionId = getbackurlSessionid.SessionId;
+                        }
+
+                        var emailactivity = CreateEmailActivityEntry(_selectedDescriptionItems);
+
+
+                    }
+                }
+           }
+           else
+           {
+                toastService.ShowToast("Selected File Extension Mismatch", AC.SD.Core.Services.ToastLevel.Error);
+                return;
+           }
+
+           
         }
 
 
 
+    }
+    static bool IsValidFileExtension(string validExtensions, string fileExtension)
+    {
+        // Split the valid extensions into an array
+        string[] validExtensionsArray = validExtensions.Split(',');
+
+        // Check if the given file extension is in the array
+        foreach (string ext in validExtensionsArray)
+        {
+            if (fileExtension.Equals(ext, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    void CheckExtension()
+    {
+         IsUploadExt = "";
+
+        if (!string.IsNullOrEmpty(_selectedDescriptionItems.Extension))
+        {
+            var contentType = _selectedDescriptionItems.ContentType != null ? _selectedDescriptionItems.ContentType.Split("/").First().ToLower() : "";
+            var extenionType = _selectedDescriptionItems.Extension.ToLower();
+            if (extenionType == ".txt")
+            {
+                AcceptedFileTypes = new List<string>() { ".txt" };
+            }
+            else if (extenionType == ".pdf")
+            {
+                AcceptedFileTypes = new List<string>() { ".pdf" };
+            }
+            else if (extenionType == ".ppt" || extenionType == ".pptx")
+            {
+                AcceptedFileTypes = new List<string>() { ".ppt", "pptx" };
+            }
+            else if (extenionType == ".doc" || extenionType == ".docx")
+            {
+                AcceptedFileTypes = new List<string>() { ".doc", ".docx" };
+            }
+            else if (extenionType == ".xls" || extenionType == ".xlsx")
+            {
+                AcceptedFileTypes = new List<string>() { ".xls", ".xlsx" };
+            }
+            else
+            {
+                if (contentType == "image")
+                {
+                    AcceptedFileTypes = new List<string>() { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".webp", ".svg" };
+                }
+                else if (contentType == "video")
+                {
+                    AcceptedFileTypes = new List<string>() { ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm", ".3gp", ".mpg", "mpeg" };
+                }
+                else
+                {
+                    IsUploadExt = ".isUploadCheckOut";
+                }
+            }
+        }           
+
+        ExtensionsList = string.Join(",", AcceptedFileTypes.ConvertAll(d => d.ToLower()).Distinct().ToList());
+
+        StateHasChanged();
+        
     }
     async Task CreateEmailActivityEntry(Documents documents)
     {
@@ -1330,10 +1594,10 @@
         string filePath = documents.FileName;
         string subjectName = Path.GetFileNameWithoutExtension(filePath);
 
-         var createReq = new CreateActivityEmail
+        var createReq = new CreateActivityEmail
                 {
                     SubjectName = subjectName,
-                Comment = subjectName,
+                    Comment = subjectName,
                     ActivityType = "EmailFileProfileType",
                     SessionId = _activityEmailSessionId,
                     BackURL = documents.SessionId.ToString(),
@@ -1341,12 +1605,33 @@
                     EmailTopicSessionId = topiclist[0].SessionId ,
                     AddedByUserID = applicationUser.UserID,
                     AddedDate = DateTime.Now
-                    
+
                 };
 
         var result = await Mediator.Send(createReq);
 
         var resultdoc = await Mediator.Send(new UpdateEmailDmsDocId(_selectedDescriptionItems.DocumentId, result));        
+
+
+        IsDescriptionOpen = false; 
+        IsFileProfileTypeFilterDocOpen = false;        
+        FilterDocumentString = null;
+        LinkFilterFileprofiletypeName = null;
+        _dataFileProfileType.FileProfileTypeId = null;
+
+
+
+        if (RTopicId == 0)
+        {
+            await loadTopicDocList();
+        }
+        else
+        {
+            await loadSubTopicDocList();
+        }
+
+
+
     }
     async Task createActivityTag(string? tages)
     {
@@ -1523,8 +1808,12 @@
             };
         await Mediator.Send(request);
     }
-    protected void FileProfileTypeSelectionChanged(TreeViewNodeEventArgs e)
+    protected async Task FileProfileTypeSelectionChanged(TreeViewNodeEventArgs e)
     {
+        _dataFileProfileType.PlantId = 0; _dataFileProfileType.DepartmentId = 0;
+        _dataFileProfileType.DivisionId = 0; _dataFileProfileType.SectionId = 0; _dataFileProfileType.SubSectionId = 0;
+
+
         if (e.NodeInfo?.DataItem != null)
         {
             var nodeName = e.NodeInfo.DataItem as DocumentsModel;
@@ -1532,8 +1821,51 @@
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, nodeName.FileProfileTypeId);
             LinkFilterFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
             _dataFileProfileType.FileProfileTypeId = nodeName.FileProfileTypeId;
-            _dataFileProfileType.sessionId = nodeName.SessionID;
+            _dataFileProfileType.ProfileId = nodeName.ProfileID;
+            _dataFileProfileType.sessionId = nodeName.SessionId;
         }
+
+        if (_dataFileProfileType != null && _dataFileProfileType.ProfileId > 0)
+        {
+            _dataFileProfileType = _dataFileProfileType;
+
+            documentProfileNoSeriesData = await Mediator.Send(new GetDocumentProfileNoSeriesById(_dataFileProfileType.ProfileId));
+
+            dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
+            if (abbreviation != null)
+            {
+                foreach (var item in abbreviation)
+                {
+                    var itemsId = item.Id;
+                    if (itemsId == 1)
+                    {
+                        isPlant = true;
+                        _dataFileProfileType.PlantId = null;
+                    }
+                    if (itemsId == 2)
+                    {
+                        isDepartment = true; isDivision = true;
+                        _dataFileProfileType.DepartmentId = null;
+                        _dataFileProfileType.DivisionId = null;
+                    }
+                    if (itemsId == 3)
+                    {
+                        isSection = true;
+                        _dataFileProfileType.SectionId = null;
+                    }
+                    if (itemsId == 4)
+                    {
+                        isSubSection = true;
+                        _dataFileProfileType.SubSectionId = null;
+                    }
+                }
+            }
+            if (_dataFileProfileType.IsExpiryDate == true)
+            {
+                isExpiryDate = true;
+            }
+        }
+
         IsFileProfileTypeFilterDocOpen = false;
         StateHasChanged();
     }
@@ -1582,20 +1914,113 @@
     }
 
     private FileProfileType _dataFileProfileType = new FileProfileType();
-    private FileReplace _dataFileReplace = new FileReplace();
+
     private class FileProfileType
     {
         [Required(ErrorMessage = "FileProfile is Required")]
-       
         public long? FileProfileTypeId { get; set; }
         public Guid? sessionId { get; set; }
+        public string? Type { get; set; }
+
+        [Required(ErrorMessage = "Select File is Required")]
+        public long? ReplaceDocumentId { get; set; }  
+
+
+        [Required(ErrorMessage = "Company is Required")]
+        public long? PlantId { get; set; } = 0;
+        [Required(ErrorMessage = "Department is Required")]
+        public long? DepartmentId { get; set; } = 0;
+        [Required(ErrorMessage = "Section is Required")]
+        public long? SectionId { get; set; } = 0;
+        [Required(ErrorMessage = "SubSection is Required")]
+        public long? SubSectionId { get; set; } = 0;
+        [Required(ErrorMessage = "Division is Required")]
+        public long? DivisionId { get; set; } = 0;
+        public string? CompanyCode { get; set; }
+        public string? SectionName { get; set; }
+        public string? SubSectionName { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? ProfileNo { get; set; }
+        public string? Description { get; set; }
+
+        public Guid? SessionId { get; set; }
+        public Guid? FileSessionId { get; set; }
+        public string? SourceFrom { get; set; }
+        public string? FilePath { get; set; }
+        public bool? IsExpiryDate { get; set; }
+        public long? ProfileId { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+
     }
+    void onSelectedFileReplaceChanged(Documents documents)
+    {
+        if(documents != null)
+        {
+            SeletedExtensions = Path.GetExtension(documents.FileName);
+
+            isPlant = false;
+            _dataFileProfileType.PlantId = 0;
+
+            isDepartment = false; isDivision = false;
+            _dataFileProfileType.DepartmentId = 0;
+            _dataFileProfileType.DivisionId = 0;
+
+            isSection = false;
+            _dataFileProfileType.SectionId = 0;
+
+
+            isSubSection = false;
+            _dataFileProfileType.SubSectionId = 0;
+        }
+
+      
+    }
+    void OnFileLinkTypeChanged(string? radioValue)
+    {
+        _dataFileProfileType.Type = radioValue;
+
+        if (radioValue == "Link to DMS")
+        {
+            LinkFilterFileprofiletypeName = null;
+            //_dataFileProfileType.Description = null;
+
+            _dataFileProfileType.FileProfileTypeId = null;
+            _dataFileProfileType.ReplaceDocumentId = 0;
+
+            // isPlant = false;
+            // _dataFileProfileType.PlantId = null;
+
+            // isDepartment = false; isDivision = false;
+            // _dataFileProfileType.DepartmentId = null;
+            // _dataFileProfileType.DivisionId = null;
+
+            // isSection = false;
+            // _dataFileProfileType.SectionId = null;
+
+            // isSubSection = false;
+            // _dataFileProfileType.SubSectionId = null;
+
+        }
+
+        if (radioValue == "File Replace(Check-In)")
+        {
+            _dataFileProfileType.FileProfileTypeId = 0;
+            _dataFileProfileType.ReplaceDocumentId = null;
+
+            _dataFileProfileType.PlantId = 0; _dataFileProfileType.DepartmentId = 0; 
+            _dataFileProfileType.DivisionId = 0; _dataFileProfileType.SectionId = 0; _dataFileProfileType.SubSectionId = 0;
+
+
+
+        }        
+
+        StateHasChanged();
+    }
+
 
     private class FileReplace
     {
-        [Required(ErrorMessage = "Select File is Required")]
-        public long? ReplaceDocumentId { get; set; }         
-        public Guid? sessionId { get; set; }
+
     }
 
 
@@ -1614,15 +2039,109 @@
         }
     }
 
+    public async Task loadFileProfileDDData()
+    {
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        await SelectedItemChanged(0);
+        await SelectedItemDivisionChanged(0);
+        await SelectedItemDepartementChanged(0);
+        await SelectedItemSectionChanged(0);
+
+
+
+        isPlant = false;
+        _dataFileProfileType.PlantId = null;
+
+        isDepartment = false; isDivision = false;
+        _dataFileProfileType.DepartmentId = null;
+        _dataFileProfileType.DivisionId = null;
+
+        isSection = false;
+        _dataFileProfileType.SectionId = null;
+
+
+        isSubSection = false;
+        _dataFileProfileType.SubSectionId = null;
+
+
+        StateHasChanged();        
+    }
+    async Task SelectedItemChanged(long? plantID)
+    {
+        _divisionItems = new List<ViewDivision>();
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (plantID > 0)
+        {
+            _divisionItems = await Mediator.Send(new GetDivisionByCompany(plantID));
+
+            //  isDepartment = true; isDivision = true;
+            // _dataFileProfileType.DepartmentId = null;
+            // _dataFileProfileType.DivisionId = null;
+        }
+    }
+    async Task SelectedItemDivisionChanged(long? divisionId)
+    {
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (divisionId > 0)
+        {
+            _departmentItems = await Mediator.Send(new GetDepartmentByDivision(divisionId));
+
+            //  isSection = true;
+            // _dataFileProfileType.SectionId = null;
+
+        }
+    }
+    async Task SelectedItemDepartementChanged(long? departmentId)
+    {
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (departmentId > 0)
+        {
+            _sectionItems = await Mediator.Send(new GetSectionByDepartment(departmentId));
+
+            //  isSubSection = true;
+            // _dataFileProfileType.SubSectionId = null;
+        }
+    }
+    async Task SelectedItemSectionChanged(long? sectionId)
+    {
+        _subSectionItems = new List<ViewSubSection>();
+        if (sectionId > 0)
+        {
+            _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
+        }
+    }
+
     async Task OnButtonDescriptionClick(Documents items)
     {
-        IsDescriptionOpen = true; 
+
+        //_dataFileProfileType = new FileProfileType();       
+        LinkFilterFileprofiletypeName = null;
+        _dataFileProfileType.PlantId = null;
+        _dataFileProfileType.DepartmentId = null;
+        _dataFileProfileType.DivisionId = null;
+        _dataFileProfileType.SectionId = null;
+        _dataFileProfileType.SubSectionId = null;
+        _dataFileProfileType.Description = null;
+
+        OnFileLinkTypeChanged("Link to DMS");
+
+
+
+        await loadFileProfileDDData();
+
         IsExpiryDateOpen = false; IsRenameOpen = false;
         _selectedDescriptionItems = new Documents();
         _selectedDescriptionItems.FilterProfileTypeId = items.FilterProfileTypeId;
         _selectedDescriptionItems.DocumentId = items.DocumentId;
         _selectedDescriptionItems.Description = items.Description;    
         _selectedDescriptionItems.FileName = items.FileName;
+        _selectedDescriptionItems.ContentType = items.ContentType;
+        _selectedDescriptionItems.Extension = Path.GetExtension(items.FileName);
         _selectedDescriptionItems.SessionId = items.SessionId;
         //_selectedDescriptionItems.Type = items.Type;
         _selectedDescriptionItems.ModifiedDate = DateTime.Now;
@@ -1633,28 +2152,18 @@
         {
             _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
         }
-    }
-    async Task OnFileReplaceSubmit()
-    {
+
+        IsDescriptionOpen = true;
+        
+        StateHasChanged();
+    }   
+
+    async Task OnSubmitFileLinked()
+    {       
         if (_editContext.Validate())
         {
             await this.HandleValidSubmit_FileProfileType();
         }
-    }
-
-    async Task OnUpdateDescription()
-    {
-        //await Mediator.Send(new GetUpdateDescriptionField(_selectedDescriptionItems));
-        //await loadFileProfileData();
-
-        if (_editContext.Validate())
-        {
-            await this.HandleValidSubmit_FileProfileType();
-        }
-
-
-        // toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-        //IsDescriptionOpen = false;
     }
 
     int SelectedFilesCount { get; set; }
@@ -3017,7 +3526,25 @@
             //await JSRuntime.InvokeAsync<string>("showLoading");
             _topicDocList = await Mediator.Send(new GetSubEmailTopicDocList(long.Parse(@SelectedReplyId)));
 
-            _OnFileReplaceList = _topicDocList.Where(x => x.EmailToDMS != null).ToList();
+
+            var selectedDocumentIds = _topicDocList.Where(x => x.ReplaceDocumentId != 0).Select(x => x.DocumentId);
+            string commaSeparatedIds = string.Join(",", selectedDocumentIds);
+
+            if (!string.IsNullOrEmpty(commaSeparatedIds))
+            {
+                _OnFileReplaceList = await Mediator.Send(new GetByUniqueDocument(commaSeparatedIds));
+            }
+            else
+            {
+                _OnFileReplaceList = new List<Documents>();
+                
+            }
+
+         
+           
+
+            //_OnFileReplaceList = new List<Documents> { await Mediator.Send(new GetByUniqueDocument(commaSeparatedIds)) };
+
 
             //await JSRuntime.InvokeAsync<string>("hideLoading");
 
@@ -3045,6 +3572,23 @@
             //await JSRuntime.InvokeAsync<string>("showLoading");
             _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
             //await JSRuntime.InvokeAsync<string>("hideLoading");
+
+
+
+            var selectedDocumentIds = _topicDocList.Where(x => x.ReplaceDocumentId != 0).Select(x => x.DocumentId);
+            string commaSeparatedIds = string.Join(",", selectedDocumentIds);
+
+            if (!string.IsNullOrEmpty(commaSeparatedIds))
+            {
+                _OnFileReplaceList = await Mediator.Send(new GetByUniqueDocument(commaSeparatedIds));
+            }
+            else
+            {
+                _OnFileReplaceList = new List<Documents>();
+                
+            }
+
+
 
 
             if (_topicDocList.Count > 0)
@@ -3346,13 +3890,14 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _editContext = new EditContext(_dataFileProfileType);
+        _editContext = new EditContext(_dataFileProfileType);       
+
         Page = Page == null ? "AssignTo" : Page;
 
         var sss = ActiveSessionId;      
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];        
         cancellationTokenSource = new CancellationTokenSource();
-        StartAutoRefresh();
+        //StartAutoRefresh();
 
         BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];

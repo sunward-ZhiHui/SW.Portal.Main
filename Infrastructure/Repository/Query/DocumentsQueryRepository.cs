@@ -86,6 +86,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
+        public async Task<List<Documents>> GetByUniqueDocAsync(string Ids)
+        {
+            try
+            {                
+                var query = "select  D.DocumentID as DocumentId,\r\n\tD.DocumentID as ReplaceDocumentId,\r\n\tD.FileName,\r\n\tD.ContentType,\r\n\tD.FileSize,\r\n\tD.UploadDate,\r\n\tD.SessionID,\r\n\tD.AddedDate,\r\n\tD.FilePath,\t\r\n\tD.AddedDate,\t\r\n\tD.ModifiedDate,\r\n\tD.UniqueSessionId,\r\n\tD.EmailToDMS from Documents D where D.SessionID in\r\n(select DISTINCT SessionId from ActivityEmailTopics where ActivityEmailTopicID in (select EmailToDMS  from Documents where DocumentID in(" + Ids + ")))\r\nAND D.IsLatest = 1";
+                var parameters = new DynamicParameters();
+                //parameters.Add("DocumentId", DocumentId);
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Documents>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<Documents> GetByDocIdAsync(long? DocumentId)
         {
             try
@@ -456,6 +474,80 @@ namespace Infrastructure.Repository.Query
                         {
                             await InsertSupportingDocumentLink(value);
                         }
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsUploadModel> UpdateEmailDocumentBySession(DocumentsUploadModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        Nullable<long> fileIndex = null;
+                        var parameters = new DynamicParameters();
+                        var profileNo = value.ProfileNo;
+                        if (value.IsCheckOut == true && value.DocumentParentId > 0)
+                        {
+                            if (value.DocumentMainParentId > 0)
+                            {
+                                fileIndex = await GetDocumentParentCount(value.DocumentMainParentId);
+                                fileIndex = fileIndex > 0 ? (fileIndex.Value + 1) : 1;
+                            }
+                            else
+                            {
+                                value.DocumentMainParentId = value.DocumentParentId;
+                                fileIndex = 1;
+                            }
+                            await UpdateDocumentIsLastet(value.DocumentParentId);
+                        }
+                        else
+                        {
+                            profileNo = await GenerateDocumentProfileAutoNumber(value);
+                        }
+                        parameters.Add("DocumentId", value.DocumentId);
+                        parameters.Add("FileProfileTypeId", value.FileProfileTypeId);                        
+                        parameters.Add("Description", value.Description);
+                        parameters.Add("ExpiryDate", value.ExpiryDate);
+                        parameters.Add("StatusCodeID", 1);
+                        parameters.Add("AddedByUserId", value.UserId);
+                        parameters.Add("SessionId", value.SessionId, DbType.Guid);
+                        parameters.Add("ProfileNo", profileNo);
+                        parameters.Add("DocumentParentId", value.DocumentMainParentId);
+                        parameters.Add("TableName", "Document");
+                        parameters.Add("FileIndex", fileIndex);
+                        parameters.Add("FileSessionId", value.FileSessionId);
+                        parameters.Add("IsTemp", 0);
+                        parameters.Add("FilePath", value.FilePath, DbType.String);
+
+                        var query = "Update Documents SET " +
+                            "FilterProfileTypeId=@FileProfileTypeId, " +
+                            "Description=@Description, " +
+                            "ExpiryDate=@ExpiryDate, " +
+                            "StatusCodeID=@StatusCodeID, " +
+                            "ProfileNo=@ProfileNo, " +
+                            "DocumentParentId=@DocumentParentId, " +
+                            "TableName=@TableName, " +
+                            "FileIndex=@FileIndex, " +
+                            "IsTemp=@IsTemp, " +
+                            "SessionId=@SessionId " +
+                            "WHERE " +                            
+                            "DocumentID= @DocumentId";
+                        await connection.ExecuteAsync(query, parameters);
+                        connection.Close();                        
                         return value;
                     }
                     catch (Exception exp)

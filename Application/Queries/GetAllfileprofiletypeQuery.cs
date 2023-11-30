@@ -187,6 +187,15 @@ namespace Application.Queries
             this.Id = id;
         }
     }
+    public class GetByFileprofiletypeId : PagedRequest, IRequest<Fileprofiletype>
+    {
+        public long? Id { get; private set; }
+        public GetByFileprofiletypeId(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    
 
     public class InsertFileProfileTypeAccess : PagedRequest, IRequest<DocumentUserRoleModel>
     {
@@ -250,6 +259,14 @@ namespace Application.Queries
             this.DocumentId = docid;
         }
     }
+    public class GetByUniqueDocument : PagedRequest, IRequest<List<Documents>>
+    {
+        public string DocumentId { get; set; }
+        public GetByUniqueDocument(string docid)
+        {
+            this.DocumentId = docid;
+        }
+    }
     public class UpdateCreateDocumentBySession : PagedRequest, IRequest<DocumentsUploadModel>
     {
         public DocumentsUploadModel DocumentsUploadModel { get; private set; }
@@ -258,6 +275,15 @@ namespace Application.Queries
             this.DocumentsUploadModel = documentsUploadModel;
         }
     }
+    public class UpdateEmailDocumentBySession : PagedRequest, IRequest<DocumentsUploadModel>
+    {
+        public DocumentsUploadModel DocumentsUploadModel { get; private set; }
+        public UpdateEmailDocumentBySession(DocumentsUploadModel documentsUploadModel)
+        {
+            this.DocumentsUploadModel = documentsUploadModel;
+        }
+    }
+    
     public class InsertOrUpdateReserveProfileNumberSeries : PagedRequest, IRequest<DocumentNoSeriesModel>
     {
         public DocumentNoSeriesModel DocumentNoSeriesModel { get; private set; }

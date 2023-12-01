@@ -402,4 +402,14 @@ namespace Application.Queries
             this.FileProfileTypeModel = fileProfileTypeModel;
         }
     }
+    public class MoveToFileProfileTypeUpdateInfo : DocumentsModel, IRequest<long?>
+    {
+        public List<DocumentsModel> DocumentsModel { get; private set; }
+        public long? FileprofileTypeId { get; private set; }
+        public MoveToFileProfileTypeUpdateInfo(List<DocumentsModel> documentsModel, long? fileprofileTypeId)
+        {
+            this.DocumentsModel = documentsModel;
+            this.FileprofileTypeId = fileprofileTypeId;
+        }
+    }
 }

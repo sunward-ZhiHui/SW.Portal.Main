@@ -25,7 +25,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DocumentLinkModel>> GetParentDocumentsByLinkDocumentId(long? id);
         Task<DocumentsModel> UpdateDescriptionField(DocumentsModel documentsModel);
         Task<DocumentsModel> UpdateExpiryDateField(DocumentsModel documentsModel);
-        Task<DocumentPermissionModel> GetAllSelectedFilePermissionAsync(long? DocumentId,long? selectedFileProfileTypeID);
+        Task<DocumentPermissionModel> GetAllSelectedFilePermissionAsync(long? DocumentId, long? selectedFileProfileTypeID);
         Task<DocumentsModel> UpdateDocumentRename(DocumentsModel value);
         Task<IReadOnlyList<UserGroup>> GetUserGroups();
         Task<IReadOnlyList<DocumentRole>> GetDocumentRole();
@@ -38,7 +38,7 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DocumentUserRoleModel>> GetDocumentUserRoleList(long? Id);
         Task<DocumentUserRoleModel> DeleteDocumentUserRole(DocumentUserRoleModel value);
         Task<IReadOnlyList<FileProfileSetupFormModel>> GetFileProfileSetupFormList(long? Id);
-        Task<IReadOnlyList<DocumentNoSeriesModel>> GetReserveProfileNumberSeries(long? Id,long? ProfileId);
+        Task<IReadOnlyList<DocumentNoSeriesModel>> GetReserveProfileNumberSeries(long? Id, long? ProfileId);
         Task<DocumentTypeModel> GetAllDocumentDeleteAsync();
         Task<DocumentsModel> ReStoreFileProfileTypeAndDocument(DocumentsModel documentsModel);
         Task<IReadOnlyList<DocumentsModel>> GetFileContetTypes();
@@ -55,5 +55,6 @@ namespace Core.Repositories.Query
         Task<DocumentDmsShare> InsertOrUpdateDocumentDmsShare(DocumentDmsShare documentDmsShare);
         Task<DocumentDmsShare> DeleteDocumentDmsShare(DocumentDmsShare value);
         Task<FileProfileTypeModel> UpdateProfileTypeInfo(FileProfileTypeModel value);
+        Task<long?> MoveToFileProfileTypeUpdateInfo(List<DocumentsModel> value, long? FileprofileTypeId);
     }
 }

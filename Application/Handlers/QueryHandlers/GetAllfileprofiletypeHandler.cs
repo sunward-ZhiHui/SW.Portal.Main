@@ -456,7 +456,7 @@ namespace Application.Handlers.QueryHandlers
             return await _documentsqueryrepository.InsertCreateDocument(request.DocumentsUploadModel);
         }
 
-    }    
+    }
     public class UpdateCreateDocumentBySessionHandler : IRequestHandler<UpdateCreateDocumentBySession, DocumentsUploadModel>
     {
         private readonly IDocumentsQueryRepository _documentsqueryrepository;
@@ -710,6 +710,19 @@ namespace Application.Handlers.QueryHandlers
             public async Task<FileProfileTypeModel> Handle(UpdateProfileTypeInfo request, CancellationToken cancellationToken)
             {
                 return await _fileprofileQueryRepository.UpdateProfileTypeInfo(request.FileProfileTypeModel);
+            }
+
+        }
+        public class MoveToFileProfileTypeUpdateInfoHandler : IRequestHandler<MoveToFileProfileTypeUpdateInfo, long?>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public MoveToFileProfileTypeUpdateInfoHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<long?> Handle(MoveToFileProfileTypeUpdateInfo request, CancellationToken cancellationToken)
+            {
+                return await _fileprofileQueryRepository.MoveToFileProfileTypeUpdateInfo(request.DocumentsModel, request.FileprofileTypeId);
             }
 
         }

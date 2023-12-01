@@ -12,6 +12,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
 @using System.Collections
+@implements IDisposable
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -297,5 +298,9 @@
     void HandleValidCheckInSubmit()
     {
         uploadCheckInComponent.UploadAllFiles();
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

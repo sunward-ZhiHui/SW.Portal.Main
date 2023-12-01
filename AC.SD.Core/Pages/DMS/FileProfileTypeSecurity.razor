@@ -9,6 +9,7 @@
 @using global::Core.Repositories.Query;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IDisposable
 @using System.Collections
 <div style="width:100%;">
     <DxTabs RenderMode="TabsRenderMode.OnDemand" @bind-ActiveTabIndex="@ActiveTabSecIndex" TabsPosition="TabsPosition.Top" TabClick="OnTabClick">
@@ -606,5 +607,9 @@
             fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
         }
         return fileProfileTypeModel;
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

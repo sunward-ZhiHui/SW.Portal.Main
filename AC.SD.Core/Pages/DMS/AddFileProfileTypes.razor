@@ -10,6 +10,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IDisposable
 @page "/fileprofiletype/AddFileProfileTypes"
 @page "/fileprofiletype/AddFileProfileTypes/{Type}"
 @page "/fileprofiletype/AddFileProfileTypes/{Type}/{SessionId:guid}"
@@ -252,5 +253,9 @@
     public void openFileProfileMainLink()
     {
         NavigationManager.NavigateTo("fileprofiletype");
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

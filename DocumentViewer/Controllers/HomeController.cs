@@ -19,11 +19,13 @@ using Microsoft.AspNetCore.Http;
 using DocumentApi.Models;
 using System.Threading;
 using DevExpress.Xpo;
+using System.Net.Http;
 
 namespace DocumentViewer.Controllers
 {
     public class HomeController : Controller
     {
+        private static HttpClient webClient = new HttpClient();
         private readonly ILogger<HomeController> _logger;
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
@@ -47,6 +49,7 @@ namespace DocumentViewer.Controllers
             var userId = HttpContext.Session.GetString("user_id");
             if (userId != null)
             {
+                SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
                 if (!string.IsNullOrEmpty(url))
                 {
                     var sessionId = new Guid(url);
@@ -82,59 +85,64 @@ namespace DocumentViewer.Controllers
                                 HttpContext.Session.SetString("fileUrl", fileurl);
                             }
                         }
-                    }
-                }
-                SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
-                try
-                {
-                    viewmodel.Extensions = "";
-                    viewmodel.Url = string.IsNullOrEmpty(fileurl) ? "" : fileurl;
-                    viewmodel.Id = 1;
-                    viewmodel.DocumentId = "1";
-                    if (!string.IsNullOrEmpty(fileurl))
-                    {
-                        string s = viewmodel.Url.Split('.').Last();
-                        viewmodel.Extensions = s.ToLower();
-                        var uri = new Uri(fileurl);
-                        var host = uri.Host;
-                        // if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
-                        // {
-                        string contentType = "";
-                        var request = HttpWebRequest.Create(fileurl) as HttpWebRequest;
-                        if (request != null)
+                        try
                         {
-                            var response = request.GetResponse() as HttpWebResponse;
-                            //Stream byteStreamAccessor() => response.GetResponseStream();
-                            //viewmodel.ContentAccessorByStream = byteStreamAccessor;
-                            if (response != null)
-                                contentType = response.ContentType;
-                        }
-                        if (contentType != null)
-                        {
-                            using(var webClient = new HttpClient())
+                            viewmodel.Extensions = "";
+                            viewmodel.Url = string.IsNullOrEmpty(fileurl) ? "" : fileurl;
+                            viewmodel.Id = 1;
+                            viewmodel.DocumentId = "1";
+                            if (!string.IsNullOrEmpty(fileurl))
                             {
-                                //byte[] byteArrayAccessor() => DownloadExtention.GetUrlContent(fileurl).Result;
-                                var webResponse=await webClient.GetAsync(new Uri(fileurl));
-                                Stream byteArrayAccessor() => webResponse.Content.ReadAsStream();
-                                viewmodel.DocumentId = Guid.NewGuid().ToString();
-                                viewmodel.ContentAccessorByBytes = byteArrayAccessor;
-                                viewmodel.Type = contentType.Split("/")[0].ToLower();
-                                viewmodel.ContentType = contentType;
+                                string s = viewmodel.Url.Split('.').Last();
+                                viewmodel.Extensions = s.ToLower();
+                                var uri = new Uri(fileurl);
+                                var host = uri.Host;
+                                string? contentType = currentDocuments?.ContentType;
+                                if (contentType != null)
+                                {
+                                   /* using (var _httpClient = new HttpClient())
+                                    {
+                                        using (var response = await _httpClient.GetAsync(new Uri(fileurl)))
+                                        {
+                                            response.EnsureSuccessStatusCode();
+                                            Stream byteArrayAccessor() => response.Content.ReadAsStream();
+                                            //var stream = await response.Content.ReadAsStreamAsync();
+                                            viewmodel.DocumentId = Guid.NewGuid().ToString();
+                                            viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                            viewmodel.Type = contentType.Split("/")[0].ToLower();
+                                            viewmodel.ContentType = contentType;
+                                            return View(viewmodel);
+                                        }
+                                    }*/
+                                    /*using (var webClient = new HttpClient())
+                                    {*/
+                                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
+                                        Stream byteArrayAccessor() => webResponse.Content.ReadAsStream();
+                                        viewmodel.DocumentId = Guid.NewGuid().ToString();
+                                        viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                        viewmodel.Type = contentType.Split("/")[0].ToLower();
+                                        viewmodel.ContentType = contentType;
+                                        return View(viewmodel);
+                                    //}
+                                }
+                                else
+                                {
+                                    viewmodel.Id = 0;
+                                    return View(viewmodel);
+                                }
+                            }
+                            else
+                            {
+                                viewmodel.Id = 0;
                                 return View(viewmodel);
                             }
-                            //}
-                            /* else
-                             {
-                                 viewmodel.DocumentId = "0";
-                                 viewmodel.ContentType = contentType;
-                                 return View(viewmodel);
-                             }*/
                         }
-                        else
+                        catch (Exception ex)
                         {
                             viewmodel.Id = 0;
                             return View(viewmodel);
                         }
+
                     }
                     else
                     {
@@ -142,13 +150,11 @@ namespace DocumentViewer.Controllers
                         return View(viewmodel);
                     }
                 }
-                catch (Exception ex)
+                else
                 {
                     viewmodel.Id = 0;
                     return View(viewmodel);
-                    //throw new Exception(ex.Message);
                 }
-
             }
             else
             {
@@ -218,7 +224,7 @@ namespace DocumentViewer.Controllers
                     DocumentsModel documentsModels = new DocumentsModel();
                     documentsModels.UploadedByUserId = s.AddedByUserId;
                     documentsModels.DocumentID = s.DocumentId;
-                    documentsModels.FileName =  s.FileName;
+                    documentsModels.FileName = s.FileName;
                     HttpContext.Session.SetString("fileUrl", s.FileName);
                     if (setAccess.Count > 0)
                     {

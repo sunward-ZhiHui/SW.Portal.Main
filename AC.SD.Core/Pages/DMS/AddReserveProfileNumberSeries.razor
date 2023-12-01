@@ -4,6 +4,7 @@
 @using Application.Queries;
 @using MediatR;
 @using Newtonsoft.Json;
+@implements IDisposable
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IMediator Mediator
 <div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
@@ -332,5 +333,9 @@
             loadingLinkDoc = false;
             toastService.ShowToast("Invaild Profile", AC.SD.Core.Services.ToastLevel.Error);
         }
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

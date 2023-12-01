@@ -15,6 +15,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
+@implements IDisposable
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -569,5 +570,9 @@
             var MyMessage = "Must File Select";
             toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
         }
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

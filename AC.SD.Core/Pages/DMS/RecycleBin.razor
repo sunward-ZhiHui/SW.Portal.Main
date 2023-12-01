@@ -7,6 +7,7 @@
 @using global::Core.Entities;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IDisposable
 <div class="menu-bar-content-container col-md-12">
     <div class="card w-100" style="margin-bottom:1px;">
 
@@ -308,5 +309,9 @@
     void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
     {
         SelectedDataItems = SelectedToItems;
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

@@ -18,7 +18,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using Application.Command.ApplicationMasterChilds;
 @using Application.Command.ApplicationMasterDetails;
-
+@implements IDisposable;
 @using System;
 @using System.IO;
 <style>
@@ -2241,5 +2241,9 @@
     void EulaPopupMoveDocumentClosed()
     {
         MoveDocumentPopup = false;
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

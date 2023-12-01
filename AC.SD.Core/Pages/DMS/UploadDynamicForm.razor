@@ -19,6 +19,7 @@
 @using System.Linq.Expressions;
 @using Newtonsoft.Json;
 @using System.Collections
+@implements IDisposable
 <div class="card cw-480">
     <div class="card-header text-center py-3">
         <h4>@_dynamicform?.Name</h4>
@@ -828,6 +829,10 @@
         PopupUpload = false;
         StateHasChanged();
 
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {

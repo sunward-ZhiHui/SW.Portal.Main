@@ -12,6 +12,7 @@
 @inject ClipboardService ClipboardService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
+@implements IDisposable
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -353,5 +354,9 @@
             EditEnabled = true;
         }
 
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

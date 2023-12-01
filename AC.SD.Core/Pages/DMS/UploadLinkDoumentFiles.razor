@@ -14,6 +14,7 @@
 @inject IJSRuntime jsRuntime
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
+@implements IDisposable
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
 <style>
     .dxuc-file-list-view {
@@ -533,5 +534,9 @@
     void HandleValidLinkDocSubmit()
     {
         LinkDocuploadComponent.UploadAllFiles();
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

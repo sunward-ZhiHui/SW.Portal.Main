@@ -18,7 +18,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using Application.Command.ApplicationMasterChilds;
 @using Application.Command.ApplicationMasterDetails;
-
+@implements IDisposable;
 @using System;
 @using System.IO;
 <style>
@@ -786,6 +786,7 @@
             _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
             PanelVisible = false;
         }
+        PanelVisible = false;
         StateHasChanged();
     }
     async Task OnSearchTextChanged(string? newSearchText)
@@ -801,8 +802,11 @@
     }
     protected override async Task OnParametersSetAsync()
     {
-        await mainPageLoad();
-        base.OnParametersSet();
+        if (applicationUser != null)
+        {
+            await mainPageLoad();
+            base.OnParametersSet();
+        }
     }
     void OnItemClick(MenuItemClickEventArgs e)
     {
@@ -2227,7 +2231,7 @@
             MoveDocumentPopup = false;
             await loadFileProfileTypeAllDatas();
             await loadFileProfileData();
-            
+
         }
     }
     void PopupMoveDocumentClosed()
@@ -2237,5 +2241,9 @@
     void EulaPopupMoveDocumentClosed()
     {
         MoveDocumentPopup = false;
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

@@ -9,6 +9,7 @@
 @inject ClipboardService ClipboardService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject NavigationManager NavigationManager
+@implements IDisposable
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -416,5 +417,9 @@
             IsDescriptionOpen = false;
             await loadReserveNoData();
         }
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

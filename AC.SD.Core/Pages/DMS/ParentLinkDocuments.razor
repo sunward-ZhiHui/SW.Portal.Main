@@ -11,6 +11,7 @@
 @inject ClipboardService ClipboardService
 @inject NavigationManager NavigationManager
 @inject AC.SD.Core.Services.ToastService toastService
+@implements IDisposable
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -233,4 +234,8 @@
         PopupVisibleLinkParentDocument = true;
     }
     void onNotify() { }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
+    }
 }

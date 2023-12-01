@@ -1,6 +1,5 @@
 ﻿@using Application.Queries;
 @using MediatR;
-@inject IHostingEnvironment _hostingEnvironment
 @using Microsoft.AspNetCore.Hosting;
 @using Newtonsoft.Json;
 @using System.IO;
@@ -10,6 +9,7 @@
 @using global::Core.Repositories.Query;
 @inject IMediator Mediator
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IDisposable
 @inject ClipboardService ClipboardService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager Navigator
@@ -141,5 +141,9 @@
 
         IBarGroup undoRedoGroup = toolbar.Groups[0];
         undoRedoGroup.Items.Add(0, RichEditBarItemNames.FullScreen);
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

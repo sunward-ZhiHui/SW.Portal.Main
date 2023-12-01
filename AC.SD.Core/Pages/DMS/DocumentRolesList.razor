@@ -8,6 +8,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IDisposable
 <style>
     .alt-item > td {
         background-color: rgba(0, 0, 0, 0.05);
@@ -434,5 +435,9 @@
     async void SaveSecurityAccessPopup()
     {
         await refAddOrEditDocumentPermission.savePermission();
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

@@ -16,6 +16,7 @@
 @inject NavigationManager Navigator
 @using System.Collections
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
+@implements IDisposable
 <style>
     .dxuc-file-list-view {
         padding: 20px;
@@ -546,5 +547,9 @@
     void HandleValidSubmit()
     {
         uploadComponent.UploadAllFiles();
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

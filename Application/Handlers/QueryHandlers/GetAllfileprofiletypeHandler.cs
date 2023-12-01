@@ -161,19 +161,6 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    public class GetSelectedFilePermissionHandler : IRequestHandler<GetSelectedFilePermission, DocumentPermissionModel>
-    {
-        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
-        public GetSelectedFilePermissionHandler(IFileprofileQueryRepository fileprofileQueryRepository)
-        {
-            _fileprofileQueryRepository = fileprofileQueryRepository;
-        }
-        public async Task<DocumentPermissionModel> Handle(GetSelectedFilePermission request, CancellationToken cancellationToken)
-        {
-            return await _fileprofileQueryRepository.GetAllSelectedFilePermissionAsync(request.DocumentId, request.FileProfileTypeID);
-        }
-
-    }
     public class GetFileDownloadHandler : IRequestHandler<GetFileDownload, DocumentsModel>
     {
         private readonly IConfiguration _configuration;

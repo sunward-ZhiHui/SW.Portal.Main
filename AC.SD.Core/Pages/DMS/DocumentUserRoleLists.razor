@@ -4,7 +4,7 @@
 @inject IMediator Mediator
 @using Application.Queries;
 @inject AC.SD.Core.Services.ToastService toastService
-
+@implements IDisposable
 
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
@@ -249,5 +249,9 @@
             Blukdeletepopup = false;
             toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
         }
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

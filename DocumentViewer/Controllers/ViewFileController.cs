@@ -8,6 +8,7 @@ namespace DocumentViewer.Controllers
 {
     public class ViewFileController : Controller
     {
+        private static HttpClient webClient = new HttpClient();
         private readonly ILogger<HomeController> _logger;
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
@@ -69,25 +70,16 @@ namespace DocumentViewer.Controllers
                                 var uri = new Uri(fileurl);
                                 var host = uri.Host;
 
-                                string contentType = "";
-                                var request = HttpWebRequest.Create(fileurl) as HttpWebRequest;
-                                if (request != null)
-                                {
-                                    var response = request.GetResponse() as HttpWebResponse;
-                                    if (response != null)
-                                        contentType = response.ContentType;
-                                }
+                                string contentType = currentDocuments.ContentType;
                                 if (contentType != null)
                                 {
-                                    using (var webClient = new HttpClient())
-                                    {
-                                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
-                                        Stream byteArrayAccessor() => webResponse.Content.ReadAsStream();
-                                        viewmodel.DocumentId = Guid.NewGuid().ToString();
-                                        viewmodel.ContentAccessorByBytes = byteArrayAccessor;
-                                        viewmodel.Type = contentType.Split("/")[0].ToLower();
-                                        viewmodel.ContentType = contentType;
-                                    }
+                                    var webResponse = await webClient.GetAsync(new Uri(fileurl));
+                                    Stream byteArrayAccessor() => webResponse.Content.ReadAsStream();
+                                    viewmodel.DocumentId = Guid.NewGuid().ToString();
+                                    viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                    viewmodel.Type = contentType.Split("/")[0].ToLower();
+                                    viewmodel.ContentType = contentType;
+                                    GC.SuppressFinalize(this);
                                 }
                                 else
                                 {

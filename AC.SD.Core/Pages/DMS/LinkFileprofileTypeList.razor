@@ -12,6 +12,7 @@
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject AC.SD.Core.Services.ToastService toastService
+@implements IDisposable
 <div class="demo-breadcrumbs-container theme-blazing-berry">
     <div class="breadcrumb">
         <div class="demo-breadcrumbs sidebar-hidden">
@@ -295,5 +296,9 @@
                 }
             }
         }
+    }
+    public void Dispose()
+    {
+        GC.SuppressFinalize(this);
     }
 }

@@ -83,11 +83,24 @@ namespace Infrastructure.Repository.Query
             try
             {
 
-                var query = @"SELECT TD.Notes as NoteName, TNH.*,AP.UserName as AssignTo FROM ToDoNotesHistory TNH                               
-                                LEFT JOIN ApplicationUser AP ON AP.UserID = TNH.Users
-                                INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId  
-                                WHERE TNH.AddedByUserID = @UserId AND TNH.TopicId = 0 AND TNH.Status = 'Open'                                   
-                                ORDER BY TD.Notes,TNH.DueDate";
+                //var query = @"SELECT TD.Notes as NoteName, TNH.*,AP.UserName as AssignTo FROM ToDoNotesHistory TNH                               
+                //                LEFT JOIN ApplicationUser AP ON AP.UserID = TNH.Users
+                //                INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId  
+                //                WHERE TNH.AddedByUserID = @UserId AND TNH.TopicId = 0 AND TNH.Status = 'Open'                                   
+                //                ORDER BY TD.Notes,TNH.DueDate";
+                var query = @"SELECT TD.Notes as NoteName, TNH.*,    
+                                   STUFF((SELECT ',' + AU.FirstName
+                                          FROM TodoNotesUsers TNU
+                                                 INNER JOIN Employee AU ON AU.UserID = TNU.UserID
+                                          WHERE TNU.NotesHistoryID = TNH.ID
+                                          FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '') AS AssignTo
+                            FROM ToDoNotesHistory TNH
+                                     LEFT JOIN Employee AP ON AP.UserID = TNH.Users
+                                     INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId
+                            WHERE TNH.AddedByUserID = @UserId
+                                  AND TNH.TopicId = 0
+                                  AND TNH.Status = 'Open'
+                            ORDER BY TD.Notes, TNH.DueDate";
               
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId);
@@ -133,6 +146,7 @@ namespace Infrastructure.Repository.Query
                                     AND TNH.TopicId IS NOT NULL
                                     AND TNH.TopicId > 0
                                     AND TNU.Status = 'Open'
+                                    AND TNH.Status = 'Open'
                                     AND (
                                     CAST(TNH.DueDate AS DATE) BETWEEN DATEADD(DAY, -7, CAST(GETDATE() AS DATE)) AND CAST(GETDATE() AS DATE)
                                     OR

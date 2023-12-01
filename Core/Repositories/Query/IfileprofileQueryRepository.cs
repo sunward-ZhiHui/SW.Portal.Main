@@ -25,7 +25,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<DocumentLinkModel>> GetParentDocumentsByLinkDocumentId(long? id);
         Task<DocumentsModel> UpdateDescriptionField(DocumentsModel documentsModel);
         Task<DocumentsModel> UpdateExpiryDateField(DocumentsModel documentsModel);
-        Task<DocumentPermissionModel> GetAllSelectedFilePermissionAsync(long? DocumentId, long? selectedFileProfileTypeID);
         Task<DocumentsModel> UpdateDocumentRename(DocumentsModel value);
         Task<IReadOnlyList<UserGroup>> GetUserGroups();
         Task<IReadOnlyList<DocumentRole>> GetDocumentRole();

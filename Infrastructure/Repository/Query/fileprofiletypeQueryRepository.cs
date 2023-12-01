@@ -770,7 +770,6 @@ namespace Infrastructure.Repository.Query
                 if (documentSearchModel.FileProfileTypeIds != null && documentSearchModel.FileProfileTypeIds.Count > 0)
                 {
 
-                    var userData = await _localStorageService.GetItem<ApplicationUser>("user");
                     var linkfileProfileTypes = await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds);
                     List<long?> linkfileProfileTypeDocumentids = new List<long?>();
                     linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
@@ -828,6 +827,7 @@ namespace Infrastructure.Repository.Query
                         var docIds = documents.Select(a => a.DocumentId).ToList();
                         documents.ForEach(s =>
                         {
+                            var fileprfiles = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId);
                             var documentcount = documents?.Where(w => w.DocumentParentId == s.DocumentParentId).Count();
                             var lastIndex = s.FileName != null ? s.FileName.LastIndexOf(".") : 0;
                             lastIndex = lastIndex > 0 ? lastIndex : 0;
@@ -863,10 +863,10 @@ namespace Infrastructure.Repository.Query
                             documentsModels.UniqueSessionId = s.UniqueSessionId;
                             documentsModels.SessionID = s.SessionId;
                             documentsModels.FilterProfileTypeId = s.FilterProfileTypeId;
-                            documentsModels.FileProfileTypeName = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.Name;
-                            documentsModels.FileProfileTypeSessionId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.SessionId;
-                            documentsModels.ProfileID = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.ProfileId;
-                            documentsModels.DynamicFormId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.DynamicFormId;
+                            documentsModels.FileProfileTypeName = fileprfiles?.Name;
+                            documentsModels.FileProfileTypeSessionId = fileprfiles?.SessionId;
+                            documentsModels.ProfileID = fileprfiles?.ProfileId;
+                            documentsModels.DynamicFormId = fileprfiles?.DynamicFormId;
                             documentsModels.DocumentParentId = s.DocumentParentId;
                             documentsModels.TableName = s.TableName;
                             documentsModels.IsMobileUpload = s.IsMobileUpload;
@@ -880,9 +880,9 @@ namespace Infrastructure.Repository.Query
                             documentsModels.ModifiedDate = s.ModifiedDate;
                             documentsModels.SourceFrom = s.SourceFrom;
                             documentsModels.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
-                            documentsModels.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserId)?.UserName;
+                            documentsModels.AddedBy = documentsModels.AddedByUser;
                             documentsModels.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
-                            documentsModels.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserId)?.UserName;
+                            documentsModels.ModifiedBy = documentsModels.ModifiedByUser;
                             documentsModels.IsLocked = s.IsLocked;
                             documentsModels.LockedByUserId = s.LockedByUserId;
                             documentsModels.LockedDate = s.LockedDate;
@@ -890,14 +890,14 @@ namespace Infrastructure.Repository.Query
                             documentsModels.AddedByUserID = s.AddedByUserId;
                             documentsModels.IsCompressed = s.IsCompressed;
                             documentsModels.LockedByUser = appUsers.FirstOrDefault(f => f.UserID == s.LockedByUserId)?.UserName;
-                            documentsModels.isDocumentAccess = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsDocumentAccess;
-                            documentsModels.IsEnableCreateTask = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsEnableCreateTask;
+                            documentsModels.isDocumentAccess = fileprfiles?.IsDocumentAccess;
+                            documentsModels.IsEnableCreateTask = fileprfiles?.IsEnableCreateTask;
                             documentsModels.CloseDocumentId = s.CloseDocumentId;
                             documentsModels.CssClass = s.CloseDocumentId != null && s.CloseDocumentId == 2561 ? "blue-grey lighten - 3" : "transparent";
                             documentsModels.ProfileNo = s.ProfileNo;
                             documentsModels.FilePath = s.FilePath;
-                            documentsModels.FileProfileTypeAddedByUserId = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.AddedByUserId;
-                            documentsModels.IsExpiryDate = fileProfileType.FirstOrDefault(p => p.FileProfileTypeId == s.FilterProfileTypeId)?.IsExpiryDate;
+                            documentsModels.FileProfileTypeAddedByUserId = fileprfiles?.AddedByUserId;
+                            documentsModels.IsExpiryDate = fileprfiles?.IsExpiryDate;
                             var description = linkfileProfileTypes?.Where(f => f.FileProfileTypeId == selectedFileProfileTypeID && f.TransactionSessionId == s.SessionId && f.DocumentId == s.DocumentId).FirstOrDefault()?.Description;
                             var productActivity = productActivityApp.Where(a => a.SessionId == s.SessionId).FirstOrDefault();
                             if (productActivity != null)
@@ -918,150 +918,9 @@ namespace Infrastructure.Repository.Query
                         });
                     }
                     DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());
-                    DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
-                    if (DocumentTypeModel != null)
-                    {
-                        DocumentTypeModel.IsExpiryDate = DocumentTypeModel.DocumentsData.FirstOrDefault()?.IsExpiryDate;
-                        DocumentTypeModel.TotalDocument = DocumentTypeModel.DocumentsData.ToList().Count();
-                        DocumentTypeModel.OpenDocument = DocumentTypeModel.DocumentsData.Where(d => d.CloseDocumentId == null || d.CloseDocumentId < 0).ToList().Count();
-                    }
 
                 }
                 return DocumentTypeModel;
-
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        public async Task<DocumentPermissionModel> GetAllSelectedFilePermissionAsync(long? DocumentId, long? selectedFileProfileTypeID)
-        {
-            DocumentTypeModel DocumentTypeModel = new DocumentTypeModel();
-            List<DocumentsModel> documentsModel = new List<DocumentsModel>();
-            try
-            {
-                var docs = await GetAllFileProfileDocumentIdAsync(selectedFileProfileTypeID);
-                var counts = docs != null ? (docs.Count + 1) : 1;
-                DocumentTypeModel.DocumentsData.AddRange(docs);
-                if (selectedFileProfileTypeID > 0)
-                {
-                    var userData = await _localStorageService.GetItem<ApplicationUser>("user");
-                    var appUsers = await GetApplicationUserAsync();
-                    var fileProfileType = await GetFileprofiletypeAsync();
-                    List<long?> fileProfileIds = new List<long?>();
-                    if (selectedFileProfileTypeID > 0)
-                    {
-                        fileProfileIds.Add(selectedFileProfileTypeID);
-                    }
-                    var roleItemsList = await GetDocumentUserRoleAsync(fileProfileIds);
-                    var closedocumentPermission = await GetCloseDocumentPermissionAsync(fileProfileIds);
-                    var parameters = new DynamicParameters();
-                    var documentPermission = await GetDocumentPermissionByRoll();
-                    parameters.Add("DocumentID", DocumentId, DbType.Int64);
-                    var query = DocumentQueryString() + " where DocumentID=@DocumentID AND IsDelete is null or IsDelete=0";
-
-                    using (var connection = CreateConnection())
-                    {
-                        var documents = (await connection.QueryAsync<Documents>(query, parameters)).ToList();
-                        if (documents != null && documents.Count > 0)
-                        {
-                            var setAccess = roleItemsList;
-                            documents.ForEach(s =>
-                            {
-                                DocumentsModel documentsModels = new DocumentsModel();
-                                documentsModels.UniqueNo = counts;
-                                if (setAccess.Count > 0)
-                                {
-                                    var roleDocItem = setAccess.FirstOrDefault(u => u.DocumentId == s.DocumentId);
-                                    if (roleDocItem != null)
-                                    {
-                                        var roleItem = setAccess.FirstOrDefault(u => u.UserId == userData.UserID && u.DocumentId == s.DocumentId);
-                                        if (roleItem != null)
-                                        {
-                                            var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)roleItem.RoleId).FirstOrDefault();
-                                            documentsModels.DocumentPermissionData = permissionData;
-                                        }
-                                        else
-                                        {
-                                            documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = true, IsRename = false, IsCopy = false, IsCreateFolder = false, IsEdit = false, IsMove = false, IsShare = false, IsFileDelete = false };
-                                        }
-                                    }
-                                    else
-                                    {
-                                        var filprofilepermission = setAccess.FirstOrDefault(u => u.FileProfileTypeId == s.FilterProfileTypeId && u.DocumentId == null && u.UserId == userData.UserID);
-                                        if (filprofilepermission != null)
-                                        {
-                                            var permissionData = documentPermission.Where(z => z.DocumentRoleID == (int)filprofilepermission.RoleId).FirstOrDefault();
-                                            documentsModels.DocumentPermissionData = permissionData;
-                                        }
-                                        else
-                                        {
-                                            documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = true, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = true, IsCopy = true, IsCreateFolder = true, IsEdit = true, IsMove = true, IsShare = true, IsFileDelete = true };
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    documentsModels.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = true, IsUpdateDocument = true, IsRead = true, IsRename = false };
-                                }
-
-                                if (documentsModels.DocumentPermissionData != null)
-                                {
-                                    if (documentsModels.DocumentPermissionData.IsRead == true)
-                                    {
-                                        documentsModel.Add(documentsModels);
-                                    }
-                                    else if (documentsModels.DocumentPermissionData.IsRead == false)
-                                    {
-
-                                    }
-                                }
-                                else
-                                {
-                                    documentsModel.Add(documentsModels);
-                                }
-                                counts++;
-                            });
-                        }
-                        DocumentTypeModel.DocumentsData.AddRange(documentsModel.OrderByDescending(a => a.DocumentID).ToList());
-                        var roleItems = roleItemsList.Where(w => w.FileProfileTypeId == selectedFileProfileTypeID).ToList();
-                        if (roleItems.Count > 0)
-                        {
-                            var roleItem = roleItems.FirstOrDefault(u => u.UserId == userData.UserID);
-                            if (roleItem != null)
-                            {
-                            }
-                            else
-                            {
-                                if (DocumentTypeModel.DocumentsData.Count > 0)
-                                {
-                                    DocumentTypeModel.DocumentsData.ForEach(p =>
-                                    {
-                                        p.DocumentPermissionData = new DocumentPermissionModel { IsCreateDocument = false, IsDelete = false, IsUpdateDocument = false, IsRead = false, IsRename = false };
-                                        if (closedocumentPermission.Count > 0)
-                                        {
-                                            var userpermission = closedocumentPermission.FirstOrDefault(f => f.UserId == userData.UserID);
-                                            if (userpermission != null)
-                                            {
-                                                p.DocumentPermissionData.IsCloseDocument = true;
-                                            }
-                                            else
-                                            {
-                                                p.DocumentPermissionData.IsCloseDocument = false;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            p.DocumentPermissionData.IsCloseDocument = true;
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    }
-                }
-                return DocumentTypeModel.DocumentPermissionData;
 
             }
             catch (Exception exp)
@@ -1283,10 +1142,9 @@ namespace Infrastructure.Repository.Query
                         var checkLink = await CheckDocumentLinkExits(documentLink);
                         if (checkLink == null)
                         {
-                            var userData = await _localStorageService.GetItem<ApplicationUser>("user");
                             var parameters = new DynamicParameters();
                             parameters.Add("DocumentId", documentLink.DocumentId);
-                            parameters.Add("AddedByUserId", userData.UserID);
+                            parameters.Add("AddedByUserId", documentLink.AddedByUserId);
                             parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
                             parameters.Add("StatusCodeId", documentLink.StatusCodeId);
                             parameters.Add("LinkDocumentId", documentLink.LinkDocumentId);
@@ -1356,12 +1214,11 @@ namespace Infrastructure.Repository.Query
 
                     try
                     {
-                        var userData = await _localStorageService.GetItem<ApplicationUser>("user");
                         var parameters = new DynamicParameters();
                         parameters.Add("DocumentId", value.DocumentID);
                         parameters.Add("FileName", value.FileName, DbType.String);
                         parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
-                        parameters.Add("ModifiedByUserId", userData.UserID);
+                        parameters.Add("ModifiedByUserId", value.ModifiedByUserID);
                         var query = "Update Documents SET FileName=@FileName,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE " +
                             "DocumentId= @DocumentId";
                         await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
@@ -1389,14 +1246,13 @@ namespace Infrastructure.Repository.Query
 
                     try
                     {
-                        var userData = await _localStorageService.GetItem<ApplicationUser>("user");
                         if (value.Type == "Document")
                         {
                             var parameters = new DynamicParameters();
                             parameters.Add("DocumentId", value.DocumentID);
                             parameters.Add("FilterProfileTypeId", value.FilterProfileTypeId);
                             parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
-                            parameters.Add("ModifiedByUserId", userData.UserID);
+                            parameters.Add("ModifiedByUserId", value.ModifiedByUserID);
                             parameters.Add("Description", value.Description);
 
                             var query = "Update Documents SET Description=@Description,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE " +
@@ -1415,7 +1271,7 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("FileProfileTypeId", value.DocumentID);
                             parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
-                            parameters.Add("ModifiedByUserId", userData.UserID);
+                            parameters.Add("ModifiedByUserId", value.ModifiedByUserID);
                             parameters.Add("Description", value.Description);
                             var query = "Update Fileprofiletype SET Description=@Description,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId WHERE " +
                                 "FileProfileTypeId=@FileProfileTypeId";

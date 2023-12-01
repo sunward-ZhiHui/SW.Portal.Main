@@ -25,6 +25,7 @@ namespace DocumentViewer.Controllers
 {
     public class HomeController : Controller
     {
+
         private static HttpClient webClient = new HttpClient();
         private readonly ILogger<HomeController> _logger;
         private readonly AppDbContext _context;
@@ -122,7 +123,8 @@ namespace DocumentViewer.Controllers
                                         viewmodel.ContentAccessorByBytes = byteArrayAccessor;
                                         viewmodel.Type = contentType.Split("/")[0].ToLower();
                                         viewmodel.ContentType = contentType;
-                                        return View(viewmodel);
+                                        GC.SuppressFinalize(this);
+                                    return View(viewmodel);
                                     //}
                                 }
                                 else

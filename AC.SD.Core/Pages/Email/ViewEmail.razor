@@ -46,6 +46,8 @@
 @using Application.Command.ApplicationMasterChilds;
 @using Application.Command.ApplicationMasterDetails;
 @inject AC.SD.Core.Helpers.TreeGenerateRecursive _treeGenerateRecursive
+@implements IDisposable;
+
 <link href="_content/AC.SD.Core/css/forum-mail.css" rel="stylesheet" />
 <div class="">
     <div class="main-container">
@@ -4044,6 +4046,7 @@
     {
         cancellationTokenSource?.Cancel();
         cancellationTokenSource?.Dispose();
+        GC.SuppressFinalize(this);
     }
 
     async Task onloadTwoGrid()
@@ -4817,6 +4820,4 @@
     {
 
     } 
-    
-   
 }

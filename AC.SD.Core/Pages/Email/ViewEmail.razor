@@ -1280,7 +1280,7 @@
                                     SelectedItemChanged="@((Documents documents) => onSelectedFileReplaceChanged(documents))"
                                 @bind-Value="@_dataFileProfileType.ReplaceDocumentId" ShowValidationIcon="true">
                                 <Columns>       
-                                    @*<DxListEditorColumn FieldName="@nameof(Documents.SubjectName)" Caption="Subject Name"/>*@
+                                    <DxListEditorColumn FieldName="@nameof(Documents.SubjectName)" Caption="Subject Name"/>
                                     <DxListEditorColumn FieldName="@nameof(Documents.FileName)" Caption="FileName"/>
                                     @*<DxListEditorColumn FieldName="@nameof(Documents.AddedBy)" Caption="AddedBy"/>  *@                                  
                                 </Columns>

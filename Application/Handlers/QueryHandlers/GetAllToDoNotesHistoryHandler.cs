@@ -146,7 +146,67 @@ namespace Application.Handlers.QueryHandlers
 
         public async Task<long> Handle(EditToDoNotesHistoryQuery request, CancellationToken cancellationToken)
         {
+            var existUser = !string.IsNullOrEmpty(request.Users);
+            var userIdList = request.UserIds?.ToList() ?? new List<long>();
+
+            List<long> existList;
+            List<long> notExistList;
+            List<long> removedList;
+
+            if (existUser)
+            {
+                // Convert the Users string to a list of long
+                var existingUserIds = request.Users.Split(',').Select(long.Parse).ToList();
+
+                // Find the intersection (common elements) between existingUserIds and userIdList
+                existList = existingUserIds.Intersect(userIdList).ToList();
+
+                // Find the difference (elements in userIdList but not in existingUserIds)
+                notExistList = userIdList.Except(existingUserIds).ToList();
+
+                removedList = existingUserIds.Except(userIdList).ToList();
+            }
+            else
+            {
+                // If Users is null or empty, consider all userIdList as not existing
+                existList = new List<long>();
+                notExistList = userIdList;
+                removedList = userIdList;
+            }
+            
+
+            var insertlst = notExistList;
+            var removelst = removedList;
+
+            var removelstData = removelst.ToList();
+            if (removelstData.Count > 0)
+            {
+                removelst.ToList().ForEach(async a =>
+                {
+                    var lineItem = new ToDoNotesUsers();
+                    lineItem.NotesHistoryID = request.ID;
+                    lineItem.UserID = a;                    
+                    await _ToDoNotesHistoryQueryRepository.ToDoNotesUsersDeleteAsync(lineItem.NotesHistoryID,lineItem.UserID);
+                });
+            }
+
+
             var newlist = await _ToDoNotesHistoryQueryRepository.UpdateAsync(request);
+
+            var inslineData = insertlst.ToList();
+            if (inslineData.Count > 0)
+            {
+                insertlst.ToList().ForEach(async a =>
+                {
+                    var lineItem = new ToDoNotesUsers();
+                    lineItem.NotesHistoryID = request.ID;
+                    lineItem.UserID = a;
+                    lineItem.AddedByUserID = request.AddedByUserID.Value;
+                    lineItem.AddedDate = request.AddedDate;
+                    await _ToDoNotesHistoryQueryRepository.InsertToDoNotesUsersAsync(lineItem);
+                });
+            }
+
             return newlist;
         }
     }
@@ -194,4 +254,20 @@ namespace Application.Handlers.QueryHandlers
             return newlist;
         }
     }
+
+    public class StatusChangedByUsersHistoryHandler : IRequestHandler<StatusChangedByUsersQuery, long>
+    {
+        private readonly IToDoNotesHistoryQueryRepository _ToDoNotesHistoryQueryRepository;
+        public StatusChangedByUsersHistoryHandler(IToDoNotesHistoryQueryRepository ToDoNotesHistoryQueryRepository)
+        {
+            _ToDoNotesHistoryQueryRepository = ToDoNotesHistoryQueryRepository;
+        }
+
+        public async Task<long> Handle(StatusChangedByUsersQuery request, CancellationToken cancellationToken)
+        {
+            var newlist = await _ToDoNotesHistoryQueryRepository.StatusUpdateNotesUsersAsync(request.ID);
+            return newlist;
+        }
+    }
+    
 }

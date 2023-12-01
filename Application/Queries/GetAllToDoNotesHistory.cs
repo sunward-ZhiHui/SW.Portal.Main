@@ -102,6 +102,15 @@ namespace Application.Queries
             this.ID = ID;
         }
     }
-
+    public class StatusChangedByUsersQuery : PagedRequest, IRequest<long>
+    {
+        public long ID { get; set; }
+        public StatusChangedByUsersQuery(long ID)
+        {
+            this.ID = ID;
+        }
+    }
     
+
+
 }

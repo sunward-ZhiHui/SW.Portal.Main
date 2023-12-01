@@ -398,7 +398,7 @@
     }
     async Task StatusUpdate(long id)
     {
-        var ststusupdate = await Mediator.Send(new StatusChangedQuery(id));
+        var ststusupdate = await Mediator.Send(new StatusChangedByUsersQuery(id));
 
         await UpdateDataAsync();
      //   _ToDoNotesHistory = await Mediator.Send(new GetMyToDoDueDate(applicationUser.UserID));

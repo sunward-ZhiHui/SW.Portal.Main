@@ -306,7 +306,7 @@
                             <span class="ptagtodo">
                                 @item.AssignToList
                             </span>
-                           @*  @if (item.participant != null && item.participant.Any())
+                            @if (item.participant != null && item.participant.Any())
                             {
                                 @foreach (var items in item.participant)
                                 {
@@ -314,7 +314,7 @@
                                         @items.Name,@items.NickName
                                     </span>
                                 }
-                            } *@
+                            }
                         </div>                      
                         <div>
                             <span style="float:right; font-size:11px;"> @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)</span>
@@ -330,12 +330,6 @@
 
                                 <span style="font-size:11px; margin-left: 8px; margin-right: 15px;"> @Application.Common.Helper.Helper.FormatDateTime(item.RemainDate)</span>
                             }
-
-
-
-
-
-
                             @{
                                string dynamicShowSubject = "showOpenDoc_" + item.ID;
                             }                           
@@ -352,12 +346,12 @@
             @{
                 var types = (ToDoNotesHistory)EditFormContext.EditModel;
 
-                 if(types.Users != null)
-                 {
-                     string userIdsString = types.Users; // Assuming UserIds is a string
-                     // Split the comma-separated string and parse into an IEnumerable<long>
-                     UserIds = userIdsString.Split(',').Select(long.Parse);
-                 }
+                 // if(types.Users != null)
+                 // {
+                 //     string userIdsString = types.Users; // Assuming UserIds is a string
+                 //     // Split the comma-separated string and parse into an IEnumerable<long>
+                 //     UserIds = userIdsString.Split(',').Select(long.Parse);
+                 // }
                               
             }
             <DxFormLayout CssClass="w-100">
@@ -371,7 +365,7 @@
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
                      <DxTagBox Data="_participant"
-                              @bind-Values="UserIds"
+                              @bind-Values="types.UserIds"
                               NullText="Select Assign To Users"
                               ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                               ValueFieldName="UserID"
@@ -850,34 +844,22 @@
 
        
         var editModel = (ToDoNotesHistory)e.EditModel;
-         string useridsString = null;
-         if(UserIds != null)
-         {
-             useridsString = string.Join(",", UserIds);
-         }
+         // string useridsString = null;
+         // if(UserIds != null)
+         // {
+         //     useridsString = string.Join(",", UserIds);
+         // }
 
-        if (!string.IsNullOrEmpty(useridsString))
-        {
-            editModel.UserIds = useridsString.Split(',').Select(long.Parse);
-        }
+         // if (!string.IsNullOrEmpty(useridsString))
+         // {
+         //    editModel.UserIds = useridsString.Split(',').Select(long.Parse);
+         // }
 
 
         if (e.IsNew)
-        {
-    // var ex = _ToDoNotesHistory.Where(x => x.Description == editModel.Description);
-    // if (ex.Any())
-    // {
-    //     toastService.ShowToast("The entered value Already exists Description.", AC.SD.Core.Services.ToastLevel.Error);
-    // }
-    // else
-    // {
-    //if (_ToDoNotesHistory.Count > 0)
-    //{
-    //    toastService.ShowToast("Applicable Total 1 Records Only .", AC.SD.Core.Services.ToastLevel.Info);
-    //    return;
-    //}
+        {  
           
-    string ctime = editModel.DueDate.HasValue ? editModel.DueDate.Value.ToString("HH:mm:ss"): "No Due Date"; // Handle the case when DueDate is null
+            string ctime = editModel.DueDate.HasValue ? editModel.DueDate.Value.ToString("HH:mm:ss"): "No Due Date"; // Handle the case when DueDate is null
             if(ctime == "00:00:00")
             {
                 editModel.DueDate = editModel.DueDate.Value.AddHours(9);
@@ -940,6 +922,11 @@
                 editModel.RemainDate = editModel.RemainDate.Value.AddHours(9);
 
             }
+
+
+
+
+
                 var UpdateReq = new EditToDoNotesHistoryQuery
                     {
                         ID = editModel.ID,  
@@ -950,6 +937,7 @@
                         AddedByUserID = editModel.AddedByUserID,
                         StatusCodeID = editModel.StatusCodeID,
                         Users = editModel.Users,
+                        UserIds = editModel.UserIds,
                         ModifiedByUserID = applicationUser.UserID,
                         ModifiedDate = DateTime.Now,
                         AddedDate = editModel.AddedDate,                        

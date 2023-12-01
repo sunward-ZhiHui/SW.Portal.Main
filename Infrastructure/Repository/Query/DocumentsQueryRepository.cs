@@ -90,10 +90,51 @@ namespace Infrastructure.Repository.Query
         public async Task<List<Documents>> GetByUniqueDocAsync(string Ids)
         {
             try
-            {                
-                var query = "select  D.DocumentID as DocumentId,\r\n\tD.DocumentID as ReplaceDocumentId,\r\n\tD.FileName,\r\n\tD.ContentType,\r\n\tD.FileSize,\r\n\tD.UploadDate,\r\n\tD.SessionID,\r\n\tD.AddedDate,\r\n\tD.FilePath,\t\r\n\tD.AddedDate,\t\r\n\tD.ModifiedDate,\r\n\tD.UniqueSessionId,\r\n\tD.EmailToDMS from Documents D where D.SessionID in\r\n(select DISTINCT SessionId from ActivityEmailTopics where ActivityEmailTopicID in (select EmailToDMS  from Documents where DocumentID in(" + Ids + ")))\r\nAND D.IsLatest = 1";
-                var parameters = new DynamicParameters();
-                //parameters.Add("DocumentId", DocumentId);
+            {
+                //var query = "select EC.Name AS SubjectName,\r\n\tD.DocumentID as DocumentId,\r\n\tD.DocumentID as ReplaceDocumentId,\r\n\tD.FileName,\r\n\tD.ContentType,\r\n\tD.FileSize,\r\n\tD.UploadDate,\r\n\tD.SessionID,\r\n\tD.AddedDate,\r\n\tD.FilePath,\t\r\n\tD.AddedDate,\t\r\n\tD.ModifiedDate,\r\n\tD.UniqueSessionId,\r\n\tD.EmailToDMS from Documents D LEFT JOIN EmailConversations EC ON EC.SessionId = D.SessionID where D.SessionID in\r\n(select DISTINCT SessionId from ActivityEmailTopics where ActivityEmailTopicID in (select EmailToDMS  from Documents where DocumentID in(" + Ids + ")))\r\nAND D.IsLatest = 1";
+                //var idList = Ids.Split(',').Select(id => Convert.ToInt64(id.Trim()));
+
+                var idList = Ids.Split(',').Select(id => Convert.ToInt64(id.Trim()));
+
+                var dataTable = new DataTable();
+                dataTable.Columns.Add("Id", typeof(long));
+
+                foreach (var id in idList)
+                {
+                    dataTable.Rows.Add(id);
+                }
+
+                var query = @" select 
+                                DISTINCT		                       
+		                        DD.DocumentID as DocumentId,
+		                        DD.DocumentID as ReplaceDocumentId,
+                                EC.Name AS SubjectName,
+		                        DD.FileName,
+		                        DD.ContentType,
+		                        DD.FileSize,
+		                        DD.UploadDate,
+		                        DD.SessionID,
+		                        DD.AddedDate,
+		                        DD.FilePath,	
+		                        DD.AddedDate,	
+		                        DD.ModifiedDate,
+		                        DD.UniqueSessionId,
+		                        DD.EmailToDMS 
+	                        From Documents D 
+	                        Inner Join EmailConversations EC On EC.SessionId=D.SessionID
+	                        Inner Join ActivityEmailTopics AE On D.EmailToDMS=AE.ActivityEmailTopicID 
+	                        Inner Join Documents DD On DD.SessionID=AE.SessionId 
+	                        Where DD.IsLatest = 1 AND D.DocumentID IN (SELECT Id FROM @IdList)";
+                // var parameters = new DynamicParameters();
+                // parameters.Add("Ids", Ids);
+                //var parameters = new { Ids = idList.ToArray() };
+                //var parameters = new { IdList = idList.Select(id => new { Id = id }).ToList() };
+
+                var parameters = new
+                {
+                    IdList = dataTable.AsTableValuedParameter("dbo.IdListType")
+                };
+
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<Documents>(query, parameters)).ToList();

@@ -20,10 +20,13 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<Documents>> GetToDoDocumentsAsync(string SessionId);        
         Task<long> Insert(ToDoNotesHistory ToDoNotesHistory);
         Task<long> InsertToDoNotesUsersAsync(ToDoNotesUsers toDoNotesUsers);
+        Task<long> ToDoNotesUsersDeleteAsync(long HistoryNoteId,long UserId);
         Task<long> UpdateAsync(ToDoNotesHistory ToDoNotesHistory);
         Task<long> DeleteAsync(long id);
         Task<IReadOnlyList<ViewEmployee>> GetUserLst(string Userid);
         Task<long> StatusUpdateAsync(long ID);
+        Task<long> StatusUpdateNotesUsersAsync(long ID);
         
+
     }
 }

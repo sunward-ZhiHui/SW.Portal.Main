@@ -298,7 +298,7 @@
                                                     <div class="tag handline"><i class="fas fa-file" aria-hidden="true"></i> @attachment.FileName</div>
                                                 }
                                             }
-                                            @if (items.ReplyConversation.Count() > 0)
+                                            @if (items.ReplyConversation != null && items.ReplyConversation.Count() > 0)
                                             {
                                                 <div class="uk-card-footer">
                                                     <div>

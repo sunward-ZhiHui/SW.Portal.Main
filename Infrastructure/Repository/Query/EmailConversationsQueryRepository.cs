@@ -919,17 +919,11 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailConversations>> GetReplyDiscussionListAsync(long TopicId, long UserId)
+        public async Task<List<EmailConversations>>  GetReplyQuery1ListAsync(long? TopicId)
         {
             try
             {
-                var query = "";
-
-                var Exists = await GetActivityEmailExitsAsync(TopicId);
-
-                if (Exists > 0)
-                {
-                    query = @"SELECT DISTINCT
+                var query = @"SELECT DISTINCT
                                  FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,
                                 FC.ReplyId,FC.FileData,FC.AddedByUserID,AET.Comment AS ActCommentName,AET.BackURL,
                                 AET.DocumentSessionId,
@@ -957,11 +951,27 @@ namespace Infrastructure.Repository.Query
                                 AND ((AET.ActivityEmailTopicID IS NOT NULL AND AET.ActivityType != 'EmailFileProfileType') OR AET.ActivityEmailTopicID IS NULL)
                             ORDER BY
                                 FC.AddedDate DESC";
-                }
-                else
-                {
 
-                    query = @"SELECT DISTINCT
+                var parameters = new DynamicParameters();
+                parameters.Add("TopicId", TopicId, DbType.Int64);                
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailConversations>(query, parameters)).ToList();
+
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<EmailConversations>> GetReplyQuery2ListAsync(long? TopicId)
+        {
+            try
+            {
+                var query = @"SELECT DISTINCT
                                 FC.ID,
                                 FC.Name,
                                 FC.TopicID,
@@ -1005,18 +1015,42 @@ namespace Infrastructure.Repository.Query
                                 AND FC.ReplyId = 0   
                             ORDER BY
                                 FC.AddedDate DESC";
-                }
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId, DbType.Int64);
 
-                var res = new List<EmailConversations>();                
+                var res = new List<EmailConversations>();
 
                 using (var connection = CreateConnection())
                 {
-                    res = (await connection.QueryAsync<EmailConversations>(query, parameters)).ToList();
+                    return (await connection.QueryAsync<EmailConversations>(query, parameters)).ToList();
 
                 }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public async Task<List<EmailConversations>> GetReplyDiscussionListAsync(long TopicId, long UserId)
+        {
+            try
+            {                
+
+                var Exists = await GetActivityEmailExitsAsync(TopicId);
+
+                var res = new List<EmailConversations>();
+
+                if (Exists > 0)
+                {
+                   res = await GetReplyQuery1ListAsync(TopicId);
+                }
+                else
+                {
+                    res = await GetReplyQuery2ListAsync(TopicId);
+                }
+               
                 if (res != null && res.Count > 0)
                 {
                     var replyIds = res.Select(s => s.ID).Distinct().ToList();

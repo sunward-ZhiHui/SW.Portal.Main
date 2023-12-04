@@ -307,7 +307,7 @@
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
         if (fileProfileTypeDocumentsAll.Count() > 0)
         {
-            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
+            //_selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeDocumentsAll);
         }
         isPlant = false;
         isDivision = false; isDepartment = false;
@@ -550,6 +550,7 @@
     }
     public void Dispose()
     {
+        System.GC.Collect();
         GC.SuppressFinalize(this);
     }
 }

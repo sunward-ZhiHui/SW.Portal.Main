@@ -923,34 +923,20 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT DISTINCT
-                                 FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,
+                var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,
                                 FC.ReplyId,FC.FileData,FC.AddedByUserID,AET.Comment AS ActCommentName,AET.BackURL,
-                                AET.DocumentSessionId,
-                                EMPP.FirstName AS ActUserName,
-	                            --AET.AddedDate AS ActAddedDate
-                                FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
+                                AET.DocumentSessionId,EMPP.FirstName AS ActUserName,FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
                                 FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType
                             FROM
                                 EmailConversations FC
-                            LEFT JOIN
-                                Employee ONB ON ONB.UserID = FC.OnBehalf
-                            LEFT JOIN
-                                ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
-                            INNER JOIN
-                                ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                            INNER JOIN
-                                Employee EMP ON EMP.UserID = AU.UserID
-                            LEFT JOIN
-                                Employee EMPP ON EMPP.UserID = AET.AddedByUserID
-                            LEFT JOIN
-                                Employee FCEP ON FCEP.UserID = FC.AddedByUserID
-                            WHERE
-                                FC.ID = @TopicId
-                                AND FC.ReplyId = 0
-                                AND ((AET.ActivityEmailTopicID IS NOT NULL AND AET.ActivityType != 'EmailFileProfileType') OR AET.ActivityEmailTopicID IS NULL)
-                            ORDER BY
-                                FC.AddedDate DESC";
+                            LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf
+                            LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
+                            INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                            INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
+                            LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
+                            LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID
+                            WHERE FC.ID = @TopicId AND FC.ReplyId = 0 AND ((AET.ActivityEmailTopicID IS NOT NULL AND AET.ActivityType != 'EmailFileProfileType') OR AET.ActivityEmailTopicID IS NULL)
+                            ORDER BY FC.AddedDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId, DbType.Int64);                
@@ -972,49 +958,19 @@ namespace Infrastructure.Repository.Query
             try
             {
                 var query = @"SELECT DISTINCT
-                                FC.ID,
-                                FC.Name,
-                                FC.TopicID,
-                                FC.SessionId,
-                                FC.AddedDate,
-                                FC.Message,
-                                AU.UserName,
-                                AU.UserID,
-                                FC.ReplyId,
-                                FC.FileData,
-                                FC.AddedByUserID,
-                                --AET.Comment AS ActCommentName,
-                                --AET.BackURL,
-                                --AET.DocumentSessionId
-                                --EMPP.FirstName AS ActUserName,
-                                --AET.AddedDate AS ActAddedDate
-                                FC.DueDate,
-                                FC.IsAllowParticipants,
-                                ONB.FirstName AS OnBehalfName,
-                                FC.Follow,
-                                FC.Urgent,
-                                FC.OnBehalf,
-                                FC.NotifyUser,
-                                FCEP.FirstName,
-                                FCEP.LastName
-                               -- AET.ActivityType
+                                FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,                               
+                                FC.ReplyId,FC.FileData,FC.AddedByUserID,FC.DueDate,FC.IsAllowParticipants,                                
+                                FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,
+								AU.UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName
+
                             FROM
-                                EmailConversations FC
-                            LEFT JOIN
-                                Employee ONB ON ONB.UserID = FC.OnBehalf
-                            --LEFT JOIN ActivityEmailTopics AET ON AET.EmailTopicSessionId = FC.SessionId
-                            INNER JOIN
-                                ApplicationUser AU ON AU.UserID = FC.ParticipantId
-                            INNER JOIN
-                                Employee EMP ON EMP.UserID = AU.UserID
-                            --LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
-                            LEFT JOIN
-                                Employee FCEP ON FCEP.UserID = FC.AddedByUserID
-                            WHERE
-                                FC.ID = @TopicId
-                                AND FC.ReplyId = 0   
-                            ORDER BY
-                                FC.AddedDate DESC";
+                            EmailConversations FC
+                            LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf                            
+                            INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
+                            INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                            
+                            LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID
+                            WHERE FC.ID = @TopicId AND FC.ReplyId = 0   
+                            ORDER BY FC.AddedDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId, DbType.Int64);

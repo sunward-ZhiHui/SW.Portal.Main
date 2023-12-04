@@ -832,6 +832,7 @@
     }
     public void Dispose()
     {
+        System.GC.Collect();
         GC.SuppressFinalize(this);
     }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>

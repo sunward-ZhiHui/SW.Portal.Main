@@ -81,6 +81,7 @@ else
     public DocumentPermissionModel? documentPermissionData { get; set; }
     public void Dispose()
     {
+        System.GC.Collect();
         GC.SuppressFinalize(this);
     }
 }

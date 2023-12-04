@@ -123,7 +123,8 @@ namespace DocumentViewer.Controllers
                                         viewmodel.ContentAccessorByBytes = byteArrayAccessor;
                                         viewmodel.Type = contentType.Split("/")[0].ToLower();
                                         viewmodel.ContentType = contentType;
-                                        GC.SuppressFinalize(this);
+                                    System.GC.Collect();
+                                    GC.SuppressFinalize(this);
                                     return View(viewmodel);
                                     //}
                                 }

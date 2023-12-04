@@ -150,7 +150,7 @@
                                                     <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
 
                                                         <div class="mailbox-read-info">
-                                                            <h3>  @item.TopicName  </h3>
+                                                            <h3 style="width: 90%;">  @(item.TopicName.Length > 100 ? item.TopicName.Substring(0, 100) : item.TopicName)  </h3>
                                                             @if (_headTopic_Tag != null && _headTopic_Tag.Any())
                                                             {
                                                                 @foreach (var Tagitem in _headTopic_Tag)
@@ -242,9 +242,9 @@
 
                                             <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="margin-right: 10px;">
                                                 <div class="uk-card-header">
-                                                    <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">                                                       
-                                                        <div class="mailbox-read-info">                                                           
-                                                           <h3>@item.Name</h3>
+                                                    <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">                                                        
+                                                        <div class="mailbox-read-info">  
+                                                           <h3 style="width: 90%;">  @(item.Name.Length > 100 ? item.Name.Substring(0, 100) : item.Name)  </h3>
                                                            @if(item.DueDate != null)
                                                            {
                                                                 <div class="mailbox-read-time pull-right">

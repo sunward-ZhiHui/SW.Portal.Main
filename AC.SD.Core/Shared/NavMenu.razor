@@ -41,7 +41,11 @@
     {
         previousUri = NavigationManager.Uri;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+        if(applicationUser != null)
+        {
+            portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
+        }
+        
         NavigationManager.LocationChanged += OnLocationChanged;
 
     }

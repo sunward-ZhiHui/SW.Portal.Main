@@ -13,7 +13,7 @@
 @inject NavigationManager NavigationManager
 @using Newtonsoft.Json.Linq;
 @using Newtonsoft.Json;
-
+@implements IDisposable
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -416,6 +416,11 @@
         await Mediator.Send(request);
         Blukdeletepopup = false;
         await UpdateDataAsync();
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
     private RenderFragment BuildDataColumns()
     {

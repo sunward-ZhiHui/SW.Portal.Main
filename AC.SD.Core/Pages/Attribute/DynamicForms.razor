@@ -16,6 +16,7 @@
 @using System.Reflection;
 @using System.Linq.Expressions;
 @using Newtonsoft.Json;
+@implements IDisposable
 @*     <DxLoadingPanel @bind-Visible="PanelVisible"
                     IsContentBlocked="true"
                     ApplyBackgroundShading="true"
@@ -782,6 +783,11 @@
         PopupUpload = false;
         StateHasChanged();
 
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {

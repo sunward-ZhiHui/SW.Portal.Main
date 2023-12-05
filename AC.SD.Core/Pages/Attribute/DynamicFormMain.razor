@@ -3,7 +3,7 @@
 @using System.Linq.Expressions
 @using System.ComponentModel.DataAnnotations
 @using global::Core.AttributeDynamicData;
-
+@implements IDisposable
 <h2>Edit Form</h2>
 
 <div class="card cw-480">
@@ -41,7 +41,11 @@
     {
         FormSubmitResult = "Please correct all errors";
     }
-
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
     public RenderFragment CreateEditFormFields() => formLayoutBuilder =>
     {
         var propertyList = typeof(UserData).GetProperties();

@@ -10,7 +10,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-
+@implements IDisposable
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -579,5 +579,10 @@
         await UpdateDataAsync();
         toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
         IsDescriptionOpen = false;
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }

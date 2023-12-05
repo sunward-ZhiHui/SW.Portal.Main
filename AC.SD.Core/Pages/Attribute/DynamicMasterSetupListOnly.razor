@@ -12,7 +12,7 @@
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
 
-
+@implements IDisposable
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -167,5 +167,10 @@
 
 
 
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }

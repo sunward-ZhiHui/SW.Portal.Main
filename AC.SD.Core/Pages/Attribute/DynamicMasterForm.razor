@@ -17,6 +17,7 @@
 @inject NavigationManager NavigationManager
 @page "/DynamicMasterSetup/DynamicMasterForm"
 @page "/DynamicMasterSetup/DynamicMasterForm/{SessionIds:guid}"
+@implements IDisposable
 <style scoped>
     .save_hover_Master_From_1 {
         float: left;
@@ -443,5 +444,10 @@
             fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
         }
         return fileProfileTypeModel;
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }

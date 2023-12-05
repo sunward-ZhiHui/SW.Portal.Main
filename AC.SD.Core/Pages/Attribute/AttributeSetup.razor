@@ -8,7 +8,7 @@
 @using Microsoft.Extensions.Configuration;
 @using global::Core.Repositories.Query;
 @inject IJSRuntime JSRuntime;
-
+@implements IDisposable
 
 
 
@@ -577,5 +577,10 @@
             toastService.ShowToast("You Must Delete ValueID.", AC.SD.Core.Services.ToastLevel.Error);
         }
 
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }

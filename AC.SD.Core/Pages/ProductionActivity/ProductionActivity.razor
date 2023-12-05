@@ -14,6 +14,7 @@
 @inject IConfiguration Configuration
 @inject IJSRuntime jsRuntime
 @inject ClipboardService ClipboardService
+@implements IDisposable
 <style scoped>
     .zxing-video-container > video {
         width: 100%;
@@ -1041,6 +1042,11 @@
     void onEmailOpen()
     {
         ActivityEmailPopup = true;
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }
 

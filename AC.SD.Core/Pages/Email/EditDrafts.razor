@@ -24,6 +24,8 @@
 @using System.IO;
 @using System.ComponentModel;
 @page "/EmailDrafts/EditEmailDraft/{ActiveSessionId}"
+@implements IDisposable;
+
 <style scoped>
     .txtEditorMsg {
         height: calc(100vh - 477px);
@@ -1285,7 +1287,11 @@ else
         }
         StateHasChanged();
     }
-
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
 
 
 }

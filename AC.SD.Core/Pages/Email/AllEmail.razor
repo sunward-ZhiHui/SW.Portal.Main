@@ -10,6 +10,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 @page "/AllEmail"
+@implements IDisposable;
 
 <DxGrid @ref="AllEmailGrid" SearchText="@GridSearchText"
         Data="_emailTopicAll"
@@ -131,5 +132,10 @@
         await Task.Delay(1000); // Example asynchronous operation
                                 //await LoadReplyData();
         StateHasChanged();
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }

@@ -1,11 +1,11 @@
-﻿
-@page "/sentEmail"
+﻿@page "/sentEmail"
 @using Application.Queries;
 @using global::Core.Entities;
 @using global::Core.Repositories.Query;
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using MediatR
 @inject IMediator Mediator
+@implements IDisposable;
 
 <DxGrid @ref="SentGrid" SearchText="@GridSearchText"
         Data="_forumTopicSent"
@@ -107,5 +107,10 @@
         await Task.Delay(1000); // Example asynchronous operation
                                 //await LoadReplyData();
         StateHasChanged();
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }

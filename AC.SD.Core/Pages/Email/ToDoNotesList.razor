@@ -18,6 +18,7 @@
 @inject NavigationManager NavigationManager
 @using System;
 @using System.IO;
+@implements IDisposable;
 
 <style scoped>
     .details .section {
@@ -1148,5 +1149,10 @@
     private async Task OpenDocumentPreview(string url)
     {
         await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }

@@ -1,5 +1,4 @@
-﻿
-@page "/mSearch"
+﻿@page "/mSearch"
 @using Application.Commands;
 @using Application.Common.Helper;
 @using Application.Queries;
@@ -37,7 +36,7 @@
 @using System.Threading.Tasks
 @using System.Threading
 @using System.Timers
-
+@implements IDisposable;
 
 
 <DxLoadingPanel @bind-Visible="PanelVisible"

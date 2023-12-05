@@ -14,6 +14,7 @@
 @inject IToastService ToastService
 @inject AC.SD.Core.Services.ToastService toastService
 @inject NavigationManager NavigationManager
+@implements IDisposable;
 
 
 <div class="d-flex py-2">
@@ -477,5 +478,10 @@
         var result = await Mediator.Send(UpdateReq);
         toastService.ShowToast("UnArchive Updated successfully.", AC.SD.Core.Services.ToastLevel.Success);
         ApplySearch();
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }

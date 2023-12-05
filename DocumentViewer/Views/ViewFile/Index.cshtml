@@ -914,5 +914,7 @@ else
 }
 }
 }
-System.GC.Collect();
-GC.SuppressFinalize(this);
+@{
+    System.GC.Collect();
+    GC.SuppressFinalize(this);
+}

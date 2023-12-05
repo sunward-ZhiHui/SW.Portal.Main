@@ -5,7 +5,8 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using MediatR
 @inject IMediator Mediator
-@using System.Linq
+@using System.Linq;
+@implements IDisposable;
 <style scoped>
   
 </style>
@@ -179,5 +180,10 @@
         await Task.Delay(1000); // Example asynchronous operation
                                 //await LoadReplyData();
         StateHasChanged();
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }

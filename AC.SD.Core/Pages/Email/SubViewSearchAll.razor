@@ -5,6 +5,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @using MediatR
 @inject IMediator Mediator
+@implements IDisposable;
 
 <style scoped>
     .subviewEmail .dxbl-grid-header-row {
@@ -82,5 +83,10 @@
         //await LoadData();
         // functionService.onSubViewEmailClick(rid);
         StateHasChanged();
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }

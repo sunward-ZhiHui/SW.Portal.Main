@@ -10,7 +10,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
-
+@implements IDisposable;
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -622,6 +622,11 @@
             EditEnabled = true;
             
         }
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
     
 

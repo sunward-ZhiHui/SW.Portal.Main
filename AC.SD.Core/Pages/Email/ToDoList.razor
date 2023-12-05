@@ -7,6 +7,7 @@
 @inject IJSRuntime JSRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@implements IDisposable;
 
 <link href="_content/AC.SD.Core/css/todoList.css" rel="stylesheet" />
 <div class="page-content page-container" id="page-content">
@@ -172,5 +173,10 @@
         undoRedoGroup.Items.Add(0, RichEditBarItemNames.FullScreen);
 
       
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }

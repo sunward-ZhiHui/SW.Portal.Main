@@ -4046,6 +4046,7 @@
     {
         cancellationTokenSource?.Cancel();
         cancellationTokenSource?.Dispose();
+        System.GC.Collect();
         GC.SuppressFinalize(this);
     }
 

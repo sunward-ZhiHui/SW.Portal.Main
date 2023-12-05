@@ -764,6 +764,12 @@ else
         {
             await msgrichEdit.NewDocumentAsync();
 
+            _AllCategory.TrimExcess();
+            _UserTagList.TrimExcess();
+            _AllCategory.TrimExcess();
+            _groupTagItems.TrimExcess();
+            _UserTagList.TrimExcess();                       
+
             await JSRuntime.InvokeVoidAsync("eval", @"
                 window.submitForm = function () {
                     document.getElementById('myForm').submit();
@@ -1052,6 +1058,7 @@ else
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         AppUserId = applicationUser.UserID;
         _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
+
         var plist = await Mediator.Send(new GetAllEmployeeListQuery());
 
 
@@ -1079,9 +1086,6 @@ else
         _Toparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
         _CCparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
         _OnBehalfparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
-
-        //var topicmodel = await Mediator.Send(new GetListCategory(1));
-        //_category = topicmodel;        
 
         Data.From = applicationUser.UserName;
 
@@ -1117,15 +1121,6 @@ else
                 {
                     Data.IsAllowParticipants = true;
                 }
-
-                // string replyboxHtml = @"<div class=""replybox"">
-                //                             <div> <i class=""fa fa-reply"" aria-hidden=""true""></i> Reply</div>
-                //                             <text>@ActComment</text>
-                //                             <div>@ActUserName , @ActAddedDate</div>
-                //                         </div>";
-
-                //replyboxHhtmlArray = Encoding.UTF8.GetBytes(replyboxHtml);
-
 
                 if (actItem[0].DocumentSessionId != null)
                 {
@@ -1245,18 +1240,7 @@ else
 
         var sToIds = Data.ToIds;
         var sCCIds = Data.CCIds;
-        //if (@SelectedDataItems == null)
-        //{
-        //    onShowPopupMessage("Error", "Please Select Participant");
-        //    return;
-        //}
-
-        //if (SelectedToDataItems == null)
-        //{
-        //    onShowPopupMessage("Error", "Please Select To");
-        //    return;
-        //}
-
+       
         List<long> concatList = null;
         if(sCCIds != null)
         {
@@ -1369,18 +1353,6 @@ else
 
         DateTime? nullableDateTime = DateTime.Now;
 
-
-        //byte[] combinedArray = replyboxHhtmlArray.Concat(fileContent).ToArray();
-
-        //var ex = _topics.Where(x => x.TicketNo == Data.TicketNo && x.TopicName == Data.TopicName);
-        //if (ex.Any())
-        //{
-
-        //addNew();
-        //onShowPopupMessage("Error", "The Subject Name Already exists.");
-        //toastService.ShowToast("The Subject Name Already exists.", AC.SD.Core.Services.ToastLevel.Error);
-        //await JSRuntime.InvokeAsync<string>("hideLoading");
-
         var createReq = new CreateEmailTopics
                 {
                     TopicName = Data.TopicName,
@@ -1395,8 +1367,7 @@ else
                     FileData = fileContents,                
                     StatusCodeID = 1,
                     AddedByUserID = applicationAddedByUserID,
-                    AddedDate = DateTime.Now,
-                    // SessionId = Guid.NewGuid(),
+                    AddedDate = DateTime.Now,                   
                     SessionId = _sessionId,
                     Participants = participantidsString,
                     To = toidsString,
@@ -1598,6 +1569,7 @@ else
     }
     public void Dispose()
     {
+        System.GC.Collect();
         GC.SuppressFinalize(this);
     }
 

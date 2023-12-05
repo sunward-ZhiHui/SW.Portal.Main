@@ -43,6 +43,7 @@
 @using Application.Command.ApplicationMasterDetails;
 <link rel="stylesheet" type="text/css" href="_content/AC.SD.Core/css/forum-mail.css" />
 @page "/ViewEmail/EmailPrint/{ConSessionId:guid}"
+@implements IDisposable;
 
 <div id="tableData">
     <div>
@@ -430,21 +431,11 @@
         string script = $"window.open('{url}', '_blank');";
         JSRuntime.InvokeVoidAsync("eval", script);        
     }
-    //public async Task onDocDownload(long Id)
-    //{
-    //    _topicDocList = await Mediator.Send(new GetEmailTopicDocList(long.Parse(@SelectedGroup), applicationUser.UserID, isLeftMenuvisible));
-    //    var lst = _topicDocList?.FirstOrDefault(a => a.DocumentId == Id);
-
-    //    if (lst != null)
-    //    {
-    //        //var url = DocumentViewUrl + "?url=" + FileUrl + lst.FilePath;
-    //        var url = DocumentViewUrl + "?url=" + lst.UniqueSessionId;
-    //        await OpenDocumentPreview(url);
-    //    }
-    //}
-    //private async Task OpenDocumentPreview(string url)
-    //{
-    //    await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
-    //}
+   
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
 
 }

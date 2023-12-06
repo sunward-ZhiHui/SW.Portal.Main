@@ -20,14 +20,21 @@ namespace Infrastructure.Repository.Query
         {
 
         }
-        public async Task<MasterListsModel> GetMasterLists()
+        public MasterListsModel GetMasterLists(DocumentNoSeriesModel documentNoSeriesModel)
         {
             try
             {
                 MasterListsModel masterLists = new MasterListsModel();
                 using (var connection = CreateConnection())
                 {
-                    var results = await connection.QueryMultipleAsync(@"SELECT * FROM Plant;SELECT * FROM Department;SELECT * FROM Section;SELECT * FROM SubSection;SELECT * FROM DocumentProfileNoSeries;");
+                    var query = string.Empty;
+
+                    query += "SELECT * FROM Plant where PlantID=" + (documentNoSeriesModel.PlantID > 0 ? documentNoSeriesModel.PlantID : 0) + ";";
+                    query += "SELECT * FROM Department where DepartmentId=" + (documentNoSeriesModel.DepartmentId > 0 ? documentNoSeriesModel.DepartmentId : 0) + ";";
+                    query += "SELECT * FROM Section where SectionId=" + (documentNoSeriesModel.SectionId > 0 ? documentNoSeriesModel.SectionId : 0) + ";";
+                    query += "SELECT * FROM SubSection where SubSectionId=" + (documentNoSeriesModel.SubSectionId > 0 ? documentNoSeriesModel.SubSectionId : 0) + ";";
+                    query += "SELECT * FROM DocumentProfileNoSeries where ProfileId=" + (documentNoSeriesModel.ProfileID > 0 ? documentNoSeriesModel.ProfileID : 0) + ";";
+                    var results = connection.QueryMultiple(query);
                     masterLists.Plants = results.Read<Plant>().ToList();
                     masterLists.Departments = results.Read<Department>().ToList();
                     masterLists.Sections = results.Read<Section>().ToList();
@@ -41,13 +48,53 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public IReadOnlyList<ProfileAutoNumber> GetProfileAutoNumber(long? Id)
+        public IReadOnlyList<ProfileAutoNumber> GetProfileAutoNumber(long? Id, DocumentNoSeriesModel documentNoSeriesModel)
         {
             try
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("ProfileId", Id);
-                var query = "select  * from ProfileAutoNumber where ProfileId=@ProfileId";
+                parameters.Add("CompanyId", documentNoSeriesModel.PlantID > 0 ? documentNoSeriesModel.PlantID : 0);
+                parameters.Add("DepartmentId", documentNoSeriesModel.DepartmentId > 0 ? documentNoSeriesModel.DepartmentId : 0);
+                parameters.Add("SectionId", documentNoSeriesModel.SectionId > 0 ? documentNoSeriesModel.SectionId : 0);
+                parameters.Add("SubSectionId", documentNoSeriesModel.SubSectionId > 0 ? documentNoSeriesModel.SubSectionId : 0);
+                var query = "select  * from ProfileAutoNumber where ProfileId=@ProfileId\n\r";
+                query += "AND\n\r";
+                if (documentNoSeriesModel.PlantID > 0)
+                {
+                    query += "CompanyId=@CompanyId\n\r";
+                }
+                else
+                {
+                    query += "CompanyId IS NULL\n\r";
+                }
+                query += "AND\n\r";
+                if (documentNoSeriesModel.DepartmentId > 0)
+                {
+                    query += "DepartmentId=@DepartmentId\n\r";
+                }
+                else
+                {
+                    query += "DepartmentId IS NULL\n\r";
+                }
+                query += "AND\n\r";
+                if (documentNoSeriesModel.SectionId > 0)
+                {
+                    query += "SectionId=@SectionId\n\r";
+                }
+                else
+                {
+                    query += "SectionId IS NULL\n\r";
+                }
+                query += "AND\n\r";
+                if (documentNoSeriesModel.SubSectionId > 0)
+                {
+                    query += "SubSectionId=@SubSectionId\n\r";
+                }
+                else
+                {
+                    query += "SubSectionId IS NULL\n\r";
+                }
                 using (var connection = CreateConnection())
                 {
                     return (connection.Query<ProfileAutoNumber>(query, parameters)).ToList();

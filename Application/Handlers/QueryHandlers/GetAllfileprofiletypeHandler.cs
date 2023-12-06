@@ -457,6 +457,19 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class UpdateDocumentNoDocumentBySessionHandler : IRequestHandler<UpdateDocumentNoDocumentBySession, DocumentsUploadModel>
+    {
+        private readonly IDocumentsQueryRepository _documentsqueryrepository;
+        public UpdateDocumentNoDocumentBySessionHandler(IDocumentsQueryRepository documentsqueryrepository)
+        {
+            _documentsqueryrepository = documentsqueryrepository;
+        }
+        public async Task<DocumentsUploadModel> Handle(UpdateDocumentNoDocumentBySession request, CancellationToken cancellationToken)
+        {
+            return await _documentsqueryrepository.UpdateDocumentNoDocumentBySession(request.DocumentsUploadModel);
+        }
+
+    }
     public class UpdateEmailDocumentBySessionHandler : IRequestHandler<UpdateEmailDocumentBySession, DocumentsUploadModel>
     {
         private readonly IDocumentsQueryRepository _documentsqueryrepository;

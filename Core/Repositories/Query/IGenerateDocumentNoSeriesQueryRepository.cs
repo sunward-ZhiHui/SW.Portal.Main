@@ -13,11 +13,12 @@ namespace Core.Repositories.Query
     public interface IGenerateDocumentNoSeriesSeviceQueryRepository : IQueryRepository<DocumentNoSeriesModel>
     {
         Task<string> GenerateDocumentProfileAutoNumber(DocumentNoSeriesModel noSeriesModel);
+        string GenerateDocumentProfileAutoNumberOne(DocumentNoSeriesModel noSeriesModel);
     }
     public interface IGenerateDocumentNoSeriesQueryRepository : IQueryRepository<DocumentNoSeriesModel>
     {
-        Task<MasterListsModel> GetMasterLists();
-        IReadOnlyList<ProfileAutoNumber> GetProfileAutoNumber(long? Id);
+        MasterListsModel GetMasterLists(DocumentNoSeriesModel documentNoSeriesModel);
+        IReadOnlyList<ProfileAutoNumber> GetProfileAutoNumber(long? Id, DocumentNoSeriesModel documentNoSeriesModel);
         DocumentProfileNoSeries UpdateDocumentProfileNoSeriesLastCreateDate(DocumentProfileNoSeries documentProfileNoSeries);
         DocumentNoSeries InsertDocumentNoSeries(DocumentNoSeries documentNoSeries);
         ProfileAutoNumber InsertProfileAutoNumber(ProfileAutoNumber profileAutoNumber);

@@ -26,10 +26,7 @@ namespace Infrastructure.Service
         }
         public async Task<string> GenerateDocumentProfileAutoNumber(DocumentNoSeriesModel noSeriesModel)
         {
-            var sameSettings = "No";
-            var documentNo = "";
-            ProfileAutoNumber profileAutoNumbers = new ProfileAutoNumber();
-            documentNo = await GenerateDocumentNoAsync(new DocumentNoSeriesModel
+            var documentNo = GenerateDocumentNoAsync(new DocumentNoSeriesModel
             {
                 ProfileID = noSeriesModel.ProfileID > 0 ? noSeriesModel.ProfileID : null,
                 AddedByUserID = noSeriesModel.AddedByUserID,
@@ -45,34 +42,72 @@ namespace Infrastructure.Service
                 ScreenID = noSeriesModel.ScreenID,
                 ScreenAutoNumberId = noSeriesModel.ScreenAutoNumberId,
                 CompanyId = noSeriesModel.PlantID > 0 ? noSeriesModel.PlantID : null,
-                SessionId= noSeriesModel.SessionId,
-                FileProfileTypeId=noSeriesModel.FileProfileTypeId,
+                SessionId = noSeriesModel.SessionId,
+                FileProfileTypeId = noSeriesModel.FileProfileTypeId,
 
-                RequestorId=noSeriesModel.RequestorId,
-                Title=noSeriesModel.Title,
-                Description=noSeriesModel.Description,
-                IsUpload=noSeriesModel.IsUpload,
+                RequestorId = noSeriesModel.RequestorId,
+                Title = noSeriesModel.Title,
+                Description = noSeriesModel.Description,
+                IsUpload = noSeriesModel.IsUpload,
                 ModifiedByUserID = noSeriesModel.ModifiedByUserID,
-                ModifiedDate=noSeriesModel.ModifiedDate,
-                VersionNo=noSeriesModel.VersionNo,
-                EffectiveDate=noSeriesModel.EffectiveDate,
-                NextReviewDate=noSeriesModel.NextReviewDate,
-                Date=noSeriesModel.Date,
-                Link=noSeriesModel.Link,
-                ReasonToVoid=noSeriesModel.ReasonToVoid,
+                ModifiedDate = noSeriesModel.ModifiedDate,
+                VersionNo = noSeriesModel.VersionNo,
+                EffectiveDate = noSeriesModel.EffectiveDate,
+                NextReviewDate = noSeriesModel.NextReviewDate,
+                Date = noSeriesModel.Date,
+                Link = noSeriesModel.Link,
+                ReasonToVoid = noSeriesModel.ReasonToVoid,
 
             });
 
             return documentNo;
         }
-        public async Task<string> GenerateDocumentNoAsync(DocumentNoSeriesModel noSeriesModel)
+        public string GenerateDocumentProfileAutoNumberOne(DocumentNoSeriesModel noSeriesModel)
+        {
+            var documentNo = GenerateDocumentNoAsync(new DocumentNoSeriesModel
+            {
+                ProfileID = noSeriesModel.ProfileID > 0 ? noSeriesModel.ProfileID : null,
+                AddedByUserID = noSeriesModel.AddedByUserID,
+                StatusCodeID = noSeriesModel.StatusCodeID,
+                DepartmentName = noSeriesModel.DepartmentName,
+                CompanyCode = noSeriesModel.CompanyCode,
+                SectionName = noSeriesModel.SectionName,
+                SubSectionName = noSeriesModel.SubSectionName,
+                DepartmentId = noSeriesModel.DepartmentId > 0 ? noSeriesModel.DepartmentId : null,
+                PlantID = noSeriesModel.PlantID > 0 ? noSeriesModel.PlantID : null,
+                SectionId = noSeriesModel.SectionId > 0 ? noSeriesModel.SectionId : null,
+                SubSectionId = noSeriesModel.SubSectionId > 0 ? noSeriesModel.SubSectionId : null,
+                ScreenID = noSeriesModel.ScreenID,
+                ScreenAutoNumberId = noSeriesModel.ScreenAutoNumberId,
+                CompanyId = noSeriesModel.PlantID > 0 ? noSeriesModel.PlantID : null,
+                SessionId = noSeriesModel.SessionId,
+                FileProfileTypeId = noSeriesModel.FileProfileTypeId,
+
+                RequestorId = noSeriesModel.RequestorId,
+                Title = noSeriesModel.Title,
+                Description = noSeriesModel.Description,
+                IsUpload = noSeriesModel.IsUpload,
+                ModifiedByUserID = noSeriesModel.ModifiedByUserID,
+                ModifiedDate = noSeriesModel.ModifiedDate,
+                VersionNo = noSeriesModel.VersionNo,
+                EffectiveDate = noSeriesModel.EffectiveDate,
+                NextReviewDate = noSeriesModel.NextReviewDate,
+                Date = noSeriesModel.Date,
+                Link = noSeriesModel.Link,
+                ReasonToVoid = noSeriesModel.ReasonToVoid,
+
+            });
+
+            return documentNo;
+        }
+        public string GenerateDocumentNoAsync(DocumentNoSeriesModel noSeriesModel)
         {
             bool isCompanyDepartmentExist = false;
             string documentNo = string.Empty;
             string deptProfileCode = "";
             string sectionProfileCode = "";
             string subSectionProfileCode = "";
-            var masterList = await _generateDocumentNoSeriesQueryRepository.GetMasterLists();
+            var masterList = _generateDocumentNoSeriesQueryRepository.GetMasterLists(noSeriesModel);
             if (noSeriesModel.CompanyId > 0 && masterList.Plants != null && masterList.Plants.Count > 0)
             {
                 noSeriesModel.CompanyCode = masterList.Plants.FirstOrDefault(p => p.PlantID == noSeriesModel.CompanyId)?.PlantCode;
@@ -105,7 +140,7 @@ namespace Infrastructure.Service
             else
             {
                 var profileSettings = masterList.DocumentProfileNoSeries.FirstOrDefault(s => s.ProfileId == noSeriesModel.ProfileID);
-                var profileAutoNumbers = _generateDocumentNoSeriesQueryRepository.GetProfileAutoNumber(profileSettings.ProfileId).ToList();
+                var profileAutoNumbers = _generateDocumentNoSeriesQueryRepository.GetProfileAutoNumber(profileSettings.ProfileId, noSeriesModel).ToList();
 
                 if (profileSettings != null && profileSettings.CompanyId > 0 && masterList.Plants != null && masterList.Plants.Count > 0 && (noSeriesModel.CompanyId == null || noSeriesModel.PlantID == null))
                 {
@@ -317,7 +352,7 @@ namespace Infrastructure.Service
                     Title = noSeriesModel.Title,
                     ModifiedDate = DateTime.Now,
                     ModifiedByUserId = noSeriesModel.AddedByUserID,
-                    FileProfileTypeId=noSeriesModel.FileProfileTypeId,
+                    FileProfileTypeId = noSeriesModel.FileProfileTypeId,
                     Description = noSeriesModel.Description,
                     IsUpload = noSeriesModel.IsUpload,
                     VersionNo = noSeriesModel.VersionNo,
@@ -361,7 +396,7 @@ namespace Infrastructure.Service
             }
             else if (profilesettings.StartWithYear.GetValueOrDefault(false) && profileAutonumber.ProfileYear.GetValueOrDefault(0) > 0 && profileAutonumber.ProfileYear.Value != DateTime.Now.Year)
             {
-                var profileAutoNumbers = _generateDocumentNoSeriesQueryRepository.GetProfileAutoNumber(profilesettings.ProfileId).ToList();
+                var profileAutoNumbers = _generateDocumentNoSeriesQueryRepository.GetProfileAutoNumber(profilesettings.ProfileId, noSeriesModel).ToList();
                 var yearchecking = profileAutoNumbers.Where(p => p.ProfileId == profilesettings.ProfileId && p.ProfileYear > 0 && p.ProfileYear == DateTime.Now.Year).FirstOrDefault();
                 if (yearchecking == null)
                 {
@@ -385,7 +420,7 @@ namespace Infrastructure.Service
                 else if (yearchecking != null)
                 {
                     LastNoUsed = (Convert.ToInt32(yearchecking.LastNoUsed) + profilesettings.IncrementalNo.GetValueOrDefault(0)).ToString("D" + profilesettings.NoOfDigit);
-                    var profileAutoNumberData = _generateDocumentNoSeriesQueryRepository.GetProfileAutoNumber(profilesettings.ProfileId).ToList();
+                    var profileAutoNumberData = _generateDocumentNoSeriesQueryRepository.GetProfileAutoNumber(profilesettings.ProfileId, noSeriesModel).ToList();
 
 
                     documentNo += LastNoUsed;

@@ -29,6 +29,7 @@ namespace Core.Repositories.Query
         Task<DocumentNoSeriesModel> InsertOrUpdateReserveProfileNumberSeries(DocumentNoSeriesModel documentNoSeries);
         Task<DocumentNoSeriesModel> UpdateCreateDocumentBySessionReserveSeries(DocumentNoSeriesModel documentNoSeries);
         Task<DocumentNoSeriesModel> UpdateReserveNumberDescriptionField(DocumentNoSeriesModel documentNoSeries);
-
+        Task<DocumentsUploadModel> UpdateDocumentNoDocumentBySession(DocumentsUploadModel value);
+        
     }
 }

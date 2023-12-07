@@ -24,26 +24,20 @@ namespace Application.Queries
     {
         public string SearchString { get; set; }
     }
-    public class GetEmailRatio: PagedRequest, IRequest<List<EmailRatio>>
+    public class GetEmailRatio : PagedRequest, IRequest<List<EmailRatio>>
     {
         public long UserId { get; private set; }
-    public GetEmailRatio(long UserId)
-    {
-        this.UserId = UserId;
-    }
-
-
-        public class GetEmailSchedulerListTodo : PagedRequest, IRequest<List<EmailScheduler>>
+        public GetEmailRatio(long UserId)
         {
-            public long UserId { get; private set; }
-            public GetEmailSchedulerListTodo(long UserId)
-            {
-                this.UserId = UserId;
-            }
+            this.UserId = UserId;
         }
     }
-
-
-
-
+    public class GetEmailSchedulerListTodo : PagedRequest, IRequest<List<EmailScheduler>>
+    {
+        public long UserId { get; private set; }
+        public GetEmailSchedulerListTodo(long UserId)
+        {
+            this.UserId = UserId;
+        }
+    }
 }

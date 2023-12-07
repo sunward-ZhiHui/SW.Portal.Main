@@ -16,6 +16,17 @@
 {
     display:none;
 }
+.container-header {
+    display: flex;
+    justify-content: space-between;
+
+}
+.date-and-notes {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    margin-top: 4px;
+}
 .notificationCount {
     float: right;
     background: #cacaca;

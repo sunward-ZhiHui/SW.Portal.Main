@@ -403,6 +403,7 @@ else
 
 
 @code {
+    bool isSending = false;
     private List<EmailActivityCatgorys> _UserTagList;
     private List<EmailActivityCatgorys> _TagEmailList;
     private List<EmailActivityCatgorys> _AllCategory;
@@ -924,7 +925,8 @@ else
        JSRuntime.InvokeAsync<string>("hideLoading");
     }
     async void HandleValidSubmit()
-    {        
+    {      
+        isSending = true;
         await JSRuntime.InvokeAsync<string>("showLoading");
         participantIds.Clear();
         selectedToIds.Clear();
@@ -932,21 +934,22 @@ else
 
         var lslsl = Data.ToIds;
 
-        //if (@SelectedDataItems == null)
-        //{
-        //    onShowPopupMessage("Error", "Please Select Participant");
-        //    return;
-        //}
+        if (Data.ToIds.Count() == 0)
+        {
+            Data.ToIds = null;
+            toastService.ShowToast("Please Select To", AC.SD.Core.Services.ToastLevel.Error);
+            await JSRuntime.InvokeAsync<string>("hideLoading");
+            isSending = false;
+            return;
+        }
+       
 
-        //if (SelectedToDataItems == null)
-        //{
-        //    onShowPopupMessage("Error", "Please Select To");
-        //    return;
-        //}
+        var sToIds = Data.ToIds;
+        var sCCIds = Data.CCIds;
 
-        List<string> concatList = null;
+        List<long> concatList = null;
 
-        if(sCCIds != null)
+        if (sCCIds != null)
         {
             concatList = sToIds.Concat(sCCIds).ToList();
         }
@@ -955,15 +958,16 @@ else
             concatList = sToIds.ToList();
         }
 
+        //concatList = sToIds.Concat(sCCIds).ToList();
 
         foreach (var itm in concatList)
         {
-            var ls = _Allparticipant.Where(c => c.Name +"-"+ c.NickName == itm).ToList();
+            var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
 
-            for(var i=0;i<ls.Count;i++)
+            for (var i = 0; i < ls.Count; i++)
             {
                 participantIds.Add(ls[i].UserID.Value);
-            }          
+            }
         }
 
         participantIds.Add(applicationUser.UserID);
@@ -972,63 +976,6 @@ else
         {
             participantIds.Add(Data.OnBehalf.Value);
         }
-
-        foreach(var itm in sToIds)
-        {
-            var ls = _Allparticipant.Where(c => c.Name +"-"+ c.NickName == itm).ToList();
-
-            for (var i = 0; i < ls.Count; i++)
-            {
-                selectedToIds.Add(ls[i].UserID.Value);
-            }
-        }
-
-        if(sCCIds != null)
-        {
-            foreach (var itm in sCCIds)
-            {
-                var ls = _Allparticipant.Where(c => c.Name + "-" + c.NickName == itm).ToList();
-
-                for (var i = 0; i < ls.Count; i++)
-                {
-                    SelectedCCIds.Add(ls[i].UserID.Value);
-                }
-            }
-        }
-
-        //if (@SelectedDataItems.Count > 0)
-        //{
-        //    foreach (object item in SelectedDataItems)
-        //    {
-        //        if (item is ViewEmployee employee)
-        //        {
-        //            //ids.Add(employee);
-        //            participantIds.Add((long)employee.UserID);
-        //        }
-        //    }            
-        //}    
-
-
-        //participantIds.Add(applicationUser.UserID);
-
-        //foreach (object item in SelectedToDataItems)
-        //{
-        //    if (item is ViewEmployee employee)
-        //    {               
-        //        selectedToIds.Add((long)employee.UserID);
-        //    }
-        //}
-        //if(SelectedCCDataItems !=null)
-        //{
-        //    foreach (object item in SelectedCCDataItems)
-        //    {
-        //        if (item is ViewEmployee employee)
-        //        {
-        //            SelectedCCIds.Add((long)employee.UserID);
-        //        }
-        //    }
-        //}
-
 
         if (draftId == 0)
         {
@@ -1046,6 +993,28 @@ else
         else
         {
             applicationAddedByUserID = applicationUser.UserID;
+        }
+
+        foreach (var itm in sToIds)
+        {
+            var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
+
+            for (var i = 0; i < ls.Count; i++)
+            {
+                selectedToIds.Add(ls[i].UserID.Value);
+            }
+        }
+        if (sCCIds != null)
+        {
+            foreach (var itm in sCCIds)
+            {
+                var ls = _Allparticipant.Where(c => c.UserID == itm).ToList();
+
+                for (var i = 0; i < ls.Count; i++)
+                {
+                    SelectedCCIds.Add(ls[i].UserID.Value);
+                }
+            }
         }
 
 
@@ -1068,8 +1037,8 @@ else
         byte[] fileContents = server.SaveDocument(DevExpress.XtraRichEdit.DocumentFormat.Html);
 
 
-        //var slsls = participantIds.Distinct().ToList();
-        string participantidsString = string.Join(",", participantIds); // convert the array to a comma-separated string
+        var plistuniquevalue = participantIds.Distinct().ToList();
+        string participantidsString = string.Join(",", plistuniquevalue); // convert the array to a comma-separated string
         string toidsString = string.Join(",", selectedToIds); // convert the array to a comma-separated string
         string ccidsString = string.Join(",", SelectedCCIds); // convert the array to a comma-separated string
 

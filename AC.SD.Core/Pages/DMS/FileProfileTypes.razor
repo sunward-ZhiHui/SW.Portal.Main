@@ -120,10 +120,8 @@
         <DxGrid @ref="Grid"
                 Data="fileProfileTypeDocuments"
                 KeyFieldName="UniqueNo"
-                EditMode="GridEditMode.EditForm"
                 SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-                EditorRenderMode="GridEditorRenderMode.Integrated"
-                ColumnResizeMode="GridColumnResizeMode.NextColumn"
+                ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
                 FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
                 ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
                 SearchText="@searchText"
@@ -140,13 +138,14 @@
                 AllowSelectRowByClick="true"
                 CustomizeSummaryDisplayText="Grid_CustomizeSummaryDisplayText"
                 SelectionMode="GridSelectionMode.Single"
+                AutoExpandAllGroupRows="true"
                 CssClass="w-100 table-hover-OnFileProfile"
-                TextWrapEnabled="false"
-                style="height: calc(100vh - 250px);">
+                style="height: calc(100vh - 250px);"
+                >
             <Columns>
-                @*            <DxGridSelectionColumn FixedPosition="GridColumnFixedPosition.Left" Width="60px" />
+                @*            <DxGridSelectionColumn  Width="60px" />
                 *@            <DxGridDataColumn FieldName="UniqueNo" Visible="false" />
-                <DxGridCommandColumn FixedPosition="GridColumnFixedPosition.Left" MinWidth="100" Visible="isCheckAllEnabled">
+                <DxGridCommandColumn  MinWidth="100" Visible="isCheckAllEnabled">
                     <HeaderTemplate>
                         <DxCheckBox Checked="@CheckedAll" CheckedExpression="@(() => CheckedAll)" CheckedChanged="@((bool value) => OnCheckedAllValueChanged(value))"></DxCheckBox>
                     </HeaderTemplate>
@@ -160,7 +159,7 @@
                         }
                     </CellDisplayTemplate>
                 </DxGridCommandColumn>
-                <DxGridDataColumn FieldName="FileName" FixedPosition="GridColumnFixedPosition.Left" Caption="Name" MinWidth="270">
+                <DxGridDataColumn FieldName="FileName"  Caption="Name" MinWidth="270">
                     <CellDisplayTemplate>
 
                         @{
@@ -225,7 +224,7 @@
                         <span id=@($"flyout-overview-target-container-RenameFilename-{item.DocumentID}") title="@item.FileName">@item.FileName</span>
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
-                <DxGridDataColumn FieldName="FullPath" FixedPosition="GridColumnFixedPosition.Left" Caption="Path" Visible="@isEnablePath" MinWidth="170">
+                <DxGridDataColumn FieldName="FullPath"  Caption="Path" Visible="@isEnablePath" MinWidth="170">
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentsModel)context.DataItem;
@@ -233,9 +232,9 @@
                         }
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
-                <DxGridDataColumn FieldName="ProfileNo" FixedPosition="GridColumnFixedPosition.Left" Caption="Profile" MinWidth="170" />
-                <DxGridDataColumn FieldName="ActivityProfileNo" FixedPosition="GridColumnFixedPosition.Left" Caption="Activity Profile" MinWidth="170" />
-                <DxGridDataColumn FieldName="FileSizes" FixedPosition="GridColumnFixedPosition.Left" Caption="File Size" MinWidth="170">
+                <DxGridDataColumn FieldName="ProfileNo"  Caption="Profile" MinWidth="170" />
+                <DxGridDataColumn FieldName="ActivityProfileNo"  Caption="Activity Profile" MinWidth="170" />
+                <DxGridDataColumn FieldName="FileSizes"  Caption="File Size" MinWidth="170">
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentsModel)context.DataItem;
@@ -245,7 +244,7 @@
                         @((item.FileIndex > 0 ? ("," + item.FileIndex + " History") : ""))
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
-                <DxGridDataColumn FieldName="Description" FixedPosition="GridColumnFixedPosition.Left" MinWidth="200">
+                <DxGridDataColumn FieldName="Description"  MinWidth="200">
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentsModel)context.DataItem;
@@ -254,7 +253,7 @@
                         <span title="@item.Description">@item.Description</span>
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
-                <DxGridDataColumn FieldName="ExpiryDate" MinWidth="170" FixedPosition="GridColumnFixedPosition.Left">
+                <DxGridDataColumn FieldName="ExpiryDate" MinWidth="170" >
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentsModel)context.DataItem;
@@ -2173,10 +2172,10 @@
         {
             fileProfileTypeDocuments.ForEach(s =>
             {
-                if (s.FilterProfileTypeId > 0)
-                {
+               // if (s.FilterProfileTypeId > 0)
+               // {
                     s.Checked = radioValue;
-                }
+               // }
             });
         }
     }

@@ -412,4 +412,13 @@ namespace Application.Queries
             this.FileprofileTypeId = fileprofileTypeId;
         }
     }
+    public class UpdateDocumentNoDocumentBySession : PagedRequest, IRequest<DocumentsUploadModel>
+    {
+        public DocumentsUploadModel DocumentsUploadModel { get; private set; }
+        public UpdateDocumentNoDocumentBySession(DocumentsUploadModel documentsUploadModel)
+        {
+            this.DocumentsUploadModel = documentsUploadModel;
+        }
+    }
+
 }

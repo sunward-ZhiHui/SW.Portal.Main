@@ -20,7 +20,7 @@ namespace Infrastructure.Repository.Query
         {
 
         }
-        public MasterListsModel GetMasterLists(DocumentNoSeriesModel documentNoSeriesModel)
+        public async Task<MasterListsModel> GetMasterLists(DocumentNoSeriesModel documentNoSeriesModel)
         {
             try
             {
@@ -34,12 +34,56 @@ namespace Infrastructure.Repository.Query
                     query += "SELECT * FROM Section where SectionId=" + (documentNoSeriesModel.SectionId > 0 ? documentNoSeriesModel.SectionId : 0) + ";";
                     query += "SELECT * FROM SubSection where SubSectionId=" + (documentNoSeriesModel.SubSectionId > 0 ? documentNoSeriesModel.SubSectionId : 0) + ";";
                     query += "SELECT * FROM DocumentProfileNoSeries where ProfileId=" + (documentNoSeriesModel.ProfileID > 0 ? documentNoSeriesModel.ProfileID : 0) + ";";
-                    var results = connection.QueryMultiple(query);
+                    var parameters = new DynamicParameters();
+                    parameters.Add("ProfileId", documentNoSeriesModel.ProfileID);
+                    parameters.Add("CompanyId", documentNoSeriesModel.PlantID > 0 ? documentNoSeriesModel.PlantID : 0);
+                    parameters.Add("DepartmentId", documentNoSeriesModel.DepartmentId > 0 ? documentNoSeriesModel.DepartmentId : 0);
+                    parameters.Add("SectionId", documentNoSeriesModel.SectionId > 0 ? documentNoSeriesModel.SectionId : 0);
+                    parameters.Add("SubSectionId", documentNoSeriesModel.SubSectionId > 0 ? documentNoSeriesModel.SubSectionId : 0);
+                    query += "select  * from ProfileAutoNumber where ProfileId=@ProfileId\n\r";
+                    query += "AND\n\r";
+                    if (documentNoSeriesModel.PlantID > 0)
+                    {
+                        query += "CompanyId=@CompanyId\n\r";
+                    }
+                    else
+                    {
+                        query += "CompanyId IS NULL\n\r";
+                    }
+                    query += "AND\n\r";
+                    if (documentNoSeriesModel.DepartmentId > 0)
+                    {
+                        query += "DepartmentId=@DepartmentId\n\r";
+                    }
+                    else
+                    {
+                        query += "DepartmentId IS NULL\n\r";
+                    }
+                    query += "AND\n\r";
+                    if (documentNoSeriesModel.SectionId > 0)
+                    {
+                        query += "SectionId=@SectionId\n\r";
+                    }
+                    else
+                    {
+                        query += "SectionId IS NULL\n\r";
+                    }
+                    query += "AND\n\r";
+                    if (documentNoSeriesModel.SubSectionId > 0)
+                    {
+                        query += "SubSectionId=@SubSectionId\n\r";
+                    }
+                    else
+                    {
+                        query += "SubSectionId IS NULL\n\r";
+                    }
+                    var results = await connection.QueryMultipleAsync(query, parameters);
                     masterLists.Plants = results.Read<Plant>().ToList();
                     masterLists.Departments = results.Read<Department>().ToList();
                     masterLists.Sections = results.Read<Section>().ToList();
                     masterLists.SubSections = results.Read<SubSection>().ToList();
                     masterLists.DocumentProfileNoSeries = results.Read<DocumentProfileNoSeries>().ToList();
+                    masterLists.ProfileAutoNumber = results.Read<ProfileAutoNumber>().ToList();
                     return masterLists;
                 }
             }
@@ -48,7 +92,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public IReadOnlyList<ProfileAutoNumber> GetProfileAutoNumber(long? Id, DocumentNoSeriesModel documentNoSeriesModel)
+        public async Task<IReadOnlyList<ProfileAutoNumber>> GetProfileAutoNumber(long? Id, DocumentNoSeriesModel documentNoSeriesModel)
         {
             try
             {
@@ -97,7 +141,7 @@ namespace Infrastructure.Repository.Query
                 }
                 using (var connection = CreateConnection())
                 {
-                    return (connection.Query<ProfileAutoNumber>(query, parameters)).ToList();
+                    return (await connection.QueryAsync<ProfileAutoNumber>(query, parameters)).ToList();
                 }
             }
             catch (Exception exp)
@@ -105,7 +149,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public DocumentProfileNoSeries UpdateDocumentProfileNoSeriesLastCreateDate(DocumentProfileNoSeries profileSettings)
+        public async Task<DocumentProfileNoSeries> UpdateDocumentProfileNoSeriesLastCreateDate(DocumentProfileNoSeries profileSettings)
         {
             try
             {
@@ -119,7 +163,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("LastCreatedDate", profileSettings.LastCreatedDate, DbType.DateTime);
                         var query = "Update DocumentProfileNoSeries SET LastCreatedDate=@LastCreatedDate WHERE " +
                             "ProfileId= @ProfileId";
-                        connection.QueryFirstOrDefault<long>(query, parameters);
+                        await connection.QueryFirstOrDefaultAsync<long>(query, parameters);
                         return profileSettings;
                     }
                     catch (Exception exp)
@@ -135,7 +179,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public ProfileAutoNumber UpdateDocumentProfileNoSeriesLastNoUsed(ProfileAutoNumber profileAutoNumber)
+        public async Task<ProfileAutoNumber> UpdateDocumentProfileNoSeriesLastNoUsed(ProfileAutoNumber profileAutoNumber)
         {
             try
             {
@@ -149,7 +193,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("LastNoUsed", profileAutoNumber.LastNoUsed);
                         var query = "Update ProfileAutoNumber SET LastNoUsed=@LastNoUsed WHERE " +
                             "ProfileAutoNumberId= @ProfileAutoNumberId";
-                        connection.QueryFirstOrDefault<long>(query, parameters);
+                        await connection.QueryFirstOrDefaultAsync<long>(query, parameters);
                         return profileAutoNumber;
                     }
                     catch (Exception exp)
@@ -165,7 +209,7 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public DocumentNoSeries InsertDocumentNoSeries(DocumentNoSeries documentNoSeries)
+        public async Task<DocumentNoSeries> InsertDocumentNoSeries(DocumentNoSeries documentNoSeries)
         {
             try
             {
@@ -199,7 +243,7 @@ namespace Infrastructure.Repository.Query
                             "OUTPUT INSERTED.NumberSeriesId VALUES " +
                            "(@ProfileId,@DocumentNo,@AddedDate,@AddedByUserID,@StatusCodeId,@SessionId,@RequestorId," +
                            "@ModifiedDate,@ModifiedByUserId,@FileProfileTypeId,@IsUpload,@VersionNo,@EffectiveDate,@NextReviewDate,@Date,@Link,@ReasonToVoid,@Description,@Title)";
-                        documentNoSeries.NumberSeriesId = connection.QueryFirstOrDefault<long>(query, parameters);
+                        documentNoSeries.NumberSeriesId = await connection.QueryFirstOrDefaultAsync<long>(query, parameters);
 
                         return documentNoSeries;
                     }
@@ -217,7 +261,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public ProfileAutoNumber InsertProfileAutoNumber(ProfileAutoNumber profileAutoNumber)
+        public async Task<ProfileAutoNumber> InsertProfileAutoNumber(ProfileAutoNumber profileAutoNumber)
         {
             try
             {
@@ -240,7 +284,7 @@ namespace Infrastructure.Repository.Query
                         var query = "INSERT INTO [ProfileAutoNumber](ProfileId,CompanyId,DepartmentId,SectionId,SubSectionId,LastNoUsed,ProfileYear,ScreenId,ScreenAutoNumberId) " +
                             "OUTPUT INSERTED.ProfileAutoNumberId VALUES " +
                            "(@ProfileId,@CompanyId,@DepartmentId,@SectionId,@SubSectionId,@LastNoUsed,@ProfileYear,@ScreenId,@ScreenAutoNumberId)";
-                        profileAutoNumber.ProfileAutoNumberId = connection.QueryFirstOrDefault<long>(query, parameters);
+                        profileAutoNumber.ProfileAutoNumberId = await connection.QueryFirstOrDefaultAsync<long>(query, parameters);
 
                         return profileAutoNumber;
                     }

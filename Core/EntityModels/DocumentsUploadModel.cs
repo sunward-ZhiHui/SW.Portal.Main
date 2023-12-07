@@ -42,10 +42,12 @@ namespace Core.EntityModels
         public string? FileName { get; set; }
         public Guid? FileSessionId { get; set; }
         public string? SourceFrom { get; set; }
+        public bool? IsSourceFrom { get; set; } = false;
         public string? TemplateUploadType { get; set; }
         [Required(ErrorMessage = "New File is Required")]
         public string? ChangeNewFileName { get; set; } = "New File Empty";
         public long? ProductionActivityAppLineId { get; set; }
+        public long? LinkDocumentId { get; set; }
         public List<DocumentsUploadModel> DocumentsUploadModels { get; set; } = new List<DocumentsUploadModel>();
 
     }

@@ -25,7 +25,7 @@ namespace Core.EntityModels
         public string Link { get; set; }
         public string CompanyCode { get; set; }
         public string DepartmentName { get; set; }
-        
+
         public long? CompanyId { get; set; }
         [Required(ErrorMessage = "Department is Required")]
         public long? DepartmentId { get; set; }
@@ -66,6 +66,8 @@ namespace Core.EntityModels
         public string ScreenID { get; set; }
         public bool? IsUpload { get; set; }
         public string? FilePath { get; set; }
+        public int? NoOfCounts { get; set; } = 0;
+        
 
     }
     public class Seperator
@@ -80,5 +82,12 @@ namespace Core.EntityModels
         public List<Section> Sections { get; set; }
         public List<SubSection> SubSections { get; set; }
         public List<DocumentProfileNoSeries> DocumentProfileNoSeries { get; set; }
+        public List<ProfileAutoNumber> ProfileAutoNumber { get; set; }
+    }
+    public class GenerateDocumentNoSeriesModel
+    {
+        public string? ProfileNo { get; set; }
+        public DocumentProfileNoSeries DocumentProfileNoSeries { get; set; } = new DocumentProfileNoSeries();
+        public ProfileAutoNumber ProfileAutoNumber { get; set; } = new ProfileAutoNumber();
     }
 }

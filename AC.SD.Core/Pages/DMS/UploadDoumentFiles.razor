@@ -450,16 +450,18 @@
         TempSetIds.Add(TempSetId);
         string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
         string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + selectedFiles.SessionID + "&addedByUserId=" + applicationUser.UserID + "&IsFileSession=true&SourceFrom=FileProfile";
+        //url += "&&ProfileId="+Data.ProfileId + " &&PlantId=" + Data.PlantId + " &&DepartmentId=" + Data.DepartmentId + " &&SectionId=" + Data.SectionId + " &&SubSectionId=" + Data.SubSectionId + " &&DivisionId=" + Data.DivisionId + " &&FileProfileTypeId=" + Data.FileProfileTypeId;
         e.UploadUrl = url;
     }
     async Task isUploadSuccess(FileUploadEventArgs e)
     {
-       
+
         CurrentUplodCount++;
         var filesessionIds = new Guid(e.FileInfo.Guid);
         Data.SessionId = filesessionIds;
         Data.FileSessionId = filesessionIds;
         Data.SourceFrom = "FileProfile";
+        Data.IsSourceFrom = false;
         var ext = e.FileInfo.Name.Split(".").Last();
         Data.FilePath = @"Documents\" + selectedFiles.SessionID + @"\" + filesessionIds + "." + ext;
         DocumentsUploadModel documentsUploadModel = new DocumentsUploadModel();
@@ -472,11 +474,12 @@
         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
         if (CurrentUplodCount >= SelectedFilesCount)
         {
-            MyMessage = "All File is Uploaded. Pls Wait Document No is Generating...";
-            toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
-            var responses = await Mediator.Send(new UpdateDocumentNoDocumentBySession(Data));
-            if (responses.FileProfileTypeId > 0)
-            {
+              MyMessage = "All File is Uploaded. Pls Wait Document No is Generating...";
+              toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
+              var responses = await Mediator.Send(new UpdateDocumentNoDocumentBySession(Data));
+              if (responses.FileProfileTypeId > 0)
+              {
+                await Task.Delay(5000);
                 MyMessage = "All File is Uploaded. Pls Wait Document No Generated";
                 toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
                 Message = "Upload";

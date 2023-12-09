@@ -46,5 +46,13 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
-    
+    public class GetEmailAccessByUser : PagedRequest, IRequest<OpenAccessUserLink>
+    {
+        public long? UserId { get; set; }
+        public GetEmailAccessByUser(long? userId)
+        {
+            this.UserId = userId;
+        }
+    }
+
 }

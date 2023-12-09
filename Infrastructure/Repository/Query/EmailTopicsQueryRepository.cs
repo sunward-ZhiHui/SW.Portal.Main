@@ -277,6 +277,46 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailTopics>> GetTopicAdminSearchList(EmailSearch emailSearch)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", emailSearch.UserID);
+                        parameters.Add("searchtxt", emailSearch.MSearchText);
+                        parameters.Add("fromids", emailSearch.ByFrom);
+                        parameters.Add("subject", emailSearch.BySubject);
+                        parameters.Add("tag", emailSearch.ByTag);
+
+                        parameters.Add("GroupTag", emailSearch.GroupTag);
+                        parameters.Add("CategoryTag", emailSearch.CategoryTag);
+                        parameters.Add("ActionTag", emailSearch.ActionTag);
+                        parameters.Add("Name", emailSearch.Name);
+                        parameters.Add("UserTag", emailSearch.UserTag);
+
+                        parameters.Add("filterFrom", emailSearch.FilterFrom);
+                        parameters.Add("filterTo", emailSearch.FilterTo);
+                        parameters.Add("Option", "SELECT");
+
+                        var result = connection.Query<EmailTopics>("sp_Select_AdminSearchList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailTopics>> GetTopicMasterSearchList(EmailSearch emailSearch)
         {
             try
@@ -944,7 +984,34 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<List<EmailTopics>> GetSubAdminEmailTopicAllList(long TopicId, long UserId, string SearchTxt)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("UserId", UserId);
+                        parameters.Add("TopicId", TopicId);
+                        parameters.Add("searchtxt", SearchTxt);
+                        parameters.Add("Option", "SELECT_ALL");
 
+                        var result = connection.Query<EmailTopics>("sp_Select_Sub_Admin_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        return result.ToList();
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<EmailTopics>> GetSubTopicAllList(long TopicId, long UserId,string SearchTxt)
         {
             try

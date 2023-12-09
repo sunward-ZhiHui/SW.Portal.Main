@@ -75,7 +75,12 @@
                                 </DxTabPage>
                                 <DxTabPage Text="Library" CssClass="@((isLeftMenuvisible == "Library" ? "tActive": "library"))" Click="@(() => OnLeftMenuItemClick("Library"))">
 
-                                </DxTabPage>                                
+                                </DxTabPage>
+                                @if(_openAccessUserLink != null)
+                                {
+                                    <DxTabPage Text="Administrator" CssClass="@((isLeftMenuvisible == "Administrator" ? "tActive": "administrator"))" Click="@(() => OnLeftMenuItemClick("Administrator"))"></DxTabPage>   
+                                }
+                                
                               </DxTabs>                          
                         </div>
                     </div>
@@ -101,7 +106,11 @@
                         else if(isLeftMenuvisible == "Library")
                         {
                             <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch>
-                        }                              
+                        }
+                        else if (isLeftMenuvisible == "Administrator")
+                        {
+                            <AdminEmail @ref=RefAdminSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></AdminEmail>
+                        }
                         </div>
                     </div>
                 </div>               
@@ -301,15 +310,15 @@
                                                                     <div class="" style="font-size:12px; margin-right: 10px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
                                                                     @if (item.IsAllowParticipants.GetValueOrDefault(false))
                                                                     {
-                                                                        <span class="" style="margin-right: 10px;"><i class="fa fa-users" aria-hidden="true"></i></span>
+                                                                        <span class="" style="margin-right: 10px; font-size: 14px;"><i class="fa fa-users" aria-hidden="true"></i></span>
                                                                     }
                                                                     @if (item.Urgent.GetValueOrDefault(false))
                                                                     {
-                                                                        <span class="urgent_icon" style="margin-right: 10px;"><i class="fas fa-bell" style="" aria-hidden="true"></i></span>
+                                                                        <span class="urgent_icon" style="margin-right: 10px; font-size: 14px;"><i class="fas fa-bell" style="" aria-hidden="true"></i></span>
                                                                     }
                                                                     @if (item.NotifyUser.GetValueOrDefault(false))
                                                                     {
-                                                                        <span class="" style="margin-right: 10px;"><i class="fa fa-commenting" style="" aria-hidden="true"></i></span>
+                                                                        <span class="" style="margin-right: 10px; font-size: 14px;"><i class="fa fa-commenting" style="" aria-hidden="true"></i></span>
                                                                     }
                                                                 
                                                                 </div>
@@ -1427,6 +1436,7 @@
 
 
 @code {
+    private OpenAccessUserLink _openAccessUserLink { get; set; }
     private List<ViewPlants>? _plantItems;
     private List<ViewDivision>? _divisionItems;
     private List<ViewDepartment>? _departmentItems;
@@ -2355,6 +2365,7 @@
     private TopicTags? RefTopicTagList { get; set; }
     private UserToDo? RefTopicTodo { get; set; }
     private MasterSearch? RefMasterSearch { get; set; }
+    private AdminEmail? RefAdminSearch { get; set; }
     private bool IsValidUser { get; set; } = false;
     private bool IsFileValidUser { get; set; } = false;
     [Parameter]
@@ -3970,7 +3981,11 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _editContext = new EditContext(_dataFileProfileType);       
+        _editContext = new EditContext(_dataFileProfileType);   
+        
+
+       
+
 
         Page = Page == null ? "AssignTo" : Page;
 
@@ -3985,6 +4000,7 @@
 
         onloadSession();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
         AppUserId = applicationUser.UserID;
         await JSRuntime.InvokeAsync<string>("showLoading");
 

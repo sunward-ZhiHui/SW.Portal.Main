@@ -40,6 +40,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<OpenAccessUserLink> GetEmailAccessByUser(long? UserID)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("UserID", UserID);
+                var query = "select t1.* from OpenAccessUserLink t1\r\nJOIN OpenAccessUser t2 ON t1.OpenAccessUserID=t2.OpenAccessUserID AND t2.AccessType='EmailAccess'\r\nWHERE t1.UserID=@UserID";
+
+                using (var connection = CreateConnection())
+                {
+                    return await connection.QueryFirstOrDefaultAsync<OpenAccessUserLink>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<OpenAccessUserLink>> GetAllAsync(long? OpenAccessUserId)
         {
             try

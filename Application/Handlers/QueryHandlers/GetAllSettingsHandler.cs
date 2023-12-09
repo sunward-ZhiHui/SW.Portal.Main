@@ -74,4 +74,16 @@ namespace Application.Handlers.QueryHandlers
             return await _queryRepository.GetDMSAccessByUser(request.UserId);
         }
     }
+    public class GetEmailAccessByUserHandler : IRequestHandler<GetEmailAccessByUser, OpenAccessUserLink>
+    {
+        private readonly ISettingsQueryRepository _queryRepository;
+        public GetEmailAccessByUserHandler(ISettingsQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<OpenAccessUserLink> Handle(GetEmailAccessByUser request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetEmailAccessByUser(request.UserId);
+        }
+    }
 }

@@ -77,7 +77,7 @@
                         {
                             <span class="onbehalf_icon type_color"><i class="fa fa-info-circle" aria-hidden="true"></i></span>
                         }
-                       
+
                         @if (item.Urgent.GetValueOrDefault(false))
                         {
                             <span class="urgent_icon"><i class="fas fa-bell" aria-hidden="true"></i></span>
@@ -98,7 +98,7 @@
         @*  <DxGridDataColumn FieldName="NotificationCount" Caption="#" Width="30" />  *@
     </Columns>
     <DetailRowTemplate>
-        <SubViewSearchAll MSearchText ="@MSearchText" Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
+        <SubAdminEmail MSearchText="@MSearchText" Items="(EmailTopics)context.DataItem" RId="onSubViewEmailClick" />
     </DetailRowTemplate>
     <TotalSummary>
         <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ID" />
@@ -117,16 +117,16 @@
           Position=@(FlyoutPosition.BottomStart | FlyoutPosition.TopStart)>
     <BodyContentTemplate Context="PopupContext">
         <div class="custom-flyout-body" style="width:100%">
-             <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+            <EditForm Model="@Data" id="@MyID" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
                 <DxFormLayout CssClass="w-100">
-                    <DataAnnotationsValidator />                   
+                    <DataAnnotationsValidator />
                     <DxFormLayoutItem Caption="From" ColSpanMd="12">
                         <DxTagBox Data="_Allparticipant"
                                   @bind-Values="Data.FromIds"
                                   NullText="Select To..."
                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                                   ValueFieldName="UserID"
-                                  TextFieldName="Name"                                  
+                                  TextFieldName="Name"
                                   EditFormat="{0}-{1}"
                                   ListRenderMode="ListRenderMode.Virtual"
                                   CssClass="cw-480">
@@ -138,12 +138,12 @@
                         <ValidationMessage For="@(() => Data.FromIds)" />
                     </DxFormLayoutItem>
                     <DxFormLayoutItem Caption="Subject" ColSpanMd="12">
-                        <DxTextBox @bind-Text="@Data.BySubject" ShowValidationIcon="true"/>
+                        <DxTextBox @bind-Text="@Data.BySubject" ShowValidationIcon="true" />
                     </DxFormLayoutItem>
                     @*<DxFormLayoutItem Caption="Tag" ColSpanMd="6">
-                        <DxTextBox @bind-Text="@Data.ByTag" ShowValidationIcon="true" />
-                    </DxFormLayoutItem>   *@  
-                    
+                    <DxTextBox @bind-Text="@Data.ByTag" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>   *@
+
                     <DxFormLayoutItem Caption="Group" ColSpanMd="12">
                         <DxComboBox Data="@_groupTagItemss"
                                     NullText="Select Group..."
@@ -186,7 +186,7 @@
                         <ValidationMessage For="@(() => Data.ActionTag)" />
                     </DxFormLayoutItem>
 
-                    
+
 
                     <DxFormLayoutItem Caption="Others Tag:" ColSpanMd="12">
                         <DxComboBox Data="@_AllCategory"
@@ -217,7 +217,7 @@
                         <ValidationMessage For="@(() => Data.UserTag)" />
                     </DxFormLayoutItem>
 
-                    <DxFormLayoutItem Caption="From" ColSpanMd="12">                        
+                    <DxFormLayoutItem Caption="From" ColSpanMd="12">
                         @*<DxDateEdit Date="@Date" DateExpression="@(() => Date)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" Format="MMMM/yyyy" PickerDisplayMode="@DatePickerDisplayMode.ScrollPicker" ScrollPickerFormat="MMMM yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>*@
                         <DxDateEdit Date="@DateRange" DateExpression="@(() => DateRange)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" DisplayFormat="dd-MM-yyyy" CssClass="cw-320" ShowValidationIcon="true"></DxDateEdit>
                         <ValidationMessage For="@(() => Data.FilterFrom)" />
@@ -340,7 +340,7 @@
     {
         await JSRuntime.InvokeAsync<string>("showLoading");
         string toidsString = null;
-        if(Data.FromIds != null)
+        if (Data.FromIds != null)
         {
             toidsString = string.Join(",", Data.FromIds);
         }
@@ -349,8 +349,8 @@
 
         var data = Data;
 
-        var request = new GetEmailMasterSearchAll
-        {
+        var request = new GetEmailAdminSearchAll
+            {
                 UserID = applicationUser.UserID,
                 MSearchText = MSearchText,
                 ByFrom = Data.ByFrom,
@@ -363,9 +363,10 @@
                 UserTag = data.UserTag,
                 FilterFrom = Data.FilterFrom,
                 FilterTo = Data.FilterTo
-        };
+            };
 
         _emailTopicAll = await Mediator.Send(request);
+        StateHasChanged();
 
         IsSearchInfoOpen = false;
         await JSRuntime.InvokeAsync<string>("hideLoading");
@@ -378,7 +379,7 @@
         //OnDateChanged(DateTime.Now);
 
         _Allparticipant = await Mediator.Send(new GetAllEmployeeListQuery());
-        _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());  
+        _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
         _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
         _groupTagItemss = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
 
@@ -389,9 +390,9 @@
         var now = DateTime.Now.AddYears(-1);
         DateRange = new DateTime(now.Year, now.Month, 1);
         Data.FilterFrom = DateRange;
-        MinDateFrom = DateRange;    
-        
-        @if(MyDayFilterText != null)
+        MinDateFrom = DateRange;
+
+        @if (MyDayFilterText != null)
         {
             await loadLibaryList(MyDayFilterText);
         }
@@ -450,9 +451,9 @@
         ApplySearch();
     }
     async void ApplySearch()
-    {        
+    {
         await JSRuntime.InvokeAsync<string>("showLoading");
-        var request = new GetEmailMasterSearchAll
+        var request = new GetEmailAdminSearchAll
             {
                 UserID = applicationUser.UserID,
                 MSearchText = MSearchText,

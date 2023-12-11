@@ -12,11 +12,15 @@ namespace Core.Entities
     {
         [Key] 
         public long QuotationHistoryId { get; set; }
+        [Required(ErrorMessage = "Company Name is Required")]
         public long? CompanyId { get; set; }
         public string? SwreferenceNo { get; set; }
+        [Required(ErrorMessage = "Date is Required")]
         public DateTime? Date { get; set; }
+        [Required(ErrorMessage = "Customer Name is Required")]
         public long? CustomerId { get; set; }
         public string? CustomerRefNo { get; set; }
+        [Required(ErrorMessage = "Status Code is Required")]
         public int StatusCodeId { get; set; }
         public long? AddedByUserId { get; set; }
         public DateTime AddedDate { get; set; }

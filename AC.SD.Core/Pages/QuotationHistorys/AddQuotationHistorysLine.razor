@@ -1,0 +1,247 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using Application.Response;
+@using System.ComponentModel.DataAnnotations;
+@inject IJSRuntime JSRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+<div class="card w-100" style="margin-bottom:10px;">
+    <div class="card-body p-0">
+        <DxMenu CollapseItemsToHamburgerMenu="true"
+                CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                DisplayMode="MenuDisplayMode.Auto">
+            <Items>
+                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" Enabled="@AddEnabled" />
+                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
+                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDelete" Enabled="@DeleteEnabled" />
+            </Items>
+        </DxMenu>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_quotationHistoryLineItems"
+            KeyFieldName="QuotationHistoryLineId"
+            CustomizeElement="Grid_CustomizeElement"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360 " style="height: calc(100vh - 220px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            RowDoubleClick="OnRowDoubleClick"
+            SelectedDataItemsChanged="@SelectedDataItemsChanged"
+            AllowSelectRowByClick="true">
+        <Columns>
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
+            <DxGridDataColumn FieldName="ProductCode" />
+            <DxGridDataColumn FieldName="Source" />
+            <DxGridDataColumn FieldName="Quantity" />
+            <DxGridDataColumn FieldName="ProductUom" />
+            <DxGridDataColumn FieldName="Packing" />
+            <DxGridDataColumn FieldName="OfferCurrency" />
+            <DxGridDataColumn FieldName="OfferPrice" />
+            <DxGridDataColumn FieldName="OfferUom" />
+            <DxGridDataColumn FieldName="Focqty" />
+            <DxGridDataColumn FieldName="ShippingTerms" />
+            <DxGridDataColumn FieldName="StatusCode" />
+            <DxGridDataColumn FieldName="ModifiedDate" />
+            <DxGridDataColumn FieldName="ModifiedBy" />
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="Quantity" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+
+<DxPopup @bind-Visible="@AddPopup"
+         ShowFooter="true"
+         HeaderText="Add Quation History Line"
+         Closed="EulaPopupClosed"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
+         CloseOnEscape="false" ShowCloseButton="false">
+    <BodyContentTemplate>
+        <AddFormQuotationHistorysLine QutationHistoryId="@QuotationHistoryId" ParentData="@_selectedAddItems" applicationUser=@applicationUser @ref="RefAddFormQuotationHistorysLine" RevokeBack="ClosePopup"></AddFormQuotationHistorysLine>
+
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
+<DxPopup @bind-Visible="@Blukdeletepopup"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete
+        </p>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="bulkDelete" />
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    AddFormQuotationHistorysLine RefAddFormQuotationHistorysLine;
+    bool AddPopup { get; set; } = false;
+    bool Blukdeletepopup { get; set; } = false;
+    [Parameter]
+    public long? QuotationHistoryId { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    DxPopup? popup; IGrid Grid { get; set; }
+    private List<QuotationHistoryLine> _quotationHistoryLineItems;
+    private QuotationHistoryLine _selectedItems;
+    private QuotationHistoryLine _selectedAddItems;
+    bool PanelVisible { get; set; } = false;
+    bool EditEnabled { get; set; } = false; bool AddEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    IReadOnlyList<object> SelectedDataItems { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await loadChildData(QuotationHistoryId);
+    }
+    async Task loadData()
+    {
+        await loadChildData(QuotationHistoryId);
+    }
+    public async Task loadChildData(long? quotationHistoryId)
+    {
+        AddEnabled = false;
+        QuotationHistoryId = quotationHistoryId;
+        if (quotationHistoryId > 0)
+        {
+            _quotationHistoryLineItems = await Mediator.Send(new GetAllQuotationHistoryLineQuery(quotationHistoryId));
+            PanelVisible = true; AddEnabled = true;
+            EditEnabled = false; DeleteEnabled = false;
+            if (_quotationHistoryLineItems.Count > 0)
+            {
+                _selectedItems = _quotationHistoryLineItems.FirstOrDefault();
+                //EditEnabled = true; DeleteEnabled = true;
+                PanelVisible = false;
+            }
+            PanelVisible = false;
+            StateHasChanged();
+        }
+    }
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+            e.CssClass += "non-selectable-row";
+        }
+    }
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "QuotationHistoryLineId");
+        _selectedItems = _quotationHistoryLineItems.FirstOrDefault(f => f.QuotationHistoryLineId == (long?)UniqueId);
+        //EditEnabled = true; DeleteEnabled = true;
+        StateHasChanged();
+    }
+    void OnRowDoubleClick(GridRowClickEventArgs e)
+    {
+        OnRowClick(e);
+    }
+    void addNew()
+    {
+        _selectedAddItems = new QuotationHistoryLine();
+        AddPopup = true;
+        StateHasChanged();
+    }
+    void addEdit()
+    {
+        _selectedAddItems = new QuotationHistoryLine();
+        if (SelectedDataItems != null)
+        {
+            if (SelectedDataItems.Count == 1)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is QuotationHistoryLine dataselectItems)
+                    {
+                        _selectedItems = dataselectItems;
+                        _selectedAddItems = dataselectItems;
+                    }
+                }
+            }
+        }
+        AddPopup = true;
+        StateHasChanged();
+    }
+    void addDelete()
+    {
+        Blukdeletepopup = true;
+    }
+    void EulaPopupClosed(PopupClosedEventArgs args)
+    {
+        SelectedDataItems = null;
+        AddPopup = false;
+    }
+    void ClosePopup()
+    {
+        AddPopup = false;
+        InvokeAsync(loadData);
+        StateHasChanged();
+    }
+    void SelectedDataItemsChanged(IReadOnlyList<object> SelectedToItems)
+    {
+        SelectedDataItems = SelectedToItems; EditEnabled = false; DeleteEnabled = false;
+        if (SelectedDataItems.Count > 0)
+        {
+            if (SelectedDataItems.Count > 1)
+            {
+                EditEnabled = false; DeleteEnabled = true;
+            }
+            else
+            {
+                EditEnabled = true; DeleteEnabled = true;
+            }
+        }
+    }
+    async Task bulkDelete()
+    {
+        try
+        {
+            if (SelectedDataItems != null)
+            {
+                foreach (object item in SelectedDataItems)
+                {
+                    if (item is QuotationHistoryLine datas)
+                    {
+                        var request = new DeleteQuotationHistoryLine(datas);
+                        await Mediator.Send(request);
+                        Blukdeletepopup = false;
+                        toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
+                        await loadData();
+                        Grid.SetFocusedRowIndex(0);
+                    }
+                }
+            }
+        }
+        catch (Exception eq)
+        {
+            Blukdeletepopup = false;
+            toastService.ShowToast("The Selected Record Do not deleted", AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+}

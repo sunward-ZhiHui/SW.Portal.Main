@@ -282,20 +282,25 @@
     bool isSectionLinkDoc { get; set; } = false; bool isSubSectionLinkDoc { get; set; } = false;
     int LinkDocSelectedFilesCount { get; set; }
     int LinkDocCurrentUplodCount { get; set; }
+    public long? DocumentIds{ get; set; }
     public List<DocumentsModel> fileProfileTypeLinkDocDocumentsAll { get; set; }
     public List<string> linkDocAcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
-        await loadLinkDocData(selectedFiles, applicationUser);
+        DocumentIds = selectedFiles.DocumentID;
+        await loadLinkDocData(selectedFiles, applicationUser,"Yes");
     }
-    public async Task loadLinkDocData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser)
+    public async Task loadLinkDocData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser, string uploadClear)
     {
         IsFileProfileTypeLinkDocShow = true;
-        fileProfileTypeLinkDocDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
-        if (fileProfileTypeLinkDocDocumentsAll.Count() > 0)
+        if (uploadClear == "Yes")
         {
-            _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeLinkDocDocumentsAll);
+            fileProfileTypeLinkDocDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+            if (fileProfileTypeLinkDocDocumentsAll.Count() > 0)
+            {
+                _selectedTreeItems = _treeGenerateRecursive.TreeGenerateRecursives(fileProfileTypeLinkDocDocumentsAll);
+            }
         }
         isPlantLinkDoc = false;
         isDivisionLinkDoc = false; isDepartmentLinkDoc = false;
@@ -305,10 +310,31 @@
         TempSetLinkDocIds = new List<DocumentsUploadModel>();
         loadingLinkDoc = true;
         LinkDocMessage = "Upload";
-        LinkDocuploadComponent.RemoveAllFiles();
-        LinkDocCurrentUplodCount = 0;
-        LinkDocSelectedFilesCount = 0;
-        LinkDocSelectedFiles = new List<UploadFileInfo>();
+       // LinkDocuploadComponent.RemoveAllFiles();
+       // LinkDocCurrentUplodCount = 0;
+       // LinkDocSelectedFilesCount = 0;
+       // LinkDocSelectedFiles = new List<UploadFileInfo>();
+        if (uploadClear == "No")
+        {
+            if (LinkDocSelectedFilesCount > 0)
+            {
+
+            }
+            else
+            {
+                LinkDocuploadComponent.RemoveAllFiles();
+                LinkDocCurrentUplodCount = 0;
+                LinkDocSelectedFilesCount = 0;
+                LinkDocSelectedFiles = new List<UploadFileInfo>();
+            }
+        }
+        else
+        {
+            LinkDocuploadComponent.RemoveAllFiles();
+            LinkDocCurrentUplodCount = 0;
+            LinkDocSelectedFilesCount = 0;
+            LinkDocSelectedFiles = new List<UploadFileInfo>();
+        }
         linkDocMyError = ""; linkDocMyMessage = ""; LinkDocFileprofiletypeName = "";
         if (_selectedFiles != null && _selectedFiles.ProfileID > 0)
         {
@@ -349,7 +375,7 @@
             {
                 linkDocisExpiryDate = true;
             }
-            Data.DocumentId = selectedFiles.DocumentID;
+            Data.DocumentId = DocumentIds;
             Data.UserSession = applicationUser.SessionId;
             Data.UserId = applicationUser.UserID;
             Data.ProfileId = selectedFiles.ProfileID;
@@ -408,7 +434,7 @@
             _treeLinkDocView.ExpandAll();
         }
     }
-    protected void SelectionChanged(TreeViewNodeEventArgs e)
+    async Task SelectionChanged(TreeViewNodeEventArgs e)
     {
         if (e.NodeInfo?.DataItem != null)
         {
@@ -416,6 +442,7 @@
             Data.FileProfileTypeId = nodeName.FileProfileTypeId;
             var lists = GetFileProfileTypePath(fileProfileTypeLinkDocDocumentsAll, Data.FileProfileTypeId);
             LinkDocFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            await loadLinkDocData(nodeName,applicationUser, "No");
         }
 
         StateHasChanged();

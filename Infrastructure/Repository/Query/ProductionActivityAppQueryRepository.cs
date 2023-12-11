@@ -147,38 +147,61 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        private async Task<IReadOnlyList<Documents>> GetProductionActivityAppLineDoc(long? ProductionActivityAppLineId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("ProductionActivityAppLineId", ProductionActivityAppLineId);
+                var query = "select t1.SessionID,t1.DocumentID from documents t1 JOIN ProductionActivityAppLineDoc t2 ON t1.DocumentID=t2.DocumentID where t2.ProductionActivityAppLineID=@ProductionActivityAppLineId";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Documents>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DocumentsModel>> GetSupportingDocumentsAsync(long? ProductionActivityAppLineId)
         {
             List<DocumentsModel> supportingDocuments = new List<DocumentsModel>();
             try
             {
-                var parameters = new DynamicParameters();
-                parameters.Add("ProductionActivityAppLineId", ProductionActivityAppLineId);
                 var appUsers = await GetApplicationUserAsync();
                 var query = string.Empty;
-
-                query = @"" + DocumentQueryString() + " where IsLatest=1 AND (IsDelete=0 or IsDelete is null) AND SessionID in(select  SessionID from ProductionActivityAppLineDoc where ProductionActivityAppLineID=@ProductionActivityAppLineId)";
-                using (var connection = CreateConnection())
+                var docs = await GetProductionActivityAppLineDoc(ProductionActivityAppLineId);
+                if (docs != null && docs.Count > 0)
                 {
-                    var result = (await connection.QueryAsync<DocumentsModel>(query, parameters)).ToList();
-                    if (result.Count > 0)
+                    var SessionIds = docs.Where(w => w.SessionId != null).Select(s => s.SessionId).ToList();
+                    if (SessionIds.Count > 0)
                     {
-                        result.ForEach(s =>
+                        query = @"" + DocumentQueryString() + " where IsLatest=1 AND (IsDelete=0 or IsDelete is null) AND SessionID in(" + string.Join(",", SessionIds.Select(x => string.Format("'{0}'", x.ToString().Replace("'", "''")))) + ")";
+                        using (var connection = CreateConnection())
                         {
-                            var lastIndex = s.FileName != null ? s.FileName.LastIndexOf(".") : 0;
-                            lastIndex = lastIndex > 0 ? lastIndex : 0;
-                            var name = s.FileName != null ? s.FileName?.Substring(lastIndex) : "";
-                            var fileName = s.FileName?.Split(name);
-                            s.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
-                            s.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName;
-                            s.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
-                            s.OriginalFileName = s.FileName;
-                            s.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
-                            supportingDocuments.Add(s);
-                        });
+                            var result = (await connection.QueryAsync<DocumentsModel>(query)).ToList();
+                            if (result.Count > 0)
+                            {
+                                result.ForEach(s =>
+                                {
+                                    var lastIndex = s.FileName != null ? s.FileName.LastIndexOf(".") : 0;
+                                    lastIndex = lastIndex > 0 ? lastIndex : 0;
+                                    var name = s.FileName != null ? s.FileName?.Substring(lastIndex) : "";
+                                    var fileName = s.FileName?.Split(name);
+                                    s.Extension = s.FileName != null ? s.FileName?.Split(".").Last() : "";
+                                    s.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName;
+                                    s.FileName = s.FileName != null ? (s.FileIndex > 0 ? fileName[0] + "_V0" + s.FileIndex + name : s.FileName) : s.FileName;
+                                    s.OriginalFileName = s.FileName;
+                                    s.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
+                                    supportingDocuments.Add(s);
+                                });
+                            }
+                        }
                     }
-                    return supportingDocuments;
                 }
+                return supportingDocuments;
             }
             catch (Exception exp)
             {

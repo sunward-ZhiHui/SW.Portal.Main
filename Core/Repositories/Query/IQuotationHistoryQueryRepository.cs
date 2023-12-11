@@ -14,6 +14,14 @@ namespace Core.Repositories.Query
     {
         //Custom operation which is not generic
         Task<IReadOnlyList<QuotationHistory>> GetAllByAsync();
-       
+        Task<QuotationHistory> InsertOrUpdateQuotationHistory(QuotationHistory value);
+
+        Task<QuotationHistory> GetQuotationHistoryBySession(Guid? SessionId);
+        Task<IReadOnlyList<QuotationHistoryLine>> GetAllByLineAsync(long? quotationHistoryId);
+        Task<QuotationHistoryLine> GetQuotationHistoryByLineSession(Guid? SessionId);
+        Task<QuotationHistoryLine> InsertOrUpdateQuotationHistoryLine(QuotationHistoryLine value);
+        Task<IReadOnlyList<GenericCodes>> GetAllByGenericCodesAsync();
+        Task<QuotationHistory> DeleteQuotationHistory(QuotationHistory value);
+        Task<QuotationHistoryLine> DeleteQuotationHistoryLine(QuotationHistoryLine value);
     }
 }

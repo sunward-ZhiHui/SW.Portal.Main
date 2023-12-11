@@ -264,6 +264,9 @@
     public Action RevokeBack { get; set; }
     [Parameter]
     public string UploadDocFormID { get; set; }
+    [Parameter]
+    public Guid? AttachSessionId { get; set; }
+    
     List<DocumentsModel> FolderPathListsItems = new List<DocumentsModel>();
     private DxTreeView _treeView;
     string FilterString { get; set; }

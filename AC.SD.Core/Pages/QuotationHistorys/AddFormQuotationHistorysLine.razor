@@ -1,0 +1,263 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using Application.Response;
+@using System.ComponentModel.DataAnnotations;
+@inject IJSRuntime JSRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                        <DxMenuItem Text="Add New" IconCssClass="fas fa-save" Click="@addNewForm" Enabled="@addEnabled" />
+                        <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitFormExternally" Enabled="@saveEnabled" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleFormValidSubmit">
+
+    <DataAnnotationsValidator />
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="ProdOrderNo" ColSpanMd="6">
+            <DxComboBox Data="@_productItems"
+                        NullText="Select Product..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Code"
+                        ValueFieldName="GenericCodeId"
+                        EditFormat="{0}-{1}-{3}"
+                        SelectedItemChanged="@((GenericCodes prod) => SelectedItemprod(prod))"
+            @bind-Value="Data.ProductId"
+                        ShowValidationIcon="true">
+                <Columns>
+                    <DxListEditorColumn FieldName="@nameof(GenericCodes.Code)"
+                                        Caption="Code"
+                                        Width="180px" />
+                    <DxListEditorColumn FieldName="@nameof(GenericCodes.Description)"
+                                        Caption="Description" />
+                    <DxListEditorColumn FieldName="@nameof(GenericCodes.Description2)"
+                                        Caption="Description2" />
+                    <DxListEditorColumn FieldName="@nameof(GenericCodes.UomName)"
+                                        Caption="Uom" />
+                </Columns>
+            </DxComboBox>
+            <ValidationMessage For="@(() => Data.ProductId)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Source" ColSpanMd="6">
+            <DxComboBox Data="@_sourceItems" @bind-Value="@Data.Source" ShowValidationIcon="true" />
+            <ValidationMessage For="@(() => Data.Source)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Quantity:" ColSpanMd="6">
+            <DxSpinEdit @bind-Value="Data.Quantity" />
+            <ValidationMessage For="@(() => Data.Quantity)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Packing:" ColSpanMd="6">
+            <DxComboBox Data="@_packingItems"
+                        NullText="Select Packing..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterDetailID"
+            @bind-Value="Data.PackingId"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Offer Currency:" ColSpanMd="6">
+            <DxComboBox Data="@_currencyItems"
+                        NullText="Select Offer Currency..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterDetailID"
+            @bind-Value="Data.OfferCurrencyId"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Offer Price:" ColSpanMd="6">
+            <DxSpinEdit @bind-Value="Data.OfferPrice" />
+            <ValidationMessage For="@(() => Data.OfferPrice)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Offer Uom" ColSpanMd="6">
+            <DxComboBox NullText="Select Offer Uom..."
+                        Data="@_offeruomItems"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterDetailID"
+            @bind-Value="@Data.OfferUomid"
+                        CssClass="cw-480" />
+        </DxFormLayoutItem>
+
+        <DxFormLayoutItem Caption="Foc Qty:" ColSpanMd="6">
+            <DxSpinEdit @bind-Value="Data.Focqty" />
+            <ValidationMessage For="@(() => Data.Focqty)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Shipping Terms" ColSpanMd="6">
+            <DxComboBox NullText="Select Shipping Terms..."
+                        Data="@_shippingItems"
+                        ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                        TextFieldName="Value"
+                        ValueFieldName="ApplicationMasterDetailID"
+            @bind-Value="@Data.ShippingTermsId"
+                        CssClass="cw-480" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Remarks:" ColSpanMd="12">
+            <DxMemo @bind-Text="Data.Remarks" Rows="5" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+            <DxComboBox Data="@_stausItems"
+                        NullText="Select Status..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="CodeValue"
+                        ValueFieldName="CodeId"
+            @bind-Value="@Data.StatusCodeId"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+            <ValidationMessage For="@(() => Data.StatusCodeId)" />
+        </DxFormLayoutItem>
+    </DxFormLayout>
+</EditForm>
+@code {
+    [Parameter]
+    public QuotationHistoryLine ParentData { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    [Parameter]
+    public long? QutationHistoryId { get; set; }
+    QuotationHistoryLine Data = new QuotationHistoryLine();
+    bool addEnabled { get; set; } = false; bool saveEnabled { get; set; } = false;
+    EditContext _editContext;
+    public long QuotationHistoryLineId { get; set; }
+    private List<GenericCodes> _productItems;
+    private List<View_ApplicationMasterDetail> _currencyItems;
+    private List<View_ApplicationMasterDetail> _uomItems;
+    private List<View_ApplicationMasterDetail> _offeruomItems;
+    private List<View_ApplicationMasterDetail> _packingItems;
+    private List<View_ApplicationMasterDetail> _shippingItems;
+    private List<CodeMaster> _stausItems;
+    private List<string?> _sourceItems { get; set; } = new List<string?>() { "Singapore", "Malaysia" };
+    protected override async Task OnInitializedAsync()
+    {
+        addEnabled = true; saveEnabled = true;
+        _editContext = new EditContext(Data);
+        _currencyItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(229));
+        _uomItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(234));
+        _offeruomItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(234));
+        _packingItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(235));
+        _shippingItems = await Mediator.Send(new GetAllApplicationMasterDetailQuery(236));
+        _productItems = await Mediator.Send(new GetAllGenericCodesQuery());
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        if (ParentData != null && ParentData.QuotationHistoryLineId > 0)
+        {
+            Data.QuotationHistoryLineId = ParentData.QuotationHistoryLineId;
+            Data.ProductId = ParentData.ProductId;
+            Data.Source = ParentData.Source;
+            Data.Quantity = ParentData.Quantity != null && ParentData.Quantity > 0 ? (Decimal.Parse(ParentData.Quantity.ToString().TrimEnd('0').TrimEnd('.'))) : null;
+            Data.PackingId = ParentData.PackingId;
+            Data.OfferPrice = ParentData.OfferPrice != null && ParentData.OfferPrice > 0 ? (Decimal.Parse(ParentData.OfferPrice.ToString().TrimEnd('0').TrimEnd('.'))) : null;
+            Data.OfferCurrencyId = ParentData.OfferCurrencyId;
+            Data.OfferUomid = ParentData.OfferUomid;
+            Data.Focqty = ParentData.Focqty != null && ParentData.Focqty > 0 ? (Decimal.Parse(ParentData.Focqty.ToString().TrimEnd('0').TrimEnd('.'))) : null;
+            Data.ShippingTermsId = ParentData.ShippingTermsId;
+            Data.StatusCodeId = ParentData.StatusCodeId;
+            Data.Remarks = ParentData.Remarks;
+            Data.SessionId = ParentData.SessionId;
+            Data.AddedDate = ParentData.AddedDate;
+            Data.AddedByUserId = ParentData.AddedByUserId;
+            addEnabled = true; saveEnabled = true;
+        }
+        else
+        {
+            Data.StatusCodeId = 1;
+        }
+        StateHasChanged();
+    }
+    void SelectedItemprod(GenericCodes genericCodes)
+    {
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
+    }
+    private async Task SubmitFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleFormValidSubmit();
+        }
+    }
+    void addNewForm()
+    {
+        _editContext = new EditContext(Data);
+        QuotationHistoryLineId = 0;
+        Data.QuotationHistoryLineId = 0;
+        Data.ProductId = null;
+        Data.Source = null;
+        Data.Quantity = null;
+        Data.PackingId = null;
+        Data.OfferPrice = null;
+        Data.OfferCurrencyId = null;
+        Data.OfferUomid = null;
+        Data.Focqty = null;
+        Data.ShippingTermsId = null;
+        Data.StatusCodeId = 1;
+        Data.Remarks = null;
+        Data.SessionId = null;
+        Data.AddedByUserId = null; Data.AddedDate = DateTime.Now;
+        Data.ModifiedByUserId = null; Data.ModifiedDate = null;
+        addEnabled = true; saveEnabled = true;
+        StateHasChanged();
+    }
+    async Task HandleFormValidSubmit()
+    {
+        addEnabled = false; saveEnabled = false;
+        var request = new InsertOrUpdateQuotationHistoryLine
+            {
+                QuotationHistoryLineId = Data.QuotationHistoryLineId,
+                QutationHistoryId = QutationHistoryId,
+                ProductId = Data.ProductId,
+                Source = Data.Source,
+                Quantity = Data.Quantity,
+                PackingId = Data.PackingId,
+                OfferPrice = Data.OfferPrice,
+                OfferCurrencyId = Data.OfferCurrencyId,
+                OfferUomid = Data.OfferUomid,
+                Focqty = Data.Focqty,
+                ShippingTermsId = Data.ShippingTermsId,
+                StatusCodeId = Data.StatusCodeId,
+                Remarks = Data.Remarks,
+                AddedByUserId = Data.AddedByUserId > 0 ? Data.AddedByUserId : applicationUser.UserID,
+                AddedDate = Data.AddedByUserId > 0 ? Data.AddedDate : DateTime.Now,
+                ModifiedByUserId = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                SessionId = Data.SessionId != null ? Data.SessionId : Guid.NewGuid(),
+            };
+        var result = await Mediator.Send(request);
+        if (result.QuotationHistoryLineId > 0)
+        {
+            if (QuotationHistoryLineId > 0)
+            {
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            else
+            {
+                toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            QuotationHistoryLineId = result.QuotationHistoryLineId;
+            Data.QuotationHistoryLineId = result.QuotationHistoryLineId;
+            addEnabled = true; saveEnabled = true;
+        }
+        StateHasChanged();
+    }
+}

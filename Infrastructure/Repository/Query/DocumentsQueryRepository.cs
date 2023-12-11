@@ -627,9 +627,9 @@ namespace Infrastructure.Repository.Query
                             LinkDocparameters.Add("SessionId", DocuId.SessionId, DbType.Guid);
                             LinkDocparameters.Add("Type", value.Type, DbType.String);
                             LinkDocparameters.Add("DocumentId", DocuId.DocumentId);
-                            var linkquery = "INSERT INTO [ProductionActivityAppLineDoc](ProductionActivityAppLineId,SessionId,Type,DocumentId) " +
+                            var linkquery = "INSERT INTO [ProductionActivityAppLineDoc](ProductionActivityAppLineId,Type,DocumentId) " +
                            "OUTPUT INSERTED.ProductionActivityAppLineDocId VALUES " +
-                          "(@ProductionActivityAppLineId,@SessionId,@Type,@DocumentId)";
+                          "(@ProductionActivityAppLineId,@Type,@DocumentId)";
                             await connection.ExecuteAsync(linkquery, LinkDocparameters);
                         }
                         connection.Close();

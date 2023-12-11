@@ -240,6 +240,7 @@ namespace Core.EntityModels
         public List<Guid?> SessionIds { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+        public Guid? AttachSessionId { get; set; }
 
     }
     public class MultipleFileProfileItemLists

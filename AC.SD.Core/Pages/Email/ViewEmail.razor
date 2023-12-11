@@ -75,7 +75,12 @@
                                 </DxTabPage>
                                 <DxTabPage Text="Library" CssClass="@((isLeftMenuvisible == "Library" ? "tActive": "library"))" Click="@(() => OnLeftMenuItemClick("Library"))">
 
-                                </DxTabPage>                                
+                                </DxTabPage>
+                                @if(_openAccessUserLink != null)
+                                {
+                                    <DxTabPage Text="Administrator" CssClass="@((isLeftMenuvisible == "Administrator" ? "tActive": "administrator"))" Click="@(() => OnLeftMenuItemClick("Administrator"))"></DxTabPage>   
+                                }
+                                
                               </DxTabs>                          
                         </div>
                     </div>
@@ -101,7 +106,11 @@
                         else if(isLeftMenuvisible == "Library")
                         {
                             <MasterSearch @ref=RefMasterSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></MasterSearch>
-                        }                              
+                        }
+                        else if (isLeftMenuvisible == "Administrator")
+                        {
+                            <AdminEmail @ref=RefAdminSearch GridSearchText="@GridSearchText" MyDayFilterText="@MyDayFilterText" ATopicId="onViewEmailAllClick" SubViewAllTopicId="onSubViewEmailClick"></AdminEmail>
+                        }
                         </div>
                     </div>
                 </div>               
@@ -242,18 +251,91 @@
 
                                             <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="margin-right: 10px;">
                                                 <div class="uk-card-header">
-                                                    <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">                                                        
+                                                    <div class="container-header" style="margin-left: -9px;">
+                                                        <div class="left-column">
+                                                            <div style="font-size: 20px; margin: 0;"> @(item.Name.Length > 100 ? item.Name.Substring(0, 100) : item.Name) </div>
+                                                            <p style="font-size:12px; line-height: 1.1; margin: 0;    padding: 5px 0 0 0;">
+                                                                From: @item.UserName
+                                                            @if (item.OnBehalfName != null)
+                                                            {
+                                                                <span style="font-weight:bold; font-size:12px; margin-left:10px;">OnBehalf : </span>
+                                                                <span style="font-size:12px;"> @item.OnBehalfName </span>
+                                                                @if (item.Follow == "Follow Up")
+                                                                {
+                                                                    <span class="fa fa-link" style="font-size:12px; margin-left: 10px;color: red;" aria-hidden="true"></span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="fa fa-chain-broken" style="font-size:12px; margin-left: 10px;" aria-hidden="true"></span>
+                                                                }
+                                                            }
+                                                            <br>                                                            
+                                                            To:
+                                                            @if (item.AssignToList != null && item.AssignToList.Any())
+                                                            {
+                                                                @foreach (var items in item.AssignToList)
+                                                                {
+                                                                    <span>@items.FirstName ,</span>
+                                                                }
+                                                            }
+                                                            <br>
+                                                            @if (item.AssignCCList != null && item.AssignCCList.Any())
+                                                            {
+                                                                <text>CC:</text>
+                                                                @foreach (var items in item.AssignCCList)
+                                                                {
+                                                                    <span>@items.FirstName ,</span>
+                                                                }
+                                                            }
+                                                            </p>
+                                                        </div>
+
+                                                        <div class="right-column">
+                                                            <div class="shared-div">
+                                                                <div class="date-and-notes">
+                                                                    @if(item.DueDate != null)
+                                                                    {
+                                                                        <div class="" style="margin-right: 10px; font-size: 12px;"><span style="font-weight:bold;"> Due Date</span> @Application.Common.Helper.Helper.FormatDate(item.DueDate.Value)</div>
+                                                                        
+                                                                    }
+
+                                                                    <button type="button" @onclick="@(() => onreply(item.ID))" style="font-size: 13px; margin-right: 10px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;padding-right: 10px; padding-left: 10px;" class="">
+                                                                        <i class="fa fa-reply"></i> Reply
+                                                                    </button>
+                                                                     
+                                                                     @{ dynamicShowSubject = "showOpenSubject_" + item.ID; }
+                                                                       <div id="@dynamicShowSubject"  class="handline fa fa-ellipsis-v" @onclick="() => ShowSubjectFlyout(item)" style=" margin-right: 10px; font-size: 18px;font-weight: bold;"></div>
+                                                                </div>
+                                                                <div class="date-and-notes">
+                                                                    <div class="" style="font-size:12px; margin-right: 10px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
+                                                                    @if (item.IsAllowParticipants.GetValueOrDefault(false))
+                                                                    {
+                                                                        <span class="" style="margin-right: 10px; font-size: 14px;"><i class="fa fa-users" aria-hidden="true"></i></span>
+                                                                    }
+                                                                    @if (item.Urgent.GetValueOrDefault(false))
+                                                                    {
+                                                                        <span class="urgent_icon" style="margin-right: 10px; font-size: 14px;"><i class="fas fa-bell" style="" aria-hidden="true"></i></span>
+                                                                    }
+                                                                    @if (item.NotifyUser.GetValueOrDefault(false))
+                                                                    {
+                                                                        <span class="" style="margin-right: 10px; font-size: 14px;"><i class="fa fa-commenting" style="" aria-hidden="true"></i></span>
+                                                                    }
+                                                                
+                                                                </div>
+                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @* <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">                                                        
                                                         <div class="mailbox-read-info">  
                                                            <h3 style="width: 90%;">  @(item.Name.Length > 100 ? item.Name.Substring(0, 100) : item.Name)  </h3>
                                                            @if(item.DueDate != null)
                                                            {
                                                                 <div class="mailbox-read-time pull-right">
-                                                                    <div class="" style="margin-top: -21px; margin-right: 16px;"><span style="font-weight:bold;"> Due Date</span> @Application.Common.Helper.Helper.FormatDate(item.DueDate.Value)</div>
+                                                                    <div class="" style="margin-top: -21px; margin-right: 104px;"><span style="font-weight:bold;"> Due Date</span> @Application.Common.Helper.Helper.FormatDate(item.DueDate.Value)</div>
                                                                 </div>
-                                                           }
-                                                            @*<div class="mailbox-read-time pull-right">
-                                                                <span @onclick="@(() => onMarkasAllRead(item.ID))" style="margin-top: -21px;" class="fa fa-text-width" title="Mark as all read"></span>
-                                                            </div>*@
+                                                           }                                                        
+                                                           
                                                             @{
                                                                 dynamicShowSubject = "showOpenSubject_" + item.ID;                                                                
                                                             }
@@ -269,7 +351,12 @@
                                                             @if (item.NotifyUser.GetValueOrDefault(false))
                                                             {
                                                                 <span class="primary_color_icon"><i class="fa fa-commenting" style="margin-top: 8px;" aria-hidden="true"></i></span>
-                                                            }                                                          
+                                                            }
+                                                            <div class="mailbox-read-time pull-right">
+                                                                <button type="button" @onclick="@(() => onreply(item.ID))" style="margin-top: -21px; margin-right: -13px; border: 1px solid #eeebeb; padding: 1px; border-radius: 5px;float: right; padding-right: 10px; padding-left: 10px;" class="">
+                                                                    <i class="fa fa-reply"></i> Reply
+                                                                </button>
+                                                            </div>
                                                             <h5>                                                               
                                                                 From: @item.UserName
                                                                 @if (item.OnBehalfName != null)
@@ -306,10 +393,10 @@
                                                                     {
                                                                         <span>@items.FirstName ,</span>
                                                                     }
-                                                                }
+                                                                }                                                                
                                                             </h5>
                                                         </div>                                                                                                            
-                                                    </div>
+                                                    </div> *@
                                                 </div>
                                                 @if (!string.IsNullOrEmpty(item.BackURL))
                                                 {    
@@ -1349,6 +1436,7 @@
 
 
 @code {
+    private OpenAccessUserLink _openAccessUserLink { get; set; }
     private List<ViewPlants>? _plantItems;
     private List<ViewDivision>? _divisionItems;
     private List<ViewDepartment>? _departmentItems;
@@ -2277,6 +2365,7 @@
     private TopicTags? RefTopicTagList { get; set; }
     private UserToDo? RefTopicTodo { get; set; }
     private MasterSearch? RefMasterSearch { get; set; }
+    private AdminEmail? RefAdminSearch { get; set; }
     private bool IsValidUser { get; set; } = false;
     private bool IsFileValidUser { get; set; } = false;
     [Parameter]
@@ -3892,7 +3981,11 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        _editContext = new EditContext(_dataFileProfileType);       
+        _editContext = new EditContext(_dataFileProfileType);   
+        
+
+       
+
 
         Page = Page == null ? "AssignTo" : Page;
 
@@ -3907,6 +4000,7 @@
 
         onloadSession();
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        _openAccessUserLink = await Mediator.Send(new GetEmailAccessByUser(applicationUser.UserID));
         AppUserId = applicationUser.UserID;
         await JSRuntime.InvokeAsync<string>("showLoading");
 

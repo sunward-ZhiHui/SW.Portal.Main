@@ -18,5 +18,6 @@ namespace Core.Repositories.Query
         Task<OpenAccessUserLink> InsertOpenAccessUserLink(OpenAccessUserLink value);
         Task<OpenAccessUser> GetAllByAsync(string? AccessType);
         Task<OpenAccessUserLink> GetDMSAccessByUser(long? UserID);
+        Task<OpenAccessUserLink> GetEmailAccessByUser(long? UserID);
     }
 }

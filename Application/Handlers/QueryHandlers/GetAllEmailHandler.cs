@@ -227,6 +227,20 @@ namespace CMS.Application.Handlers.QueryHandlers
 
         }
     }
+    public class GetEmailAdminSearchAllHandler : IRequestHandler<GetEmailAdminSearchAll, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetEmailAdminSearchAllHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetEmailAdminSearchAll request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetTopicAdminSearchList(request);
+
+        }
+    }
     public class GetEmailTopicCCHandler : IRequestHandler<GetEmailTopicCC, List<EmailTopics>>
     {
 
@@ -337,6 +351,20 @@ namespace CMS.Application.Handlers.QueryHandlers
         public async Task<List<EmailTopics>> Handle(GetSubEmailTopicAll request, CancellationToken cancellationToken)
         {
             return await _emailTopicsQueryRepository.GetSubTopicAllList(request.TopicId, request.UserId,request.SearchTxt);
+
+        }
+    }
+    public class GetSubAdminEmailTopicAllHandler : IRequestHandler<GetSubAdminEmailAll, List<EmailTopics>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetSubAdminEmailTopicAllHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTopics>> Handle(GetSubAdminEmailAll request, CancellationToken cancellationToken)
+        {
+            return await _emailTopicsQueryRepository.GetSubAdminEmailTopicAllList(request.TopicId, request.UserId, request.SearchTxt);
 
         }
     }

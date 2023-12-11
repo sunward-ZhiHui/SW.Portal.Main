@@ -29,8 +29,11 @@
     padding: 16px;
     /* Add any additional styles as needed */
 }
-
-
+.container-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+}
 aside {
     width: 200px;
     background-color: #f2f2f2;

@@ -131,9 +131,10 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("UserId", UserId);
-                var query = @"select ET.TopicName as Type,ET.TopicName as Caption, ET.AddedDate as StartDate, DATEADD(HOUR, 2, ET.StartDate) as EndDate,ET.ID as LabelId,ET.ID as StatusId,ET.ID as Status,ET.ID as Label from EmailTopics ET
-                                UNION ALL
-                                select ET.TopicName as Type,TNH.Description as Caption, TNH.DueDate as StartDate, DATEADD(HOUR, 2, TNH.DueDate) as EndDate,ET.ID as LabelId,ET.ID as StatusId,ET.ID as Status,ET.ID as Label from EmailTopics ET
+                var query = @"SELECT BackgroundCss='dx-purple-color',TextCss='text-white', ET.ID,ET.TopicName as Name, ET.TopicName as Type,ET.TopicName as Caption, ET.AddedDate as StartDate, DATEADD(HOUR, 2, ET.StartDate) as EndDate,ET.ID as LabelId,ET.ID as StatusId,ET.ID as Status,ET.ID as Label from EmailTopics ET
+                                WHERE ET.AddedByUserID  = @UserId
+	                                UNION ALL
+                                SELECT BackgroundCss = 'dx-green-color', TextCss='text-white',ET.ID,ET.TopicName as Name, ET.TopicName as Type,TNH.Description as Caption, TNH.DueDate as StartDate, DATEADD(HOUR, 2, TNH.DueDate) as EndDate,ET.ID as LabelId,ET.ID as StatusId,ET.ID as Status,ET.ID as Label from EmailTopics ET
                                 inner join EmailConversations EC on EC.TopicID = ET.ID
                                 inner join ToDoNotesHistory TNH ON TNH.TopicId = EC.ID WHERE TNH.AddedByUserID  = @UserId";
 

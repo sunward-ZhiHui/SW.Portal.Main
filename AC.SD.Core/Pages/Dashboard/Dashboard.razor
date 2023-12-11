@@ -12,6 +12,7 @@
 @inject NavigationManager NavigationManager
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 
+
 @using Data
 @using static Application.Queries.GetEmailRatio;
 
@@ -37,7 +38,7 @@
 </DxScheduler>*@
 
 
-<DxScheduler StartDate="@DateTime.Today" DataStorage="@DataStorage1" CssClass="w-100" AllowCreateAppointment="false"
+@* <DxScheduler StartDate="@DateTime.Today" DataStorage="@DataStorage1" CssClass="w-100" AllowCreateAppointment="false"
              AllowEditAppointment="false" AllowDeleteAppointment="false">
     <DxSchedulerDayView DayCount="5" ShowWorkTimeOnly="true">
         <HorizontalAppointmentTemplate>
@@ -57,6 +58,25 @@
     </DxSchedulerDayView>
 
 
+</DxScheduler> *@
+
+<DxScheduler StartDate="@DateTime.Today"
+             DataStorage="@DataStorage1"
+             GroupType="SchedulerGroupType.Date"
+             ShowAppointmentTooltip="true">
+    <Views>
+        <DxSchedulerDayView DayCount="3" ShowWorkTimeOnly="true" />
+    </Views>
+    <AppointmentTooltipHeaderTemplate>
+        <div class="tooltip-text-header">@context.Appointment.Subject</div>
+        <DxSchedulerCloseAppointmentButton></DxSchedulerCloseAppointmentButton>
+    </AppointmentTooltipHeaderTemplate>
+    <AppointmentTooltipTemplate>
+        <span style="vertical-align: middle;">
+            @context.Appointment.Subject
+        </span>
+       
+    </AppointmentTooltipTemplate>
 </DxScheduler>
 
 
@@ -66,7 +86,7 @@
 
    
     DxSchedulerDataStorage DataStorage1 = new DxSchedulerDataStorage()
-        {
+        {            
             //AppointmentsSource = AppointmentCollection.GetAppointments(),
             AppointmentMappings = new DxSchedulerAppointmentMappings()
             {
@@ -80,6 +100,14 @@
                 LabelId = "Label",
                 StatusId = "Status",
                 RecurrenceInfo = "Recurrence"
+            },            
+            ResourceMappings = new DxSchedulerResourceMappings()
+            {
+                Id = "ID",
+                Caption = "Name",
+                Color = "Color",
+                BackgroundCssClass = "BackgroundCss",
+                TextCssClass = "TextCss"
             }
         };
     protected override async void OnInitialized()
@@ -113,3 +141,12 @@
 
     
 }
+
+<style>
+    .tooltip-text-header {
+        margin-right: auto;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+</style>

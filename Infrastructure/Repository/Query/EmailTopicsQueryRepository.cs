@@ -1397,16 +1397,66 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY TP.ID ASC), TP.ID,TP.TopicId,AU.UserCode,AU.UserName,TP.AddedDate,TP.SessionId,AU.UserID,
-                                CASE WHEN TP.AddedByUserID = TP.UserID THEN 0 ELSE 1 END AS IsEnabled,ECO.Name as SubjectName,(E.FirstName + ' ' + E.LastName) AS Name,E.NickName,
-								D.Name AS DesignationName,p.PlantCode AS CompanyName 
-                                FROM EmailConversationParticipant TP 
-                                INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID   
-								INNER JOIN Employee E ON E.UserID = AU.UserID
-								LEFT JOIN Designation D ON D.DesignationID = E.DesignationID
-								LEFT JOIN Plant P ON P.PlantID =E.PlantID
-								INNER JOIN EmailConversations ECO ON ECO.ID = TP.ConversationId                               
-                                WHERE TP.ConversationId = @ConversationId order by TP.ID ASC";
+                //        var query = @"SELECT RowIndex = ROW_NUMBER() OVER(ORDER BY TP.ID ASC), TP.ID,TP.TopicId,AU.UserCode,AU.UserName,TP.AddedDate,TP.SessionId,AU.UserID,
+                //                        CASE WHEN TP.AddedByUserID = TP.UserID THEN 0 ELSE 1 END AS IsEnabled,ECO.Name as SubjectName,(E.FirstName + ' ' + E.LastName) AS Name,E.NickName,
+                //D.Name AS DesignationName,p.PlantCode AS CompanyName 
+                //                        FROM EmailConversationParticipant TP 
+                //                        INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID   
+                //INNER JOIN Employee E ON E.UserID = AU.UserID
+                //LEFT JOIN Designation D ON D.DesignationID = E.DesignationID
+                //LEFT JOIN Plant P ON P.PlantID =E.PlantID
+                //INNER JOIN EmailConversations ECO ON ECO.ID = TP.ConversationId                               
+                //                        WHERE TP.ConversationId = @ConversationId order by TP.ID ASC";
+
+
+                var query = @";WITH CTE AS (
+                                SELECT
+                                    TP.UserId AS UserID,
+                                    TP.ID,
+                                    TP.TopicId,
+                                    AU.UserCode,
+                                    AU.UserName,
+                                    TP.AddedDate,
+                                    TP.SessionId,
+                                    CASE
+                                        WHEN TP.AddedByUserID = TP.UserID THEN 0
+                                        ELSE 1
+                                    END AS IsEnabled,
+                                    ECO.Name AS SubjectName,
+                                    (E.FirstName + ' ' + E.LastName) AS Name,
+                                    E.NickName,
+                                    D.Name AS DesignationName,
+                                    P.PlantCode AS CompanyName,
+                                    ROW_NUMBER() OVER (PARTITION BY TP.UserId ORDER BY TP.ID ASC) AS RowNum
+                                FROM
+                                    EmailConversationParticipant TP
+                                    INNER JOIN ApplicationUser AU ON TP.UserId = AU.UserID
+                                    INNER JOIN Employee E ON E.UserID = AU.UserID
+                                    LEFT JOIN Designation D ON D.DesignationID = E.DesignationID
+                                    LEFT JOIN Plant P ON P.PlantID = E.PlantID
+                                    INNER JOIN EmailConversations ECO ON ECO.ID = TP.ConversationId
+                                WHERE
+                                    TP.ConversationId = @ConversationId
+                            )
+
+                            SELECT
+                                UserID,
+                                ID,
+                                TopicId,
+                                UserCode,
+                                UserName,
+                                AddedDate,
+                                SessionId,
+                                IsEnabled,
+                                SubjectName,
+                                Name,
+                                NickName,
+                                DesignationName,
+                                CompanyName
+                            FROM
+                                CTE
+                            WHERE
+                                RowNum = 1";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("ConversationId", ConversationId);

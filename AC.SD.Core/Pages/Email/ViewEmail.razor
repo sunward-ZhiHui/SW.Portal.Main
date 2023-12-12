@@ -769,23 +769,18 @@
                         }
                         else if (isMenuvisible == "Files")
                         {
-                            <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
+                            @* <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
                                 <div class="card-body p-0">                                   
                                     <DxMenu CollapseItemsToHamburgerMenu="true" 
                                     CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                                     DisplayMode="MenuDisplayMode.Desktop">
-                                    <Items>
-                                       @* @if(IsFileValidUser)
-                                        {*@
-                                            <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="((e) => onPreview(_selectlst.DocumentId))" Enabled=PreviewEnabled />
-                                            @*<DxMenuItem Text="Download" IconCssClass="fa fa-cloud-download" Click="((e) => onDocDownload(_selectlst.DocumentId))" Enabled=docEnabled />*@
-                                       @* } *@                                      
-                                        
+                                    <Items>                                      
+                                        <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="((e) => onPreview(_selectlst.DocumentId))" Enabled=PreviewEnabled />                                        
                                     </Items>
                                     </DxMenu>
                                 </div>
-                            </div>
-                            <DxGrid @ref="Grid" Data="@_topicDocList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
+                            </div> *@
+                            @* <DxGrid @ref="Grid" Data="@_topicDocList" EditMode="GridEditMode.EditForm" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
                                 PagerNavigationMode="PagerNavigationMode.InputBox"
                                 PageSizeSelectorVisible="true"
                                 PageSizeSelectorAllRowsItemVisible="true"
@@ -798,12 +793,9 @@
                                 FocusedRowEnabled="true"
                                 SelectionMode="GridSelectionMode.Multiple"
                                 SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages">
-                                <Columns>
-                                @*    <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />*@
-                                    @*<DxGridDataColumn FieldName="FileIndex" Caption="#" Width="35px" FixedPosition="GridColumnFixedPosition.Left"></DxGridDataColumn>*@
+                                <Columns>                               
                                     <DxGridDataColumn FieldName="SubjectName" MinWidth="200" FixedPosition="GridColumnFixedPosition.Left"  />
                                     <DxGridDataColumn FieldName="FileName" MinWidth="200" />
-
                                     <DxGridDataColumn FieldName="AddedBy" MinWidth="200" />
                                     <DxGridDataColumn FieldName="AddedDate" Width="180px">
                                         <CellDisplayTemplate>
@@ -812,27 +804,7 @@
                                             }
                                             @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
                                         </CellDisplayTemplate>
-                                    </DxGridDataColumn>
-                                    @*<DxGridDataColumn FieldName="ModifiedBy" MinWidth="200" />
-                                    <DxGridDataColumn FieldName="ModifiedDate" Width="180px">
-                                        <CellDisplayTemplate>
-                                            @{
-                                                var item = (Documents)context.DataItem;
-                                            }
-                                            @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
-                                        </CellDisplayTemplate>
-                                    </DxGridDataColumn>*@
-
-                                      @*<DxGridDataColumn FieldName="EmailToDMS" />*@
-                                   @* <DxGridDataColumn FieldName="DocumentId" Caption="Preview" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
-                                        <CellDisplayTemplate><button class="dxbl-btn fa fa-eye" @onclick="() => onPreview((long)context.Value)"></button></CellDisplayTemplate>
-                                    </DxGridDataColumn>
-                                    <DxGridDataColumn FieldName="DocumentId" Caption="Download" AllowSort="false" Width="90px" FixedPosition="GridColumnFixedPosition.Right"  MinWidth="45" TextAlignment="GridTextAlignment.Center">
-                                        <CellDisplayTemplate><button class="dxbl-btn fa fa-cloud-download" @onclick="() => onDocDownload((long)context.Value)"></button></CellDisplayTemplate>
-                                    </DxGridDataColumn>*@
-                                   @* <DxGridDataColumn FieldName="DocumentId" Caption="Delete" AllowSort="false" Width="90px" MinWidth="45" TextAlignment="GridTextAlignment.Center">
-                                        <CellDisplayTemplate><button class="btnDelete fas fa-trash" @onclick="() => onDocDelete((long)context.Value)"></button></CellDisplayTemplate>
-                                    </DxGridDataColumn>*@
+                                    </DxGridDataColumn>                                   
                                     <DxGridDataColumn FieldName="DocumentId" Caption="Link to DMS" FixedPosition="GridColumnFixedPosition.Left" Width="70">
                                         <CellDisplayTemplate>
                                             @{
@@ -846,16 +818,16 @@
                                             {
                                                 <i class="fa fa-clone" aria-hidden="true" style="margin-right: 5px;cursor:pointer;" id=@($"flyout-overview-target-container-ProfileType-{item.DocumentId}") onclick="@(() => OnButtonDescriptionClick(item))" title="Link to DMS"></i>
                                             }
-
-                        
                                         </CellDisplayTemplate>
                                     </DxGridDataColumn>
                                 </Columns>
-                            </DxGrid>
+                            </DxGrid> *@
+
+                            <EmailAttachment @ref=RefEmailDoc Tid="@Tid" Cid="@Cid" LeftMenu="@isLeftMenuvisible"></EmailAttachment>
+
                         }
                         else if (isMenuvisible == "Todo")
-                        {
-                           @* <ToDoList Tid="@Tid"></ToDoList>*@
+                        {                           
                             <UserToDo @ref=RefTopicTodo Tid="@Cid"> </UserToDo>
                         }
                         else if (isMenuvisible == "Tags")
@@ -1588,7 +1560,7 @@
 
                         if (doclst.FilterProfileTypeId != null && doclst.FilterProfileTypeId.Value != 0)
                         {
-                             var getbackurlSessionid = await Mediator.Send(new GetByFileprofiletypeId(doclst.FilterProfileTypeId));
+                            var getbackurlSessionid = await Mediator.Send(new GetByFileprofiletypeId(doclst.FilterProfileTypeId));
                             _selectedDescriptionItems.SessionId = getbackurlSessionid.SessionId;
                         }
 
@@ -1597,14 +1569,14 @@
 
                     }
                 }
-           }
-           else
-           {
+            }
+            else
+            {
                 toastService.ShowToast("Selected File Extension Mismatch", AC.SD.Core.Services.ToastLevel.Error);
                 return;
-           }
+            }
 
-           
+
         }
 
 
@@ -1628,7 +1600,7 @@
     }
     void CheckExtension()
     {
-         IsUploadExt = "";
+        IsUploadExt = "";
 
         if (!string.IsNullOrEmpty(_selectedDescriptionItems.Extension))
         {
@@ -1674,7 +1646,7 @@
         ExtensionsList = string.Join(",", AcceptedFileTypes.ConvertAll(d => d.ToLower()).Distinct().ToList());
 
         StateHasChanged();
-        
+
     }
     async Task CreateEmailActivityEntry(Documents documents)
     {
@@ -2063,7 +2035,7 @@
             _dataFileProfileType.SubSectionId = 0;
         }
 
-      
+
     }
     void OnFileLinkTypeChanged(string? radioValue)
     {
@@ -2244,7 +2216,7 @@
         }
 
         IsDescriptionOpen = true;
-        
+
         StateHasChanged();
     }   
 
@@ -2364,6 +2336,7 @@
     private AllEmail? RefAssignAll{ get; set; }
     private TopicTags? RefTopicTagList { get; set; }
     private UserToDo? RefTopicTodo { get; set; }
+    private EmailAttachment? RefEmailDoc { get; set; }
     private MasterSearch? RefMasterSearch { get; set; }
     private AdminEmail? RefAdminSearch { get; set; }
     private bool IsValidUser { get; set; } = false;

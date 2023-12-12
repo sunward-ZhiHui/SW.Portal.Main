@@ -17,6 +17,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using Core.EntityModels;
 using Newtonsoft.Json.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Infrastructure.Repository.Query
 {
@@ -824,8 +825,6 @@ namespace Infrastructure.Repository.Query
 
                 if (values.DocumentsUploadModels != null && values.DocumentsUploadModels.Count > 0)
                 {
-                    //var filePaths = values.DocumentsUploadModels.Select(s => s.FilePath).ToList();
-                    // var docIds = await getDocIds(values, filePaths);
                     var profileNos = await GenerateDocumentProfileAutoNumberOne(values);
                     int? lastNoUsed = Convert.ToInt32(profileNos.ProfileAutoNumber.LastNoUsed == null ? null : profileNos.ProfileAutoNumber.LastNoUsed);
                     int? incrementNo = null;
@@ -840,26 +839,33 @@ namespace Infrastructure.Repository.Query
                     {
                         lastNoUsed += incrementNo;
                     }
-                    var parameters = new DynamicParameters();
-                    parameters.Add("FileProfileTypeId", values.FileProfileTypeId);
-                    parameters.Add("Description", values.Description);
-                    parameters.Add("ExpiryDate", values.ExpiryDate);
-                    parameters.Add("StatusCodeID", 1);
-                    parameters.Add("AddedByUserId", values.UserId);
-                    parameters.Add("TableName", "Document");
-                    parameters.Add("IsTemp", 0);
-                    parameters.Add("FilePath", value.FilePath);
-                    parameters.Add("SessionId", value.SessionId);
-                    parameters.Add("FileSessionId", value.FileSessionId);
+
                     var profileNo = profileNos.ProfileNo;
                     if (lastNoUsed > 0 && profileNos.DocumentProfileNoSeries.NoOfDigit > 0)
                     {
                         profileNo += Convert.ToInt32(lastNoUsed).ToString("D" + profileNos.DocumentProfileNoSeries.NoOfDigit);
                     }
-                    parameters.Add("ProfileNo", profileNo);
 
-                    await UpdateDocumentNoDocumentBySessions(parameters);
-                    await InsertDocumentNoSeries(values, profileNo, value.SessionId);
+                    query += "Update Documents SET " +
+                            "FilterProfileTypeId=" + values.FileProfileTypeId + ", " +
+                            "Description='" + values.Description + "', " +
+                             "ExpiryDate=@ExpiryDate," +
+                            "StatusCodeID=1, " +
+                            "ProfileNo='" + profileNo + "', " +
+                            "TableName='Document', " +
+                            "IsTemp=0, " +
+                            "SessionId='" + value.SessionId + "' " +
+                            "WHERE " +
+                             "AddedByUserId=" + values.UserId + " AND " +
+                             "SessionId='" + value.FileSessionId + "'  AND " +
+                            "FilePath='" + value.FilePath + "';\n\r";
+
+
+                    query += "INSERT INTO [DocumentNoSeries](ProfileId,DocumentNo,AddedDate,AddedByUserID,StatusCodeId," +
+                            "SessionId,RequestorId,ModifiedDate,ModifiedByUserId,FileProfileTypeId,Description) " +
+                            "OUTPUT INSERTED.NumberSeriesId VALUES " +
+                           "(" + values.ProfileId + ",'" + profileNo + "',@AddedDate," + values.UserId + ",710,'" + value.SessionId + "'," + values.UserId + "," +
+                           "@ModifiedDate," + values.UserId + "," + values.FileProfileTypeId + ",'" + values.Description + "');\r\n";
                     if (values.Type == "Document Link")
                     {
                         values.FileSessionId = value.FileSessionId;
@@ -874,6 +880,10 @@ namespace Infrastructure.Repository.Query
                         await InsertSupportingDocumentLink(values);
                     }
                 });
+                    if (!string.IsNullOrEmpty(query))
+                    {
+                        await UpdateDocumentNoDocumentBySessions(query, values);
+                    }
                 }
 
                 return values;
@@ -884,49 +894,7 @@ namespace Infrastructure.Repository.Query
             }
 
         }
-        private async Task<DocumentsUploadModel> InsertDocumentNoSeries(DocumentsUploadModel documentNoSeries, string? DocumentNo, Guid? SessionId)
-        {
-            try
-            {
-                using (var connection = CreateConnection())
-                {
-                    try
-                    {
-                        var parameters = new DynamicParameters();
-                        parameters.Add("ProfileId", documentNoSeries.ProfileId);
-                        parameters.Add("DocumentNo", DocumentNo, DbType.String);
-                        parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
-                        parameters.Add("AddedByUserID", documentNoSeries.UserId);
-                        parameters.Add("StatusCodeId", 710);
-                        parameters.Add("SessionId", SessionId, DbType.Guid);
-                        parameters.Add("RequestorId", documentNoSeries.UserId);
-                        parameters.Add("ModifiedDate", DateTime.Now);
-                        parameters.Add("FileProfileTypeId", documentNoSeries.FileProfileTypeId);
-                        parameters.Add("ModifiedByUserId", documentNoSeries.UserId);
-                        parameters.Add("Description", documentNoSeries.Description, DbType.String);
-                        var query = "INSERT INTO [DocumentNoSeries](ProfileId,DocumentNo,AddedDate,AddedByUserID,StatusCodeId," +
-                            "SessionId,RequestorId,ModifiedDate,ModifiedByUserId,FileProfileTypeId,Description) " +
-                            "OUTPUT INSERTED.NumberSeriesId VALUES " +
-                           "(@ProfileId,@DocumentNo,@AddedDate,@AddedByUserID,@StatusCodeId,@SessionId,@RequestorId," +
-                           "@ModifiedDate,@ModifiedByUserId,@FileProfileTypeId,@Description)";
-                        await connection.QueryFirstOrDefaultAsync<long>(query, parameters);
-
-                        return documentNoSeries;
-                    }
-                    catch (Exception exp)
-                    {
-                        throw new Exception(exp.Message, exp);
-                    }
-                }
-
-
-            }
-            catch (Exception exp)
-            {
-                throw new Exception(exp.Message, exp);
-            }
-        }
-        private async Task<DocumentsUploadModel> UpdateDocumentNoDocumentBySessions(DynamicParameters parameters)
+        private async Task<DocumentsUploadModel> UpdateDocumentNoDocumentBySessions(string query, DocumentsUploadModel values)
         {
             DocumentsUploadModel documentsUploadModel = new DocumentsUploadModel();
             try
@@ -935,20 +903,10 @@ namespace Infrastructure.Repository.Query
                 {
                     try
                     {
-                        var query = string.Empty;
-                        query += "Update Documents SET " +
-                            "FilterProfileTypeId=@FileProfileTypeId, " +
-                            "Description=@Description, " +
-                            "ExpiryDate=@ExpiryDate, " +
-                            "StatusCodeID=@StatusCodeID, " +
-                            "ProfileNo=@ProfileNo, " +
-                            "TableName=@TableName, " +
-                            "IsTemp=@IsTemp, " +
-                            "SessionId=@SessionId " +
-                            "WHERE " +
-                             "AddedByUserId=@AddedByUserId AND " +
-                             "SessionId=@FileSessionId  AND " +
-                            "FilePath=@FilePath;\n\r";
+                        var parameters = new DynamicParameters();
+                        parameters.Add("ExpiryDate", values.ExpiryDate, DbType.DateTime);
+                        parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
+                        parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
                         if (!string.IsNullOrEmpty(query))
                         {
                             await connection.ExecuteAsync(query, parameters);

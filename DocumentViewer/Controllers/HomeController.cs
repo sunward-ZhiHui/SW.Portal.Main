@@ -20,6 +20,7 @@ using DocumentApi.Models;
 using System.Threading;
 using DevExpress.Xpo;
 using System.Net.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace DocumentViewer.Controllers
 {
@@ -367,23 +368,37 @@ namespace DocumentViewer.Controllers
             if (mode == "Email")
             {
 
-                var emailConversationlst = _context.EmailConversations.Where(w => w.SessionId == docsessionId).FirstOrDefault();
-                if (emailConversationlst != null)
+                var query = from oal in _context.OpenAccessUserLink
+                            join oau in _context.OpenAccessUser on oal.OpenAccessUserId equals oau.OpenAccessUserId
+                            where oal.UserId == userId && oau.AccessType == "EmailAccess"
+                            select oal;
+
+                if (query != null)
                 {
-                    var topicId = emailConversationlst.TopicId;
-                    var plst = _context.EmailConversationParticipant.Where(x => x.TopicId == topicId && x.UserId == userId).FirstOrDefault();
 
-                    if (plst != null)
+                    HttpContext.Session.SetString("isDownload", "Yes");
+                    HttpContext.Session.SetString("isView", "Yes");
+                }
+                else
+                {
+                    var emailConversationlst = _context.EmailConversations.Where(w => w.SessionId == docsessionId).FirstOrDefault();
+                    if (emailConversationlst != null)
                     {
-                        IsRead = "Yes";
-                    }
-                    else
-                    {
-                        IsRead = "No";
-                    }
+                        var topicId = emailConversationlst.TopicId;
+                        var plst = _context.EmailConversationParticipant.Where(x => x.TopicId == topicId && x.UserId == userId).FirstOrDefault();
 
-                    HttpContext.Session.SetString("isDownload", IsRead);
-                    HttpContext.Session.SetString("isView", IsRead);
+                        if (plst != null)
+                        {
+                            IsRead = "Yes";
+                        }
+                        else
+                        {
+                            IsRead = "No";
+                        }
+
+                        HttpContext.Session.SetString("isDownload", IsRead);
+                        HttpContext.Session.SetString("isView", IsRead);
+                    }
                 }
             }
             else if (mode == "ToDo")

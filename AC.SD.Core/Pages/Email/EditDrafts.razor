@@ -329,7 +329,7 @@ else
                                 <DxDateEdit @bind-Date="@Data.DueDate" CssClass="cw-320" Mask="dd/MMMM/yyyy" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="8">
-                                <DxRichEdit DocumentLoaded=OnDocumentLoaded DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" DocumentContent="@Data.FileData" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
+                                <DxRichEdit DocumentLoaded=OnDocumentLoaded CheckSpelling="true" DocumentFormat="DocumentFormat.Rtf" @ref="msgrichEdit" DocumentContent="@Data.FileData" CustomizeToolbar=OnCustomizeToolbar BarMode="BarMode.Toolbar" CssClass="w-100 txtEditorMsg" ViewType="ViewType.Simple" />
                                   
                             </DxFormLayoutItem>
                             <DxFormLayoutItem ColSpanMd="4">

@@ -19,6 +19,8 @@ namespace DocumentViewer.Models
         public DbSet<EmailConversation> EmailConversations { get; set; }
         public DbSet<EmailConversationParticipant> EmailConversationParticipant { get; set; }
         public DbSet<DocumentDmsShare> DocumentDmsShare { get; set; }
+        public DbSet<OpenAccessUserLink> OpenAccessUserLink { get; set; }
+        public DbSet<OpenAccessUser> OpenAccessUser { get; set; }
 
     }
 }

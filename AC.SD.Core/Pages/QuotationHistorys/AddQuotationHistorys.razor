@@ -136,12 +136,12 @@
                 <div class="cw-480 ch-220" style="margin-top:10px;">
                     <DxFormLayout CssClass="w-100">
                         <DxFormLayoutTabPages @bind-ActiveTabIndex="@ActiveSubTabIndex" RenderMode="TabsRenderMode.Default" TabClick=@OnTabClick>
-                            <DxFormLayoutTabPage Caption="Section Entry">
+                            <DxFormLayoutTabPage Caption="Quotation History Line">
                                 <AddQuotationHistorysLine @ref="refAddQuotationHistorysLine" applicationUser="@applicationUser" QuotationHistoryId="@QuotationHistoryId"></AddQuotationHistorysLine>
                             </DxFormLayoutTabPage>
-                            @*   <DxFormLayoutTabPage Caption="Approval Level Entry" Visible=IsApprovalEnabled>
-                            <DynamicFormApprovals @ref="refDynamicFormApproval" dynamicFormId="@dynamicFormId"></DynamicFormApprovals>
-                            </DxFormLayoutTabPage> *@
+                            <DxFormLayoutTabPage Caption="Attachment">
+                                <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@SessionIds" ForNoPopup="Yes"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+                            </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
                 </div>

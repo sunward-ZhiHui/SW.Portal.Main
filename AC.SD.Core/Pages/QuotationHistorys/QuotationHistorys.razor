@@ -95,7 +95,7 @@
          ShowCloseButton="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
     <BodyContentTemplate>
-        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@_selectedItems.SessionId"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
+        <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@_selectedItems.SessionId" RevokeBack="CloseAttachmentPopup"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
         <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => CloseAttachmentPopup())" />
@@ -137,6 +137,7 @@
         {
             _selectedItems = _quotationHistoryItems.FirstOrDefault();
             // EditEnabled = true; DeleteEnabled = true;AttachmentEnabled=true;
+            Grid.ClearSelection();
             PanelVisible = false;
         }
         PanelVisible = false;
@@ -235,6 +236,7 @@
     }
     void CloseAttachmentPopup()
     {
+        InvokeAsync(UpdateDataAsync);
         AttachmentPopUp = false;
     }
 }

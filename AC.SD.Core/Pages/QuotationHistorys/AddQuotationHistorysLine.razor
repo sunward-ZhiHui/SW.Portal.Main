@@ -140,8 +140,16 @@
                 PanelVisible = false;
             }
             PanelVisible = false;
-            StateHasChanged();
+
         }
+        else
+        {
+            PanelVisible = true; AddEnabled = false;
+            EditEnabled = false; DeleteEnabled = false;
+            _quotationHistoryLineItems = new List<QuotationHistoryLine>();
+        }
+        PanelVisible = false;
+        StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

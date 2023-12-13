@@ -8,6 +8,7 @@ namespace DocumentViewer.Models
     public class SpreadsheetDocumentContentFromBytes
     {
         public long? Id { get; set; }
+        public string? FileName { get; set; }
         public string DocumentId { get; set; }
         public string Type { get; set; }
         public string ContentType { get; set; }
@@ -15,5 +16,12 @@ namespace DocumentViewer.Models
         public string Url { get; set; }
        // public Func<byte[]> ContentAccessorByBytes { get; set; }
         public Func<Stream> ContentAccessorByBytes { get; set; }
+        public bool? IsRead { get; set; } = false;
+        public bool? IsDownload { get; set; } = false;
+    }
+    public class PermissionModel
+    {
+        public bool? IsRead { get; set; } = false;
+        public bool? IsDownload { get; set; } = false;
     }
 }

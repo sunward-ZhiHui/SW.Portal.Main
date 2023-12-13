@@ -1,7 +1,9 @@
-﻿@if (Context.Session.GetString("isView") == "Yes")
+﻿@model SpreadsheetDocumentContentFromBytes
+@if (Model.IsRead==true)
 {
-    @model SpreadsheetDocumentContentFromBytes
-@if (@Model.Id > 0)
+
+    <span style="display:none;" id="fileName_id">@Model.FileName</span>
+    @if (@Model.Id > 0)
     {
         @if (Model.Type == "image")
         {
@@ -16,26 +18,26 @@
                 if (@Model.Extensions == "xlsx")
                 {
                     @(
-                           Html.DevExpress()
-                           .Spreadsheet("spreadsheet")
-                           .Height("calc(100vh - 70px)")
-                           .Width("100%")
-                           .ConfirmOnLosingChanges(confirm => confirm.Enabled(false))
-                           .DocumentRequestHandlerUrl(Url.Action("DxDocRequest"))
-                           .Open(@Model.DocumentId, DevExpress.Spreadsheet.DocumentFormat.Xlsx, @Model.ContentAccessorByBytes).ReadOnly(true)
-                                   )
-                }
-                else if (@Model.Extensions == "xls")
-                {
-                    @(
                                Html.DevExpress()
                                .Spreadsheet("spreadsheet")
                                .Height("calc(100vh - 70px)")
                                .Width("100%")
                                .ConfirmOnLosingChanges(confirm => confirm.Enabled(false))
                                .DocumentRequestHandlerUrl(Url.Action("DxDocRequest"))
-                               .Open(@Model.DocumentId, DevExpress.Spreadsheet.DocumentFormat.Xls, @Model.ContentAccessorByBytes).ReadOnly(true)
+                               .Open(@Model.DocumentId, DevExpress.Spreadsheet.DocumentFormat.Xlsx, @Model.ContentAccessorByBytes).ReadOnly(true)
                                        )
+                }
+                else if (@Model.Extensions == "xls")
+                {
+                    @(
+                                   Html.DevExpress()
+                                   .Spreadsheet("spreadsheet")
+                                   .Height("calc(100vh - 70px)")
+                                   .Width("100%")
+                                   .ConfirmOnLosingChanges(confirm => confirm.Enabled(false))
+                                   .DocumentRequestHandlerUrl(Url.Action("DxDocRequest"))
+                                   .Open(@Model.DocumentId, DevExpress.Spreadsheet.DocumentFormat.Xls, @Model.ContentAccessorByBytes).ReadOnly(true)
+                                           )
                 }
                 else
                 {
@@ -138,22 +140,22 @@
                     if (@Model.Extensions == "docx")
                     {
                         @(
-                               Html.DevExpress().RichEdit("DemoRichEdit")
-                               .Height("calc(100vh - 70px)")
-                               .Width("100%")
-                               .ConfirmOnLosingChanges(c => c.Enabled(false))
-                               .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.OpenXml)
-                               .ContextMenu(cm => cm
-                               .Enabled(false)
-                               ).Ribbon(ribbon => ribbon
-                               .Tabs(tabs =>
-                               {
-                                   tabs.RemoveByTitle("File");
-                               }).Tabs(tabs =>
-                               {
-                                   tabs.RemoveByTitle("Mail Merge");
-                               })
-                               ).ReadOnly(true))
+                                   Html.DevExpress().RichEdit("DemoRichEdit")
+                                   .Height("calc(100vh - 70px)")
+                                   .Width("100%")
+                                   .ConfirmOnLosingChanges(c => c.Enabled(false))
+                                   .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.OpenXml)
+                                   .ContextMenu(cm => cm
+                                   .Enabled(false)
+                                   ).Ribbon(ribbon => ribbon
+                                   .Tabs(tabs =>
+                                   {
+                                       tabs.RemoveByTitle("File");
+                                   }).Tabs(tabs =>
+                                   {
+                                       tabs.RemoveByTitle("Mail Merge");
+                                   })
+                                   ).ReadOnly(true))
                     }
                     else
                     {
@@ -252,22 +254,22 @@
                 else
                 {
                     @(
-                            Html.DevExpress().RichEdit("DemoRichEdit")
-                            .Height("calc(100vh - 70px)")
-                            .Width("100%")
-                            .ConfirmOnLosingChanges(c => c.Enabled(false))
-                            .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.PlainText)
-                            .ContextMenu(cm => cm
-                            .Enabled(false)
-                            ).Ribbon(ribbon => ribbon
-                            .Tabs(tabs =>
-                            {
-                                tabs.RemoveByTitle("File");
-                            }).Tabs(tabs =>
-                            {
-                                tabs.RemoveByTitle("Mail Merge");
-                            })
-                            ).ReadOnly(true))
+                                Html.DevExpress().RichEdit("DemoRichEdit")
+                                .Height("calc(100vh - 70px)")
+                                .Width("100%")
+                                .ConfirmOnLosingChanges(c => c.Enabled(false))
+                                .Open(@Model.ContentAccessorByBytes, DevExpress.AspNetCore.RichEdit.DocumentFormat.PlainText)
+                                .ContextMenu(cm => cm
+                                .Enabled(false)
+                                ).Ribbon(ribbon => ribbon
+                                .Tabs(tabs =>
+                                {
+                                    tabs.RemoveByTitle("File");
+                                }).Tabs(tabs =>
+                                {
+                                    tabs.RemoveByTitle("Mail Merge");
+                                })
+                                ).ReadOnly(true))
                 }
 
             }

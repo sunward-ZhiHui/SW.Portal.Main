@@ -85,55 +85,37 @@
     </style>
 </head>
 <body>
-    <span style="display:none;" id="fileName_id">@Context.Session.GetString("fileName")</span>
-    @if (Context.Session.GetString("user_id") != null)
+
+     @if (@ViewBag.isUrl == "isUrl")
     {
-        <header>
-        <div class="profile-menu">
-            <div>Sunward Document Viewer</div>
-                <div class="profile-info" style="text-align: right; dwidth: 67%;">
-                <span class="username">@Context.Session.GetString("user_name")</span>
-            </div>
-            <div class="dropdown">
-                <button class="dropbtn">Menu &#9660;</button>
-                <div class="dropdown-content">
-                    @if (Context.Session.GetString("isDownload") == "Yes")
-                    {
-                        <a href="javascript:void(0);" id="downloadClick">Download</a>                       
-                        <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
-                    }
-                    else
-                    {
-                        <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
-                    }
+        @if (Context.Session.GetString("user_id") != null)
+        {
+            <header>
+                <div class="profile-menu">
+                    <div>Sunward Document Viewer</div>
+                    <div class="profile-info" style="text-align: right; dwidth: 67%;">
+                        <span class="username">@Context.Session.GetString("user_name")</span>
+                    </div>
+                    <div class="dropdown">
+                        <button class="dropbtn">Menu &#9660;</button>
+                        <div class="dropdown-content">
+                            @if (@ViewBag.isDownload == "Yes")
+                            {
+                                <a href="javascript:void(0);" id="downloadClick">Download</a>
+                                <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
+                            }
+                            else
+                            {
+                                <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
+                            }
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        </header>
+            </header>
+        }
 
-        @*<header>
-            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3" style="background-color: #3f51b5 !important;">
-                <div class="container-fluid">
-                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="color:white;">Sunward Document Viewer</a>
-                    @if (Context.Session.GetString("isDownload") == "Yes")
-                    {
-                        <a style="margin-left: 1100px;color:white;" href="javascript:void(0);" id="downloadClick">Download</a>
-                        <a style="color:white;">@Context.Session.GetString("user_name")</a>
-                        <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
-                    }
-                    else
-                    {
-                        <a style="margin-left: 1200px;color:white;">@Context.Session.GetString("user_name")</a>
-                        <a style="color:white;" href="javascript:void(0);" id="logoutClick">Logout</a>
-                    }
-
-                    
-                    
-                </div>
-            </nav>
-        </header>*@
     }
-    @if (Context.Session.GetString("Share") == "isShare")
+    @if (@ViewBag.Share == "isShare")
     {
         <header>
             <div class="profile-menu">
@@ -142,7 +124,7 @@
         </header>
     }
     <div style="">
-        <main role="main" >
+        <main role="main">
             @RenderBody()
         </main>
     </div>

@@ -48,7 +48,9 @@ namespace DocumentViewer.Controllers
             HttpContext.Session.Remove("isDownload");
             HttpContext.Session.Remove("isView");
             HttpContext.Session.Remove("fileUrl");
+            @ViewBag.isDownload = "No";
             var userId = HttpContext.Session.GetString("user_id");
+            @ViewBag.isUrl = "isUrl";
             if (userId != null)
             {
                 SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
@@ -59,19 +61,45 @@ namespace DocumentViewer.Controllers
                     if (currentDocuments != null)
                     {
                         HttpContext.Session.SetString("fileName", currentDocuments.FileName);
-
+                        long userIds = Int64.Parse(HttpContext.Session.GetString("user_id"));
                         if (!string.IsNullOrEmpty(currentDocuments.FilePath))
                         {
                             if (currentDocuments.SourceFrom == "FileProfile")
                             {
-                                GetAllSelectedFilePermissionAsync(currentDocuments);
+                                var query = from oal in _context.OpenAccessUserLink
+                                            join oau in _context.OpenAccessUser on oal.OpenAccessUserId equals oau.OpenAccessUserId
+                                            where oal.UserId == userIds && oau.AccessType == "DMSAccess" && oal.IsDmsAccess==true
+                                            select oal;
+                                if (query != null)
+                                {
+                                    viewmodel.IsRead = true; viewmodel.IsDownload = true;
+                                    HttpContext.Session.SetString("isDownload", "Yes");
+                                    HttpContext.Session.SetString("isView", "Yes");
+                                    @ViewBag.isDownload = "Yes";
+                                }
+                                else
+                                {
+                                    var documentsModel = GetAllSelectedFilePermissionAsync(currentDocuments);
+                                    if (documentsModel != null)
+                                    {
+                                        viewmodel.IsRead = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsRead == true ? true : false;
+                                        viewmodel.IsDownload = documentsModel.FirstOrDefault()?.DocumentPermissionData.IsEdit == true ? true : false;
+                                        if (userIds == documentsModel.FirstOrDefault()?.UploadedByUserId)
+                                        {
+                                            viewmodel.IsRead = true; viewmodel.IsDownload = true;
+                                        }
+                                    }
+                                }
                             }
                             else if (currentDocuments.SourceFrom == "Email")
                             {
-                                GetEmailFilePermissionAsync(currentDocuments);
+                                var per=GetEmailFilePermissionAsync(currentDocuments);
+                                viewmodel.IsRead = per.IsRead; viewmodel.IsDownload = per.IsDownload;
                             }
                             else
                             {
+                                viewmodel.IsRead = true; viewmodel.IsDownload = true;
+                                @ViewBag.isDownload = "Yes";
                                 HttpContext.Session.SetString("isDownload", "Yes");
                                 HttpContext.Session.SetString("isView", "Yes");
                             }
@@ -93,6 +121,7 @@ namespace DocumentViewer.Controllers
                             viewmodel.Url = string.IsNullOrEmpty(fileurl) ? "" : fileurl;
                             viewmodel.Id = 1;
                             viewmodel.DocumentId = "1";
+                            viewmodel.FileName = currentDocuments.FileName;
                             if (!string.IsNullOrEmpty(fileurl))
                             {
                                 string s = viewmodel.Url.Split('.').Last();
@@ -102,28 +131,28 @@ namespace DocumentViewer.Controllers
                                 string? contentType = currentDocuments?.ContentType;
                                 if (contentType != null)
                                 {
-                                   /* using (var _httpClient = new HttpClient())
-                                    {
-                                        using (var response = await _httpClient.GetAsync(new Uri(fileurl)))
-                                        {
-                                            response.EnsureSuccessStatusCode();
-                                            Stream byteArrayAccessor() => response.Content.ReadAsStream();
-                                            //var stream = await response.Content.ReadAsStreamAsync();
-                                            viewmodel.DocumentId = Guid.NewGuid().ToString();
-                                            viewmodel.ContentAccessorByBytes = byteArrayAccessor;
-                                            viewmodel.Type = contentType.Split("/")[0].ToLower();
-                                            viewmodel.ContentType = contentType;
-                                            return View(viewmodel);
-                                        }
-                                    }*/
+                                    /* using (var _httpClient = new HttpClient())
+                                     {
+                                         using (var response = await _httpClient.GetAsync(new Uri(fileurl)))
+                                         {
+                                             response.EnsureSuccessStatusCode();
+                                             Stream byteArrayAccessor() => response.Content.ReadAsStream();
+                                             //var stream = await response.Content.ReadAsStreamAsync();
+                                             viewmodel.DocumentId = Guid.NewGuid().ToString();
+                                             viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                             viewmodel.Type = contentType.Split("/")[0].ToLower();
+                                             viewmodel.ContentType = contentType;
+                                             return View(viewmodel);
+                                         }
+                                     }*/
                                     /*using (var webClient = new HttpClient())
                                     {*/
-                                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
-                                        Stream byteArrayAccessor() => webResponse.Content.ReadAsStream();
-                                        viewmodel.DocumentId = Guid.NewGuid().ToString();
-                                        viewmodel.ContentAccessorByBytes = byteArrayAccessor;
-                                        viewmodel.Type = contentType.Split("/")[0].ToLower();
-                                        viewmodel.ContentType = contentType;
+                                    var webResponse = await webClient.GetAsync(new Uri(fileurl));
+                                    Stream byteArrayAccessor() => webResponse.Content.ReadAsStream();
+                                    viewmodel.DocumentId = Guid.NewGuid().ToString();
+                                    viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                    viewmodel.Type = contentType.Split("/")[0].ToLower();
+                                    viewmodel.ContentType = contentType;
                                     System.GC.Collect();
                                     GC.SuppressFinalize(this);
                                     return View(viewmodel);
@@ -166,27 +195,33 @@ namespace DocumentViewer.Controllers
             }
         }
         [HttpGet("DownloadFromUrl")]
-        public IActionResult DownloadFromUrl()
+        public IActionResult DownloadFromUrl(string? url)
         {
             try
             {
-
-                string url = HttpContext.Session.GetString("fileUrl");
-                var result = DownloadExtention.GetUrlContent(url);
-                var request = HttpWebRequest.Create(url) as HttpWebRequest;
-                string contentType = "";
-                string filename = HttpContext.Session.GetString("fileName");
-                Uri uri = new Uri(url);
-
-                if (request != null)
+                if (!string.IsNullOrEmpty(url))
                 {
-                    var response = request.GetResponse() as HttpWebResponse;
-                    if (response != null)
-                        contentType = response.ContentType;
-                }
-                if (result != null)
-                {
-                    return File(result.Result, contentType, filename);
+                    var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
+                    var fileNewUrl = _configuration["DocumentsUrl:FileNewUrl"];
+                    var fileurl = string.Empty;
+                    var sessionId = new Guid(url);
+                    var currentDocuments = _context.Documents.Where(w => w.UniqueSessionId == sessionId).FirstOrDefault();
+                    if (currentDocuments != null)
+                    {
+                        if (currentDocuments.IsNewPath == true)
+                        {
+                            fileurl = fileNewUrl + currentDocuments.FilePath;
+                        }
+                        else
+                        {
+                            fileurl = fileOldUrl + currentDocuments.FilePath;
+                        }
+                        var result = DownloadExtention.GetUrlContent(fileurl);
+                        if (result != null)
+                        {
+                            return File(result.Result, currentDocuments.ContentType, currentDocuments.FileName);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -210,7 +245,7 @@ namespace DocumentViewer.Controllers
         {
             return View(new ErrorViewModel { RequestId = "10" });
         }
-        private void GetAllSelectedFilePermissionAsync(Documents currentDocuments)
+        private List<DocumentsModel> GetAllSelectedFilePermissionAsync(Documents currentDocuments)
         {
             List<DocumentsModel> documentsModel = new List<DocumentsModel>();
             long userId = Int64.Parse(HttpContext.Session.GetString("user_id"));
@@ -306,9 +341,12 @@ namespace DocumentViewer.Controllers
                 {
                     IsRead = "Yes"; isDownload = "Yes";
                 }
+                @ViewBag.isDownload = isDownload;
                 HttpContext.Session.SetString("isDownload", isDownload);
                 HttpContext.Session.SetString("isView", IsRead);
+
             }
+            return documentsModel;
         }
         private List<DocumentPermissionModel> GetDocumentPermissionByRoll()
         {
@@ -356,8 +394,9 @@ namespace DocumentViewer.Controllers
         }
 
 
-        private void GetEmailFilePermissionAsync(Documents documents)
+        private PermissionModel GetEmailFilePermissionAsync(Documents documents)
         {
+            PermissionModel permissionModel = new PermissionModel();
             long userId = Int64.Parse(HttpContext.Session.GetString("user_id"));
             string mode = documents.SourceFrom;
             var docsessionId = documents?.SessionId;
@@ -375,7 +414,8 @@ namespace DocumentViewer.Controllers
 
                 if (query != null)
                 {
-
+                    permissionModel.IsRead = true; permissionModel.IsDownload = true;
+                    @ViewBag.isDownload = "Yes";
                     HttpContext.Session.SetString("isDownload", "Yes");
                     HttpContext.Session.SetString("isView", "Yes");
                 }
@@ -389,13 +429,15 @@ namespace DocumentViewer.Controllers
 
                         if (plst != null)
                         {
+                            permissionModel.IsRead = true; permissionModel.IsDownload = true;
                             IsRead = "Yes";
                         }
                         else
                         {
+                            permissionModel.IsRead = false; permissionModel.IsDownload = false;
                             IsRead = "No";
                         }
-
+                        @ViewBag.isDownload = IsRead;
                         HttpContext.Session.SetString("isDownload", IsRead);
                         HttpContext.Session.SetString("isView", IsRead);
                     }
@@ -405,22 +447,27 @@ namespace DocumentViewer.Controllers
             {
                 if (documents?.AddedByUserId == userId)
                 {
+                    permissionModel.IsRead = true; permissionModel.IsDownload = true;
                     IsRead = "Yes";
                 }
                 else
                 {
                     IsRead = "No";
+                    permissionModel.IsRead = false; permissionModel.IsDownload = false;
                 }
 
+                @ViewBag.isDownload = IsRead;
                 HttpContext.Session.SetString("isDownload", IsRead);
                 HttpContext.Session.SetString("isView", IsRead);
             }
             else
             {
+                permissionModel.IsRead = false; permissionModel.IsDownload = false;
+                @ViewBag.isDownload = IsRead;
                 HttpContext.Session.SetString("isDownload", IsRead);
                 HttpContext.Session.SetString("isView", IsRead);
             }
-
+            return permissionModel;
 
         }
     }

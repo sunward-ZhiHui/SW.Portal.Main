@@ -295,9 +295,11 @@
         Data.ModifiedDate = null;
         Data.ModifiedBy = null;
         Data.SwreferenceNo = null;
+        Data.CustomerRefNo = null;
         Data.CustomerId = null;
         Data.SessionId = Guid.NewGuid();
         Data.StatusCodeId = 1; Data.CompanyId = null;
+        ActiveSubTabIndex = 0;
         if (SessionIds != null)
         {
             var quotationHistoryData = await Mediator.Send(new GetQuotationHistoryBySession(SessionIds));

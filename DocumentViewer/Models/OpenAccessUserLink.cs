@@ -11,6 +11,7 @@ namespace DocumentViewer.Models
         public long? LevelId { get; set; }
         public bool? IsDmsCreateMainFolder { get; set; } = false;
         public bool? IsDmsAccess { get; set; } = false;
+        [NotMapped]
         public string? UserName { get; set; }
         [NotMapped]
         public string? AccessType { get; set; }

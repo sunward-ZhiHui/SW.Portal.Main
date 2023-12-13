@@ -44,8 +44,8 @@
                     DisplayMode="MenuDisplayMode.Auto">
 
                 <Items>
-                    <DxMenuItem Text="Back" Position="ItemPosition.Start" IconCssClass="fa fa-reply " Click="onBack" />
-                    <DxMenuItem Text="Upload" Position="ItemPosition.Start" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" />
+                    <DxMenuItem Text="Back" Position="ItemPosition.Start" IconCssClass="fa fa-reply " Click="onBack" style="@isVisibleForPopUpMore" />
+                    <DxMenuItem Text="Upload" Position="ItemPosition.Start" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" style="@isVisibleShows" />
                     <DxMenuItem Text="More" Position="ItemPosition.End" IconCssClass="fa fa-ellipsis-v" style="@isVisibleMore">
                         <Items>
                             <DxMenuItem Text="View File" IconCssClass="fa fa-eye" Click="onView" Visible="@viewfileEnabled" />
@@ -394,7 +394,11 @@
 
     public Guid? MainSessionId { get; set; }
     [Parameter]
+    public string? ForNoPopup { get; set; }
+    [Parameter]
     public Guid? SessionId { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
     string? searchText { get; set; }
     bool Blukdeletepopup { get; set; } = false;
     bool BlukdeleteDocument { get; set; } = false;
@@ -423,8 +427,8 @@
     DocumentsModel _selectedDescriptionItems = new DocumentsModel();
     public string? Name;
     public Guid? SelectSessionId { get; set; }
-    public string isVisibleParentMore { get; set; } = "display:none;";
-    public string isVisibleMore { get; set; } = "display:none;";
+    public string isVisibleParentMore { get; set; } = "display:none;";public string isVisibleForPopUpMore { get; set; } = "display:none;";
+    public string isVisibleMore { get; set; } = "display:none;"; public string isVisibleShows { get; set; } = "display:none;";
     public bool DownloadEnabled { get; set; } = false;
     public bool EmailEnabled { get; set; } = false;
     public bool uploadEnabled { get; set; } = false;
@@ -458,8 +462,16 @@
         ServerUrl = Configuration["DocumentsUrl:ServerUrl"];
         FileUrl = Configuration["DocumentsUrl:FileUrl"];
         fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
-        documentSearchModel.AttachSessionId = SessionId;
-        await mainPageLoad();
+        if (SessionId != null)
+        {
+            documentSearchModel.AttachSessionId = SessionId;
+            isVisibleShows = "";
+            if (ForNoPopup!="Yes")
+            {
+                isVisibleForPopUpMore = "";
+            }
+            await mainPageLoad();
+        }
     }
     async Task OnSearchTextChanged(string? newSearchText)
     {
@@ -487,6 +499,12 @@
         fileProfileTypeDocuments = _fileProfileselectedlstItems.DocumentsData;
         if (fileProfileTypeDocuments.Count > 0)
         {
+            fileProfileTypeDocuments.ForEach(s =>
+            {
+                var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, s.FilterProfileTypeId);
+                s.FullPath = lists.FirstOrDefault()?.FileProfilePath;
+                s.FileProfileTypeParentId = lists.FirstOrDefault()?.FileProfileTypeParentId;
+            });
             _selectedItems = fileProfileTypeDocuments.FirstOrDefault();
             await permissionEnabled();
             Grid.SetFocusedRowIndex(0);
@@ -784,6 +802,7 @@
 
     void onBack()
     {
+        RevokeBack.Invoke();       
     }
     private async Task onCopy()
     {

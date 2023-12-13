@@ -3,6 +3,7 @@ using DevExpress.Xpo;
 using DocumentViewer.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Threading;
 
 namespace DocumentViewer.Controllers
 {
@@ -20,6 +21,7 @@ namespace DocumentViewer.Controllers
         }
         public async Task<IActionResult> Index(Guid? url)
         {
+            @ViewBag.isDownload = "No";
             HttpContext.Session.Remove("Share");
             SpreadsheetDocumentContentFromBytes viewmodel = new SpreadsheetDocumentContentFromBytes();
             var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
@@ -27,6 +29,7 @@ namespace DocumentViewer.Controllers
             var fileurl = string.Empty;
             var docShareDoc = _context.DocumentDmsShare.FirstOrDefault(f => f.SessionId == url && (f.IsDeleted == null || f.IsDeleted == false));
             HttpContext.Session.SetString("Share", "isShare");
+            @ViewBag.Share = "isShare";
             if (docShareDoc != null)
             {
                 var per = "Yes";
@@ -63,6 +66,7 @@ namespace DocumentViewer.Controllers
                             viewmodel.Url = string.IsNullOrEmpty(fileurl) ? "" : fileurl;
                             viewmodel.Id = 1;
                             viewmodel.DocumentId = "1";
+                            viewmodel.FileName = currentDocuments.FileName;
                             if (!string.IsNullOrEmpty(fileurl))
                             {
                                 string s = viewmodel.Url.Split('.').Last();

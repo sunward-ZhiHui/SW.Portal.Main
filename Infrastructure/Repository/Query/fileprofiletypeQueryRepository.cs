@@ -636,7 +636,7 @@ namespace Infrastructure.Repository.Query
                     }
                 }
 
-                if (documentSearchModel.FileProfileTypeIds != null && documentSearchModel.FileProfileTypeIds.Count > 0 || documentSearchModel.AttachSessionId == null)
+                if (documentSearchModel.FileProfileTypeIds != null && documentSearchModel.FileProfileTypeIds.Count > 0 || documentSearchModel.AttachSessionId != null)
                 {
                     var query = string.Empty;
                     var parameters = new DynamicParameters();
@@ -682,9 +682,9 @@ namespace Infrastructure.Repository.Query
                     {
                         parameters.Add("SessionID", documentSearchModel.AttachSessionId, DbType.Guid);
                         query = DocumentQueryString() + " where\r\n" +
-                            "AND IsLatest=1 AND (IsDelete is null or IsDelete=0) And SessionID is Not null\r\n" +
+                            " IsLatest=1 AND (IsDelete is null or IsDelete=0) And SessionID is Not null\r\n" +
                             "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL)\r\n" +
-                            "SessionID=@SessionID" +
+                            "AND SessionID=@SessionID" +
                             "\r\norder by DocumentId desc";
                     }
                     var documents = new List<Documents>();

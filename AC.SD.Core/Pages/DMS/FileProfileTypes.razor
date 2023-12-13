@@ -140,12 +140,11 @@
                 SelectionMode="GridSelectionMode.Single"
                 AutoExpandAllGroupRows="true"
                 CssClass="w-100 table-hover-OnFileProfile"
-                style="height: calc(100vh - 250px);"
-                >
+                style="height: calc(100vh - 250px);">
             <Columns>
                 @*            <DxGridSelectionColumn  Width="60px" />
                 *@            <DxGridDataColumn FieldName="UniqueNo" Visible="false" />
-                <DxGridCommandColumn  MinWidth="100" Visible="isCheckAllEnabled">
+                <DxGridCommandColumn MinWidth="100" Visible="isCheckAllEnabled">
                     <HeaderTemplate>
                         <DxCheckBox Checked="@CheckedAll" CheckedExpression="@(() => CheckedAll)" CheckedChanged="@((bool value) => OnCheckedAllValueChanged(value))"></DxCheckBox>
                     </HeaderTemplate>
@@ -159,7 +158,7 @@
                         }
                     </CellDisplayTemplate>
                 </DxGridCommandColumn>
-                <DxGridDataColumn FieldName="FileName"  Caption="Name" MinWidth="270">
+                <DxGridDataColumn FieldName="FileName" Caption="Name" MinWidth="270">
                     <CellDisplayTemplate>
 
                         @{
@@ -224,7 +223,7 @@
                         <span id=@($"flyout-overview-target-container-RenameFilename-{item.DocumentID}") title="@item.FileName">@item.FileName</span>
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
-                <DxGridDataColumn FieldName="FullPath"  Caption="Path" Visible="@isEnablePath" MinWidth="170">
+                <DxGridDataColumn FieldName="FullPath" Caption="Path" Visible="@isEnablePath" MinWidth="170">
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentsModel)context.DataItem;
@@ -232,9 +231,9 @@
                         }
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
-                <DxGridDataColumn FieldName="ProfileNo"  Caption="Profile" MinWidth="170" />
-                <DxGridDataColumn FieldName="ActivityProfileNo"  Caption="Activity Profile" MinWidth="170" />
-                <DxGridDataColumn FieldName="FileSizes"  Caption="File Size" MinWidth="170">
+                <DxGridDataColumn FieldName="ProfileNo" Caption="Profile" MinWidth="170" />
+                <DxGridDataColumn FieldName="ActivityProfileNo" Caption="Activity Profile" MinWidth="170" />
+                <DxGridDataColumn FieldName="FileSizes" Caption="File Size" MinWidth="170">
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentsModel)context.DataItem;
@@ -244,7 +243,7 @@
                         @((item.FileIndex > 0 ? ("," + item.FileIndex + " History") : ""))
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
-                <DxGridDataColumn FieldName="Description"  MinWidth="200">
+                <DxGridDataColumn FieldName="Description" MinWidth="200">
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentsModel)context.DataItem;
@@ -253,7 +252,7 @@
                         <span title="@item.Description">@item.Description</span>
                     </CellDisplayTemplate>
                 </DxGridDataColumn>
-                <DxGridDataColumn FieldName="ExpiryDate" MinWidth="170" >
+                <DxGridDataColumn FieldName="ExpiryDate" MinWidth="170">
                     <CellDisplayTemplate>
                         @{
                             var item = (DocumentsModel)context.DataItem;
@@ -983,127 +982,104 @@
             isCreateSubFolder = false; isProfileInfoEnabled = false; isMoveEnabled = "display:none;";
             if (fileTypeData != null)
             {
-                if (fileTypeData.AddedByUserID == applicationUser.UserID)
+                var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeData.FileProfileTypeId, applicationUser.UserID));
+                if (documentPermissionModels != null)
                 {
-                    if (MainSessionId != null)
-                    {
-                        isMoveEnabled = "";
-                    }
-                    if (documentSearchModel.Type != "Search")
+                    if (documentPermissionModels.IsPermissionExits == true)
                     {
                         if (MainSessionId != null)
                         {
-                            isVisibleParentMore = "";
+                            isMoveEnabled = "";
                         }
-                        moreEnabled = true; IsReserveProfileNumberEnabled = true; isCreateDocumentEnabled = true; isProfileInfoEnabled = true;
-                        isEdit = true; isDelete = true; isCreateSubFolder = true; IsGrantAdminPermission = true;
-                        if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
-                        {
-                            isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
-                        }
-                    }
-
-                }
-                else
-                {
-                    var documentPermissionModels = await Mediator.Send(new GetDocumentUserRoleByUserID(fileTypeData.FileProfileTypeId, applicationUser.UserID));
-                    if (documentPermissionModels != null)
-                    {
-                        if (documentPermissionModels.IsPermissionExits == true)
+                        if (documentSearchModel.Type != "Search")
                         {
                             if (MainSessionId != null)
                             {
-                                isMoveEnabled = "";
+                                isVisibleParentMore = "";
                             }
+                            moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; isProfileInfoEnabled = true;
+                            isEdit = true; isDelete = true; isCreateSubFolder = true; IsGrantAdminPermission = true;
+                            if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
+                            {
+                                isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        documentPermissionModel = documentPermissionModels;
+                        if (documentPermissionModels.IsCreateDocument == true)
+                        {
                             if (documentSearchModel.Type != "Search")
                             {
                                 if (MainSessionId != null)
                                 {
                                     isVisibleParentMore = "";
                                 }
-                                moreEnabled = true; isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; isProfileInfoEnabled = true;
-                                isEdit = true; isDelete = true; isCreateSubFolder = true; IsGrantAdminPermission = true;
+                                moreEnabled = true; isCreateDocumentEnabled = true;
                                 if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
                                 {
                                     isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
                                 }
                             }
                         }
-                        else
+                        if (documentPermissionModels.IsMove == true)
                         {
-                            documentPermissionModel = documentPermissionModels;
-                            if (documentPermissionModels.IsCreateDocument == true)
+                            isMoveEnabled = "";
+                        }
+                        if (documentPermissionModels.IsEnableProfileTypeInfo == true)
+                        {
+                            if (documentSearchModel.Type != "Search")
                             {
-                                if (documentSearchModel.Type != "Search")
+                                if (MainSessionId != null)
                                 {
-                                    if (MainSessionId != null)
-                                    {
-                                        isVisibleParentMore = "";
-                                    }
-                                    moreEnabled = true; isCreateDocumentEnabled = true;
-                                    if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
-                                    {
-                                        isCreateDynamicDocumentEnabled = true; isCreateDocumentEnabled = false;
-                                    }
+                                    isVisibleParentMore = "";
                                 }
+                                moreEnabled = true; isProfileInfoEnabled = true;
                             }
-                            if (documentPermissionModels.IsMove == true)
+                        }
+                        if (documentPermissionModels.IsReserveProfileNumber == true)
+                        {
+                            if (documentSearchModel.Type != "Search")
                             {
-                                isMoveEnabled = "";
-                            }
-                            if (documentPermissionModels.IsEnableProfileTypeInfo == true)
-                            {
-                                if (documentSearchModel.Type != "Search")
+                                if (MainSessionId != null)
                                 {
-                                    if (MainSessionId != null)
-                                    {
-                                        isVisibleParentMore = "";
-                                    }
-                                    moreEnabled = true; isProfileInfoEnabled = true;
+                                    isVisibleParentMore = "";
                                 }
+                                moreEnabled = true; IsReserveProfileNumberEnabled = true;
                             }
-                            if (documentPermissionModels.IsReserveProfileNumber == true)
+                        }
+                        if (documentPermissionModels.IsEditFolder == true)
+                        {
+                            if (documentSearchModel.Type != "Search")
                             {
-                                if (documentSearchModel.Type != "Search")
-                                {
-                                    if (MainSessionId != null)
-                                    {
-                                        isVisibleParentMore = "";
-                                    }
-                                    moreEnabled = true; IsReserveProfileNumberEnabled = true;
-                                }
+                                isEdit = true;
                             }
-                            if (documentPermissionModels.IsEditFolder == true)
+                        }
+                        if (documentPermissionModels.IsDeleteFolder == true)
+                        {
+                            if (documentSearchModel.Type != "Search")
                             {
-                                if (documentSearchModel.Type != "Search")
-                                {
-                                    isEdit = true;
-                                }
+                                isDelete = true;
                             }
-                            if (documentPermissionModels.IsDeleteFolder == true)
+                        }
+                        if (documentPermissionModels.IsGrantAdminPermission == true)
+                        {
+                            if (documentSearchModel.Type != "Search")
                             {
-                                if (documentSearchModel.Type != "Search")
-                                {
-                                    isDelete = true;
-                                }
+                                IsGrantAdminPermission = true;
                             }
-                            if (documentPermissionModels.IsGrantAdminPermission == true)
+                        }
+                        if (documentPermissionModels.IsCreateFolder == true)
+                        {
+                            if (documentSearchModel.Type != "Search")
                             {
-                                if (documentSearchModel.Type != "Search")
-                                {
-                                    IsGrantAdminPermission = true;
-                                }
-                            }
-                            if (documentPermissionModels.IsCreateFolder == true)
-                            {
-                                if (documentSearchModel.Type != "Search")
-                                {
-                                    isCreateSubFolder = true;
-                                }
+                                isCreateSubFolder = true;
                             }
                         }
                     }
                 }
+
             }
         }
     }
@@ -1167,94 +1143,77 @@
                 }
                 else
                 {
-                    if (applicationUser.UserID == _selectedItems.AddedByUserID)
+                    EmailEnabled = true;
+                    var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FilterProfileTypeId, applicationUser.UserID));
+                    if (permissionData != null)
                     {
-                        uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
-                        checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
-                        renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
-                        if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
+                        if (permissionData.IsPermissionExits == true)
                         {
-                            formdetailsEnabled = true;
-                        }
-                        if (_selectedItems.IsLocked == true)
-                        {
-                            checkoutEnabled = false;
-                            checkInEnabled = true;
-                        }
-                    }
-                    else
-                    {
-                        EmailEnabled = true;
-                        var permissionData = await Mediator.Send(new GetDocumentUserRoleByUserID(_selectedItems.FilterProfileTypeId, applicationUser.UserID));
-                        if (permissionData != null)
-                        {
-                            if (permissionData.IsPermissionExits == true)
+                            uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
+                            checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
+                            renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
+                            if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
                             {
-                                uploadEnabled = true; DownloadEnabled = true; copylinkEnabled = true; viewfileEnabled = true; deleteEnabled = true; historyEnabled = true;
-                                checkoutEnabled = true; checkInEnabled = false; linkdownloadEnabled = true;
-                                renameEnabled = true; viewParentEnabled = true; EmailEnabled = true; shareEnabled = true;
+                                formdetailsEnabled = true;
+                            }
+                            if (_selectedItems.IsLocked == true)
+                            {
+                                checkoutEnabled = false;
+                                checkInEnabled = true;
+                            }
+                        }
+                        else
+                        {
+                            if (permissionData.IsUpdateDocument == true)
+                            {
+                                checkoutEnabled = true; checkInEnabled = false;
+                                linkdownloadEnabled = true; viewParentEnabled = true;
                                 if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
                                 {
                                     formdetailsEnabled = true;
                                 }
-                                if (_selectedItems.IsLocked == true)
-                                {
-                                    checkoutEnabled = false;
-                                    checkInEnabled = true;
-                                }
                             }
-                            else
+                            if (permissionData.IsDelete == true)
                             {
-                                if (permissionData.IsUpdateDocument == true)
-                                {
-                                    checkoutEnabled = true; checkInEnabled = false;
-                                    linkdownloadEnabled = true; viewParentEnabled = true;
-                                    if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0 && _selectedItems.IsDynamicFromData == true)
-                                    {
-                                        formdetailsEnabled = true;
-                                    }
-                                }
-                                if (permissionData.IsDelete == true)
-                                {
-                                    deleteEnabled = true;
-                                }
-                                if (permissionData.IsEdit == true)
-                                {
-                                    DownloadEnabled = true;
-                                }
-                                if (permissionData.IsRead == true)
-                                {
-                                    viewfileEnabled = true;
-                                }
-                                if (permissionData.IsListVersion == true)
-                                {
-                                    historyEnabled = true;
-                                }
-                                if (permissionData.IsCopy == true)
-                                {
-                                    copylinkEnabled = true;
-                                }
-                                if (permissionData.IsRename == true)
-                                {
-                                    renameEnabled = true;
-                                }
-                                if (permissionData.IsShare == true)
-                                {
-                                    shareEnabled = true;
-                                }
-                                if (permissionData.IsSendEmail == true)
-                                {
-                                    //EmailEnabled = true;
-                                }
+                                deleteEnabled = true;
+                            }
+                            if (permissionData.IsEdit == true)
+                            {
+                                DownloadEnabled = true;
+                            }
+                            if (permissionData.IsRead == true)
+                            {
+                                viewfileEnabled = true;
+                            }
+                            if (permissionData.IsListVersion == true)
+                            {
+                                historyEnabled = true;
+                            }
+                            if (permissionData.IsCopy == true)
+                            {
+                                copylinkEnabled = true;
+                            }
+                            if (permissionData.IsRename == true)
+                            {
+                                renameEnabled = true;
+                            }
+                            if (permissionData.IsShare == true)
+                            {
+                                shareEnabled = true;
+                            }
+                            if (permissionData.IsSendEmail == true)
+                            {
+                                //EmailEnabled = true;
+                            }
 
-                                if (_selectedItems.IsLocked == true)
-                                {
-                                    checkoutEnabled = false;
-                                    checkInEnabled = true;
-                                }
+                            if (_selectedItems.IsLocked == true)
+                            {
+                                checkoutEnabled = false;
+                                checkInEnabled = true;
                             }
                         }
                     }
+
                 }
             }
         }
@@ -2172,10 +2131,10 @@
         {
             fileProfileTypeDocuments.ForEach(s =>
             {
-               // if (s.FilterProfileTypeId > 0)
-               // {
-                    s.Checked = radioValue;
-               // }
+                // if (s.FilterProfileTypeId > 0)
+                // {
+                s.Checked = radioValue;
+                // }
             });
         }
     }

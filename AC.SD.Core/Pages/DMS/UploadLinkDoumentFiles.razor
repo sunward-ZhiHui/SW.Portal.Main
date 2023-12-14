@@ -52,7 +52,7 @@
 
                 <DxFormLayout CssClass="w-100">
                     <DataAnnotationsValidator />
-                    <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10" >
+                    <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10">
                         <DxTextBox @bind-Text=@LinkDocFileprofiletypeName Enabled="IsFileProfileTypeLinkDocShow">
                             <Buttons>
                                 <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-IsFileProfileTypeLinkDocOpen")
@@ -216,7 +216,7 @@
           PreventCloseOnPositionTargetClick="true">
     <BodyContentTemplate Context="PopupContext">
         <DxFormLayout CssClass="w-100" style="height: calc(100vh - 250px);overflow:auto;overflow-x:hidden;">
-            <DxFormLayoutItem Caption="" >
+            <DxFormLayoutItem Caption="">
                 <DxTreeView @ref="_treeLinkDocView"
                 @bind-FilterString="FilterString"
                             ShowFilterPanel="true"
@@ -282,14 +282,16 @@
     bool isSectionLinkDoc { get; set; } = false; bool isSubSectionLinkDoc { get; set; } = false;
     int LinkDocSelectedFilesCount { get; set; }
     int LinkDocCurrentUplodCount { get; set; }
-    public long? DocumentIds{ get; set; }
+    public long? DocumentIds { get; set; }
     public List<DocumentsModel> fileProfileTypeLinkDocDocumentsAll { get; set; }
+    public List<string?> documentsFiles { get; set; } = new List<string?>();
+    bool? IsDuplicateUpload { get; set; } = false;
     public List<string> linkDocAcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
         DocumentIds = selectedFiles.DocumentID;
-        await loadLinkDocData(selectedFiles, applicationUser,"Yes");
+        await loadLinkDocData(selectedFiles, applicationUser, "Yes");
     }
     public async Task loadLinkDocData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser, string uploadClear)
     {
@@ -310,10 +312,10 @@
         TempSetLinkDocIds = new List<DocumentsUploadModel>();
         loadingLinkDoc = true;
         LinkDocMessage = "Upload";
-       // LinkDocuploadComponent.RemoveAllFiles();
-       // LinkDocCurrentUplodCount = 0;
-       // LinkDocSelectedFilesCount = 0;
-       // LinkDocSelectedFiles = new List<UploadFileInfo>();
+        // LinkDocuploadComponent.RemoveAllFiles();
+        // LinkDocCurrentUplodCount = 0;
+        // LinkDocSelectedFilesCount = 0;
+        // LinkDocSelectedFiles = new List<UploadFileInfo>();
         if (uploadClear == "No")
         {
             if (LinkDocSelectedFilesCount > 0)
@@ -335,7 +337,7 @@
             LinkDocSelectedFilesCount = 0;
             LinkDocSelectedFiles = new List<UploadFileInfo>();
         }
-        linkDocMyError = ""; linkDocMyMessage = ""; LinkDocFileprofiletypeName = "";
+        linkDocMyError = ""; linkDocMyMessage = ""; LinkDocFileprofiletypeName = ""; IsDuplicateUpload = false;
         if (_selectedFiles != null && _selectedFiles.ProfileID > 0)
         {
             selectedFiles = _selectedFiles;
@@ -382,6 +384,7 @@
             Data.FileProfileTypeId = selectedFiles.FileProfileTypeId > 0 ? selectedFiles.FileProfileTypeId : selectedFiles.FilterProfileTypeId;
             var lists = GetFileProfileTypePath(fileProfileTypeLinkDocDocumentsAll, Data.FileProfileTypeId);
             LinkDocFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            IsDuplicateUpload = lists.FirstOrDefault()?.IsDuplicateUpload;
         }
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         await SelectedItemLinkDocChanged(0);
@@ -403,6 +406,7 @@
                 FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
                 fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
                 fileProfileTypeModel.Name = s.FileName;
+                fileProfileTypeModel.IsDuplicateUpload = s.IsDuplicateUpload;
                 fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
                 FolderPathLists.Add(s.FileName);
                 fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
@@ -442,7 +446,8 @@
             Data.FileProfileTypeId = nodeName.FileProfileTypeId;
             var lists = GetFileProfileTypePath(fileProfileTypeLinkDocDocumentsAll, Data.FileProfileTypeId);
             LinkDocFileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
-            await loadLinkDocData(nodeName,applicationUser, "No");
+            IsDuplicateUpload = lists.FirstOrDefault()?.IsDuplicateUpload;
+            await loadLinkDocData(nodeName, applicationUser, "No");
         }
 
         StateHasChanged();
@@ -559,9 +564,30 @@
     }
     void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
-        AttachmentUploadLinkDocVisible = files.ToList().Count > 0;
-        LinkDocSelectedFiles.AddRange(files);
-        LinkDocSelectedFilesCount = files.ToList().Count; //Count current files
+        var MyMessagess = string.Empty;
+        if (files != null && files.ToList().Count() > 0)
+        {
+            if (IsDuplicateUpload == false)
+            {
+                files.ToList().ForEach(s =>
+                {
+                    if (documentsFiles.Contains(s.Name))
+                    {
+                        MyMessagess += s.Name + " file was Removed.\n\r";
+
+                        LinkDocuploadComponent.RemoveFile(s);
+                    }
+                });
+            }
+            AttachmentUploadLinkDocVisible = files.ToList().Count > 0;
+            LinkDocSelectedFiles.AddRange(files);
+            LinkDocSelectedFilesCount = files.ToList().Count; //Count current files
+            if (!string.IsNullOrEmpty(MyMessagess))
+            {
+                var msg = "File Already Exits." + MyMessagess;
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
         InvokeAsync(StateHasChanged);
     }
 

@@ -41,5 +41,6 @@ namespace Core.Entities
         public string? Label { get; set; }
         public Guid? SessionId { get; set; }
         public List<Fileprofiletype> Children { get; set; } = new List<Fileprofiletype>();
+        public bool? IsDuplicateUpload { get; set; } = false;
     }
 }

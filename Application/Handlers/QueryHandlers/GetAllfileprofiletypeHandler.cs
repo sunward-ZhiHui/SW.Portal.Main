@@ -68,6 +68,19 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+    public class GetAllselectedfileprofiletypesHandler : IRequestHandler<GetAllSelectedfileprofiletypesQuery, List<Documents>>
+    {
+        private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+        public GetAllselectedfileprofiletypesHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+        {
+            _fileprofileQueryRepository = fileprofileQueryRepository;
+        }
+        public async Task<List<Documents>> Handle(GetAllSelectedfileprofiletypesQuery request, CancellationToken cancellationToken)
+        {
+            return (List<Documents>)await _fileprofileQueryRepository.GetAllSelectedFilesAsync(request.DocumentSearchModel);
+        }
+
+    }
     public class GetFileProfileTypeDocumentByHistoryHandler : IRequestHandler<GetFileProfileTypeDocumentByHistory, DocumentTypeModel>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;

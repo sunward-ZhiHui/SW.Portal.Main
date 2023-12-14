@@ -40,6 +40,14 @@ namespace Application.Queries
             this.DocumentSearchModel = documentSearchModel;
         }
     }
+    public class GetAllSelectedfileprofiletypesQuery : PagedRequest, IRequest<List<Documents>>
+    {
+        public DocumentSearchModel DocumentSearchModel { get; private set; }
+        public GetAllSelectedfileprofiletypesQuery(DocumentSearchModel documentSearchModel)
+        {
+            this.DocumentSearchModel = documentSearchModel;
+        }
+    }
 
     public class GetFileProfileTypeDocumentByHistory : PagedRequest, IRequest<DocumentTypeModel>
     {

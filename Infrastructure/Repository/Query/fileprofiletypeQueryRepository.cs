@@ -57,7 +57,7 @@ namespace Infrastructure.Repository.Query
                      "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) \r\n" +
                      "OR (DocumentID in(select DocumentID from LinkFileProfileTypeDocument where FileProfileTypeID=t2.FileProfileTypeID ) AND IsLatest=1)),' ','files') as FileCounts\r\n" +
                      "from view_FileProfileTypeDocument t2";*/
-                var query = "select \r\n Name,\r\nCASE WHEN  IsExpiryDate IS NULL THEN 0 ELSE  IsExpiryDate END AS IsExpiryDate,\r\n IsExpiryDate as IsExpiryDates,\r\n ProfileID,\r\n FileProfileTypeID,\r\n StatusCodeID,\r\n AddedByUserID,\r\n AddedDate,\r\n Description,\r\n ModifiedByUserID,\r\n ModifiedDate,\r\n ParentID,\r\n SessionID,\r\n IsDelete,\r\n DeleteByUserID,\r\n DeleteByDate,\r\n DynamicFormID,\r\nROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename, \r\nFileProfileTypeID as DocumentID, \r\nModifiedDate, \r\nAddedDate, \r\nCONCAT('>',Name) as BreadcumName, \r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate\r\nfrom FileProfileType where (IsDelete = 0 or IsDelete is null)";
+                var query = "select \r\n Name,\r\nCASE WHEN  IsExpiryDate IS NULL THEN 0 ELSE  IsExpiryDate END AS IsExpiryDate,\r\nCASE WHEN  IsDuplicateUpload IS NULL THEN 0 ELSE  IsDuplicateUpload END AS IsDuplicateUpload,\r\n IsExpiryDate as IsExpiryDates,\r\n ProfileID,\r\n FileProfileTypeID,\r\n StatusCodeID,\r\n AddedByUserID,\r\n AddedDate,\r\n Description,\r\n ModifiedByUserID,\r\n ModifiedDate,\r\n ParentID,\r\n SessionID,\r\n IsDelete,\r\n DeleteByUserID,\r\n DeleteByDate,\r\n DynamicFormID,\r\nROW_NUMBER() OVER(ORDER BY name) AS UniqueNo,Name as Filename, \r\nFileProfileTypeID as DocumentID, \r\nModifiedDate, \r\nAddedDate, \r\nCONCAT('>',Name) as BreadcumName, \r\nCASE WHEN ModifiedByUserID >0 THEN ModifiedDate ELSE AddedDate END AS AddedDate\r\nfrom FileProfileType where (IsDelete = 0 or IsDelete is null)";
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<DocumentsModel>(query)).ToList();
@@ -243,7 +243,7 @@ namespace Infrastructure.Repository.Query
         {
             try
             {
-                var query = "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId,sessionId,DynamicFormId from FileProfileType";
+                var query = "select FileProfileTypeId,Name,IsDocumentAccess,IsEnableCreateTask,IsExpiryDate,IsHidden,AddedByUserId,profileId,sessionId,DynamicFormId,IsDuplicateUpload from FileProfileType";
 
                 using (var connection = CreateConnection())
                 {
@@ -640,7 +640,7 @@ namespace Infrastructure.Repository.Query
                 {
                     var query = string.Empty;
                     var parameters = new DynamicParameters();
-                    var linkfileProfileTypes=new List<LinkFileProfileTypeDocument>();
+                    var linkfileProfileTypes = new List<LinkFileProfileTypeDocument>();
                     if (documentSearchModel.AttachSessionId == null)
                     {
                         linkfileProfileTypes = (await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds)).ToList();
@@ -804,6 +804,62 @@ namespace Infrastructure.Repository.Query
 
                 }
                 return DocumentTypeModel;
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<Documents>> GetAllSelectedFilesAsync(DocumentSearchModel documentSearchModel)
+        {
+            List<Documents> documents = new List<Documents>();
+            try
+            {
+
+                var query = string.Empty;
+                var parameters = new DynamicParameters();
+                var linkfileProfileTypes = new List<LinkFileProfileTypeDocument>();
+                
+                    linkfileProfileTypes = (await GetLinkFileProfileTypeDocumentAsync(documentSearchModel.FileProfileTypeIds)).ToList();
+                    List<long?> linkfileProfileTypeDocumentids = new List<long?>();
+                    linkfileProfileTypeDocumentids = linkfileProfileTypes != null && linkfileProfileTypes.Count > 0 ? linkfileProfileTypes.Select(s => s.DocumentId).Distinct().ToList() : new List<long?>() { -1 };
+                    var fileProfileTypeId = documentSearchModel.FileProfileTypeIds != null && documentSearchModel.FileProfileTypeIds.Count > 0 ? documentSearchModel.FileProfileTypeIds : new List<long?>() { -1 };
+                    var filterQuery = string.Empty;
+                    if (!string.IsNullOrEmpty(documentSearchModel.FileName))
+                    {
+                        filterQuery += "AND FileName like '%" + documentSearchModel.FileName + "%'\r\n";
+                    }
+                    if (!string.IsNullOrEmpty(documentSearchModel.Extension))
+                    {
+                        filterQuery += "AND FileName like '%" + documentSearchModel.Extension + "%'\r\n";
+                    }
+                    if (!string.IsNullOrEmpty(documentSearchModel.ProfileNo))
+                    {
+                        filterQuery += "AND ProfileNo like '%" + documentSearchModel.ProfileNo + "%'\r\n";
+                    }
+                    if (documentSearchModel.FromDate != null)
+                    {
+                        var from = documentSearchModel.FromDate.Value.ToString("yyyy-MM-dd");
+                        filterQuery += "AND CAST(uploadDate AS Date) >='" + from + "'\r\n";
+                    }
+                    if (documentSearchModel.ToDate != null)
+                    {
+                        var to = documentSearchModel.ToDate.Value.ToString("yyyy-MM-dd");
+                        filterQuery += "AND CAST(uploadDate AS Date)<='" + to + "'\r\n";
+                    }
+
+                    query = DocumentQueryString() + " where" +
+                        " FilterProfileTypeId in(" + string.Join(",", fileProfileTypeId.Distinct()) + ") " + filterQuery +
+                        "AND IsLatest=1 AND (IsDelete is null or IsDelete=0) And SessionID is Not null\r\n" +
+                        "AND (ArchiveStatusId != 2562 OR ArchiveStatusId  IS NULL) " +
+                        "OR (DocumentID in(" + string.Join(",", linkfileProfileTypeDocumentids) + ") AND IsLatest=1) " +
+                        "order by DocumentId desc";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Documents>(query, parameters)).ToList();
+                }
 
             }
             catch (Exception exp)
@@ -1042,7 +1098,7 @@ namespace Infrastructure.Repository.Query
             {
                 var parameters = new DynamicParameters();
                 parameters.Add("FileProfileTypeId", Id);
-                var query = "select t1.*,t2.DocumentRoleName,t2.DocumentRoleDescription,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt4.Name as FileProfileType,\r\nt5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\nt8.Name as DesignationName,\r\nCONCAT(case when t6.NickName is NULL\r\n then  t6.FirstName\r\n ELSE\r\n  t6.NickName END,' | ',t6.LastName) as FullName\r\n" +
+                var query = "select t1.*,t2.DocumentRoleName,t2.DocumentRoleDescription,\r\nt3.Name as UserGroup,\r\nt3.Description as UserGroupDescription,\r\nt4.Name as FileProfileType,\r\nt5.Name as LevelName,\r\nt6.NickName,\r\nt6.FirstName,\r\nt6.LastName,\r\nt7.Name as DepartmentName,\r\nt8.Name as DesignationName,\r\nCONCAT(t6.FirstName,' | ',t6.LastName) as FullName\r\n" +
                     "from DocumentUserRole t1\r\n" +
                     "JOIN DocumentRole t2 ON t1.RoleID=t2.DocumentRoleID\r\n" +
                     "LEFT JOIN UserGroup t3 ON t1.UserGroupID=t3.UserGroupID\r\n" +
@@ -1352,6 +1408,34 @@ namespace Infrastructure.Repository.Query
                 using (var connection = CreateConnection())
                 {
                     return connection.QueryFirstOrDefault<DocumentRole>(query, parameters);
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+
+        public FileProfileTypeModel GeFileProfileTypeNameCheckValidation(string? value, long id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                var query = string.Empty;
+                parameters.Add("Name", value);
+                if (id > 0)
+                {
+                    parameters.Add("FileProfileTypeId", id);
+
+                    query = "SELECT * FROM FileProfileType Where FileProfileTypeId!=@FileProfileTypeId AND Name = @Name";
+                }
+                else
+                {
+                    query = "SELECT * FROM FileProfileType Where Name = @Name";
+                }
+                using (var connection = CreateConnection())
+                {
+                    return connection.QueryFirstOrDefault<FileProfileTypeModel>(query, parameters);
                 }
             }
             catch (Exception exp)
@@ -1734,23 +1818,24 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("TemplateTestCaseId", value.TemplateTestCaseId);
                         parameters.Add("SessionId", value.SessionId, DbType.Guid);
                         parameters.Add("DynamicFormId", value.DynamicFormId);
+                        parameters.Add("IsDuplicateUpload", value.IsDuplicateUpload);
                         if (value.FileProfileTypeId <= 0)
                         {
 
                             var query = "INSERT INTO [FileProfileType](Name,ProfileId,ParentId,StatusCodeID,AddedDate,AddedByUserID,ModifiedDate,ModifiedByUserId,Description,IsExpiryDate," +
                                 "IsAllowMobileUpload,IsDocumentAccess,ShelfLifeDuration,ShelfLifeDurationId,Hints,IsEnableCreateTask,IsCreateByYear,IsCreateByMonth," +
-                                "IsHidden,ProfileInfo,IsTemplateCaseNo,TemplateTestCaseId,SessionId,DynamicFormId) " +
+                                "IsHidden,ProfileInfo,IsTemplateCaseNo,TemplateTestCaseId,SessionId,DynamicFormId,IsDuplicateUpload) " +
                                 "OUTPUT INSERTED.FileProfileTypeId VALUES " +
                                "(@Name,@ProfileId,@ParentId,@StatusCodeID,@AddedDate,@AddedByUserID,@ModifiedDate,@ModifiedByUserId,@Description,@IsExpiryDate," +
                                "@IsAllowMobileUpload,@IsDocumentAccess,@ShelfLifeDuration,@ShelfLifeDurationId,@Hints,@IsEnableCreateTask,@IsCreateByYear,@IsCreateByMonth," +
-                               "@IsHidden,@ProfileInfo,@IsTemplateCaseNo,@TemplateTestCaseId,@SessionId,@DynamicFormId)";
+                               "@IsHidden,@ProfileInfo,@IsTemplateCaseNo,@TemplateTestCaseId,@SessionId,@DynamicFormId,@IsDuplicateUpload)";
                             value.FileProfileTypeId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
                         }
                         else
                         {
                             parameters.Add("FileProfileTypeId", value.FileProfileTypeId);
-                            var query = "Update Fileprofiletype SET Name=@Name,ProfileId=@ProfileId,ParentId=@ParentId,StatusCodeID=@StatusCodeID,AddedDate=@AddedDate," +
+                            var query = "Update Fileprofiletype SET Name=@Name,ProfileId=@ProfileId,ParentId=@ParentId,StatusCodeID=@StatusCodeID,AddedDate=@AddedDate,IsDuplicateUpload=@IsDuplicateUpload," +
                                 "AddedByUserID=@AddedByUserID,ModifiedDate=@ModifiedDate,ModifiedByUserId=@ModifiedByUserId,Description=@Description,IsExpiryDate=@IsExpiryDate,IsAllowMobileUpload=@IsAllowMobileUpload,IsDocumentAccess=@IsDocumentAccess," +
                                 "ShelfLifeDuration=@ShelfLifeDuration,ShelfLifeDurationId=@ShelfLifeDurationId,Hints=@Hints,IsEnableCreateTask=@IsEnableCreateTask,IsCreateByYear=@IsCreateByYear," +
                                 "IsCreateByMonth=@IsCreateByMonth,IsHidden=@IsHidden,ProfileInfo=@ProfileInfo,IsTemplateCaseNo=@IsTemplateCaseNo,TemplateTestCaseId=@TemplateTestCaseId,SessionId=@SessionId,DynamicFormId=@DynamicFormId " +

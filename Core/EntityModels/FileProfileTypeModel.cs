@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Entities.CustomValidations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace Core.EntityModels
         [Required(ErrorMessage = "Profile is Required")]
         public long? ProfileId { get; set; }
         [Required(ErrorMessage = "Name is Required")]
+        [FileProfileTypeNameCustomValidation]
         public string Name { get; set; }
         public string Label { get; set; }
         public string Description { get; set; }
@@ -45,5 +47,6 @@ namespace Core.EntityModels
         public long? TemplateTestCaseId { get; set; }
         public long? DynamicFormId { get; set; }
         public int? IsdynamicFormExits { get; set; } = 0;
+        public bool? IsDuplicateUpload { get; set; } = false;
     }
 }

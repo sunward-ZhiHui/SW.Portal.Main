@@ -35,7 +35,7 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentCheckInSelectButton" Enabled="@checkInloading" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentCheckInSelectButton"  Click="onGetExitingFile" Enabled="@checkInloading" />
                         <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="@onSubmitCheckInUploadFormClick" Enabled="@checkInloading" />
                     </Items>
                 </DxMenu>
@@ -130,12 +130,14 @@
     string ExtensionsList = "";
     int SelectedFilesCount { get; set; }
     int CurrentUplodCount { get; set; }
+    bool? IsDuplicateUpload { get; set; } = false;
+    public List<string?> documentsFiles { get; set; } = new List<string?>();
     public List<DocumentsUploadModel> TempSetIds = new List<DocumentsUploadModel>();
     protected override async Task OnInitializedAsync()
     {
         FolderPathListsItems = FolderPathLists.Cast<DocumentsModel>().ToList();
         _editContext = new EditContext(Data);
-        IsUploadExt = "";
+        IsUploadExt = ""; IsDuplicateUpload = false;
         if (selectedItems != null)
         {
             //AcceptedFileTypes = new List<string>();
@@ -216,23 +218,59 @@
             }
         }
     }
+    async Task onGetExitingFile()
+    {
+        DocumentSearchModel documentSearchModels = new DocumentSearchModel();
+        documentSearchModels.FileProfileTypeId = Data.FileProfileTypeId;
+        List<long?> list1 = new List<long?>();
+        list1.Add(Data.FileProfileTypeId);
+        documentSearchModels.FileProfileTypeIds = list1;
+        var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
+        if (docList != null && docList.Count() > 0)
+        {
+            documentsFiles.AddRange(docList.Select(s => s.FileName).Distinct().ToList());
+        }
+
+    }
     void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
-        AttachmentCheckInUploadVisible = files.ToList().Count > 0;
-        SelectedFiles.AddRange(files);
-        SelectedFilesCount = files.ToList().Count; //Count current files
-        if (SelectedFilesCount > 0)
+        var MyMessagess = string.Empty;
+        if (files != null && files.ToList().Count() > 0)
         {
-            if (SelectedFilesCount == 1)
+            if (IsDuplicateUpload == false)
             {
+                files.ToList().ForEach(s =>
+                {
+                    if (documentsFiles.Contains(s.Name))
+                    {
+                        MyMessagess += s.Name + " file was Removed.\n\r";
 
+                        uploadCheckInComponent.RemoveFile(s);
+                    }
+                });
             }
-            else
+            AttachmentCheckInUploadVisible = files.ToList().Count > 0;
+            SelectedFiles.AddRange(files);
+            SelectedFilesCount = files.ToList().Count; //Count current files
+            if (SelectedFilesCount > 0)
             {
-                var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
-                toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+                if (SelectedFilesCount == 1)
+                {
+
+                }
+                else
+                {
+                    var MyMessage = "Upload Only One File Allowed. Remove Another Files.";
+                    toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Error);
+                }
+            }
+            if (!string.IsNullOrEmpty(MyMessagess))
+            {
+                var msg = "File Already Exits." + MyMessagess;
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
             }
         }
+
         InvokeAsync(StateHasChanged);
     }
     void OnFileUploadStarted(FileUploadEventArgs e)

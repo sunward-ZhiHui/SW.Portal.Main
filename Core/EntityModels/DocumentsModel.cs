@@ -199,6 +199,7 @@ namespace Core.EntityModels
         public bool HasChildren { get; set; } = false;
         public string? ActivityProfileNo { get; set; }
         public string? ActivityType { get; set; }
+        public bool? IsDuplicateUpload { get; set; } = false;
     }
     public class DocumentListModel : BaseModel
     {

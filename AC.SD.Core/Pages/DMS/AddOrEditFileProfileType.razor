@@ -44,9 +44,9 @@
                     <DxFormLayoutItem Caption="Enable Expiry Date" ColSpanMd="6">
                         <DxCheckBox @bind-Checked="@Data.IsExpiryDate" />
                     </DxFormLayoutItem>
-                    @*  <DxFormLayoutItem Caption="Enable Document Status" ColSpanMd="6">
-                    <DxCheckBox @bind-Checked="@Data.IsDocumentAccess" />
-                    </DxFormLayoutItem> *@
+                     <DxFormLayoutItem Caption="Upload Duplicate Document" ColSpanMd="6">
+                    <DxCheckBox @bind-Checked="@Data.IsDuplicateUpload" />
+                    </DxFormLayoutItem>
                     @*  <DxFormLayoutItem Caption="Enable Create Task" ColSpanMd="6">
                     <DxCheckBox @bind-Checked="@Data.IsEnableCreateTask" />
                     </DxFormLayoutItem>
@@ -180,6 +180,7 @@
                 Data.TemplateTestCaseId = _fileProfileTypeData.TemplateTestCaseId;
                 Data.SessionId = _fileProfileTypeData.SessionId;
                 Data.DynamicFormId = _fileProfileTypeData.DynamicFormId;
+                Data.IsDuplicateUpload = _fileProfileTypeData.IsDuplicateUpload;
                 if(_fileProfileTypeData.DynamicFormId>0 && _fileProfileTypeData.IsdynamicFormExits>0)
                 {
                     isDynamicForm = false;

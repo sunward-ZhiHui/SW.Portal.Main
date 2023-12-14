@@ -35,7 +35,7 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentSelectButton" Enabled="@loading" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentSelectButton" Enabled="@loading" Click="onGetExitingFile" />
                         <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="@onsubmitUploadFromClick" Enabled="@loading" />
                     </Items>
                 </DxMenu>
@@ -293,9 +293,11 @@
     bool isPlant { get; set; } = false;
     bool isDivision { get; set; } = false; bool isDepartment { get; set; } = false;
     bool isSection { get; set; } = false; bool isSubSection { get; set; } = false;
+    bool? IsDuplicateUpload { get; set; } = false;
     int SelectedFilesCount { get; set; }
     int CurrentUplodCount { get; set; }
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public List<string?> documentsFiles { get; set; } = new List<string?>();
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
     protected override async Task OnInitializedAsync()
     {
@@ -319,7 +321,7 @@
         }
 
         isPlant = false;
-        isDivision = false; isDepartment = false;
+        isDivision = false; isDepartment = false; IsDuplicateUpload = false;
         isSection = false; isSubSection = false;
         Data.PlantId = 0; Data.DepartmentId = 0;
         Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0;
@@ -376,6 +378,7 @@
             Data.FileProfileTypeId = selectedFiles.FileProfileTypeId > 0 ? selectedFiles.FileProfileTypeId : selectedFiles.FilterProfileTypeId;
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            IsDuplicateUpload = lists.FirstOrDefault()?.IsDuplicateUpload;
         }
         _plantItems = await Mediator.Send(new GetAllPlantQuery());
         await SelectedItemChanged(0);
@@ -397,6 +400,7 @@
                 FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
                 fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
                 fileProfileTypeModel.Name = s.FileName;
+                fileProfileTypeModel.IsDuplicateUpload = s.IsDuplicateUpload;
                 fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
                 FolderPathLists.Add(s.FileName);
                 fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
@@ -436,6 +440,7 @@
             Data.FileProfileTypeId = nodeName.FileProfileTypeId;
             var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
             FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            IsDuplicateUpload = lists.FirstOrDefault()?.IsDuplicateUpload;
             await loadData(nodeName, applicationUser);
             IsFileProfileTypeOpen = false;
         }
@@ -495,7 +500,7 @@
             documentsUploadModel.SessionId = AttachSessionId;
             documentsUploadModel.FileSessionId = AttachSessionId;
         }
-       
+
         documentsUploadModel.FilePath = Data.FilePath;
         Data.DocumentsUploadModels.Add(documentsUploadModel);
         //var response = await Mediator.Send(new UpdateCreateDocumentBySession(Data));
@@ -576,12 +581,47 @@
     }
     void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
-        AttachmentUploadVisible = files.ToList().Count > 0;
-        SelectedFiles.AddRange(files);
-        SelectedFilesCount = files.ToList().Count; //Count current files
+
+        var MyMessagess = string.Empty;
+        if (files != null && files.ToList().Count() > 0)
+        {
+            if (IsDuplicateUpload == false)
+            {
+                files.ToList().ForEach(s =>
+                {
+                    if (documentsFiles.Contains(s.Name))
+                    {
+                        MyMessagess += s.Name + " file was Removed.\n\r";
+
+                        uploadComponent.RemoveFile(s);
+                    }
+                });
+            }
+            AttachmentUploadVisible = files.ToList().Count > 0;
+            SelectedFiles.AddRange(files);
+            SelectedFilesCount = files.ToList().Count; //Count current files
+            if (!string.IsNullOrEmpty(MyMessagess))
+            {
+                var msg = "File Already Exits." + MyMessagess;
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+            }
+        }
         InvokeAsync(StateHasChanged);
     }
+    async Task onGetExitingFile()
+    {
+        DocumentSearchModel documentSearchModels = new DocumentSearchModel();
+        documentSearchModels.FileProfileTypeId = Data.FileProfileTypeId;
+        List<long?> list1 = new List<long?>();
+        list1.Add(Data.FileProfileTypeId);
+        documentSearchModels.FileProfileTypeIds = list1;
+        var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
+        if (docList != null && docList.Count() > 0)
+        {
+            documentsFiles.AddRange(docList.Select(s => s.FileName).Distinct().ToList());
+        }
 
+    }
     public void onsubmitUploadFromClick()
     {
         if (_editContext.Validate())

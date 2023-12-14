@@ -1629,6 +1629,36 @@ namespace Infrastructure.Repository.Query
             }
 
         }
+        public async Task<long> LastUpdateDateEmailTopic(long TopicId)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();                        
+                        parameters.Add("TopicId", TopicId, DbType.Int64);
+
+
+                        var query = " UPDATE EmailTopics SET LastUpdateDate = GETDATE() WHERE ID = @TopicId";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
         public async Task<String> SendPushNotification(long Id)
         {
             return "ok";

@@ -167,18 +167,18 @@ else
                             </DxFormLayoutItem>
 
                                <DxFormLayoutItem Caption="Category" ColSpanMd="4">
-                                <DxComboBox Data="@_categoryTagItems"
-                                            NullText="Select Category..."
-                                            Enabled="@isEnabled"
-                                            FilteringMode="DataGridFilteringMode.Contains"
-                                            TextFieldName="Value"
-                                            ValueFieldName="ApplicationMasterChildId"
-                                            ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
-                                            @bind-Value="@CategoryData.CategoryTag"
-                                            SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
-                                </DxComboBox>
-                                <ValidationMessage For="@(() => CategoryData.CategoryTag)" />
-                </DxFormLayoutItem>
+                                    <DxComboBox Data="@_categoryTagItems"
+                                                NullText="Select Category..."
+                                                Enabled="@isEnabled"
+                                                FilteringMode="DataGridFilteringMode.Contains"
+                                                TextFieldName="Value"
+                                                ValueFieldName="ApplicationMasterChildId"
+                                                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                                @bind-Value="@CategoryData.CategoryTag"
+                                                SelectedItemChanged="@((ApplicationMasterChildModel applicationMasterChildModel) => selectedCategoryChanged(applicationMasterChildModel))">
+                                    </DxComboBox>
+                                    <ValidationMessage For="@(() => CategoryData.CategoryTag)" />
+                                </DxFormLayoutItem>
                           
 
 

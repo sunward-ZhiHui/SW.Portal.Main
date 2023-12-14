@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspose.Words" Version="23.9.0" />
-    <PackageReference Include="Blazored.SessionStorage" Version="2.3.0" />
+    <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,7 +21,7 @@
     <PackageReference Include="MikaelDui.HtmlAgilityPack.Extensions" Version="0.0.3" />
     <PackageReference Include="MimeMapping" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Plugin.Firebase" Version="2.0.5" />
+    <PackageReference Include="Plugin.Firebase" Version="2.0.9" />
     <PackageReference Include="Quick.AspNetCore.Components.Web.Extensions" Version="6.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />

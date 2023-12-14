@@ -17,7 +17,8 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<EmailConversations>> GetAllAsync();
         Task<long> Insert(EmailConversations company);
         Task<String> SendPushNotification(long Id);
-        Task<long> LastUserIDUpdate(long ReplyId,long UserId);        
+        Task<long> LastUserIDUpdate(long ReplyId,long UserId);
+        Task<long> LastUpdateDateEmailTopic(long TopicId);
         Task<long> InsertAssignTo(EmailConversationAssignTo forumConversationAssignTo);
         Task<long> InsertAssignTo_sp(EmailConversationAssignTo emailConversationAssignTo);
         Task<long> InsertEmailNotifications(EmailNotifications forumNotifications);

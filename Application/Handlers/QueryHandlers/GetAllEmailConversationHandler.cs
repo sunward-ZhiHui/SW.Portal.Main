@@ -443,8 +443,11 @@ namespace Application.Handlers.QueryHandlers
             {
                 var updatereq = await _conversationQueryRepository.LastUserIDUpdate(request.ReplyId, request.AddedByUserID.Value);
             }
-            
-            
+
+
+            var ETUpdateDate = await _conversationQueryRepository.LastUpdateDateEmailTopic(request.TopicID);
+
+
             var conversationAssignTo = new EmailConversationAssignTo();
             conversationAssignTo.ConversationId = req;
             conversationAssignTo.ReplyId = request.ReplyId;
@@ -460,27 +463,10 @@ namespace Application.Handlers.QueryHandlers
             conversationAssignTo.ConIds = request.ConIds;            
             var reqq = await _conversationQueryRepository.InsertAssignTo_sp(conversationAssignTo);
 
-            //var listData = request.AssigntoIds.ToList();
-            //if (listData.Count > 0)
-            //{
-            //    request.AssigntoIds.ToList().ForEach(a =>
-            //    {
-            //        var conversationAssignTo = new EmailConversationAssignTo();
-            //        conversationAssignTo.ConversationId = req;
-            //        conversationAssignTo.TopicId = request.TopicID;
-            //        conversationAssignTo.UserId = a;
-            //        conversationAssignTo.StatusCodeID = request.StatusCodeID;
-            //        conversationAssignTo.AddedByUserID = request.AddedByUserID;
-            //        conversationAssignTo.SessionId = request.SessionId;
-            //        conversationAssignTo.AddedDate = request.AddedDate;
-            //        _conversationQueryRepository.InsertAssignTo(conversationAssignTo);
-            //    });
-            //}
-
             var plistData = request.AllParticipantIds.ToList();
             if (plistData.Count > 0)
             {
-                request.AllParticipantIds.ToList().ForEach(a =>
+                request.AllParticipantIds.ToList().ForEach(async a =>
                 {
                     var forumNotifications = new EmailNotifications();
                     forumNotifications.ConversationId = req;
@@ -489,7 +475,7 @@ namespace Application.Handlers.QueryHandlers
                     forumNotifications.AddedByUserID = request.AddedByUserID;
                     forumNotifications.AddedDate = request.AddedDate;
                     forumNotifications.IsRead = request.AddedByUserID == a ? true:false;
-                    _conversationQueryRepository.InsertEmailNotifications(forumNotifications);
+                   await _conversationQueryRepository.InsertEmailNotifications(forumNotifications);
                 });
             }
 

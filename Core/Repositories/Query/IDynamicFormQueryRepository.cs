@@ -12,7 +12,7 @@ namespace Core.Repositories.Query
     public interface IDynamicFormQueryRepository : IQueryRepository<DynamicForm>
     {
         Task<DynamicForm> GetAllSelectedList(Guid? sessionId,long? DynamicFormDataId);
-        Task<IReadOnlyList<DynamicForm>> GetAllAsync();
+        Task<IReadOnlyList<DynamicForm>> GetAllAsync(long? userId);
         Task<DynamicForm> GetDynamicFormByIdAsync(long? Id);
         Task<DynamicForm> GetDynamicFormBySessionIdAsync(Guid? SessionId);
         Task<long> Insert(DynamicForm dynamicForm);
@@ -31,7 +31,7 @@ namespace Core.Repositories.Query
         Task<DynamicFormData> InsertOrUpdateDynamicFormData(DynamicFormData dynamicFormData);
         Task<DynamicFormData> GetDynamicFormDataBySessionIdAsync(Guid? SessionId);
         Task<DocumentsModel> GetDynamicFormDataBySessionIdForDMSAsync(Guid? SessionId);
-        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id);
+        Task<IReadOnlyList<DynamicFormData>> GetDynamicFormDataByIdAsync(long? id,long? userId);
         Task<DynamicFormData> DeleteDynamicFormData(DynamicFormData dynamicFormData);
         Task<IReadOnlyList<DynamicFormApproval>> GetDynamicFormApprovalAsync(long? dynamicFormId);
         Task<DynamicFormApproval> InsertOrUpdateDynamicFormApproval(DynamicFormApproval dynamicFormApproval);

@@ -13,7 +13,11 @@ namespace Application.Queries
 {
     public class GetAllDynamicForm : PagedRequest, IRequest<List<DynamicForm>>
     {
-
+        public long? UserId { get; set; }
+        public GetAllDynamicForm(long? userId)
+        {
+            this.UserId = userId;
+        }
     }
     public class GetAllDynamicFormList : PagedRequest, IRequest<DynamicForm>
     {
@@ -160,9 +164,11 @@ namespace Application.Queries
     public class GetDynamicFormDataById : PagedRequest, IRequest<List<DynamicFormData>>
     {
         public long? Id { get; set; }
-        public GetDynamicFormDataById(long? id)
+        public long? UserId { get; set; }
+        public GetDynamicFormDataById(long? id, long? userId)
         {
             this.Id = id;
+            this.UserId = userId;
         }
     }
     public class DeleteDynamicFormData : DynamicFormData, IRequest<DynamicFormData>

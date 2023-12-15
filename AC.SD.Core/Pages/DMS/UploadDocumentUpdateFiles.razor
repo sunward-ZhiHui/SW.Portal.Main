@@ -126,7 +126,7 @@
     bool AttachmentCheckInUploadVisible { get; set; } = false;
     private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
     private DxUpload uploadCheckInComponent;
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT",".msg",".MSG" };
     string ExtensionsList = "";
     int SelectedFilesCount { get; set; }
     int CurrentUplodCount { get; set; }
@@ -164,6 +164,10 @@
                 else if (extenionType == "xls" || extenionType == "xlsx")
                 {
                     AcceptedFileTypes = new List<string>() { ".xls", ".xlsx" };
+                }
+                else if (extenionType == "msg")
+                {
+                    AcceptedFileTypes = new List<string>() { ".msg"};
                 }
                 else
                 {

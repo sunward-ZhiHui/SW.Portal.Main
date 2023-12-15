@@ -1,4 +1,4 @@
-﻿@page "/DynamicMasterSetup"
+﻿@page "/DynamicFormApprovedMainList"
 @using global::Core.Entities.Views;
 
 @inject IMediator Mediator
@@ -11,8 +11,8 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 @inject NavigationManager NavigationManager
-@implements IDisposable
 
+@implements IDisposable
 
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -21,9 +21,7 @@
                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
+                <DxMenuItem Text="Form" IconCssClass="fa fa-wpforms" Click="@OpenNewForm" />
             </Items>
         </DxMenu>
     </div>
@@ -55,31 +53,13 @@
 
         <Columns>
             <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="Screen Name" />
-            <DxGridDataColumn FieldName="CompanyName" Caption="Company Name" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
+            <DxGridDataColumn FieldName="Name" Caption="Form Name" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
             <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" />
         </Columns>
     </DxGrid>
 </DxLoadingPanel>
 
-
-
-<DxPopup @bind-Visible="@Blukdeletepopup"
-         ShowFooter="true"
-         HeaderText="CRT"
-         Closed="EulaPopupClosed"
-         Width="300px">
-    <BodyContentTemplate>
-        <p>
-            Do you want to delete
-        </p>
-    </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete(_selectedItems.ID))" />
-    </FooterContentTemplate>
-</DxPopup>
 
 @code {
 
@@ -93,14 +73,14 @@
     bool Blukdeletepopup { get; set; } = false;
     protected override async Task OnInitializedAsync()
     {
-       
+
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         await UpdateDataAsync();
     }
     async Task UpdateDataAsync()
     {
         EditEnabled = false; DeleteEnabled = false;
-        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
+        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(applicationUser.UserID));
         PanelVisible = true;
         if (_dynamicForm != null)
         {
@@ -128,35 +108,14 @@
     void OnRowDoubleClick(GridRowClickEventArgs e)
     {
         OnRowclick(e);
-        NavigationManager.NavigateTo("DynamicMasterSetup/dynamicFormMasterList/" + _selectedItems.SessionID);
+        NavigationManager.NavigateTo("DynamicFormApprovedMainList/DynamicFormApprovedList/" + _selectedItems.SessionID);
     }
-    void addNew()
+    void OpenNewForm()
     {
-        NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm");
-    }
-    void addEdit()
-    {
-        NavigationManager.NavigateTo("DynamicMasterSetup/DynamicMasterForm/" + _selectedItems.SessionID);
-    }
-    void addDetailDelete()
-    {
-        Blukdeletepopup = true;
-    }
-    async Task EulaPopupClosed(PopupClosedEventArgs args)
-    {
-        Blukdeletepopup = false;
-
-        await UpdateDataAsync();
-    }
-    async Task bulkDelete(long id)
-    {
-        var request = new DeleteDynamicForm(id);
-        await Mediator.Send(request);
-        Blukdeletepopup = false;
-        await UpdateDataAsync();
-
-
-
+        if (_selectedItems != null)
+        {
+            NavigationManager.NavigateTo("DynamicFormApprovedMainList/DynamicFormApprovedList/" + _selectedItems.SessionID);
+        }
     }
     public void Dispose()
     {

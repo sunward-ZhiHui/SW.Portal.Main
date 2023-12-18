@@ -86,8 +86,8 @@ namespace SW.Portal.Solutions.Controllers
                         documents.IsLatest = true;
                         documents.IsTemp = true;
                         documents.FileName = metaDataObject.FileName;
-                        documents.ContentType = metaDataObject.FileType;
-                        documents.FileSize = metaDataObject.FileSize;
+                        documents.ContentType = ext.ToLower() == "msg" ? "application/octet-stream" : metaDataObject.FileType;
+                        documents.FileSize =  metaDataObject.FileSize;
                         documents.SourceFrom = SourceFrom;
                         documents.FilePath = serverPath.Replace(_hostingEnvironment.ContentRootPath + @"\AppUpload\", "");
                         var response = await _documentsqueryrepository.InsertCreateDocumentBySession(documents);

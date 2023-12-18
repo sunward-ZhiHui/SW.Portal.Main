@@ -14,8 +14,9 @@ namespace DocumentViewer.Models
         public string ContentType { get; set; }
         public string Extensions { get; set; }
         public string Url { get; set; }
-       // public Func<byte[]> ContentAccessorByBytes { get; set; }
+        // public Func<byte[]> ContentAccessorByBytes { get; set; }
         public Func<Stream> ContentAccessorByBytes { get; set; }
+        public string? PlainTextBytes { get; set; }
         public bool? IsRead { get; set; } = false;
         public bool? IsDownload { get; set; } = false;
     }
@@ -23,5 +24,10 @@ namespace DocumentViewer.Models
     {
         public bool? IsRead { get; set; } = false;
         public bool? IsDownload { get; set; } = false;
+    }
+    public class FileNameModel
+    {
+        public string? FileName { get; set; }
+        public string? FilePath { get; set; }
     }
 }

@@ -77,11 +77,22 @@ namespace DocumentViewer.Controllers
                                 string contentType = currentDocuments.ContentType;
                                 if (contentType != null)
                                 {
+                                    var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
                                     var webResponse = await webClient.GetAsync(new Uri(fileurl));
-                                    Stream byteArrayAccessor() => webResponse.Content.ReadAsStream();
+                                    var streamData = webResponse.Content.ReadAsStream();
+                                    if (Extension == "msg")
+                                    {
+                                        viewmodel.Type = Extension;
+                                        viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
+                                    }
+                                    else
+                                    {
+                                        viewmodel.Type = contentType.Split("/")[0].ToLower();
+                                        Stream byteArrayAccessor() => streamData;
+                                        viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                    }
+
                                     viewmodel.DocumentId = Guid.NewGuid().ToString();
-                                    viewmodel.ContentAccessorByBytes = byteArrayAccessor;
-                                    viewmodel.Type = contentType.Split("/")[0].ToLower();
                                     viewmodel.ContentType = contentType;
                                     System.GC.Collect();
                                     GC.SuppressFinalize(this);
@@ -109,6 +120,68 @@ namespace DocumentViewer.Controllers
         public ContentResult DxDocRequest()
         {
             return (ContentResult)SpreadsheetRequestProcessor.GetResponse(HttpContext);
+        }
+        private string OutLookMailDocuments(Stream stream, string extension)
+        {
+            string plainTextBytes = string.Empty;
+            if (extension == "msg")
+            {
+                using (var msg = new MsgReader.Outlook.Storage.Message(stream))
+                {
+                    plainTextBytes = msg.BodyHtml;
+                    var attachments = msg.Attachments;
+                    if (attachments != null && attachments.Count > 0)
+                    {
+                        attachments.ForEach(a =>
+                        {
+                            var attachment = a as MsgReader.Outlook.Storage.Message.Attachment;
+                            if (attachment.ContentId != null && attachment.IsInline == true)
+                            {
+                                var contentId = "cid:" + attachment.ContentId;
+                                if (plainTextBytes.Contains(contentId))
+                                {
+                                    var contentType = "image/" + attachment.FileName.Split('.').Last();
+                                    var base64String = Convert.ToBase64String(attachment.Data, 0, attachment.Data.Length);
+                                    var filebaseString = "data:" + contentType + ";base64," + base64String;
+                                    plainTextBytes = plainTextBytes.Replace(contentId, filebaseString);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+            if (extension == "eml")
+            {
+                var eml = MsgReader.Mime.Message.Load(stream);
+                /* if (eml.TextBody != null)
+                 {
+                     var textBody = System.Text.Encoding.UTF8.GetString(eml.TextBody.Body);
+                 }*/
+
+                if (eml.HtmlBody != null)
+                {
+                    plainTextBytes = System.Text.Encoding.UTF8.GetString(eml.HtmlBody.Body);
+                }
+                var attachments = eml.Attachments;
+                if (attachments != null && attachments.Count > 0)
+                {
+                    attachments.ToList().ForEach(attachment =>
+                    {
+                        if (attachment.ContentId != null && attachment.IsInline == true)
+                        {
+                            var contentId = "cid:" + attachment.ContentId;
+                            if (plainTextBytes.Contains(contentId))
+                            {
+                                var contentType = "image/" + attachment.FileName.Split('.').Last();
+                                var base64String = Convert.ToBase64String(attachment.Body, 0, attachment.Body.Length);
+                                var filebaseString = "data:" + contentType + ";base64," + base64String;
+                                plainTextBytes = plainTextBytes.Replace(contentId, filebaseString);
+                            }
+                        }
+                    });
+                }
+            }
+            return plainTextBytes;
         }
     }
 }

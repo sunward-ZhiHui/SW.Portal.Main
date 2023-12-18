@@ -286,7 +286,7 @@
     public List<DocumentsModel> fileProfileTypeLinkDocDocumentsAll { get; set; }
     public List<string?> documentsFiles { get; set; } = new List<string?>();
     bool? IsDuplicateUpload { get; set; } = false;
-    public List<string> linkDocAcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT",".msg",".MSG" };
+    public List<string> linkDocAcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15" };
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);

@@ -298,7 +298,7 @@
     int CurrentUplodCount { get; set; }
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public List<string?> documentsFiles { get; set; } = new List<string?>();
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT",".msg",".MSG" };
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15" };
     protected override async Task OnInitializedAsync()
     {
         FolderPathListsItems = FolderPathLists.Cast<DocumentsModel>().ToList();

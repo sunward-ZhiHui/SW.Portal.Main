@@ -30,6 +30,14 @@
 
 @using global::Core.EntityModels;
 <style>
+    .supportDoc {
+        text-align: center;
+        font-size: 14px;
+        background: #3333;
+        color: black;
+        padding: 3px;
+        margin-bottom: 10px;
+    }
     .txtEditorMsg {
         height: calc(100vh - 496px);
     }
@@ -405,6 +413,59 @@ else
                                                     </ul>
 
                                                 }
+
+                                                @if (_PADoclst != null && _PADoclst.Any())
+                                                {
+                                                    <div class="supportDoc"> Production Activity (Supporting Doc) </div>
+                                                    <ul class="d-flex flex-column-reverse todo-list">
+                                                        @foreach (var item in _PADoclst)
+                                                        {
+                                                            <li class="doc_lst_view">
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label">
+                                                                        <span style="font-weight: 600; font-size: 14px;">@item.FileName</span>
+                                                                        @{
+                                                                            string formattedFileSize = FormatFileSize(item.FileSize.Value);
+                                                                        }
+                                                                        <span style="font-size: 11px;">  @formattedFileSize</span>
+
+                                                                        @* <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> </button>*@
+
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+
+                                                }
+
+                                                 @if (_PARoutineDoclst != null && _PARoutineDoclst.Any())
+                                                {
+                                                    <div class="supportDoc"> Production Routine Activity (Supporting Doc) </div>
+                                                    <ul class="d-flex flex-column-reverse todo-list">
+                                                        @foreach (var item in _PARoutineDoclst)
+                                                        {
+
+                                                            <li class="doc_lst_view">
+                                                                <div class="form-check">
+                                                                    <label class="form-check-label">
+                                                                        <span style="font-weight: 600; font-size: 14px;">@item.FileName</span>
+                                                                        @{
+                                                                            string formattedFileSize = FormatFileSize(item.FileSize.Value);
+                                                                        }
+                                                                        <span style="font-size: 11px;">  @formattedFileSize</span>
+
+                                                                        @* <button class="dxbl-btn fa fa-cloud-download" @onclick="@(() => onDocDownload(item.DocumentId))"> </button>*@
+
+                                                                    </label>
+                                                                </div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+
+                                                }
+
+
                                             }
                                         </div>
                                     </DxFormLayoutGroup>
@@ -550,7 +611,7 @@ else
 
     bool IsDraftEnabled { get; set; } = false;
     [Parameter]
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF",".msg",".ai"};
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15",".ai" };
     private DxUpload uploadComponent;
     Guid? _sessionId;
     string MyError { get; set; }
@@ -626,6 +687,8 @@ else
     IReadOnlyList<object>? SelectedCCDataItems { get; set; }
 
     private List<Documents>? _documentslst;
+    private List<Documents>? _PADoclst;
+    private List<Documents>? _PARoutineDoclst;
 
     public static string FormatFileSize(long bytes)
     {
@@ -1122,7 +1185,7 @@ else
                 isValidateSession = false;
                 //var docId = "70F019EC011241C9807C39BF2BE79136";
                 //Guid docSessionId = Guid.Parse(docId);
-                await  GroupTagChanged(actItem[0].ManufacturingProcessId);
+                await GroupTagChanged(actItem[0].ManufacturingProcessId);
                 await CategoryTagChange(actItem[0].CategoryActionId);
 
                 var Namelist = plist.Where(c => c.UserID == actItem[0].AddedByUserID).ToList();
@@ -1142,6 +1205,23 @@ else
                 {
                     var documentslst = await Mediator.Send(new GetAllCreateEmailDocumentLst(actItem[0].DocumentSessionId.Value));
                     _documentslst = documentslst;
+                }
+
+                if (actItem[0].ActivityType == "ProductionActivity")
+                {
+                    if(actItem[0].ActivityMasterId > 0)
+                    {
+                        _PADoclst = await Mediator.Send(new GetPATypeDocLst(actItem[0].ActivityMasterId, "ProductionActivity"));
+                    }
+                    
+                }
+
+                if (actItem[0].ActivityType == "RoutineActivity")
+                {
+                    if(actItem[0].ActivityMasterId > 0)
+                    {
+                        _PARoutineDoclst = await Mediator.Send(new GetPATypeDocLst(actItem[0].ActivityMasterId, "RoutineActivity"));
+                    }                    
                 }
 
                 Data.TopicName = actItem[0].SubjectName;

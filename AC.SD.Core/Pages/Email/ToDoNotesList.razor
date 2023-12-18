@@ -295,9 +295,10 @@
                         var item = (ToDoNotesHistory)context.DataItem;
                     }
                     <div style="width:100%">
-                        <strong>
+                        <strong style="display:block;width:100%;">
                             @item.Description
-                        </strong>
+                        </strong>                        
+                        <span class="atag_new" @onclick="() => onOpenUrl(item.Url)">@item.Url</span>
                         <div style="float: right; font-size: 11px;">
                             @item.Status
                         </div>
@@ -356,13 +357,17 @@
                               
             }
             <DxFormLayout CssClass="w-100">
-                <DxFormLayoutItem Caption="Description:" ColSpanMd="12">
+                <DxFormLayoutItem Caption="Descriptions:" ColSpanMd="12">
                     @*<DxTextBox @bind-Text="@types.Description" />*@
                     <DxMemo @bind-Text="@types.Description"
                             NullText="Description text..."                          
                             CssClass="cw-480"
                             Rows="5" />
                     <ValidationMessage For="@(() => types.Description)" />
+                </DxFormLayoutItem>
+                <DxFormLayoutItem Caption="URL:" ColSpanMd="12">
+                    <DxTextBox @bind-Text="@types.Url" />                   
+                    <ValidationMessage For="@(() => types.Url)" />
                 </DxFormLayoutItem>
                 <DxFormLayoutItem Caption="Assign To" ColSpanMd="12">
                      <DxTagBox Data="_participant"
@@ -637,6 +642,11 @@
     string MyMessage { get; set; }
     string Message = "Upload";
 
+    private async Task onOpenUrl(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("open", url, "_blank");
+    }
+
     void onSelectedToItemsChanged(IEnumerable<ViewEmployee> values)
     {
         if (values != null)
@@ -877,6 +887,7 @@
                         NotesId = SelectedNoteId,
                         TopicId = Topicid,
                         Description = editModel.Description,
+                        Url = editModel.Url,
                         DueDate = editModel.DueDate,
                         RemainDate = editModel.RemainDate,
                         Users = editModel.Users,
@@ -933,6 +944,7 @@
                         ID = editModel.ID,  
                         TopicId = Topicid,
                         Description = editModel.Description,
+                        Url = editModel.Url,
                         DueDate  = editModel.DueDate,
                         RemainDate = editModel.RemainDate,
                         AddedByUserID = editModel.AddedByUserID,

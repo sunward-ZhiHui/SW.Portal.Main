@@ -290,7 +290,7 @@
                                                             </p>
                                                         </div>
 
-                                                        <div class="right-column">
+                                                        <div class="right-column" style="width: 28%;">
                                                             <div class="shared-div">
                                                                 <div class="date-and-notes">
                                                                     @if(item.DueDate != null)
@@ -2306,8 +2306,8 @@
     bool ErrorVisible { get; set; } = false;
     string MyError { get; set; }
     [Parameter]
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF",".msg",".ai"};
-    public List<string> AllowedFileExtensions { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",".txt",".pdf",".PDF",".msg",".ai"};
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF",".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15",".ai"};
+    public List<string> AllowedFileExtensions { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15", ".ai" };
     public DocumentFormat MyDocumentFormat { get; set; }
     private string? BaseUrl;
     private string? FileUrl;

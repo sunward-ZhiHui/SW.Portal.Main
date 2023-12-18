@@ -79,7 +79,15 @@ namespace Infrastructure.Service
                 {
                     var profileAutoNo = masterList.ProfileAutoNumber.FirstOrDefault();
                     var incrementalNo = profileSettings.IncrementalNo > 0 ? profileSettings.IncrementalNo : 0;
-                    var LastNoUsed = (Convert.ToInt32(profileAutoNo.LastNoUsed) + Convert.ToInt32(incrementalNo)) * Convert.ToInt32(noSeriesModel.NoOfCounts);
+
+                    int lastNoUsed;
+                    int lnused = 0 ;
+                    if (int.TryParse(profileAutoNo.LastNoUsed, out lastNoUsed))
+                    {
+                        lnused = lastNoUsed > 0 ? lastNoUsed : 0;                        
+                    }
+
+                    var LastNoUsed = (Convert.ToInt32(lnused) + Convert.ToInt32(incrementalNo)) * Convert.ToInt32(noSeriesModel.NoOfCounts);
                     ProfileAutoNumber newProfileAutoNumber = new ProfileAutoNumber
                     {
                         ProfileId = noSeriesModel.ProfileID,
@@ -516,7 +524,15 @@ namespace Infrastructure.Service
             }
             else
             {
-                LastNoUsed = (Convert.ToInt32(profileAutonumber.LastNoUsed) + profilesettings.IncrementalNo.GetValueOrDefault(0)).ToString("D" + profilesettings.NoOfDigit);
+                int lastNoUsed;
+                int lnused = 0;
+                if (int.TryParse(profileAutonumber.LastNoUsed, out lastNoUsed))
+                {
+                    lnused = lastNoUsed > 0 ? lastNoUsed : 0;
+                }
+
+
+                LastNoUsed = (Convert.ToInt32(lnused) + profilesettings.IncrementalNo.GetValueOrDefault(0)).ToString("D" + profilesettings.NoOfDigit);
                 profileAutonumber.LastNoUsed = LastNoUsed;
                 documentNo += LastNoUsed;
                 await _generateDocumentNoSeriesQueryRepository.UpdateDocumentProfileNoSeriesLastNoUsed(profileAutonumber);

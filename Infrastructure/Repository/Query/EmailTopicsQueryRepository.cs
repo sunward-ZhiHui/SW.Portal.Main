@@ -2215,6 +2215,41 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
+        public async Task<List<Documents>> GetPATypeDocLstAsync(long Id,string Type)
+        {
+            try
+            {
+
+                var parameters = new DynamicParameters();
+                parameters.Add("Id", Id);
+                var query = "";
+
+                if (Type == "ProductionActivity")
+                {
+                    query = @"SELECT D.FileName,D.FileSize from Documents D
+                            INNER JOIN ProductionActivityAppLineDoc PAD ON PAD.DocumentID = D.DocumentID
+                            WHERE PAD.ProductionActivityAppLineID = @Id";
+                }
+                else
+                {
+                    query = @"SELECT D.FileName,D.FileSize from Documents D
+                            INNER JOIN ProductionActivityRoutineAppLineDoc PARD ON PARD.DocumentID = D.DocumentID
+                            WHERE PARD.ProductionActivityRoutineAppLineID = @Id";
+                }               
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<Documents>(query, parameters)).ToList();
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<List<Documents>> GetCreateEmailDocumentListAsync(Guid sessionId)
         {
             try

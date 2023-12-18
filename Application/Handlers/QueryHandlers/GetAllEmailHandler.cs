@@ -774,6 +774,22 @@ namespace CMS.Application.Handlers.QueryHandlers
         }
     }
 
+    public class GetPATypeDocLstHandler : IRequestHandler<GetPATypeDocLst, List<Documents>>
+    {
+        private readonly IEmailTopicsQueryRepository _createEmailDocumentsQueryRepository;
+
+        public GetPATypeDocLstHandler(IEmailTopicsQueryRepository createEmailDocumentsQueryRepository)
+        {
+
+            _createEmailDocumentsQueryRepository = createEmailDocumentsQueryRepository;
+        }
+        public async Task<List<Documents>> Handle(GetPATypeDocLst request, CancellationToken cancellationToken)
+        {
+            return (List<Documents>)await _createEmailDocumentsQueryRepository.GetPATypeDocLstAsync(request.Id,request.Type);
+        }
+    }
+    
+
     public class CreateActivityEmailHandler : IRequestHandler<CreateActivityEmail,long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;

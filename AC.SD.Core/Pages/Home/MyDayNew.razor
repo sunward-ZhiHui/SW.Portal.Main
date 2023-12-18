@@ -55,6 +55,15 @@
         <DxGridDataColumn FieldName="SubjectName" Caption="Subject" ReadOnly="true" Width="180" />
         <DxGridDataColumn FieldName="NoteName" Caption="Note Name" ReadOnly="true" Width="180" />
         <DxGridDataColumn FieldName="AssignTo" Caption="Assign To" ReadOnly="true" Width="180" />
+        <DxGridDataColumn FieldName="Url" Width="180"> 
+            <CellDisplayTemplate>
+                @{
+                    var item = (ToDoNotesHistory)context.DataItem;
+                }
+                <span class="atag_new" @onclick="() => onOpenUrl(item.Url)">@item.Url</span>                
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+
         <DxGridDataColumn FieldName="DueDate" Width="180">
             <CellDisplayTemplate>
                 @{
@@ -305,6 +314,10 @@
         await jsRuntime.InvokeAsync<string>("showLoading");
         _ToDoNotesHistory = await Mediator.Send(new GetMyToDoRemainderDate(applicationUser.UserID));
         await jsRuntime.InvokeAsync<string>("hideLoading");
+    }
+    private async Task onOpenUrl(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("open", url, "_blank");
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {

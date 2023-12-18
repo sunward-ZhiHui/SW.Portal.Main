@@ -10,6 +10,11 @@ body,
     overflow: hidden;
     overscroll-behavior: none;
 }
+.atag_new {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
 .dxbl-wait-indicator {
     --dxbl-wait-indicator-color: white;
 }

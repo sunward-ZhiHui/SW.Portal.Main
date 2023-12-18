@@ -419,7 +419,18 @@ namespace Application.Queries
         }
 
     }
-     public class DeleteDocumentFileQuery : Documents, IRequest<long>
+    public class GetPATypeDocLst : PagedRequest, IRequest<List<Documents>>
+    {
+        public long Id { get; private set; }
+        public string Type { get; private set; }
+        public GetPATypeDocLst(long Id, string type)
+        {
+            this.Id = Id;
+            Type = type;
+        }
+
+    }
+    public class DeleteDocumentFileQuery : Documents, IRequest<long>
     {
         public long ID { get; set; }
 

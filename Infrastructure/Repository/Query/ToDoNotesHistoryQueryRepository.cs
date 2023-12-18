@@ -136,7 +136,7 @@ namespace Infrastructure.Repository.Query
                 //                    )
                 //                ORDER BY TNH.DueDate";
 
-                var query = @"SELECT TNU.ID,TNH.NotesId,TNH.DueDate,TNH.RemainDate,TNH.Description,TNH.AddedByUserID,TNH.AddedDate,TNH.SessionId,TNH.TopicId,EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,AP.UserName as AssignTo FROM ToDoNotesHistory TNH
+                var query = @"SELECT TNU.ID,TNH.NotesId,TNH.DueDate,TNH.Url,TNH.RemainDate,TNH.Description,TNH.AddedByUserID,TNH.AddedDate,TNH.SessionId,TNH.TopicId,EC.Name AS SubjectName , ET.TopicName as MainSubject,TD.Notes as NoteName,AP.UserName as AssignTo FROM ToDoNotesHistory TNH
                                 INNER JOIN EmailConversations EC ON EC.ID = TNH.TopicId
                                 INNER JOIN EmailTopics ET ON ET.ID = EC.TopicId
                                 INNER JOIN ToDoNotes TD ON TD.ID = TNH.NotesId
@@ -396,6 +396,7 @@ namespace Infrastructure.Repository.Query
                         {
                             var parameters = new DynamicParameters();                           
                             parameters.Add("Description", ToDoNotesHistory.Description);
+                            parameters.Add("Url", ToDoNotesHistory.Url);
                             parameters.Add("NotesId", ToDoNotesHistory.NotesId);
                             parameters.Add("DueDate", ToDoNotesHistory.DueDate);
                             parameters.Add("RemainDate", ToDoNotesHistory.RemainDate);
@@ -411,7 +412,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("TopicId", ToDoNotesHistory.TopicId);
 
 
-                            var query = "INSERT INTO ToDoNotesHistory(TopicId,Users,NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status,ColourCode) OUTPUT INSERTED.ID VALUES (@TopicId,@Users,@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status,@ColourCode)";
+                            var query = "INSERT INTO ToDoNotesHistory(Url,TopicId,Users,NotesId,Description,DueDate,RemainDate,StatusCodeID,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,SessionId,Status,ColourCode) OUTPUT INSERTED.ID VALUES (@Url,@TopicId,@Users,@NotesId,@Description,@DueDate,@RemainDate,@StatusCodeID,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@SessionId,@Status,@ColourCode)";
 
                             var lastInsertedRecordId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
 
@@ -444,6 +445,7 @@ namespace Infrastructure.Repository.Query
                             var parameters = new DynamicParameters();
                             parameters.Add("ID", ToDoNotesHistory.ID);                            
                             parameters.Add("Description", ToDoNotesHistory.Description);
+                            parameters.Add("Url", ToDoNotesHistory.Url);
                             parameters.Add("DueDate", ToDoNotesHistory.DueDate);
                             parameters.Add("RemainDate", ToDoNotesHistory.RemainDate);
                             parameters.Add("ModifiedByUserID", ToDoNotesHistory.ModifiedByUserID);
@@ -454,7 +456,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("TopicId", ToDoNotesHistory.TopicId);
 
 
-                            var query = @"Update ToDoNotesHistory SET TopicId = @TopicId,Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Status = @Status,ColourCode = @ColourCode WHERE ID = @ID";
+                            var query = @"Update ToDoNotesHistory SET Url=@Url,TopicId = @TopicId,Description = @Description,DueDate= @DueDate,RemainDate = @RemainDate,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,Status = @Status,ColourCode = @ColourCode WHERE ID = @ID";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters);
                             

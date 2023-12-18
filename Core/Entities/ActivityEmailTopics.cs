@@ -13,7 +13,7 @@ namespace Core.Entities
     {
         [Key]
         public long ActivityEmailTopicID { get; set; }
-
+        public long ActivityMasterId { get; set; }
         public long ManufacturingProcessId { get; set; }
         public long CategoryActionId { get; set; }
         public long ActionId { get; set; }

@@ -19,6 +19,7 @@ namespace Core.Entities
         public DateTime? DueDate { get; set; }
         public DateTime? RemainDate { get; set; }
         public bool Completed { get; set; }
+        public string Url { get; set; }
         public long? TopicId { get; set; }
         [NotMapped]
         public List<ViewEmployee>? participant { get; set; }

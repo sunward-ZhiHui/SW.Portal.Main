@@ -8,6 +8,10 @@
             <img style="max-width: 100%; max-height: calc(100vh - 70px);" src="@Model.Url" />
         </div>
     }
+    else if (Model.Type == "msg" || Model.Type == "eml")
+    {
+        <div style="padding:10px;overflow-y: scroll; width: 100%;height: calc(100vh - 70px);">@Html.Raw(@Model.PlainTextBytes)</div>
+    }
     else
     {
         @if (@Model.Extensions == "xls" || @Model.Extensions == "xlsx")

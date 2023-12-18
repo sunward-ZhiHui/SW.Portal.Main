@@ -21,6 +21,10 @@ using System.Threading;
 using DevExpress.Xpo;
 using System.Net.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client.Extensions.Msal;
+using MsgReader.Outlook;
+using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
+using System.IO.Compression;
 
 namespace DocumentViewer.Controllers
 {
@@ -31,11 +35,13 @@ namespace DocumentViewer.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly AppDbContext _context;
         private readonly IConfiguration _configuration;
-        public HomeController(ILogger<HomeController> logger, AppDbContext context, IConfiguration configuration)
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        public HomeController(ILogger<HomeController> logger, AppDbContext context, IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             _logger = logger;
             _context = context;
             _configuration = configuration;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         public async Task<IActionResult> Index(string url)
@@ -68,7 +74,7 @@ namespace DocumentViewer.Controllers
                             {
                                 var query = from oal in _context.OpenAccessUserLink
                                             join oau in _context.OpenAccessUser on oal.OpenAccessUserId equals oau.OpenAccessUserId
-                                            where oal.UserId == userIds && oau.AccessType == "DMSAccess" && oal.IsDmsAccess==true
+                                            where oal.UserId == userIds && oau.AccessType == "DMSAccess" && oal.IsDmsAccess == true
                                             select oal;
                                 if (query != null)
                                 {
@@ -93,7 +99,7 @@ namespace DocumentViewer.Controllers
                             }
                             else if (currentDocuments.SourceFrom == "Email")
                             {
-                                var per=GetEmailFilePermissionAsync(currentDocuments);
+                                var per = GetEmailFilePermissionAsync(currentDocuments);
                                 viewmodel.IsRead = per.IsRead; viewmodel.IsDownload = per.IsDownload;
                             }
                             else
@@ -131,6 +137,8 @@ namespace DocumentViewer.Controllers
                                 string? contentType = currentDocuments?.ContentType;
                                 if (contentType != null)
                                 {
+                                    var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
+                                    @ViewBag.FileExtension = Extension;
                                     /* using (var _httpClient = new HttpClient())
                                      {
                                          using (var response = await _httpClient.GetAsync(new Uri(fileurl)))
@@ -148,10 +156,21 @@ namespace DocumentViewer.Controllers
                                     /*using (var webClient = new HttpClient())
                                     {*/
                                     var webResponse = await webClient.GetAsync(new Uri(fileurl));
-                                    Stream byteArrayAccessor() => webResponse.Content.ReadAsStream();
+                                    var streamData = webResponse.Content.ReadAsStream();
+                                    if (Extension == "msg" || Extension == "eml")
+                                    {
+                                        viewmodel.Type = Extension;
+                                        viewmodel.PlainTextBytes = OutLookMailDocuments(streamData, Extension);
+                                    }
+                                    else
+                                    {
+                                        viewmodel.Type = contentType.Split("/")[0].ToLower();
+                                        Stream byteArrayAccessor() => streamData;
+                                        viewmodel.ContentAccessorByBytes = byteArrayAccessor;
+                                    }
                                     viewmodel.DocumentId = Guid.NewGuid().ToString();
-                                    viewmodel.ContentAccessorByBytes = byteArrayAccessor;
-                                    viewmodel.Type = contentType.Split("/")[0].ToLower();
+
+
                                     viewmodel.ContentType = contentType;
                                     System.GC.Collect();
                                     GC.SuppressFinalize(this);
@@ -208,6 +227,7 @@ namespace DocumentViewer.Controllers
                     var currentDocuments = _context.Documents.Where(w => w.UniqueSessionId == sessionId).FirstOrDefault();
                     if (currentDocuments != null)
                     {
+                        var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
                         if (currentDocuments.IsNewPath == true)
                         {
                             fileurl = fileNewUrl + currentDocuments.FilePath;
@@ -216,10 +236,58 @@ namespace DocumentViewer.Controllers
                         {
                             fileurl = fileOldUrl + currentDocuments.FilePath;
                         }
+                        if (Extension == "msg")
+                        {
+                            currentDocuments.ContentType = "application/octet-stream";
+                        }
                         var result = DownloadExtention.GetUrlContent(fileurl);
-                        if (result != null)
+                        if (result != null && result.Result != null)
                         {
                             return File(result.Result, currentDocuments.ContentType, currentDocuments.FileName);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return Ok("file is not exist");
+        }
+        [HttpGet("Maildownloadfromurl")]
+        public async Task<IActionResult> Maildownloadfromurl(string? url)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(url))
+                {
+                    var fileOldUrl = _configuration["DocumentsUrl:FileOldUrl"];
+                    var fileNewUrl = _configuration["DocumentsUrl:FileNewUrl"];
+                    var fileurl = string.Empty;
+                    var sessionId = new Guid(url);
+                    var currentDocuments = _context.Documents.Where(w => w.UniqueSessionId == sessionId).FirstOrDefault();
+                    if (currentDocuments != null)
+                    {
+                        var Extension = currentDocuments.FileName != null ? currentDocuments.FileName?.Split(".").Last().ToLower() : "";
+                        var filnames = currentDocuments.FileName != null ? currentDocuments.FileName?.TrimEnd('.') : "ZipFile";
+                        if (currentDocuments.IsNewPath == true)
+                        {
+                            fileurl = fileNewUrl + currentDocuments.FilePath;
+                        }
+                        else
+                        {
+                            fileurl = fileOldUrl + currentDocuments.FilePath;
+                        }
+                        if (Extension == "msg")
+                        {
+                            currentDocuments.ContentType = "application/octet-stream";
+                        }
+                        var webResponse = await webClient.GetAsync(new Uri(fileurl));
+                        var streamData = webResponse.Content.ReadAsStream();
+                        var streamDatas = GetOutLookMailDocuments(streamData, Extension);
+                        if (streamDatas != null)
+                        {
+                            return File(streamDatas, "application/x-zip-compressed", filnames + ".zip");
                         }
                     }
                 }
@@ -469,6 +537,153 @@ namespace DocumentViewer.Controllers
             }
             return permissionModel;
 
+        }
+        private string OutLookMailDocuments(Stream stream, string extension)
+        {
+            string plainTextBytes = string.Empty;
+            if (extension == "msg")
+            {
+                using (var msg = new MsgReader.Outlook.Storage.Message(stream))
+                {
+                    plainTextBytes = msg.BodyHtml;
+                    var attachments = msg.Attachments;
+                    if (attachments != null && attachments.Count > 0)
+                    {
+                        attachments.ForEach(a =>
+                        {
+                            var attachment = a as MsgReader.Outlook.Storage.Message.Attachment;
+                            if (attachment.ContentId != null && attachment.IsInline == true)
+                            {
+                                var contentId = "cid:" + attachment.ContentId;
+                                if (plainTextBytes.Contains(contentId))
+                                {
+                                    var contentType = "image/" + attachment.FileName.Split('.').Last();
+                                    var base64String = Convert.ToBase64String(attachment.Data, 0, attachment.Data.Length);
+                                    var filebaseString = "data:" + contentType + ";base64," + base64String;
+                                    plainTextBytes = plainTextBytes.Replace(contentId, filebaseString);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+            if (extension == "eml")
+            {
+                var eml = MsgReader.Mime.Message.Load(stream);
+                if (eml.HtmlBody != null)
+                {
+                    plainTextBytes = System.Text.Encoding.UTF8.GetString(eml.HtmlBody.Body);
+                }
+                var attachments = eml.Attachments;
+                if (attachments != null && attachments.Count > 0)
+                {
+                    attachments.ToList().ForEach(attachment =>
+                    {
+                        if (attachment.ContentId != null && attachment.IsInline == true)
+                        {
+                            var contentId = "cid:" + attachment.ContentId;
+                            if (plainTextBytes.Contains(contentId))
+                            {
+                                var contentType = "image/" + attachment.FileName.Split('.').Last();
+                                var base64String = Convert.ToBase64String(attachment.Body, 0, attachment.Body.Length);
+                                var filebaseString = "data:" + contentType + ";base64," + base64String;
+                                plainTextBytes = plainTextBytes.Replace(contentId, filebaseString);
+                            }
+                        }
+                    });
+                }
+            }
+            return plainTextBytes;
+        }
+        private byte[] GetOutLookMailDocuments(Stream stream, string? extension)
+        {
+            List<FileNameModel> files = new List<FileNameModel>();
+            var SessionId = Guid.NewGuid();
+            var serverPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId;
+            if (!System.IO.Directory.Exists(serverPaths))
+            {
+                System.IO.Directory.CreateDirectory(serverPaths);
+            }
+            string plainTextBytes = string.Empty;
+            if (extension == "msg")
+            {
+                using (var msg = new MsgReader.Outlook.Storage.Message(stream))
+                {
+                    var attachments = msg.Attachments;
+                    if (attachments != null && attachments.Count > 0)
+                    {
+                        attachments.ForEach(a =>
+                        {
+                            var attachment = a as MsgReader.Outlook.Storage.Message.Attachment;
+                            if (attachment != null && attachment.Hidden == false)
+                            {
+                                var filePath = serverPaths + @"\" + attachment.FileName;
+                                FileNameModel fileNameModel = new FileNameModel();
+                                fileNameModel.FilePath = filePath;
+                                fileNameModel.FileName = attachment.FileName;
+                                files.Add(fileNameModel);
+                                using (var streams = new MemoryStream(attachment.Data))
+                                {
+                                    System.IO.File.WriteAllBytes(filePath, streams.ToArray());
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+            if (extension == "eml")
+            {
+                var eml = MsgReader.Mime.Message.Load(stream);
+                if (eml.HtmlBody != null)
+                {
+                    plainTextBytes = System.Text.Encoding.UTF8.GetString(eml.HtmlBody.Body);
+                }
+                var attachments = eml.Attachments;
+                if (attachments != null && attachments.Count > 0)
+                {
+                    attachments.ToList().ForEach(attachment =>
+                    {
+                        if (attachment.ContentId == null && attachment.IsInline == false)
+                        {
+                            var filePath = serverPaths + @"\" + attachment.FileName;
+                            FileNameModel fileNameModel = new FileNameModel();
+                            fileNameModel.FilePath = filePath;
+                            fileNameModel.FileName = attachment.FileName;
+                            files.Add(fileNameModel);
+                            using (var streams = new MemoryStream(attachment.Body))
+                            {
+                                System.IO.File.WriteAllBytes(filePath, streams.ToArray());
+                            }
+                        }
+                    });
+                }
+            }
+            byte[]? stream1 = null;
+            if (files.Count > 0)
+            {
+                var serverZipPaths = _hostingEnvironment.ContentRootPath + @"\AppUpload\Documents\" + SessionId + @"\" + SessionId + ".zip";
+                using (FileStream fs = new FileStream(serverZipPaths, FileMode.Create))
+                {
+                    using (ZipArchive arch = new ZipArchive(fs, ZipArchiveMode.Create))
+                    {
+                        files.ForEach(s =>
+                        {
+                            arch.CreateEntryFromFile(s.FilePath, s.FileName);
+                        });
+                    }
+                }
+                if (System.IO.File.Exists(serverZipPaths))
+                {
+                    stream1 = System.IO.File.ReadAllBytes(serverZipPaths);
+                }
+                files.ForEach(s =>
+                {
+                    System.IO.File.Delete(s.FilePath);
+                });
+                System.IO.File.Delete(serverZipPaths);
+                System.IO.Directory.Delete(serverPaths);
+            }
+            return stream1;
         }
     }
 

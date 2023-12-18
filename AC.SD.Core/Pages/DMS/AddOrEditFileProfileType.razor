@@ -142,7 +142,7 @@
         _applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _documentProfileNoList = await Mediator.Send(new GetDocumentProfiles());
         _shelfLifeDurationItems = await Mediator.Send(new GetAllCodeMasterQuery("RecurrenceType"));
-        _dynamicForm = await Mediator.Send(new GetAllDynamicForm());
+        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
         _fileProfileTypeData = await Mediator.Send(new GetFileProfileTypeBySession(SessionId));
         if (Type == "Add")
         {

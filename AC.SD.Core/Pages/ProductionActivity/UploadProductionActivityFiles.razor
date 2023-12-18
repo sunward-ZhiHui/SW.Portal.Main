@@ -305,7 +305,7 @@
     string? fileUploadStyle { get; set; } = "padding:5px;"; string? imageUploadStyle { get; set; } = "display:none;";
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
-    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
+    public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT", ".eml", ".EML", "Outlook.File.eml.15" };
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);

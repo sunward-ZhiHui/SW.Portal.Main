@@ -100,7 +100,7 @@
     async Task UpdateDataAsync()
     {
         EditEnabled = false; DeleteEnabled = false;
-        _dynamicForm = await Mediator.Send(new GetAllDynamicForm());
+        _dynamicForm = await Mediator.Send(new GetAllDynamicForm(0));
         PanelVisible = true;
         if (_dynamicForm != null)
         {

@@ -86,7 +86,7 @@
 </head>
 <body>
 
-     @if (@ViewBag.isUrl == "isUrl")
+    @if (@ViewBag.isUrl == "isUrl")
     {
         @if (Context.Session.GetString("user_id") != null)
         {
@@ -99,6 +99,10 @@
                     <div class="dropdown">
                         <button class="dropbtn">Menu &#9660;</button>
                         <div class="dropdown-content">
+                            @if (@ViewBag.FileExtension == "msg" || @ViewBag.FileExtension == "eml")
+                            {
+                                <a href="javascript:void(0);" id="downloadMailClick">Download Mail Attachment</a>
+                            }
                             @if (@ViewBag.isDownload == "Yes")
                             {
                                 <a href="javascript:void(0);" id="downloadClick">Download</a>
@@ -153,6 +157,40 @@
 
                 }
             });
+        });
+        $('#downloadMailClick').on('click', function () {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const url = urlParams.get('url');
+            if (url != null) {
+                var fileName = $("#fileName_id").html();
+                if (fileName[fileName.length - 1] === ".")
+                    fileName = fileName.slice(0, -1);
+                $.ajax({
+                    url: '@Url.Action("Maildownloadfromurl")',
+                    data: { url: url },
+                    method: 'GET',
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    success: function (data) {
+                        var a = document.createElement('a');
+                        var url = window.URL.createObjectURL(data);
+                        a.href = url;
+                        a.download = fileName + ".zip";
+                        document.body.append(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                    },
+                    error: function (ex) {
+                        if (ex.status == 500) {
+                            alert("File is not exist")
+                        }
+
+                    }
+                });
+            }
         });
         $('#downloadClick').on('click', function () {
             const queryString = window.location.search;

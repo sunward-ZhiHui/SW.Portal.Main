@@ -34,7 +34,7 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@LinkDocbackUrl" />
-                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentLinkDocSelectButton" Enabled="@loadingLinkDoc" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentLinkDocSelectButton" Enabled="@loadingLinkDoc" Click="onGetExitingFile" />
                         <DxMenuItem Text="@LinkDocMessage" IconCssClass="fa fa-upload" Click="@onsubmitUploadLinkDocFromClick" Enabled="@loadingLinkDoc" />
                     </Items>
                 </DxMenu>
@@ -286,7 +286,7 @@
     public List<DocumentsModel> fileProfileTypeLinkDocDocumentsAll { get; set; }
     public List<string?> documentsFiles { get; set; } = new List<string?>();
     bool? IsDuplicateUpload { get; set; } = false;
-    public List<string> linkDocAcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT" };
+    public List<string> linkDocAcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".txt", ".TXT", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15" };
     protected override async Task OnInitializedAsync()
     {
         _editContext = new EditContext(Data);
@@ -392,6 +392,20 @@
         await SelectedItemDepartementLinkDocChanged(0);
         await SelectedItemSectionLinkDocChanged(0);
         StateHasChanged();
+    }
+    async Task onGetExitingFile()
+    {
+        DocumentSearchModel documentSearchModels = new DocumentSearchModel();
+        documentSearchModels.FileProfileTypeId = Data.FileProfileTypeId;
+        List<long?> list1 = new List<long?>();
+        list1.Add(Data.FileProfileTypeId);
+        documentSearchModels.FileProfileTypeIds = list1;
+        var docList = await Mediator.Send(new GetAllSelectedfileprofiletypesQuery(documentSearchModels));
+        if (docList != null && docList.Count() > 0)
+        {
+            documentsFiles.AddRange(docList.Select(s => s.FileName).Distinct().ToList());
+        }
+
     }
     private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
     {

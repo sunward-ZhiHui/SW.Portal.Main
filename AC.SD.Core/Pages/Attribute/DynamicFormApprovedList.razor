@@ -1,4 +1,6 @@
-﻿@using System.Dynamic;
+﻿@page "/DynamicFormApprovedMainList/DynamicFormApprovedList/{SessionId:guid}"
+
+@using System.Dynamic;
 @using global::Core.Entities.Views;
 
 @inject IMediator Mediator
@@ -23,9 +25,6 @@
                 DisplayMode="MenuDisplayMode.Auto">
             <Items>
                 <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                <DxMenuItem Text="Add" IconCssClass="fa fa-add" Click="@addNew" />
-                <DxMenuItem Text="Edit" IconCssClass="fa fa-pencil" Click="@addEdit" Enabled="@EditEnabled" />
-                <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@addDetailDelete" Enabled="@DeleteEnabled" />
                 <DxMenuItem Text="SW Library Doc" IconCssClass="fa fa-file" Click="@addDetailFile" Enabled="@fileEnabled" />
             </Items>
         </DxMenu>
@@ -67,32 +66,11 @@
             RowDoubleClick="OnRowDoubleClick">
 
         <Columns>
-            @* <DxGridDataColumn FieldName="ScreenID" MinWidth="50" Caption="Screen Name" />
-            <DxGridDataColumn FieldName="Name" Caption="Name" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedBy" Caption="Modified By" MinWidth="50" />
-            <DxGridDataColumn FieldName="ModifiedDate" Caption="Modified Date" MinWidth="50" /> *@
             @BuildDataColumns();
         </Columns>
     </DxGrid>
 </DxLoadingPanel>
 
-
-
-<DxPopup @bind-Visible="@Blukdeletepopup"
-         ShowFooter="true"
-         HeaderText="CRT"
-         Closed="EulaPopupClosed"
-         Width="300px">
-    <BodyContentTemplate>
-        <p>
-            Do you want to delete
-        </p>
-    </BodyContentTemplate>
-    <FooterContentTemplate Context="Context">
-        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
-        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="((e) => bulkDelete())" />
-    </FooterContentTemplate>
-</DxPopup>
 
 @code {
     [Parameter]
@@ -131,8 +109,6 @@
         dataColumnNames = new List<DropDownOptionsModel>();
         EditEnabled = false; DeleteEnabled = false; fileEnabled = false; _dynamicformObjectDataList = new List<object>();
         dataColumnNames.Add(new DropDownOptionsModel() { Value = "DynamicFormDataId", Text = "DynamicFormDataId", Type = "Form", IsVisible = false });
-        // dataColumnNames.Add(new DropDownOptionsModel() { Value = "ScreenID", Text = "Screen Name", Type = "Form" });
-        // dataColumnNames.Add(new DropDownOptionsModel() { Value = "Name", Text = "Name", Type = "Form" });
         if (SessionId != null)
         {
             _dynamicForm = await Mediator.Send(new GetAllDynamicFormList(SessionId, -1));
@@ -159,7 +135,7 @@
                     dataColumnNames.Add(new DropDownOptionsModel() { Value = "StatusName", Text = "Status", Type = "Form" });
                 }
 
-                _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID,0));
+                _dynamicformDataList = await Mediator.Send(new GetDynamicFormDataById(_dynamicForm.ID, applicationUser.UserID));
                 PanelVisible = true;
                 if (_dynamicformDataList != null && _dynamicformDataList.Count > 0)
                 {
@@ -191,12 +167,12 @@
                                     if (itemValue is JArray)
                                     {
                                         List<long?> listData = itemValue.ToObject<List<long?>>();
-                                        var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId==s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
+                                        var listName = _AttributeHeader.AttributeDetails.Where(a => listData.Contains(a.AttributeDetailID) && a.AttributeDetailName != null && a.DropDownTypeId == s.DataSourceTable).Select(s => s.AttributeDetailName).ToList();
                                         objectData[attrName] = listName != null && listName.Count > 0 ? string.Join(",", listName) : string.Empty;
                                     }
                                     else
                                     {
-                                        if (s.ControlType == "ComboBox" ||s.ControlType == "Radio" || s.ControlType == "RadioGroup")
+                                        if (s.ControlType == "ComboBox" || s.ControlType == "Radio" || s.ControlType == "RadioGroup")
                                         {
                                             long? Svalues = itemValue == null ? null : (long)itemValue;
                                             if (Svalues != null)
@@ -265,6 +241,7 @@
                             });
                         }
                         _dynamicformObjectDataList.Add(objectData);
+
                     });
                     EditEnabled = true; DeleteEnabled = true;
                     _selectedItems = _dynamicformDataList.FirstOrDefault();
@@ -346,79 +323,17 @@
         string names = "DynamicMasterSetupList";
         if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
         {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            NavigationManager.NavigateTo("DynamicFormApprovedMainList/dynamicFormsApproved/" + SessionId + "/" + _selectedItems.SessionId);
         }
         else
         {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
+            NavigationManager.NavigateTo("DynamicFormApprovedMainList/dynamicFormsApproved/" + SessionId + "/" + _selectedItems.SessionId);
 
         }
     }
-    void addNew()
+    void backUrl()
     {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId);
-        }
-        else
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId);
-
-        }
-    }
-    void addEdit()
-    {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-        }
-        else
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetup/dynamicForms/" + SessionId + "/" + _selectedItems.SessionId);
-
-        }
-
-    }
-    async Task backUrl()
-    {
-        string str = NavigationManager.Uri;
-        string rep1 = str.Replace(NavigationManager.BaseUri, "").ToLower();
-        string[] UrlList = rep1.Split("/");
-        string names = "DynamicMasterSetupList";
-        if (UrlList.Count() > 0 && UrlList[0] != null && UrlList[0].ToLower() == names.ToLower())
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetupList");
-        }
-        else
-        {
-            NavigationManager.NavigateTo("DynamicMasterSetup");
-
-        }
-    }
-    void addDetailDelete()
-    {
-        Blukdeletepopup = true;
-    }
-    async Task EulaPopupClosed(PopupClosedEventArgs args)
-    {
-        Blukdeletepopup = false;
-
-        // await UpdateDataAsync();
-    }
-    async Task bulkDelete()
-    {
-        var request = new DeleteDynamicFormData(_selectedItems);
-        await Mediator.Send(request);
-        Blukdeletepopup = false;
-        await UpdateDataAsync();
+        NavigationManager.NavigateTo("DynamicFormApprovedMainList");
     }
     public void Dispose()
     {
@@ -451,3 +366,4 @@
         return columns;
     }
 }
+

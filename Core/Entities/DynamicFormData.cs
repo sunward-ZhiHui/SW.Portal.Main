@@ -64,5 +64,9 @@ namespace Core.Entities
         public int? isDocuments { get; set; } = 0;
         [NotMapped]
         public int? IsFileprofileTypeDocument { get; set; } = 0;
+        [NotMapped]
+        public string? CurrentUserName { get; set; }
+        [NotMapped]
+        public long? CurrentUserId { get; set; }
     }
 }

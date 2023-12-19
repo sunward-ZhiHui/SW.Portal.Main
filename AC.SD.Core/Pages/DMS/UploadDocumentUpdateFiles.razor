@@ -35,7 +35,7 @@
                         DisplayMode="MenuDisplayMode.Desktop">
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
-                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentCheckInSelectButton"  Click="onGetExitingFile" Enabled="@checkInloading" />
+                        <DxMenuItem Text="Select File" IconCssClass="fa fa-paperclip" id="attachmentCheckInSelectButton"  Enabled="@checkInloading" />
                         <DxMenuItem Text="@Message" IconCssClass="fa fa-upload" Click="@onSubmitCheckInUploadFormClick" Enabled="@checkInloading" />
                     </Items>
                 </DxMenu>
@@ -241,18 +241,18 @@
         var MyMessagess = string.Empty;
         if (files != null && files.ToList().Count() > 0)
         {
-            if (IsDuplicateUpload == false)
-            {
-                files.ToList().ForEach(s =>
-                {
-                    if (documentsFiles.Contains(s.Name))
-                    {
-                        MyMessagess += s.Name + " file was Removed.\n\r";
+            // if (IsDuplicateUpload == false)
+            // {
+            //     files.ToList().ForEach(s =>
+            //     {
+            //         if (documentsFiles.Contains(s.Name))
+            //         {
+            //             MyMessagess += s.Name + " file was Removed.\n\r";
 
-                        uploadCheckInComponent.RemoveFile(s);
-                    }
-                });
-            }
+            //             uploadCheckInComponent.RemoveFile(s);
+            //         }
+            //     });
+            // }
             AttachmentCheckInUploadVisible = files.ToList().Count > 0;
             SelectedFiles.AddRange(files);
             SelectedFilesCount = files.ToList().Count; //Count current files

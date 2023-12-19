@@ -1179,14 +1179,14 @@
         if (item.EmailToDMS != null)
         {
             onBackFileProfileType(item.DMSBackUrl);
-            JSRuntime.InvokeAsync<string>("ReloadUrl");
+            //JSRuntime.InvokeAsync<string>("ReloadUrl");
         }
     }
     async void onBackFileProfileType(string url)
     {
         var urls = BaseUrl + "fileprofiletype/" + url;
         NavigationManager.NavigateTo(urls);
-        JSRuntime.InvokeAsync<string>("ReloadUrl");
+        //JSRuntime.InvokeAsync<string>("ReloadUrl");
     }
 
     public async Task onPreview(long Id)

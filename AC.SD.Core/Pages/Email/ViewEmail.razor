@@ -249,7 +249,7 @@
                                                 </div>*@
                                             }
 
-                                            <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto" style="margin-right: 10px;">
+                                            <div class="uk-card uk-card-default uk-margin-medium-bottom uk-overflow-auto  @((item.IsRead.GetValueOrDefault(false) || item.IsRead == null ? "markasread_border" : "markasunread_border"))" style="margin-right: 10px;">
                                                 <div class="uk-card-header">
                                                     <div class="container-header" style="margin-left: -9px;">
                                                         <div class="left-column">
@@ -310,7 +310,7 @@
                                                                     <div class="" style="font-size:12px; margin-right: 10px;">@Application.Common.Helper.Helper.FormatDateTime(@item.AddedDate)</div>
                                                                     @if (item.IsAllowParticipants.GetValueOrDefault(false))
                                                                     {
-                                                                        <span class="" style="margin-right: 10px; font-size: 14px;"><i class="fa fa-users" aria-hidden="true"></i></span>
+                                                                        <span class="" style="font-size: 14px;"><i class="fa fa-users" aria-hidden="true"></i></span>
                                                                     }
                                                                     @if (item.Urgent.GetValueOrDefault(false))
                                                                     {
@@ -318,7 +318,21 @@
                                                                     }
                                                                     @if (item.NotifyUser.GetValueOrDefault(false))
                                                                     {
-                                                                        <span class="" style="margin-right: 10px; font-size: 14px;"><i class="fa fa-commenting" style="" aria-hidden="true"></i></span>
+                                                                        <span class="" style="font-size: 14px;"><i class="fa fa-commenting" style="" aria-hidden="true"></i></span>
+                                                                    }
+
+                                                                    @if (item.IsRead != null)
+                                                                    {
+                                                                        @if (item.IsRead.GetValueOrDefault(false))
+                                                                        {
+                                                                            <span class="primary_color_icon handline" style=" margin-right: 10px; font-size: 13px;" @onclick="@(() => onMarkasunRead(item.EmailNotificationId))" title="Mark as unread"><i class="fa fa-envelope-open" aria-hidden="true"></i></span>
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span class="primary_color_icon handline" style=" margin-right: 10px; font-size: 13px;" @onclick="@(() => onMarkasRead(item.EmailNotificationId))" title="Mark as read"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+                                                                        }
+
                                                                     }
                                                                 
                                                                 </div>
@@ -3908,6 +3922,11 @@
         await JSRuntime.InvokeAsync<string>("showLoading");
         _discussionList = await Mediator.Send(new GetEmailReplyDiscussionList(long.Parse(@SelectedReplyId), applicationUser.UserID));
        
+        if(_discussionList.Count > 0)
+        {
+            IsValidUser = (_discussionList[0].AddedByUserID == applicationUser.UserID || _discussionList[0].OnBehalf == applicationUser.UserID) ? true : false;
+        } 
+
         _discussionFullList = await Mediator.Send(new GetEmailFullDiscussionList(RTopicId));
 
         _assigntoItems = await Mediator.Send(new GetEmailAssignToList(RTopicId));

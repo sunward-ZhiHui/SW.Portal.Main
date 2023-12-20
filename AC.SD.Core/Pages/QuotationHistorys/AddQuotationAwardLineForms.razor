@@ -31,8 +31,8 @@
 
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always" ShowGroupPanel="true" ShowGroupedColumns="true" ShowSearchBox="true"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
-            Data="_quotationHistoryLineItems"
-            KeyFieldName="QuotationHistoryLineId"
+            Data="_QuotationAwardLineItems"
+            KeyFieldName="QuotationAwardLineId"
             CustomizeElement="Grid_CustomizeElement"
             PagerNavigationMode="PagerNavigationMode.InputBox"
             PageSizeSelectorVisible="true"
@@ -50,16 +50,8 @@
             AllowSelectRowByClick="true">
         <Columns>
             <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
-            <DxGridDataColumn FieldName="ProductCode" />
-            <DxGridDataColumn FieldName="Source" />
-            <DxGridDataColumn FieldName="Quantity" />
-            <DxGridDataColumn FieldName="ProductUom" />
-            <DxGridDataColumn FieldName="Packing" />
-            <DxGridDataColumn FieldName="OfferCurrency" />
-            <DxGridDataColumn FieldName="OfferPrice" />
-            <DxGridDataColumn FieldName="OfferUom" />
-            <DxGridDataColumn FieldName="Focqty" />
-            <DxGridDataColumn FieldName="ShippingTerms" />
+            <DxGridDataColumn FieldName="QtyPerShipment" />
+            <DxGridDataColumn FieldName="ShipmentDate"  />
             <DxGridDataColumn FieldName="StatusCode" />
             <DxGridDataColumn FieldName="ModifiedDate" />
             <DxGridDataColumn FieldName="ModifiedBy" />
@@ -72,13 +64,13 @@
 
 <DxPopup @bind-Visible="@AddPopup"
          ShowFooter="true"
-         HeaderText="Add Quation History Line"
+         HeaderText="Add Quation Form"
          Closed="EulaPopupClosed"
          CloseOnOutsideClick="false"
          MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800"
          CloseOnEscape="false" ShowCloseButton="false">
     <BodyContentTemplate>
-        <AddFormQuotationHistorysLine QutationHistoryId="@QuotationHistoryId" ParentData="@_selectedAddItems" applicationUser=@applicationUser @ref="RefAddFormQuotationHistorysLine" RevokeBack="ClosePopup"></AddFormQuotationHistorysLine>
+        <AddQuotationAwardsLineFormForm QuotationAwardId="@QuotatonAwardId" ParentData="@_selectedAddItems" applicationUser=@applicationUser @ref="RefAddQuotationAwardsLineFormForm" RevokeBack="ClosePopup"></AddQuotationAwardsLineFormForm>
 
     </BodyContentTemplate>
     <FooterContentTemplate Context="Context">
@@ -101,41 +93,44 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-    AddFormQuotationHistorysLine RefAddFormQuotationHistorysLine;
+    AddQuotationAwardsLineFormForm RefAddQuotationAwardsLineFormForm;
     bool AddPopup { get; set; } = false;
     bool Blukdeletepopup { get; set; } = false;
     [Parameter]
-    public long? QuotationHistoryId { get; set; }
+    public long? QuotatonAwardId { get; set; }
     [Parameter]
     public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public Guid? SessionId { get; set; }
+    public long? QuotatonAwardLineId { get; set; }
     DxPopup? popup; IGrid Grid { get; set; }
-    private List<QuotationHistoryLine> _quotationHistoryLineItems;
-    private QuotationHistoryLine _selectedItems;
-    private QuotationHistoryLine _selectedAddItems;
+    private List<QuotationAwardLine> _QuotationAwardLineItems;
+    private QuotationAwardLine _selectedItems;
+    private QuotationAwardLine _selectedAddItems;
     bool PanelVisible { get; set; } = false;
     bool EditEnabled { get; set; } = false; bool AddEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
     IReadOnlyList<object> SelectedDataItems { get; set; }
     protected override async Task OnInitializedAsync()
     {
-        await loadChildData(QuotationHistoryId);
+        await loadChildData(QuotatonAwardId);
     }
     async Task loadData()
     {
-        await loadChildData(QuotationHistoryId);
+        await loadChildData(QuotatonAwardId);
     }
-    public async Task loadChildData(long? quotationHistoryId)
+    public async Task loadChildData(long? quotatonAwardId)
     {
         AddEnabled = false;
-        QuotationHistoryId = quotationHistoryId;
-        if (quotationHistoryId > 0)
+        QuotatonAwardId = quotatonAwardId;
+        if (quotatonAwardId > 0)
         {
-            _quotationHistoryLineItems = await Mediator.Send(new GetAllQuotationHistoryLineQuery(quotationHistoryId));
+            _QuotationAwardLineItems = await Mediator.Send(new GetAllQuotationAwardLineQuery(quotatonAwardId));
             PanelVisible = true; AddEnabled = true;
             EditEnabled = false; DeleteEnabled = false;
-            if (_quotationHistoryLineItems.Count > 0)
+            if (_QuotationAwardLineItems.Count > 0)
             {
-                _selectedItems = _quotationHistoryLineItems.FirstOrDefault();
+                _selectedItems = _QuotationAwardLineItems.FirstOrDefault();
                 Grid.ClearSelection();
                 //EditEnabled = true; DeleteEnabled = true;
                 PanelVisible = false;
@@ -147,7 +142,7 @@
         {
             PanelVisible = true; AddEnabled = false;
             EditEnabled = false; DeleteEnabled = false;
-            _quotationHistoryLineItems = new List<QuotationHistoryLine>();
+            _QuotationAwardLineItems = new List<QuotationAwardLine>();
         }
         PanelVisible = false;
         StateHasChanged();
@@ -162,8 +157,8 @@
     }
     void OnRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "QuotationHistoryLineId");
-        _selectedItems = _quotationHistoryLineItems.FirstOrDefault(f => f.QuotationHistoryLineId == (long?)UniqueId);
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "QuotationAwardLineId");
+        _selectedItems = _QuotationAwardLineItems.FirstOrDefault(f => f.QuotationAwardLineId == (long?)UniqueId);
         //EditEnabled = true; DeleteEnabled = true;
         StateHasChanged();
     }
@@ -173,20 +168,20 @@
     }
     void addNew()
     {
-        _selectedAddItems = new QuotationHistoryLine();
-        AddPopup = true;
+        _selectedAddItems = new QuotationAwardLine();
+         AddPopup = true;
         StateHasChanged();
     }
     void addEdit()
     {
-        _selectedAddItems = new QuotationHistoryLine();
+        _selectedAddItems = new QuotationAwardLine();
         if (SelectedDataItems != null)
         {
             if (SelectedDataItems.Count == 1)
             {
                 foreach (object item in SelectedDataItems)
                 {
-                    if (item is QuotationHistoryLine dataselectItems)
+                    if (item is QuotationAwardLine dataselectItems)
                     {
                         _selectedItems = dataselectItems;
                         _selectedAddItems = dataselectItems;
@@ -235,9 +230,9 @@
             {
                 foreach (object item in SelectedDataItems)
                 {
-                    if (item is QuotationHistoryLine datas)
+                    if (item is QuotationAwardLine datas)
                     {
-                        var request = new DeleteQuotationHistoryLine(datas);
+                        var request = new DeleteQuotationAwardLine(datas);
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);

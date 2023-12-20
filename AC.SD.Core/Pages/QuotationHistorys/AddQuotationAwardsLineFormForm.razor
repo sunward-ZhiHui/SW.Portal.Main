@@ -1,0 +1,151 @@
+﻿@using Application.Queries;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using Application.Response;
+@using System.ComponentModel.DataAnnotations;
+@inject IJSRuntime JSRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager NavigationManager
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Auto">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fas fa-reply" Click="@onBack" />
+                        <DxMenuItem Text="Add New" IconCssClass="fas fa-save" Click="@addNewForm" Enabled="@addEnabled" />
+                        <DxMenuItem Text="Save" IconCssClass="fas fa-save" Click="@SubmitFormExternally" Enabled="@saveEnabled" />
+                    </Items>
+                </DxMenu>
+            </div>
+        </div>
+    </div>
+</div>
+<EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="HandleFormValidSubmit">
+
+    <DataAnnotationsValidator />
+    <DxFormLayout CssClass="w-100">
+        <DxFormLayoutItem Caption="Qty Per Shipment:" ColSpanMd="6">
+            <DxSpinEdit @bind-Value="Data.QtyPerShipments" />
+            <ValidationMessage For="@(() => Data.QtyPerShipments)" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Shipment Date" ColSpanMd="6">
+            <DxDateEdit NullText="Select a ShipmentDate..." @bind-Date="@Data.ShipmentDate" CssClass="cw-320" />
+        </DxFormLayoutItem>
+        <DxFormLayoutItem Caption="Status" ColSpanMd="6">
+            <DxComboBox Data="@_stausItems"
+                        NullText="Select Status..."
+                        FilteringMode="DataGridFilteringMode.Contains"
+                        TextFieldName="CodeValue"
+                        ValueFieldName="CodeId"
+            @bind-Value="@Data.StatusCodeId"
+                        ShowValidationIcon="true">
+            </DxComboBox>
+            <ValidationMessage For="@(() => Data.StatusCodeId)" />
+        </DxFormLayoutItem>
+    </DxFormLayout>
+</EditForm>
+@code {
+    [Parameter]
+    public QuotationAwardLine ParentData { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    [Parameter]
+    public long? QuotationAwardId { get; set; }
+    QuotationAwardLine Data = new QuotationAwardLine();
+    bool addEnabled { get; set; } = false; bool saveEnabled { get; set; } = false;
+    EditContext _editContext;
+    public long QuotationAwardLineId { get; set; }
+    private List<CodeMaster> _stausItems;
+    protected override async Task OnInitializedAsync()
+    {
+        addEnabled = true; saveEnabled = true;
+        _editContext = new EditContext(Data);
+        _stausItems = await Mediator.Send(new GetAllCodeMasterQuery("Status"));
+        if (ParentData != null && ParentData.QuotationAwardLineId > 0)
+        {
+            Data.QuotationAwardLineId = ParentData.QuotationAwardLineId;
+            Data.ShipmentDate = ParentData.ShipmentDate;
+            Data.QtyPerShipments = ParentData.QtyPerShipment != null && ParentData.QtyPerShipment > 0 ? (int.Parse(ParentData.QtyPerShipment.ToString().TrimEnd('0').TrimEnd('.'))) : null;
+            Data.StatusCodeId = ParentData.StatusCodeId;
+            Data.SessionId = ParentData.SessionId;
+            Data.AddedDate = ParentData.AddedDate;
+            Data.AddedByUserId = ParentData.AddedByUserId;
+            addEnabled = true; saveEnabled = true;
+        }
+        else
+        {
+            Data.StatusCodeId = 1;
+        }
+        StateHasChanged();
+    }
+    void SelectedItemprod(GenericCodes genericCodes)
+    {
+    }
+    void onBack()
+    {
+        RevokeBack?.Invoke();
+    }
+    private async Task SubmitFormExternally()
+    {
+        if (_editContext.Validate())
+        {
+            await this.HandleFormValidSubmit();
+        }
+    }
+    void addNewForm()
+    {
+        _editContext = new EditContext(Data);
+        QuotationAwardLineId = 0;
+        Data.QuotationAwardLineId = 0;
+        Data.ShipmentDate = null;
+        Data.QtyPerShipment = null; Data.QtyPerShipments = null;
+        Data.StatusCodeId = 1;
+        Data.SessionId = null;
+        Data.AddedByUserId = null; Data.AddedDate = DateTime.Now;
+        Data.ModifiedByUserId = null; Data.ModifiedDate = null;
+        addEnabled = true; saveEnabled = true;
+        StateHasChanged();
+    }
+    async Task HandleFormValidSubmit()
+    {
+        addEnabled = false; saveEnabled = false;
+        var request = new InsertOrUpdateQuotationAwardLine
+            {
+                QuotationAwardLineId = Data.QuotationAwardLineId,
+                QuotatonAwardId = QuotationAwardId,
+                ShipmentDate = Data.ShipmentDate,
+                QtyPerShipment = Data.QtyPerShipments,
+                StatusCodeId = Data.StatusCodeId,
+                AddedByUserId = Data.AddedByUserId > 0 ? Data.AddedByUserId : applicationUser.UserID,
+                AddedDate = Data.AddedByUserId > 0 ? Data.AddedDate : DateTime.Now,
+                ModifiedByUserId = applicationUser.UserID,
+                ModifiedDate = DateTime.Now,
+                SessionId = Data.SessionId != null ? Data.SessionId : Guid.NewGuid(),
+            };
+        var result = await Mediator.Send(request);
+        if (result.QuotationAwardLineId > 0)
+        {
+            if (QuotationAwardLineId > 0)
+            {
+                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            else
+            {
+                toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            QuotationAwardLineId = result.QuotationAwardLineId;
+            Data.QuotationAwardLineId = result.QuotationAwardLineId;
+            addEnabled = true; saveEnabled = true;
+        }
+        StateHasChanged();
+    }
+}

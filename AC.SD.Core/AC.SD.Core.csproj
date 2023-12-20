@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Pages\DMS\FileProfileTypeSecurityAccess.razor" />
+    <Content Remove="Pages\QuotationHistorys\AddQuotationAwardLines.razor" />
     <Content Remove="wwwroot\images\icons\align-left.svg" />
   </ItemGroup>
   <ItemGroup>

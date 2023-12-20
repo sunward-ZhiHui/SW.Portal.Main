@@ -15,8 +15,6 @@ namespace Core.Entities
         public long? ProductId { get; set; }
         [Required(ErrorMessage = "Source is Required")]
         public string? Source { get; set; }
-        [Required(ErrorMessage = "Quantity is Required")]
-        [Range(1, int.MaxValue, ErrorMessage = "Only positive number allowed")]
         public decimal? Quantity { get; set; }
         public long? Uomid { get; set; }
         public long? PackingId { get; set; }
@@ -24,7 +22,6 @@ namespace Core.Entities
         [Range(1, int.MaxValue, ErrorMessage = "Only positive number allowed")]
         public decimal? OfferPrice { get; set; }
         public long? OfferUomid { get; set; }
-        [Range(1, int.MaxValue, ErrorMessage = "Only positive number allowed")]
         public decimal? Focqty { get; set; }
         public long? ShippingTermsId { get; set; }
         public bool? IsTenderExceed { get; set; }
@@ -48,5 +45,10 @@ namespace Core.Entities
         public string? ShippingTerms { get; set; }
         public string? StatusCode { get; set; }
         public string? AddedBy { get; set; }
+        [Required(ErrorMessage = "Quantity is Required")]
+        [Range(1, Int64.MaxValue, ErrorMessage = "Only positive number allowed")]
+        public int? Quantitys { get; set; }
+        [Range(1, Int64.MaxValue, ErrorMessage = "Only positive number allowed")]
+        public int? Focqtys { get; set; }
     }
 }

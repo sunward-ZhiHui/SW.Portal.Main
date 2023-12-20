@@ -919,14 +919,14 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailConversations>>  GetReplyQuery1ListAsync(long? TopicId)
+        public async Task<List<EmailConversations>>  GetReplyQuery1ListAsync(long? TopicId, long? UserId)
         {
             try
             {
                 var query = @"SELECT DISTINCT FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,AU.UserName,AU.UserID,
                                 FC.ReplyId,FC.FileData,FC.AddedByUserID,AET.Comment AS ActCommentName,AET.BackURL,
                                 AET.DocumentSessionId,EMPP.FirstName AS ActUserName,FC.DueDate,FC.IsAllowParticipants,ONB.FirstName AS OnBehalfName,FC.Follow,FC.Urgent,FC.OnBehalf,
-                                FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType
+                                FC.NotifyUser,FCEP.FirstName,FCEP.LastName,AET.ActivityType,EN.IsRead,EN.ID AS EmailNotificationId
                             FROM
                                 EmailConversations FC
                             LEFT JOIN Employee ONB ON ONB.UserID = FC.OnBehalf
@@ -935,11 +935,13 @@ namespace Infrastructure.Repository.Query
                             INNER JOIN Employee EMP ON EMP.UserID = AU.UserID
                             LEFT JOIN Employee EMPP ON EMPP.UserID = AET.AddedByUserID
                             LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID
+                            LEFT JOIN EmailNotifications EN ON FC.ID=EN.ConversationId AND EN.UserId = @UserId
                             WHERE FC.ID = @TopicId AND FC.ReplyId = 0 AND ((AET.ActivityEmailTopicID IS NOT NULL AND AET.ActivityType != 'EmailFileProfileType') OR AET.ActivityEmailTopicID IS NULL)
                             ORDER BY FC.AddedDate DESC";
 
                 var parameters = new DynamicParameters();
-                parameters.Add("TopicId", TopicId, DbType.Int64);                
+                parameters.Add("TopicId", TopicId, DbType.Int64);
+                parameters.Add("UserId", UserId, DbType.Int64);
 
                 using (var connection = CreateConnection())
                 {
@@ -953,7 +955,7 @@ namespace Infrastructure.Repository.Query
             }
         }
 
-        public async Task<List<EmailConversations>> GetReplyQuery2ListAsync(long? TopicId)
+        public async Task<List<EmailConversations>> GetReplyQuery2ListAsync(long? TopicId,long? UserId)
         {
             try
             {
@@ -961,7 +963,8 @@ namespace Infrastructure.Repository.Query
                                 FC.ID,FC.Name,FC.TopicID,FC.SessionId,FC.AddedDate,FC.Message,                               
                                 FC.ReplyId,FC.FileData,FC.AddedByUserID,FC.DueDate,FC.IsAllowParticipants,                                
                                 FC.Follow,FC.Urgent,FC.OnBehalf,FC.NotifyUser,
-								AU.UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName
+								AU.UserName,AU.UserID,ONB.FirstName AS OnBehalfName,FCEP.FirstName,FCEP.LastName,
+                                EN.IsRead,EN.ID AS EmailNotificationId
 
                             FROM
                             EmailConversations FC
@@ -969,11 +972,13 @@ namespace Infrastructure.Repository.Query
                             INNER JOIN ApplicationUser AU ON AU.UserID = FC.ParticipantId
                             INNER JOIN Employee EMP ON EMP.UserID = AU.UserID                            
                             LEFT JOIN Employee FCEP ON FCEP.UserID = FC.AddedByUserID
+                            LEFT JOIN EmailNotifications EN ON FC.ID=EN.ConversationId AND EN.UserId = @UserId
                             WHERE FC.ID = @TopicId AND FC.ReplyId = 0   
                             ORDER BY FC.AddedDate DESC";
 
                 var parameters = new DynamicParameters();
                 parameters.Add("TopicId", TopicId, DbType.Int64);
+                parameters.Add("UserId", UserId, DbType.Int64);
 
                 var res = new List<EmailConversations>();
 
@@ -1000,11 +1005,11 @@ namespace Infrastructure.Repository.Query
 
                 if (Exists > 0)
                 {
-                   res = await GetReplyQuery1ListAsync(TopicId);
+                   res = await GetReplyQuery1ListAsync(TopicId, UserId);
                 }
                 else
                 {
-                    res = await GetReplyQuery2ListAsync(TopicId);
+                    res = await GetReplyQuery2ListAsync(TopicId, UserId);
                 }
                
                 if (res != null && res.Count > 0)

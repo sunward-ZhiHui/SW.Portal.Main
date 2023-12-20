@@ -14,7 +14,7 @@ namespace Core.EntityModels
         [Required(ErrorMessage = "Profile is Required")]
         public long? ProfileId { get; set; }
         [Required(ErrorMessage = "Name is Required")]
-        [FileProfileTypeNameCustomValidation]
+       // [FileProfileTypeNameCustomValidation]
         public string Name { get; set; }
         public string Label { get; set; }
         public string Description { get; set; }

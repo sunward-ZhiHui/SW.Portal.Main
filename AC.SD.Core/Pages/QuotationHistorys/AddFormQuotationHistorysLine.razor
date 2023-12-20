@@ -60,8 +60,8 @@
             <ValidationMessage For="@(() => Data.Source)" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Quantity:" ColSpanMd="6">
-            <DxSpinEdit @bind-Value="Data.Quantity" />
-            <ValidationMessage For="@(() => Data.Quantity)" />
+            <DxSpinEdit @bind-Value="Data.Quantitys" />
+            <ValidationMessage For="@(() => Data.Quantitys)" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Packing:" ColSpanMd="6">
             <DxComboBox Data="@_packingItems"
@@ -98,8 +98,8 @@
         </DxFormLayoutItem>
 
         <DxFormLayoutItem Caption="Foc Qty:" ColSpanMd="6">
-            <DxSpinEdit @bind-Value="Data.Focqty" />
-            <ValidationMessage For="@(() => Data.Focqty)" />
+            <DxSpinEdit @bind-Value="Data.Focqtys" />
+            <ValidationMessage For="@(() => Data.Focqtys)" />
         </DxFormLayoutItem>
         <DxFormLayoutItem Caption="Shipping Terms" ColSpanMd="6">
             <DxComboBox NullText="Select Shipping Terms..."
@@ -163,12 +163,12 @@
             Data.QuotationHistoryLineId = ParentData.QuotationHistoryLineId;
             Data.ProductId = ParentData.ProductId;
             Data.Source = ParentData.Source;
-            Data.Quantity = ParentData.Quantity != null && ParentData.Quantity > 0 ? (Decimal.Parse(ParentData.Quantity.ToString().TrimEnd('0').TrimEnd('.'))) : null;
+            Data.Quantitys = ParentData.Quantity != null && ParentData.Quantity > 0 ? (int.Parse(ParentData.Quantity.ToString().TrimEnd('0').TrimEnd('.'))) : null;
             Data.PackingId = ParentData.PackingId;
             Data.OfferPrice = ParentData.OfferPrice != null && ParentData.OfferPrice > 0 ? (Decimal.Parse(ParentData.OfferPrice.ToString().TrimEnd('0').TrimEnd('.'))) : null;
             Data.OfferCurrencyId = ParentData.OfferCurrencyId;
             Data.OfferUomid = ParentData.OfferUomid;
-            Data.Focqty = ParentData.Focqty != null && ParentData.Focqty > 0 ? (Decimal.Parse(ParentData.Focqty.ToString().TrimEnd('0').TrimEnd('.'))) : null;
+            Data.Focqtys = ParentData.Focqty != null && ParentData.Focqty > 0 ? (int.Parse(ParentData.Focqty.ToString().TrimEnd('0').TrimEnd('.'))) : null;
             Data.ShippingTermsId = ParentData.ShippingTermsId;
             Data.StatusCodeId = ParentData.StatusCodeId;
             Data.Remarks = ParentData.Remarks;
@@ -204,12 +204,12 @@
         Data.QuotationHistoryLineId = 0;
         Data.ProductId = null;
         Data.Source = null;
-        Data.Quantity = null;
+        Data.Quantity = null; Data.Quantitys= null;
         Data.PackingId = null;
         Data.OfferPrice = null;
         Data.OfferCurrencyId = null;
         Data.OfferUomid = null;
-        Data.Focqty = null;
+        Data.Focqty = null; Data.Focqtys = null;
         Data.ShippingTermsId = null;
         Data.StatusCodeId = 1;
         Data.Remarks = null;
@@ -228,12 +228,12 @@
                 QutationHistoryId = QutationHistoryId,
                 ProductId = Data.ProductId,
                 Source = Data.Source,
-                Quantity = Data.Quantity,
+                Quantity = Data.Quantitys,
                 PackingId = Data.PackingId,
                 OfferPrice = Data.OfferPrice,
                 OfferCurrencyId = Data.OfferCurrencyId,
                 OfferUomid = Data.OfferUomid,
-                Focqty = Data.Focqty,
+                Focqty = Data.Focqtys,
                 ShippingTermsId = Data.ShippingTermsId,
                 StatusCodeId = Data.StatusCodeId,
                 Remarks = Data.Remarks,

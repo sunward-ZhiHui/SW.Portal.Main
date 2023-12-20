@@ -142,6 +142,9 @@
                             <DxFormLayoutTabPage Caption="Attachment">
                                 <AC.SD.Core.Pages.UploadDocuments.UploadDocuments SessionId="@SessionIds" ForNoPopup="Yes"></AC.SD.Core.Pages.UploadDocuments.UploadDocuments>
                             </DxFormLayoutTabPage>
+                            <DxFormLayoutTabPage Caption="Quotation Award">
+                                <AddQuotationAwards @ref="refAddQuotationAwards" applicationUser="@applicationUser" SessionId="@SessionIds" QuotationHistoryId="@QuotationHistoryId"></AddQuotationAwards>
+                            </DxFormLayoutTabPage>
                         </DxFormLayoutTabPages>
                     </DxFormLayout>
                 </div>
@@ -224,6 +227,7 @@
 </DxFlyout>
 @code {
     AddQuotationHistorysLine? refAddQuotationHistorysLine { get; set; }
+    AddQuotationAwards? refAddQuotationAwards { get; set; }
     private DxTreeView _treeFilterDocView;
     string? FilterDocumentString { get; set; }
     EditContext _editContext;
@@ -293,6 +297,7 @@
         Data.ModifiedByUserId = applicationUser.UserID;
         Data.AddedByUserId = applicationUser.UserID;
         Data.ModifiedDate = null;
+        Data.Date = null;
         Data.ModifiedBy = null;
         Data.SwreferenceNo = null;
         Data.CustomerRefNo = null;

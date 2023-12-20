@@ -13,11 +13,11 @@ namespace Application.Queries
 {
     public class GetAllQuotationHistoryQuery : PagedRequest, IRequest<List<QuotationHistory>>
     {
-        public string SearchString { get; set; }
+        public string? SearchString { get; set; }
     }
     public class GetAllGenericCodesQuery : PagedRequest, IRequest<List<GenericCodes>>
     {
-        public string SearchString { get; set; }
+        public string? SearchString { get; set; }
     }
     public class InsertOrUpdateQuotationHistory : QuotationHistory, IRequest<QuotationHistory>
     {
@@ -36,7 +36,7 @@ namespace Application.Queries
 
     public class GetAllQuotationHistoryLineQuery : PagedRequest, IRequest<List<QuotationHistoryLine>>
     {
-        public string SearchString { get; set; }
+        public string? SearchString { get; set; }
         public long? QutationHistoryId { get; set; }
         public GetAllQuotationHistoryLineQuery(long? qutationHistoryId)
         {
@@ -69,6 +69,76 @@ namespace Application.Queries
         public DeleteQuotationHistoryLine(QuotationHistoryLine quotationHistoryLine)
         {
             this.QuotationHistoryLine = quotationHistoryLine;
+        }
+    }
+
+
+    public class GetAllQuotationAwardQuery : PagedRequest, IRequest<List<QuotationAward>>
+    {
+        public string? SearchString { get; set; }
+        public long? QuotationHistoryId { get; set; }
+        public GetAllQuotationAwardQuery(long? quotationHistoryId)
+        {
+            this.QuotationHistoryId = quotationHistoryId;
+        }
+    }
+    public class InsertOrUpdateQuotationAward : QuotationAward, IRequest<QuotationAward>
+    {
+    }
+    public class DeleteQuotationAward : PagedRequest, IRequest<QuotationAward>
+    {
+        public QuotationAward QuotationAward { get; set; }
+        public DeleteQuotationAward(QuotationAward quotationHistory)
+        {
+            this.QuotationAward = quotationHistory;
+        }
+    }
+
+    public class GetAllQuotationAwardLineQuery : PagedRequest, IRequest<List<QuotationAwardLine>>
+    {
+        public string? SearchString { get; set; }
+        public long? QuotatonAwardId { get; set; }
+        public GetAllQuotationAwardLineQuery(long? quotatonAwardId)
+        {
+            this.QuotatonAwardId = quotatonAwardId;
+        }
+    }
+    public class InsertOrUpdateQuotationAwardLine : QuotationAwardLine, IRequest<QuotationAwardLine>
+    {
+    }
+    public class DeleteQuotationAwardLine : PagedRequest, IRequest<QuotationAwardLine>
+    {
+        public QuotationAwardLine QuotationAwardLine { get; set; }
+        public DeleteQuotationAwardLine(QuotationAwardLine quotationAwardLine)
+        {
+            this.QuotationAwardLine = quotationAwardLine;
+        }
+    }
+    public class GetQuotationAwardSession : PagedRequest, IRequest<QuotationAward>
+    {
+        public string? SearchString { get; set; }
+        public Guid? SesionId { get; set; }
+        public GetQuotationAwardSession(Guid? SessionId)
+        {
+            this.SesionId = SessionId;
+        }
+    }
+    public class GetQuotationAwardLineSession : PagedRequest, IRequest<QuotationAwardLine>
+    {
+        public string? SearchString { get; set; }
+        public Guid? SesionId { get; set; }
+        public GetQuotationAwardLineSession(Guid? SessionId)
+        {
+            this.SesionId = SessionId;
+        }
+    }
+    public class GetAllQuotationHistoryLineProducts : PagedRequest, IRequest<List<GenericCodes>>
+    {
+        public string? SearchString { get; set; }
+        public long? QuotationHistoryId { get; set; }
+        public GetAllQuotationHistoryLineProducts(long? quotationHistoryId)
+        {
+            this.QuotationHistoryId = quotationHistoryId;
         }
     }
 }

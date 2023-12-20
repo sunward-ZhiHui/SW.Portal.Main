@@ -126,4 +126,116 @@ namespace CMS.Application.Handlers.QueryHandlers
             return await _queryRepository.DeleteQuotationHistoryLine(request.QuotationHistoryLine);
         }
     }
+    public class InsertOrUpdateQuotationAwardHandler : IRequestHandler<InsertOrUpdateQuotationAward, QuotationAward>
+    {
+        private readonly IQuotationHistoryQueryRepository _queryRepository;
+        public InsertOrUpdateQuotationAwardHandler(IQuotationHistoryQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<QuotationAward> Handle(InsertOrUpdateQuotationAward request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertOrUpdateQuotationAward(request);
+        }
+    }
+    public class DeleteDeleteQuotationAwardHandler : IRequestHandler<DeleteQuotationAward, QuotationAward>
+    {
+        private readonly IQuotationHistoryQueryRepository _queryRepository;
+
+        public DeleteDeleteQuotationAwardHandler(IQuotationHistoryQueryRepository QueryRepository)
+        {
+            _queryRepository = QueryRepository;
+        }
+
+        public async Task<QuotationAward> Handle(DeleteQuotationAward request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteQuotationAward(request.QuotationAward);
+        }
+    }
+    public class InsertOrUpdateQuotationAwardLineHandler : IRequestHandler<InsertOrUpdateQuotationAwardLine, QuotationAwardLine>
+    {
+        private readonly IQuotationHistoryQueryRepository _queryRepository;
+        public InsertOrUpdateQuotationAwardLineHandler(IQuotationHistoryQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<QuotationAwardLine> Handle(InsertOrUpdateQuotationAwardLine request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.InsertOrUpdateQuotationAwardLine(request);
+        }
+    }
+    public class DeleteQuotationAwardLineHandler : IRequestHandler<DeleteQuotationAwardLine, QuotationAwardLine>
+    {
+        private readonly IQuotationHistoryQueryRepository _queryRepository;
+
+        public DeleteQuotationAwardLineHandler(IQuotationHistoryQueryRepository QueryRepository)
+        {
+            _queryRepository = QueryRepository;
+        }
+
+        public async Task<QuotationAwardLine> Handle(DeleteQuotationAwardLine request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.DeleteQuotationAwardLine(request.QuotationAwardLine);
+        }
+    }
+    public class GetQuotationAwardSessionHandler : IRequestHandler<GetQuotationAwardSession, QuotationAward>
+    {
+        private readonly IQuotationHistoryQueryRepository _queryRepository;
+        public GetQuotationAwardSessionHandler(IQuotationHistoryQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<QuotationAward> Handle(GetQuotationAwardSession request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetQuotationAwardSession(request.SesionId);
+        }
+    }
+    public class GetQuotationAwardLineSessionHandler : IRequestHandler<GetQuotationAwardLineSession, QuotationAwardLine>
+    {
+        private readonly IQuotationHistoryQueryRepository _queryRepository;
+        public GetQuotationAwardLineSessionHandler(IQuotationHistoryQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<QuotationAwardLine> Handle(GetQuotationAwardLineSession request, CancellationToken cancellationToken)
+        {
+            return await _queryRepository.GetQuotationAwardLineSession(request.SesionId);
+        }
+    }
+    public class GetAllQuotationAwardHandler : IRequestHandler<GetAllQuotationAwardQuery, List<QuotationAward>>
+    {
+        private readonly IQuotationHistoryQueryRepository _queryRepository;
+        public GetAllQuotationAwardHandler(IQuotationHistoryQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<QuotationAward>> Handle(GetAllQuotationAwardQuery request, CancellationToken cancellationToken)
+        {
+            return (List<QuotationAward>)await _queryRepository.GetAllByQuotationAwardAsync(request.QuotationHistoryId);
+        }
+    }
+    public class GetAllQuotationAwardLineHandler : IRequestHandler<GetAllQuotationAwardLineQuery, List<QuotationAwardLine>>
+    {
+        private readonly IQuotationHistoryQueryRepository _queryRepository;
+        public GetAllQuotationAwardLineHandler(IQuotationHistoryQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<QuotationAwardLine>> Handle(GetAllQuotationAwardLineQuery request, CancellationToken cancellationToken)
+        {
+            return (List<QuotationAwardLine>)await _queryRepository.GetAllByQuotationAwardLineAsync(request.QuotatonAwardId);
+        }
+    }
+    public class GetAllQuotationHistoryLineProductsHandler : IRequestHandler<GetAllQuotationHistoryLineProducts, List<GenericCodes>>
+    {
+        private readonly IQuotationHistoryQueryRepository _queryRepository;
+        public GetAllQuotationHistoryLineProductsHandler(IQuotationHistoryQueryRepository queryRepository)
+        {
+            _queryRepository = queryRepository;
+        }
+        public async Task<List<GenericCodes>> Handle(GetAllQuotationHistoryLineProducts request, CancellationToken cancellationToken)
+        {
+            return (List<GenericCodes>)await _queryRepository.GetQuotationHistoryLineProducts(request.QuotationHistoryId);
+        }
+    }
 }

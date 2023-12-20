@@ -21,7 +21,16 @@ namespace Core.Repositories.Query
         Task<QuotationHistoryLine> GetQuotationHistoryByLineSession(Guid? SessionId);
         Task<QuotationHistoryLine> InsertOrUpdateQuotationHistoryLine(QuotationHistoryLine value);
         Task<IReadOnlyList<GenericCodes>> GetAllByGenericCodesAsync();
+        Task<IReadOnlyList<GenericCodes>> GetQuotationHistoryLineProducts(long? id);
         Task<QuotationHistory> DeleteQuotationHistory(QuotationHistory value);
         Task<QuotationHistoryLine> DeleteQuotationHistoryLine(QuotationHistoryLine value);
+        Task<IReadOnlyList<QuotationAward>> GetAllByQuotationAwardAsync(long? id);
+        Task<QuotationAward> DeleteQuotationAward(QuotationAward value);
+        Task<QuotationAward> InsertOrUpdateQuotationAward(QuotationAward value);
+        Task<IReadOnlyList<QuotationAwardLine>> GetAllByQuotationAwardLineAsync(long? id);
+        Task<QuotationAwardLine> InsertOrUpdateQuotationAwardLine(QuotationAwardLine value);
+        Task<QuotationAwardLine> DeleteQuotationAwardLine(QuotationAwardLine value);
+        Task<QuotationAward> GetQuotationAwardSession(Guid? SessionId);
+        Task<QuotationAwardLine> GetQuotationAwardLineSession(Guid? SessionId);
     }
 }

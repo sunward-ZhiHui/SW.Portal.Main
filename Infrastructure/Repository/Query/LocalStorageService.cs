@@ -32,15 +32,15 @@ namespace Infrastructure.Repository.Query
             _jsRuntime = jsRuntime;
         }
 
-        public async Task<T> GetItem<T>(string key)
+        public async Task<U?> GetItem<U>(string key)
         {
             var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "user");
 
             if (json == null)
                 return default;
 
-            return JsonSerializer.Deserialize<T>(json);
-        }
+            return JsonSerializer.Deserialize<U>(json);
+        }       
         public async Task<string> GetItemOne(string key)
         {
             var json = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "PushToken");
@@ -52,7 +52,7 @@ namespace Infrastructure.Repository.Query
         }
 
 
-        public async Task SetItem<T>(string key, T value)
+        public async Task SetItem<U>(string key, U value)
         {
             await _jsRuntime.InvokeVoidAsync("localStorage.setItem", key, JsonSerializer.Serialize(value));
         }

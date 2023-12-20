@@ -8,6 +8,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IDisposable;
+@inject NavigationManager NavigationManager
 
 <link href="_content/AC.SD.Core/css/todoList.css" rel="stylesheet" />
 <div class="page-content page-container" id="page-content">
@@ -83,11 +84,11 @@
     DxRichEdit msgrichEdit { get; set; }
     [Parameter]
     public long Tid { get; set; }
-    private EditForm myForm;
-    private string MyID = "myForm";
+    internal EditForm myForm;
+    internal string MyID = "myForm";
     TopicToDoList? Data { get; set; } = new TopicToDoList();
-    private List<TopicToDoList>? _topicToDolist;
-    public ApplicationUser? applicationUser { get; private set; }
+    internal List<TopicToDoList>? _topicToDolist;
+    public ApplicationUser? applicationUser { get; internal set; }
     async Task HandleValidSubmit()
     {
 
@@ -102,20 +103,20 @@
 
         await JSRuntime.InvokeAsync<string>("showLoading");
         var request = new CreateTopicTodoListQuery
-                        {
+                    {
 
-                         ToDoName = fileContent,
-                            AddedDate = DateTime.Now,
-                            SessionId = Guid.NewGuid(),
-                            Iscompleted = false,
-                            TopicId = Tid,
-                            StatusCodeID = 1,
-                            AddedByUserID = applicationUser.UserID,
-                        };
+                        ToDoName = fileContent,
+                        AddedDate = DateTime.Now,
+                        SessionId = Guid.NewGuid(),
+                        Iscompleted = false,
+                        TopicId = Tid,
+                        StatusCodeID = 1,
+                        AddedByUserID = applicationUser.UserID,
+                    };
 
         var result = Mediator.Send(request); 
         await JSRuntime.InvokeAsync<string>("hideLoading");
-       /// onRestText();
+        /// onRestText();
         await UpdateDataAsync();
         toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
 
@@ -126,11 +127,14 @@
         _topicToDolist = await Mediator.Send(new GetAllTopicToDoList(applicationUser.UserID));
         await jsRuntime.InvokeAsync<string>("hideLoading");
     }
-    private void onRestText()
+    internal void onRestText()
     {
-        Data.ToDoName = null;
+        if(Data != null)
+        {
+            Data.ToDoName = null;
+        }        
     }
-    private async Task onCompleted(long id)
+    internal async Task onCompleted(long id)
     {
         var req = new EditTopicTodoListQuery
             {
@@ -142,7 +146,7 @@
 
         await UpdateDataAsync();
     }
-    private async Task onDelete(long Id)
+    internal async Task onDelete(long Id)
     {
         var req = new DeleteTopicToDoListQuery(Id);
         var ans = Mediator.Send(req);
@@ -151,12 +155,17 @@
     
     protected override async Task OnInitializedAsync()
     {
+        NavigationManager.LocationChanged += OnLocationChanged;
         await jsRuntime.InvokeAsync<string>("showLoading");      
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _topicToDolist = await Mediator.Send(new GetAllTopicToDoList(applicationUser.UserID));
         await jsRuntime.InvokeAsync<string>("hideLoading");        
-    }  
-    async void OnCustomizeToolbar(IToolbar toolbar)
+    } 
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
+    }
+    void OnCustomizeToolbar(IToolbar toolbar)
     {
 
         toolbar.Groups.Clear();
@@ -176,6 +185,7 @@
     }
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

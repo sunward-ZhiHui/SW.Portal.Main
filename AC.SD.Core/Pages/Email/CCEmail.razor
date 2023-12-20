@@ -11,6 +11,7 @@
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @inject IJSRuntime JSRuntime;
 @implements IDisposable;
+@inject NavigationManager NavigationManager
 
 <DxGrid @ref="CCGrid" SearchText="@GridSearchText"
         Data="_forumTopicCC"
@@ -66,28 +67,32 @@
 @code {
     [Parameter]
     public string? GridSearchText { get; set; }
-    IGrid CCGrid { get; set; }
-    private List<EmailTopics>? _forumTopicCC;
-    public ApplicationUser applicationUser { get; private set; }
+    IGrid? CCGrid { get; set; }
+    internal List<EmailTopics>? _forumTopicCC;
+    public ApplicationUser? applicationUser { get; internal set; }
     string SelectedGroup = "none";
     string SelectedReplyId = "none";
-    public string filterrowname { get; set; }
+    public string? filterrowname { get; set; }
     public long RTopicId = 0;
     [Parameter]
-    public Action<string> CCTopicId { get; set; }
+    public Action<string>? CCTopicId { get; set; }
     [Parameter]
-    public Action<string> SubViewCCTopicId { get; set; }   
+    public Action<string>? SubViewCCTopicId { get; set; }   
     protected override async Task OnInitializedAsync()
     {
+        NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _forumTopicCC = await Mediator.Send(new GetEmailTopicCC(applicationUser.UserID,"NULL"));
     }
-    async Task OnEmailToRowClick(GridRowClickEventArgs e)
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        SelectedGroup = UniqueId.ToString();
-        CCTopicId?.Invoke(SelectedGroup);
-        //await LoadData();
+        StateHasChanged();
+    }
+    void OnEmailToRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");        
+        SelectedGroup = UniqueId?.ToString() ?? "none";
+        CCTopicId?.Invoke(SelectedGroup);        
         StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
@@ -98,18 +103,19 @@
             e.CssClass += "non-selectable-row";
         }
     }
-    private async void onSubViewEmailClick(string RId)
+    internal async void onSubViewEmailClick(string RId)
     {
         SelectedReplyId = RId;
         var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
         RTopicId = conversationList[0].TopicID;
         SubViewCCTopicId?.Invoke(SelectedReplyId);
-        await Task.Delay(1000); // Example asynchronous operation
+        //await Task.Delay(1000); // Example asynchronous operation
                                 //await LoadReplyData();
         StateHasChanged();
     }
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

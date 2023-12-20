@@ -11,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
  
 using System.Collections.Generic;
-using AC.SD.Model.DemoData;
 using AC.SD.Core.Services;
 using Infrastructure;
 using Application;
@@ -45,9 +44,6 @@ namespace SW.Portal.Solutions.ServerSide {
             System.Diagnostics.Debug.WriteLine(keys.PublicKey);
 
             services.AddControllersWithViews();
-
-            var optionsBuilder = services.AddOptions();
-            optionsBuilder.AddOptions<DemoModel>("AC.SD.Core");
 
             services.AddSingleton<IDemoVersion, DemoVersion>(x => {
                 string customVersion = Configuration.GetValue<string>("dxversion");

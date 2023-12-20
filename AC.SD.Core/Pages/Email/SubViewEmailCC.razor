@@ -6,6 +6,7 @@
 @using MediatR
 @inject IMediator Mediator
 @implements IDisposable;
+@inject NavigationManager NavigationManager
 <style scoped>
     .subviewEmail .dxbl-grid-header-row {
         display: none;
@@ -55,37 +56,42 @@
 
 
 @code {
-    IGrid Grid { get; set; }
+    IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
     [Parameter]
-    public EmailTopics Items { get; set; }
-    private List<EmailTopics>? _forumTopicTo;
-    public ApplicationUser applicationUser { get; private set; }
+    public EmailTopics? Items { get; set; }
+    internal List<EmailTopics>? _forumTopicTo;
+    public ApplicationUser? applicationUser { get; internal set; }
     string SelectedId = "none";
     [Parameter]
-    public Action<string> RId { get; set; }
+    public Action<string>? RId { get; set; }
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _forumTopicTo = await Mediator.Send(new GetSubEmailTopicCC(Items.ID, applicationUser.UserID, "NULL"));
+        if(Items != null)
+        {
+            _forumTopicTo = await Mediator.Send(new GetSubEmailTopicCC(Items.ID, applicationUser.UserID, "NULL"));
+        }
+        
         PanelVisible = false;
-    }
 
-    async Task OnEmailToRowClick(GridRowClickEventArgs e)
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
+    }
+    void OnEmailToRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ReplyId");
-        SelectedId = UniqueId.ToString();
-
-        //long rId = (long.Parse(@SelectedId));
+        SelectedId = UniqueId?.ToString() ?? "none";
         RId?.Invoke(SelectedId);
-
-        //await LoadData();
-        // functionService.onSubViewEmailClick(rid);
         StateHasChanged();
     }
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

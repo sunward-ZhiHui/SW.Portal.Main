@@ -247,9 +247,9 @@
 </DxFlyout>
 
 @code {
-    private EmailSearch Data = new EmailSearch();
+    internal EmailSearch Data = new EmailSearch();
     DateTime Date = DateTime.Today;
-    private string MyID = "myid";
+    internal string MyID = "myid";
 
     DateTime MinDateFrom;
     DateTime MaxDateTo;
@@ -258,42 +258,41 @@
 
     DateTime MinFilterFrom;
     DateTime MaxFilterTo;
-    private bool loading;
-    private List<ViewEmployee>? _Allparticipant;
+    internal bool loading;
+    internal List<ViewEmployee>? _Allparticipant;
 
-    private List<EmailActivityCatgorys> _UserTagList;
-    private List<EmailActivityCatgorys> _AllCategory;
-    private List<ApplicationMasterChildModel> _groupTagItemss;
-    private List<ApplicationMasterChildModel> _categoryTagItemss;
-    private List<ApplicationMasterChildModel> _actionTagItemss;
+    internal List<EmailActivityCatgorys>? _UserTagList;
+    internal List<EmailActivityCatgorys>? _AllCategory;
+    internal List<ApplicationMasterChildModel>? _groupTagItemss;
+    internal List<ApplicationMasterChildModel>? _categoryTagItemss;
+    internal List<ApplicationMasterChildModel>? _actionTagItemss;
     bool isEnabled { get; set; } = true;
 
     bool IsSearchInfoOpen { get; set; } = false;
     public string? MSearchText { get; set; }
     [Parameter]
     public string? MyDayFilterText { get; set; }
-    IGrid AllEmailGrid { get; set; }
-    private List<EmailTopics>? _emailTopicAll;
+    IGrid? AllEmailGrid { get; set; }
+    internal List<EmailTopics>? _emailTopicAll;
     string SelectedGroup = "none";
     string SelectedReplyId = "none";
-    public string filterrowname { get; set; }
+    public string? filterrowname { get; set; }
     public long RTopicId = 0;
-    public ApplicationUser applicationUser { get; private set; }
+    public ApplicationUser? applicationUser { get; internal set; }
     [Parameter]
-    public Action<string> ATopicId { get; set; }
+    public Action<string>? ATopicId { get; set; }
     [Parameter]
     public string? GridSearchText { get; set; }
     [Parameter]
-    public Action<string> SubViewAllTopicId { get; set; }
+    public Action<string>? SubViewAllTopicId { get; set; }
     [Parameter]
-    public string Page { get; set; }
+    public string? Page { get; set; }
 
-    async void selectedGroupTagChangeddd(ApplicationMasterChildModel applicationMasterChildModel)
+    void selectedGroupTagChangeddd(ApplicationMasterChildModel applicationMasterChildModel)
     {
         if (applicationMasterChildModel != null)
         {
-            GroupTagChangedd(applicationMasterChildModel.ApplicationMasterChildId);
-            //_categoryTagItemss = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(applicationMasterChildModel.ApplicationMasterChildId));
+            GroupTagChangedd(applicationMasterChildModel.ApplicationMasterChildId);           
         }
         else
         {
@@ -312,11 +311,10 @@
 
         StateHasChanged();
     }
-    async void selectedCategoryChangedd(ApplicationMasterChildModel applicationMasterChildModel)
+    void selectedCategoryChangedd(ApplicationMasterChildModel applicationMasterChildModel)
     {
         if (applicationMasterChildModel != null)
-        {
-            // _actionTagItemss = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
+        {            
             CategoryTagChanges(applicationMasterChildModel.ApplicationMasterChildId);
         }
         else
@@ -374,16 +372,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        //_emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID));
-        //OnDateChanged(DateTime.Now);
-
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");        
         _Allparticipant = await Mediator.Send(new GetAllEmployeeListQuery());
         _AllCategory = await Mediator.Send(new GetAllEmailActivityCatgorys());
         _UserTagList = await Mediator.Send(new GetAllUserActivityCatgorys(applicationUser.UserID));
         _groupTagItemss = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
-
-
 
 
         Data.FilterTo = DateTime.Today.AddMonths(1);
@@ -394,9 +387,15 @@
 
         @if (MyDayFilterText != null)
         {
-            await loadLibaryList(MyDayFilterText);
+            loadLibaryList(MyDayFilterText);
         }
 
+        NavigationManager.LocationChanged += OnLocationChanged;
+
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
     }
     void OnDateChanged(DateTime newValue)
     {
@@ -426,29 +425,29 @@
             e.CssClass += "non-selectable-row";
         }
     }
-    async Task OnEmailToRowClick(GridRowClickEventArgs e)
+    void OnEmailToRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        SelectedGroup = UniqueId.ToString();
-        ATopicId?.Invoke(SelectedGroup);
-        //await LoadData();
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");        
+        SelectedGroup = UniqueId?.ToString() ?? "none";
+        ATopicId?.Invoke(SelectedGroup);        
         StateHasChanged();
     }
-    private async void onSubViewEmailClick(string RId)
+    internal async void onSubViewEmailClick(string RId)
     {
         SelectedReplyId = RId;
         var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
         RTopicId = conversationList[0].TopicID;
         SelectedGroup = conversationList[0].TopicID.ToString();
         SubViewAllTopicId?.Invoke(SelectedReplyId);
-        await Task.Delay(1000); // Example asynchronous operation
+        //await Task.Delay(1000); // Example asynchronous operation
                                 //await LoadReplyData();
         StateHasChanged();
     }
-    public async Task loadLibaryList(string txt)
+    public void loadLibaryList(string txt)
     {
         MSearchText = txt;
         ApplySearch();
+        StateHasChanged();
     }
     async void ApplySearch()
     {
@@ -473,7 +472,7 @@
     }
 
 
-    private async void SubmitUnArchived(long id)
+    internal async void SubmitUnArchived(long id)
     {
         var UpdateReq = new UpdateTopicUnArchive
             {
@@ -487,6 +486,7 @@
     }
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

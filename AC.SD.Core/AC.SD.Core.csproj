@@ -109,8 +109,7 @@
 
 	  <PackageReference Include="WebPush" Version="1.0.12" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AC.SD.Model\AC.SD.Model.csproj" />
+  <ItemGroup>    
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>

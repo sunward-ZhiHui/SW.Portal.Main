@@ -6,6 +6,7 @@
 @using MediatR
 @inject IMediator Mediator
 @implements IDisposable;
+@inject NavigationManager NavigationManager
 
 <style scoped>
     .subviewEmail .dxbl-grid-header-row {
@@ -53,39 +54,50 @@
 @code {
     [Parameter]
     public string? MSearchText { get; set; }
-    IGrid Grid { get; set; }
+    IGrid? Grid { get; set; }
     bool PanelVisible { get; set; }
     [Parameter]
-    public EmailTopics Items { get; set; }
-    private List<EmailTopics>? _forumTopicTo;
-    public ApplicationUser applicationUser { get; private set; }
+    public EmailTopics? Items { get; set; }
+    internal List<EmailTopics>? _forumTopicTo;
+    public ApplicationUser? applicationUser { get; internal set; }
     string SelectedId = "none";
     [Parameter]
-    public Action<string> RId { get; set; }
+    public Action<string>? RId { get; set; }
     [Parameter]
-    public Action<string> SubViewAllTopicId { get; set; }
+    public Action<string>? SubViewAllTopicId { get; set; }
     protected override async Task OnInitializedAsync()
     {
         PanelVisible = true;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _forumTopicTo = await Mediator.Send(new GetSubEmailTopicAll(Items.ID, applicationUser.UserID, "NULL"));
+        if (Items !=null)
+        {
+            _forumTopicTo = await Mediator.Send(new GetSubEmailTopicAll(Items.ID, applicationUser.UserID, "NULL"));
+        }
+
         PanelVisible = false;
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
     }
 
-    async Task OnEmailAllRowClick(GridRowClickEventArgs e)
+    void OnEmailAllRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ReplyId");
-        SelectedId = UniqueId.ToString();
 
-        //long rId = (long.Parse(@SelectedId));
-        RId?.Invoke(SelectedId);
+        SelectedId = UniqueId?.ToString() ?? "none";
 
-        //await LoadData();
-        // functionService.onSubViewEmailClick(rid);
+        if(SelectedId !=null)
+        {
+            RId?.Invoke(SelectedId);
+        }
+        
         StateHasChanged();
     }
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

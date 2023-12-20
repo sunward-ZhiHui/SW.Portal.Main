@@ -130,24 +130,7 @@
     }
     void UpdateItems(string currentUri)
     {
-        Items.Clear();
-
-        var currentPage = Configurations.GetDemoPageByUrl(NavigationManager, currentUri);
-        if (currentPage != null)
-        {
-            var demoPage = currentPage;
-            while (demoPage != null)
-            {
-                var url = demoPage.GetUrl() != currentPage.GetUrl() ? demoPage.GetUrl() : "";
-                Items.Insert(0, new(demoPage.Title, url));
-                demoPage = demoPage.ParentPage;
-            }
-            Items.Insert(0, new(HomePageTitle, "./"));
-        }
-        else
-        {
-            Items.Add(new(HomePageTitle, ""));
-        }
+        Items.Clear();       
         StateHasChanged();
     }
 

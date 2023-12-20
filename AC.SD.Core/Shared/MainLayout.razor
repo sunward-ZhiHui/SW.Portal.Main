@@ -118,7 +118,7 @@
             </div>
         </div>
         <div class="main">
-            <div class="content" @key="ShouldUseThemeNameKey() ? ThemeName : null">
+            <div class="content">
 
                 <CascadingValue Value="@ScrollToTargetLocked" Name="ScrollToTargetLocked">
                     <CascadingValue Value="@ThemeName" Name="ThemeName">
@@ -205,19 +205,19 @@
     string errorMsg = "";
     static readonly int DateTimeNowYear = DateTime.Now.Year;
     UpdatePassword updatePassword = new UpdatePassword();
-    string _themeName;
+    string? _themeName;
     bool _layoutToggled;
     bool _themeSwitcherShown;
     bool _isDesktop = true;
     string _searchString = "";
     ElementReference contentContainerRef;
     bool PopupUpdatePasseordVisible { get; set; }
-    DemoScriptLoader pageHelper;
+    DemoScriptLoader? pageHelper;
     bool MessageVisible { get; set; }
     string MessageHeader = "";
     string MessageBody = "";
     [Inject]
-    IDemoVersion DemoVersion { get; set; }
+    IDemoVersion? DemoVersion { get; set; }
     [Inject]
     NavigationManager NavigationManager { get; set; }
     [Inject]
@@ -227,8 +227,8 @@
     /// </summary>
     [Parameter]
     public RenderFragment<Exception>? ErrorContent { get; set; }
-    private bool loading;
-    public ApplicationUser applicationUser { get; private set; }
+    internal bool loading;
+    public ApplicationUser? applicationUser { get; internal set; }
     protected string ThemeName
     {
         get { return _themeName; }
@@ -241,12 +241,12 @@
             }
         }
     }
-    private ErrorBoundary errorBoundary;
+    internal ErrorBoundary errorBoundary;
     protected override void OnParametersSet()
     {
         errorBoundary?.Recover();
     }
-    private async Task InitializeFirebaseAsync()
+    internal async Task InitializeFirebaseAsync()
     {
         //await JSRuntime.InvokeVoidAsync("registerServiceWorker");
         //await JSRuntime.InvokeVoidAsync("initializeFirebase");
@@ -256,7 +256,7 @@
     {
         
         ThemeName = Themes.ActiveTheme.Name;
-        NavigationManager.LocationChanged += OnLocationChanged;
+        //NavigationManager.LocationChanged += OnLocationChanged;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
 
         //hubConnection = hubConnection.TryInitialize(NavigationManager);
@@ -278,7 +278,7 @@
 
         //await hubConnection.SendAsync(ApplicationConstants.SignalR.SendEmail);
     }
-    private async void ResetPassword()
+    internal async void ResetPassword()
     {
         loading = true;
         var request = new UpdateUserPasswordRequest
@@ -299,7 +299,7 @@
             onShowPopupMessage("Message", "Password Reset Successfully");
         }
     }
-    private async void OnValidSubmit()
+    internal async void OnValidSubmit()
     {
         loading = true;
         var request = new UpdateUserPasswordRequest
@@ -338,7 +338,7 @@
         }
 
     }
-    private async void onShowPopupMessage(string headerText, string bodyText)
+    internal async void onShowPopupMessage(string headerText, string bodyText)
     {
         MessageVisible = true;
         MessageBody = bodyText;
@@ -346,16 +346,9 @@
         StateHasChanged();
     }
 
-    void TryRedirect(string url)
-    {
-        if (url?.Length > NavigationManager.BaseUri?.Length && Configuration.Redirects.TryGetValue(url.Substring(NavigationManager.BaseUri.Length).ToLower(), out var uri))
-        {
-            NavigationManager.NavigateTo(uri, true);
-        };
-    }
+   
     protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        TryRedirect(NavigationManager.Uri);
+    {        
         if (firstRender)
         {
             await ScrollToMainTopIfNeeded(NavigationManager.Uri);
@@ -376,9 +369,8 @@
         SavedLayoutToggled = LayoutToggled;
         IsFirstTimeRendered = true;
     }
-    async void OnLocationChanged(object sender, LocationChangedEventArgs args)
-    {
-        TryRedirect(args.Location);
+    async void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {        
         ThemeSwitcherShown = false;
         if (!_isDesktop)
         {
@@ -437,18 +429,6 @@
         ThemeSwitcherShown = !ThemeSwitcherShown;
     }
 
-    bool ShouldUseThemeNameKey()
-    {
-        var page = Configuration.GetDemoPageByUrl(NavigationManager, NavigationManager.Uri);
-        while (page != null)
-        {
-            if (page.ReCreateOnThemeChange.HasValue)
-                return page.ReCreateOnThemeChange.Value;
-            page = page.ParentPage;
-        }
-        return true;
-    }
-
     void ModalBackdropShownChanged(bool shown)
     {
         if (!shown)
@@ -466,21 +446,11 @@
         {
             if (_searchString != value)
             {
-                _searchString = value;
-                InvokeAsync(UpdateSearchResults);
+                _searchString = value;                
             }
         }
-    }
-    public List<DemoSearchResult> SearchResults { get; set; }
-    async Task UpdateSearchResults()
-    {
-        var searchResults = (SearchString != null && SearchString.Length > 2) ? Configuration.DoSearch(SearchString) : null;
-        if (SearchResults != searchResults)
-        {
-            SearchResults = searchResults;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
+    }    
+   
 
     bool HasAnchorInUrl(string uri)
     {
@@ -550,11 +520,11 @@
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
     }
-    private async void logout()
+    internal async void logout()
     {
         await _localStorageService.RemoveItem("user");
         NavigationManager.NavigateTo("account/logout");
     }
-    private HubConnection hubConnection;
+    internal HubConnection hubConnection;
     public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
 }

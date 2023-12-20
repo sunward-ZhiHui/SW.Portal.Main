@@ -10,6 +10,7 @@
 @inject IJSRuntime jsRuntime;
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
 @implements IDisposable;
 
 <div class="card w-100" style="margin-bottom:10px;">
@@ -62,48 +63,15 @@
             SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
             RowDoubleClick="OnRowDoubleClick" SelectedDataItemsChanged="@SelectedDataItemsChanged">
         <Columns>
-            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />         
-            @*<DxGridDataColumn FieldName="RowIndex" Caption="#" Width="35px" Visible="false"></DxGridDataColumn>*@
+            <DxGridSelectionColumn Width="60px" AllowSelectAll="true" />
             <DxGridDataColumn FieldName="GroupName" Caption="Group" />
             <DxGridDataColumn FieldName="CategoryName" Caption="Category" />
             <DxGridDataColumn FieldName="ActionName" Caption="Action" />
             <DxGridDataColumn FieldName="Name" Caption="Others" />
-           @* <DxGridDataColumn FieldName="Description" />*@
-            @*<DxGridDataColumn FieldName="AddedDate">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (EmailActivityCatgorys)context.DataItem;
-                    }
-                    @Application.Common.Helper.Helper.FormatDateTime(item.AddedDate)
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="AddedByUserID" Caption="AddedBy" TextAlignment="GridTextAlignment.Left">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (EmailActivityCatgorys)context.DataItem;
-                    }
-                    <div> @item.AddedBy</div>
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="ModifiedDate" TextAlignment="GridTextAlignment.Left">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (EmailActivityCatgorys)context.DataItem;
-                    }
-                    @Application.Common.Helper.Helper.FormatDateTime(item.ModifiedDate)
-                </CellDisplayTemplate>
-            </DxGridDataColumn>
-            <DxGridDataColumn FieldName="ModifiedByUserID" Caption="ModifiedBy" TextAlignment="GridTextAlignment.Left">
-                <CellDisplayTemplate>
-                    @{
-                        var item = (EmailActivityCatgorys)context.DataItem;
-                    }
-                    <div> @item.ModifiedBy</div>
-                </CellDisplayTemplate>
-            </DxGridDataColumn>*@
+          
             <DxGridCommandColumn Width="160px" Visible="false" />
         </Columns>
-        @*  @bind-SelectedDataItems="SelectedDataItems"*@
+        
         <EditFormTemplate Context="EditFormContext">
             @{
                 var types = (EmailActivityCatgorys)EditFormContext.EditModel;
@@ -195,12 +163,12 @@
 @code {
     bool PanelVisible { get; set; }
     Dictionary<long, string>? UsernameIndex { get; set; }
-    IReadOnlyList<object> SelectedDataItems { get; set; }
+    IReadOnlyList<object>? SelectedDataItems { get; set; }
     private string gridHeight = "calc(100vh - 230px - 143px)";
     private List<EmailActivityCatgorys>? _topicCategorys;
-    private List<EmailActivityCatgorys> _AllCategory;
+    private List<EmailActivityCatgorys>? _AllCategory;
     IGrid? Grid { get; set; }
-    private EmailActivityCatgorys _selectedItems;
+    private EmailActivityCatgorys? _selectedItems;
     bool ExportSelectedRowsOnly { get; set; }
     DxPopup? popup;
     bool PopupVisible { get; set; } = false; 
@@ -214,17 +182,18 @@
     string SelectedGroup = "none";
     [Parameter]
     public long TopicId { get; set; }
-    private EmailActivityCatgorys _selectlst;
+    private EmailActivityCatgorys? _selectlst;
     public ApplicationUser? applicationUser { get; private set; }
     [Parameter]
     public Action loadTagsList { get; set; }
 
     bool isEnabled { get; set; } = true;
-    private List<ApplicationMasterChildModel> _groupTagItems;
-    private List<ApplicationMasterChildModel> _categoryTagItems;
-    private List<ApplicationMasterChildModel> _actionTagItems;
+    private List<ApplicationMasterChildModel>? _groupTagItems;
+    private List<ApplicationMasterChildModel>? _categoryTagItems;
+    private List<ApplicationMasterChildModel>? _actionTagItems;
 
-    async void selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
+
+    void selectedGroupTagChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
         if (applicationMasterChildModel != null)
         {
@@ -244,7 +213,7 @@
             _categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildId));
         }
     }
-    async void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
+    void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
         if (applicationMasterChildModel != null)
         {
@@ -268,6 +237,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+         NavigationManager.LocationChanged += OnLocationChanged;
+
         _groupTagItems = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105,108,122"));
 
         var tId = TopicId;
@@ -303,6 +274,10 @@
         }
 
     }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
+    }
     public async Task loadTagList(long tid)
     {
         _topicCategorys = await Mediator.Send(new GetAllTopicCategory(tid));
@@ -328,27 +303,35 @@
         loadTagsList?.Invoke();
         StateHasChanged();
 
-    }
+    }   
     async Task ExportToExcel()
     {
-        if (SelectedDataItems != null)
+        if (Grid != null) // Check if the Grid is not null
         {
-            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
-                    ExportSelectedRowsOnly = true,
-                    CustomizeCell = OnCustomizeCell
-
-                });
+            if (SelectedDataItems != null)
+            {
+                await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                    {
+                        ExportSelectedRowsOnly = true,
+                        CustomizeCell = OnCustomizeCell
+                    });
+            }
+            else
+            {
+                await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                    {
+                        ExportSelectedRowsOnly = false,
+                        CustomizeCell = OnCustomizeCell
+                    });
+            }
         }
+        // Optionally, handle the case where Grid is null
         else
         {
-            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
-                    ExportSelectedRowsOnly = false,
-                    CustomizeCell = OnCustomizeCell
-                });
+            // Handle the null case if needed
         }
     }
+
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
@@ -450,27 +433,25 @@
         PopupVisible = false;
         await UpdateDataAsync();
     }
-    void EulaPopupClosed(PopupClosedEventArgs args)
+    async void EulaPopupClosed(PopupClosedEventArgs args)
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+        await UpdateDataAsync();
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
 
-        var editModel = (EmailActivityCatgorys)e.DataItem;
-
-        //  string result = string.Empty;
-        //  result = await Mediator.Send(new DeleteForumTypeCommand(editModel.ID));
-        // Console.WriteLine(result);
-        // await UpdateDataAsync();
+        var editModel = (EmailActivityCatgorys)e.DataItem;       
 
         var request = new DeleteForumTypeCommand(editModel.ID);
         await Mediator.Send(request);
         await UpdateDataAsync();
-        Grid.SetFocusedRowIndex(0);
+        if (Grid != null)
+        {
+            Grid.SetFocusedRowIndex(0);
+        }       
 
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
@@ -533,40 +514,21 @@
 
     }
     void addNew()
-    {
-        Grid.StartEditNewRowAsync();
+    {        
+
+        if (Grid != null)
+        {
+            Grid.StartEditNewRowAsync();
+        }
 
     }
     void addEdit()
     {        
 
-        //if (SelectedDataItems.Count == 1)
-        //{
-
-        //    foreach (object item in SelectedDataItems)
-        //    {
-
-        //        if (item is EmailActivityCatgorys emailActivityCatgorys)
-        //        {
-
-        //            _selectlst = _topicCategorys.FirstOrDefault(f => f.ID == emailActivityCatgorys.ID);
-
-
-        //        }
-        //    }
-        //    Grid.StartEditDataItemAsync(_selectlst);
-        //}
-        //else
-        //{
-        //    Grid.StartEditDataItemAsync(_selectedItems);
-        //}
-
-
-
-
-
-
-        Grid.StartEditDataItemAsync(_selectedItems);
+        if (Grid != null)
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
 
 
     }
@@ -592,7 +554,11 @@
                         DeleteEnabled=false;
                         EditEnabled = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        Grid.SetFocusedRowIndex(0);
+                        
+                        if (Grid != null)
+                        {
+                            Grid.SetFocusedRowIndex(0);
+                        }
                     }
 
                 }
@@ -625,6 +591,7 @@
     }
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

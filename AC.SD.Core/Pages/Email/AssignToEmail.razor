@@ -7,6 +7,7 @@
 @inject IMediator Mediator
 @using System.Linq;
 @implements IDisposable;
+@inject NavigationManager NavigationManager
 <style scoped>
   
 </style>
@@ -98,24 +99,24 @@
 
 
 @code {
-    DxContextMenu ContextMenu { get; set; }
-    IGrid TOGrid { get; set; }
-    private List<EmailTopics>? _forumTopicTo;
-    public ApplicationUser applicationUser { get; private set; }
+    DxContextMenu? ContextMenu { get; set; }
+    IGrid? TOGrid { get; set; }
+    internal List<EmailTopics>? _forumTopicTo;
+    public ApplicationUser? applicationUser { get; internal set; }
     string SelectedGroup = "none";
     public long RTopicId = 0;
     string SelectedReplyId = "none";
-    public string filterrowname { get; set; }
-    private SubViewEmail? RefSubAssignTo { get; set; }
+    public string? filterrowname { get; set; }
+    internal SubViewEmail? RefSubAssignTo { get; set; }
     [Parameter]
     public string? Page { get; set; }
     [Parameter]
     public string? GridSearchText { get; set; }
 
     [Parameter]
-    public Action<string> ToTopicId { get; set; }
+    public Action<string>? ToTopicId { get; set; }
     [Parameter]
-    public Action<string> SubViewToTopicId { get; set; }
+    public Action<string>? SubViewToTopicId { get; set; }
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -123,7 +124,12 @@
         {
             _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
         }
-       
+        NavigationManager.LocationChanged += OnLocationChanged;
+
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
     }
     void OnItemClick(ContextMenuItemClickEventArgs args)
     {
@@ -140,7 +146,11 @@
     }   
     public async Task onAssignToGridRefresh(long tid)
     {
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+        if (applicationUser != null)
+        {
+            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL"));
+        }
+
         if(RefSubAssignTo != null)
         {
             await RefSubAssignTo.onSubAssignToGridRefresh(tid);
@@ -148,7 +158,11 @@
     }
     async Task onGridRefresh()
     {
-        _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID,"NULL"));
+        if (applicationUser != null)
+        {
+            _forumTopicTo = await Mediator.Send(new GetEmailTopicTo(applicationUser.UserID, "NULL"));
+        }
+        
     }
     async Task onPin(long Id)
     {           
@@ -160,29 +174,29 @@
         var request = await Mediator.Send(new UnSetPinEmailTopicTo(Id));
         await onGridRefresh();
     }
-    async Task OnEmailToRowClick(GridRowClickEventArgs e)
+    void OnEmailToRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        SelectedGroup = UniqueId.ToString();
-        ToTopicId?.Invoke(SelectedGroup);
-        //await LoadData();
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");        
+        SelectedGroup = UniqueId?.ToString() ?? "none";
+        ToTopicId?.Invoke(SelectedGroup);        
         StateHasChanged();
     }
 
   
-    private async void onSubViewEmailClick(string RId)
+    internal async void onSubViewEmailClick(string RId)
     {
         SelectedReplyId = RId;
         var conversationList = await Mediator.Send(new GetEmailConversationList(long.Parse(RId)));
         RTopicId = conversationList[0].TopicID;
         SelectedGroup = conversationList[0].TopicID.ToString();
         SubViewToTopicId?.Invoke(SelectedReplyId);
-        await Task.Delay(1000); // Example asynchronous operation
+        //await Task.Delay(1000); // Example asynchronous operation
                                 //await LoadReplyData();
         StateHasChanged();
     }
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

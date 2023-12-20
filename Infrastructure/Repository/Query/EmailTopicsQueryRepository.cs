@@ -442,7 +442,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", searchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_ALL");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        //var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 300);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -469,7 +471,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("UserId", UserId);
                         parameters.Add("Option", "SELECT_EMAIL_HOME");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -658,7 +660,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("Option", "SELECT_ASSIGN_TO");
                         
 
-                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -713,7 +715,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", searchTxt);                        
                         parameters.Add("Option", "SELECT_ASSIGN_CC");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -741,7 +743,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", searchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_SENT");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)

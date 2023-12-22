@@ -1,0 +1,149 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using Application.Commands;
+@using Application.Queries;
+@using Application.Response;
+@using MediatR
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using global::Core.Repositories.Query;
+@inject IJSRuntime jsRuntime;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
+@inject NavigationManager NavigationManager
+@implements IDisposable;
+
+<style>
+    ul.timeline {
+        list-style-type: none;
+        position: relative;
+    }
+
+        ul.timeline:before {
+            content: ' ';
+            background: #d4d9df;
+            display: inline-block;
+            position: absolute;
+            left: 29px;
+            width: 2px;
+            height: 100%;
+            z-index: 400;
+        }
+
+        ul.timeline > li {
+            margin: 20px 0;
+            padding-left: 20px;
+            padding-right: 15px;
+        }
+
+            ul.timeline > li:before {
+                content: ' ';
+                background: white;
+                display: inline-block;
+                position: absolute;
+                border-radius: 50%;
+                border: 3px solid #22c0e8;
+                left: 20px;
+                width: 20px;
+                height: 20px;
+                z-index: 400;
+            }
+    .event-date
+    {
+        float:right;
+        font-size:12px;
+    }
+</style>
+
+
+<EditForm Model="@_dataTimelineEvent" OnValidSubmit="@SubmitTimeLineEvent" class="w-800">
+    <DataAnnotationsValidator />
+    <div class="row">
+        <div class="col-md-12" style="padding-bottom: 12px">
+            <label for="Description"> Description: </label>
+            <DxMemo @bind-Text="@_dataTimelineEvent.Description" Rows="2" />
+            <ValidationMessage For="@(() => _dataTimelineEvent.Description)" />
+        </div>
+        <div class="col-md-12">
+            <DxButton SubmitFormOnClick="true" style="float: right;" Text="Submit" RenderStyle="ButtonRenderStyle.Primary" />
+        </div>
+    </div>
+</EditForm>
+
+<div style="max-height: 400px; overflow-y: auto;overflow-x:hidden;">
+     <ul class="timeline">
+        @if (_events != null && _events.Any())
+        {
+            @foreach (var eventItem in _events)
+            {  
+                <li>
+                    <span>@eventItem.UserName</span>
+                    <span class="event-date"> @Application.Common.Helper.Helper.FormatDateTime(eventItem.AddedDate)</span>
+                    <p>@eventItem.Description</p>
+                </li>       
+            }            
+        }
+
+    </ul>
+</div>
+
+@code {
+    private List<EmailTimelineEvent>? _events;
+    private EmailTimelineEvent _dataTimelineEvent = new EmailTimelineEvent();
+    public ApplicationUser? applicationUser { get; private set; }
+    [Parameter]
+    public long Tid { get; set; }
+    [Parameter]
+    public long Cid { get; set; }
+    [Parameter]
+    public long DocId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await jsRuntime.InvokeAsync<string>("showLoading");
+        _events = await Mediator.Send(new GetTimelineEventList(DocId));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+        NavigationManager.LocationChanged += OnLocationChanged;
+
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
+    }
+
+    async void SubmitTimeLineEvent()
+    {
+        var CreateReq = new CreateEmailTimelineEvent
+            {
+
+                DocumentID = DocId,
+                TopicID = Tid,
+                ConversationID = Cid,
+                Description = _dataTimelineEvent.Description,
+                AddedByUserID = applicationUser?.UserID,
+                AddedDate = DateTime.Now
+            };
+
+        var result = await Mediator.Send(CreateReq);
+        await dataClear();
+        await UpdateDataAsync();
+    }
+    async Task dataClear()
+    {
+        _dataTimelineEvent = new EmailTimelineEvent();
+
+    }
+    async Task UpdateDataAsync()
+    {
+        await jsRuntime.InvokeAsync<string>("showLoading");
+        _events = await Mediator.Send(new GetTimelineEventList(DocId));
+        await jsRuntime.InvokeAsync<string>("hideLoading");
+
+        StateHasChanged();
+    }
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;       
+    }
+}

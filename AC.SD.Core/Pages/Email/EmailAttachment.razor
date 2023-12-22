@@ -45,6 +45,7 @@
 @implements IDisposable;
 
 
+
 <div class="card w-100" style="margin-bottom:10px; margin-top:10px">
     <div class="card-body p-0">
         <DxMenu CollapseItemsToHamburgerMenu="true"
@@ -52,6 +53,7 @@
                 DisplayMode="MenuDisplayMode.Desktop">
             <Items>               
                 <DxMenuItem Text="Preview" IconCssClass="fa fa-eye" Click="((e) => onPreview(_selectlst.DocumentId))" Enabled=PreviewEnabled />
+                <DxMenuItem Text="Progress " IconCssClass="fab fa-stack-overflow" Click="((e) => onStatus(_selectlst.DocumentId))" Enabled=onProgressEnabled />
             </Items>
         </DxMenu>
     </div>
@@ -337,19 +339,43 @@
     </FooterContentTemplate>
 </DxFlyout>
 
+
+<DxPopup @bind-Visible="@StatusPopupVisible"
+         ShowFooter="true"
+         HeaderText="CRT"
+         Width="700px">
+    <BodyContentTemplate>
+        <div>
+            <TimeLine @ref=RefTimeLineList Tid="@Tid" DocId="@DocId" Cid="@Cid"></TimeLine>
+        </div>
+    </BodyContentTemplate>
+    @* <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="Closed" Click="@((e) => ClosePopUP())" />
+    </FooterContentTemplate> *@
+</DxPopup>
+
 @code{
+    private TimeLine? RefTimeLineList { get; set; }
+    private List<Documents>? _timeline;
+    bool StatusPopupVisible { get; set; } = false;
+    void ClosePopUP()
+    {
+        StatusPopupVisible = false;
+    }
     [Parameter]
     public long Tid { get; set; }
     [Parameter]
     public long Cid { get; set; }
     [Parameter]
+    public long DocId { get; set; }
+    [Parameter]
     public string LeftMenu { get; set; }
 
-    private List<ViewPlants>? _plantItems;
-    private List<ViewDivision>? _divisionItems;
-    private List<ViewDepartment>? _departmentItems;
-    private List<ViewSection>? _sectionItems;
-    private List<ViewSubSection>? _subSectionItems;
+    internal List<ViewPlants>? _plantItems;
+    internal List<ViewDivision>? _divisionItems;
+    internal List<ViewDepartment>? _departmentItems;
+    internal List<ViewSection>? _sectionItems;
+    internal List<ViewSubSection>? _subSectionItems;
     bool isPlant { get; set; } = false;
     bool isDivision { get; set; } = false; bool isDepartment { get; set; } = false;
     bool isSection { get; set; } = false; bool isSubSection { get; set; } = false;
@@ -362,22 +388,22 @@
 
     string SelectedRadioGroupString { get; set; } = "Link to DMS";
     IEnumerable<string> FileLinkOptions = new[] { "Link to DMS", "File Replace(Check-In)" };
-    private List<Documents>? _OnFileReplaceList;
-    private DocumentsModel? _selectedDocumentItems;
+    internal List<Documents>? _OnFileReplaceList;
+    internal DocumentsModel? _selectedDocumentItems;
 
     string? LinkFilterFileprofiletypeName { get; set; } = null;
     public bool IsFileProfileTypeFilterDocOpen { get; set; }
     EditContext _editContext;
-    private DxTreeView _treeFilterDocView;
+    internal DxTreeView _treeFilterDocView;
     string? FilterDocumentString { get; set; }
-    private Guid? _activityEmailSessionId { get; set; }
+    internal Guid? _activityEmailSessionId { get; set; }
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     IEnumerable<DocumentsModel> _selectedTreeItems = new List<DocumentsModel>();
     Documents _selectedDocsItems = new Documents();
-    public ApplicationUser applicationUser { get; private set; }
+    public ApplicationUser applicationUser { get; internal set; }
     public long RTopicId = 0;
     string SelectedReplyId = "none";
-    private bool loading;
+    internal bool loading;
     bool MessageVisible { get; set; }
     string styleClass = "";
     string MessageHeader = "Error";
@@ -534,7 +560,7 @@
 
 
     }
-    private async void onShowPopupMessage(string headerText, string bodyText)
+    internal async void onShowPopupMessage(string headerText, string bodyText)
     {
         MessageVisible = true;
         MessageBody = bodyText;
@@ -891,7 +917,7 @@
         IsFileProfileTypeFilterDocOpen = false;
         StateHasChanged();
     }
-    private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
+    internal List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
     {
         var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
         FileProfileTypeModel fileprofile = new FileProfileTypeModel();
@@ -915,7 +941,7 @@
         }
         return foldersList;
     }
-    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<string> foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    internal FileProfileTypeModel GetProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<string> foldersModel, FileProfileTypeModel fileProfileTypeModel)
     {
 
         if (s.ParentId != null)
@@ -931,9 +957,9 @@
         return fileProfileTypeModel;
     }
 
-    private FileProfileType _dataFileProfileType = new FileProfileType();
+    internal FileProfileType _dataFileProfileType = new FileProfileType();
 
-    private class FileProfileType
+    internal class FileProfileType
     {
         [Required(ErrorMessage = "FileProfile is Required")]
         public long? FileProfileTypeId { get; set; }
@@ -1034,20 +1060,17 @@
 
         StateHasChanged();
     }
-
-
-
-
-    DxTreeView treeView;
+    DxTreeView? treeView;
     IGrid? Grid { get; set; }
-    private Documents _selectlst;
-    private List<Documents>? _topicDocList;
+    internal Documents? _selectlst;
+    internal List<Documents>? _topicDocList;
     bool PreviewEnabled { get; set; } = false;
+    bool onProgressEnabled { get; set; } = false;
     bool IsDescriptionOpen { get; set; } = false;
-    private string? BaseUrl;
-    private string? FileUrl;
-    private string? DocumentViewUrl;
-    Documents _documents { get; set; }
+    internal string? BaseUrl;
+    internal string? FileUrl;
+    internal string? DocumentViewUrl;
+    Documents? _documents { get; set; }
 
     bool IsRenameOpen { get; set; } = false;
     bool IsFilterOpen { get; set; } = false;
@@ -1063,7 +1086,7 @@
 
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         _editContext = new EditContext(_dataFileProfileType);
-       
+
         isLeftMenuvisible = LeftMenu;
 
         if(Cid == 0)
@@ -1079,7 +1102,7 @@
         }       
     }
 
-    private async Task loadTopicDocList()
+    internal async Task loadTopicDocList()
     {
         if (long.Parse(@SelectedGroup) > 0)
         {
@@ -1110,17 +1133,30 @@
                 //DeleteEnabled = true;
                 PreviewEnabled = true;
                 docEnabled = true;
+                if(_selectlst != null)
+                {
+                    if (_selectlst.EmailToDMS != null)
+                    {
+                        onProgressEnabled = true;
+                    }
+                    else
+                    {
+                        onProgressEnabled = false;
+                    }
+                }
+                
                 StateHasChanged();
             }
             else
             {
                 PreviewEnabled = false;
                 docEnabled = false;
+                onProgressEnabled = false;
             }
         }
 
     }
-    private async Task loadSubTopicDocList()
+    internal async Task loadSubTopicDocList()
     {
         var conId = SelectedReplyId;
 
@@ -1159,10 +1195,22 @@
                 //DeleteEnabled = true;
                 PreviewEnabled = true;
                 docEnabled = true;
+                if (_selectlst != null)
+                {
+                    if (_selectlst.EmailToDMS != null)
+                    {
+                        onProgressEnabled = true;
+                    }
+                    else
+                    {
+                        onProgressEnabled = false;
+                    }
+                }
                 StateHasChanged();
             }
             else
             {
+                onProgressEnabled = false;
                 PreviewEnabled = false;
                 docEnabled = false;
             }
@@ -1172,30 +1220,68 @@
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentId");
         _selectlst = _topicDocList.FirstOrDefault(f => f.DocumentId == (long?)UniqueId);
+
+        if (_selectlst != null)
+        {
+            if (_selectlst.EmailToDMS != null)
+            {
+                onProgressEnabled = true;
+            }
+            else
+            {
+                onProgressEnabled = false;
+            }
+        }
+        else
+        {
+            onProgressEnabled = false;
+        }
+
+        
     }
 
     async Task onBackToDMS(Documents item)
     {
         if (item.EmailToDMS != null)
         {
-            onBackFileProfileType(item.DMSBackUrl);
+            await onBackFileProfileType(item.DMSBackUrl);
             //JSRuntime.InvokeAsync<string>("ReloadUrl");
         }
     }
-    async void onBackFileProfileType(string url)
+    async Task onBackFileProfileType(string url)
     {
         var urls = BaseUrl + "fileprofiletype/" + url;
         NavigationManager.NavigateTo(urls);
         //JSRuntime.InvokeAsync<string>("ReloadUrl");
     }
+    internal void onStatus(long Id)
+    {
+        DocId = Id;
+
+        if(_topicDocList != null)
+        {
+            _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
+        }  
+        
+        StatusPopupVisible = true;
+        
+    }   
 
     public async Task onPreview(long Id)
     {
-        _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);        
-        var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
-        await OpenDocumentPreview(url);
+        if(_topicDocList != null)
+        {
+            _documents = _topicDocList.FirstOrDefault(a => a.DocumentId == Id);
+        }
+
+        if(_documents != null)
+        {
+            var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
+            await OpenDocumentPreview(url);
+        }
+       
     }
-    private async Task OpenDocumentPreview(string url)
+    internal async Task OpenDocumentPreview(string url)
     {
         await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }

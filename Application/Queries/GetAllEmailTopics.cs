@@ -376,7 +376,22 @@ namespace Application.Queries
     public class CreateUserTag : EmailActivityCatgorys, IRequest<long>
     {
     }
-    
+
+    public class UpdateEmailTimelineEvent : EmailTimelineEvent, IRequest<long>
+    {
+    }
+    public class CreateEmailTimelineEvent : EmailTimelineEvent, IRequest<long>
+    {
+    }
+    public class GetTimelineEventList : PagedRequest, IRequest<List<EmailTimelineEvent>>
+    {
+        public long DocumentId { get; private set; }
+        public GetTimelineEventList(long DocumentId)
+        {
+            this.DocumentId = DocumentId;
+        }
+    }
+
     public class CreateEmailDocFileProfileType : Documents, IRequest<long>
     {
     }

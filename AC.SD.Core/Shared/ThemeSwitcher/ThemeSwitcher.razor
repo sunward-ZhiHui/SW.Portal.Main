@@ -185,6 +185,7 @@
             }
             else
             {
+                await _localStorageService.RemoveItem("user");
                 NavigationManager.NavigateTo($"account/logout");
                 StateHasChanged();
             }

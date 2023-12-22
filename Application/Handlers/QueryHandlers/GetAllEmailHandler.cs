@@ -571,8 +571,50 @@ namespace CMS.Application.Handlers.QueryHandlers
             return req;
         }
     }
-    
 
+    public class CreateTimelineEventHandler : IRequestHandler<CreateEmailTimelineEvent, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public CreateTimelineEventHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+
+        public async Task<long> Handle(CreateEmailTimelineEvent request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.CreateEmailTimelineEventAsync(request);
+            return req;
+        }
+    }
+    public class UpdateTimelineEventHandler : IRequestHandler<UpdateEmailTimelineEvent, long>
+    {
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+
+        public UpdateTimelineEventHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+
+        public async Task<long> Handle(UpdateEmailTimelineEvent request, CancellationToken cancellationToken)
+        {
+            var req = await _emailTopicsQueryRepository.UpdateEmailTimelineEventAsync(request);
+            return req;
+        }
+    }
+    public class GetTimelineEventHandler : IRequestHandler<GetTimelineEventList, List<EmailTimelineEvent>>
+    {
+
+        private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;
+        public GetTimelineEventHandler(IEmailTopicsQueryRepository emailTopicsQueryRepository)
+        {
+            _emailTopicsQueryRepository = emailTopicsQueryRepository;
+        }
+        public async Task<List<EmailTimelineEvent>> Handle(GetTimelineEventList request, CancellationToken cancellationToken)
+        {
+            return (List<EmailTimelineEvent>)await _emailTopicsQueryRepository.GetEmailTimelineEvent(request.DocumentId);
+        }
+    }
     public class CreateEmailDocFileProfileTypeHandler : IRequestHandler<CreateEmailDocFileProfileType, long>
     {
         private readonly IEmailTopicsQueryRepository _emailTopicsQueryRepository;

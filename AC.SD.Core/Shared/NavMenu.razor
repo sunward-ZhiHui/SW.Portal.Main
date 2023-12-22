@@ -29,8 +29,8 @@
 
 @code {
 
-    private DxTreeView treeView;
-    private string previousUri;
+    internal DxTreeView treeView;
+    internal string previousUri;
     string? FilterString { get; set; }
     public List<PortalMenuModel> portalMenuModel { get; set; }
     public ApplicationUser applicationUser { get; private set; }
@@ -46,11 +46,11 @@
             portalMenuModel = await Mediator.Send(new GetAllApplicationPermissionAllQuery(applicationUser.UserID));
         }
         
-        //NavigationManager.LocationChanged += OnLocationChanged;
+        NavigationManager.LocationChanged += OnLocationChanged;
 
     }
     
-    void OnLocationChanged(object sender, LocationChangedEventArgs args)
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
     {    
         var currentUri = NavigationManager.Uri;
         // var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
@@ -66,19 +66,12 @@
 
         previousUri = currentUri;       
         
+        StateHasChanged();
     }
     public void Dispose()
     {
-        //NavigationManager.LocationChanged -= OnLocationChanged;
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-         //if (firstRender == true && count == 0)
-         //{
-         //    UpdateSelection(NavigationManager.Uri, true);
-         //}
-         //count++;
-    }
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }   
     void UpdateSelection(string currentUri, bool expandNodesToSelection)
     {
         string uri = NavigationManager.Uri;

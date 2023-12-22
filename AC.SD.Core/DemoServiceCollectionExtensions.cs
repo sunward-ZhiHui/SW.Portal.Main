@@ -50,8 +50,7 @@ namespace AC.SD.Core
             });
             services.AddSingleton<RealtimeService>();
             services.AddSingleton<EmailAutoRefresh>();
-            services.AddBlazoredToast();
-            services.AddDocumentMetadata(ConfigureMetadata);
+            services.AddBlazoredToast();            
             services.AddSingleton<DemoConfiguration>();
             services.AddDevExpressServerSideBlazorReportViewer();
             //services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -71,11 +70,6 @@ namespace AC.SD.Core
                     Options.Password.RequireNonAlphanumeric  = false;
                     Options.SignIn.RequireConfirmedEmail = false;
                 });
-            
-
-            static void ConfigureMetadata(IServiceProvider sp, IDocumentMetadataCollection metadataCollection) {
-                sp.GetService<DemoConfiguration>().ConfigureMetadata(metadataCollection);
-            }
         }
     }
 }

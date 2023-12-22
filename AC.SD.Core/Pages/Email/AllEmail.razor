@@ -11,6 +11,7 @@
 @inject IJSRuntime JSRuntime;
 @page "/AllEmail"
 @implements IDisposable;
+@inject NavigationManager NavigationManager
 
 <DxGrid @ref="AllEmailGrid" SearchText="@GridSearchText"
         Data="_emailTopicAll"
@@ -77,25 +78,32 @@
 </DxGrid>
 
 @code{
-    IGrid AllEmailGrid { get; set; }
+    IGrid? AllEmailGrid { get; set; }
     private SubViewAllEmail? RefSubAssignAll { get; set; }
     private List<EmailTopics>? _emailTopicAll;
     string SelectedGroup = "none";
     string SelectedReplyId = "none";
-    public string filterrowname { get; set; }
+    public string? filterrowname { get; set; }
     public long RTopicId = 0;
-    public ApplicationUser applicationUser { get; private set; }
+    public ApplicationUser? applicationUser { get; private set; }
     [Parameter]
-    public Action<string> ATopicId { get; set; }
+    public Action<string>? ATopicId { get; set; }
     [Parameter]
     public string? GridSearchText { get; set; }
     [Parameter]
-    public Action<string> SubViewAllTopicId { get; set; }
+    public Action<string>? SubViewAllTopicId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await JSRuntime.InvokeAsync<string>("showLoading");
         _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID,"NULL"));
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
     }
     void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
     {
@@ -105,17 +113,20 @@
             e.CssClass += "non-selectable-row";
         }       
     }
-    async Task OnEmailToRowClick(GridRowClickEventArgs e)
+    void OnEmailToRowClick(GridRowClickEventArgs e)
     {
-        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");
-        SelectedGroup = UniqueId.ToString();
-        ATopicId?.Invoke(SelectedGroup);
-        //await LoadData();
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "ID");        
+        SelectedGroup = UniqueId?.ToString() ?? "none";
+        ATopicId?.Invoke(SelectedGroup);        
         StateHasChanged();
     }
     public async Task onAssignAllGridRefresh(long tid)
     {
-        _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID,"NULL"));
+        if(applicationUser != null)
+        {
+            _emailTopicAll = await Mediator.Send(new GetEmailTopicAll(applicationUser.UserID, "NULL"));
+        }
+        
         if(RefSubAssignAll != null)
         {
             await RefSubAssignAll.onSubAssignAllGridRefresh(tid);
@@ -129,12 +140,13 @@
         RTopicId = conversationList[0].TopicID;
         SelectedGroup = conversationList[0].TopicID.ToString();
         SubViewAllTopicId?.Invoke(SelectedReplyId);
-        await Task.Delay(1000); // Example asynchronous operation
+        //await Task.Delay(1000); // Example asynchronous operation
                                 //await LoadReplyData();
         StateHasChanged();
     }
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

@@ -8,6 +8,8 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject IJSRuntime JSRuntime;
 @using AC.SD.Core.Pages.Email;
+@inject NavigationManager NavigationManager
+@implements IDisposable;
 
 @if(IsValidUser)
 {
@@ -108,24 +110,24 @@
 </DxPopup>
 
 @code{
-    IGrid Grid { get; set; }
+    IGrid? Grid { get; set; }
 
     DxPopup? popup;
     bool DelPopupVisible = false;
     bool isAllPlistVisible = false;
-    private bool loading;
-    EmailParticipant _participantLst { get; set; }
+    internal bool loading;
+    EmailParticipant? _participantLst { get; set; }
     List<long> participantIds = new List<long>();
     IReadOnlyList<object>? SelectedDataItems { get; set; }
-    public ApplicationUser applicationUser { get; private set; }
-    private List<ViewEmployee>? _allparticipant;
+    public ApplicationUser? applicationUser { get; internal set; }
+    internal List<ViewEmployee>? _allparticipant;
     [Parameter]
     public long Tid { get; set; }
     [Parameter]
     public long Cid { get; set; }
     [Parameter]
     public bool IsValidUser { get; set; } = false;
-    private List<EmailParticipant>? _participant;
+    internal List<EmailParticipant>? _participant;
     protected override async Task OnInitializedAsync()
     {
         IsValidUser = IsValidUser;
@@ -138,7 +140,13 @@
         {
             _participant = await Mediator.Send(new GetConversationParticipantsList(Cid));
         }
-        
+
+        NavigationManager.LocationChanged += OnLocationChanged;
+
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
     }
     public async Task loadParticipentList(long id)
     {  
@@ -148,14 +156,24 @@
     public async Task loadMainTopicParticipentList(long tid)
     {
         IsValidUser = IsValidUser;
-        _participant = await Mediator.Send(new GetEmailParticipantsList(tid, applicationUser.UserID));
+        if (applicationUser != null)
+        {
+            _participant = await Mediator.Send(new GetEmailParticipantsList(tid, applicationUser.UserID));
+        }
+
     }
-    public async Task onDeletePlist(long Id)
+    public void onDeletePlist(long Id)
     {
-        _participantLst = _participant.FirstOrDefault(a => a.ID == Id);
+        if(_participant != null)
+        {
+            _participantLst = _participant.FirstOrDefault(a => a.ID == Id);
+        }
+        
         DelPopupVisible = true;
+
+        StateHasChanged();
     }
-    private async Task SubmitDelete(long Id)
+    internal async Task SubmitDelete(long Id)
     {
         if (Id > 0)
         {
@@ -170,12 +188,11 @@
             await LoadGetPList();
             toastService.ShowToast("Participant has been deleted successfully.", AC.SD.Core.Services.ToastLevel.Success);
             loading = false;
-            DelPopupVisible = false;
-            //ClosePopup();
-            //onShowPopupMessage("success", "Participant has been deleted successfully");
+            DelPopupVisible = false;           
+            
         }
     }
-    private async Task onSubmitPList()
+    internal async Task onSubmitPList()
     {
         var lst = SelectedDataItems;
 
@@ -191,11 +208,12 @@
         {
             foreach (object item in SelectedDataItems)
             {
-                if (item is ViewEmployee employee)
+                if (item is ViewEmployee employee && employee.UserID.HasValue)
                 {
                     participantIds.Add((long)employee.UserID);
                 }
             }
+
         }
 
         string participantidsString = string.Join(",", participantIds);
@@ -218,7 +236,7 @@
         await LoadGetPList();
         toastService.ShowToast("Participant has been added successfully.", AC.SD.Core.Services.ToastLevel.Success);
     }
-    private async Task LoadGetPList()
+    internal async Task LoadGetPList()
     {
         _participant = await Mediator.Send(new GetConversationParticipantsList(Cid));
         SelectedDataItems = null;
@@ -228,20 +246,30 @@
     {
         SelectedDataItems = selectedDataItems;
     }
-    async void ClosePopup()
+    void ClosePopup()
     {
         DelPopupVisible = false;        
     }
-    private async Task onAddPlist()
+    internal async Task onAddPlist()
     {
         await LoadAllParticipantList();
     }
-    private async Task LoadAllParticipantList()
+    internal async Task LoadAllParticipantList()
     {
         var plist = await Mediator.Send(new GetAddConversationPListQuery(Cid));
-        _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        if(applicationUser != null)
+        {
+            _allparticipant = plist.Where(c => c.UserID != applicationUser.UserID).ToList();
+        }
+        
 
         isAllPlistVisible = true;
+    }
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
     }
 }
     

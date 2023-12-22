@@ -493,17 +493,17 @@ else
 
 @code {
     bool isSending = false;
-    EditContext _editContext;
-    private List<EmailActivityCatgorys> _AllCategory;
-    private List<EmailActivityCatgorys> _UserTagList;
+    EditContext? _editContext;
+    internal List<EmailActivityCatgorys>? _AllCategory = new List<EmailActivityCatgorys>();
+    internal List<EmailActivityCatgorys>? _UserTagList = new List<EmailActivityCatgorys>();
     EmailActivityCatgorys? CategoryData { get; set; } = new EmailActivityCatgorys();
     bool isEnabled { get; set; } = true;
-    private List<ApplicationMasterChildModel> _groupTagItems;
-    private List<ApplicationMasterChildModel> _categoryTagItems;
-    private List<ApplicationMasterChildModel> _actionTagItems;
+    internal List<ApplicationMasterChildModel>? _groupTagItems;
+    internal List<ApplicationMasterChildModel>? _categoryTagItems;
+    internal List<ApplicationMasterChildModel>? _actionTagItems;
     int SelectedFilesCount { get; set; }
     int CurrentUplodCount { get; set; }
-    string MyMessage { get; set; }
+    string? MyMessage { get; set; }
     string Message = "Upload";
     long applicationAddedByUserID { get; set; }
     async Task OnFileUploadStart(FileUploadStartEventArgs e)
@@ -612,33 +612,33 @@ else
     bool IsDraftEnabled { get; set; } = false;
     [Parameter]
     public List<string> AcceptedFileTypes { get; set; } = new List<string> { "image/*", "video/*", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".txt", ".pdf", ".PDF", ".msg", ".MSG", ".eml", ".EML", "Outlook.File.eml.15",".ai" };
-    private DxUpload uploadComponent;
+    internal DxUpload? uploadComponent;
     Guid? _sessionId;
-    string MyError { get; set; }
+    string? MyError { get; set; }
     bool ErrorVisible { get; set; } = false;
     bool isFileUpload = false;
     int draftId = 0;
-    private List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
+    internal List<UploadFileInfo> SelectedFiles { get; set; } = new List<UploadFileInfo>();
     bool AttachmentUploadVisible { get; set; } = false;
     bool newAttachmentUploadVisible { get; set; } = false;
-    List<string> Follow { get; set; }
-    string SelectedFollow { get; set; }
-    private EditForm myForm;
-    private string MyID = "myForm";    
+    List<string>? Follow { get; set; }
+    string? SelectedFollow { get; set; }
+    internal EditForm? myForm;
+    internal string MyID = "myForm";    
     List<int> selectedValues = new List<int>();
     IGrid? Grid { get; set; }
-    private bool loading;
-    private bool loadingdraft;
+    internal bool loading;
+    internal bool loadingdraft;
     bool MessageVisible { get; set; }
     string styleClass = "";
     string MessageHeader = "Error";
     string MessageBody = "";
-    DxRichEdit msgrichEdit { get; set; }
+    DxRichEdit? msgrichEdit { get; set; }
     IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
     bool IsOpen { get; set; } = false;
-    private string? FileUrl;
-    private string? ProductActivityBaseUrl;
-    private string? BaseUrl;
+    internal string? FileUrl;
+    internal string? ProductActivityBaseUrl;
+    internal string? BaseUrl;
     bool BackEnabled { get; set; } = false;
 
 
@@ -647,23 +647,23 @@ else
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     bool isValidateSession = false;
-    private long ActivityEmailTopicId;
+    internal long ActivityEmailTopicId;
     EmailTopics? Data { get; set; } = new EmailTopics();
     IEnumerable<EmailTopics>? _topics;
-    private List<ViewEmployee>? _participant;
-    private List<ActivityEmailTopics>? activityEmailTopics;
-    private List<ViewEmployee>? _Allparticipant;
+    internal List<ViewEmployee>? _participant;
+    internal List<ActivityEmailTopics>? activityEmailTopics;
+    internal List<ViewEmployee>? _Allparticipant;
     long? AppUserId;
-    private List<ViewEmployee>? _Toparticipant;
-    private List<ViewEmployee>? _CCparticipant;
-    private List<ViewEmployee>? _OnBehalfparticipant;
+    internal List<ViewEmployee>? _Toparticipant;
+    internal List<ViewEmployee>? _CCparticipant;
+    internal List<ViewEmployee>? _OnBehalfparticipant;
     IEnumerable<ForumTypes>? _OnBehalf;
     string? ActComment = "";
     string? ActUserName = "";
     string? ActivityType = "Email";
     DateTime? ActAddedDate = DateTime.Now;
-    byte[] replyboxHhtmlArray;
-    private List<ApplicationUser> _applicationUsers;  
+    byte[]? replyboxHhtmlArray;
+    internal List<ApplicationUser> _applicationUsers;  
 
     List<long> participantIds = new List<long>();
     List<long> selectedToIds = new List<long>();
@@ -674,10 +674,10 @@ else
 
     //List<ViewEmployee> ids = new List<ViewEmployee>(); 
     [Parameter]
-    public string ActiveSessionId { get; set; }
+    public string? ActiveSessionId { get; set; }
     public bool IsActiveSessionId { get; set; } = false;
 
-    public ApplicationUser? applicationUser { get; private set; }
+    public ApplicationUser? applicationUser { get; internal set; }
 
     IReadOnlyList<object>? SelectedDataItems { get; set; }
     IReadOnlyList<object>? SelectedCCItems { get; set; }
@@ -686,9 +686,9 @@ else
     IReadOnlyList<object>? SelectedToDataItems { get; set; }
     IReadOnlyList<object>? SelectedCCDataItems { get; set; }
 
-    private List<Documents>? _documentslst;
-    private List<Documents>? _PADoclst;
-    private List<Documents>? _PARoutineDoclst;
+    internal List<Documents>? _documentslst;
+    internal List<Documents>? _PADoclst;
+    internal List<Documents>? _PARoutineDoclst;
 
     public static string FormatFileSize(long bytes)
     {
@@ -743,14 +743,14 @@ else
     {
         _sessionId = Guid.NewGuid();
     }
-    private async Task isUploadSuccess_old()
+    internal async Task isUploadSuccess_old()
     {
         //uploadComponent.RemoveAllFiles();
         //uploadComponent.CancelAllFilesUpload();
         isFileUpload = false;
         //await LoadData();
     }
-    private void isUploadSuccess(FileUploadEventArgs e)
+    internal void isUploadSuccess(FileUploadEventArgs e)
     {
         MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
@@ -802,7 +802,7 @@ else
         ErrorVisible = true;
         InvokeAsync(StateHasChanged);
     }
-    protected async void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    protected void AttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {      
         AttachmentUploadVisible = files.ToList().Count > 0;
         SelectedFiles.AddRange(files);
@@ -810,14 +810,14 @@ else
         InvokeAsync(StateHasChanged);
     }
 
-    private async Task SubmitForm()
+    internal async Task SubmitForm()
     {
         //myForm.OnSubmit();    
         // await JSRuntime.InvokeVoidAsync("submitForm", myForm);
         //await JSRuntime.InvokeVoidAsync("submitForm");
         await JSRuntime.InvokeVoidAsync("myInteropFunctions.submitForm");
     }
-    private void addNew(int id)
+    internal void addNew(int id)
     {
         draftId = id;        
     }
@@ -825,13 +825,31 @@ else
     {
         if (firstRender)
         {
-            await msgrichEdit.NewDocumentAsync();
+            if(msgrichEdit != null)
+            {
+                await msgrichEdit.NewDocumentAsync();
+            }            
 
-            _AllCategory.TrimExcess();
-            _UserTagList.TrimExcess();
-            _AllCategory.TrimExcess();
-            _groupTagItems.TrimExcess();
-            _UserTagList.TrimExcess();                       
+            if (_AllCategory != null)
+            {
+                _AllCategory.TrimExcess();
+            }
+
+            if(_UserTagList != null)
+            {
+                _UserTagList.TrimExcess();
+            }
+
+            if (_groupTagItems != null)
+            {
+                _groupTagItems.TrimExcess();
+            }
+
+            if(_UserTagList != null)
+            {
+                _UserTagList.TrimExcess();
+            }
+
 
             await JSRuntime.InvokeVoidAsync("eval", @"
                 window.submitForm = function () {
@@ -853,8 +871,8 @@ else
         toolbar.Groups.Add(2, RichEditToolbarGroupNames.Paragraph);
         toolbar.Groups.Add(3, RichEditToolbarGroupNames.Picture);
         toolbar.Groups.Add(4, RichEditToolbarGroupNames.Table);     
-        
-      
+
+
 
         IBarGroup clipboardGroup = toolbar.Groups[1];      
         clipboardGroup.Items.Add(5, RichEditBarItemNames.FontUnderline);
@@ -863,7 +881,7 @@ else
         clipboardGroup.Items.Add(8, RichEditBarItemNames.ClearFormatting);   
         clipboardGroup.Items.Add(9, RichEditBarItemNames.FontStrikeout); 
         clipboardGroup.Items.Add(10, RichEditBarItemNames.FontScriptMenu);                    
-        
+
 
         IBarGroup replace = toolbar.Groups[4];  
         replace.Items.Add(1, RichEditBarItemNames.ChangeCaseMenu);        
@@ -941,10 +959,14 @@ else
         SelectedToDataItems = SelectedToItems;
         if(SelectedToItems !=null)
         {
-            List<object> newList = new List<object>(SelectedDataItems);
-            // Remove the selected items from the new list
-            newList.RemoveAll(item => SelectedToItems.Contains(item));
-            SelectedCCItems = newList;
+            if(SelectedDataItems != null)
+            {
+                List<object> newList = new List<object>(SelectedDataItems);
+                // Remove the selected items from the new list
+                newList.RemoveAll(item => SelectedToItems.Contains(item));
+                SelectedCCItems = newList;                
+            }
+
         }
     }
 
@@ -953,75 +975,39 @@ else
         SelectedCCDataItems = SelectedCCItems;
         if(SelectedCCItems != null)
         {
-            List<object> newList = new List<object>(SelectedDataItems);
-            // Remove the selected items from the new list
-            newList.RemoveAll(item => SelectedCCItems.Contains(item));
-            SelectedToItems = newList;
+            if(SelectedDataItems != null)
+            {
+                List<object> newList = new List<object>(SelectedDataItems);
+                // Remove the selected items from the new list
+                newList.RemoveAll(item => SelectedCCItems.Contains(item));
+                SelectedToItems = newList;
+            }
+
         }
 
     }
 
-    private void OnSelectionChanged(object args)
+    internal void OnSelectionChanged(object args)
     {
         var res = args;
         var lst = @SelectedDataItems;
 
         if(args != null)
         {
-            ViewEmployee selectedEmployee = @SelectedDataItems as ViewEmployee;
+            //ViewEmployee selectedEmployee = @SelectedDataItems as ViewEmployee;
+            ViewEmployee? selectedEmployee = SelectedDataItems as ViewEmployee;
             if (selectedEmployee != null)
             {
-                var lsts = selectedEmployee;
-                //ids.Add(selectedEmployee);
-                //selectedToIds.Add((long)selectedEmployee.UserID);
+                var lsts = selectedEmployee;               
 
             }
         }      
     }
-    private async void onRestText_old()
+    internal async void onRestText_old()
     {
-        JSRuntime.InvokeAsync<string>("ReloadUrl");        
+        await JSRuntime.InvokeAsync<string>("ReloadUrl");        
     }
-    private async void onRestText_upload()
-    {
-        onloadSession();
-        CurrentUplodCount = 0;
-        SelectedFilesCount = 0;
-        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        AppUserId = applicationUser.UserID;
-        Follow = new List<string>
-        {
-             "Follow Up","No Follow Up"
-        };
-
-        Data.Follow = Follow[1];
-        Data.Urgent = false;
-        Data.OverDue = false;
-        Data.IsAllowParticipants = true;
-        Data.NotifyUser = false;
-        Data.TopicName = null;
-        Data.ToIds = null;
-        Data.CCIds = null;
-        Data.OnBehalf = null;
-        Data.DueDate = null;
-        CategoryData.GroupTag = null;
-        CategoryData.ActionTag = null;
-        CategoryData.CategoryTag = null;
-        CategoryData.Name = null;
-
-        Data.From = applicationUser.UserName;
-        BackEnabled = false;
-        IsDraftEnabled = true;
-        IsActiveSessionId = true;
-        //await Task.Delay(2000); // Delay for 2 seconds
-        await msgrichEdit.NewDocumentAsync();
-        uploadComponent.RemoveAllFiles();
-        await JSRuntime.InvokeAsync<string>("hideLoading");
-        NavigationManager.NavigateTo($"CreateEmail");
-        isSending = false;
-
-    }
-    private async void onClearAll()
+    internal async void onRestText_upload()
     {
         onloadSession();
         CurrentUplodCount = 0;
@@ -1033,36 +1019,113 @@ else
              "Follow Up","No Follow Up"
         };
 
-        Data.Follow = Follow[1];
-        Data.Urgent = false;
-        Data.OverDue = false;
-        Data.IsAllowParticipants = true;
-        Data.NotifyUser = false;
-        Data.TopicName = null;
-        Data.ToIds = null;
-        Data.CCIds = null;
-        Data.OnBehalf = null;
-        Data.DueDate = null;
-        CategoryData.GroupTag = null;
-        CategoryData.ActionTag = null;
-        CategoryData.CategoryTag = null;
-        CategoryData.Name = null;
+        if(Data != null)
+        {
+            Data.Follow = Follow[1];
+            Data.Urgent = false;
+            Data.OverDue = false;
+            Data.IsAllowParticipants = true;
+            Data.NotifyUser = false;
+            Data.TopicName = null;
+            Data.ToIds = null;
+            Data.CCIds = null;
+            Data.OnBehalf = null;
+            Data.DueDate = null;
+            Data.From = applicationUser.UserName;
+        }
 
-        Data.From = applicationUser.UserName;
+        if(CategoryData != null)
+        {
+            CategoryData.GroupTag = null;
+            CategoryData.ActionTag = null;
+            CategoryData.CategoryTag = null;
+            CategoryData.Name = null;
+        }
+
+
+
+
         BackEnabled = false;
         IsDraftEnabled = true;
         IsActiveSessionId = true;
         //await Task.Delay(2000); // Delay for 2 seconds
-        await msgrichEdit.NewDocumentAsync();
-        uploadComponent.RemoveAllFiles();
+
+        if(msgrichEdit != null)
+        {
+            await msgrichEdit.NewDocumentAsync();
+        }
+
+        if(uploadComponent != null)
+        {
+            uploadComponent.RemoveAllFiles();
+        }
+
         await JSRuntime.InvokeAsync<string>("hideLoading");
         NavigationManager.NavigateTo($"CreateEmail");
         isSending = false;
-        
+
     }
-    private async void onRestText()
+    internal async void onClearAll()
+    {
+        onloadSession();
+        CurrentUplodCount = 0;
+        SelectedFilesCount = 0;
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        AppUserId = applicationUser.UserID;
+        Follow = new List<string>
+        {
+             "Follow Up","No Follow Up"
+        };
+
+
+        if(Data != null)
+        {
+            Data.Follow = Follow[1];
+            Data.Urgent = false;
+            Data.OverDue = false;
+            Data.IsAllowParticipants = true;
+            Data.NotifyUser = false;
+            Data.TopicName = null;
+            Data.ToIds = null;
+            Data.CCIds = null;
+            Data.OnBehalf = null;
+            Data.DueDate = null;
+            Data.From = applicationUser.UserName;
+        }
+
+        if(CategoryData != null)
+        {
+            CategoryData.GroupTag = null;
+            CategoryData.ActionTag = null;
+            CategoryData.CategoryTag = null;
+            CategoryData.Name = null;
+
+        }
+
+
+
+        BackEnabled = false;
+        IsDraftEnabled = true;
+        IsActiveSessionId = true;
+        //await Task.Delay(2000); // Delay for 2 seconds
+
+        if(msgrichEdit != null)
+        {
+            await msgrichEdit.NewDocumentAsync();
+        }
+        if(uploadComponent != null)
+        {
+            uploadComponent.RemoveAllFiles();
+        }
+
+        await JSRuntime.InvokeAsync<string>("hideLoading");
+        NavigationManager.NavigateTo($"CreateEmail");
+        isSending = false;
+
+    }
+    internal async void onRestText()
     {             
-        
+
         //_editContext = new EditContext(Data);       
         onloadSession();
         CurrentUplodCount = 0;
@@ -1074,38 +1137,51 @@ else
              "Follow Up","No Follow Up"
         };
 
-        Data.Follow = Follow[1];
-        Data.Urgent = false;
-        Data.OverDue = false;
-        Data.IsAllowParticipants = true;
-        Data.NotifyUser = false;
-        Data.TopicName = null;
-        Data.ToIds = null;
-        Data.CCIds = null;
-        Data.OnBehalf = null;
-        Data.DueDate = null;
-        CategoryData.GroupTag = null;
-        CategoryData.ActionTag = null;
-        CategoryData.CategoryTag = null;
-        CategoryData.Name = null;
-         CategoryData.UserTag = null;
-        Data.From = applicationUser.UserName;
+        if(Data != null)
+        {
+            Data.Follow = Follow[1];
+            Data.Urgent = false;
+            Data.OverDue = false;
+            Data.IsAllowParticipants = true;
+            Data.NotifyUser = false;
+            Data.TopicName = null;
+            Data.ToIds = null;
+            Data.CCIds = null;
+            Data.OnBehalf = null;
+            Data.DueDate = null;
+            Data.From = applicationUser.UserName;
+        }
+
+        if(CategoryData != null)
+        {
+            CategoryData.GroupTag = null;
+            CategoryData.ActionTag = null;
+            CategoryData.CategoryTag = null;
+            CategoryData.Name = null;
+            CategoryData.UserTag = null;
+        }
+       
+        
         BackEnabled = false;
         IsDraftEnabled = true;
         IsActiveSessionId = true;
         //await Task.Delay(2000); // Delay for 2 seconds
-        await msgrichEdit.NewDocumentAsync();
+        if (msgrichEdit != null)
+        {
+            await msgrichEdit.NewDocumentAsync();
+        }
+        
         //uploadComponent.RemoveAllFiles();
         await JSRuntime.InvokeAsync<string>("hideLoading");
         NavigationManager.NavigateTo($"CreateEmail");
         isSending = false;
     }
-    private void onSubmit()
+    internal void onSubmit()
     {
 
     }
 
-    private void HandleSelectedRowsChanged(IEnumerable<ViewEmployee> selectedRows)
+    internal void HandleSelectedRowsChanged(IEnumerable<ViewEmployee> selectedRows)
     {
         // Update the selected data items list
         SelectedDataItems = selectedRows.ToList();
@@ -1296,9 +1372,15 @@ else
             IsActiveSessionId = true;
         }
 
+        NavigationManager.LocationChanged += OnLocationChanged;
 
-    }   
-    private async Task SubmitSentForm()
+    }  
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+      
+        StateHasChanged();
+    }
+    internal async Task SubmitSentForm()
     {
         if (_editContext.Validate())
         {
@@ -1306,7 +1388,7 @@ else
             await this.HandleValidSubmit();            
         }
     }
-    private async Task SubmitDraftForm()
+    internal async Task SubmitDraftForm()
     {
         if (_editContext.Validate())
         {
@@ -1557,7 +1639,7 @@ else
 
 
     }
-    private async void onShowPopupMessage(string headerText, string bodyText)
+    internal async void onShowPopupMessage(string headerText, string bodyText)
     {
         MessageVisible = true;
         MessageBody = bodyText;
@@ -1611,13 +1693,13 @@ else
         {
             var urls = BaseUrl + "fileprofiletype/" + actItem[0].BackURL + "/" + actItem[0].DocumentSessionId;
             NavigationManager.NavigateTo(urls);
-            JSRuntime.InvokeAsync<string>("ReloadUrl");
+           await JSRuntime.InvokeAsync<string>("ReloadUrl");
         }
         else
         {
             var url = ProductActivityBaseUrl + actItem[0].BackURL;
             NavigationManager.NavigateTo(url);
-            JSRuntime.InvokeAsync<string>("ReloadUrl");
+           await JSRuntime.InvokeAsync<string>("ReloadUrl");
         }       
 
     }
@@ -1626,25 +1708,24 @@ else
     {
         if (applicationMasterChildModel != null)
         {
-            GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
-            //_categoryTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(applicationMasterChildModel.ApplicationMasterChildId));
+           await GroupTagChanged(applicationMasterChildModel.ApplicationMasterChildId);
+            
         }
         else
         {
-            GroupTagChanged(-1);
-            CategoryTagChange(-1);
+           await GroupTagChanged(-1);
+            await CategoryTagChange(-1);
         }
     }
     async void selectedCategoryChanged(ApplicationMasterChildModel applicationMasterChildModel)
     {
         if (applicationMasterChildModel != null)
-        {
-            // _actionTagItems = await Mediator.Send(new GetAllApplicationMasterChildByIdQuery(ApplicationMasterChildID));
-            CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId);
+        {            
+            await CategoryTagChange(applicationMasterChildModel.ApplicationMasterChildId);
         }
         else
         {
-            CategoryTagChange(-1);
+            await CategoryTagChange(-1);
         }
     }
     async Task GroupTagChanged(long? ApplicationMasterChildId)
@@ -1667,9 +1748,11 @@ else
     {
         System.GC.Collect();
         GC.SuppressFinalize(this);
+
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 
-    //private async Task OpenUrlInNewTab(string url)
+    //internal async Task OpenUrlInNewTab(string url)
     //{
     //    await JSRuntime.InvokeVoidAsync("open", url, "_blank");
     //}

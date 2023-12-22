@@ -442,7 +442,9 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", searchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_ALL");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        //var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure, commandTimeout: 300);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -469,7 +471,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("UserId", UserId);
                         parameters.Add("Option", "SELECT_EMAIL_HOME");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -658,7 +660,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("Option", "SELECT_ASSIGN_TO");
                         
 
-                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -713,7 +715,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", searchTxt);                        
                         parameters.Add("Option", "SELECT_ASSIGN_CC");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -741,7 +743,7 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("searchtxt", searchTxt);
                         parameters.Add("Option", "SELECT_ASSIGN_SENT");
 
-                        var result = connection.Query<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
+                        var result = await connection.QueryAsync<EmailTopics>("sp_Select_EmailTopicList", parameters, commandType: CommandType.StoredProcedure);
                         return result.ToList();
                     }
                     catch (Exception exp)
@@ -1891,6 +1893,104 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
 
+        }
+
+        public async Task<long> CreateEmailTimelineEventAsync(EmailTimelineEvent emailTimelineEvent)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DocumentID", emailTimelineEvent.DocumentID);
+                        parameters.Add("TopicID", emailTimelineEvent.TopicID);
+                        parameters.Add("ConversationID", emailTimelineEvent.ConversationID);
+                        parameters.Add("Description", emailTimelineEvent.Description);                        
+                        parameters.Add("AddedByUserID", emailTimelineEvent.AddedByUserID);
+                        parameters.Add("AddedDate", emailTimelineEvent.AddedDate);
+
+                        var query = " INSERT INTO EmailTimelineEvent (DocumentID,TopicID,ConversationID,Description,AddedByUserID,AddedDate,ModifiedByUserID,ModifiedDate) VALUES (@DocumentID,@TopicID,@ConversationID,@Description,@AddedByUserID,@AddedDate,@AddedByUserID,@AddedDate)";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<long> UpdateEmailTimelineEventAsync(EmailTimelineEvent emailTimelineEvent)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("DocumentID", emailTimelineEvent.DocumentID);
+                        parameters.Add("TopicID", emailTimelineEvent.TopicID);
+                        parameters.Add("ConversationID", emailTimelineEvent.ConversationID);
+                        parameters.Add("Description", emailTimelineEvent.Description);
+                        parameters.Add("ModifiedByUserID", emailTimelineEvent.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", emailTimelineEvent.ModifiedDate);
+                        parameters.Add("ID", emailTimelineEvent.ID);
+
+                        var query = " UPDATE EmailTimelineEvent SET Description = @Description,ModifiedByUserID = @ModifiedByUserID,ModifiedDate=@ModifiedDate WHERE ID = @ID";
+
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+                        return rowsAffected;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
+        public async Task<List<EmailTimelineEvent>> GetEmailTimelineEvent(long DocumentId)
+        {
+            try
+            {
+
+                var parameters = new DynamicParameters();
+                parameters.Add("DocumentId", DocumentId);
+
+                var query = @"select ETE.*, E.FirstName AS UserName from EmailTimelineEvent ETE
+                                INNER JOIN Employee E ON E.UserID = ETE.AddedByUserID
+                                WHERE ETE.DocumentID =  @DocumentId";
+
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<EmailTimelineEvent>(query, parameters)).ToList();
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
         }
         public async Task<long> UpdateDueDate(EmailTopics EmailTopics)
         {

@@ -289,15 +289,15 @@
     public bool EditEnabled { get; set; } = false;
     private List<ToDoNotesHistory>? _ToDoNotesHistory;
     public ApplicationUser? applicationUser { get; private set; }
-    private ToDoNotesHistory _selectedItems;
-    private List<Documents> _DocumentsList;
-    private ToDoNotesHistory CurrentTodoNotes { get; set; }
+    private ToDoNotesHistory? _selectedItems;
+    private List<Documents>? _DocumentsList;
+    private ToDoNotesHistory? CurrentTodoNotes { get; set; }
     private string? BaseUrl;
     private string? FileUrl;
     private string? DocumentViewUrl;
     bool Checked { get; set; } = false;
     private List<ViewEmployee>? _participant;
-    public IEnumerable<long> UserIds { get; set; }
+    public IEnumerable<long>? UserIds { get; set; }
     
 
     protected override async Task OnInitializedAsync()
@@ -309,7 +309,7 @@
         _participant = await Mediator.Send(new GetAllEmployeeListQuery());
         await UpdateDataAsync();
     }
-    public  async Task   UpdateDataAsync()
+    public  async Task UpdateDataAsync()
     {
         await jsRuntime.InvokeAsync<string>("showLoading");
         _ToDoNotesHistory = await Mediator.Send(new GetMyToDoRemainderDate(applicationUser.UserID));

@@ -585,30 +585,30 @@
     </FooterContentTemplate>
 </DxPopup>
 @code {
-    private string? BaseUrl;
-    private string? FileUrl;
-    private string? DocumentViewUrl;
+    internal string? BaseUrl;
+    internal string? FileUrl;
+    internal string? DocumentViewUrl;
 
     Documents _documents { get; set; }
-    private List<ViewEmployee> _userList;
+    internal List<ViewEmployee> _userList;
     public IEnumerable<long> UserIds { get; set; }
-    private DxUpload uploadComponent;
+    internal DxUpload uploadComponent;
     bool TodoAttachmentUploadVisible { get; set; } = false;
     // bool isOpenDocPop { get; set; } = false;
     bool PanelVisible { get; set; }
     IReadOnlyList<object> SelectedDataItems { get; set; }
-    private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
-    private List<ToDoNotesHistory>? _ToDoNotesHistory;
-    private List<Documents> _DocumentsList;
+    internal string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
+    internal List<ToDoNotesHistory>? _ToDoNotesHistory;
+    internal List<Documents> _DocumentsList;
     IGrid? Grid { get; set; }
-    private ToDoNotesHistory _selectedItems;
-    private ToDoNotesHistory CurrentTodoNotes { get; set; }
+    internal ToDoNotesHistory _selectedItems;
+    internal ToDoNotesHistory CurrentTodoNotes { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
     string? DeleteerrorMessage;
     string styleClass = "";
-    private bool loading;
+    internal bool loading;
     bool Blukdeletepopup { get; set; } = false;
     bool UploadPopupVisible { get; set; } = false;
     bool AddEnabled { get; set; } = false;
@@ -617,8 +617,8 @@
     string SelectedGroup = "none";
     //[Parameter]
     //public long TopicId { get; set; } = 94;
-    private ToDoNotesHistory _selectlst;
-    public ApplicationUser? applicationUser { get; private set; }
+    internal ToDoNotesHistory _selectlst;
+    public ApplicationUser? applicationUser { get; internal set; }
     bool isEnabled { get; set; } = true;
     public long SelectedNoteId { get; set; }
     //  List<string> StatusList { get; set; }
@@ -628,12 +628,12 @@
     string Text { get; set; } = "Open";
     [Parameter]
     public long Topicid { get; set; }
-    private List<ViewEmployee>? _participant;
+    internal List<ViewEmployee>? _participant;
 
-    private List<UploadFileInfo> TodoSelectedFiles { get; set; } = new List<UploadFileInfo>();
+    internal List<UploadFileInfo> TodoSelectedFiles { get; set; } = new List<UploadFileInfo>();
     bool isTodoFileUpload = false;
     bool TodoErrorVisible { get; set; } = false;
-    string TodoMyError { get; set; }
+    string? TodoMyError { get; set; }
 
 
 
@@ -642,7 +642,7 @@
     string MyMessage { get; set; }
     string Message = "Upload";
 
-    private async Task onOpenUrl(string url)
+    internal async Task onOpenUrl(string url)
     {
         await jsRuntime.InvokeVoidAsync("open", url, "_blank");
     }
@@ -651,19 +651,19 @@
     {
         if (values != null)
         {
-            
-            
+
+
         }
         else
         {
-            
-            
+
+
         }
 
-        
+
     }
 
-    async Task OnFileUploadStart(FileUploadStartEventArgs e)
+    void OnFileUploadStart(FileUploadStartEventArgs e)
     {
         Message = "Uploading...";
         loading = true;
@@ -683,7 +683,7 @@
         var progress = e.FileInfo.LoadedBytes / e.FileInfo.Size * 100;
     }
 
-    async Task onUploadClick()
+    void onUploadClick()
     {
         uploadComponent.UploadAllFiles();
     }
@@ -703,20 +703,20 @@
         string url = BaseUrl + "Upload/UploadDocuments?SessionId=" + CurrentTodoNotes.SessionId + "&addedByUserId=" + applicationUser.UserID;
         return url.ToString();
     }
-    protected async void TodoAttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    protected void TodoAttachmentSelectedFilesChanged(IEnumerable<UploadFileInfo> files)
     {
         TodoAttachmentUploadVisible = files.ToList().Count > 0;
         TodoSelectedFiles.AddRange(files);
         SelectedFilesCount = files.ToList().Count; //Count current files
-        InvokeAsync(StateHasChanged);
+        StateHasChanged();
     }
-    private async Task isTodoUploadSuccess_old()
+    internal async Task isTodoUploadSuccess_old()
     {
         uploadComponent.RemoveAllFiles();
         isTodoFileUpload = false;
         await getdoclist();
     }
-    private void isTodoUploadSuccess(FileUploadEventArgs e)
+    internal async void isTodoUploadSuccess(FileUploadEventArgs e)
     {
         MyMessage = "Upload of the " + e.FileInfo.Name + " file is Completed.";
         toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
@@ -725,10 +725,10 @@
         {
             Message = "Upload";
             loading = false;
-            getdoclist();
+            await getdoclist();
         }
         uploadComponent.RemoveFile(e.FileInfo);
-        InvokeAsync(StateHasChanged);
+        StateHasChanged();
 
     }
     void OnUploadError(FileUploadErrorEventArgs e)
@@ -737,7 +737,7 @@
         TodoErrorVisible = true;
         InvokeAsync(StateHasChanged);
     }
-    private async void ShowDocFlyout(ToDoNotesHistory toDoNotesHistory)
+    internal async void ShowDocFlyout(ToDoNotesHistory toDoNotesHistory)
     {
 
         CurrentTodoNotes = toDoNotesHistory;
@@ -757,13 +757,9 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        //var tId = TopicId;
+        
         PanelVisible = true;
-        //StatusList = new List<string>
-        //{
-        //     "Open","Close"
-        //};
-        //Data.Status = StatusList[0];
+       
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
         //_ToDoNotesHistory = await Mediator.Send(new GetAllToDoNotesHistory());
         PanelVisible = false;
@@ -775,13 +771,13 @@
         {
             gridHeight ="height: calc(100vh - 351px);";
         }
-        //if (_ToDoNotesHistory.Count > 0)
-        //{
-        //    _selectedItems = _ToDoNotesHistory.FirstOrDefault();
-        //    //EditEnabled = false;
-        //    //DeleteEnabled = false;
-        //    StateHasChanged();
-        //}
+
+        NavigationManager.LocationChanged += OnLocationChanged;
+        
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
     }
     public async Task LoadHistoryData(long NotesId)
     {
@@ -976,12 +972,12 @@
         PopupVisible = false;
         await UpdateDataAsync();
     }
-    void EulaPopupClosed(PopupClosedEventArgs args)
+    async void EulaPopupClosed(PopupClosedEventArgs args)
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+        await UpdateDataAsync();
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
@@ -996,7 +992,11 @@
         var request = new DeleteToDoNotesHistoryQuery(editModel.ID);
         await Mediator.Send(request);
         await UpdateDataAsync();
-        Grid.SetFocusedRowIndex(0);
+        
+        if (Grid != null)
+        {
+            Grid.SetFocusedRowIndex(0);
+        }
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -1046,13 +1046,23 @@
     }
     void addNew()
     {
-        Grid.StartEditNewRowAsync();
+        
+        if (Grid != null)
+        {
+            Grid.StartEditNewRowAsync();
+        }
+
         Text = "Open";
 
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+        
+        if (Grid != null)
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
+
         Text = _selectedItems.Status;
     }
     void addDelete()
@@ -1074,7 +1084,11 @@
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record deleted Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        Grid.SetFocusedRowIndex(0);
+                        
+                        if (Grid != null)
+                        {
+                            Grid.SetFocusedRowIndex(0);
+                        }
                     }
 
                 }
@@ -1109,6 +1123,7 @@
     public async Task LoadRightTodoData(long TopicId)
     {
         _ToDoNotesHistory = null;
+        await InvokeAsync(StateHasChanged);
     }
 
     string CurrentTheme { get; set; } = "Blazing-berry";
@@ -1158,12 +1173,13 @@
         var url = DocumentViewUrl + "?url=" + _documents.UniqueSessionId;
         await OpenDocumentPreview(url);
     }
-    private async Task OpenDocumentPreview(string url)
+    internal async Task OpenDocumentPreview(string url)
     {
         await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
     }
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

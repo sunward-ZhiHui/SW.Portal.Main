@@ -26,7 +26,7 @@ namespace AC.SD.Core.Shared {
             }
 #else
             builder.OpenComponent<NavMenu>(0);
-            builder.AddAttribute(3, "Pages", Configuration.RootPages);
+            //builder.AddAttribute(3, "Pages", Configuration.RootPages);
             builder.CloseComponent();
 #endif
         }

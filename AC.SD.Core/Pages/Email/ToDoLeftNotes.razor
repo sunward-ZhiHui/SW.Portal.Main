@@ -11,6 +11,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @implements IDisposable;
+@inject NavigationManager NavigationManager
 
 <div class="card w-100" style="margin-bottom:10px;">
     <div class="card-body p-0">
@@ -173,7 +174,7 @@
     bool Complete { get; set; } = false;
     bool Incomplete { get; set; } = false;
     bool PanelVisible { get; set; }    
-    IReadOnlyList<object> SelectedDataItems { get; set; }
+    IReadOnlyList<object>? SelectedDataItems { get; set; }
     private string gridHeight = "height: calc(100vh - 200px);min-height:350px !important;";
     private string CompeleteStyle = "float: left; margin-bottom: -41px;  margin-left:190px; z-index: 9999;";
     private string AddText = "Add";
@@ -183,7 +184,7 @@
     private List<ToDoNotes>? _toDoNotes; 
     private List<ToDoNotes>? _NotesLst;
     IGrid? Grid { get; set; }
-    private ToDoNotes _selectedItems;
+    private ToDoNotes? _selectedItems;
     bool ExportSelectedRowsOnly { get; set; }
     DxPopup? popup;
     bool PopupVisible { get; set; } = false;
@@ -207,6 +208,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        NavigationManager.LocationChanged += OnLocationChanged;
         //var tId = TopicId;
         PanelVisible = true;
 
@@ -235,14 +237,18 @@
             StateHasChanged();
         }        
     }   
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
+    }
     public async Task UpdateDataAsync()
     {
         PanelVisible = true;
-       
-            _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
-       
-            
-        
+
+        _toDoNotes = await Mediator.Send(new GetByToDoNotes(applicationUser.UserID, Topicid));
+
+
+
         PanelVisible = false;
 
         if (_toDoNotes.Count == 0)
@@ -270,24 +276,32 @@
     }
     async Task ExportToExcel()
     {
-        if (SelectedDataItems != null)
+        if (Grid != null) // Check if the Grid is not null
         {
-            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
-                    ExportSelectedRowsOnly = true,
-                    CustomizeCell = OnCustomizeCell
-
-                });
+            if (SelectedDataItems != null)
+            {
+                await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                    {
+                        ExportSelectedRowsOnly = true,
+                        CustomizeCell = OnCustomizeCell
+                    });
+            }
+            else
+            {
+                await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+                    {
+                        ExportSelectedRowsOnly = false,
+                        CustomizeCell = OnCustomizeCell
+                    });
+            }
         }
+        // Optionally, handle the case where Grid is null
         else
         {
-            await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
-                {
-                    ExportSelectedRowsOnly = false,
-                    CustomizeCell = OnCustomizeCell
-                });
+            // Handle the null case if needed
         }
     }
+
     void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
     {
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
@@ -308,8 +322,8 @@
             //{
             //    toastService.ShowToast("The entered value Already exists Notes.", AC.SD.Core.Services.ToastLevel.Error);
             //}          
-                
-                var createReq = new CreateToDoNotesQuery
+
+            var createReq = new CreateToDoNotesQuery
                     {                        
                         Notes = editModel.Notes,
                         StatusCodeID = 1,
@@ -321,19 +335,19 @@
                         SessionId = Guid.NewGuid()
                     };
 
-                try
-                {
-                    var result = await Mediator.Send(createReq);
-                    toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                }
-                catch (Exception eq)
-                {
-                    toastService.ShowToast(eq.Message, AC.SD.Core.Services.ToastLevel.Error);
-                }
+            try
+            {
+                var result = await Mediator.Send(createReq);
+                toastService.ShowToast("Record save Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            }
+            catch (Exception eq)
+            {
+                toastService.ShowToast(eq.Message, AC.SD.Core.Services.ToastLevel.Error);
+            }
 
-                await UpdateDataAsync();
-               
-            
+            await UpdateDataAsync();
+
+
         }
         else
         {
@@ -342,8 +356,8 @@
             //{
             //    toastService.ShowToast("The entered value Already exists.", AC.SD.Core.Services.ToastLevel.Error);
             //}
-          
-                var UpdateReq = new EditToDoNotesQuery
+
+            var UpdateReq = new EditToDoNotesQuery
                     {
                         ID = editModel.ID,                       
                         Notes = editModel.Notes,                       
@@ -357,11 +371,11 @@
 
                     };
 
-                var ans = await Mediator.Send(UpdateReq);
-                toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                await UpdateDataAsync();
+            var ans = await Mediator.Send(UpdateReq);
+            toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
+            await UpdateDataAsync();
 
-            
+
 
         }
 
@@ -374,13 +388,13 @@
         PopupVisible = false;
         await UpdateDataAsync();
     }
-    void EulaPopupClosed(PopupClosedEventArgs args)
+    async void EulaPopupClosed(PopupClosedEventArgs args)
     {
         SelectedDataItems = null;
         Blukdeletepopup = false;
         IncompletePopup = false;
         PopupVisible = false;
-        UpdateDataAsync();
+        await UpdateDataAsync();
     }
     async Task OnDeleteDataItem(GridDataItemDeletingEventArgs e)
     {
@@ -395,7 +409,11 @@
         var request = new DeleteToDoNotesQuery(editModel.ID);
         await Mediator.Send(request);
         await UpdateDataAsync();
-        Grid.SetFocusedRowIndex(0);
+        if (Grid != null)
+        {
+            Grid.SetFocusedRowIndex(0);
+        }
+
     }
     void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
     {
@@ -442,12 +460,20 @@
     }
     void addNew()
     {
-        Grid.StartEditNewRowAsync();
+        if (Grid != null)
+        {
+            Grid.StartEditNewRowAsync();
+        }
+
 
     }
     void addEdit()
     {
-        Grid.StartEditDataItemAsync(_selectedItems);
+        if (Grid != null)
+        {
+            Grid.StartEditDataItemAsync(_selectedItems);
+        }
+
     }
     void  onIncomplete()
     {
@@ -479,7 +505,11 @@
                         await Mediator.Send(request);
                         Blukdeletepopup = false;
                         toastService.ShowToast("Record Completed Successfully", AC.SD.Core.Services.ToastLevel.Success);
-                        Grid.SetFocusedRowIndex(0);
+                        if(Grid != null)
+                        {
+                            Grid.SetFocusedRowIndex(0);
+                        }
+                        
                     }
 
                 }
@@ -516,6 +546,7 @@
     }
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

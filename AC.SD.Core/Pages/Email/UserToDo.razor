@@ -11,6 +11,7 @@
 @inject AC.SD.Core.Services.ToastService toastService
 @inject ILocalStorageService<ApplicationUser> _localStorageService
 @page "/todo"
+@inject NavigationManager NavigationManager
 @implements IDisposable;
 
 <div class="">
@@ -18,7 +19,7 @@
         <div class="content-container row">
             <div class="@leftTodoDisplay" style="@styleTreeDisplay overflow-x: hidden;">
                 <div class="mini-menu-bar-top">
-                    <ToDoLeftNotes NotesId="onViewClick " Topicid="@Tid" @ref=RefToDoLeftNotes></ToDoLeftNotes>
+                    <ToDoLeftNotes NotesId="onViewClick" Topicid="@Tid" @ref=RefToDoLeftNotes></ToDoLeftNotes>
                 </div>
             </div>
             <div class="@RighttodoDisplay">
@@ -38,8 +39,11 @@
     string leftTodoDisplay = "col-md-3";
     string RighttodoDisplay = "col-md-9";
     string styleTreeDisplay = "height: calc(100vh - 190px); padding:10px";
-    protected override async Task OnInitializedAsync()
+
+    protected override void OnInitialized()
     {
+        NavigationManager.LocationChanged += OnLocationChanged;
+
         TopicTid = Tid;
         if (Tid > 0)
         {
@@ -48,21 +52,35 @@
             RighttodoDisplay = "col-md-9";
         }
     }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
+    }
     public async void onViewClick(long NoteId)
     {
 
         SeletedNoteId = NoteId;
-        //await LoadData();
-        await RefToDoHistoryList.LoadHistoryData(NoteId);
-        StateHasChanged();
+        if (RefToDoHistoryList != null)
+        {
+            await RefToDoHistoryList.LoadHistoryData(NoteId);
+            StateHasChanged();
+        }
     }
-    public async  Task leftTodoLst(long Topicid)
+    public async Task leftTodoLst(long Topicid)
     {
-        RefToDoLeftNotes.LoadData(Topicid);
-        await RefToDoHistoryList.LoadRightTodoData(Topicid);
+        if (RefToDoLeftNotes != null)
+        {
+           RefToDoLeftNotes.LoadData(Topicid);
+        }
+
+        if (RefToDoHistoryList != null)
+        {
+            await RefToDoHistoryList.LoadRightTodoData(Topicid);
+        }
     }
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

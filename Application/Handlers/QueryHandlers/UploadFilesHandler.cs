@@ -1,21 +1,9 @@
-﻿using Application.Common.Mapper;
-using Application.Queries;
-using Application.Response;
+﻿using Application.Queries;
 using Core.Entities;
 using Core.Repositories.Query;
-using Core.Repositories.Query.Base;
 using MediatR;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Data;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 
 namespace CMS.Application.Handlers.QueryHandlers
 {

@@ -386,23 +386,30 @@
     [Parameter]
     public Guid ConSessionId { get; set; }
     string dynamicShowSubject = "showOpenSubject_";
-    public List<EmailConversations> _discussionList;
-    private List<Documents>? _topicDocList;
-    public ApplicationUser applicationUser { get; private set; }
-    private string? BaseUrl;
-    private string? ProductActivityBaseUrl;
-    private string? DocumentViewUrl;
+    public List<EmailConversations>? _discussionList;
+    internal List<Documents>? _topicDocList;
+    public ApplicationUser? applicationUser { get; internal set; }
+    internal string? BaseUrl;
+    internal string? ProductActivityBaseUrl;
+    internal string? DocumentViewUrl;
 
     async Task PrintPage()
     {
         //await JSRuntime.InvokeVoidAsync("printPage");
         await JSRuntime.InvokeVoidAsync("printFullPage");
     }
-
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+    void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        StateHasChanged();
+    }
     protected override async Task OnParametersSetAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        string BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
+        BaseUrl = Configuration["DocumentsUrl:BaseUrl"];
         ProductActivityBaseUrl = Configuration["DocumentsUrl:APP_Product_Activity"];
         DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
 
@@ -423,9 +430,9 @@
     {
         var urls = BaseUrl + "fileprofiletype/" + url;
         NavigationManager.NavigateTo(urls);
-        JSRuntime.InvokeAsync<string>("ReloadUrl");
+        await JSRuntime.InvokeAsync<string>("ReloadUrl");
     }
-    private void onBackActivity(string Url)
+    internal void onBackActivity(string Url)
     {
         var url = ProductActivityBaseUrl + Url;
         string script = $"window.open('{url}', '_blank');";
@@ -434,6 +441,7 @@
    
     public void Dispose()
     {
+        NavigationManager.LocationChanged -= OnLocationChanged;
         System.GC.Collect();
         GC.SuppressFinalize(this);
     }

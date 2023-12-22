@@ -21,17 +21,12 @@
     public bool HasPageNavigation { get; set; }
 
     protected override void OnInitialized() {
-        NavigationManager.LocationChanged += OnLocationChanged;
-        UpdateHasPageNavigation(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;       
     }
-    void OnLocationChanged(object sender, LocationChangedEventArgs args) {
-        UpdateHasPageNavigation(args.Location);
+    void OnLocationChanged(object sender, LocationChangedEventArgs args) {   
         InvokeAsync(StateHasChanged);
     }
-    void UpdateHasPageNavigation(string currentUri) {
-        var demoPage = Configuration.GetDemoPageByUrl(NavigationManager, currentUri) as DemoPage;
-        HasPageNavigation = demoPage != null && demoPage.PageSections != null && demoPage.PageSections.Count() > 1;
-    }
+    
     public void Dispose() {
         NavigationManager.LocationChanged -= OnLocationChanged;
     }

@@ -62,9 +62,11 @@ namespace Application.Queries
     public class GetSupportingDocuments : PagedRequest, IRequest<List<DocumentsModel>>
     {
         public long? ProductionActivityPlanningAppLineID { get; set; }
-        public GetSupportingDocuments(long? productionActivityPlanningAppLineID)
+        public string? Type { get; set; }
+        public GetSupportingDocuments(long? productionActivityPlanningAppLineID, string? type)
         {
             this.ProductionActivityPlanningAppLineID = productionActivityPlanningAppLineID;
+            this.Type = type;
         }
     }
     public class InserProductionActivityEmail : ActivityEmailTopicsModel, IRequest<ActivityEmailTopicsModel>
@@ -74,6 +76,9 @@ namespace Application.Queries
         {
             this.ActivityEmailTopicsModel = activityEmailTopicsModel;
         }
+    }
+    public class CreateProductionActivityRoutineAppCommand : ProductionActivityRoutineAppModel, IRequest<long>
+    {
     }
 
 }

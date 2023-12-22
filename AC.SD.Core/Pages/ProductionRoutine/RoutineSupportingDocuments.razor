@@ -76,7 +76,7 @@
          ShowFooter="false"
          MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
     <BodyContentTemplate>
-        <UploadSupportingDocFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" ProductionActivityAppLineId="@ProductionActivityAppLineId" RevokeUploadBack="BackUploadSupportingUpload"></UploadSupportingDocFiles>
+        <UploadSupportingDocFilesRoutine _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" ProductionActivityRoutineAppLineId="@ProductionActivityRoutineAppLineId" RevokeUploadBack="BackUploadSupportingUpload"></UploadSupportingDocFilesRoutine>
 
     </BodyContentTemplate>
 </DxPopup>
@@ -104,8 +104,8 @@
     bool PanelVisible { get; set; }
     public Guid? UploadSessionId { get; set; }
     [Parameter]
-    public ProductActivityAppModel selectedFiles { get; set; }
-    public long? ProductionActivityAppLineId { get; set; }
+    public ProductionActivityRoutineAppModel selectedFiles { get; set; }
+    public long? ProductionActivityRoutineAppLineId { get; set; }
     public ApplicationUser applicationUser { get; private set; }
     private List<DocumentsModel> _supportDocselectedFile { get; set; }
     public DocumentsModel _selectedItems { get; set; }
@@ -129,10 +129,10 @@
     async Task loadSupportingDocFiles()
     {
         PanelVisible = true; DownloadEnabled = false; viewEnabled = false; DeleteEnabled = false; copylinkEnabled = false;
-        if (selectedFiles.ProductionActivityAppLineId > 0)
+        if (selectedFiles.ProductionActivityRoutineAppLineId > 0)
         {
-            ProductionActivityAppLineId = selectedFiles.ProductionActivityAppLineId;
-            _supportDocselectedFile = await Mediator.Send(new GetSupportingDocuments(selectedFiles.ProductionActivityAppLineId, "Production Activity"));
+            ProductionActivityRoutineAppLineId = selectedFiles.ProductionActivityRoutineAppLineId;
+            _supportDocselectedFile = await Mediator.Send(new GetSupportingDocuments(selectedFiles.ProductionActivityRoutineAppLineId, "Production Routine"));
             if (_supportDocselectedFile.Count() > 0)
             {
                 _selectedItems = _supportDocselectedFile.FirstOrDefault();

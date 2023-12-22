@@ -17,9 +17,10 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<NavprodOrderLineModel>> GetAllAsyncPO(long? CompanyId);
         Task<IReadOnlyList<NavprodOrderLineModel>> GetAllNavprodOrderLineAsync(long? CompanyId, string? Replanrefno);
         Task<IReadOnlyList<ProductActivityCaseLineModel>> GetProductActivityCaseLineTemplateItemsAsync(long? ManufacturingProcessId, long? CategoryActionId,long? prodActivityActionChildD);
-        Task<IReadOnlyList<DocumentsModel>> GetSupportingDocumentsAsync(long? productionActivityPlanningAppLineID);
+        Task<IReadOnlyList<DocumentsModel>> GetSupportingDocumentsAsync(long? productionActivityPlanningAppLineID,string? Type);
         Task<ActivityEmailTopicsModel> InserProductionActivityEmail(ActivityEmailTopicsModel ActivityEmailTopicsModel);
-        
+        Task<long> InsertProductionRoutine(ProductionActivityRoutineAppModel PPAlist);
+
     }
    
 }

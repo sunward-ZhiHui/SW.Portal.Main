@@ -123,4 +123,68 @@ namespace Application.Queries
             this.UserId = userId;
         }
     }
+
+
+
+
+    public class GetAllProductionActivityRoutineAppLineQuery : PagedRequest, IRequest<List<ProductionActivityRoutineAppModel>>
+    {
+        public ProductionActivityRoutineAppModel? ProductionActivityRoutineAppModel { get; set; }
+
+        public GetAllProductionActivityRoutineAppLineQuery(ProductionActivityRoutineAppModel productionActivityRoutineAppModel)
+        {
+            this.ProductionActivityRoutineAppModel = productionActivityRoutineAppModel;
+        }
+    }
+    public class DeleteproductActivityRoutineAppLine : PagedRequest, IRequest<ProductionActivityRoutineAppModel>
+    {
+        public ProductionActivityRoutineAppModel ProductionActivityRoutineAppModel { get; private set; }
+        public DeleteproductActivityRoutineAppLine(ProductionActivityRoutineAppModel productionActivityRoutineAppModel)
+        {
+            this.ProductionActivityRoutineAppModel = productionActivityRoutineAppModel;
+        }
+    }
+    public class GetUpdateproductActivityRoutineAppLineCommentField : PagedRequest, IRequest<ProductionActivityRoutineAppModel>
+    {
+        public ProductionActivityRoutineAppModel ProductionActivityRoutineAppModel { get; private set; }
+        public GetUpdateproductActivityRoutineAppLineCommentField(ProductionActivityRoutineAppModel productionActivityRoutineAppModel)
+        {
+            this.ProductionActivityRoutineAppModel = productionActivityRoutineAppModel;
+        }
+    }
+    public class UpdateActivityRoutineStatus : PagedRequest, IRequest<ProductionActivityRoutineAppModel>
+    {
+        public ProductionActivityRoutineAppModel ProductionActivityRoutineAppModel { get; private set; }
+        public UpdateActivityRoutineStatus(ProductionActivityRoutineAppModel productionActivityRoutineAppModel)
+        {
+            this.ProductionActivityRoutineAppModel = productionActivityRoutineAppModel;
+
+        }
+    }
+    public class UpdateActivityRoutineMaster : PagedRequest, IRequest<ProductionActivityRoutineAppModel>
+    {
+        public ProductionActivityRoutineAppModel ProductionActivityRoutineAppModel { get; private set; }
+        public UpdateActivityRoutineMaster(ProductionActivityRoutineAppModel productionActivityRoutineAppModel)
+        {
+            this.ProductionActivityRoutineAppModel = productionActivityRoutineAppModel;
+
+        }
+    }
+    public class GetProductActivityRoutineAppLineOneItem : PagedRequest, IRequest<ProductionActivityRoutineAppModel>
+    {
+        public long? Id { get; set; }
+        public GetProductActivityRoutineAppLineOneItem(long? id)
+        {
+            this.Id = id;
+        }
+    }
+    public class UpdateRoutineChecker : PagedRequest, IRequest<ProductionActivityRoutineAppModel>
+    {
+        public ProductionActivityRoutineAppModel ProductionActivityRoutineAppModel { get; private set; }
+        public UpdateRoutineChecker(ProductionActivityRoutineAppModel productionActivityRoutineAppModel)
+        {
+            this.ProductionActivityRoutineAppModel = productionActivityRoutineAppModel;
+
+        }
+    }
 }

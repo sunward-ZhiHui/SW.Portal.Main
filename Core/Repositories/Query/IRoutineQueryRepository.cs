@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.EntityModels;
 using Core.Repositories.Query.Base;
 using System;
 using System.Collections.Generic;
@@ -13,8 +14,12 @@ namespace Core.Repositories.Query
       
         Task<IReadOnlyList<ProductionActivityRoutineAppLine>> GetAllAsync();
 
-        //Task<long> Insert(ProductionActivityRoutineAppLine dynamicForm);
-        //Task<long> Update(ProductionActivityRoutineAppLine dynamicForm);
-       
+        Task<IReadOnlyList<ProductionActivityRoutineAppModel>> GetAllProductionActivityRoutineAsync(ProductionActivityRoutineAppModel value);
+        Task<ProductionActivityRoutineAppModel> DeleteproductActivityRoutineAppLine(ProductionActivityRoutineAppModel productionActivityRoutineAppModel);
+        Task<ProductionActivityRoutineAppModel> UpdateproductActivityRoutineAppLineCommentField(ProductionActivityRoutineAppModel value);
+        Task<ProductionActivityRoutineAppModel> UpdateActivityRoutineMaster(ProductionActivityRoutineAppModel value);
+        Task<ProductionActivityRoutineAppModel> UpdateActivityRoutineStatus(ProductionActivityRoutineAppModel value);
+        Task<ProductionActivityRoutineAppModel> GetProductActivityRoutineAppLineOneItem(long? ProductionActivityAppLineID);
+        Task<ProductionActivityRoutineAppModel> UpdateRoutineChecker(ProductionActivityRoutineAppModel value);
     }
 }

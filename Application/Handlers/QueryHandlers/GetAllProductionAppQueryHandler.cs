@@ -101,7 +101,7 @@ namespace Application.Handlers.QueryHandlers
         }
         public async Task<List<DocumentsModel>> Handle(GetSupportingDocuments request, CancellationToken cancellationToken)
         {
-            return (List<DocumentsModel>)await _productionactivityappQueryRepository.GetSupportingDocumentsAsync(request.ProductionActivityPlanningAppLineID);
+            return (List<DocumentsModel>)await _productionactivityappQueryRepository.GetSupportingDocumentsAsync(request.ProductionActivityPlanningAppLineID,request.Type);
         }
 
     }
@@ -117,6 +117,21 @@ namespace Application.Handlers.QueryHandlers
             return await _productionactivityappQueryRepository.InserProductionActivityEmail(request.ActivityEmailTopicsModel);
         }
 
+    }
+    public class CreateProductionRoutineAppQueryHandler : IRequestHandler<CreateProductionActivityRoutineAppCommand, long>
+    {
+        private readonly IProductionActivityAppQueryRepository _PPAppLineListQueryRepository;
+        public CreateProductionRoutineAppQueryHandler(IProductionActivityAppQueryRepository PPAppLineListQueryRepository, IQueryRepository<ProductActivityAppModel> queryRepository)
+        {
+            _PPAppLineListQueryRepository = PPAppLineListQueryRepository;
+        }
+
+        public async Task<long> Handle(CreateProductionActivityRoutineAppCommand request, CancellationToken cancellationToken)
+        {
+            var newlist = await _PPAppLineListQueryRepository.InsertProductionRoutine(request);
+            return newlist;
+
+        }
     }
 }
 

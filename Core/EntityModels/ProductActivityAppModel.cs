@@ -122,4 +122,23 @@ namespace Core.EntityModels
         public List<ProductActivityCaseActionMultiple> ProductActivityCaseActionMultiple { get; set; } = new List<ProductActivityCaseActionMultiple>();
         public List<ProductActivityCase> ProductActivityCase { get; set; } = new List<ProductActivityCase>();
     }
+    public class MultipleProductioRoutineAppLineItemLists
+    {
+        public List<ProductActivityCaseRespons> ProductActivityCaseRespons { get; set; } = new List<ProductActivityCaseRespons>();
+        public List<ProductActivityCaseResponsDuty> ProductActivityCaseResponsDuty { get; set; } = new List<ProductActivityCaseResponsDuty>();
+        public List<ProductActivityCaseResponsResponsible> ProductActivityCaseResponsResponsible { get; set; } = new List<ProductActivityCaseResponsResponsible>();
+        public List<RoutineInfoMultiple> ActivityMasterMultiple { get; set; } = new List<RoutineInfoMultiple>();
+        public List<ProductionActivityRoutineAppLineQaCheckerModel> ProductionActivityAppLineQaCheckerModel { get; set; } = new List<ProductionActivityRoutineAppLineQaCheckerModel>();
+        public List<Documents> Documents { get; set; } = new List<Documents>();
+        public List<ApplicationUser> ApplicationUser { get; set; } = new List<ApplicationUser>();
+        public List<NavprodOrderLine> NavprodOrderLine { get; set; } = new List<NavprodOrderLine>();
+        public List<CodeMaster> CodeMaster { get; set; } = new List<CodeMaster>();
+        public List<ApplicationMasterChild> ApplicationMasterChild { get; set; } = new List<ApplicationMasterChild>();
+        public List<ApplicationMasterDetail> ApplicationMasterDetail { get; set; } = new List<ApplicationMasterDetail>();
+        public List<ActivityEmailTopicsModel> ActivityEmailTopics { get; set; } = new List<ActivityEmailTopicsModel>();
+        public List<ProductActivityPermissionModel> ProductActivityPermission { get; set; } = new List<ProductActivityPermissionModel>();
+        public List<ProductActivityCaseCategoryMultiple> ProductActivityCaseCategoryMultiple { get; set; } = new List<ProductActivityCaseCategoryMultiple>();
+        public List<ProductActivityCaseActionMultiple> ProductActivityCaseActionMultiple { get; set; } = new List<ProductActivityCaseActionMultiple>();
+        public List<ProductActivityCase> ProductActivityCase { get; set; } = new List<ProductActivityCase>();
+    }
 }

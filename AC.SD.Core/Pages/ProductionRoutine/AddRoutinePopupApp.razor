@@ -56,9 +56,9 @@
             <ValidationMessage For="@(() => Data.OthersOptions)" />
         </DxFormLayoutItem>
 
-        <DxFormLayoutItem Caption="Manufacturing Process:" ColSpanMd="6">
+        <DxFormLayoutItem Caption="Routine:" ColSpanMd="6">
             <DxComboBox Data="@_ManuFactureProcessLines"
-                        NullText="Select Manufacturing Process..."
+                        NullText="Select Routine..."
                         FilteringMode="DataGridFilteringMode.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterChildId"
@@ -67,7 +67,7 @@
                         ShowValidationIcon="true">
                 <Buttons>
                     <DxEditorButton IconCssClass="fa fa-qrcode"
-                                    Tooltip="Scan Manufacturing Process"
+                                    Tooltip="Scan Routine"
                                     Click="@(_ => OnManufacScanButtonClick())" />
                 </Buttons>
             </DxComboBox>
@@ -127,23 +127,23 @@
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Activity Status:" ColSpanMd="6">
+        <DxFormLayoutItem Caption="Routine Status:" ColSpanMd="6">
             <DxComboBox Data="@_ActivityStatusItem"
-                        NullText="Select Activity Status..."
+                        NullText="Select Routine Status..."
                         FilteringMode="DataGridFilteringMode.Contains"
                         TextFieldName="Value"
                         ValueFieldName="ApplicationMasterDetailID"
-            @bind-Value="Data.ActivityStatusId"
+            @bind-Value="Data.RoutineStatusId"
                         ShowValidationIcon="true">
             </DxComboBox>
         </DxFormLayoutItem>
-        <DxFormLayoutItem Caption="Activity Master" ColSpanMd="12">
-            <DxTagBox NullText="Select Activity Master..."
+        <DxFormLayoutItem Caption="Routine Info" ColSpanMd="12">
+            <DxTagBox NullText="Select Routine Info..."
                       Data="@_ActivityMaster"
                       ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
                       TextFieldName="Value"
                       ValueFieldName="ApplicationMasterDetailID"
-            @bind-Values="@Data.ActivityMasterIds"
+            @bind-Values="@Data.RoutineInfoIds"
                       CssClass="cw-480" />
         </DxFormLayoutItem>
 
@@ -160,7 +160,7 @@
          ShowFooter="false"
          MinWidth="300" MinHeight="500" MaxWidth="1000px" MaxHeight="12000px">
     <BodyContentTemplate>
-        <UploadProductionActivityFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUploadUpload"></UploadProductionActivityFiles>
+        <UploadProductionRoutineFiles _applicationUser="@applicationUser" UploadSessionId="@UploadSessionId" FileProfileTypeId="@FileProfileTypeId" RevokeUploadBack="BackUploadUpload"></UploadProductionRoutineFiles>
 
     </BodyContentTemplate>
 </DxPopup>
@@ -179,7 +179,7 @@
 </DxPopup>
 @code {
     [Parameter]
-    public ProductActivityAppModel? _selectedEditItems { get; set; }
+    public ProductionActivityRoutineAppModel? _selectedEditItems { get; set; }
     bool PopupManuFactureScanVisible { get; set; } = false;
     private BarcodeReader _manureader;
     public long? FileProfileTypeId { get; set; }
@@ -192,40 +192,40 @@
     private List<View_ApplicationMasterDetail> _ActivityResult;
     private List<View_ApplicationMasterDetail> _ActivityStatusItem;
     private List<View_ApplicationMasterDetail> _ActivityMaster;
-    ProductActivityAppModel Data = new ProductActivityAppModel();
-    ProductionActivityAppLine DataLine = new ProductionActivityAppLine();
+    ProductionActivityRoutineAppModel Data = new ProductionActivityRoutineAppModel();
+    ProductionActivityRoutineAppModel DataLine = new ProductionActivityRoutineAppModel();
     public ApplicationUser applicationUser { get; private set; }
     IGrid? AppLine { get; set; }
     IEnumerable<string> TemplateUploadOptions = new[] { "Yes", "No" };
     IEnumerable<string> IsOtherOptionsItems = new[] { "Yes" };
     private List<ProductActivityCaseLineModel> _templateItems;
-    private List<ProductionActivityAppLine> _AppLines;
+    private List<ProductionActivityRoutineAppModel> _AppLines;
     private List<ApplicationMasterChildModel> _ManuFactureProcessLines;
     private List<ApplicationMasterChildModel> _categoryItems;
     private List<ApplicationMasterChildModel> _actionItems;
     bool uploadEnabled { get; set; } = false;
     bool PopupUpload { get; set; } = false; bool addEnabled { get; set; } = false; bool saveEnabled { get; set; } = false;
     [Parameter]
-    public ProductionActivityModel ParentData { get; set; }
+    public ProductionActivityRoutineAppModel ParentData { get; set; }
     [Parameter]
     public Action RevokeBack { get; set; }
-    long? ProductionActivityAppLineId { get; set; }
+    long? ProductionActivityRoutineAppLineId { get; set; }
     protected override async Task OnInitializedAsync()
     {
         addEnabled = true; saveEnabled = true;
         _ponumberActivities = _poOrderDetails.Cast<NavprodOrderLineModel>().ToList();
         _editContext = new EditContext(Data);
         Data.ProductActivityCaseLineId = 0;
-        _ManuFactureProcessLines = await Mediator.Send(new GetAllApplicationMasterChildListQuery("105"));
+        _ManuFactureProcessLines = await Mediator.Send(new GetAllApplicationMasterChildListQuery("108"));
         _categoryItems = new List<ApplicationMasterChildModel>(); _actionItems = new List<ApplicationMasterChildModel>();
         Data.ProdActivityCategoryChildId = null; Data.ProdActivityActionChildD = null;
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
-        _ActivityResult = await Mediator.Send(new GetAllApplicationMasterDetailQuery(342));
-        _ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(340));
-        _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(341));
+        _ActivityResult = await Mediator.Send(new GetAllApplicationMasterDetailQuery(324));
+        _ActivityMaster = await Mediator.Send(new GetAllApplicationMasterDetailQuery(331));
+        _ActivityStatusItem = await Mediator.Send(new GetAllApplicationMasterDetailQuery(334));
         if (_selectedEditItems != null)
         {
-            Data.ProductionActivityAppLineId = _selectedEditItems.ProductionActivityAppLineId;
+            Data.ProductionActivityRoutineAppLineId = _selectedEditItems.ProductionActivityRoutineAppLineId;
             Data.NavprodOrderLineId = _selectedEditItems.NavprodOrderLineId;
             Data.ManufacturingProcessChildId = _selectedEditItems.ManufacturingProcessChildId;
             Data.ProdActivityCategoryChildId = _selectedEditItems.ProdActivityCategoryChildId;
@@ -233,8 +233,8 @@
             Data.IsTemplateUploadFlag = _selectedEditItems.IsTemplateUploadFlag;
             Data.ProductActivityCaseLineId = _selectedEditItems.ProductActivityCaseLineId;
             Data.ProdActivityResultId = _selectedEditItems.ProdActivityResultId;
-            Data.ActivityStatusId = _selectedEditItems.ActivityStatusId;
-            Data.ActivityMasterIds = _selectedEditItems.ActivityMasterIds;
+            Data.RoutineStatusId = _selectedEditItems.RoutineStatusId;
+            Data.RoutineInfoIds = _selectedEditItems.RoutineInfoIds;
             Data.LineComment = _selectedEditItems.LineComment;
             Data.OthersOptions = "No";
             if (_selectedEditItems.IsOthersOptions == true)
@@ -248,7 +248,7 @@
             {
                 Data.ProductActivityCaseLineId = 0;
             }
-            ProductionActivityAppLineId = _selectedEditItems.ProductionActivityAppLineId;
+            ProductionActivityRoutineAppLineId = _selectedEditItems.ProductionActivityRoutineAppLineId;
             UploadSessionId = _selectedEditItems.LineSessionId;
             if (_selectedEditItems.ManufacturingProcessChildId > 0)
             {
@@ -273,9 +273,8 @@
         Data.ManufacturingProcessChildId = null;
         Data.ProdActivityCategoryChildId = null;
         Data.ProdActivityActionChildD = null;
-        Data.FileProfileTypeId = null;
-        Data.ProdActivityResultId = null;
-        Data.ActivityStatusId = null;
+        Data.FileProfileTypeId = null; Data.ProdActivityResultId = null;
+        Data.RoutineStatusId = null;
         Data.LineComment = null;
         Data.NavprodOrderLineId = null;
         Data.OthersOptions = "No";
@@ -283,7 +282,7 @@
         Data.IsTemplateUpload = false;
         Data.IsTemplateUploadFlag = "No";
         Data.ProductActivityCaseLineId = null;
-        Data.ActivityMasterIds = null;
+        Data.RoutineInfoIds = null;
         UploadSessionId = null;
         uploadEnabled = false;
         addEnabled = true; saveEnabled = true;
@@ -371,9 +370,9 @@
     async Task HandleProductionFormValidSubmit()
     {
         addEnabled = false; saveEnabled = false;
-        var request = new CreateProductionActivityAppCommand
+        var request = new CreateProductionActivityRoutineAppCommand
             {
-                ProductionActivityAppLineId = ProductionActivityAppLineId,
+                ProductionActivityRoutineAppLineId = ProductionActivityRoutineAppLineId,
                 CompanyId = ParentData.CompanyID,
                 ProdOrderNo = ParentData.ProdOrderNo,
                 LocationId = ParentData.LocationID,
@@ -386,7 +385,7 @@
                 ProdActivityCategoryChildId = Data.ProdActivityCategoryChildId,
                 ProdActivityActionChildD = Data.ProdActivityActionChildD,
                 ProdActivityResultId = Data.ProdActivityResultId,
-                ActivityStatusId = Data.ActivityStatusId,
+                RoutineStatusId = Data.RoutineStatusId,
                 LineComment = Data.LineComment,
                 NavprodOrderLineId = Data.NavprodOrderLineId > 0 ? Data.NavprodOrderLineId : null,
                 ModifiedByUserID = applicationUser.UserID,
@@ -396,13 +395,13 @@
                 IsTemplateUpload = Data.IsTemplateUpload,
                 IsTemplateUploadFlag = Data.IsTemplateUpload == true ? "Yes" : "No",
                 ProductActivityCaseLineId = Data.ProductActivityCaseLineId > 0 ? Data.ProductActivityCaseLineId : null,
-                ActivityMasterIds = Data.ActivityMasterIds,
+                RoutineInfoIds = Data.RoutineInfoIds,
             };
 
         var result = await Mediator.Send(request);
         if (result > 0)
         {
-            if (ProductionActivityAppLineId > 0)
+            if (ProductionActivityRoutineAppLineId > 0)
             {
                 toastService.ShowToast("Record Updated Successfully", AC.SD.Core.Services.ToastLevel.Success);
             }
@@ -410,7 +409,7 @@
             {
                 toastService.ShowToast("Record Save Successfully", AC.SD.Core.Services.ToastLevel.Success);
             }
-            ProductionActivityAppLineId = result;
+            ProductionActivityRoutineAppLineId = result;
             UploadSessionId = request.LineSessionId;
             uploadEnabled = true; addEnabled = true; saveEnabled = true;
             await GetIsDoumentExits();
@@ -421,9 +420,9 @@
     async Task GetIsDoumentExits()
     {
         uploadEnabled = true;
-        if (ProductionActivityAppLineId > 0)
+        if (ProductionActivityRoutineAppLineId > 0)
         {
-            var dataList = await Mediator.Send(new GetProductActivityAppLineOneItem(ProductionActivityAppLineId));
+            var dataList = await Mediator.Send(new GetProductActivityRoutineAppLineOneItem(ProductionActivityRoutineAppLineId));
             if (dataList != null && dataList.IsDocuments > 0)
             {
                 uploadEnabled = false;

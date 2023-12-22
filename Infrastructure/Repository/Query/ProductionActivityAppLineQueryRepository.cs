@@ -184,7 +184,7 @@ namespace Infrastructure.Repository.Query
                     from ProductionActivityAppLine t1 
                     JOIN ProductionActivityApp t2 ON t1.ProductionActivityAppId=t2.ProductionActivityAppId
                     JOIN Plant as t10 ON t10.PlantID = t2.CompanyID 
-                    LEFT JOIN ICTMaster t14 ON t14.LocationId=t2.LocationId
+                    LEFT JOIN ICTMaster t14 ON t14.ictMasterId=t2.LocationId
                     LEFT JOIN ProductActivityCaseLine as t12 ON t12.ProductActivityCaseLineId = t1.ProductActivityCaseLineId
                     WHERE t1.ProductionActivityAppLineID>0";
                 if (value.NavprodOrderLineId > 0)
@@ -226,19 +226,19 @@ namespace Infrastructure.Repository.Query
                 if (value.StartDate != null && value.EndDate == null)
                 {
                     var from = value.StartDate.Value.ToString("yyyy-MM-dd");
-                    query += "AND CAST(t1.AddedDate AS Date) >='" + from + "'\r\n";
+                    query += "\n\rAND CAST(t1.AddedDate AS Date) >='" + from + "'\r\n";
                 }
                 if (value.EndDate != null && value.StartDate == null)
                 {
                     var to = value.EndDate.Value.ToString("yyyy-MM-dd");
-                    query += "AND CAST(t1.AddedDate AS Date)<='" + to + "'\r\n";
+                    query += "\n\rAND CAST(t1.AddedDate AS Date)<='" + to + "'\r\n";
                 }
                 if (value.StartDate != null && value.EndDate != null)
                 {
                     var from = value.StartDate.Value.ToString("yyyy-MM-dd");
                     var to = value.EndDate.Value.ToString("yyyy-MM-dd");
-                    query += "AND CAST(t1.AddedDate AS Date) >='" + from + "'\r\n";
-                    query += "AND CAST(t1.AddedDate AS Date)<='" + to + "'\r\n";
+                    query += "\n\rAND CAST(t1.AddedDate AS Date) >='" + from + "'\r\n";
+                    query += "\n\rAND CAST(t1.AddedDate AS Date)<='" + to + "'\r\n";
                 }
                 var employeeAll = await GetAllUserWithoutStatussAsync();
                 var productActivityApps = new List<ProductActivityAppModel>();
@@ -382,6 +382,7 @@ namespace Infrastructure.Repository.Query
 
 
                         ProductActivityAppModel productActivityApp = new ProductActivityAppModel();
+                        productActivityApp.ProductActivityPermissionData = new ProductActivityPermissionModel();
                         productActivityApp.Type = s.Type;
                         productActivityApp.ResponsibilityUsers = responsibilityUsers;
                         productActivityApp.ProductActivityCaseId = s.ProductActivityCaseId;
@@ -958,5 +959,6 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        
     }
 }

@@ -160,4 +160,94 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
+
+
+
+
+
+    public class GetAllProductionActivityRoutineAppLineHandler : IRequestHandler<GetAllProductionActivityRoutineAppLineQuery, List<ProductionActivityRoutineAppModel>>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public GetAllProductionActivityRoutineAppLineHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<List<ProductionActivityRoutineAppModel>> Handle(GetAllProductionActivityRoutineAppLineQuery request, CancellationToken cancellationToken)
+        {
+            return (List<ProductionActivityRoutineAppModel>)await _productionactivityQueryRepository.GetAllProductionActivityRoutineAsync(request.ProductionActivityRoutineAppModel);
+        }
+
+    }
+    public class DeleteproductActivityRoutineAppLineHandler : IRequestHandler<DeleteproductActivityRoutineAppLine, ProductionActivityRoutineAppModel>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public DeleteproductActivityRoutineAppLineHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductionActivityRoutineAppModel> Handle(DeleteproductActivityRoutineAppLine request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.DeleteproductActivityRoutineAppLine(request.ProductionActivityRoutineAppModel);
+        }
+    }
+    public class GetUpdateproductActivityRoutineAppLineCommentFieldHandler : IRequestHandler<GetUpdateproductActivityRoutineAppLineCommentField, ProductionActivityRoutineAppModel>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public GetUpdateproductActivityRoutineAppLineCommentFieldHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductionActivityRoutineAppModel> Handle(GetUpdateproductActivityRoutineAppLineCommentField request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.UpdateproductActivityRoutineAppLineCommentField(request.ProductionActivityRoutineAppModel);
+        }
+    }
+    public class UpdateActivityRoutineMasterHandler : IRequestHandler<UpdateActivityRoutineMaster, ProductionActivityRoutineAppModel>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public UpdateActivityRoutineMasterHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductionActivityRoutineAppModel> Handle(UpdateActivityRoutineMaster request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.UpdateActivityRoutineMaster(request.ProductionActivityRoutineAppModel);
+        }
+    }
+    public class UpdateActivityRoutineStatusHandler : IRequestHandler<UpdateActivityRoutineStatus, ProductionActivityRoutineAppModel>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public UpdateActivityRoutineStatusHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductionActivityRoutineAppModel> Handle(UpdateActivityRoutineStatus request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.UpdateActivityRoutineStatus(request.ProductionActivityRoutineAppModel);
+        }
+    }
+    public class GetProductActivityRoutineAppLineOneItemHandler : IRequestHandler<GetProductActivityRoutineAppLineOneItem, ProductionActivityRoutineAppModel>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public GetProductActivityRoutineAppLineOneItemHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductionActivityRoutineAppModel> Handle(GetProductActivityRoutineAppLineOneItem request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.GetProductActivityRoutineAppLineOneItem(request.Id);
+        }
+    }
+    public class UpdateRoutineCheckerHandler : IRequestHandler<UpdateRoutineChecker, ProductionActivityRoutineAppModel>
+    {
+        private readonly IRoutineQueryRepository _productionactivityQueryRepository;
+        public UpdateRoutineCheckerHandler(IRoutineQueryRepository productionactivityQueryRepository)
+        {
+            _productionactivityQueryRepository = productionactivityQueryRepository;
+        }
+        public async Task<ProductionActivityRoutineAppModel> Handle(UpdateRoutineChecker request, CancellationToken cancellationToken)
+        {
+            return await _productionactivityQueryRepository.UpdateRoutineChecker(request.ProductionActivityRoutineAppModel);
+        }
+    }
 }

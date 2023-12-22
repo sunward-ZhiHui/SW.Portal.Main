@@ -147,14 +147,24 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        private async Task<IReadOnlyList<Documents>> GetProductionActivityAppLineDoc(long? ProductionActivityAppLineId)
+        private async Task<IReadOnlyList<Documents>> GetProductionActivityAppLineDoc(long? ProductionActivityAppLineId, string? Type)
         {
             try
             {
                 var parameters = new DynamicParameters();
-                parameters.Add("ProductionActivityAppLineId", ProductionActivityAppLineId);
-                var query = "select t1.SessionID,t1.DocumentID from documents t1 JOIN ProductionActivityAppLineDoc t2 ON t1.DocumentID=t2.DocumentID where t2.ProductionActivityAppLineID=@ProductionActivityAppLineId";
+                var query = string.Empty;
+                if (Type == "Production Activity")
+                {
+                    parameters.Add("ProductionActivityAppLineId", ProductionActivityAppLineId);
+                    query = "select t1.SessionID,t1.DocumentID from documents t1 JOIN ProductionActivityAppLineDoc t2 ON t1.DocumentID=t2.DocumentID where t2.ProductionActivityAppLineID=@ProductionActivityAppLineId";
 
+                }
+                if (Type == "Production Routine")
+                {
+                    parameters.Add("ProductionActivityRoutineAppLineId", ProductionActivityAppLineId);
+                    query = "select t1.SessionID,t1.DocumentID from documents t1 JOIN ProductionActivityRoutineAppLineDoc t2 ON t1.DocumentID=t2.DocumentID where t2.ProductionActivityRoutineAppLineId=@ProductionActivityRoutineAppLineId";
+
+                }
                 using (var connection = CreateConnection())
                 {
                     return (await connection.QueryAsync<Documents>(query, parameters)).ToList();
@@ -165,14 +175,14 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DocumentsModel>> GetSupportingDocumentsAsync(long? ProductionActivityAppLineId)
+        public async Task<IReadOnlyList<DocumentsModel>> GetSupportingDocumentsAsync(long? ProductionActivityAppLineId, string? Type)
         {
             List<DocumentsModel> supportingDocuments = new List<DocumentsModel>();
             try
             {
                 var appUsers = await GetApplicationUserAsync();
                 var query = string.Empty;
-                var docs = await GetProductionActivityAppLineDoc(ProductionActivityAppLineId);
+                var docs = await GetProductionActivityAppLineDoc(ProductionActivityAppLineId, Type);
                 if (docs != null && docs.Count > 0)
                 {
                     var SessionIds = docs.Where(w => w.SessionId != null).Select(s => s.SessionId).ToList();
@@ -387,24 +397,28 @@ namespace Infrastructure.Repository.Query
                         parameters.Add("applineSessionId", PPAlist.LineSessionId, DbType.Guid);
                         parameters.Add("applineStatusCodeID", PPAlist.StatusCodeID);
                         parameters.Add("QaCheck", PPAlist.QaCheck == true ? true : false);
+                        var ProfileNo = string.Empty;
+                        long? ProfileId = null;
                         if (PPAlist.ProfileId > 0)
                         {
-
+                           
                         }
                         else
                         {
                             if (PPAlist.ManufacturingProcessChildId > 0)
                             {
                                 var profileData = await GetProductActivityCaseAsync(PPAlist.ManufacturingProcessChildId);
-                                var ProfileNo = string.Empty;
+                                
                                 if (profileData != null && profileData.ProfileId > 0)
                                 {
-                                    parameters.Add("ProfileId", profileData.ProfileId);
-                                    ProfileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(new DocumentNoSeriesModel { ProfileID = profileData.ProfileId, AddedByUserID = PPAlist.AddedByUserID, StatusCodeID = 710, Title = "Production Activity" });
+                                    ProfileId = profileData.ProfileId;
+                                     ProfileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(new DocumentNoSeriesModel { ProfileID = profileData.ProfileId, AddedByUserID = PPAlist.AddedByUserID, StatusCodeID = 710, Title = "Production Activity" });
                                 }
-                                parameters.Add("ProfileNo", ProfileNo, DbType.String);
+                               
                             }
                         }
+                        parameters.Add("ProfileId", ProfileId);
+                        parameters.Add("ProfileNo", ProfileNo, DbType.String);
                         if (PPAlist.ProductionActivityAppLineId > 0)
                         {
                             var appquery = " UPDATE ProductionActivityAppLine SET ProductionActivityAppID = @Appid,ProdActivityResultID =@ProdActivityResultID,ManufacturingProcessChildID =@ManufacturingProcessChildID,ProdActivityCategoryChildID=@ProdActivityCategoryChildID," +
@@ -509,7 +523,154 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<ProductionActivityRoutineAppModel> GetAllRoutineListAsync(long? CompanyId, string? Replanrefno, long? locationId)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("CompanyID", CompanyId);
+                parameters.Add("ProdOrderNo", Replanrefno);
+                parameters.Add("locationId", locationId);
+                var query = "SELECT * FROM ProductionActivityRoutineApp WHERE CompanyId=@CompanyId AND ProdOrderNo=@ProdOrderNo";
+                if (locationId > 0)
+                {
+                    query += " AND locationId=@locationId";
+                }
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryFirstOrDefaultAsync<ProductionActivityRoutineAppModel>(query, parameters));
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<long> InsertProductionRoutine(ProductionActivityRoutineAppModel PPAlist)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("CompanyID", PPAlist.CompanyId);
+                        parameters.Add("ProdOrderNo", PPAlist.ProdOrderNo, DbType.String);
+                        parameters.Add("SessionId", PPAlist.SessionId, DbType.Guid);
+                        parameters.Add("AddedByUserID", PPAlist.AddedByUserID);
+                        parameters.Add("ModifiedByUserID", PPAlist.ModifiedByUserID);
+                        parameters.Add("ModifiedDate", PPAlist.ModifiedDate);
+                        parameters.Add("AddedDate", PPAlist.AddedDate, DbType.DateTime);
+                        parameters.Add("LocationID", PPAlist.LocationId);
+                        parameters.Add("StatusCodeID", PPAlist.StatusCodeID);
+                        var lists = await GetAllRoutineListAsync(PPAlist.CompanyId, PPAlist.ProdOrderNo, PPAlist.LocationId);
+                        if (lists != null)
+                        {
+                            PPAlist.ProductionActivityRoutineAppId = lists.ProductionActivityRoutineAppId;
+                        }
+                        else
+                        {
+                            var query = @"INSERT INTO ProductionActivityRoutineApp(SessionId,AddedByUserID,AddedDate,StatusCodeID,LocationID,CompanyID,ProdOrderNo,ModifiedByUserID,ModifiedDate) 
+				                       OUTPUT INSERTED.ProductionActivityRoutineAppId 
+				                       VALUES (@SessionId,@AddedByUserID,@AddedDate,@StatusCodeID,@LocationID,@CompanyID,@ProdOrderNo,@AddedByUserID,@AddedDate)";
+                            var insertedId = await connection.ExecuteScalarAsync<long>(query, parameters);
 
+                            PPAlist.ProductionActivityRoutineAppId = insertedId;
+                        }
+                        parameters.Add("ProductionActivityRoutineAppLineId", PPAlist.ProductionActivityRoutineAppLineId);
+                        parameters.Add("Appid", PPAlist.ProductionActivityRoutineAppId);
+                        parameters.Add("IsOthersOptions", PPAlist.IsOthersOptions == true ? true : false);
+                        parameters.Add("ProdActivityResultID", PPAlist.ProdActivityResultId);
+                        parameters.Add("RoutineStatusId", PPAlist.RoutineStatusId);
+                        parameters.Add("ManufacturingProcessChildID", PPAlist.ManufacturingProcessChildId);
+                        parameters.Add("ProdActivityCategoryChildID", PPAlist.ProdActivityCategoryChildId);
+                        parameters.Add("ProdActivityActionChildD", PPAlist.ProdActivityActionChildD);
+                        parameters.Add("PAApplineComment", PPAlist.LineComment, DbType.String);
+                        parameters.Add("AppLineNavprodOrderLineID", PPAlist.NavprodOrderLineId);
+                        parameters.Add("applineAddedByUserID", PPAlist.AddedByUserID);
+                        parameters.Add("applineAddedDate", PPAlist.AddedDate, DbType.DateTime);
+                        parameters.Add("applineSessionId", PPAlist.LineSessionId, DbType.Guid);
+                        parameters.Add("applineStatusCodeID", PPAlist.StatusCodeID);
+                        parameters.Add("QaCheck", PPAlist.QaCheck == true ? true : false);
+                        parameters.Add("IsCheckReferSupportDocument", PPAlist.IsCheckReferSupportDocument == true ? true : false);
+                        parameters.Add("IsCheckNoIssue", PPAlist.IsCheckNoIssue == true ? true : false);
+                        var ProfileNo = string.Empty;
+                        long? ProfileId = null;
+                        if (PPAlist.ProfileId > 0)
+                        {
+
+                        }
+                        else
+                        {
+                            if (PPAlist.ManufacturingProcessChildId > 0)
+                            {
+                                var profileData = await GetProductActivityCaseAsync(PPAlist.ManufacturingProcessChildId);
+                                
+                                if (profileData != null && profileData.ProfileId > 0)
+                                {
+                                    ProfileId=profileData.ProfileId;
+                                    ProfileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(new DocumentNoSeriesModel { ProfileID = profileData.ProfileId, AddedByUserID = PPAlist.AddedByUserID, StatusCodeID = 710, Title = "Production Activity" });
+                                }
+                                
+                            }
+                        }
+                        parameters.Add("ProfileId", ProfileId);
+                        parameters.Add("ProfileNo", ProfileNo, DbType.String);
+                        if (PPAlist.ProductionActivityRoutineAppLineId > 0)
+                        {
+                            var appquery = " UPDATE ProductionActivityRoutineAppLine SET ProductionActivityRoutineAppId = @Appid,ProdActivityResultID =@ProdActivityResultID,ManufacturingProcessChildID =@ManufacturingProcessChildID,ProdActivityCategoryChildID=@ProdActivityCategoryChildID," +
+                            "ProdActivityActionChildD=@ProdActivityActionChildD,Comment=@PAApplineComment,NavprodOrderLineId=@AppLineNavprodOrderLineID,SessionId=@applineSessionId,StatusCodeID=@applineStatusCodeID,ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,RoutineStatusId=@RoutineStatusId,IsOthersOptions=@IsOthersOptions,LocationID=@LocationID,QaCheck=@QaCheck WHERE ProductionActivityRoutineAppLineId = @ProductionActivityRoutineAppLineId";
+
+                            await connection.ExecuteAsync(appquery, parameters);
+                        }
+                        else
+                        {
+
+                            var applinequery = "INSERT INTO ProductionActivityRoutineAppLine(IsCheckNoIssue,IsCheckReferSupportDocument,ProductionActivityRoutineAppId,ProdActivityResultID,ManufacturingProcessChildID,ProdActivityCategoryChildID,ProdActivityActionChildD,Comment,NavprodOrderLineId,AddedByUserID,AddedDate,SessionId,StatusCodeID,ModifiedByUserID,ModifiedDate,RoutineStatusId,IsOthersOptions,LocationID,QaCheck,ProfileNo,ProfileId) " +
+                                " OUTPUT INSERTED.ProductionActivityRoutineAppLineId " +
+                                "VALUES (IsCheckNoIssue,IsCheckReferSupportDocument,@Appid,@ProdActivityResultID,@ManufacturingProcessChildID,@ProdActivityCategoryChildID,@ProdActivityActionChildD,@PAApplineComment,@AppLineNavprodOrderLineID,@applineAddedByUserID,@applineAddedDate,@applineSessionId,@applineStatusCodeID,@applineAddedByUserID,@applineAddedDate,@RoutineStatusId,@IsOthersOptions,@LocationID,@QaCheck,@ProfileNo,@ProfileId)";
+
+                            PPAlist.ProductionActivityRoutineAppLineId = await connection.ExecuteScalarAsync<long>(applinequery, parameters);
+                        }
+                        if (PPAlist.ProductionActivityRoutineAppLineId > 0)
+                        {
+                            var Deletequery = "DELETE  FROM RoutineInfoMultiple WHERE ProductionActivityRoutineAppLineId = " + PPAlist.ProductionActivityRoutineAppLineId + ";";
+                            await connection.ExecuteAsync(Deletequery);
+                        }
+                        if (PPAlist.RoutineInfoIds != null)
+                        {
+                            var listData = PPAlist.RoutineInfoIds.ToList();
+                            if (listData.Count > 0)
+                            {
+                                var querys = string.Empty;
+                                listData.ForEach(s =>
+                                {
+                                    querys += "INSERT INTO [RoutineInfoMultiple](RoutineInfoId,ProductionActivityRoutineAppLineId) " +
+                                                        "VALUES ( " + s + "," + PPAlist.ProductionActivityRoutineAppLineId + ");\r\n";
+                                });
+                                if (!string.IsNullOrEmpty(querys))
+                                {
+                                    await connection.ExecuteAsync(querys, null);
+                                }
+                            }
+                        }
+                        return PPAlist.ProductionActivityRoutineAppLineId.Value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
 
     }
 }

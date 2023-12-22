@@ -523,6 +523,10 @@ namespace Infrastructure.Repository.Query
                         {
                             await InsertSupportingDocumentLink(value);
                         }
+                        if (value.Type == "Production Routine")
+                        {
+                            await InsertSupportingDocumentRoutineLink(value);
+                        }
                         return value;
                     }
                     catch (Exception exp)
@@ -631,6 +635,43 @@ namespace Infrastructure.Repository.Query
                             var linkquery = "INSERT INTO [ProductionActivityAppLineDoc](ProductionActivityAppLineId,Type,DocumentId) " +
                            "OUTPUT INSERTED.ProductionActivityAppLineDocId VALUES " +
                           "(@ProductionActivityAppLineId,@Type,@DocumentId)";
+                            await connection.ExecuteAsync(linkquery, LinkDocparameters);
+                        }
+                        connection.Close();
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsUploadModel> InsertSupportingDocumentRoutineLink(DocumentsUploadModel value)
+        {
+
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var DocuId = await GetDocumentIdByPathName(value);
+                        if (DocuId != null)
+                        {
+                            var LinkDocparameters = new DynamicParameters();
+                            LinkDocparameters.Add("ProductionActivityRoutineAppLineId", value.ProductionActivityRoutineAppLineId);
+                            LinkDocparameters.Add("SessionId", DocuId.SessionId, DbType.Guid);
+                            LinkDocparameters.Add("Type", value.Type, DbType.String);
+                            LinkDocparameters.Add("DocumentId", DocuId.DocumentId);
+                            var linkquery = "INSERT INTO [ProductionActivityRoutineAppLineDoc](ProductionActivityRoutineAppLineId,Type,DocumentId) " +
+                           "OUTPUT INSERTED.ProductionActivityRoutineAppLineDocID VALUES " +
+                          "(@ProductionActivityRoutineAppLineId,@Type,@DocumentId)";
                             await connection.ExecuteAsync(linkquery, LinkDocparameters);
                         }
                         connection.Close();
@@ -878,6 +919,13 @@ namespace Infrastructure.Repository.Query
                         values.FileSessionId = value.FileSessionId;
                         values.FilePath = value.FilePath;
                         await InsertSupportingDocumentLink(values);
+                    }
+                    if (values.Type == "Production Routine")
+                    {
+                        values.SessionId = value.FileSessionId;
+                        values.FileSessionId = value.FileSessionId;
+                        values.FilePath = value.FilePath;
+                        await InsertSupportingDocumentRoutineLink(values);
                     }
                 });
                     if (!string.IsNullOrEmpty(query))

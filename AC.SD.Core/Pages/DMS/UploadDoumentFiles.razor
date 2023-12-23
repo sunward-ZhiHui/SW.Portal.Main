@@ -465,10 +465,10 @@
         TempSetId.SessionId = SessionId;
         TempSetIds.Add(TempSetId);
         string BaseUrl = Navigator.BaseUri + "api/FileUpload/";
-        string url = BaseUrl + "UploadDocumentsBySession?SessionId=" + selectedFiles.SessionID + "&addedByUserId=" + applicationUser.UserID + "&IsFileSession=true&SourceFrom=FileProfile";
+        string url = BaseUrl + "UploadDocumentsBySessions?SessionId=" + selectedFiles.SessionID + "&addedByUserId=" + applicationUser.UserID + "&IsFileSession=true&SourceFrom=FileProfile&&FileProfileId=" + Data.FileProfileTypeId;
         if (AttachSessionId != null)
         {
-            url = BaseUrl + "UploadDocumentsBySession?SessionId=" + AttachSessionId + "&addedByUserId=" + applicationUser.UserID + "&IsFileSession=false&SourceFrom=FileProfile";
+            url = BaseUrl + "UploadDocumentsBySessions?SessionId=" + AttachSessionId + "&addedByUserId=" + applicationUser.UserID + "&IsFileSession=false&SourceFrom=FileProfile&&FileProfileId=" + Data.FileProfileTypeId;
         }
         e.UploadUrl = url;
     }
@@ -525,6 +525,7 @@
     }
     void OnUploadError(FileUploadErrorEventArgs e)
     {
+        uploadComponent.RemoveFile(e.FileInfo);
         MyError = e.RequestInfo.ResponseText;
         toastService.ShowToast(MyError, AC.SD.Core.Services.ToastLevel.Error);
         Message = "Upload";

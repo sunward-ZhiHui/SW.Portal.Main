@@ -121,6 +121,7 @@ namespace Infrastructure.Service
             }
             if (noSeriesModel.DepartmentId > 0 && masterList.Departments != null && masterList.Departments.Count > 0)
             {
+                noSeriesModel.DepartmentName = masterList.Departments.FirstOrDefault(p => p.DepartmentId == noSeriesModel.DepartmentId)?.Name;
                 deptProfileCode = masterList.Departments.FirstOrDefault(s => s.DepartmentId == noSeriesModel.DepartmentId)?.ProfileCode;
             }
             if (noSeriesModel.SectionId > 0 && masterList.Sections != null && masterList.Sections.Count > 0)
@@ -632,6 +633,7 @@ namespace Infrastructure.Service
             }
             if (noSeriesModel.DepartmentId > 0 && masterList.Departments != null && masterList.Departments.Count > 0)
             {
+                noSeriesModel.DepartmentName = masterList.Departments.FirstOrDefault(p => p.DepartmentId == noSeriesModel.DepartmentId)?.Name;
                 deptProfileCode = masterList.Departments.FirstOrDefault(s => s.DepartmentId == noSeriesModel.DepartmentId)?.ProfileCode;
             }
             if (noSeriesModel.SectionId > 0 && masterList.Sections != null && masterList.Sections.Count > 0)

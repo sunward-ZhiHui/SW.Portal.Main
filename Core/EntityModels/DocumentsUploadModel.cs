@@ -40,6 +40,7 @@ namespace Core.EntityModels
         public bool? IsCheckOut { get; set; } = false;
         public string? FilePath { get; set; }
         public string? FileName { get; set; }
+        public string? FileSizes { get; set; }
         public Guid? FileSessionId { get; set; }
         public string? SourceFrom { get; set; }
         public bool? IsSourceFrom { get; set; } = false;
@@ -50,6 +51,7 @@ namespace Core.EntityModels
         public long? ProductionActivityRoutineAppLineId { get; set; }
         public long? LinkDocumentId { get; set; }
         public List<DocumentsUploadModel> DocumentsUploadModels { get; set; } = new List<DocumentsUploadModel>();
-
+        public List<DocumentsUploadModel> FailedDocumentsUploadModels { get; set; } = new List<DocumentsUploadModel>();
+        public int? Index { get; set; }
     }
 }

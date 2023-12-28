@@ -1071,6 +1071,44 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<IReadOnlyList<DocumentsModel>> GetUploadedButNoProfileNo(DocumentsUploadModel documentsUploadModel)
+        {
+            List<DocumentsModel> result = new List<DocumentsModel>();
+            try
+            {
+                var appUsers = await GetApplicationUserAsync();
+                var query = DocumentQueryString();
+                var listss = documentsUploadModel.FailedDocumentsUploadModels.Select(s => s.FilePath).ToList();
+                var lists = string.Join(',', listss.Select(i => $"'{i}'"));
+                query += "\n\rwhere FilePath in(" + lists + ") AND FilterProfileTypeID IS NULL AND SourceFrom='FileProfile' AND IsLatest=1 AND AddedByUserID=" + documentsUploadModel.UserId + " AND (IsDelete is null or IsDelete=0) And SessionID is Not null order by DocumentId desc";
+
+
+                var data = new List<DocumentsModel>();
+                using (var connection = CreateConnection())
+                {
+                    data = (await connection.QueryAsync<DocumentsModel>(query)).ToList();
+                }
+                if (data != null && data.Count() > 0)
+                {
+                    data.ForEach(s =>
+                    {
+                        s.AddedByUser = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName;
+                        s.AddedBy = appUsers.FirstOrDefault(f => f.UserID == s.AddedByUserID)?.UserName;
+                        s.ModifiedByUser = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserID)?.UserName;
+                        s.ModifiedBy = appUsers.FirstOrDefault(f => f.UserID == s.ModifiedByUserID)?.UserName;
+                        s.FileSize = (long)Math.Round(Convert.ToDouble(s.FileSize / 1024));
+                        s.FileSizes = s.FileSize > 0 ? FormatSize((long)s.FileSize) : "";
+                        s.FilePath = s.FilePath;
+                        result.Add(s);
+                    });
+                }
+                return result;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
         public async Task<IReadOnlyList<DocumentsModel>> GetNoProfileNo(long? UserId)
         {
             List<DocumentsModel> result = new List<DocumentsModel>();

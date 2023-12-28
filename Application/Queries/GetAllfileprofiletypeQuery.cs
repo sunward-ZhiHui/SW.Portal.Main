@@ -428,5 +428,14 @@ namespace Application.Queries
             this.DocumentsUploadModel = documentsUploadModel;
         }
     }
+    public class GetUploadedButNoProfileNo : PagedRequest, IRequest<List<DocumentsModel>>
+    {
+        public DocumentsUploadModel DocumentsUploadModel { get; private set; }
+        public GetUploadedButNoProfileNo(DocumentsUploadModel documentsUploadModel)
+        {
+            this.DocumentsUploadModel = documentsUploadModel;
+        }
+    }
+    
 
 }

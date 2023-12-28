@@ -840,7 +840,7 @@
             isCheckAllEnabled = true;
         }
         FileProfileTypeId = fileProfileTypeDocumentsAll.FirstOrDefault(f => f.SessionID == MainSessionId)?.FileProfileTypeId;
-        if (_openAccessUserLink != null && _openAccessUserLink.IsDmsCreateMainFolder == true)
+        if (_openAccessUserLink != null && _openAccessUserLink.IsDmsCreateMainFolder == true && MainSessionId != null)
         {
             isCreateFolder = true;
         }
@@ -917,9 +917,15 @@
         if (_openAccessUserLink != null && _openAccessUserLink.IsDmsAccess == true)
         {
             isVisibleParentMore = "display:none;"; moreEnabled = false;
+
             if (documentSearchModel.Type != "Search")
             {
-                isEdit = true; IsGrantAdminPermission = true; isDelete = true; isCreateFolder = true; isCreateSubFolder = true;
+                 isCreateFolder = false;
+                if (MainSessionId == null)
+                {
+                    isCreateFolder = true;
+                }
+                isEdit = true; IsGrantAdminPermission = true; isDelete = true; isCreateSubFolder = true;
                 isCreateDocumentEnabled = true; IsReserveProfileNumberEnabled = true; moreEnabled = true; isProfileInfoEnabled = true; isMoveEnabled = "display:none;";
                 if (_ParentselectedItems != null && _ParentselectedItems.DynamicFormId > 0)
                 {
@@ -946,7 +952,11 @@
             {
                 if (_openAccessUserLink != null && _openAccessUserLink.IsDmsCreateMainFolder == true)
                 {
-                    isCreateFolder = true; isCreateSubFolder = true; isEdit = true; IsGrantAdminPermission = true; isDelete = true;
+                    if (MainSessionId == null)
+                    {
+                        isCreateFolder = true;
+                    }
+                    isCreateSubFolder = true; isEdit = true; IsGrantAdminPermission = true; isDelete = true;
                 }
             }
             renameEnabled = false; viewParentEnabled = false;
@@ -1084,7 +1094,12 @@
         }
         if (_openAccessUserLink != null && _openAccessUserLink.IsDmsCreateMainFolder == true)
         {
-            isCreateFolder = true; isCreateSubFolder = true; isEdit = true; IsGrantAdminPermission = true; isDelete = true;
+            isCreateFolder = false;
+            if (MainSessionId == null)
+            {
+                isCreateFolder = true;
+            }
+            isCreateSubFolder = true; isEdit = true; IsGrantAdminPermission = true; isDelete = true;
         }
     }
     async Task permissionEnabled()

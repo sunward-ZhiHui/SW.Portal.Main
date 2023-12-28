@@ -739,5 +739,18 @@ namespace Application.Handlers.QueryHandlers
             }
 
         }
+        public class GetUploadedButNoProfileNoHandler : IRequestHandler<GetUploadedButNoProfileNo, List<DocumentsModel>>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public GetUploadedButNoProfileNoHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<List<DocumentsModel>> Handle(GetUploadedButNoProfileNo request, CancellationToken cancellationToken)
+            {
+                return (List<DocumentsModel>)await _fileprofileQueryRepository.GetUploadedButNoProfileNo(request.DocumentsUploadModel);
+            }
+
+        }
     }
 }

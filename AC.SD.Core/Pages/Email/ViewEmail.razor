@@ -641,7 +641,7 @@
                                                                     <EditForm Model="@Data" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Context="EditFormContext">
                                                                         @* <DataAnnotationsValidator />*@
                                                                         <DxFormLayout>
-                                                                            <DxFormLayoutItem Caption="Subject Name1" ColSpanMd="12">
+                                                                            <DxFormLayoutItem Caption="Subject Name" ColSpanMd="12">
                                                                                 <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" spellcheck="true" NullText="Subject Name" Enabled="@IsReadOnly" />
                                                                                 <ValidationMessage For="@(() => Data.Name)" />
                                                                             </DxFormLayoutItem>

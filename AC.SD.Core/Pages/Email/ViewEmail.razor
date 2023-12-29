@@ -642,7 +642,7 @@
                                                                         @* <DataAnnotationsValidator />*@
                                                                         <DxFormLayout>
                                                                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="12">
-                                                                                <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" NullText="Subject Name" Enabled="@IsReadOnly" />
+                                                                                <DxTextBox @bind-Text="@Data.Name" ShowValidationIcon="true" spellcheck="true" NullText="Subject Name" Enabled="@IsReadOnly" />
                                                                                 <ValidationMessage For="@(() => Data.Name)" />
                                                                             </DxFormLayoutItem>
                                                                             <DxFormLayoutItem Caption="From" ColSpanMd="12">

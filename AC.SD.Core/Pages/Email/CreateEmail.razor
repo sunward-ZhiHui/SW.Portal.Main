@@ -134,7 +134,7 @@ else
                     <div class="col-md-12">
                         <DxFormLayout>
                             <DxFormLayoutItem Caption="From" ColSpanMd="8">
-                                <DxTextBox @bind-Text="@Data.From" ShowValidationIcon="true" Enabled=false />
+                                <DxTextBox @bind-Text="@Data.From" spellcheck="true" ShowValidationIcon="true" Enabled=false />
                             </DxFormLayoutItem>
 
 
@@ -341,7 +341,7 @@ else
 
                             
                             <DxFormLayoutItem Caption="Subject Name" ColSpanMd="8">
-                                <DxTextBox @bind-Text="@Data.TopicName" ShowValidationIcon="true" NullText="Subject Name" />
+                                <DxTextBox @bind-Text="@Data.TopicName" spellcheck="true" ShowValidationIcon="true" NullText="Subject Name" />
                                 <ValidationMessage For="@(() => Data.TopicName)" />
                             </DxFormLayoutItem>
                             <DxFormLayoutItem Caption="Due Date" ColSpanMd="4">

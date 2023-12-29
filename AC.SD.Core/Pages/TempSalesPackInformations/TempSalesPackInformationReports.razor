@@ -1,0 +1,152 @@
+﻿@using Application.Queries;
+@using MediatR
+@using System.Threading;
+@using System.Text.Json;
+@using global::Core.Entities.Views;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@inject IMediator Mediator
+@using DevExpress.Export
+@using Application.Response;
+@inject NavigationManager NavigationManager
+@page "/SalesItemPackingInformation"
+@inject IJSRuntime jsRuntime
+
+  <div class="card w-100" style="margin-bottom:10px;">
+     <div class="card-body p-0">
+         <DxMenu CollapseItemsToHamburgerMenu="true"
+                 CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                 DisplayMode="MenuDisplayMode.Desktop">
+             <Items>
+                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+             </Items>
+         </DxMenu>
+     </div>
+ </div> 
+
+<DxLoadingPanel @bind-Visible="PanelVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+
+    <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            Data="_employeeItems"
+            KeyFieldName="FinishProductGeneralInfoID"
+            EditModelSaving="Grid_EditModelSaving"
+            DataItemDeleting="Grid_DataItemDeleting"
+            CustomizeElement="Grid_CustomizeElement"
+            ShowSearchBox="true"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360"
+            style="height: calc(100vh - 200px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            AllowSelectRowByClick="true"
+            ShowGroupPanel="true" ShowGroupedColumns="true">
+
+        <Columns>
+           
+            <DxGridDataColumn FieldName="FinishProductGeneralInfoID" MinWidth="80" Visible="false" />
+            <DxGridDataColumn FieldName="ManufacturingSite" MinWidth="80" />
+            <DxGridDataColumn FieldName="RegisterCountry" MinWidth="80" />
+            <DxGridDataColumn FieldName="ProductName" MinWidth="80" />
+            <DxGridDataColumn FieldName="ProductOwner" MinWidth="80" />
+            <DxGridDataColumn FieldName="ProductionRegistrationHolderName" MinWidth="80" />
+            <DxGridDataColumn FieldName="PackagingType" MinWidth="80" />
+            <DxGridDataColumn FieldName="SmallestPackQty" MinWidth="80" />
+            <DxGridDataColumn FieldName="SmallestQtyUnit" MinWidth="80" />
+            <DxGridDataColumn FieldName="SmallestPerPack" MinWidth="80" />
+            <DxGridDataColumn FieldName="RegistrationFactor" MinWidth="80" />
+            <DxGridDataColumn FieldName="StatusCode" Caption="Status" MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedByUser"  MinWidth="80" />
+            <DxGridDataColumn FieldName="AddedDate" Width="180">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (TempSalesPackInformationReportModel)context.DataItem;
+                    }
+                    @Application.Common.Helper.Helper.FormatDate(item.AddedDate.Value)
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+           
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="ManufacturingSite" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+
+@code {
+    private List<TempSalesPackInformationReportModel> _employeeItems;
+    bool EditEnabled { get; set; } = false;
+    bool DeleteEnabled { get; set; } = false;
+    private TempSalesPackInformationReportModel _selectedItems;
+    IGrid Grid { get; set; }
+    bool ExportSelectedRowsOnly { get; set; }
+    bool PanelVisible { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        PanelVisible = true;
+        _employeeItems = await Mediator.Send(new GetAllTempSalesPackInformationQuery());
+        PanelVisible = false;
+        if (_employeeItems.Count > 0)
+        {
+            _selectedItems = _employeeItems.FirstOrDefault();
+            EditEnabled = true;
+            DeleteEnabled = true;
+            StateHasChanged();
+        }
+    }
+
+    void OnRowClick(GridRowClickEventArgs e)
+    {
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FinishProductGeneralInfoID");
+        _selectedItems = _employeeItems.FirstOrDefault(f => f.FinishProductGeneralInfoID == (long?)UniqueId);
+    }
+    void Grid_CustomizeEditModel(GridCustomizeEditModelEventArgs e)
+    {
+
+    }
+    async Task Grid_EditModelSaving(GridEditModelSavingEventArgs e)
+    {
+
+    }
+    async Task Grid_DataItemDeleting(GridDataItemDeletingEventArgs e)
+    {
+
+    }
+    async Task UpdatePlantAsync(ViewPlants editablePlant)
+    {
+
+    }
+
+    void Grid_CustomizeElement(GridCustomizeElementEventArgs e)
+    {
+        if (e.ElementType == GridElementType.DataRow && e.VisibleIndex % 2 == 1)
+        {
+            e.CssClass = "alt-item";
+        }
+    }
+    async Task ExportToExcel()
+    {
+        await Grid.ExportToXlsxAsync("ExportResult", new GridXlExportOptions()
+            {
+                ExportSelectedRowsOnly = true,
+                CustomizeCell = OnCustomizeCell
+            });
+    }
+    void OnCustomizeCell(GridExportCustomizeCellEventArgs args)
+    {
+        if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
+            args.Formatting.Font = new XlCellFont() { Italic = true };
+        args.Handled = true;
+    }
+}

@@ -162,6 +162,7 @@ namespace Infrastructure
             services.AddScoped<ISettingsQueryRepository, SettingsQueryRepository>();
             services.AddScoped<IDynamicFormDataSourceQueryRepository, DynamicFormDataSourceQueryRepository>();
             services.AddScoped<IQuotationHistoryQueryRepository, QuotationHistoryQueryRepository>();
+            services.AddScoped<ITempSalesPackInformationQueryRepository, TempSalesPackInformationQueryRepository>();
             return services;
         }
     }

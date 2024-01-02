@@ -81,10 +81,10 @@ namespace Infrastructure.Service
                     var incrementalNo = profileSettings.IncrementalNo > 0 ? profileSettings.IncrementalNo : 0;
 
                     int lastNoUsed;
-                    int lnused = 0 ;
+                    int lnused = 0;
                     if (int.TryParse(profileAutoNo.LastNoUsed, out lastNoUsed))
                     {
-                        lnused = lastNoUsed > 0 ? lastNoUsed : 0;                        
+                        lnused = lastNoUsed > 0 ? lastNoUsed : 0;
                     }
 
                     var LastNoUsed = (Convert.ToInt32(lnused) + Convert.ToInt32(incrementalNo)) * Convert.ToInt32(noSeriesModel.NoOfCounts);
@@ -593,18 +593,55 @@ namespace Infrastructure.Service
                 generateDocumentNoSeriesModel.DocumentProfileNoSeries = profileSettings != null ? profileSettings : new DocumentProfileNoSeries();
                 if (masterList.ProfileAutoNumber != null && masterList.ProfileAutoNumber.Count > 0)
                 {
-                    var profileAutoNo = masterList.ProfileAutoNumber.FirstOrDefault();
-                    if (profileAutoNo!=null && !string.IsNullOrEmpty(profileAutoNo.LastNoUsed))
+                    if (profileSettings.StartWithYear == true)
                     {
-                        var incrementalNo = (profileSettings.IncrementalNo > 0 ? profileSettings.IncrementalNo : 0) * Convert.ToInt32(noSeriesModel.NoOfCounts);
-                        var LastNoUsed = (Convert.ToInt32(profileAutoNo.LastNoUsed) + Convert.ToInt32(incrementalNo));
-                        generateDocumentNoSeriesModel.ProfileAutoNumber = profileAutoNo != null ? profileAutoNo : new ProfileAutoNumber();
-                        ProfileAutoNumber newProfileAutoNumber = new ProfileAutoNumber
+                        var profileAutoNo = masterList.ProfileAutoNumber.Where(w => w.ProfileYear == DateTime.Now.Year).FirstOrDefault();
+                        if (profileAutoNo != null && !string.IsNullOrEmpty(profileAutoNo.LastNoUsed))
                         {
-                            ProfileAutoNumberId = profileAutoNo.ProfileAutoNumberId,
-                            LastNoUsed = LastNoUsed.ToString("D" + profileSettings.NoOfDigit),
-                        };
-                        await _generateDocumentNoSeriesQueryRepository.UpdateDocumentProfileNoSeriesLastNoUsed(newProfileAutoNumber);
+                            var incrementalNo = (profileSettings.IncrementalNo > 0 ? profileSettings.IncrementalNo : 0) * Convert.ToInt32(noSeriesModel.NoOfCounts);
+                            var LastNoUsed = (Convert.ToInt32(profileAutoNo.LastNoUsed) + Convert.ToInt32(incrementalNo));
+                            generateDocumentNoSeriesModel.ProfileAutoNumber = profileAutoNo != null ? profileAutoNo : new ProfileAutoNumber();
+                            ProfileAutoNumber newProfileAutoNumber = new ProfileAutoNumber
+                            {
+                                ProfileAutoNumberId = profileAutoNo.ProfileAutoNumberId,
+                                LastNoUsed = LastNoUsed.ToString("D" + profileSettings.NoOfDigit),
+                            };
+                            await _generateDocumentNoSeriesQueryRepository.UpdateDocumentProfileNoSeriesLastNoUsed(newProfileAutoNumber);
+                        }
+                        else
+                        {
+                            var lastNo = noSeriesModel.NoOfCounts * (profileSettings.IncrementalNo > 0 ? profileSettings.IncrementalNo : 0);
+                            ProfileAutoNumber newProfileAutoNumber = new ProfileAutoNumber
+                            {
+                                ProfileId = noSeriesModel.ProfileID,
+                                CompanyId = noSeriesModel.PlantID,
+                                DepartmentId = noSeriesModel.DepartmentId,
+                                SectionId = noSeriesModel.SectionId,
+                                SubSectionId = noSeriesModel.SubSectionId,
+                                LastNoUsed = lastNo > 0 ? lastNo.ToString() : "",
+                                ProfileYear = profileSettings.StartWithYear.GetValueOrDefault(false) ? DateTime.Now.Year : 0,
+                                ScreenId = noSeriesModel.ScreenID,
+                                ScreenAutoNumberId = noSeriesModel.ScreenAutoNumberId,
+
+                            };
+                            await _generateDocumentNoSeriesQueryRepository.InsertProfileAutoNumber(newProfileAutoNumber);
+                        }
+                    }
+                    else
+                    {
+                        var profileAutoNo = masterList.ProfileAutoNumber.FirstOrDefault();
+                        if (profileAutoNo != null && !string.IsNullOrEmpty(profileAutoNo.LastNoUsed))
+                        {
+                            var incrementalNo = (profileSettings.IncrementalNo > 0 ? profileSettings.IncrementalNo : 0) * Convert.ToInt32(noSeriesModel.NoOfCounts);
+                            var LastNoUsed = (Convert.ToInt32(profileAutoNo.LastNoUsed) + Convert.ToInt32(incrementalNo));
+                            generateDocumentNoSeriesModel.ProfileAutoNumber = profileAutoNo != null ? profileAutoNo : new ProfileAutoNumber();
+                            ProfileAutoNumber newProfileAutoNumber = new ProfileAutoNumber
+                            {
+                                ProfileAutoNumberId = profileAutoNo.ProfileAutoNumberId,
+                                LastNoUsed = LastNoUsed.ToString("D" + profileSettings.NoOfDigit),
+                            };
+                            await _generateDocumentNoSeriesQueryRepository.UpdateDocumentProfileNoSeriesLastNoUsed(newProfileAutoNumber);
+                        }
                     }
                 }
                 else

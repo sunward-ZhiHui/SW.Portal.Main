@@ -158,7 +158,8 @@
                                                     <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid="">
 
                                                         <div class="mailbox-read-info">
-                                                            <h3 style="width: 90%;">  @(item.TopicName.Length > 100 ? item.TopicName.Substring(0, 100) : item.TopicName)  </h3>
+                                                           @*  <h3 style="width: 90%;">  @(item.TopicName.Length > 100 ? item.TopicName.Substring(0, 100) : item.TopicName)  </h3> *@
+                                                           <h3 style="width: 90%;">  @item.TopicName  </h3>
                                                             @if (_headTopic_Tag != null && _headTopic_Tag.Any())
                                                             {
                                                                 @foreach (var Tagitem in _headTopic_Tag)
@@ -252,7 +253,8 @@
                                                 <div class="uk-card-header">
                                                     <div class="container-header" style="margin-left: -9px;">
                                                         <div class="left-column">
-                                                            <div style="font-size: 20px; margin: 0;"> @(item.Name.Length > 100 ? item.Name.Substring(0, 100) : item.Name) </div>
+                                                            @* <div style="font-size: 20px; margin: 0;"> @(item.Name.Length > 100 ? item.Name.Substring(0, 100) : item.Name) </div> *@
+                                                            <div style="font-size: 20px; margin: 0;"> @item.Name</div>
                                                             <p style="font-size:12px; line-height: 1.1; margin: 0;    padding: 5px 0 0 0;">
                                                                 From: @item.UserName
                                                             @if (item.OnBehalfName != null)
@@ -289,7 +291,7 @@
                                                             </p>
                                                         </div>
 
-                                                        <div class="right-column" style="width: 28%;">
+                                                        <div class="right-column" style="width: 37%;">
                                                             <div class="shared-div">
                                                                 <div class="date-and-notes">
                                                                     @if(item.DueDate != null)

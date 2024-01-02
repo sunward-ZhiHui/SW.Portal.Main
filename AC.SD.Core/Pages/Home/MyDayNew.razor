@@ -55,6 +55,17 @@
         <DxGridDataColumn FieldName="SubjectName" Caption="Subject" ReadOnly="true" Width="180" />
         <DxGridDataColumn FieldName="NoteName" Caption="Note Name" ReadOnly="true" Width="180" />
         <DxGridDataColumn FieldName="AssignTo" Caption="Assign To" ReadOnly="true" Width="180" />
+        <DxGridDataColumn FieldName="Description" Width="180">
+            <CellDisplayTemplate>
+                @{
+                    var item = (ToDoNotesHistory)context.DataItem;
+                }
+                <strong>
+                    @item.Description
+                </strong>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+
         <DxGridDataColumn FieldName="Url" Width="180"> 
             <CellDisplayTemplate>
                 @{

@@ -42,8 +42,8 @@ namespace SW.Portal.Solutions.ServerSide {
             builder.UseStaticWebAssets();      
             builder.ConfigureServices(ConfigureServices);
             builder.Configure(ConfigureApp);
-
-            
+            builder.UseIISIntegration();
+            builder.UseIIS();
 
             void ConfigureApp(WebHostBuilderContext context, IApplicationBuilder app) {
                 string pathBase = Configuration.GetValue<string>("pathbase");

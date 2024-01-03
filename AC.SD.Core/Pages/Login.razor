@@ -1,4 +1,5 @@
 ﻿@page "/login"
+
 @inject IAlertService AlertService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -165,7 +166,7 @@
 
 @code {
     ResetPassword updatePassword = new ResetPassword();
-
+    [Parameter] public string? returnUrl { get; set; }
     private Data.Account.Logins model = new Data.Account.Logins();
     private bool loading;
     bool LoggedIn { get; set; }

@@ -527,7 +527,7 @@ namespace Infrastructure.Repository.Query
                             parameters.Add("id", id);
                             parameters.Add("userId", userId);
 
-                            var query = "UPDATE EmailNotifications SET IsRead = 1 where UserId = @userId and IsRead = 0 and ConversationId in (select ID from EmailConversations where ReplyId = @id)";
+                            var query = "UPDATE EmailNotifications SET IsRead = 1 where UserId = @userId and IsRead = 0 and ConversationId in (select ID from EmailConversations EC where EC.ReplyId = @id OR EC.ID = @id)";
 
                             var rowsAffected = await connection.ExecuteAsync(query, parameters);
 

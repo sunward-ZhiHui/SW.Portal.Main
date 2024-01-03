@@ -134,7 +134,10 @@ namespace SW.Portal.Solutions.ServerSide {
                     ["DataSourcesFolder"] = Path.Combine(System.AppContext.BaseDirectory, "DataSources")
                 });
             }));
-         
+
+            builder.UseIISIntegration();
+            builder.UseIIS();
+
             base.Configure(builder);
             ReportingHostingStartup.Configure(builder);
         }

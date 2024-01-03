@@ -101,7 +101,13 @@ namespace AC.ShippingDocument.Reporting
                 services.Configure<DevExpress.Blazor.Configuration.GlobalOptions>(options => {
                     options.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5;
                 });
-               
+
+                services.Configure<IISServerOptions>(options =>
+                {
+                    options.AllowSynchronousIO = true;
+                });
+                
+
                 services.AddTransient<DevExpress.DataAccess.Wizard.Services.ICustomQueryValidator, DevExpress.DataAccess.Wizard.Services.CustomQueryValidator>();
                 //services.AddSingleton<IDemoReportSource, DemoReportSource>();
                // services.AddScoped<ReportStorageWebExtension, DemoReportStorageWebExtension>();

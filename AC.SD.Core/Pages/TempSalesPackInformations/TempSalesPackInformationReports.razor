@@ -11,14 +11,17 @@
 @inject NavigationManager NavigationManager
 @page "/SalesItemPackingInformation"
 @inject IJSRuntime jsRuntime
-
+@using global::Core.Repositories.Query;
+@inject AC.SD.Core.Services.ToastService toastService
+@inject ILocalStorageService<ApplicationUser> _localStorageService
   <div class="card w-100" style="margin-bottom:10px;">
      <div class="card-body p-0">
          <DxMenu CollapseItemsToHamburgerMenu="true"
                  CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
                  DisplayMode="MenuDisplayMode.Desktop">
              <Items>
-                 <DxMenuItem Text="Export" IconCssClass="fa fa-file-excel" Click="@ExportToExcel" />
+                <DxMenuItem Text="Sync" IconCssClass="fa fa-sync" Click="@syncData" />
+                 <DxMenuItem Text="Sales Factor" IconCssClass="fa fa-add" Click="@addFactor" />
              </Items>
          </DxMenu>
      </div>
@@ -33,7 +36,7 @@
     <DxGrid @ref="Grid" FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             ColumnResizeMode="GridColumnResizeMode.NextColumn"
             Data="_employeeItems"
-            KeyFieldName="FinishProductGeneralInfoID"
+            KeyFieldName="TempSalesPackInformationID"
             EditModelSaving="Grid_EditModelSaving"
             DataItemDeleting="Grid_DataItemDeleting"
             CustomizeElement="Grid_CustomizeElement"
@@ -83,29 +86,61 @@
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
-
+<DxPopup @bind-Visible="@factorPopup"
+         ShowFooter="true"
+         HeaderText="Sales Factor"
+         CloseOnOutsideClick="false"
+         MinWidth="300" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <TempSalesPackInformationFactorsLine _selectedParentItems="@_selectedItems" applicationUser="@applicationUser"></TempSalesPackInformationFactorsLine>
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Close" Click="@(() => ClosePopup())" />
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    public ApplicationUser applicationUser { get; private set; }
     private List<TempSalesPackInformationReportModel> _employeeItems;
     bool EditEnabled { get; set; } = false;
     bool DeleteEnabled { get; set; } = false;
+    bool factorPopup { get; set; } = false;
     private TempSalesPackInformationReportModel _selectedItems;
     IGrid Grid { get; set; }
     bool ExportSelectedRowsOnly { get; set; }
     bool PanelVisible { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
+        await loadData();
+    }
+    async Task loadData()
+    {
         PanelVisible = true;
         _employeeItems = await Mediator.Send(new GetAllTempSalesPackInformationQuery());
-        PanelVisible = false;
+
         if (_employeeItems.Count > 0)
         {
             _selectedItems = _employeeItems.FirstOrDefault();
             EditEnabled = true;
             DeleteEnabled = true;
-            StateHasChanged();
-        }
-    }
 
+        }
+        PanelVisible = false;
+        StateHasChanged();
+    }
+    async Task syncData()
+    {
+        PanelVisible = true;
+        TempSalesPackInformationReportModel tempSalesPackInformationReportModel = new TempSalesPackInformationReportModel();
+        tempSalesPackInformationReportModel.AddedByUserID=applicationUser.UserID;
+        tempSalesPackInformationReportModel.StatusCodeID = 5;
+        var response = await Mediator.Send(new GetAllTempSalesPackInformationSyncQuery(tempSalesPackInformationReportModel));
+        if (response.StatusCodeID>5)
+        {
+            await loadData();
+        }
+        StateHasChanged();
+    }
     void OnRowClick(GridRowClickEventArgs e)
     {
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "FinishProductGeneralInfoID");
@@ -148,5 +183,14 @@
         if (args.ColumnFieldName == "ContactName" && args.AreaType == SheetAreaType.DataArea)
             args.Formatting.Font = new XlCellFont() { Italic = true };
         args.Handled = true;
+    }
+    void addFactor()
+    {
+        factorPopup = true;
+    }
+    void ClosePopup()
+    {
+        factorPopup = false;
+        StateHasChanged();
     }
 }

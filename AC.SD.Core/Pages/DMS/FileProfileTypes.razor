@@ -136,6 +136,8 @@
                 RowDoubleClick="OnRowDoubleClick"
                 FocusedRowEnabled="true"
                 AllowSelectRowByClick="true"
+                CustomizeFilterMenu="OnCustomizeFilterMenu"
+                FilterCriteriaChanged="FilterCriteriaChanged"
                 CustomizeSummaryDisplayText="Grid_CustomizeSummaryDisplayText"
                 SelectionMode="GridSelectionMode.Single"
                 AutoExpandAllGroupRows="true"
@@ -798,6 +800,16 @@
             await mainPageLoad();
         }
     }
+    void OnCustomizeFilterMenu(GridCustomizeFilterMenuEventArgs e)
+    {
+    }
+    void FilterCriteriaChanged(GridFilterCriteriaChangedEventArgs args)
+    {
+        moreEnabled = false;
+        isVisibleMore = "display:none;";
+        _selectedItems = null;
+        StateHasChanged();
+    }
     protected override async Task OnParametersSetAsync()
     {
         if (applicationUser != null)
@@ -825,7 +837,7 @@
         IsFileProfileTypeInfoOpen = false;
         isEnablePath = false; isExpiryDateVisible = false; isEdit = false; IsGrantAdminPermission = false; isDelete = false; isCreateFolder = false; isCreateSubFolder = false;
         documentPermissionModel = new DocumentPermissionModel();
-
+        Grid.ClearFilter();
         _fileContentList = await Mediator.Send(new GetFileContetTypes());
         isVisibleMore = "display:none;"; isVisibleParentMore = "display:none;";
         moreEnabled = false; isCreateDocumentEnabled = false; IsReserveProfileNumberEnabled = false; isCreateDynamicDocumentEnabled = false; isProfileInfoEnabled = false;
@@ -869,6 +881,7 @@
     }
     async Task loadFileProfileData()
     {
+        Grid.ClearFilter();
         IsExpiryDateOpen = false; IsDescriptionOpen = false; IsRenameOpen = false; IsFileProfileTypeInfoOpen = false;
         isFilterMore = ""; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
         _selectedItems = null;
@@ -920,7 +933,7 @@
 
             if (documentSearchModel.Type != "Search")
             {
-                 isCreateFolder = false;
+                isCreateFolder = false;
                 if (MainSessionId == null)
                 {
                     isCreateFolder = true;
@@ -1251,6 +1264,7 @@
         }
         return foldersModel;
     }
+
     public void openFileProfileLink(DocumentsModel documentsModel)
     {
         documentSearchModel.SessionId = null;
@@ -1304,6 +1318,7 @@
 
         var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "UniqueNo");
         _selectedItems = fileProfileTypeDocuments.FirstOrDefault(f => f.UniqueNo == (long?)UniqueId);
+
         if (_selectedItems != null)
         {
             await permissionEnabled();
@@ -1323,6 +1338,7 @@
             documentSearchModel.FileProfileTypeIds = null;
             isEnablePath = false;
             NavigationManager.NavigateTo($"fileprofiletype/" + _selectedItems.SessionID);
+
         }
         else
         {

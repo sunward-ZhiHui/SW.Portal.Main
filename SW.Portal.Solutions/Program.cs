@@ -14,6 +14,9 @@ using FirebaseAdmin.Messaging;
 using System.Configuration;
 using SW.Portal.Solutions.Models;
 using RealtimeService = SW.Portal.Solutions.Services.RealtimeService;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.AspNetCore;
+using SW.Portal.Solutions.ServerSide;
 
 public class Program
 {
@@ -37,6 +40,7 @@ public class Program
 
     private static void Configure(IWebHostBuilder webHostBuilder, string[] args)
     {
+       
         webHostBuilder
             .UseConfiguration(
                 new ConfigurationBuilder()
@@ -84,6 +88,10 @@ public class Program
             // Configure strongly typed settings objects
             var appSettingsSection = configuration.GetSection("FcmNotification");
             services.Configure<FcmNotificationSetting>(appSettingsSection);
+            services.Configure<RequestBodyOptions>(options =>
+            {
+                options.MinRequestBodyDataRate = 1024; // 1 kilobyte per second
+            });
         }
     }
 }

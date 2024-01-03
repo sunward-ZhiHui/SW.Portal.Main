@@ -14,5 +14,10 @@ namespace Core.Repositories.Query
     {
         //Custom operation which is not generic
         Task<IReadOnlyList<TempSalesPackInformationReportModel>> GetTempSalesPackInformationReport();
+        Task<TempSalesPackInformationReportModel> GetTempSalesPackInformationReportSync(TempSalesPackInformationReportModel tempSalesPackInformationReportModel);
+        Task<IReadOnlyList<TempSalesPackInformationFactor>> GetTempSalesPackInformationFactor(long? Id);
+        Task<TempSalesPackInformationFactor> InsertTempSalesPackInformationFactor(TempSalesPackInformationFactor value);
+        Task<TempSalesPackInformationFactor> DeleteTempSalesPackInformationFactor(long? Id);
+        
     }
 }

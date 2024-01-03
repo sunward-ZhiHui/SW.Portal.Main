@@ -652,7 +652,7 @@ else
         IBarGroup undoRedoGroup = toolbar.Groups[0];
         undoRedoGroup.Items.Add(0,RichEditBarItemNames.FullScreen);
 
-       
+
     }
 
     //IEnumerable<GridSelectAllCheckboxMode> SelectAllCheckboxModes { get; } = Enum.GetValues<GridSelectAllCheckboxMode>();
@@ -852,17 +852,22 @@ else
                 CategoryData.ActionTag = _TagEmailList == null ? null : _TagEmailList[0].ActionTag;
                 CategoryData.Name = _TagEmailList == null ? null : _TagEmailList[0].Name;
 
-                var _getUserTag = await Mediator.Send(new GetByUserTage(_TagEmailList[0].TopicId, applicationUser.UserID));
-
-
-                //var userTagName = _UserTagList.Where(x => x.UserTagTopicId == _TagEmailList[0].TopicId).ToList();
-                //CategoryData.UserTag = _TagEmailList == null ? null : _TagEmailList[0].UserTag;
-                if(_getUserTag.Count > 0)
+                if (_TagEmailList != null)
                 {
-                    CategoryData.UserTag = _getUserTag[0].UserTag;
-                    CategoryData.UserTagId = _getUserTag[0].UserTag == null ? 0 : _getUserTag[0].UserTagId;
+                    var _getUserTag = await Mediator.Send(new GetByUserTage(_TagEmailList[0].TopicId, applicationUser.UserID));
+
+
+
+
+                    //var userTagName = _UserTagList.Where(x => x.UserTagTopicId == _TagEmailList[0].TopicId).ToList();
+                    //CategoryData.UserTag = _TagEmailList == null ? null : _TagEmailList[0].UserTag;
+                    if (_getUserTag.Count > 0)
+                    {
+                        CategoryData.UserTag = _getUserTag[0].UserTag;
+                        CategoryData.UserTagId = _getUserTag[0].UserTag == null ? 0 : _getUserTag[0].UserTagId;
+                    }
                 }
-               
+
                 await msgrichEdit.SaveDocumentAsync();
                 using DevExpress.XtraRichEdit.RichEditDocumentServer server = new DevExpress.XtraRichEdit.RichEditDocumentServer();
                 byte[] fileContent1 = actItem[0].FileData;

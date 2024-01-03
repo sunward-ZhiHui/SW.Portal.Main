@@ -49,8 +49,9 @@ public class Program
                     .AddJsonFile("ConnectionStrings.json", false, false)
                     .Build()
             )
-            .ConfigureServices(ConfigureServices)            
+            .ConfigureServices(ConfigureServices)
             .UseStaticWebAssets();
+        
         
 
         static void ConfigureServices(WebHostBuilderContext context, IServiceCollection services)
@@ -60,6 +61,11 @@ public class Program
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            });
+
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
             });
 
             services.AddOptions();

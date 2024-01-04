@@ -973,5 +973,68 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DocumentsUploadModel> UpdateDocumentNoDocumentByNoProfile(DocumentsUploadModel values)
+        {
+
+            try
+            {
+                var query = string.Empty;
+
+                if (values.DocumentIds != null && values.DocumentIds.Count > 0)
+                {
+                    var profileNos = await GenerateDocumentProfileAutoNumberOne(values);
+                    int? lastNoUsed = Convert.ToInt32(profileNos.ProfileAutoNumber.LastNoUsed == null ? null : profileNos.ProfileAutoNumber.LastNoUsed);
+                    int? incrementNo = null;
+                    if (profileNos.DocumentProfileNoSeries.ProfileId > 0)
+                    {
+                        var startNo = Convert.ToInt32(!string.IsNullOrEmpty(profileNos.DocumentProfileNoSeries.StartingNo) ? profileNos.DocumentProfileNoSeries.StartingNo : 0);
+                        incrementNo = profileNos.DocumentProfileNoSeries.ProfileId > 0 ? ((startNo + profileNos.DocumentProfileNoSeries.IncrementalNo.GetValueOrDefault(0))) : null;
+                    }
+                    values.DocumentIds.ForEach(value =>
+                    {
+                        if (incrementNo != null)
+                        {
+                            lastNoUsed += incrementNo;
+                        }
+
+                        var profileNo = profileNos.ProfileNo;
+                        if (lastNoUsed > 0 && profileNos.DocumentProfileNoSeries.NoOfDigit > 0)
+                        {
+                            profileNo += Convert.ToInt32(lastNoUsed).ToString("D" + profileNos.DocumentProfileNoSeries.NoOfDigit);
+                        }
+
+                        query += "Update Documents SET " +
+                                "FilterProfileTypeId=" + values.FileProfileTypeId + ", " +
+                                "Description='" + values.Description + "', " +
+                                 "ExpiryDate=@ExpiryDate," +
+                                "StatusCodeID=1, " +
+                                "ProfileNo='" + profileNo + "', " +
+                                "TableName='Document', " +
+                                "IsTemp=0, " +
+                                "SessionId='" + value.SessionId + "' " +
+                                "WHERE " +
+                                 "DocumentID=" + value.DocumentID + ";\n\r";
+
+
+                        query += "INSERT INTO [DocumentNoSeries](ProfileId,DocumentNo,AddedDate,AddedByUserID,StatusCodeId," +
+                                "SessionId,RequestorId,ModifiedDate,ModifiedByUserId,FileProfileTypeId,Description) " +
+                                "OUTPUT INSERTED.NumberSeriesId VALUES " +
+                               "(" + values.ProfileId + ",'" + profileNo + "',@AddedDate," + values.UserId + ",710,'" + value.SessionId + "'," + values.UserId + "," +
+                               "@ModifiedDate," + values.UserId + "," + values.FileProfileTypeId + ",'" + values.Description + "');\r\n";
+                    });
+                    if (!string.IsNullOrEmpty(query))
+                    {
+                        await UpdateDocumentNoDocumentBySessions(query, values);
+                    }
+                }
+
+                return values;
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+
+        }
     }
 }

@@ -752,5 +752,31 @@ namespace Application.Handlers.QueryHandlers
             }
 
         }
+        public class GetNoProfileNoHandler : IRequestHandler<GetNoProfileNo, List<DocumentsModel>>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public GetNoProfileNoHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<List<DocumentsModel>> Handle(GetNoProfileNo request, CancellationToken cancellationToken)
+            {
+                return (List<DocumentsModel>)await _fileprofileQueryRepository.GetNoProfileNo(request.UserId,request.StartDate);
+            }
+
+        }
+        public class UpdateDocumentNoDocumentByNoProfileHandler : IRequestHandler<UpdateDocumentNoDocumentByNoProfile, DocumentsUploadModel>
+        {
+            private readonly IDocumentsQueryRepository _documentsqueryrepository;
+            public UpdateDocumentNoDocumentByNoProfileHandler(IDocumentsQueryRepository documentsqueryrepository)
+            {
+                _documentsqueryrepository = documentsqueryrepository;
+            }
+            public async Task<DocumentsUploadModel> Handle(UpdateDocumentNoDocumentByNoProfile request, CancellationToken cancellationToken)
+            {
+                return await _documentsqueryrepository.UpdateDocumentNoDocumentByNoProfile(request.DocumentsUploadModel);
+            }
+
+        }
     }
 }

@@ -63,6 +63,7 @@
                     <DxMenuItem Position="ItemPosition.End" title="Upload Documents" IconCssClass="fa fa-ellipsis-v" Click="onmore" Enabled="@moreEnabled" style="@isVisibleParentMore">
                         <Items>
                             <DxMenuItem Text="Upload New Documents" IconCssClass="fa fa-cloud-upload" Click="onUploadFileProfileType" Visible="isCreateDocumentEnabled" />
+                            <DxMenuItem Text="Missing Doc No Documents" IconCssClass="fa fa-cloud-upload" Click="onMissingUploadFileProfileType" Visible="isCreateDocumentEnabled" />
                             <DxMenuItem Text="Upload Documents By Form" IconCssClass="fa fa-cloud-upload" Click="onUploadDynamicForm" Visible="isCreateDynamicDocumentEnabled" />
                             <DxMenuItem Text="Reserve Profile Number Series" IconCssClass="fa fa-plus-square" Click="onReserveProfileNumberSeries" Visible="IsReserveProfileNumberEnabled" />
                             <DxMenuItem Text="Add/Edit Profile Type Info" IconCssClass="fa fa-info" Click="onAddFileProfileTypeInfo" Visible="isProfileInfoEnabled" />
@@ -666,7 +667,18 @@
 
     </FooterContentTemplate>
 </DxPopup>
+<DxPopup @bind-Visible="@MissingUploadFileProfileTypePopup"
+         HeaderText="Upload Documents"
+         CloseOnOutsideClick="false"
+         ShowCloseButton="false"
+         ShowFooter="false"
+         MinWidth="400" MinHeight="200" MaxWidth="1000px" MaxHeight="800">
+    <BodyContentTemplate>
+        <MissingUploadFileProfileType FolderPathLists="@FolderPathLists" applicationUser="@applicationUser" selectedFiles="@_ParentselectedItems"  RevokeBack="BackUpload"></MissingUploadFileProfileType>
+    </BodyContentTemplate>
+</DxPopup>
 @code {
+    bool MissingUploadFileProfileTypePopup { get; set; } = false;
     string? MoveDocumentName { get; set; } = string.Empty;
     bool MoveDocumentPopup { get; set; } = false;
     bool isCheckAllEnabled { get; set; } = false;
@@ -1907,6 +1919,7 @@
     }
     async void BackUpload()
     {
+        MissingUploadFileProfileTypePopup = false;
         PopupNewUpload = false;
         onShowMain = "";
         onUploadVisible = "display:none;";
@@ -2234,6 +2247,10 @@
     void EulaPopupMoveDocumentClosed()
     {
         MoveDocumentPopup = false;
+    }
+    void onMissingUploadFileProfileType()
+    {
+        MissingUploadFileProfileTypePopup = true;
     }
     public void Dispose()
     {

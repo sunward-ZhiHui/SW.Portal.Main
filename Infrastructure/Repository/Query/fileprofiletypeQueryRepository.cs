@@ -2522,5 +2522,36 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
+        public async Task<DocumentsUploadModel> GetDocumentDeleteForNoProfileNo(DocumentsUploadModel documentsModel)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                        var parameters = new DynamicParameters();
+                        parameters.Add("IsDelete", 1);
+                        parameters.Add("DeleteByUserID", userData.UserID);
+                        parameters.Add("DeleteByDate", DateTime.Now, DbType.DateTime);
+                        var Addquerys = "UPDATE Documents SET IsDelete = @IsDelete,DeleteByUserID=@DeleteByUserID,DeleteByDate=@DeleteByDate WHERE  DocumentID in(" + string.Join(',', documentsModel.DocumentIds.Select(s => s.DocumentID).ToList()) + ")";
+                        await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters);
+                        return documentsModel;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
     }
 }

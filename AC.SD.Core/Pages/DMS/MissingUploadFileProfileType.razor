@@ -25,6 +25,7 @@
                     <Items>
                         <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
                         <DxMenuItem Text="Generate No" IconCssClass="fa fa-save" Click="@onsubmitUploadFromClick" Enabled="@loading" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@onDeleteDocuments" Enabled="@loading" />
                     </Items>
                 </DxMenu>
             </div>
@@ -212,6 +213,7 @@
             AutoExpandAllGroupRows="true"
             CssClass="ch-360" style="height: calc(100vh - 400px);"
             FocusedRowEnabled="true"
+            RowClick="OnRowClick"
             FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
             AllowSelectRowByClick="true">
         <Columns>
@@ -224,7 +226,7 @@
                     @{
                         var item = (DocumentsModel)context.DataItem;
 
-                        <DxCheckBox @bind-Checked="item.Checked"></DxCheckBox>
+                        <DxCheckBox Checked="item.Checked" CheckedChanged="@((bool values) => OnCheckedoneValueChanged(values,item))" CheckedExpression="@(() => item.Checked)"></DxCheckBox>
                     }
                 </CellDisplayTemplate>
             </DxGridCommandColumn>
@@ -255,7 +257,25 @@
         </TotalSummary>
     </DxGrid>
 </DxLoadingPanel>
+<DxPopup @bind-Visible="@BlukMissingdeleteDocument"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupMissingDocumentClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete this Document
+        </p>
+        
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="onMissingDocDelete" />
+
+    </FooterContentTemplate>
+</DxPopup>
 @code {
+    bool BlukMissingdeleteDocument { get; set; } = false;
     bool CheckedAll { get; set; } = false;
     bool PanelLoadVisible { get; set; }
     List<DocumentsModel> FolderPathListsItems = new List<DocumentsModel>();
@@ -280,11 +300,12 @@
     bool isSection { get; set; } = false; bool isSubSection { get; set; } = false;
     public DocumentProfileNoSeriesModel documentProfileNoSeriesData { get; set; }
     public string FileprofiletypeName { get; set; }
-    public bool loading { get; set; } = true;
+    public bool loading { get; set; } = false;
     public bool IsFileProfileTypeOpen { get; set; }
     public bool IsFileProfileTypeShow { get; set; } = false;
     public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
     public List<DocumentsModel> docLists { get; set; }
+    private DocumentsModel? _selectedItemss;
     DateTime StartDate = DateTime.Today; private string? DocumentViewUrl;
     protected override async Task OnInitializedAsync()
     {
@@ -296,10 +317,19 @@
     }
     async Task loadList()
     {
+        loading = false;
         PanelLoadVisible = true;
         docLists = await Mediator.Send(new GetNoProfileNo(applicationUser.UserID, StartDate));
         PanelLoadVisible = false;
         StateHasChanged();
+    }
+    void onDeleteDocuments()
+    {
+        BlukMissingdeleteDocument = true;
+    }
+    void EulaPopupMissingDocumentClosed()
+    {
+        BlukMissingdeleteDocument = false;
     }
     async Task OnDateChanged(DateTime newValue)
     {
@@ -370,16 +400,48 @@
         await SelectedItemSectionChanged(0);
         StateHasChanged();
     }
+    void OnCheckedoneValueChanged(bool radioValue,DocumentsModel documentsModel)
+    {
+        loading = false;
+        documentsModel.Checked = radioValue;
+        if (docLists != null && docLists.Count() > 0)
+        {
+            var doclistChecked = docLists.Where(w => w.Checked == true).ToList();
+            if (doclistChecked.Count > 0)
+            {
+                loading = true;
+            }
+        }
+        StateHasChanged();
+    }
     void OnCheckedAllValueChanged(bool radioValue)
     {
+        loading = false;
         CheckedAll = radioValue;
         if (docLists != null && docLists.Count() > 0)
         {
+            if (radioValue == true)
+            {
+                loading = true;
+            }
             docLists.ForEach(s =>
             {
                 s.Checked = radioValue;
             });
         }
+    }
+    async Task OnRowClick(GridRowClickEventArgs e)
+    {
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentID");
+        _selectedItemss = docLists.FirstOrDefault(f => f.DocumentID == (long?)UniqueId);
+        _selectedItemss.Checked = true;
+        loading = false;
+        if (docLists != null && docLists.Count() > 0)
+        {
+             loading = true;
+        }
+        StateHasChanged();
     }
     async void onView(DocumentsModel _selectedItems)
     {
@@ -527,6 +589,30 @@
             var msg = "Must Select Document File";
             toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
         }
+    }
+    async Task onMissingDocDelete()
+    {
+        var doclistChecked = docLists.Where(w => w.Checked == true).ToList();
+        if (doclistChecked.Count > 0)
+        {
+            loading = false;
+            Data.DocumentIds = doclistChecked;
+            var responses = await Mediator.Send(new GetDocumentDeleteForNoProfileNo(Data));
+            if (responses.FileProfileTypeId > 0)
+            {
+                loading = true;
+                var msg = "Document Deleted Successfully";
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Success);
+                BlukMissingdeleteDocument = false;
+                await loadList();
+            }
+        }
+        else
+        {
+            var msg = "Must Select Document File";
+            toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+        }
+
     }
     public void Dispose()
     {

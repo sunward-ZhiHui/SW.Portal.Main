@@ -60,5 +60,6 @@ namespace Core.Repositories.Query
         Task<IReadOnlyList<Documents>> GetAllSelectedFilesAsync(DocumentSearchModel documentSearchModel);
         Task<IReadOnlyList<DocumentsModel>> GetUploadedButNoProfileNo(DocumentsUploadModel documentsUploadModel);
         Task<IReadOnlyList<DocumentsModel>> GetNoProfileNo(long? UserId,DateTime? StartDate);
+        Task<DocumentsUploadModel> GetDocumentDeleteForNoProfileNo(DocumentsUploadModel documentsModel);
     }
 }

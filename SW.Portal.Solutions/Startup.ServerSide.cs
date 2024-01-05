@@ -21,6 +21,7 @@ using Application.Constant;
 using SW.Portal.Solutions.Hubs;
 using Core.FCM;
 using Core.Services;
+using SW.Portal.Solutions.Models;
 
 namespace SW.Portal.Solutions.ServerSide {
 
@@ -69,7 +70,10 @@ namespace SW.Portal.Solutions.ServerSide {
             {
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             });
-
+            services.Configure<RequestBodyOptions>(options =>
+            {
+                options.MinRequestBodyDataRate = 1024; // 1 kilobyte per second
+            });
             //services.AddScoped<IContosoRetailDataProvider, ContosoRetailDataProvider>();
             //services.AddScoped<IRentInfoDataProvider, RentInfoDataProvider>();
 

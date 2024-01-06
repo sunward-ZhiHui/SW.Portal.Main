@@ -691,7 +691,7 @@
     [Parameter]
     public Guid? MainSessionId { get; set; }
     //public Guid? SessionId { get; set; }
-    string? searchText { get; set; }
+    public string? searchText { get; set; }
     [Parameter]
     public Guid? DocSessionId { get; set; }
     bool Blukdeletepopup { get; set; } = false;
@@ -781,6 +781,7 @@
     bool isEdit { get; set; } = false;
     bool IsGrantAdminPermission { get; set; } = false; bool isDelete { get; set; } = false; bool isCreateFolder { get; set; } = false; bool isCreateSubFolder { get; set; } = false;
     bool isEnablePath { get; set; } = false;
+    public string? SearchText { get; set; } = null;
     protected override async Task OnInitializedAsync()
     {
         applicationUser = await _localStorageService.GetItem<ApplicationUser>("user");
@@ -803,9 +804,13 @@
     }
     async Task OnSearchTextChanged(string? newSearchText)
     {
+        searchText = newSearchText;
         if (newSearchText != null)
         {
+            moreEnabled = false;
+            isVisibleMore = "display:none;";
             _selectedItems = null;
+            StateHasChanged();
         }
         else
         {
@@ -844,6 +849,7 @@
     }
     async Task mainPageLoad()
     {
+        searchText = null; SearchText = null;
         PanelVisible = true; isCheckAllEnabled = false; CheckedAll = false; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
         _openAccessUserLink = await Mediator.Send(new GetDMSAccessByUser(applicationUser.UserID));
         IsFileProfileTypeInfoOpen = false;
@@ -888,12 +894,12 @@
             }
         }
         await loadFileProfileData();
-        PanelVisible = false;
+        PanelVisible = false;    
         StateHasChanged();
     }
     async Task loadFileProfileData()
     {
-        Grid.ClearFilter();
+        Grid.ClearFilter(); searchText = null; SearchText = null;
         IsExpiryDateOpen = false; IsDescriptionOpen = false; IsRenameOpen = false; IsFileProfileTypeInfoOpen = false;
         isFilterMore = ""; MoveFileprofiletypeId = null; _MoveDocList = new List<DocumentsModel>(); isMoveEnabled = "display:none;";
         _selectedItems = null;
@@ -933,7 +939,7 @@
             {
                 await PermiisionMain();
             }
-            PanelVisible = false;
+            PanelVisible = false;    
             StateHasChanged();
         }
     }

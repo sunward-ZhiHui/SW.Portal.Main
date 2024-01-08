@@ -24,6 +24,7 @@ using net.tipstrade.FCMNet.Responses;
 using System.Configuration;
 using DevExpress.XtraRichEdit.Import.Html;
 using DevExpress.DataProcessing.InMemoryDataProcessor;
+using Core.EntityModels;
 
 namespace SW.Portal.Solutions.Controllers
 {
@@ -42,16 +43,16 @@ namespace SW.Portal.Solutions.Controllers
             _configuration = configuration;
         }
 
-
+        
         [HttpGet("GetEmailList")]
-        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetList(string mode, long UserId,string SearchTxt)
+        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetList(string mode, long UserId, string SearchTxt)
         {
             List<Core.Entities.EmailTopics> result = null;
             var response = new ResponseModel<EmailTopicViewModel>();
 
             if (mode == "To")
             {
-                result = await _mediator.Send(new GetEmailTopicTo(UserId,SearchTxt));
+                result = await _mediator.Send(new GetEmailTopicTo(UserId, SearchTxt));
             }
             else if (mode == "CC")
             {
@@ -85,15 +86,15 @@ namespace SW.Portal.Solutions.Controllers
                 addedByUserID = topic.AddedByUserID,
                 mode = mode,
                 userId = UserId,
-                addedDateYear = topic.StartDate.Year,               
+                addedDateYear = topic.StartDate.Year,
                 addedDateDay = topic.StartDate.ToString("dd-MMM"),
                 addedTime = topic.StartDate.ToString("hh:mm tt")
             }).ToList();
 
             try
             {
-                response.ResponseCode = ResponseCode.Success;               
-                response.Results =displayResult;
+                response.ResponseCode = ResponseCode.Success;
+                response.Results = displayResult;
             }
             catch (Exception ex)
             {
@@ -104,26 +105,26 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpGet("GetEmailSearchList")]
-        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetSearchList(string mode,string SearchTxt, long UserId)
+        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetSearchList(string mode, string SearchTxt, long UserId)
         {
             List<Core.Entities.EmailTopics> result = null;
             var response = new ResponseModel<EmailTopicViewModel>();
 
             if (mode == "To")
             {
-                result = await _mediator.Send(new GetEmailTopicToSearch(SearchTxt,UserId));
+                result = await _mediator.Send(new GetEmailTopicToSearch(SearchTxt, UserId));
             }
             else if (mode == "CC")
             {
-                result = await _mediator.Send(new GetEmailTopicCCSearch(SearchTxt,UserId));
+                result = await _mediator.Send(new GetEmailTopicCCSearch(SearchTxt, UserId));
             }
             else if (mode == "Sent")
             {
-                result = await _mediator.Send(new GetSentTopicSearch(SearchTxt,UserId));
+                result = await _mediator.Send(new GetSentTopicSearch(SearchTxt, UserId));
             }
             else if (mode == "All")
             {
-                result = await _mediator.Send(new GetEmailTopicAllSearch(SearchTxt,UserId));
+                result = await _mediator.Send(new GetEmailTopicAllSearch(SearchTxt, UserId));
             }
             else
             {
@@ -164,7 +165,7 @@ namespace SW.Portal.Solutions.Controllers
             return Ok(response);
         }
         [HttpGet("GetSubEmailList")]
-        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetSubList(string mode, long Id, long UserId,string SearchTxt)
+        public async Task<ActionResult<ResponseModel<List<EmailTopicViewModel>>>> GetSubList(string mode, long Id, long UserId, string SearchTxt)
         {
             List<Core.Entities.EmailTopics> subResult = null;
             var response = new ResponseModel<EmailTopicViewModel>();
@@ -206,7 +207,7 @@ namespace SW.Portal.Solutions.Controllers
                 addedByUserID = topic.AddedByUserID,
                 mode = mode,
                 userId = UserId,
-                addedDateYear = topic.StartDate.Year,                
+                addedDateYear = topic.StartDate.Year,
                 addedDateDay = topic.StartDate.ToString("dd-MMM"),
                 addedTime = topic.StartDate.ToString("hh:mm tt")
             }).ToList();
@@ -456,7 +457,7 @@ namespace SW.Portal.Solutions.Controllers
             foreach (var item in Result)
             {
                 var tokens = await _mediator.Send(new GetUserTokenListQuery(item.UserID.Value));
-                if(tokens.Count > 0)
+                if (tokens.Count > 0)
                 {
                     foreach (var lst in tokens)
                     {
@@ -466,14 +467,14 @@ namespace SW.Portal.Solutions.Controllers
                     }
 
                 }
-               
+
 
             }
-         
+
             return "ok";
         }
         [HttpGet("PushNotification")]
-        public async Task<string> PushNotification(string token, string title,string message,string hosturl)
+        public async Task<string> PushNotification(string token, string title, string message, string hosturl)
         {
             var serverToken = _configuration["FcmNotification:ServerKey"];
             var baseurl = _configuration["DocumentsUrl:BaseUrl"];
@@ -500,7 +501,7 @@ namespace SW.Portal.Solutions.Controllers
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("key", "=" + serverToken);
 
                 string serializeRequest = JsonConvert.SerializeObject(pushNotificationRequest);
-                var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));               
+                var response = await client.PostAsync(url, new StringContent(serializeRequest, Encoding.UTF8, "application/json"));
             }
             return "ok";
         }
@@ -508,7 +509,7 @@ namespace SW.Portal.Solutions.Controllers
         [HttpGet("GetDocumentList")]
         public async Task<ActionResult<ResponseModel<List<DocumentsView>>>> GetDocumentList(long id)
         {
-           var DocumentViewUrl = _configuration["DocumentsUrl:DocumentViewer"];
+            var DocumentViewUrl = _configuration["DocumentsUrl:DocumentViewer"];
 
             var response = new ResponseModel<DocumentsView>();
             try

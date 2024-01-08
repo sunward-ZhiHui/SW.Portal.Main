@@ -1,0 +1,622 @@
+﻿@using Application.Queries;
+@using MediatR;
+@using Newtonsoft.Json;
+@using global::Core.Entities;
+@using global::Core.EntityModels;
+@using global::Core.Entities.Views;
+@using global::Core.Repositories.Query;
+@inject IMediator Mediator
+@inject IJSRuntime JSRuntime;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration Configuration
+@inject ClipboardService ClipboardService
+@inject IJSRuntime jsRuntime
+@inject AC.SD.Core.Services.ToastService toastService
+@inject NavigationManager Navigator
+@using System.Collections
+@implements IDisposable
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxMenu CollapseItemsToHamburgerMenu="true"
+                        CollapseItemToIconMode="MenuCollapseItemToIconMode.Sequentially"
+                        DisplayMode="MenuDisplayMode.Desktop">
+                    <Items>
+                        <DxMenuItem Text="Back" IconCssClass="fa fa-reply" Click="@backUrl" />
+                        <DxMenuItem Text="Generate No" IconCssClass="fa fa-save" Click="@onsubmitUploadFromClick" Enabled="@loading" />
+                        <DxMenuItem Text="Delete" IconCssClass="fa fa-remove" Click="@onDeleteDocuments" Enabled="@loading" />
+                    </Items>
+                </DxMenu>
+            </div>
+
+        </div>
+    </div>
+</div>
+@* <DxMenu Data="@FolderPathListsItems"
+        DisplayMode="MenuDisplayMode.Auto">
+    <DataMappings>
+        <DxMenuDataMapping Text="FileName" IconCssClass="fa fa-angle-double-right"
+                           Children="Children"
+                           BeginGroup="BeginGroup"
+                           CssClass="CssClass"
+                           Enabled="Enabled" />
+    </DataMappings>
+</DxMenu> *@
+<div class="" style="margin-left:10px;">
+    <div class="row align-items-start" style="overflow: auto; border: 1px solid #d5d4d4;">
+        <div class="cw-480" style="margin-top:10px;">
+            <EditForm EditContext="this._editContext" Context="EditFormContext" OnValidSubmit="@HandleValidSubmit">
+
+                <DxFormLayout CssClass="w-100">
+                    <DataAnnotationsValidator />
+                    <DxFormLayoutItem Caption="File ProfileType" ColSpanMd="10">
+                        <DxTextBox @bind-Text=@FileprofiletypeName Enabled="IsFileProfileTypeShow">
+                            <Buttons>
+                                <DxEditorButton IconCssClass="fa fa-add" Id=@($"flyout-overview-target-container-FileProfileTypeOpen")
+                                                Tooltip="Select File ProfileType"
+                                                Click="@(_ => OnButtonFileProfileTypeClick())" />
+                            </Buttons>
+                        </DxTextBox>
+                        <DxSpinEdit @bind-Value="@Data.FileProfileTypeId" ShowValidationIcon="true" style="display:none;" />
+                        <ValidationMessage For="@(() => Data.FileProfileTypeId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Company" ColSpanMd="6">
+                        <DxComboBox Data="@_plantItems"
+                                    NullText="Select Company..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="PlantCode"
+                                    ValueFieldName="PlantID"
+                                    SelectedItemChanged="@((ViewPlants plantSelect) => SelectedItemChanged(plantSelect?.PlantID))"
+                                    Enabled="isPlant"
+                        @bind-Value="@Data.PlantId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.PlantCode)"
+                                                    Caption="Plant Code"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.Description)"
+                                                    Caption="Description" />
+                                <DxListEditorColumn FieldName="@nameof(ViewPlants.NavCompanyName)"
+                                                    Caption="Nav Company" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.PlantId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Division" ColSpanMd="6">
+                        <DxComboBox Data="@_divisionItems"
+                                    NullText="Select Division..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="Name"
+                                    ValueFieldName="DivisionID"
+                                    Enabled="isDivision"
+                                    SelectedItemChanged="@((ViewDivision plantSelect) => SelectedItemDivisionChanged(plantSelect?.DivisionID))"
+                        @bind-Value="@Data.DivisionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Name)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Code)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDivision.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.DivisionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Department" ColSpanMd="6">
+                        <DxComboBox Data="@_departmentItems"
+                                    NullText="Select Department..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="DepartmentName"
+                                    ValueFieldName="DepartmentId"
+                                    Enabled="isDepartment"
+                                    SelectedItemChanged="@((ViewDepartment plantSelect) => SelectedItemDepartementChanged(plantSelect?.DepartmentId))"
+                        @bind-Value="@Data.DepartmentId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.DepartmentCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewDepartment.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.DepartmentId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Section" ColSpanMd="6">
+                        <DxComboBox Data="@_sectionItems"
+                                    NullText="Select Section..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SectionName"
+                                    ValueFieldName="SectionId"
+                                    Enabled="isSection"
+                                    SelectedItemChanged="@((ViewSection plantSelect) => SelectedItemSectionChanged(plantSelect?.SectionId))"
+                        @bind-Value="@Data.SectionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.SectionCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSection.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.SectionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="SubSection" ColSpanMd="6">
+                        <DxComboBox Data="@_subSectionItems"
+                                    NullText="Select SubSection..."
+                                    ListRenderMode="ListRenderMode.Virtual"
+                                    FilteringMode="DataGridFilteringMode.Contains"
+                                    TextFieldName="SubSectionName"
+                                    ValueFieldName="SubSectionId"
+                                    Enabled="isSubSection"
+                        @bind-Value="@Data.SubSectionId" ShowValidationIcon="true">
+                            <Columns>
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionName)"
+                                                    Caption="Name"
+                                                    Width="180px" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.SubSectionCode)"
+                                                    Caption="Code" />
+                                <DxListEditorColumn FieldName="@nameof(ViewSubSection.Description)"
+                                                    Caption="Description" />
+                            </Columns>
+                        </DxComboBox>
+                        <ValidationMessage For="@(() => Data.SubSectionId)" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Expiry Date:" ColSpanMd="6" Visible="@isExpiryDate">
+                        <DxDateEdit NullText="Select a Expiry Date..." MinDate="DateTime.Now" @bind-Date="@Data.ExpiryDate" CssClass="cw-320" />
+                    </DxFormLayoutItem>
+                    <DxFormLayoutItem Caption="Description" ColSpanMd="6">
+                        <DxMemo @bind-Text="@Data.Description" Rows="5" ShowValidationIcon="true" />
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<div class="card" style="margin-bottom:10px; margin-top: 10px; margin-right:-12px;padding:5px;">
+    <div class="card-body p-0">
+        <div class="row">
+            <div class="">
+                <DxFormLayout CssClass="w-100">
+                    <DxFormLayoutItem Caption="Select Date:" ColSpanMd="6">
+                        <DxDateEdit NullText="Select a Date..." Date="@StartDate" DateExpression="@(() => StartDate)" DateChanged="@((DateTime newValue) => OnDateChanged(newValue))" CssClass="cw-320" />
+                    </DxFormLayoutItem>
+                </DxFormLayout>
+            </div>
+        </div>
+    </div>
+</div>
+<DxLoadingPanel @bind-Visible="PanelLoadVisible"
+                IsContentBlocked="true"
+                ApplyBackgroundShading="true"
+                IndicatorAreaVisible="false"
+                Text="Fetching Data...">
+    <DxGrid Data="docLists" KeyFieldName="DocumentID" ShowSearchBox="true"
+            ColumnResizeMode="GridColumnResizeMode.NextColumn"
+            PagerNavigationMode="PagerNavigationMode.InputBox"
+            PageSizeSelectorVisible="true"
+            ShowGroupPanel="true" ShowGroupedColumns="true"
+            PageSizeSelectorAllRowsItemVisible="true"
+            PageSizeSelectorItems="@(new int[] { 5,10,20 })"
+            PageSize="20"
+            SelectionMode="GridSelectionMode.Multiple"
+            SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
+            ValidationEnabled="true"
+            AutoExpandAllGroupRows="true"
+            CssClass="ch-360" style="height: calc(100vh - 400px);"
+            FocusedRowEnabled="true"
+            RowClick="OnRowClick"
+            FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Always"
+            AllowSelectRowByClick="true">
+        <Columns>
+            @* <DxGridSelectionColumn Width="60px" AllowSelectAll="true" /> *@
+            <DxGridCommandColumn MinWidth="20">
+                <HeaderTemplate>
+                    <DxCheckBox Checked="@CheckedAll" CheckedExpression="@(() => CheckedAll)" CheckedChanged="@((bool value) => OnCheckedAllValueChanged(value))"></DxCheckBox>
+                </HeaderTemplate>
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+
+                        <DxCheckBox Checked="item.Checked" CheckedChanged="@((bool values) => OnCheckedoneValueChanged(values,item))" CheckedExpression="@(() => item.Checked)"></DxCheckBox>
+                    }
+                </CellDisplayTemplate>
+            </DxGridCommandColumn>
+            <DxGridDataColumn FieldName="DocumentID" Visible="false" />
+            <DxGridDataColumn FieldName="FileName" Caption="FileName" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+            <DxGridDataColumn FieldName="FileSizes" Caption="File Size" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+            <DxGridDataColumn FieldName="ContentType" Caption="Type" TextAlignment="GridTextAlignment.Left" MinWidth="80" />
+            <DxGridDataColumn FieldName="UploadDate" Caption="Added Date" MinWidth="170">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                        var expiryDate = (item.UploadDate != null ? Application.Common.Helper.Helper.FormatDate(item.UploadDate.Value) : null);
+                    }
+                    @expiryDate
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+            <DxGridDataColumn FieldName="FileSize" Caption="View File" MinWidth="50">
+                <CellDisplayTemplate>
+                    @{
+                        var item = (DocumentsModel)context.DataItem;
+                    }
+                    <DxButton RenderStyle="ButtonRenderStyle.Link" RenderStyleMode="ButtonRenderStyleMode.Contained" Click="@(() => onView(item))" Text="View" />
+                </CellDisplayTemplate>
+            </DxGridDataColumn>
+        </Columns>
+        <TotalSummary>
+            <DxGridSummaryItem SummaryType="GridSummaryItemType.Count" FieldName="FileName" />
+        </TotalSummary>
+    </DxGrid>
+</DxLoadingPanel>
+<DxPopup @bind-Visible="@BlukMissingdeleteDocument"
+         ShowFooter="true"
+         HeaderText="Delete"
+         Closed="EulaPopupMissingDocumentClosed"
+         Width="300px">
+    <BodyContentTemplate>
+        <p>
+            Do you want to delete this Document
+        </p>
+        
+    </BodyContentTemplate>
+    <FooterContentTemplate Context="Context">
+        <DxButton style="margin-right: 10px;" RenderStyle="ButtonRenderStyle.Primary" Text="NO" Click="Context.CloseCallback" />
+        <DxButton RenderStyle="ButtonRenderStyle.Secondary" Text="Yes" Click="onMissingDocDelete" />
+
+    </FooterContentTemplate>
+</DxPopup>
+@code {
+    bool BlukMissingdeleteDocument { get; set; } = false;
+    bool CheckedAll { get; set; } = false;
+    bool PanelLoadVisible { get; set; }
+    List<DocumentsModel> FolderPathListsItems = new List<DocumentsModel>();
+    EditContext _editContext;
+    [Parameter]
+    public IEnumerable FolderPathLists { get; set; }
+    [Parameter]
+    public DocumentsModel selectedFiles { get; set; }
+    [Parameter]
+    public ApplicationUser applicationUser { get; set; }
+    [Parameter]
+    public Action RevokeBack { get; set; }
+    DocumentsUploadModel Data = new DocumentsUploadModel();
+    private List<ViewPlants>? _plantItems;
+    private List<ViewDivision>? _divisionItems;
+    private List<ViewDepartment>? _departmentItems;
+    private List<ViewSection>? _sectionItems;
+    private List<ViewSubSection>? _subSectionItems;
+    bool isExpiryDate { get; set; } = false;
+    bool isPlant { get; set; } = false;
+    bool isDivision { get; set; } = false; bool isDepartment { get; set; } = false;
+    bool isSection { get; set; } = false; bool isSubSection { get; set; } = false;
+    public DocumentProfileNoSeriesModel documentProfileNoSeriesData { get; set; }
+    public string FileprofiletypeName { get; set; }
+    public bool loading { get; set; } = false;
+    public bool IsFileProfileTypeOpen { get; set; }
+    public bool IsFileProfileTypeShow { get; set; } = false;
+    public List<DocumentsModel> fileProfileTypeDocumentsAll { get; set; }
+    public List<DocumentsModel> docLists { get; set; }
+    private DocumentsModel? _selectedItemss;
+    DateTime StartDate = DateTime.Today; private string? DocumentViewUrl;
+    protected override async Task OnInitializedAsync()
+    {
+        DocumentViewUrl = Configuration["DocumentsUrl:DocumentViewer"];
+        FolderPathListsItems = FolderPathLists.Cast<DocumentsModel>().ToList();
+        _editContext = new EditContext(Data);
+        await loadList();
+        await loadData(selectedFiles, applicationUser);
+    }
+    async Task loadList()
+    {
+        loading = false;
+        PanelLoadVisible = true;
+        docLists = await Mediator.Send(new GetNoProfileNo(applicationUser.UserID, StartDate));
+        PanelLoadVisible = false;
+        StateHasChanged();
+    }
+    void onDeleteDocuments()
+    {
+        BlukMissingdeleteDocument = true;
+    }
+    void EulaPopupMissingDocumentClosed()
+    {
+        BlukMissingdeleteDocument = false;
+    }
+    async Task OnDateChanged(DateTime newValue)
+    {
+        StartDate = newValue;
+        await loadList();
+    }
+    public async Task loadData(DocumentsModel _selectedFiles, ApplicationUser _applicationUser)
+    {
+        _editContext = new EditContext(Data);
+        IsFileProfileTypeShow = false;
+        fileProfileTypeDocumentsAll = await Mediator.Send(new GetAllfileprofiletypeListQuery());
+
+        isPlant = false;
+        isDivision = false; isDepartment = false;
+        isSection = false; isSubSection = false;
+        Data.PlantId = 0; Data.DepartmentId = 0;
+        Data.DivisionId = 0; Data.SectionId = 0; Data.SubSectionId = 0; FileprofiletypeName = "";
+        if (_selectedFiles != null && _selectedFiles.ProfileID > 0)
+        {
+            selectedFiles = _selectedFiles;
+            applicationUser = _applicationUser;
+            documentProfileNoSeriesData = await Mediator.Send(new GetDocumentProfileNoSeriesById(selectedFiles.ProfileID));
+
+            dynamic abbreviation = JsonConvert.DeserializeObject(documentProfileNoSeriesData.Abbreviation1);
+            if (abbreviation != null)
+            {
+                foreach (var item in abbreviation)
+                {
+                    var itemsId = item.Id;
+                    if (itemsId == 1)
+                    {
+                        isPlant = true;
+                        Data.PlantId = null;
+                    }
+                    if (itemsId == 2)
+                    {
+                        isDepartment = true; isDivision = true;
+                        Data.DepartmentId = null;
+                        Data.DivisionId = null;
+                    }
+                    if (itemsId == 3)
+                    {
+                        isSection = true;
+                        Data.SectionId = null;
+                    }
+                    if (itemsId == 4)
+                    {
+                        isSubSection = true;
+                        Data.SubSectionId = null;
+                    }
+                }
+            }
+            if (selectedFiles.IsExpiryDate == true)
+            {
+                isExpiryDate = true;
+            }
+            Data.UserSession = applicationUser.SessionId;
+            Data.UserId = applicationUser.UserID;
+            Data.ProfileId = selectedFiles.ProfileID;
+            Data.FileProfileTypeId = selectedFiles.FileProfileTypeId > 0 ? selectedFiles.FileProfileTypeId : selectedFiles.FilterProfileTypeId;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
+            FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+        }
+        _plantItems = await Mediator.Send(new GetAllPlantQuery());
+        await SelectedItemChanged(0);
+        await SelectedItemDivisionChanged(0);
+        await SelectedItemDepartementChanged(0);
+        await SelectedItemSectionChanged(0);
+        StateHasChanged();
+    }
+    void OnCheckedoneValueChanged(bool radioValue,DocumentsModel documentsModel)
+    {
+        loading = false;
+        documentsModel.Checked = radioValue;
+        if (docLists != null && docLists.Count() > 0)
+        {
+            var doclistChecked = docLists.Where(w => w.Checked == true).ToList();
+            if (doclistChecked.Count > 0)
+            {
+                loading = true;
+            }
+        }
+        StateHasChanged();
+    }
+    void OnCheckedAllValueChanged(bool radioValue)
+    {
+        loading = false;
+        CheckedAll = radioValue;
+        if (docLists != null && docLists.Count() > 0)
+        {
+            if (radioValue == true)
+            {
+                loading = true;
+            }
+            docLists.ForEach(s =>
+            {
+                s.Checked = radioValue;
+            });
+        }
+    }
+    async Task OnRowClick(GridRowClickEventArgs e)
+    {
+
+        var UniqueId = e.Grid.GetRowValue(e.VisibleIndex, "DocumentID");
+        _selectedItemss = docLists.FirstOrDefault(f => f.DocumentID == (long?)UniqueId);
+        _selectedItemss.Checked = true;
+        loading = false;
+        if (docLists != null && docLists.Count() > 0)
+        {
+             loading = true;
+        }
+        StateHasChanged();
+    }
+    async void onView(DocumentsModel _selectedItems)
+    {
+        if (_selectedItems != null && _selectedItems.DocumentID > 0 && _selectedItems.FilePath != null)
+        {
+            if (_selectedItems.IsNewPath == true)
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+            else
+            {
+                var url = DocumentViewUrl + "?url=" + _selectedItems.UniqueSessionId;
+                await OpenDocumentPreview(url);
+            }
+        }
+    }
+    private async Task OpenDocumentPreview(string url)
+    {
+        await jsRuntime.InvokeVoidAsync("window.open", url, "_blank");
+    }
+    private List<FileProfileTypeModel> GetFileProfileTypePath(List<DocumentsModel> foldersListItem, long? id)
+    {
+        var foldersListItems = foldersListItem.Where(t => t.FileProfileTypeId == id).ToList();
+        FileProfileTypeModel fileprofile = new FileProfileTypeModel();
+        List<FileProfileTypeModel> foldersList = new List<FileProfileTypeModel>();
+        if (foldersListItems != null && foldersListItems.Count > 0)
+        {
+            foldersListItems.ForEach(s =>
+            {
+                List<string> FolderPathLists = new List<string>();
+                FileProfileTypeModel fileProfileTypeModel = new FileProfileTypeModel();
+                fileProfileTypeModel.FileProfileTypeId = s.FileProfileTypeId.Value;
+                fileProfileTypeModel.Name = s.FileName;
+                fileProfileTypeModel.IsDuplicateUpload = s.IsDuplicateUpload;
+                fileprofile = GetProfileTypeName(foldersListItem, s, FolderPathLists, fileprofile);
+                FolderPathLists.Add(s.FileName);
+                fileProfileTypeModel.FileProfileTypeParentId = fileprofile.ParentId;
+                fileProfileTypeModel.FileProfilePath = string.Join(" / ", FolderPathLists);
+                foldersList.Add(fileProfileTypeModel);
+            });
+        }
+        return foldersList;
+    }
+    private FileProfileTypeModel GetProfileTypeName(List<DocumentsModel> foldersListItems, DocumentsModel s, List<string> foldersModel, FileProfileTypeModel fileProfileTypeModel)
+    {
+
+        if (s.ParentId != null)
+        {
+            var items = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.ParentId);
+            GetProfileTypeName(foldersListItems, items, foldersModel, fileProfileTypeModel);
+            foldersModel.Add(items.FileName);
+        }
+        else if (s.ParentId == null)
+        {
+            fileProfileTypeModel.ParentId = foldersListItems.FirstOrDefault(f => f.FileProfileTypeId == s.FileProfileTypeId)?.FileProfileTypeId;
+        }
+        return fileProfileTypeModel;
+    }
+    async Task SelectedItemChanged(long? plantID)
+    {
+        _divisionItems = new List<ViewDivision>();
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (plantID > 0)
+        {
+            _divisionItems = await Mediator.Send(new GetDivisionByCompany(plantID));
+        }
+    }
+    async Task SelectedItemDivisionChanged(long? divisionId)
+    {
+        _departmentItems = new List<ViewDepartment>();
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (divisionId > 0)
+        {
+            _departmentItems = await Mediator.Send(new GetDepartmentByDivision(divisionId));
+        }
+    }
+    async Task SelectedItemDepartementChanged(long? departmentId)
+    {
+        _sectionItems = new List<ViewSection>();
+        _subSectionItems = new List<ViewSubSection>();
+        if (departmentId > 0)
+        {
+            _sectionItems = await Mediator.Send(new GetSectionByDepartment(departmentId));
+        }
+    }
+    async Task SelectedItemSectionChanged(long? sectionId)
+    {
+        _subSectionItems = new List<ViewSubSection>();
+        if (sectionId > 0)
+        {
+            _subSectionItems = await Mediator.Send(new GetSubSectionBySection(sectionId));
+        }
+    }
+    void backUrl()
+    {
+        RevokeBack?.Invoke();
+    }
+    async void SelectionChanged(TreeViewNodeEventArgs e)
+    {
+        if (e.NodeInfo?.DataItem != null)
+        {
+            var nodeName = e.NodeInfo.DataItem as DocumentsModel;
+            Data.FileProfileTypeId = nodeName.FileProfileTypeId;
+            var lists = GetFileProfileTypePath(fileProfileTypeDocumentsAll, Data.FileProfileTypeId);
+            FileprofiletypeName = lists.FirstOrDefault()?.FileProfilePath;
+            await loadData(nodeName, applicationUser);
+            IsFileProfileTypeOpen = false;
+        }
+
+        StateHasChanged();
+    }
+    void OnButtonFileProfileTypeClick()
+    {
+        IsFileProfileTypeOpen = true;
+    }
+    public void onsubmitUploadFromClick()
+    {
+        if (_editContext.Validate())
+        {
+            this.HandleValidSubmit();
+        }
+    }
+    async Task HandleValidSubmit()
+    {
+        var doclistChecked = docLists.Where(w => w.Checked == true).ToList();
+        if (doclistChecked.Count > 0)
+        {
+            loading = false;
+            Data.DocumentIds = doclistChecked;
+            var responses = await Mediator.Send(new UpdateDocumentNoDocumentByNoProfile(Data));
+            if (responses.FileProfileTypeId > 0)
+            {
+                loading = true;
+                var msg = "Document No Generated Successfully";
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Success);
+                backUrl();
+            }
+        }
+        else
+        {
+            var msg = "Must Select Document File";
+            toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+        }
+    }
+    async Task onMissingDocDelete()
+    {
+        var doclistChecked = docLists.Where(w => w.Checked == true).ToList();
+        if (doclistChecked.Count > 0)
+        {
+            loading = false;
+            Data.DocumentIds = doclistChecked;
+            var responses = await Mediator.Send(new GetDocumentDeleteForNoProfileNo(Data));
+            if (responses.FileProfileTypeId > 0)
+            {
+                loading = true;
+                var msg = "Document Deleted Successfully";
+                toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Success);
+                BlukMissingdeleteDocument = false;
+                await loadList();
+            }
+        }
+        else
+        {
+            var msg = "Must Select Document File";
+            toastService.ShowToast(msg, AC.SD.Core.Services.ToastLevel.Error);
+        }
+
+    }
+    public void Dispose()
+    {
+        System.GC.Collect();
+        GC.SuppressFinalize(this);
+    }
+}

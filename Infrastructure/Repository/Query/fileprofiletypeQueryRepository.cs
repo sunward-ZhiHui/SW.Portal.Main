@@ -1109,23 +1109,23 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-        public async Task<IReadOnlyList<DocumentsModel>> GetNoProfileNo(long? UserId)
+        public async Task<IReadOnlyList<DocumentsModel>> GetNoProfileNo(long? UserId, DateTime? StartDate)
         {
             List<DocumentsModel> result = new List<DocumentsModel>();
             try
             {
                 var appUsers = await GetApplicationUserAsync();
                 var query = DocumentQueryString();
-                if (UserId > 0)
+                if (StartDate != null)
                 {
-                    query += "\n\rwhere  FilterProfileTypeID IS NULL AND SourceFrom='FileProfile' AND IsLatest=1 AND AddedByUserID=" + UserId + " AND (IsDelete is null or IsDelete=0) And SessionID is Not null order by DocumentId desc";
-
+                    var to = StartDate.Value.ToString("yyyy-MM-dd");
+                    query += "\n\rwhere  FilterProfileTypeID IS NULL AND CAST(uploadDate AS Date)='" + to + "' AND SourceFrom='FileProfile' AND IsNewPath=1 AND IsLatest=1 AND AddedByUserID=" + UserId + " AND (IsDelete is null or IsDelete=0) And SessionID is Not null order by DocumentId desc";
                 }
                 else
                 {
-                    query += "\n\rwhere  FilterProfileTypeID IS NULL AND SourceFrom='FileProfile' AND IsLatest=1 AND (IsDelete is null or IsDelete=0) And SessionID is Not null order by DocumentId desc";
-
+                    query += "\n\rwhere  FilterProfileTypeID IS NULL AND SourceFrom='FileProfile' AND IsNewPath=1 AND IsLatest=1 AND AddedByUserID=" + UserId + " AND (IsDelete is null or IsDelete=0) And SessionID is Not null order by DocumentId desc";
                 }
+
                 var data = new List<DocumentsModel>();
                 using (var connection = CreateConnection())
                 {
@@ -2515,6 +2515,37 @@ namespace Infrastructure.Repository.Query
                     }
                 }
 
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<DocumentsUploadModel> GetDocumentDeleteForNoProfileNo(DocumentsUploadModel documentsModel)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var userData = await _localStorageService.GetItem<ApplicationUser>("user");
+                        var parameters = new DynamicParameters();
+                        parameters.Add("IsDelete", 1);
+                        parameters.Add("DeleteByUserID", userData.UserID);
+                        parameters.Add("DeleteByDate", DateTime.Now, DbType.DateTime);
+                        var Addquerys = "UPDATE Documents SET IsDelete = @IsDelete,DeleteByUserID=@DeleteByUserID,DeleteByDate=@DeleteByDate WHERE  DocumentID in(" + string.Join(',', documentsModel.DocumentIds.Select(s => s.DocumentID).ToList()) + ")";
+                        await connection.QuerySingleOrDefaultAsync<long>(Addquerys, parameters);
+                        return documentsModel;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+
+                }
 
             }
             catch (Exception exp)

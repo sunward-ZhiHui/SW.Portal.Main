@@ -513,6 +513,7 @@
     }
     void backUrl()
     {
+        failedDocumentPopup = false;
         RevokeBack?.Invoke();
     }
     void OnFileUploadStart(FileUploadStartEventArgs e)
@@ -554,7 +555,6 @@
             toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
             Message = "Upload";
             loading = true;
-            failedDocumentPopup = false;
             backUrl();
         }
         StateHasChanged();
@@ -609,8 +609,14 @@
                             toastService.ShowToast(MyMessage, AC.SD.Core.Services.ToastLevel.Success);
                             Message = "Upload";
                             loading = true;
-                            backUrl();
-                            await loadFailureFilesList();
+                            if (FailedFiles.Count() > 0)
+                            {
+                                await loadFailureFilesList();
+                            }
+                            else
+                            {
+                                backUrl();
+                            }
                             StateHasChanged();
                         }
                     }

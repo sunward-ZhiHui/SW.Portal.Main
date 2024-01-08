@@ -53,5 +53,7 @@ namespace Core.EntityModels
         public List<DocumentsUploadModel> DocumentsUploadModels { get; set; } = new List<DocumentsUploadModel>();
         public List<DocumentsUploadModel> FailedDocumentsUploadModels { get; set; } = new List<DocumentsUploadModel>();
         public int? Index { get; set; }
+        public List<DocumentsModel> DocumentIds { get; set; } = new List<DocumentsModel>();
+        public DateTime StartDate { get; set; } = DateTime.Now;
     }
 }

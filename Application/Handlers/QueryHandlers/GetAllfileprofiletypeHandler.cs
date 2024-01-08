@@ -311,7 +311,7 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    
+
     public class InsertOrUpdateFileProfileTypeHandler : IRequestHandler<InsertOrUpdateFileProfileType, FileProfileTypeModel>
     {
         private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
@@ -443,7 +443,7 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    
+
     public class InsertCreateDocumentHandler : IRequestHandler<InsertCreateDocument, DocumentsUploadModel>
     {
         private readonly IDocumentsQueryRepository _documentsqueryrepository;
@@ -496,7 +496,7 @@ namespace Application.Handlers.QueryHandlers
         }
 
     }
-    
+
     public class InsertOrUpdateReserveProfileNumberSeriesHandler : IRequestHandler<InsertOrUpdateReserveProfileNumberSeries, DocumentNoSeriesModel>
     {
         private readonly IDocumentsQueryRepository _documentsqueryrepository;
@@ -749,6 +749,45 @@ namespace Application.Handlers.QueryHandlers
             public async Task<List<DocumentsModel>> Handle(GetUploadedButNoProfileNo request, CancellationToken cancellationToken)
             {
                 return (List<DocumentsModel>)await _fileprofileQueryRepository.GetUploadedButNoProfileNo(request.DocumentsUploadModel);
+            }
+
+        }
+        public class GetNoProfileNoHandler : IRequestHandler<GetNoProfileNo, List<DocumentsModel>>
+        {
+            private readonly IFileprofileQueryRepository _fileprofileQueryRepository;
+            public GetNoProfileNoHandler(IFileprofileQueryRepository fileprofileQueryRepository)
+            {
+                _fileprofileQueryRepository = fileprofileQueryRepository;
+            }
+            public async Task<List<DocumentsModel>> Handle(GetNoProfileNo request, CancellationToken cancellationToken)
+            {
+                return (List<DocumentsModel>)await _fileprofileQueryRepository.GetNoProfileNo(request.UserId, request.StartDate);
+            }
+
+        }
+        public class UpdateDocumentNoDocumentByNoProfileHandler : IRequestHandler<UpdateDocumentNoDocumentByNoProfile, DocumentsUploadModel>
+        {
+            private readonly IDocumentsQueryRepository _documentsqueryrepository;
+            public UpdateDocumentNoDocumentByNoProfileHandler(IDocumentsQueryRepository documentsqueryrepository)
+            {
+                _documentsqueryrepository = documentsqueryrepository;
+            }
+            public async Task<DocumentsUploadModel> Handle(UpdateDocumentNoDocumentByNoProfile request, CancellationToken cancellationToken)
+            {
+                return await _documentsqueryrepository.UpdateDocumentNoDocumentByNoProfile(request.DocumentsUploadModel);
+            }
+
+        }
+        public class GetDocumentDeleteForNoProfileNoHandler : IRequestHandler<GetDocumentDeleteForNoProfileNo, DocumentsUploadModel>
+        {
+            private readonly IFileprofileQueryRepository _documentsqueryrepository;
+            public GetDocumentDeleteForNoProfileNoHandler(IFileprofileQueryRepository documentsqueryrepository)
+            {
+                _documentsqueryrepository = documentsqueryrepository;
+            }
+            public async Task<DocumentsUploadModel> Handle(GetDocumentDeleteForNoProfileNo request, CancellationToken cancellationToken)
+            {
+                return await _documentsqueryrepository.GetDocumentDeleteForNoProfileNo(request.DocumentsUploadModel);
             }
 
         }

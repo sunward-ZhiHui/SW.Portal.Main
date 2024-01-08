@@ -59,5 +59,7 @@ namespace Core.Repositories.Query
         Task<long?> MoveToFileProfileTypeUpdateInfo(List<DocumentsModel> value, long? FileprofileTypeId);
         Task<IReadOnlyList<Documents>> GetAllSelectedFilesAsync(DocumentSearchModel documentSearchModel);
         Task<IReadOnlyList<DocumentsModel>> GetUploadedButNoProfileNo(DocumentsUploadModel documentsUploadModel);
+        Task<IReadOnlyList<DocumentsModel>> GetNoProfileNo(long? UserId,DateTime? StartDate);
+        Task<DocumentsUploadModel> GetDocumentDeleteForNoProfileNo(DocumentsUploadModel documentsModel);
     }
 }

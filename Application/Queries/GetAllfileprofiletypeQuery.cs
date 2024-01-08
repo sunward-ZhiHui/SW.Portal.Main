@@ -436,6 +436,30 @@ namespace Application.Queries
             this.DocumentsUploadModel = documentsUploadModel;
         }
     }
-    
-
+    public class GetNoProfileNo : PagedRequest, IRequest<List<DocumentsModel>>
+    {
+        public long? UserId { get; private set; }
+        public DateTime? StartDate { get; private set; }
+        public GetNoProfileNo(long? userId, DateTime? startDate)
+        {
+            this.UserId = userId;
+            this.StartDate = startDate;
+        }
+    }
+    public class UpdateDocumentNoDocumentByNoProfile : PagedRequest, IRequest<DocumentsUploadModel>
+    {
+        public DocumentsUploadModel DocumentsUploadModel { get; private set; }
+        public UpdateDocumentNoDocumentByNoProfile(DocumentsUploadModel documentsUploadModel)
+        {
+            this.DocumentsUploadModel = documentsUploadModel;
+        }
+    }
+    public class GetDocumentDeleteForNoProfileNo : PagedRequest, IRequest<DocumentsUploadModel>
+    {
+        public DocumentsUploadModel DocumentsUploadModel { get; private set; }
+        public GetDocumentDeleteForNoProfileNo(DocumentsUploadModel documentsUploadModel)
+        {
+            this.DocumentsUploadModel = documentsUploadModel;
+        }
+    }
 }

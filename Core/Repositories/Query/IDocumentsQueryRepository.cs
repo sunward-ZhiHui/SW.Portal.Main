@@ -30,6 +30,8 @@ namespace Core.Repositories.Query
         Task<DocumentNoSeriesModel> UpdateCreateDocumentBySessionReserveSeries(DocumentNoSeriesModel documentNoSeries);
         Task<DocumentNoSeriesModel> UpdateReserveNumberDescriptionField(DocumentNoSeriesModel documentNoSeries);
         Task<DocumentsUploadModel> UpdateDocumentNoDocumentBySession(DocumentsUploadModel value);
+        Task<DocumentsUploadModel> UpdateDocumentNoDocumentByNoProfile(DocumentsUploadModel value);
         
+
     }
 }

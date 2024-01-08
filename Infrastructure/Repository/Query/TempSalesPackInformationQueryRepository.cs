@@ -17,12 +17,14 @@ using Application.Queries;
 
 namespace Infrastructure.Repository.Query
 {
+
     public class TempSalesPackInformationQueryRepository : QueryRepository<TempSalesPackInformationReportModel>, ITempSalesPackInformationQueryRepository
     {
-        public TempSalesPackInformationQueryRepository(IConfiguration configuration)
+        private readonly IGenerateDocumentNoSeriesSeviceQueryRepository _generateDocumentNoSeriesSeviceQueryRepository;
+        public TempSalesPackInformationQueryRepository(IConfiguration configuration, IGenerateDocumentNoSeriesSeviceQueryRepository generateDocumentNoSeriesSeviceQueryRepository)
             : base(configuration)
         {
-
+            _generateDocumentNoSeriesSeviceQueryRepository = generateDocumentNoSeriesSeviceQueryRepository;
         }
         public async Task<IReadOnlyList<TempSalesPackInformationReportModel>> GetTempSalesPackInformationReport()
         {
@@ -56,7 +58,6 @@ namespace Infrastructure.Repository.Query
                 throw new Exception(exp.Message, exp);
             }
         }
-
         public async Task<IReadOnlyList<TempSalesPackInformation>> GetTempSalesPackInformation()
         {
             try
@@ -66,6 +67,166 @@ namespace Infrastructure.Repository.Query
                 {
                     return (await connection.QueryAsync<TempSalesPackInformation>(query)).ToList();
                 }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<TempSalesPackInformationFactor>> GetTempSalesPackInformationFactor(long? Id)
+        {
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("TempSalesPackInformationID", Id);
+                var query = "select t1.*,t2.UserName as AddedBy,t3.UserName as ModifiedBy,t4.CodeValue as StatusCode,t5.No as ItemName,t5.Description as ItemDescription from TempSalesPackInformationFactor t1\r\nJOIN ApplicationUser t2 ON t2.UserID=t1.AddedByUserID\r\nLEFT JOIN ApplicationUser t3 ON t3.UserID=t1.ModifiedByUserID\r\nJOIN CodeMaster t4 ON t4.CodeID=t1.StatusCodeID\r\nJOIN NAVItems t5 ON t5.ItemId=t1.ItemID WHERE t1.TempSalesPackInformationID=@TempSalesPackInformationID";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<TempSalesPackInformationFactor>(query, parameters)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<TempSalesPackInformationReportModel> GetTempSalesPackInformationReportSync(TempSalesPackInformationReportModel tempSalesPackInformationReportModel)
+        {
+            var getData = await GetTempSalesPackInformationReportDataSync(tempSalesPackInformationReportModel);
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var query = string.Empty;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
+                        parameters.Add("AddedByUserId", tempSalesPackInformationReportModel.AddedByUserID);
+                        parameters.Add("StatusCodeID", tempSalesPackInformationReportModel.StatusCodeID);
+                        if (getData != null && getData.Count() > 0)
+                        {
+                            getData.ToList().ForEach(s =>
+                            {
+                                query += "INSERT INTO TempSalesPackInformation(FinishProductGeneralInfoLineId,FinishproductGeneralInfoId,AddedByUserId,AddedDate,StatusCodeID) VALUES " +
+                                "('" + s.FinishProductGeneralInfoLineId + "'," + s.FinishProductGeneralInfoId + ",@AddedByUserId,@AddedDate,@StatusCodeID);";
+                            });
+                            await connection.ExecuteAsync(query, parameters);
+                        }
+                        return tempSalesPackInformationReportModel;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<IReadOnlyList<FinishProdcutGeneralInfoLine>> GetTempSalesPackInformationReportDataSync(TempSalesPackInformationReportModel tempSalesPackInformationReportModel)
+        {
+            try
+            {
+                var query = "select * from FinishProdcutGeneralInfoLine where FinishProductGeneralInfoLineId not in(select FinishProductGeneralInfoLineId from TempSalesPackInformation)\r\n";
+                using (var connection = CreateConnection())
+                {
+                    return (await connection.QueryAsync<FinishProdcutGeneralInfoLine>(query)).ToList();
+                }
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<TempSalesPackInformationFactor> InsertTempSalesPackInformationFactor(TempSalesPackInformationFactor value)
+        {
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+
+                    try
+                    {
+                        var parameters = new DynamicParameters();
+                        parameters.Add("TempSalesPackInformationFactorId", value.TempSalesPackInformationFactorId);
+                        parameters.Add("AddedDate", DateTime.Now, DbType.DateTime);
+                        parameters.Add("AddedByUserID", value.AddedByUserId);
+                        parameters.Add("ModifiedDate", DateTime.Now, DbType.DateTime);
+                        parameters.Add("ModifiedByUserID", value.ModifiedByUserId);
+                        parameters.Add("StatusCodeID", value.StatusCodeId);
+                        parameters.Add("TempSalesPackInformationId", value.TempSalesPackInformationId);
+                        parameters.Add("ProfileId", value.ProfileId);
+                        parameters.Add("SalesFactor", value.SalesFactor);
+                        parameters.Add("ItemId", value.ItemId);
+                        parameters.Add("Fpname", value.Fpname, DbType.String);
+                        parameters.Add("QtypackPerCarton", value.QtypackPerCarton);
+                        parameters.Add("SalesPackSize", value.SalesPackSize);
+                        parameters.Add("SellingPackUnit", value.SellingPackUnit);
+                        if (value.TempSalesPackInformationFactorId > 0)
+                        {
+                            var query = " UPDATE TempSalesPackInformationFactor SET SalesPackSize = @SalesPackSize,SellingPackUnit =@SellingPackUnit,QtypackPerCarton=@QtypackPerCarton,Fpname=@Fpname,\n\r" +
+                                "ModifiedByUserID=@ModifiedByUserID,ModifiedDate=@ModifiedDate,StatusCodeID=@StatusCodeID,TempSalesPackInformationId=@TempSalesPackInformationId,ItemId=@ItemId,SalesFactor=@SalesFactor\n\r" +
+                                "WHERE TempSalesPackInformationFactorId = @TempSalesPackInformationFactorId";
+                            await connection.ExecuteAsync(query, parameters);
+                        }
+                        else
+                        {
+                            value.ProfileNo = await _generateDocumentNoSeriesSeviceQueryRepository.GenerateDocumentProfileAutoNumber(new DocumentNoSeriesModel { ProfileID = value.ProfileId, AddedByUserID = value.AddedByUserId, StatusCodeID = 710 });
+                            parameters.Add("ProfileNo", value.ProfileNo, DbType.String);
+                            var query = "INSERT INTO TempSalesPackInformationFactor(ProfileNo,SalesPackSize,SellingPackUnit,QtypackPerCarton,Fpname,AddedByUserID,ModifiedByUserID,AddedDate,ModifiedDate,StatusCodeID,TempSalesPackInformationId,ProfileId,ItemId,SalesFactor)  " +
+                                    "OUTPUT INSERTED.TempSalesPackInformationFactorId VALUES " +
+                                    "(@ProfileNo,@SalesPackSize,@SellingPackUnit,@QtypackPerCarton,@Fpname,@AddedByUserID,@ModifiedByUserID,@AddedDate,@ModifiedDate,@StatusCodeID,@TempSalesPackInformationId,@ProfileId,@ItemId,@SalesFactor)";
+
+                            value.TempSalesPackInformationFactorId = await connection.QuerySingleOrDefaultAsync<long>(query, parameters);
+
+                        }
+                        return value;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
+            }
+            catch (Exception exp)
+            {
+                throw new Exception(exp.Message, exp);
+            }
+        }
+        public async Task<TempSalesPackInformationFactor> DeleteTempSalesPackInformationFactor(long? id)
+        {
+            TempSalesPackInformationFactor tempSalesPackInformationFactor = new TempSalesPackInformationFactor();
+            try
+            {
+                using (var connection = CreateConnection())
+                {
+                    try
+                    {
+                        tempSalesPackInformationFactor.TempSalesPackInformationFactorId = id.Value;
+                        var parameters = new DynamicParameters();
+                        parameters.Add("id", id);
+
+                        var query = "DELETE  FROM TempSalesPackInformationFactor WHERE TempSalesPackInformationFactorId = @id";
+                        var rowsAffected = await connection.ExecuteAsync(query, parameters);
+
+
+                        return tempSalesPackInformationFactor;
+                    }
+                    catch (Exception exp)
+                    {
+                        throw new Exception(exp.Message, exp);
+                    }
+                }
+
+
             }
             catch (Exception exp)
             {
